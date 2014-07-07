@@ -1,0 +1,10 @@
+*.suo
+*.sdf
+*.opensdf
+bin/
+build/
+ipch/
+*.user
+buildcmake/
+*.pyc
+*.pyo
