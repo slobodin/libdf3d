@@ -53,3 +53,5 @@ More documentation will be added soon.
 * provide some third-party with source
 
 Python bindings permanently moved to client code. Need shared libraries on android.
+
+Test example will be added soon.
