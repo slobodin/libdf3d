@@ -41,12 +41,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IntDir>..\..\build\$(ProjectName)-$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)\build\$(ProjectName)-$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>..\..\build\$(ProjectName)-$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)\build\$(ProjectName)-$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -59,7 +59,7 @@
       <AdditionalIncludeDirectories>../;../../third-party/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>true</BrowseInformation>
-      <PrecompiledHeaderOutputFile>..\..\build\$(ProjectName)-$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)\build\$(ProjectName)-$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
@@ -83,7 +83,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBDF3D_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;JSON_DLL_BUILD;DF3D_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../;../../third-party/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PrecompiledHeaderOutputFile>..\..\build\$(ProjectName)-$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)\build\$(ProjectName)-$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeaderFile>df3d_pch.h</PrecompiledHeaderFile>
       <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
