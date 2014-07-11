@@ -9,6 +9,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libdf3d", "libdf3d\_win32\l
 		{73A91746-CBE5-48B0-854B-E0B8C0E96DD9} = {73A91746-CBE5-48B0-854B-E0B8C0E96DD9}
 		{C72FD05D-7E11-4936-A31A-395A6AE038B0} = {C72FD05D-7E11-4936-A31A-395A6AE038B0}
 		{EE37537A-0C64-4541-85DF-B191174330A1} = {EE37537A-0C64-4541-85DF-B191174330A1}
+		{E25740C3-75E6-48FB-B61B-9324F3BC9456} = {E25740C3-75E6-48FB-B61B-9324F3BC9456}
 		{15CBFEFF-7965-41F5-B4E2-21E8795C9159} = {15CBFEFF-7965-41F5-B4E2-21E8795C9159}
 	EndProjectSection
 EndProject
@@ -23,6 +24,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libogg_static", "third-party\src\libogg\_win32\libogg_static.vcxproj", "{15CBFEFF-7965-41F5-B4E2-21E8795C9159}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libvorbis_static", "third-party\src\libvorbis\_win32\libvorbis_static.vcxproj", "{73A91746-CBE5-48B0-854B-E0B8C0E96DD9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libspark", "third-party\src\spark\_win32\libspark.vcxproj", "{E25740C3-75E6-48FB-B61B-9324F3BC9456}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,6 +79,12 @@ Global
 		{73A91746-CBE5-48B0-854B-E0B8C0E96DD9}.Release|Win32.ActiveCfg = Release|Win32
 		{73A91746-CBE5-48B0-854B-E0B8C0E96DD9}.Release|Win32.Build.0 = Release|Win32
 		{73A91746-CBE5-48B0-854B-E0B8C0E96DD9}.Release|x64.ActiveCfg = Release|Win32
+		{E25740C3-75E6-48FB-B61B-9324F3BC9456}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E25740C3-75E6-48FB-B61B-9324F3BC9456}.Debug|Win32.Build.0 = Debug|Win32
+		{E25740C3-75E6-48FB-B61B-9324F3BC9456}.Debug|x64.ActiveCfg = Debug|Win32
+		{E25740C3-75E6-48FB-B61B-9324F3BC9456}.Release|Win32.ActiveCfg = Release|Win32
+		{E25740C3-75E6-48FB-B61B-9324F3BC9456}.Release|Win32.Build.0 = Release|Win32
+		{E25740C3-75E6-48FB-B61B-9324F3BC9456}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
