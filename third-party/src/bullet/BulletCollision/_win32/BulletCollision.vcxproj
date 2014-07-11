@@ -70,7 +70,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <AdditionalIncludeDirectories>..\..\..\..\include\bullet\BulletCollision;..\..\..\..\include\bullet\BulletCollision\BroadphaseCollision;..\..\..\..\include\bullet\BulletCollision\CollisionDispatch;..\..\..\..\include\bullet\BulletCollision\CollisionShapes;..\..\..\..\include\bullet\BulletCollision\Gimpact;..\..\..\..\include\bullet\BulletCollision\NarrowPhaseCollision;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\include\bullet\BulletCollision\BroadphaseCollision;..\..\..\..\include\bullet\BulletCollision\CollisionDispatch;..\..\..\..\include\bullet\BulletCollision\CollisionShapes;..\..\..\..\include\bullet\BulletCollision\Gimpact;..\..\..\..\include\bullet\BulletCollision\NarrowPhaseCollision;..\..\..\..\include\bullet\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
