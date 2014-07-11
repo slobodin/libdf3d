@@ -17,17 +17,17 @@ Simple C++/Python-based game framework aimed for mobile platforms which is in pr
 * boost at least 1.55.0 (df3d uses header only stuff)
 
 Built and included to the project
-* librocket (for both windows and android)
-* freetype
-* bullet physics (windows, android)
-* SPARK particle engine (windows, android)
+* librocket GUI library http://librocket.com/
+* freetype http://www.freetype.org/
 * OpenAL
-* libogg, libvorbis
-All android makefiles for the above libraries are placed in docs folder
 
 Included with the source
-* glm
-* jsoncpp
+* bullet physics library http://bulletphysics.org/
+* SPARK particle engine http://sourceforge.net/projects/sparkengine/
+* libogg http://xiph.org/ogg/
+* libvorbis http://xiph.org/vorbis/
+* glm math library http://glm.g-truc.net/
+* jsoncpp library https://github.com/open-source-parsers/jsoncpp
 
 Compile
 =======
