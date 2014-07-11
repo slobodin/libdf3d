@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\analysis.c" />
+    <ClCompile Include="..\bitrate.c" />
+    <ClCompile Include="..\block.c" />
+    <ClCompile Include="..\codebook.c" />
+    <ClCompile Include="..\envelope.c" />
+    <ClCompile Include="..\floor0.c" />
+    <ClCompile Include="..\floor1.c" />
+    <ClCompile Include="..\info.c" />
+    <ClCompile Include="..\lookup.c" />
+    <ClCompile Include="..\lpc.c" />
+    <ClCompile Include="..\lsp.c" />
+    <ClCompile Include="..\mapping0.c" />
+    <ClCompile Include="..\mdct.c" />
+    <ClCompile Include="..\psy.c" />
+    <ClCompile Include="..\registry.c" />
+    <ClCompile Include="..\res0.c" />
+    <ClCompile Include="..\sharedbook.c" />
+    <ClCompile Include="..\smallft.c" />
+    <ClCompile Include="..\synthesis.c" />
+    <ClCompile Include="..\vorbisenc.c" />
+    <ClCompile Include="..\vorbisfile.c" />
+    <ClCompile Include="..\window.c" />
+  </ItemGroup>
+</Project>

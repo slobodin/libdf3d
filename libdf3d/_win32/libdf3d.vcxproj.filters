@@ -127,12 +127,6 @@
     <Filter Include="Source Files\components">
       <UniqueIdentifier>{e2f700d8-2b9b-490f-8a8d-d3cf9103c11b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="third-party\ogg">
-      <UniqueIdentifier>{0861c0cc-4beb-4033-b1c2-7c76be986663}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="third-party\vorbis">
-      <UniqueIdentifier>{06687140-03b9-4831-a5b6-f486c4aebcc1}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\df3d.h">
@@ -1135,78 +1129,6 @@
     </ClCompile>
     <ClCompile Include="..\components\AudioComponent.cpp">
       <Filter>Source Files\components</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libogg\bitwise.c">
-      <Filter>third-party\ogg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libogg\framing.c">
-      <Filter>third-party\ogg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\analysis.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\bitrate.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\block.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\codebook.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\envelope.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\floor0.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\floor1.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\info.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\lookup.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\lpc.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\lsp.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\mapping0.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\mdct.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\psy.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\registry.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\res0.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\sharedbook.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\smallft.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\synthesis.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\vorbisenc.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\vorbisfile.c">
-      <Filter>third-party\vorbis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\third-party\src\libvorbis\window.c">
-      <Filter>third-party\vorbis</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
