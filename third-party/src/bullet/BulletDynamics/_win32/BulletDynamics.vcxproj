@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C72FD05D-7E11-4936-A31A-395A6AE038B0}</ProjectGuid>
+    <RootNamespace>BulletDynamics</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\build\$(ProjectName)-$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\build\$(ProjectName)-$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <AdditionalIncludeDirectories>..\..\..\..\include\bullet\BulletDynamics\Character;..\..\..\..\include\bullet\BulletDynamics\ConstraintSolver;..\..\..\..\include\bullet\BulletDynamics\Dynamics;..\..\..\..\include\bullet\BulletDynamics\Featherstone;..\..\..\..\include\bullet\BulletDynamics\MLCPSolvers;..\..\..\..\include\bullet\BulletDynamics\Vehicle;..\..\..\..\include\bullet\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <AdditionalIncludeDirectories>..\..\..\..\include\bullet\BulletDynamics\Character;..\..\..\..\include\bullet\BulletDynamics\ConstraintSolver;..\..\..\..\include\bullet\BulletDynamics\Dynamics;..\..\..\..\include\bullet\BulletDynamics\Featherstone;..\..\..\..\include\bullet\BulletDynamics\MLCPSolvers;..\..\..\..\include\bullet\BulletDynamics\Vehicle;..\..\..\..\include\bullet\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Character\btKinematicCharacterController.cpp" />
+    <ClCompile Include="..\ConstraintSolver\btConeTwistConstraint.cpp" />
+    <ClCompile Include="..\ConstraintSolver\btContactConstraint.cpp" />
+    <ClCompile Include="..\ConstraintSolver\btFixedConstraint.cpp" />
+    <ClCompile Include="..\ConstraintSolver\btGearConstraint.cpp" />
+    <ClCompile Include="..\ConstraintSolver\btGeneric6DofConstraint.cpp" />
+    <ClCompile Include="..\ConstraintSolver\btGeneric6DofSpringConstraint.cpp" />
+    <ClCompile Include="..\ConstraintSolver\btHinge2Constraint.cpp" />
+    <ClCompile Include="..\ConstraintSolver\btHingeConstraint.cpp" />
+    <ClCompile Include="..\ConstraintSolver\btPoint2PointConstraint.cpp" />
+    <ClCompile Include="..\ConstraintSolver\btSequentialImpulseConstraintSolver.cpp" />
+    <ClCompile Include="..\ConstraintSolver\btSliderConstraint.cpp" />
+    <ClCompile Include="..\ConstraintSolver\btSolve2LinearConstraint.cpp" />
+    <ClCompile Include="..\ConstraintSolver\btTypedConstraint.cpp" />
+    <ClCompile Include="..\ConstraintSolver\btUniversalConstraint.cpp" />
+    <ClCompile Include="..\Dynamics\btDiscreteDynamicsWorld.cpp" />
+    <ClCompile Include="..\Dynamics\btRigidBody.cpp" />
+    <ClCompile Include="..\Dynamics\btSimpleDynamicsWorld.cpp" />
+    <ClCompile Include="..\Featherstone\btMultiBody.cpp" />
+    <ClCompile Include="..\Featherstone\btMultiBodyConstraint.cpp" />
+    <ClCompile Include="..\Featherstone\btMultiBodyConstraintSolver.cpp" />
+    <ClCompile Include="..\Featherstone\btMultiBodyDynamicsWorld.cpp" />
+    <ClCompile Include="..\Featherstone\btMultiBodyJointLimitConstraint.cpp" />
+    <ClCompile Include="..\Featherstone\btMultiBodyJointMotor.cpp" />
+    <ClCompile Include="..\Featherstone\btMultiBodyPoint2Point.cpp" />
+    <ClCompile Include="..\MLCPSolvers\btDantzigLCP.cpp" />
+    <ClCompile Include="..\MLCPSolvers\btMLCPSolver.cpp" />
+    <ClCompile Include="..\Vehicle\btRaycastVehicle.cpp" />
+    <ClCompile Include="..\Vehicle\btWheelInfo.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
