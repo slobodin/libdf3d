@@ -14,7 +14,8 @@ Simple C++/Python-based game framework aimed for mobile platforms which is in pr
 #### Dependencies
 * SDL2
 * SDL2_Image
-* boost at least 1.55.0 (df3d uses header only stuff)
+* boost at least 1.55.0 (df3d uses header only stuff except of boost::python)
+* python 2.7
 
 Built and included to the project
 * librocket GUI library http://librocket.com/
