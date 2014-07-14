@@ -1,0 +1,19 @@
+include $(CLEAR_VARS)
+
+LOCAL_PATH := $(call my-dir)
+SRC_PATH := $(LOCAL_PATH)/../
+INCLUDE_PATH := $(LOCAL_PATH)/../../include/spark
+
+SPARK_SRC_FILES := \
+    $(SRC_PATH)/SPK_All.cpp \
+
+LOCAL_MODULE := spark_shared
+
+LOCAL_MODULE_FILENAME := libspark
+LOCAL_CPPFLAGS += -O3
+LOCAL_CFLAGS := $(LOCAL_CPPFLAGS)
+LOCAL_SRC_FILES := $(SPARK_SRC_FILES)
+LOCAL_C_INCLUDES := \
+    $(INCLUDE_PATH) \
+
+include $(BUILD_SHARED_LIBRARY)

@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "AndroidSDLApplication.h"
 
-#include <SDL/SDL_image.h>
+#include <SDL_image.h>
 #include <base/Controller.h>
 
 #if defined(__ANDROID__)
