@@ -9,7 +9,7 @@
 #include <Rocket/Controls.h>
 #include <Rocket/Debugger.h>
 
-#define ENABLE_DEBUGGER 0
+#define ENABLE_DEBUGGER 1
 
 namespace df3d { namespace gui {
 
@@ -158,9 +158,7 @@ RocketDocument GuiManager::loadDocumentFromMemory(const std::string &data)
 void GuiManager::setDebuggerVisible(bool visible)
 {
 #if ENABLE_DEBUGGER
-#ifdef _DEBUG a
     Rocket::Debugger::SetVisible(visible);
-#endif
 #endif
 }
 
