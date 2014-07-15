@@ -1,8 +1,9 @@
+LOCAL_PATH := $(call my-dir)
+
 include $(CLEAR_VARS)
 
-LOCAL_PATH := $(call my-dir)
 SRC_PATH := $(LOCAL_PATH)/../
-INCLUDE_PATH := $(LOCAL_PATH)/../../include/spark
+INCLUDE_PATH := $(LOCAL_PATH)/../../../include/spark
 
 SPARK_SRC_FILES := \
     $(SRC_PATH)/SPK_All.cpp \
