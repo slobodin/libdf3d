@@ -24,11 +24,11 @@ LOCAL_SRC_FILES:= lib/android/$(TARGET_ARCH_ABI)/libopenal.so
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include/
 include $(PREBUILT_SHARED_LIBRARY)
 
-# include $(CLEAR_VARS)
-# LOCAL_MODULE:= libbullet
-# LOCAL_SRC_FILES:= lib/android/$(TARGET_ARCH_ABI)/libbullet.so
-# LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include/
-# include $(PREBUILT_SHARED_LIBRARY)
+include $(CLEAR_VARS)
+LOCAL_MODULE:= libbullet
+LOCAL_SRC_FILES:= lib/android/$(TARGET_ARCH_ABI)/libbullet.so
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include/
+include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE:= libspark
