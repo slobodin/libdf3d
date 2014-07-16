@@ -12,6 +12,7 @@
 #include "decoders/DecoderTerrain.h"
 #include "decoders/DecoderWAV.h"
 #include "decoders/DecoderOGG.h"
+#include "decoders/DecoderTTF.h"
 
 namespace df3d { namespace resources {
 
@@ -64,6 +65,8 @@ shared_ptr<ResourceDecoder> ResourceManager::getDecoder(const std::string &exten
         return make_shared<DecoderOGG>();
     if (extension == ".terrain")
         return make_shared<DecoderTerrain>();
+    if (extension == ".ttf")
+        return make_shared<DecoderTTF>();
     else
     {
         base::glog << "Decoder for resources of type" << extension << "doesn't exist." << base::logwarn;

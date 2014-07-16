@@ -34,6 +34,7 @@
 #include <render/RenderPass.h>
 #include <render/RenderStats.h>
 #include <render/Viewport.h>
+#include <render/TextRenderer.h>
 
 #include <resources/ResourceManager.h>
 #include <resources/FileSystem.h>

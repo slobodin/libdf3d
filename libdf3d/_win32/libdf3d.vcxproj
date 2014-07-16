@@ -56,7 +56,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBDF3D_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;JSON_DLL_BUILD;DF3D_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>df3d_pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../;../../third-party/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../;../../third-party/include/;../../third-party/include/freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>true</BrowseInformation>
       <PrecompiledHeaderOutputFile>$(SolutionDir)\build\$(ProjectName)-$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
@@ -67,7 +67,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;opengl32.lib;glu32.lib;glew32.lib;RocketCore.lib;RocketControls.lib;RocketDebugger.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;libspark.lib;OpenAL32.lib;python27.lib;libogg_static.lib;libvorbis_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;opengl32.lib;glu32.lib;glew32.lib;RocketCore.lib;RocketControls.lib;RocketDebugger.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;libspark.lib;OpenAL32.lib;python27.lib;libogg_static.lib;libvorbis_static.lib;freetype253MT.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\third-party\lib\win32;$(SolutionDir)\bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -82,7 +82,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBDF3D_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;JSON_DLL_BUILD;DF3D_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../;../../third-party/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../;../../third-party/include/;../../third-party/include/freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(SolutionDir)\build\$(ProjectName)-$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeaderFile>df3d_pch.h</PrecompiledHeaderFile>
       <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
@@ -263,6 +263,7 @@
     <ClInclude Include="..\components\PhysicsComponent.h" />
     <ClInclude Include="..\components\TransformComponent.h" />
     <ClInclude Include="..\df3d.h" />
+    <ClInclude Include="..\gui\FontFace.h" />
     <ClInclude Include="..\libdf3d_dll.h" />
     <ClInclude Include="..\gui\DebugOverlayWindow.h" />
     <ClInclude Include="..\gui\RocketInterface.h" />
@@ -305,6 +306,7 @@
     <ClInclude Include="..\render\Shader.h" />
     <ClInclude Include="..\render\MeshData.h" />
     <ClInclude Include="..\render\Technique.h" />
+    <ClInclude Include="..\render\TextRenderer.h" />
     <ClInclude Include="..\render\Texture.h" />
     <ClInclude Include="..\render\Vertex.h" />
     <ClInclude Include="..\render\VertexIndexBuffer.h" />
@@ -313,6 +315,7 @@
     <ClInclude Include="..\resources\decoders\DecoderImage.h" />
     <ClInclude Include="..\resources\decoders\DecoderOGG.h" />
     <ClInclude Include="..\resources\decoders\DecoderTerrain.h" />
+    <ClInclude Include="..\resources\decoders\DecoderTTF.h" />
     <ClInclude Include="..\resources\decoders\DecoderWAV.h" />
     <ClInclude Include="..\resources\FileDataSource.h" />
     <ClInclude Include="..\resources\decoders\DecoderOBJ.h" />
@@ -369,6 +372,7 @@
     <ClCompile Include="..\components\PhysicsComponent.cpp" />
     <ClCompile Include="..\components\TransformComponent.cpp" />
     <ClCompile Include="..\gui\DebugOverlayWindow.cpp" />
+    <ClCompile Include="..\gui\FontFace.cpp" />
     <ClCompile Include="..\gui\RocketInterface.cpp" />
     <ClCompile Include="..\gui\GuiManager.cpp" />
     <ClCompile Include="..\gui\RocketIntrusivePtr.cpp" />
@@ -400,6 +404,7 @@
     <ClCompile Include="..\render\RenderTargetTexture.cpp" />
     <ClCompile Include="..\render\Shader.cpp" />
     <ClCompile Include="..\render\Technique.cpp" />
+    <ClCompile Include="..\render\TextRenderer.cpp" />
     <ClCompile Include="..\render\Texture.cpp" />
     <ClCompile Include="..\render\Vertex.cpp" />
     <ClCompile Include="..\render\VertexIndexBuffer.cpp" />
@@ -409,6 +414,7 @@
     <ClCompile Include="..\resources\decoders\DecoderOBJ.cpp" />
     <ClCompile Include="..\resources\decoders\DecoderOGG.cpp" />
     <ClCompile Include="..\resources\decoders\DecoderTerrain.cpp" />
+    <ClCompile Include="..\resources\decoders\DecoderTTF.cpp" />
     <ClCompile Include="..\resources\decoders\DecoderWAV.cpp" />
     <ClCompile Include="..\resources\FileDataSource.cpp" />
     <ClCompile Include="..\resources\FileSystem.cpp" />
