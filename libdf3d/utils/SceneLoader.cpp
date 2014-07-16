@@ -63,10 +63,7 @@ void parsePostProcessOption(const Json::Value &postFxNode, scene::Scene *sc)
     auto materialLibrary = g_resourceManager->getResource<render::MaterialLib>(mtlLib);
     auto material = materialLibrary->getMaterial(mtlName);
     if (!material)
-    {
-        base::glog << "Can not set postprocess pass to a scene. Material" << mtlName << "wasn't found in" << mtlLib << base::logwarn;
         return;
-    }
 
     sc->setPostProcessMaterial(material);
 }

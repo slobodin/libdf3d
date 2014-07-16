@@ -145,8 +145,22 @@ public:
         nodesStack.push(new MaterialLibNode("__root"));
 
         std::string tok;
+        bool skippingLines = false;
         while (is >> tok)
         {
+            if (boost::starts_with(tok, "#endif"))
+            {
+                utils::skipLine(is);
+                skippingLines = false;
+                continue;
+            }
+
+            if (skippingLines)
+            {
+                utils::skipLine(is);
+                continue;
+            }
+
             // Skip empty lines.
             boost::trim_left(tok);
             if (tok.empty())
@@ -156,6 +170,15 @@ public:
             if (boost::starts_with(tok, "//"))
             {
                 utils::skipLine(is);
+                continue;
+            }
+
+            if (boost::starts_with(tok, "#ifdef"))
+            {
+                std::string define;
+                is >> define;
+
+                skippingLines = std::find(render::MaterialLib::Defines.begin(), render::MaterialLib::Defines.end(), define) == render::MaterialLib::Defines.end();
                 continue;
             }
 

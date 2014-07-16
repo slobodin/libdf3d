@@ -7,6 +7,8 @@
 
 namespace df3d { namespace render {
 
+std::vector<std::string> MaterialLib::Defines;
+
 MaterialLib::MaterialLib()
 {
 
