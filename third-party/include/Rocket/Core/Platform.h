@@ -45,7 +45,7 @@
 #endif
 
 #if !defined NDEBUG && !defined ROCKET_DEBUG
-	#define ROCKET_DEBUG
+	//#define ROCKET_DEBUG
 #endif
 
 #if defined __LP64__ || defined _M_X64 || defined __MING64__ || defined _LP64
