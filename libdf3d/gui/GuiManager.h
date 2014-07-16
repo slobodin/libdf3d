@@ -51,6 +51,7 @@ class DF3D_DLL GuiManager
 public:
     RocketDocument loadDocument(const char *name);
     RocketDocument loadDocumentFromMemory(const std::string &data);
+    void loadFont(const char *path);
 
     void setDebuggerVisible(bool visible);
     bool isDebuggerVisible();

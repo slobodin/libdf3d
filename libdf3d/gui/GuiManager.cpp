@@ -46,13 +46,6 @@ bool GuiManager::init(int contextWidth, int contextHeight)
     // Initialize controls library.
     Controls::Initialise();
 
-    // FIXME:
-    // Not here.
-    Core::FontDatabase::LoadFontFace("fonts/Delicious-Bold.otf");
-    Core::FontDatabase::LoadFontFace("fonts/Delicious-BoldItalic.otf");
-    Core::FontDatabase::LoadFontFace("fonts/Delicious-Italic.otf");
-    Core::FontDatabase::LoadFontFace("fonts/Delicious-Roman.otf");
-
     // Import RocketPython first.
     if (!g_scriptManager->doString("import pyrocketcore"))
     {
@@ -153,6 +146,11 @@ RocketDocument GuiManager::loadDocumentFromMemory(const std::string &data)
 
     doc->RemoveReference();
     return doc;
+}
+
+void GuiManager::loadFont(const char *path)
+{
+    Rocket::Core::FontDatabase::LoadFontFace(path);
 }
 
 void GuiManager::setDebuggerVisible(bool visible)

@@ -22,6 +22,11 @@
 #include <platform/android/AndroidSDLApplication.h>
 #endif
 
+#define ENABLE_DEBUG_WINDOW 1
+#ifdef __ANDROID__
+#define ENABLE_DEBUG_WINDOW 0
+#endif // __ANDROID__
+
 namespace df3d { namespace base {
 
 Controller::Controller()
@@ -223,7 +228,7 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
         return false;
 
     // Init debug window.
-#ifdef _DEBUG
+#if ENABLE_DEBUG_WINDOW
     m_debugWindow = new gui::DebugOverlayWindow();
 #endif
 
@@ -310,7 +315,7 @@ const render::RenderStats &Controller::getLastRenderStats() const
 
 void Controller::toggleDebugWindow()
 {
-#ifdef _DEBUG
+#if ENABLE_DEBUG_WINDOW
     m_debugWindow->toggle();
 #endif
 }
@@ -353,7 +358,7 @@ void Controller::dispatchAppEvent(SDL_Event *event)
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
         m_guiManager->processMouseButtonEvent(event->button);
-#ifdef _DEBUG
+#if ENABLE_DEBUG_WINDOW
         m_debugWindow->onMouseButtonEvent(event->button);
 #endif
         m_appDelegate->onMouseButtonEvent(event->button);
