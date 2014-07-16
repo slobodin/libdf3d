@@ -31,7 +31,8 @@ LOCAL_SRC_FILES := \
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../ \
                     $(LOCAL_PATH)/../../third-party/include/ \
                     $(LOCAL_PATH)/../../third-party/include/bullet \
-                    $(LOCAL_PATH)/../../third-party/include/spark
+                    $(LOCAL_PATH)/../../third-party/include/spark \
+                    $(LOCAL_PATH)/../../third-party/include/freetype
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_C_INCLUDES)
 
@@ -46,8 +47,8 @@ LOCAL_LDLIBS := -lGLESv2 \
 
 LOCAL_EXPORT_LDLIBS := $(LOCAL_LDLIBS)
 
-LOCAL_STATIC_LIBRARIES := boost_system boost_python
-LOCAL_SHARED_LIBRARIES := SDL2 SDL2_image python libfreetype librocket libbullet libspark libopenal libogg libvorbis
+LOCAL_STATIC_LIBRARIES := boost_system boost_python freetype2
+LOCAL_SHARED_LIBRARIES := SDL2 SDL2_image python librocket libbullet libspark libopenal libogg libvorbis
 
 include $(BUILD_SHARED_LIBRARY)
 
