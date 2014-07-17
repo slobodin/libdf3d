@@ -241,9 +241,26 @@ void Node::detachComponent(components::ComponentType type)
 shared_ptr<Node> Node::fromFile(const char *jsonDefinition)
 {
     auto root = utils::jsonLoadFromFile(jsonDefinition);
+
+    auto result = fromJson(root);
+    if (!result)
+        return nullptr;
+
+    const auto &childrenJson = root["children"];
+    for (Json::UInt objIdx = 0; objIdx < childrenJson.size(); ++objIdx)
+    {
+        const auto &childJson = childrenJson[objIdx];
+        result->addChild(fromJson(childJson));
+    }
+
+    return result;
+}
+
+shared_ptr<Node> Node::fromJson(const Json::Value &root)
+{
     if (root.empty())
     {
-        base::glog << "Failed to init scene node from file" << jsonDefinition << base::logwarn;
+        base::glog << "Failed to init scene node from json node" << base::logwarn;
         return nullptr;
     }
 

@@ -27,17 +27,7 @@ void parseObjects(const Json::Value &objectsNode, scene::Scene *sc)
         return;
 
     for (Json::UInt objIdx = 0; objIdx < objectsNode.size(); ++objIdx)
-    {
-        const auto &objJson = objectsNode[objIdx];
-        auto objName = objJson["name"].asString();
-        const auto &componentsJson = objJson["components"];
-
-        auto child = make_shared<scene::Node>(objName.c_str());
-        for (const auto &component : componentsJson)
-            child->attachComponent(components::NodeComponent::create(component));
-
-        sc->addChild(child);
-    }
+        sc->addChild(scene::Node::fromJson(objectsNode[objIdx]));
 }
 
 void parseAmbientLight(const Json::Value &root, scene::Scene *sc)
