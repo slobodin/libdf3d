@@ -174,27 +174,6 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
     }
 }
 
-//void RenderManager::collectNodes(shared_ptr<scene::Node> node)
-//{
-//    if (auto pMesh = boost::dynamic_pointer_cast<scene::MeshNode>(node))
-//    {
-//
-//
-//        ++m_stats.totalNodes;
-//
-//        return;
-//    }
-//
-//    if (auto pParticleSystem = boost::dynamic_pointer_cast<particlesys::ParticleSystemNode>(node))
-//    {
-//
-//        ++m_stats.totalParticleSystems;
-//        m_stats.totalParticles += pParticleSystem->getParticlesCount();
-//
-//        return;
-//    }
-//}
-
 RenderManager::RenderManager()
     : m_renderQueue(new RenderQueue())
 {
@@ -249,6 +228,7 @@ void RenderManager::update(shared_ptr<scene::Scene> renderableScene)
     if (!renderableScene)
         return;
 
+    renderableScene->collectStats(&m_stats);
     renderableScene->collectRenderOperations(m_renderQueue.get());
 }
 

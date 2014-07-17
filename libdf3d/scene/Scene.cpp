@@ -3,8 +3,21 @@
 
 #include <utils/SceneLoader.h>
 #include <scene/Node.h>
+#include <render/RenderStats.h>
+#include <components/ParticleSystemComponent.h>
 
 namespace df3d { namespace scene {
+
+void statsCollector(render::RenderStats *stats, shared_ptr<Node> n)
+{
+    if (n->mesh())
+        stats->totalNodes++;
+    if (n->vfx())
+    {
+        stats->totalParticleSystems++;
+        stats->totalParticles += n->vfx()->getParticlesCount();
+    }
+}
 
 Scene::Scene(const char *sceneDefinitionFile)
     : m_root(make_shared<Node>("__root"))
@@ -58,6 +71,15 @@ void Scene::setPostProcessMaterial(shared_ptr<render::Material> material)
     }
 
     m_postProcessMaterial = material;
+}
+
+void Scene::collectStats(render::RenderStats *stats)
+{
+    //auto fn = [&](shared_ptr<Node> n) 
+    //{
+    //};
+
+    m_root->traverse(std::bind(statsCollector, stats, std::placeholders::_1));
 }
 
 void Scene::collectRenderOperations(render::RenderQueue *ops)

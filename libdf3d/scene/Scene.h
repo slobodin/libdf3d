@@ -2,6 +2,7 @@
 
 FWD_MODULE_CLASS(render, Material)
 FWD_MODULE_CLASS(render, RenderQueue)
+FWD_MODULE_CLASS(render, RenderStats)
 
 namespace df3d { namespace scene {
 
@@ -36,6 +37,7 @@ public:
 
     shared_ptr<Node> getRoot() const { return m_root; }
 
+    void collectStats(render::RenderStats *stats);
     void collectRenderOperations(render::RenderQueue *ops);
 
     shared_ptr<Node> getChildByName(const char *name) const;
