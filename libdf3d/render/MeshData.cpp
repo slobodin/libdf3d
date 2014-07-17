@@ -88,14 +88,15 @@ shared_ptr<MeshData> MeshData::clone() const
         auto newSubMesh = boost::make_shared<render::SubMesh>();
 
         // Share vertex and index buffer.
-        newSubMesh->setVertexBuffer(sm->getVertexBuffer());
-        newSubMesh->setIndexBuffer(sm->getIndexBuffer());
-        newSubMesh->setMaterial(sm->getMaterial());
+        if (sm->getVertexBuffer())
+            newSubMesh->setVertexBuffer(sm->getVertexBuffer());
+        if (sm->getIndexBuffer())
+            newSubMesh->setIndexBuffer(sm->getIndexBuffer());
+        if (sm->getMaterial())
+            newSubMesh->setMaterial(sm->getMaterial());
 
-        // Do not share material.
-
-        // FIXME: !!!
         // TODO: !!!
+        // Do not share material.
         //newSubMesh->setMaterial(sm->getMaterial()->clone());
         
         result->attachSubMesh(newSubMesh);

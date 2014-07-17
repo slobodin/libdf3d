@@ -266,7 +266,7 @@ void SubMesh::setIndexBuffer(shared_ptr<IndexBuffer> ib)
 {
     if (!ib)
     {
-        base::glog << "Can not set empty vertex buffer to a submesh" << base::logwarn;
+        base::glog << "Can not set empty index buffer to a submesh" << base::logwarn;
         return;
     }
 

@@ -8,6 +8,7 @@
 #include <components/AudioComponent.h>
 #include <components/PhysicsComponent.h>
 #include <utils/Utils.h>
+#include <utils/JsonHelpers.h>
 
 namespace df3d { namespace scene {
 
@@ -235,6 +236,25 @@ void Node::detachComponent(components::ComponentType type)
 
     component->onDetached();
     m_components[type].reset();
+}
+
+shared_ptr<Node> Node::fromFile(const char *jsonDefinition)
+{
+    auto root = utils::jsonLoadFromFile(jsonDefinition);
+    if (root.empty())
+    {
+        base::glog << "Failed to init scene node from file" << jsonDefinition << base::logwarn;
+        return nullptr;
+    }
+
+    auto objName = root["name"].asString();
+    const auto &componentsJson = root["components"];
+
+    auto result = make_shared<scene::Node>(objName.c_str());
+    for (const auto &component : componentsJson)
+        result->attachComponent(components::NodeComponent::create(component));
+
+    return result;
 }
 
 } }

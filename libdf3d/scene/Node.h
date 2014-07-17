@@ -76,6 +76,8 @@ public:
 
     void attachComponent(shared_ptr<components::NodeComponent> component);
     void detachComponent(components::ComponentType type);
+
+    static shared_ptr<Node> fromFile(const char *jsonDefinition);
 };
 
 } }
