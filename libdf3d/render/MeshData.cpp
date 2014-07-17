@@ -90,6 +90,8 @@ shared_ptr<MeshData> MeshData::clone() const
         // Share vertex and index buffer.
         newSubMesh->setVertexBuffer(sm->getVertexBuffer());
         newSubMesh->setIndexBuffer(sm->getIndexBuffer());
+        newSubMesh->setMaterial(sm->getMaterial());
+
         // Do not share material.
 
         // FIXME: !!!

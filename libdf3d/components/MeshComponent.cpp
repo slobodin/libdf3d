@@ -263,7 +263,7 @@ shared_ptr<NodeComponent> MeshComponent::clone() const
     auto retRes = shared_ptr<MeshComponent>(new MeshComponent());
 
     // Clone mesh node fields.
-    retRes->m_geometry = m_geometry;//m_geometry->clone();
+    retRes->m_geometry = m_geometry->clone();
     retRes->m_aabb = m_aabb;
     retRes->m_transformedAABB = m_transformedAABB;
     retRes->m_aabbDirty = m_aabbDirty;
