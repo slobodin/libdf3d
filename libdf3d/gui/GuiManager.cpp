@@ -9,9 +9,8 @@
 #include <Rocket/Controls.h>
 #include <Rocket/Debugger.h>
 
-#define ENABLE_ROCKET_DEBUGGER 1
-#ifdef __ANDROID__
-#define ENABLE_ROCKET_DEBUGGER 0
+#if defined(__WINDOWS__)
+#define ENABLE_ROCKET_DEBUGGER
 #endif
 
 namespace df3d { namespace gui {
@@ -60,7 +59,7 @@ bool GuiManager::init(int contextWidth, int contextHeight)
     m_rocketContext = Core::CreateContext("main", Core::Vector2i(contextWidth, contextHeight));
 
     // Initialize debugger.
-#if ENABLE_ROCKET_DEBUGGER
+#ifdef ENABLE_ROCKET_DEBUGGER
     if (!Rocket::Debugger::Initialise(m_rocketContext))
         base::glog << "Failed to initialize Rocket GUI debugger" << base::logwarn;
 #endif
@@ -158,14 +157,14 @@ void GuiManager::loadFont(const char *path)
 
 void GuiManager::setDebuggerVisible(bool visible)
 {
-#if ENABLE_ROCKET_DEBUGGER
+#ifdef ENABLE_ROCKET_DEBUGGER
     Rocket::Debugger::SetVisible(visible);
 #endif
 }
 
 bool GuiManager::isDebuggerVisible()
 {
-#if ENABLE_ROCKET_DEBUGGER
+#ifdef ENABLE_ROCKET_DEBUGGER
     return Rocket::Debugger::IsVisible();
 #else
     return false;

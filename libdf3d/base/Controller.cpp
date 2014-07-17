@@ -16,16 +16,15 @@
 #include <utils/JsonHelpers.h>
 #include <particlesys/SparkInterface.h>
 
-#if defined(__WIN32__)
+#if defined(__WINDOWS__)
 #include <platform/win32/SDLApplication.h>
 #elif defined(__ANDROID__)
 #include <platform/android/AndroidSDLApplication.h>
 #endif
 
-#define ENABLE_DEBUG_WINDOW 1
-#ifdef __ANDROID__
-#define ENABLE_DEBUG_WINDOW 0
-#endif // __ANDROID__
+#if defined(__WINDOWS__)
+#define ENABLE_DEBUG_WINDOW
+#endif
 
 namespace df3d { namespace base {
 
@@ -75,7 +74,7 @@ void Controller::consoleCommandInvoked(const std::string &name, std::string &res
 
 void Controller::parseConfig(EngineInitParams &config)
 {
-#if defined(__WIN32__)
+#if defined(__WINDOWS__)
     if (!config.configFile)
         return;
 
@@ -176,7 +175,7 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
 
     m_appDelegate = appDelegate;
 
-#if defined(__WIN32__)
+#if defined(__WINDOWS__)
     m_application = new platform::SDLApplication();
 #elif defined(__ANDROID__)
     m_application = new platform::SDLAndroidApplication();
@@ -228,7 +227,7 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
         return false;
 
     // Init debug window.
-#if ENABLE_DEBUG_WINDOW
+#ifdef ENABLE_DEBUG_WINDOW
     m_debugWindow = new gui::DebugOverlayWindow();
 #endif
 
@@ -315,7 +314,7 @@ const render::RenderStats &Controller::getLastRenderStats() const
 
 void Controller::toggleDebugWindow()
 {
-#if ENABLE_DEBUG_WINDOW
+#ifdef ENABLE_DEBUG_WINDOW
     m_debugWindow->toggle();
 #endif
 }
@@ -358,7 +357,7 @@ void Controller::dispatchAppEvent(SDL_Event *event)
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
         m_guiManager->processMouseButtonEvent(event->button);
-#if ENABLE_DEBUG_WINDOW
+#ifdef ENABLE_DEBUG_WINDOW
         m_debugWindow->onMouseButtonEvent(event->button);
 #endif
         m_appDelegate->onMouseButtonEvent(event->button);
