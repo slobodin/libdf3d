@@ -885,14 +885,14 @@
     <ClInclude Include="..\utils\PhysicsLoader.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\render\TextRenderer.h">
-      <Filter>Header Files\render</Filter>
-    </ClInclude>
     <ClInclude Include="..\resources\decoders\DecoderTTF.h">
       <Filter>Header Files\resources\decoders</Filter>
     </ClInclude>
     <ClInclude Include="..\gui\FontFace.h">
       <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\components\TextMeshComponent.h">
+      <Filter>Header Files\components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1139,14 +1139,14 @@
     <ClCompile Include="..\components\AudioComponent.cpp">
       <Filter>Source Files\components</Filter>
     </ClCompile>
-    <ClCompile Include="..\render\TextRenderer.cpp">
-      <Filter>Source Files\render</Filter>
-    </ClCompile>
     <ClCompile Include="..\resources\decoders\DecoderTTF.cpp">
       <Filter>Source Files\resources\decoders</Filter>
     </ClCompile>
     <ClCompile Include="..\gui\FontFace.cpp">
       <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\components\TextMeshComponent.cpp">
+      <Filter>Source Files\components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

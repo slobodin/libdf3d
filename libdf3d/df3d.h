@@ -18,6 +18,7 @@
 #include <components/ParticleSystemComponent.h>
 #include <components/PhysicsComponent.h>
 #include <components/TransformComponent.h>
+#include <components/TextMeshComponent.h>
 
 #include <scene/Node.h>
 #include <scene/Camera.h>
@@ -34,7 +35,6 @@
 #include <render/RenderPass.h>
 #include <render/RenderStats.h>
 #include <render/Viewport.h>
-#include <render/TextRenderer.h>
 
 #include <resources/ResourceManager.h>
 #include <resources/FileSystem.h>

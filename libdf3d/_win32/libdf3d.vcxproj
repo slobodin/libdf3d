@@ -261,6 +261,7 @@
     <ClInclude Include="..\components\MeshComponent.h" />
     <ClInclude Include="..\components\ParticleSystemComponent.h" />
     <ClInclude Include="..\components\PhysicsComponent.h" />
+    <ClInclude Include="..\components\TextMeshComponent.h" />
     <ClInclude Include="..\components\TransformComponent.h" />
     <ClInclude Include="..\df3d.h" />
     <ClInclude Include="..\gui\FontFace.h" />
@@ -306,7 +307,6 @@
     <ClInclude Include="..\render\Shader.h" />
     <ClInclude Include="..\render\MeshData.h" />
     <ClInclude Include="..\render\Technique.h" />
-    <ClInclude Include="..\render\TextRenderer.h" />
     <ClInclude Include="..\render\Texture.h" />
     <ClInclude Include="..\render\Vertex.h" />
     <ClInclude Include="..\render\VertexIndexBuffer.h" />
@@ -370,6 +370,7 @@
     <ClCompile Include="..\components\NodeComponent.cpp" />
     <ClCompile Include="..\components\ParticleSystemComponent.cpp" />
     <ClCompile Include="..\components\PhysicsComponent.cpp" />
+    <ClCompile Include="..\components\TextMeshComponent.cpp" />
     <ClCompile Include="..\components\TransformComponent.cpp" />
     <ClCompile Include="..\gui\DebugOverlayWindow.cpp" />
     <ClCompile Include="..\gui\FontFace.cpp" />
@@ -404,7 +405,6 @@
     <ClCompile Include="..\render\RenderTargetTexture.cpp" />
     <ClCompile Include="..\render\Shader.cpp" />
     <ClCompile Include="..\render\Technique.cpp" />
-    <ClCompile Include="..\render\TextRenderer.cpp" />
     <ClCompile Include="..\render\Texture.cpp" />
     <ClCompile Include="..\render\Vertex.cpp" />
     <ClCompile Include="..\render\VertexIndexBuffer.cpp" />

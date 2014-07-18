@@ -13,6 +13,7 @@ namespace df3d { namespace components {
 
 class DF3D_DLL MeshComponent : public NodeComponent
 {
+protected:
     void onEvent(components::Event ev);
     void onDraw(render::RenderQueue *ops);
 
@@ -44,12 +45,12 @@ public:
     MeshComponent(const char *meshFilePath);
     ~MeshComponent();
 
-    void setGeometry(shared_ptr<render::MeshData> geometry);
-    shared_ptr<render::MeshData> getGeometry() { return m_geometry; }
-    bool isGeometryValid() const;
+    virtual void setGeometry(shared_ptr<render::MeshData> geometry);
+    virtual shared_ptr<render::MeshData> getGeometry() { return m_geometry; }
+    virtual bool isGeometryValid() const;
 
-    void setMaterial(shared_ptr<render::Material> material, size_t submeshIdx);
-    shared_ptr<render::Material> getMaterial(size_t submeshIdx);
+    virtual void setMaterial(shared_ptr<render::Material> material, size_t submeshIdx);
+    virtual shared_ptr<render::Material> getMaterial(size_t submeshIdx);
 
     scene::AABB getAABB();
     scene::BoundingSphere getBoundingSphere();
