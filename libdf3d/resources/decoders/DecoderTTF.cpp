@@ -28,13 +28,6 @@ bool DecoderTTF::decodeResource(const shared_ptr<FileDataSource> file, shared_pt
     if (!fontFace)
         return false;
 
-    fontFace->m_font = TTF_OpenFontRW(file->getSdlRwops(), 0, 18);
-    if (!fontFace->m_font)
-    {
-        base::glog << "Can't load ttf font from" << file->getPath() << base::logwarn;
-        base::glog << TTF_GetError() << base::logwarn;
-        return false;
-    }
 
     return true;
 }
