@@ -13,12 +13,6 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include/
 include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE:= libfreetype
-LOCAL_SRC_FILES:= lib/android/$(TARGET_ARCH_ABI)/libfreetype2.a
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include/
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
 LOCAL_MODULE:= libopenal
 LOCAL_SRC_FILES:= lib/android/$(TARGET_ARCH_ABI)/libopenal.so
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include/
