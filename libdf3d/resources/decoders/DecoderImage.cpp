@@ -44,19 +44,7 @@ bool DecoderImage::decodeResource(const shared_ptr<FileDataSource> file, shared_
         return false;
     }
 
-    // FIXME:
-    // Format
-    render::Image::PixelFormat pf = render::Image::PF_INVALID;
-    if (surf->format->BytesPerPixel == 1)
-        pf = render::Image::PF_GRAYSCALE;
-    if (surf->format->BytesPerPixel == 3)
-        pf = render::Image::PF_RGB;
-    else if (surf->format->BytesPerPixel == 4)
-        pf = render::Image::PF_RGBA;
-
-    SDL_LockSurface(surf);
-    texture->setWithData((const unsigned char *)surf->pixels, surf->w, surf->h, surf->pitch, pf);
-    SDL_UnlockSurface(surf);
+    texture->setWithData(surf);
 
     SDL_FreeSurface(surf);
 

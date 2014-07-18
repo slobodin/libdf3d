@@ -2,22 +2,21 @@
 
 #include <resources/Resource.h>
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
+FWD_MODULE_CLASS(components, TextMeshComponent)
+FWD_MODULE_CLASS(resources, DecoderTTF)
 
 namespace df3d { namespace gui {
 
 class FontFace : public resources::Resource
 {
-    FT_Face m_face = nullptr;
+    friend class components::TextMeshComponent;
+    friend class resources::DecoderTTF;
 
 public:
     FontFace();
     ~FontFace();
 
     bool init();
-
-    void setFtFace(FT_Face face) { m_face = face; }
 };
 
 } }

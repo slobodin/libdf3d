@@ -36,37 +36,8 @@ void RenderManager::createQuadRenderOperation()
     passThrough->enableDepthTest(false);
     passThrough->enableDepthWrite(false);
 
-    // Create vertex buffer.
-    float quad_pos[][2] = {
-        { -1.0, -1.0 },
-        { 1.0, -1.0 },
-        { 1.0, 1.0 },
-        { 1.0, 1.0 },
-        { -1.0, 1.0 },
-        { -1.0, -1.0 }
-    };
-    float quad_uv[][2] = {
-        { 0.0, 0.0 },
-        { 1.0, 0.0 },
-        { 1.0, 1.0 },
-        { 1.0, 1.0 },
-        { 0.0, 1.0 },
-        { 0.0, 0.0 }
-    };
-
-    m_quadVb = make_shared<VertexBuffer>(VertexFormat::create("p:3, tx:2"));
+    m_quadVb = render::createQuad(VertexFormat::create("p:3, tx:2"), 0.0f, 0.0f, 2.0, 2.0f);
     m_quadVb->setUsageType(GB_USAGE_STATIC);
-
-    for (int i = 0; i < 6; i++)
-    {
-        render::Vertex_3p2tx v;
-        v.p.x = quad_pos[i][0];
-        v.p.y = quad_pos[i][1];
-        v.tx.x = quad_uv[i][0];
-        v.tx.y = quad_uv[i][1];
-
-        m_quadVb->appendVertexData((const float *)&v, 1);
-    }
 
     m_defaultPostProcessMaterial = shared_ptr<render::Material>(new render::Material("default_postprocess_material"));
     auto defaultTech = shared_ptr<render::Technique>(new render::Technique("default_technique"));

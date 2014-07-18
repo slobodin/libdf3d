@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../Application.h"
-
-#if defined(__WIN32__)
+#include "Application.h"
 
 namespace df3d { namespace platform {
 
@@ -27,5 +25,3 @@ protected:
 };
 
 } }
-
-#endif // __WIN32__

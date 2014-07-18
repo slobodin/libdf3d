@@ -56,7 +56,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBDF3D_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;JSON_DLL_BUILD;DF3D_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>df3d_pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../;../../third-party/include/;../../third-party/include/freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../;../../third-party/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>true</BrowseInformation>
       <PrecompiledHeaderOutputFile>$(SolutionDir)\build\$(ProjectName)-$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
@@ -67,7 +67,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;opengl32.lib;glu32.lib;glew32.lib;RocketCore.lib;RocketControls.lib;RocketDebugger.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;libspark.lib;OpenAL32.lib;python27.lib;libogg_static.lib;libvorbis_static.lib;freetype253MT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;opengl32.lib;glu32.lib;glew32.lib;RocketCore.lib;RocketControls.lib;RocketDebugger.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;libspark.lib;OpenAL32.lib;python27.lib;libogg_static.lib;libvorbis_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\third-party\lib\win32;$(SolutionDir)\bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -82,7 +82,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBDF3D_EXPORTS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;JSON_DLL_BUILD;DF3D_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../;../../third-party/include/;../../third-party/include/freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../;../../third-party/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(SolutionDir)\build\$(ProjectName)-$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeaderFile>df3d_pch.h</PrecompiledHeaderFile>
       <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
@@ -95,7 +95,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\..\third-party\lib\win32;$(SolutionDir)\bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;opengl32.lib;glu32.lib;glew32.lib;RocketCore.lib;RocketControls.lib;RocketDebugger.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;libspark.lib;OpenAL32.lib;libogg_static.lib;libvorbis_static.lib;freetype253MT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;opengl32.lib;glu32.lib;glew32.lib;RocketCore.lib;RocketControls.lib;RocketDebugger.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;libspark.lib;OpenAL32.lib;libogg_static.lib;libvorbis_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -275,8 +275,8 @@
     <ClInclude Include="..\physics\BulletInterface.h" />
     <ClInclude Include="..\physics\PhysicsManager.h" />
     <ClInclude Include="..\platform\Application.h" />
-    <ClInclude Include="..\platform\win32\SDLApplication.h" />
     <ClInclude Include="..\df3d_pch.h" />
+    <ClInclude Include="..\platform\SDLApplication.h" />
     <ClInclude Include="..\render\embed_glsl\ambient_frag.h" />
     <ClInclude Include="..\render\embed_glsl\ambient_vert.h" />
     <ClInclude Include="..\render\embed_glsl\colored_frag.h" />
@@ -382,11 +382,11 @@
     <ClCompile Include="..\physics\BulletInterface.cpp" />
     <ClCompile Include="..\physics\PhysicsManager.cpp" />
     <ClCompile Include="..\platform\Application.cpp" />
-    <ClCompile Include="..\platform\win32\SDLApplication.cpp" />
     <ClCompile Include="..\df3d_pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\platform\SDLApplication.cpp" />
     <ClCompile Include="..\render\GpuProgram.cpp" />
     <ClCompile Include="..\render\GpuProgramState.cpp" />
     <ClCompile Include="..\render\Image.cpp" />

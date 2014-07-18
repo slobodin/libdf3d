@@ -9,13 +9,11 @@ FontFace::FontFace()
 
 FontFace::~FontFace()
 {
-    if (m_face)
-        FT_Done_Face(m_face);
 }
 
 bool FontFace::init()
 {
-    return m_face != nullptr;
+    return false;
 }
 
 } }

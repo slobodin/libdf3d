@@ -16,11 +16,7 @@
 #include <utils/JsonHelpers.h>
 #include <particlesys/SparkInterface.h>
 
-#if defined(__WINDOWS__)
-#include <platform/win32/SDLApplication.h>
-#elif defined(__ANDROID__)
-#include <platform/android/AndroidSDLApplication.h>
-#endif
+#include <platform/SDLApplication.h>
 
 #if defined(__WINDOWS__)
 #define ENABLE_DEBUG_WINDOW

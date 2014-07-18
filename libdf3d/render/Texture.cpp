@@ -122,6 +122,8 @@ bool Texture::createGLTexture()
         glPixelFormat = GL_RGBA;
         break;
     case Image::PF_GRAYSCALE:
+        glPixelFormat = GL_RED;
+        break;
     default:
         base::glog << "Invalid GL texture pixel format" << base::logwarn;
         return false;

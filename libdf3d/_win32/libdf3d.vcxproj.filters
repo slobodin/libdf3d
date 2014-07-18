@@ -16,14 +16,8 @@
     <Filter Include="Header Files\platform">
       <UniqueIdentifier>{8b72884b-3f61-41b6-ba65-a9b1944e9303}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\platform\win32">
-      <UniqueIdentifier>{8f8b2ea1-b48f-4ff9-bc51-35d11f7fb4b1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\platform">
       <UniqueIdentifier>{d1d1142a-543d-4e35-a121-972a54fd86da}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\platform\win32">
-      <UniqueIdentifier>{a5a553b2-4cdd-464d-b521-975fd9f78dd7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\base">
       <UniqueIdentifier>{94e2d5dc-3528-45fe-ab67-dc92a53f1447}</UniqueIdentifier>
@@ -134,9 +128,6 @@
     </ClInclude>
     <ClInclude Include="..\platform\Application.h">
       <Filter>Header Files\platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\platform\win32\SDLApplication.h">
-      <Filter>Header Files\platform\win32</Filter>
     </ClInclude>
     <ClInclude Include="..\df3d_pch.h">
       <Filter>Header Files</Filter>
@@ -894,11 +885,11 @@
     <ClInclude Include="..\components\TextMeshComponent.h">
       <Filter>Header Files\components</Filter>
     </ClInclude>
+    <ClInclude Include="..\platform\SDLApplication.h">
+      <Filter>Header Files\platform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\platform\win32\SDLApplication.cpp">
-      <Filter>Source Files\platform\win32</Filter>
-    </ClCompile>
     <ClCompile Include="..\df3d_pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1147,6 +1138,9 @@
     </ClCompile>
     <ClCompile Include="..\components\TextMeshComponent.cpp">
       <Filter>Source Files\components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\platform\SDLApplication.cpp">
+      <Filter>Source Files\platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

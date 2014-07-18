@@ -4,8 +4,6 @@
 #include <SDL_image.h>
 #include <base/Controller.h>
 
-#if defined(__WIN32__)
-
 namespace df3d { namespace platform {
 
 SDLApplication::SDLApplication()
@@ -19,18 +17,26 @@ SDLApplication::~SDLApplication()
 
 bool SDLApplication::init(AppInitParams params)
 {
+#if defined(__WIN32__)
+    // NOTE: SDL initialized at start point on Android.
     if (SDL_Init(SDL_INIT_EVERYTHING) == -1)
     {
         base::glog << "Could not initialize SDL" << base::logcritical;
         return false;
     }
+#endif
+
+#if defined(__ANDROID__)
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+#endif
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    // SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+#if defined(__WIN32__)
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    // Does it work?
-    SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
+#endif
 
     // FIXME:
     // This is renderer.init()
@@ -38,8 +44,13 @@ bool SDLApplication::init(AppInitParams params)
     if (params.fullscreen)
         sdlInitFlags |= SDL_WINDOW_FULLSCREEN;
 
-    m_window = SDL_CreateWindow("df3d application", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        params.windowWidth, params.windowHeight, sdlInitFlags);
+    int posx = 0, posy = 0;
+#if defined(__WIN32__)
+    posx = SDL_WINDOWPOS_CENTERED;
+    posy = SDL_WINDOWPOS_CENTERED;
+#endif
+
+    m_window = SDL_CreateWindow("df3d application", posx, posy, params.windowWidth, params.windowHeight, sdlInitFlags);
     if (!m_window)
     {
         base::glog << "Can not set video mode" << base::logcritical;
@@ -92,9 +103,9 @@ void SDLApplication::swapBuffers()
 
 void SDLApplication::setTitle(const char *title)
 {
+#if defined(__WIN32__)
     SDL_SetWindowTitle(m_window, title);
+#endif
 }
 
 } }
-
-#endif // __WIN32__

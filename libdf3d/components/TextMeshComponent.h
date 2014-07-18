@@ -18,7 +18,7 @@ class DF3D_DLL TextMeshComponent : public MeshComponent
 public:
     TextMeshComponent(const char *fontPath);
 
-    void drawText(const char *text);
+    void drawText(const char *text, const glm::vec3 &color, int size = 0);
 
     shared_ptr<NodeComponent> clone() const;
 
@@ -28,7 +28,7 @@ private:
     virtual bool isGeometryValid() const { return true; }
 
     virtual void setMaterial(shared_ptr<render::Material> material, size_t submeshIdx) { }
-    virtual shared_ptr<render::Material> getMaterial(size_t submeshIdx) { }
+    virtual shared_ptr<render::Material> getMaterial(size_t submeshIdx) { return nullptr; }
 };
 
 } }

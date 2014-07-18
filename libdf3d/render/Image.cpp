@@ -119,4 +119,21 @@ void Image::setWithData(const unsigned char *data, size_t w, size_t h, size_t pi
     }
 }
 
+void Image::setWithData(SDL_Surface *surf)
+{
+    // FIXME:
+    // Format
+    render::Image::PixelFormat pf = render::Image::PF_INVALID;
+    if (surf->format->BytesPerPixel == 1)
+        pf = render::Image::PF_GRAYSCALE;
+    if (surf->format->BytesPerPixel == 3)
+        pf = render::Image::PF_RGB;
+    else if (surf->format->BytesPerPixel == 4)
+        pf = render::Image::PF_RGBA;
+
+    SDL_LockSurface(surf);
+    setWithData((const unsigned char *)surf->pixels, surf->w, surf->h, surf->pitch, pf);
+    SDL_UnlockSurface(surf);
+}
+
 } }

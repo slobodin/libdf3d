@@ -107,4 +107,6 @@ public:
     size_t getElementsUsed() const;
 };
 
+shared_ptr<VertexBuffer> createQuad(const VertexFormat &vf, float x, float y, float w, float h);
+
 } }

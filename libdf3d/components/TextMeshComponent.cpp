@@ -6,12 +6,10 @@
 #include <render/GpuProgram.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/RenderQueue.h>
+#include <render/Image.h>
 #include <gui/FontFace.h>
 #include <base/Controller.h>
 #include <resources/ResourceManager.h>
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
 
 namespace df3d { namespace components {
 
@@ -52,14 +50,28 @@ TextMeshComponent::TextMeshComponent(const char *fontPath)
 
     // Init render operation.
     m_op.passProps = createRenderPass();
-    m_op.vertexData = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
-    m_op.vertexData->setUsageType(render::GB_USAGE_STREAM);
+    m_op.vertexData = render::createQuad(render::VertexFormat::create("p:3, tx:2, c:4"), 0.0f, 0.0f, 2.0f, 2.0f);
+    m_op.vertexData->setUsageType(render::GB_USAGE_STATIC);
 }
 
-void TextMeshComponent::drawText(const char *text)
+void TextMeshComponent::drawText(const char *text, const glm::vec3 &color, int size)
 {
     if (!m_font)
         return;
+
+    //auto textureImage = make_shared<render::Image>();
+    //textureImage->setWithData(surf);
+    //textureImage->setInitialized();
+
+    //auto texture = make_shared<render::Texture>();
+    //texture->setImage(textureImage);
+
+    //texture->setType(render::Texture::TEXTURE_2D);
+    //texture->setWrapMode(render::Texture::WM_CLAMP);
+    //texture->setFilteringMode(render::Texture::BILINEAR);
+    //texture->setMipmapped(false);
+
+    //m_op.passProps->setSampler("diffuseMap", texture);
 }
 
 shared_ptr<NodeComponent> TextMeshComponent::clone() const
