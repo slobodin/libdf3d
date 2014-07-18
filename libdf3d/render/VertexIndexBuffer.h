@@ -107,6 +107,9 @@ public:
     size_t getElementsUsed() const;
 };
 
+// XXX:
+// Valid only for quads with vertex format Vertex_3p2tx!!!
+// FIXME:
 shared_ptr<VertexBuffer> createQuad(const VertexFormat &vf, float x, float y, float w, float h);
 
 } }

@@ -122,7 +122,7 @@ bool Texture::createGLTexture()
         glPixelFormat = GL_RGBA;
         break;
     case Image::PF_GRAYSCALE:
-        glPixelFormat = GL_RED;
+        glPixelFormat = GL_LUMINANCE;   // FIXME: is it valid on ES?
         break;
     default:
         base::glog << "Invalid GL texture pixel format" << base::logwarn;
