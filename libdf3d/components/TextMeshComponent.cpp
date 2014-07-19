@@ -10,6 +10,8 @@
 #include <base/Controller.h>
 #include <resources/ResourceManager.h>
 #include <resources/FileSystem.h>
+#include <components/TransformComponent.h>
+#include <scene/Node.h>
 #include <SDL_ttf.h>
 
 namespace df3d { namespace components {
@@ -29,10 +31,53 @@ shared_ptr<render::RenderPass> TextMeshComponent::createRenderPass()
     return pass;
 }
 
+shared_ptr<render::VertexBuffer> TextMeshComponent::createQuad(float x, float y, float w, float h)
+{
+    float w2 = w / 2.0f;
+    float h2 = h / 2.0f;
+
+    float quad_pos[][2] =
+    {
+        { x - w2, y - h2 },
+        { x + w2, y - h2 },
+        { x + w2, y + h2 },
+        { x + w2, y + h2 },
+        { x - w2, y + h2 },
+        { x - w2, y - h2 }
+    };
+    float quad_uv[][2] =
+    {
+        { 0.0, 0.0 },
+        { 1.0, 0.0 },
+        { 1.0, 1.0 },
+        { 1.0, 1.0 },
+        { 0.0, 1.0 },
+        { 0.0, 0.0 }
+    };
+
+    auto vf = render::VertexFormat::create("p:3, tx:2, c:4");       // FIXME: No need in c!
+    auto result = make_shared<render::VertexBuffer>(vf);
+
+    for (int i = 0; i < 6; i++)
+    {
+        render::Vertex_3p2tx4c v;
+        v.p.x = quad_pos[i][0];
+        v.p.y = quad_pos[i][1];
+        v.tx.x = quad_uv[i][0];
+        v.tx.y = quad_uv[i][1];
+
+        result->appendVertexData((const float *)&v, 1);
+    }
+
+    return result;
+}
+
 void TextMeshComponent::onDraw(render::RenderQueue *ops)
 {
     if (!m_font)
         return;
+
+    m_op.worldTransform = m_holder->transform()->getTransformation();
 
     if (m_op.passProps->isTransparent())
         ops->transparentOperations.push_back(m_op);
@@ -55,7 +100,7 @@ TextMeshComponent::TextMeshComponent(const char *fontPath)
 
     // Init render operation.
     m_op.passProps = createRenderPass();
-    m_op.vertexData = render::createQuad(render::VertexFormat::create("p:3, tx:2"), 0.0f, 0.0f, 2.0f, 2.0f);
+    m_op.vertexData = createQuad(0.0f, 0.0f, 2.0f, 2.0f);
     m_op.vertexData->setUsageType(render::GB_USAGE_STATIC);
 }
 
