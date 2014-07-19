@@ -82,6 +82,9 @@ void Node::update(float dt)
 
 void Node::draw(render::RenderQueue *ops)
 {
+    if (!isVisible())
+        return;
+
     for (size_t i = 0; i < components::CT_COUNT; i++)
     {
         auto c = m_components[i];

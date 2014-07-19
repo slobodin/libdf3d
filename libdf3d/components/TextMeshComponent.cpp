@@ -85,13 +85,13 @@ void TextMeshComponent::onDraw(render::RenderQueue *ops)
         ops->notLitOpaqueOperations.push_back(m_op);
 }
 
-TextMeshComponent::TextMeshComponent(const char *fontPath)
+TextMeshComponent::TextMeshComponent(const char *fontPath, int size)
     : MeshComponent()
 {
     // FIXME:
     // For now without resource manager.
     auto path = g_fileSystem->fullPath(fontPath);
-    m_font = TTF_OpenFont(path.c_str(), 18);
+    m_font = TTF_OpenFont(path.c_str(), size);
     if (!m_font)
     {
         base::glog << "Failed to initialize text renderer. Font is invalid" << TTF_GetError() << base::logwarn;
@@ -110,20 +110,13 @@ TextMeshComponent::~TextMeshComponent()
         TTF_CloseFont(m_font);
 }
 
-void TextMeshComponent::drawText(const char *text, const glm::vec3 &color, int size)
+void TextMeshComponent::drawText(const char *text, const glm::vec4 &color)
 {
     if (!m_font)
         return;
 
-    if (size == 0)
-    {
-        // TODO:
-        // Choose default.
-        return;
-    }
-
-    SDL_Color color1 = { 255, 255, 255, 255 };
-    SDL_Surface *text_surface = TTF_RenderText_Blended(m_font, text, color1);
+    SDL_Color colorSdl = { color.r * 255, color.g * 255, color.b * 255, 255 };
+    SDL_Surface *text_surface = TTF_RenderUTF8_Blended(m_font, text, colorSdl);
 
     auto textureImage = make_shared<render::Image>();
     textureImage->setWithData(text_surface);
@@ -136,10 +129,19 @@ void TextMeshComponent::drawText(const char *text, const glm::vec3 &color, int s
 
     texture->setType(render::Texture::TEXTURE_2D);
     texture->setWrapMode(render::Texture::WM_CLAMP);
-    texture->setFilteringMode(render::Texture::BILINEAR);
+    texture->setFilteringMode(render::Texture::TRILINEAR);
     texture->setMipmapped(false);
 
     m_op.passProps->setSampler("diffuseMap", texture);
+    m_op.passProps->setDiffuseColor(1.0f, 1.0f, 1.0f, color.a);
+}
+
+glm::vec2 TextMeshComponent::getTextLength(const char *text)
+{
+    int w, h;
+    TTF_SizeUTF8(m_font, text, &w, &h);
+    
+    return glm::vec2((float)w, (float)h);
 }
 
 shared_ptr<NodeComponent> TextMeshComponent::clone() const

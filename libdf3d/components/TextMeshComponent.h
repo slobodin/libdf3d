@@ -20,10 +20,11 @@ class DF3D_DLL TextMeshComponent : public MeshComponent
     void onDraw(render::RenderQueue *ops);
 
 public:
-    TextMeshComponent(const char *fontPath);
+    TextMeshComponent(const char *fontPath, int size);
     ~TextMeshComponent();
 
-    void drawText(const char *text, const glm::vec3 &color, int size = 0);
+    void drawText(const char *text, const glm::vec4 &color);
+    glm::vec2 getTextLength(const char *text);
 
     shared_ptr<NodeComponent> clone() const;
 
