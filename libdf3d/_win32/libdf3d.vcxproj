@@ -67,7 +67,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;opengl32.lib;glu32.lib;glew32.lib;RocketCore.lib;RocketControls.lib;RocketDebugger.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;libspark.lib;OpenAL32.lib;python27.lib;libogg_static.lib;libvorbis_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;opengl32.lib;glu32.lib;glew32.lib;RocketCore.lib;RocketControls.lib;RocketDebugger.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;libspark.lib;OpenAL32.lib;python27.lib;libogg_static.lib;libvorbis_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\third-party\lib\win32;$(SolutionDir)\bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -95,7 +95,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\..\third-party\lib\win32;$(SolutionDir)\bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;opengl32.lib;glu32.lib;glew32.lib;RocketCore.lib;RocketControls.lib;RocketDebugger.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;libspark.lib;OpenAL32.lib;libogg_static.lib;libvorbis_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;opengl32.lib;glu32.lib;glew32.lib;RocketCore.lib;RocketControls.lib;RocketDebugger.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;libspark.lib;OpenAL32.lib;libogg_static.lib;libvorbis_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -264,7 +264,6 @@
     <ClInclude Include="..\components\TextMeshComponent.h" />
     <ClInclude Include="..\components\TransformComponent.h" />
     <ClInclude Include="..\df3d.h" />
-    <ClInclude Include="..\gui\FontFace.h" />
     <ClInclude Include="..\libdf3d_dll.h" />
     <ClInclude Include="..\gui\DebugOverlayWindow.h" />
     <ClInclude Include="..\gui\RocketInterface.h" />
@@ -315,7 +314,6 @@
     <ClInclude Include="..\resources\decoders\DecoderImage.h" />
     <ClInclude Include="..\resources\decoders\DecoderOGG.h" />
     <ClInclude Include="..\resources\decoders\DecoderTerrain.h" />
-    <ClInclude Include="..\resources\decoders\DecoderTTF.h" />
     <ClInclude Include="..\resources\decoders\DecoderWAV.h" />
     <ClInclude Include="..\resources\FileDataSource.h" />
     <ClInclude Include="..\resources\decoders\DecoderOBJ.h" />
@@ -373,7 +371,6 @@
     <ClCompile Include="..\components\TextMeshComponent.cpp" />
     <ClCompile Include="..\components\TransformComponent.cpp" />
     <ClCompile Include="..\gui\DebugOverlayWindow.cpp" />
-    <ClCompile Include="..\gui\FontFace.cpp" />
     <ClCompile Include="..\gui\RocketInterface.cpp" />
     <ClCompile Include="..\gui\GuiManager.cpp" />
     <ClCompile Include="..\gui\RocketIntrusivePtr.cpp" />
@@ -414,7 +411,6 @@
     <ClCompile Include="..\resources\decoders\DecoderOBJ.cpp" />
     <ClCompile Include="..\resources\decoders\DecoderOGG.cpp" />
     <ClCompile Include="..\resources\decoders\DecoderTerrain.cpp" />
-    <ClCompile Include="..\resources\decoders\DecoderTTF.cpp" />
     <ClCompile Include="..\resources\decoders\DecoderWAV.cpp" />
     <ClCompile Include="..\resources\FileDataSource.cpp" />
     <ClCompile Include="..\resources\FileSystem.cpp" />

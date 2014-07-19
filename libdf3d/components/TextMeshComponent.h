@@ -2,21 +2,25 @@
 
 #include "MeshComponent.h"
 #include <render/RenderOperation.h>
+// FIXME:
+// Do not want to expose SDL ttf to client.
+#include <SDL_ttf.h>
 
-FWD_MODULE_CLASS(gui, FontFace)
+FWD_MODULE_CLASS(render, RenderPass)
 
 namespace df3d { namespace components {
 
 class DF3D_DLL TextMeshComponent : public MeshComponent
 {
+    TTF_Font *m_font = nullptr;
+    render::RenderOperation m_op;
+
     shared_ptr<render::RenderPass> createRenderPass();
     void onDraw(render::RenderQueue *ops);
 
-    shared_ptr<gui::FontFace> m_font;
-    render::RenderOperation m_op;
-
 public:
     TextMeshComponent(const char *fontPath);
+    ~TextMeshComponent();
 
     void drawText(const char *text, const glm::vec3 &color, int size = 0);
 

@@ -2,6 +2,7 @@
 #include "SDLApplication.h"
 
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 #include <base/Controller.h>
 
 namespace df3d { namespace platform {
@@ -73,6 +74,13 @@ bool SDLApplication::init(AppInitParams params)
         return false;
     }
 
+    // SDL_ttf init.
+    if (TTF_Init() == -1)
+    {
+        base::glog << "Failed to initialize SDL ttf library" << TTF_GetError() << base::logcritical;
+        return false;
+    }
+
     return true;
 }
 
@@ -81,6 +89,7 @@ void SDLApplication::shutdown()
     SDL_GL_DeleteContext(m_glContext);
     SDL_DestroyWindow(m_window);
     IMG_Quit();
+    TTF_Quit();
     SDL_Quit();
 }
 

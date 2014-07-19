@@ -171,10 +171,8 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
 
     m_appDelegate = appDelegate;
 
-#if defined(__WINDOWS__)
+#if defined(__WINDOWS__) || defined(__ANDROID__)
     m_application = new platform::SDLApplication();
-#elif defined(__ANDROID__)
-    m_application = new platform::SDLAndroidApplication();
 #else
 #error "Unsupported platform"
 #endif

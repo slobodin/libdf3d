@@ -126,7 +126,7 @@ void Image::setWithData(SDL_Surface *surf)
     render::Image::PixelFormat pf = render::Image::PF_INVALID;
     if (surf->format->BytesPerPixel == 1)
         pf = render::Image::PF_GRAYSCALE;
-    if (surf->format->BytesPerPixel == 3)
+    else if (surf->format->BytesPerPixel == 3)
         pf = render::Image::PF_RGB;
     else if (surf->format->BytesPerPixel == 4)
         pf = render::Image::PF_RGBA;

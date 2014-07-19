@@ -7,10 +7,10 @@
 #include <render/VertexIndexBuffer.h>
 #include <render/RenderQueue.h>
 #include <render/Image.h>
-#include <gui/FontFace.h>
 #include <base/Controller.h>
 #include <resources/ResourceManager.h>
-#include <stb/stb_truetype.h>
+#include <resources/FileSystem.h>
+#include <SDL_ttf.h>
 
 namespace df3d { namespace components {
 
@@ -21,7 +21,7 @@ shared_ptr<render::RenderPass> TextMeshComponent::createRenderPass()
     pass->setFaceCullMode(render::RenderPass::FCM_NONE);
     pass->setPolygonDrawMode(render::RenderPass::PM_FILL);
     pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    pass->setBlendMode(render::RenderPass::BM_NONE);
+    pass->setBlendMode(render::RenderPass::BM_ALPHA);
 
     auto program = g_resourceManager->getResource<render::GpuProgram>(render::COLORED_PROGRAM_EMBED_PATH);
     pass->setGpuProgram(program);
@@ -31,6 +31,9 @@ shared_ptr<render::RenderPass> TextMeshComponent::createRenderPass()
 
 void TextMeshComponent::onDraw(render::RenderQueue *ops)
 {
+    if (!m_font)
+        return;
+
     if (m_op.passProps->isTransparent())
         ops->transparentOperations.push_back(m_op);
     else
@@ -40,19 +43,26 @@ void TextMeshComponent::onDraw(render::RenderQueue *ops)
 TextMeshComponent::TextMeshComponent(const char *fontPath)
     : MeshComponent()
 {
-    auto font = g_resourceManager->getResource<gui::FontFace>(fontPath);
-    if (!font)
+    // FIXME:
+    // For now without resource manager.
+    auto path = g_fileSystem->fullPath(fontPath);
+    m_font = TTF_OpenFont(path.c_str(), 18);
+    if (!m_font)
     {
-        base::glog << "Failed to initialize text renderer. Font is invalid" << base::logwarn;
+        base::glog << "Failed to initialize text renderer. Font is invalid" << TTF_GetError() << base::logwarn;
         return;
     }
-
-    m_font = font;
 
     // Init render operation.
     m_op.passProps = createRenderPass();
     m_op.vertexData = render::createQuad(render::VertexFormat::create("p:3, tx:2"), 0.0f, 0.0f, 2.0f, 2.0f);
     m_op.vertexData->setUsageType(render::GB_USAGE_STATIC);
+}
+
+TextMeshComponent::~TextMeshComponent()
+{
+    if (m_font)
+        TTF_CloseFont(m_font);
 }
 
 void TextMeshComponent::drawText(const char *text, const glm::vec3 &color, int size)
@@ -67,7 +77,15 @@ void TextMeshComponent::drawText(const char *text, const glm::vec3 &color, int s
         return;
     }
 
-    auto textureImage = m_font->getGlyphImage('a', 18);
+    SDL_Color color1 = { 255, 255, 255, 255 };
+    SDL_Surface *text_surface = TTF_RenderText_Blended(m_font, text, color1);
+
+    auto textureImage = make_shared<render::Image>();
+    textureImage->setWithData(text_surface);
+    textureImage->setInitialized();
+
+    SDL_FreeSurface(text_surface);
+
     auto texture = make_shared<render::Texture>();
     texture->setImage(textureImage);
 
