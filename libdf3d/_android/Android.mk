@@ -47,7 +47,7 @@ LOCAL_LDLIBS := -lGLESv2 \
 LOCAL_EXPORT_LDLIBS := $(LOCAL_LDLIBS)
 
 LOCAL_STATIC_LIBRARIES := boost_system boost_python
-LOCAL_SHARED_LIBRARIES := SDL2 SDL2_image python librocket libbullet libspark libopenal libogg libvorbis
+LOCAL_SHARED_LIBRARIES := SDL2 SDL2_image SDL2_ttf python librocket libbullet libspark libopenal libogg libvorbis
 
 include $(BUILD_SHARED_LIBRARY)
 
