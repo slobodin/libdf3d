@@ -57,5 +57,8 @@ Python bindings permanently moved to client code. Need shared libraries on andro
 
 Test example will be added soon.
 
+Games
+========
+
 Example of a game powered by this engine:
 http://youtu.be/yeCutM78UpQ
