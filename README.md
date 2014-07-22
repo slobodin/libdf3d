@@ -56,3 +56,6 @@ More documentation will be added soon.
 Python bindings permanently moved to client code. Need shared libraries on android.
 
 Test example will be added soon.
+
+Example of a game powered by this engine:
+http://youtu.be/yeCutM78UpQ
