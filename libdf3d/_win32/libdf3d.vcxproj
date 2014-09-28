@@ -264,6 +264,7 @@
     <ClInclude Include="..\components\TextMeshComponent.h" />
     <ClInclude Include="..\components\TransformComponent.h" />
     <ClInclude Include="..\df3d.h" />
+    <ClInclude Include="..\df3d_config.h" />
     <ClInclude Include="..\libdf3d_dll.h" />
     <ClInclude Include="..\gui\DebugOverlayWindow.h" />
     <ClInclude Include="..\gui\RocketInterface.h" />
@@ -329,12 +330,14 @@
     <ClInclude Include="..\scene\DebugDrawAABBNode.h" />
     <ClInclude Include="..\scene\DebugDrawNode.h" />
     <ClInclude Include="..\scene\DebugDrawOBBNode.h" />
+    <ClInclude Include="..\scene\FPSCamera.h" />
     <ClInclude Include="..\scene\Node.h" />
     <ClInclude Include="..\scene\Scene.h" />
     <ClInclude Include="..\scene\SceneManager.h" />
     <ClInclude Include="..\scene\SceneManagerListener.h" />
     <ClInclude Include="..\scene\WorldSize.h" />
     <ClInclude Include="..\scripting\PythonInputProxy.h" />
+    <ClInclude Include="..\scripting\PythonScriptManager.h" />
     <ClInclude Include="..\scripting\PythonUpdateProxy.h" />
     <ClInclude Include="..\scripting\ScriptManager.h" />
     <ClInclude Include="..\..\third-party\include\json\autolink.h" />
@@ -425,10 +428,12 @@
     <ClCompile Include="..\scene\DebugDrawAABBNode.cpp" />
     <ClCompile Include="..\scene\DebugDrawNode.cpp" />
     <ClCompile Include="..\scene\DebugDrawOBBNode.cpp" />
+    <ClCompile Include="..\scene\FPSCamera.cpp" />
     <ClCompile Include="..\scene\Node.cpp" />
     <ClCompile Include="..\scene\Scene.cpp" />
     <ClCompile Include="..\scene\SceneManager.cpp" />
     <ClCompile Include="..\scripting\PythonInputProxy.cpp" />
+    <ClCompile Include="..\scripting\PythonScriptManager.cpp" />
     <ClCompile Include="..\scripting\PythonUpdateProxy.cpp" />
     <ClCompile Include="..\scripting\ScriptManager.cpp" />
     <ClCompile Include="..\..\third-party\src\lib_json\json_reader.cpp">

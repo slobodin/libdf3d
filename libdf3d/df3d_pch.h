@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma warning(disable : 4458)
+
 #include <SDL.h>
 
 #include <cstdio>
@@ -30,6 +32,7 @@
 #include <chrono>
 #include <atomic>
 
+#include "df3d_config.h"
 #include "libdf3d_dll.h"
 
 #if defined(__ANDROID__)

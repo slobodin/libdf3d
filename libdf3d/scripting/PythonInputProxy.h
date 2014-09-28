@@ -4,6 +4,8 @@ namespace df3d { namespace scripting {
 
 class ScriptManager;
 
+#if DF3D_USES_PYTHON
+
 class DF3D_DLL PythonMouseInputProxy : boost::noncopyable
 {
     friend class ScriptManager;
@@ -43,5 +45,7 @@ public:
     void onKeyDown(const SDL_KeyboardEvent &keyEvent);
     void onKeyUp(const SDL_KeyboardEvent &keyEvent);
 };
+
+#endif
 
 } }

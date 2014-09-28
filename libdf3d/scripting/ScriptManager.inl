@@ -1,5 +1,7 @@
 #pragma once
 
+#if DF3D_USES_PYTHON
+
 // FIXME:
 // Do not want to expose python to client.
 // Create engine define USES_PYTHON, create project with this define.
@@ -25,3 +27,5 @@ T ScriptManager::getPythonObject(const char *pyFile, const char *pyObjName)
 }
 
 } }
+
+#endif

@@ -1,6 +1,7 @@
 #pragma once
 
 FWD_MODULE_CLASS(render, Viewport)
+FWD_MODULE_CLASS(base, MouseMotionEvent)
 
 namespace df3d { namespace scene {
 
@@ -75,6 +76,11 @@ public:
 
     glm::vec3 screenToViewPoint(float x, float y, float z = 0.0f);
     glm::vec2 worldToScreenPoint(const glm::vec3 &world);
+
+    virtual void onUpdate(float dt) { }
+    virtual void onMouseMotionEvent(const base::MouseMotionEvent &mouseMotionEvent) {}
+    virtual void onKeyUp(const SDL_KeyboardEvent &keyEvent) { }
+    virtual void onKeyDown(const SDL_KeyboardEvent &keyEvent) { }
 };
 
 } }

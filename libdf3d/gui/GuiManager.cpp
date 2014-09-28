@@ -2,6 +2,7 @@
 #include "GuiManager.h"
 
 #include <base/Controller.h>
+#include <base/InputEvents.h>
 #include <scripting/ScriptManager.h>
 #include "RocketInterface.h"
 #include "RocketKeyBindings.h"
@@ -48,12 +49,14 @@ bool GuiManager::init(int contextWidth, int contextHeight)
     // Initialize controls library.
     Controls::Initialise();
 
+#if DF3D_USES_PYTHON
     // Import RocketPython first.
     if (!g_scriptManager->doString("import pyrocketcore"))
     {
         base::glog << "Failed to init Python GUI subsystem" << base::logcritical;
         return false;
     }
+#endif
 
     // Create GUI context.
     m_rocketContext = Core::CreateContext("main", Core::Vector2i(contextWidth, contextHeight));
@@ -101,7 +104,7 @@ void GuiManager::processMouseButtonEvent(const SDL_MouseButtonEvent &ev)
         m_rocketContext->ProcessMouseButtonUp(buttonIdx, 0);
 }
 
-void GuiManager::processMouseMotionEvent(const SDL_MouseMotionEvent &ev)
+void GuiManager::processMouseMotionEvent(const base::MouseMotionEvent &ev)
 {
     m_rocketContext->ProcessMouseMove(ev.x, ev.y, 0);
 }

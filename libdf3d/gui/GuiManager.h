@@ -2,15 +2,10 @@
 
 #include "RocketIntrusivePtr.h"
 
-struct SDL_MouseButtonEvent;
-struct SDL_MouseMotionEvent;
-struct SDL_MouseWheelEvent;
-struct SDL_KeyboardEvent;
-struct SDL_TextInputEvent;
-
 namespace Rocket { namespace Core { class Context; class ElementDocument; } }
 
 FWD_MODULE_CLASS(base, Controller)
+FWD_MODULE_CLASS(base, MouseMotionEvent)
 FWD_MODULE_CLASS(render, RenderManager)
 
 namespace df3d { namespace gui {
@@ -42,7 +37,7 @@ class DF3D_DLL GuiManager
     void render();
 
     void processMouseButtonEvent(const SDL_MouseButtonEvent &ev);
-    void processMouseMotionEvent(const SDL_MouseMotionEvent &ev);
+    void processMouseMotionEvent(const base::MouseMotionEvent &ev);
     void processMouseWheelEvent(const SDL_MouseWheelEvent &ev);
     void processKeyDownEvent(const SDL_KeyboardEvent &ev);
     void processKeyUpEvent(const SDL_KeyboardEvent &ev);

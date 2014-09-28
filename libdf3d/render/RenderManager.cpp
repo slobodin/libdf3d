@@ -206,7 +206,10 @@ void RenderManager::update(shared_ptr<scene::Scene> renderableScene)
 void RenderManager::drawScene(shared_ptr<scene::Scene> sc, shared_ptr<scene::Camera> camera)
 {
     if (!sc || !camera)
+    {
+        base::glog << "Can not draw frame. Either scene or camera is invalid." << base::logwarn;
         return;
+    }
 
     auto postProcessingEnabled = sc->getPostProcessMaterial() != nullptr;
 

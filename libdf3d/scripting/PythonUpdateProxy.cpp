@@ -5,6 +5,8 @@
 
 namespace df3d { namespace scripting {
 
+#if DF3D_USES_PYTHON
+
 struct PythonUpdateProxy::Impl
 {
     boost::function<void (float)> updateFn;
@@ -33,5 +35,7 @@ void PythonUpdateProxy::update(float dt)
         PyErr_Print();
     }
 }
+
+#endif
 
 } }

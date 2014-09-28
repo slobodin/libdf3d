@@ -882,6 +882,15 @@
     <ClInclude Include="..\platform\SDLApplication.h">
       <Filter>Header Files\platform</Filter>
     </ClInclude>
+    <ClInclude Include="..\df3d_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\scripting\PythonScriptManager.h">
+      <Filter>Header Files\scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\scene\FPSCamera.h">
+      <Filter>Header Files\scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\df3d_pch.cpp">
@@ -1129,6 +1138,12 @@
     </ClCompile>
     <ClCompile Include="..\platform\SDLApplication.cpp">
       <Filter>Source Files\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\scripting\PythonScriptManager.cpp">
+      <Filter>Source Files\scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\scene\FPSCamera.cpp">
+      <Filter>Source Files\scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

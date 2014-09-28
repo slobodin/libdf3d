@@ -8,3 +8,5 @@ ipch/
 buildcmake/
 *.pyc
 *.pyo
+tools/libdf3d-editor/bin
+tools/libdf3d-editor/obj

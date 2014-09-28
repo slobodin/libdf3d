@@ -1,10 +1,12 @@
 #include "df3d_pch.h"
 #include "Controller.h"
 
+#include "AppDelegate.h"
+#include "InputEvents.h"
 #include <render/RenderManager.h>
 #include <platform/Application.h>
-#include "AppDelegate.h"
 #include <scene/SceneManager.h>
+#include <scene/Camera.h>
 #include <resources/ResourceManager.h>
 #include <resources/FileSystem.h>
 #include <gui/GuiManager.h>
@@ -92,6 +94,8 @@ void Controller::updateController(float dt)
 {
     m_timeElapsed = IntervalBetweenNowAnd(m_timeStarted);
 
+    if (m_sceneManager->getCamera())
+        m_sceneManager->getCamera()->onUpdate(dt);
     m_audioManager->update(dt);
     m_physics->update(dt);
     m_sceneManager->update(dt);
@@ -237,9 +241,10 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
 
     base::glog << "Engine initialized" << base::logmess;
 
+    m_initialized = true;
+
     // Send app started to the client.
     m_appDelegate->onAppStarted();
-    m_initialized = true;
 
     return m_initialized;
 }
@@ -340,10 +345,14 @@ void Controller::dispatchAppEvent(SDL_Event *event)
     case SDL_KEYUP:
         m_guiManager->processKeyUpEvent(event->key);
         m_appDelegate->onKeyUp(event->key);
+        if (m_sceneManager->getCamera())
+            m_sceneManager->getCamera()->onKeyUp(event->key);
         break;
     case SDL_KEYDOWN:
         m_guiManager->processKeyDownEvent(event->key);
         m_appDelegate->onKeyDown(event->key);
+        if (m_sceneManager->getCamera())
+            m_sceneManager->getCamera()->onKeyDown(event->key);
         break;
     case SDL_TEXTINPUT:
         m_guiManager->processTextInputEvent(event->text);
@@ -359,6 +368,8 @@ void Controller::dispatchAppEvent(SDL_Event *event)
     case SDL_MOUSEMOTION:
         m_guiManager->processMouseMotionEvent(event->motion);
         m_appDelegate->onMouseMotionEvent(event->motion);
+        if (m_sceneManager->getCamera())
+            m_sceneManager->getCamera()->onMouseMotionEvent(event->motion);
         break;
     case SDL_MOUSEWHEEL:
         m_guiManager->processMouseWheelEvent(event->wheel);

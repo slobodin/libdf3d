@@ -92,6 +92,8 @@ public:
     void registerConsoleCommandHandler(const char *commandName, ConsoleCommandHandler handler);
     void unregisterConsoleCommandHandler(const char *commandName);
 
+    bool initialized() const { return m_initialized; }
+
     // FIXME:
     // Should we use SDL everywhere?
     void dispatchAppEvent(SDL_Event *event);

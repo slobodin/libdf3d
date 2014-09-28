@@ -5,6 +5,8 @@
 
 namespace df3d { namespace scripting {
 
+#if DF3D_USES_PYTHON
+
 typedef boost::function<void(Uint8, Uint32, Sint32, Sint32)> PyMouseButtonHanler;
 typedef boost::function<void(Uint32, Sint32, Sint32)> PyMouseMotionHanler;
 typedef boost::function<void(Sint32)> PyKeyInputHandler;
@@ -115,5 +117,7 @@ void PythonKeyboardInputProxy::onKeyUp(const SDL_KeyboardEvent &keyEvent)
     }
     catch (...) { m_sm->printError(); }
 }
+
+#endif
 
 } }

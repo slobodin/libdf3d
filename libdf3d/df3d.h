@@ -1,6 +1,7 @@
 #pragma once
 
 #include "libdf3d_dll.h"
+#include "df3d_config.h"
 
 #include <utils/Utils.h>
 #include <utils/JsonHelpers.h>
@@ -22,6 +23,7 @@
 
 #include <scene/Node.h>
 #include <scene/Camera.h>
+#include <scene/FPSCamera.h>
 #include <scene/Scene.h>
 #include <scene/SceneManager.h>
 #include <scene/bounding_volumes/BoundingVolume.h>
