@@ -4,6 +4,9 @@
 #include "JsonHelpers.h"
 #include <scene/Scene.h>
 #include <scene/Node.h>
+#include <scene/Camera.h>
+#include <scene/FPSCamera.h>
+#include <scene/SceneManager.h>
 #include <base/Controller.h>
 #include <resources/ResourceManager.h>
 #include <render/MaterialLib.h>
@@ -58,6 +61,47 @@ void parsePostProcessOption(const Json::Value &postFxNode, scene::Scene *sc)
     sc->setPostProcessMaterial(material);
 }
 
+void parseCamera(const Json::Value &cameraNode, scene::Scene *sc)
+{
+    if (cameraNode.empty())
+    {
+        // Set up default camera.
+        sc->setCamera(make_shared<scene::Camera>());
+        return;
+    }
+
+    auto type = cameraNode["type"].asString();
+    auto position = jsonGetValueWithDefault(cameraNode["position"], glm::vec3());
+    auto rotation = jsonGetValueWithDefault(cameraNode["rotation"], glm::vec3());
+    auto freeMove = jsonGetValueWithDefault(cameraNode["free_move"], false);
+    auto fov = jsonGetValueWithDefault(cameraNode["fov"], 60.0f);
+    auto velocity = jsonGetValueWithDefault(cameraNode["velocity"], 0.0f);
+
+    shared_ptr<scene::Camera> camera = nullptr;
+    if (type.empty())
+    {
+        camera = make_shared<scene::Camera>();
+    }
+    else if (type == "FPSCamera")
+    {
+        auto fpscamera = make_shared<scene::FPSCamera>(velocity);
+        fpscamera->setFreeMove(freeMove);
+
+        camera = fpscamera;
+    }
+    else
+    {
+        base::glog << "Unknown camera type found while parsing scene definition" << type << base::logwarn;
+        return;
+    }
+
+    camera->setPosition(position);
+    camera->setRotation(rotation.y, rotation.x, rotation.z);
+    camera->setFov(fov);
+
+    sc->setCamera(camera);
+}
+
 void init(scene::Scene *sc, const char *sceneDefinitionFile)
 {
     auto root = jsonLoadFromFile(sceneDefinitionFile);
@@ -68,6 +112,7 @@ void init(scene::Scene *sc, const char *sceneDefinitionFile)
     parseFog(root["fog"], sc);
     parseAmbientLight(root["ambient_light"], sc);
     parsePostProcessOption(root["post_process"], sc);
+    parseCamera(root["camera"], sc);
 }
 
 } } }

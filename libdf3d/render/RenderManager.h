@@ -80,7 +80,7 @@ public:
     bool isDebugDrawEnabled();
 
     void update(shared_ptr<scene::Scene> renderableScene);
-    void drawScene(shared_ptr<scene::Scene> sc, shared_ptr<scene::Camera> camera);
+    void drawScene(shared_ptr<scene::Scene> sc);
     void drawOperation(const RenderOperation &op);
     void drawGUI();
 

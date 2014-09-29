@@ -107,7 +107,7 @@ void Controller::runFrame()
 {
     m_renderManager->onFrameBegin();
 
-    m_renderManager->drawScene(m_sceneManager->getCurrentScene(), m_sceneManager->getCamera());
+    m_renderManager->drawScene(m_sceneManager->getCurrentScene());
     m_renderManager->drawGUI();
 
     m_renderManager->onFrameEnd();

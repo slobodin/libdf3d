@@ -18,7 +18,6 @@ class DF3D_DLL SceneManager : boost::noncopyable
 
     shared_ptr<Scene> m_currentScene;
     std::string m_currentSceneName;
-    shared_ptr<Camera> m_camera;
 
     bool m_paused = false;
 

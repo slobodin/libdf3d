@@ -8,6 +8,7 @@ namespace df3d { namespace scene {
 
 class Node;
 class SceneManager;
+class Camera;
 
 class DF3D_DLL Scene
 {
@@ -15,6 +16,7 @@ class DF3D_DLL Scene
 
     shared_ptr<render::Material> m_postProcessMaterial;
     shared_ptr<Node> m_root;
+    shared_ptr<Camera> m_camera;
 
     glm::vec3 m_ambientLight = glm::vec3(1.0f, 1.0f, 1.0f);
     float m_fogDensity = 0.0f;
@@ -31,6 +33,9 @@ public:
     void setFog(float density, float r, float g, float b);
     float getFogDensity() const;
     glm::vec3 getFogColor() const;
+
+    void setCamera(shared_ptr<Camera> camera) { m_camera = camera; }
+    shared_ptr<Camera> getCamera() const { return m_camera; }
 
     void setPostProcessMaterial(shared_ptr<render::Material> material);
     shared_ptr<render::Material> getPostProcessMaterial() { return m_postProcessMaterial; }

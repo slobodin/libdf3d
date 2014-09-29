@@ -203,11 +203,18 @@ void RenderManager::update(shared_ptr<scene::Scene> renderableScene)
     renderableScene->collectRenderOperations(m_renderQueue.get());
 }
 
-void RenderManager::drawScene(shared_ptr<scene::Scene> sc, shared_ptr<scene::Camera> camera)
+void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
 {
-    if (!sc || !camera)
+    if (!sc)
     {
-        base::glog << "Can not draw frame. Either scene or camera is invalid." << base::logwarn;
+        base::glog << "Can not draw scene. Scene is invalid." << base::logwarn;
+        return;
+    }
+
+    auto camera = sc->getCamera();
+    if (!camera)
+    {
+        base::glog << "Can not draw scene. Camera is invalid." << base::logwarn;
         return;
     }
 
