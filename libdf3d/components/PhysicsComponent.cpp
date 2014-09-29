@@ -47,7 +47,6 @@ PhysicsComponent::~PhysicsComponent()
     {
         // FIXME:
         // Here we assuming that body was added to the world.
-        // TODO: Add physics body when create this component. But how to pass collision idx?
         g_physicsWorld->removeRigidBody(body);
         auto motionState = body->getMotionState();
         delete motionState;
