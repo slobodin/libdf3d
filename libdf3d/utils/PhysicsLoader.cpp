@@ -130,8 +130,6 @@ void init(components::PhysicsComponent *component, const char *definitionFile)
     rbInfo.m_angularDamping = angularDamping;
 
     component->body = new btRigidBody(rbInfo);
-
-    //g_physicsWorld->addRigidBody(m_body);
 }
 
 } } }

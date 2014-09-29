@@ -25,11 +25,18 @@ namespace df3d { namespace components {
 void PhysicsComponent::onAttached()
 {
     utils::physics_loader::init(this, m_definitionFile.c_str());
+
+    if (m_group != -1 && m_mask != -1)
+        g_physicsWorld->addRigidBody(body, m_group, m_mask);
+    else 
+        g_physicsWorld->addRigidBody(body);
 }
 
-PhysicsComponent::PhysicsComponent(const char *definitionFile)
+PhysicsComponent::PhysicsComponent(const char *definitionFile, short group, short mask)
     : NodeComponent(CT_PHYSICS),
-    m_definitionFile(definitionFile)
+    m_definitionFile(definitionFile),
+    m_group(group),
+    m_mask(mask)
 {
 
 }
