@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -19,13 +19,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -67,7 +67,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;opengl32.lib;glu32.lib;glew32.lib;RocketCore.lib;RocketControls.lib;RocketDebugger.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;libspark.lib;OpenAL32.lib;python27.lib;libogg_static.lib;libvorbis_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;opengl32.lib;glu32.lib;glew32.lib;RocketCore.lib;RocketControls.lib;RocketDebugger.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;libspark.lib;OpenAL32.lib;libogg_static.lib;libvorbis_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\third-party\lib\win32;$(SolutionDir)\bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -336,9 +336,9 @@
     <ClInclude Include="..\scene\SceneManager.h" />
     <ClInclude Include="..\scene\SceneManagerListener.h" />
     <ClInclude Include="..\scene\WorldSize.h" />
-    <ClInclude Include="..\scripting\PythonInputProxy.h" />
-    <ClInclude Include="..\scripting\PythonScriptManager.h" />
-    <ClInclude Include="..\scripting\PythonUpdateProxy.h" />
+    <ClInclude Include="..\scripting\python\PythonInputProxy.h" />
+    <ClInclude Include="..\scripting\python\PythonScriptManager.h" />
+    <ClInclude Include="..\scripting\python\PythonUpdateProxy.h" />
     <ClInclude Include="..\scripting\ScriptManager.h" />
     <ClInclude Include="..\..\third-party\include\json\autolink.h" />
     <ClInclude Include="..\..\third-party\include\json\config.h" />
@@ -432,9 +432,9 @@
     <ClCompile Include="..\scene\Node.cpp" />
     <ClCompile Include="..\scene\Scene.cpp" />
     <ClCompile Include="..\scene\SceneManager.cpp" />
-    <ClCompile Include="..\scripting\PythonInputProxy.cpp" />
-    <ClCompile Include="..\scripting\PythonScriptManager.cpp" />
-    <ClCompile Include="..\scripting\PythonUpdateProxy.cpp" />
+    <ClCompile Include="..\scripting\python\PythonInputProxy.cpp" />
+    <ClCompile Include="..\scripting\python\PythonScriptManager.cpp" />
+    <ClCompile Include="..\scripting\python\PythonUpdateProxy.cpp" />
     <ClCompile Include="..\scripting\ScriptManager.cpp" />
     <ClCompile Include="..\..\third-party\src\lib_json\json_reader.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -562,7 +562,7 @@
     <None Include="..\..\third-party\src\lib_json\json_internalarray.inl" />
     <None Include="..\..\third-party\src\lib_json\json_internalmap.inl" />
     <None Include="..\..\third-party\src\lib_json\json_valueiterator.inl" />
-    <None Include="..\scripting\ScriptManager.inl" />
+    <None Include="..\scripting\python\ScriptManager.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

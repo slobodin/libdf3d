@@ -1,6 +1,7 @@
 #include "df3d_pch.h"
-#include "ScriptManager.h"
+#include "PythonScriptManager.h"
 
+#include <scripting/ScriptManager.h>
 #include <resources/FileSystem.h>
 #include <base/Controller.h>
 #include "PythonUpdateProxy.h"

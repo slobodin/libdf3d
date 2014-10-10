@@ -121,6 +121,12 @@
     <Filter Include="Source Files\components">
       <UniqueIdentifier>{e2f700d8-2b9b-490f-8a8d-d3cf9103c11b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\scripting\python">
+      <UniqueIdentifier>{3b9990ca-22c7-42d0-8c34-91f28ee6b751}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\scripting\python">
+      <UniqueIdentifier>{9bcae008-22f3-495a-9265-c517a9691001}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\df3d.h">
@@ -398,12 +404,6 @@
     </ClInclude>
     <ClInclude Include="..\render\embed_glsl\ambient_vert.h">
       <Filter>Header Files\render\embed_glsl</Filter>
-    </ClInclude>
-    <ClInclude Include="..\scripting\PythonUpdateProxy.h">
-      <Filter>Header Files\scripting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\scripting\PythonInputProxy.h">
-      <Filter>Header Files\scripting</Filter>
     </ClInclude>
     <ClInclude Include="..\scene\SceneManagerListener.h">
       <Filter>Header Files\scene</Filter>
@@ -885,11 +885,17 @@
     <ClInclude Include="..\df3d_config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\scripting\PythonScriptManager.h">
-      <Filter>Header Files\scripting</Filter>
-    </ClInclude>
     <ClInclude Include="..\scene\FPSCamera.h">
       <Filter>Header Files\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\scripting\python\PythonScriptManager.h">
+      <Filter>Header Files\scripting\python</Filter>
+    </ClInclude>
+    <ClInclude Include="..\scripting\python\PythonInputProxy.h">
+      <Filter>Header Files\scripting\python</Filter>
+    </ClInclude>
+    <ClInclude Include="..\scripting\python\PythonUpdateProxy.h">
+      <Filter>Header Files\scripting\python</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1100,12 +1106,6 @@
     <ClCompile Include="..\render\Vertex.cpp">
       <Filter>Source Files\render</Filter>
     </ClCompile>
-    <ClCompile Include="..\scripting\PythonUpdateProxy.cpp">
-      <Filter>Source Files\scripting</Filter>
-    </ClCompile>
-    <ClCompile Include="..\scripting\PythonInputProxy.cpp">
-      <Filter>Source Files\scripting</Filter>
-    </ClCompile>
     <ClCompile Include="..\render\RenderQueue.cpp">
       <Filter>Source Files\render</Filter>
     </ClCompile>
@@ -1139,11 +1139,17 @@
     <ClCompile Include="..\platform\SDLApplication.cpp">
       <Filter>Source Files\platform</Filter>
     </ClCompile>
-    <ClCompile Include="..\scripting\PythonScriptManager.cpp">
-      <Filter>Source Files\scripting</Filter>
-    </ClCompile>
     <ClCompile Include="..\scene\FPSCamera.cpp">
       <Filter>Source Files\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\scripting\python\PythonInputProxy.cpp">
+      <Filter>Source Files\scripting\python</Filter>
+    </ClCompile>
+    <ClCompile Include="..\scripting\python\PythonScriptManager.cpp">
+      <Filter>Source Files\scripting\python</Filter>
+    </ClCompile>
+    <ClCompile Include="..\scripting\python\PythonUpdateProxy.cpp">
+      <Filter>Source Files\scripting\python</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1155,9 +1161,6 @@
     </None>
     <None Include="..\..\third-party\src\lib_json\json_valueiterator.inl">
       <Filter>third-party\json</Filter>
-    </None>
-    <None Include="..\scripting\ScriptManager.inl">
-      <Filter>Header Files\scripting</Filter>
     </None>
     <None Include="..\..\third-party\include\glm\detail\func_common.inl">
       <Filter>third-party\glm\detail</Filter>
@@ -1470,6 +1473,9 @@
     </None>
     <None Include="..\..\third-party\include\glm\gtx\wrap.inl">
       <Filter>third-party\glm\gtx</Filter>
+    </None>
+    <None Include="..\scripting\python\ScriptManager.inl">
+      <Filter>Header Files\scripting\python</Filter>
     </None>
   </ItemGroup>
 </Project>

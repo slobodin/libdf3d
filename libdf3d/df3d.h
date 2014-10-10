@@ -48,8 +48,10 @@
 #include <Rocket/Controls.h>
 
 #include <scripting/ScriptManager.h>
+#if DF3D_USES_PYTHON
 #include <scripting/PythonUpdateProxy.h>
 #include <scripting/PythonInputProxy.h>
+#endif
 
 #include <physics/PhysicsManager.h>
 #include <bullet/btBulletCollisionCommon.h>
