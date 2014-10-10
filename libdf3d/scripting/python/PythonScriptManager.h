@@ -40,21 +40,6 @@ public:
     shared_ptr<PythonKeyboardInputProxy> createKeyboardInputProxy(const char *pyFile, const char *pyOnKeyDown, const char *pyOnKeyUp);
 };
 
-#else
-
-    class DF3D_DLL ScriptManager : public boost::noncopyable
-    {
-        friend class base::Controller;
-
-        bool init() { }
-        void shutdown() { }
-
-        bool doFile(const char *fileName) { return false; }
-        bool doString(const char *str) { return false; }
-        void printError() { }
-    };
-
-
 #endif
 
 } }

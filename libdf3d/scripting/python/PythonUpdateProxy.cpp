@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "PythonUpdateProxy.h"
 
-#include "ScriptManager.h"
+#include <scripting/ScriptManager.h>
 
 namespace df3d { namespace scripting {
 

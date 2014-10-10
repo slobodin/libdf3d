@@ -3,7 +3,7 @@
 #include "MeshComponent.h"
 #include <render/RenderOperation.h>
 // FIXME:
-// Do not want to expose SDL ttf to client.
+// Do not want to expose SDL ttf to the client.
 #include <SDL_ttf.h>
 
 FWD_MODULE_CLASS(render, RenderPass)
