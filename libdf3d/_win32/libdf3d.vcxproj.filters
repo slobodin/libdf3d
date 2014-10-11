@@ -273,9 +273,6 @@
     <ClInclude Include="..\scene\WorldSize.h">
       <Filter>Header Files\scene</Filter>
     </ClInclude>
-    <ClInclude Include="..\scene\DebugDrawNode.h">
-      <Filter>Header Files\scene</Filter>
-    </ClInclude>
     <ClInclude Include="..\scene\DebugDrawAABBNode.h">
       <Filter>Header Files\scene</Filter>
     </ClInclude>
@@ -897,6 +894,9 @@
     <ClInclude Include="..\scripting\python\PythonUpdateProxy.h">
       <Filter>Header Files\scripting\python</Filter>
     </ClInclude>
+    <ClInclude Include="..\components\DebugDrawComponent.h">
+      <Filter>Header Files\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\df3d_pch.cpp">
@@ -988,9 +988,6 @@
     </ClCompile>
     <ClCompile Include="..\gui\RocketIntrusivePtr.cpp">
       <Filter>Source Files\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\scene\DebugDrawNode.cpp">
-      <Filter>Source Files\scene</Filter>
     </ClCompile>
     <ClCompile Include="..\scene\DebugDrawAABBNode.cpp">
       <Filter>Source Files\scene</Filter>
@@ -1150,6 +1147,9 @@
     </ClCompile>
     <ClCompile Include="..\scripting\python\PythonUpdateProxy.cpp">
       <Filter>Source Files\scripting\python</Filter>
+    </ClCompile>
+    <ClCompile Include="..\components\DebugDrawComponent.cpp">
+      <Filter>Source Files\components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

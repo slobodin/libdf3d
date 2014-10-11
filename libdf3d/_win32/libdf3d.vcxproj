@@ -256,6 +256,7 @@
     <ClInclude Include="..\base\MacroDefs.h" />
     <ClInclude Include="..\base\ThreadPool.h" />
     <ClInclude Include="..\components\AudioComponent.h" />
+    <ClInclude Include="..\components\DebugDrawComponent.h" />
     <ClInclude Include="..\components\LightComponent.h" />
     <ClInclude Include="..\components\NodeComponent.h" />
     <ClInclude Include="..\components\MeshComponent.h" />
@@ -328,7 +329,6 @@
     <ClInclude Include="..\scene\bounding_volumes\OBB.h" />
     <ClInclude Include="..\scene\Camera.h" />
     <ClInclude Include="..\scene\DebugDrawAABBNode.h" />
-    <ClInclude Include="..\scene\DebugDrawNode.h" />
     <ClInclude Include="..\scene\DebugDrawOBBNode.h" />
     <ClInclude Include="..\scene\FPSCamera.h" />
     <ClInclude Include="..\scene\Node.h" />
@@ -366,6 +366,7 @@
     <ClCompile Include="..\base\Log.cpp" />
     <ClCompile Include="..\base\ThreadPool.cpp" />
     <ClCompile Include="..\components\AudioComponent.cpp" />
+    <ClCompile Include="..\components\DebugDrawComponent.cpp" />
     <ClCompile Include="..\components\LightComponent.cpp" />
     <ClCompile Include="..\components\MeshComponent.cpp" />
     <ClCompile Include="..\components\NodeComponent.cpp" />
@@ -426,7 +427,6 @@
     <ClCompile Include="..\scene\bounding_volumes\OBB.cpp" />
     <ClCompile Include="..\scene\Camera.cpp" />
     <ClCompile Include="..\scene\DebugDrawAABBNode.cpp" />
-    <ClCompile Include="..\scene\DebugDrawNode.cpp" />
     <ClCompile Include="..\scene\DebugDrawOBBNode.cpp" />
     <ClCompile Include="..\scene\FPSCamera.cpp" />
     <ClCompile Include="..\scene\Node.cpp" />

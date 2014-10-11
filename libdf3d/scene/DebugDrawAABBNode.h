@@ -1,7 +1,5 @@
 #pragma once
 
-#include "DebugDrawNode.h"
-
 namespace df3d { namespace scene {
 
     /*

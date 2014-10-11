@@ -7,7 +7,6 @@
 
 FWD_MODULE_CLASS(render, MeshData)
 FWD_MODULE_CLASS(render, Material)
-FWD_MODULE_CLASS(scene, DebugDrawNode)
 
 namespace df3d { namespace components {
 
