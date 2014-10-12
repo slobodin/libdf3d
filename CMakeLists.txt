@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 2.8)
 
 project(libdf3d)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third-party/src/bullet)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third-party/src/libogg)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third-party/src/libvorbis)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third-party/src/spark)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/bullet)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libogg)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libvorbis)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/spark)
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
