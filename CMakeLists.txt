@@ -195,6 +195,10 @@ if(MSVC)
     list(APPEND libdf3d_SRC_LIST ${PRECOMPILED_CPP})
 endif(MSVC)
 
+if (CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+endif(CMAKE_COMPILER_IS_GNUCXX)
+
 list(APPEND libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/third-party/src/lib_json/json_reader.cpp
     ${PROJECT_SOURCE_DIR}/third-party/src/lib_json/json_value.cpp
@@ -205,16 +209,21 @@ if (WIN32)
     find_package(GLEW REQUIRED)
 endif(WIN32)
 
-find_package(SDL REQUIRED)
-find_package(SDL_image REQUIRED)
-find_package(SDL_ttf REQUIRED)
+INCLUDE(FindPkgConfig)
+
+PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
+PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0)
+PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf>=2.0)
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
+find_package(Boost REQUIRED)
 
 add_library(libdf3d SHARED ${libdf3d_SRC_LIST} ${libdf3d_HEADER_LIST})
 
 include_directories(${PROJECT_SOURCE_DIR}/libdf3d
-                    ${PROJECT_SOURCE_DIR}/third-party/include)
+                    ${PROJECT_SOURCE_DIR}/third-party/include
+                    ${SDL2_INCLUDE_DIRS}
+                    ${Boost_INCLUDE_DIRS})
 
 if (WIN32)
     include_directories(${GLEW_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR})
@@ -225,10 +234,10 @@ target_link_libraries(libdf3d
     libogg
     libspark 
     libvorbis 
-    ${SDL_LIBRARY} 
-    ${SDLIMAGE_LIBRARY} 
+    ${SDL2_LIBRARY} 
+    ${SDL2IMAGE_LIBRARY} 
     ${GLEW_LIBRARY} 
-    ${SDLTTF_LIBRARY} 
+    ${SDL2TTF_LIBRARY} 
     ${OPENGL_LIBRARIES} 
     ${OPENAL_LIBRARY})
 

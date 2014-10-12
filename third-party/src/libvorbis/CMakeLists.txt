@@ -36,6 +36,7 @@ set(libvorbis_SRC_LIST
 )
 
 include_directories(${PROJECT_SOURCE_DIR}/../../include)
+include_directories(${PROJECT_SOURCE_DIR}/../../src/libvorbis)
 
 if(MSVC)
     add_definitions(-DWIN32 -D_CRT_SECURE_NO_WARNINGS)
