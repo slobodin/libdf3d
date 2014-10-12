@@ -33,7 +33,7 @@ Included with the source
 Compile
 =======
 
-For now the project contains visual studio solution with library project. Cmake doesn't work.
+CMake works now.
 
 Features
 ========
