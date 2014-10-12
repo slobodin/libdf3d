@@ -42,7 +42,7 @@ bool GuiManager::init(int contextWidth, int contextHeight)
     // Initialize core.
     if (!Core::Initialise())
     {
-    	base::glog << "Can not initialize Rocket GUI library" << base::logmess;
+        base::glog << "Can not initialize Rocket GUI library" << base::logmess;
         return false;
     }
     

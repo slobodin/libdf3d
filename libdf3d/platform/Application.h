@@ -11,9 +11,9 @@ struct AppEvent
 
 struct AppInitParams
 {
-	int windowWidth = DEFAULT_WINDOW_WIDTH;
-	int windowHeight = DEFAULT_WINDOW_HEIGHT;
-	bool fullscreen = false;
+    int windowWidth = DEFAULT_WINDOW_WIDTH;
+    int windowHeight = DEFAULT_WINDOW_HEIGHT;
+    bool fullscreen = false;
 };
 
 class Application

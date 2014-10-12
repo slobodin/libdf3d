@@ -273,8 +273,8 @@ shared_ptr<NodeComponent> MeshComponent::clone() const
     retRes->m_obb = m_obb;
     retRes->m_obbDirty = m_obbDirty;
     retRes->m_obbTransformationDirty = m_obbTransformationDirty;
-	//if (m_debugDraw)
-	//	retRes->m_debugDraw = boost::dynamic_pointer_cast<DebugDrawNode>(m_debugDraw->clone());
+    //if (m_debugDraw)
+    //    retRes->m_debugDraw = boost::dynamic_pointer_cast<DebugDrawNode>(m_debugDraw->clone());
 
     return retRes;
 }

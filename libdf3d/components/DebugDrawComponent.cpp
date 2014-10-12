@@ -14,12 +14,12 @@ void DebugDrawComponent::onDraw(render::RenderQueue *ops)
 }
 
 DebugDrawComponent::DebugDrawComponent()
-	: NodeComponent(CT_DEBUG_DRAW)
+    : NodeComponent(CT_DEBUG_DRAW)
 {
 }
 
 DebugDrawComponent::DebugDrawComponent(Type type)
-	: DebugDrawComponent()
+    : DebugDrawComponent()
 {
 }
 
@@ -29,9 +29,9 @@ DebugDrawComponent::~DebugDrawComponent()
 
 shared_ptr<NodeComponent> DebugDrawComponent::clone() const
 {
-	// TODO:
-	assert(false);
-	return nullptr;
+    // TODO:
+    assert(false);
+    return nullptr;
 }
 
 } }
