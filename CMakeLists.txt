@@ -209,11 +209,16 @@ if (WIN32)
     find_package(GLEW REQUIRED)
 endif(WIN32)
 
-INCLUDE(FindPkgConfig)
-
-PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
-PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0)
-PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf>=2.0)
+if (WIN32)
+    find_package(SDL REQUIRED)
+    find_package(SDL_image REQUIRED)
+    find_package(SDL_ttf REQUIRED)
+else(WIN32)
+    INCLUDE(FindPkgConfig)
+    pkg_search_module(SDL2 REQUIRED sdl2)
+    pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0)
+    pkg_search_module(SDL2TTF REQUIRED SDL2_ttf>=2.0)
+endif(WIN32)
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
 find_package(Boost REQUIRED)
@@ -223,7 +228,8 @@ add_library(libdf3d SHARED ${libdf3d_SRC_LIST} ${libdf3d_HEADER_LIST})
 include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/include
                     ${SDL2_INCLUDE_DIRS}
-                    ${Boost_INCLUDE_DIRS})
+                    ${Boost_INCLUDE_DIRS}
+                    ${OpenAL_INCLUDE_DIRS})
 
 if (WIN32)
     include_directories(${GLEW_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR})
@@ -234,15 +240,14 @@ target_link_libraries(libdf3d
     libogg
     libspark 
     libvorbis 
-    ${SDL2_LIBRARY} 
-    ${SDL2IMAGE_LIBRARY} 
-    ${GLEW_LIBRARY} 
-    ${SDL2TTF_LIBRARY} 
     ${OPENGL_LIBRARIES} 
     ${OPENAL_LIBRARY})
 
 if (WIN32)
+    target_link_libraries(libdf3d ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLTTF_LIBRARY} ${GLEW_LIBRARY})
     target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/lib/win32/RocketControls.lib)
     target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/lib/win32/RocketCore.lib)
     target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/lib/win32/RocketDebugger.lib)
+else(WIN32)
+    target_link_libraries(libdf3d ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY})
 endif(WIN32)
