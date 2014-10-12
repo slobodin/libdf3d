@@ -4,7 +4,7 @@ FWD_MODULE_CLASS(base, Controller)
 
 namespace df3d { namespace scripting {
 
-#if DF3D_USES_PYTHON
+#if defined(DF3D_USES_PYTHON)
 
 class PythonUpdateProxy;
 class PythonMouseInputProxy;
@@ -26,7 +26,7 @@ class DF3D_DLL ScriptManager : boost::noncopyable
     void shutdown();
 
 public:
-#if defined(DF3D_LIBRARY)
+#if defined(LIBDF3D_EXPORTS)
     template<typename T>
     T getPythonObject(const char *pyFile, const char *pyObjName);
 #endif
@@ -44,6 +44,6 @@ public:
 
 } }
 
-#if defined(DF3D_LIBRARY)
+#if defined(LIBDF3D_EXPORTS)
 #include "ScriptManager.inl"
 #endif

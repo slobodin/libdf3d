@@ -28,7 +28,7 @@
 #ifndef ROCKETCOREHEADER_H
 #define ROCKETCOREHEADER_H
 
-#include <Rocket/Core/Platform.h>
+#include "Platform.h"
 
 // Note: Changing a ROCKETCORE_API_INLINE method
 // breaks ABI compatibility!!
@@ -79,7 +79,7 @@
 	#define ROCKETCORE_API
 	// Note: Changing a ROCKETCORE_API_INLINE method
 	// breaks ABI compatibility!!
-	#define ROCKETCORE_API_INLINE
+	#define ROCKETCORE_API_INLINE inline
 #endif
 
 #endif

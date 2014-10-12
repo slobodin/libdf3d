@@ -5,7 +5,7 @@
 
 namespace df3d { namespace scripting {
 
-#if DF3D_USES_PYTHON
+#if defined(DF3D_USES_PYTHON)
 
 typedef boost::function<void(Uint8, Uint32, Sint32, Sint32)> PyMouseButtonHanler;
 typedef boost::function<void(Uint32, Sint32, Sint32)> PyMouseMotionHanler;

@@ -1,6 +1,6 @@
 #pragma once
 
-#if DF3D_USES_PYTHON
+#if defined(DF3D_USES_PYTHON)
 
 // FIXME:
 // Do not want to expose python to client.

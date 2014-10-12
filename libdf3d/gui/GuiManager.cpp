@@ -49,7 +49,7 @@ bool GuiManager::init(int contextWidth, int contextHeight)
     // Initialize controls library.
     Controls::Initialise();
 
-#if DF3D_USES_PYTHON
+#if defined(DF3D_USES_PYTHON)
     // Import RocketPython first.
     if (!g_scriptManager->doString("import pyrocketcore"))
     {
