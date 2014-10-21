@@ -180,6 +180,10 @@ set(libdf3d_SRC_LIST
 
 add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD)
 
+source_group("Source Files\\audio" FILES AudioBuffer.cpp
+                                         AudioManager.cpp
+                                         OpenALCommon.cpp)
+
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200 /wd\"4251\"")
 
@@ -222,6 +226,7 @@ endif(WIN32)
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
 find_package(Boost REQUIRED)
+find_package(CEGUI REQUIRED)
 
 add_library(libdf3d SHARED ${libdf3d_SRC_LIST} ${libdf3d_HEADER_LIST})
 
@@ -229,7 +234,8 @@ include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/include
                     ${SDL2_INCLUDE_DIRS}
                     ${Boost_INCLUDE_DIRS}
-                    ${OpenAL_INCLUDE_DIRS})
+                    ${OpenAL_INCLUDE_DIRS}
+                    ${CEGUI_INCLUDE_DIRS})
 
 if (WIN32)
     include_directories(${GLEW_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR})
@@ -249,5 +255,5 @@ if (WIN32)
     target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/lib/win32/RocketCore.lib)
     target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/lib/win32/RocketDebugger.lib)
 else(WIN32)
-    target_link_libraries(libdf3d ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY})
+    target_link_libraries(libdf3d ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY} ${CEGUI_LIBRARY})
 endif(WIN32)
