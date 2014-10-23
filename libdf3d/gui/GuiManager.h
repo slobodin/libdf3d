@@ -1,30 +1,16 @@
 #pragma once
 
-#include "RocketIntrusivePtr.h"
-
-namespace Rocket { namespace Core { class Context; class ElementDocument; } }
-
 FWD_MODULE_CLASS(base, Controller)
 FWD_MODULE_CLASS(base, MouseMotionEvent)
 FWD_MODULE_CLASS(render, RenderManager)
 
 namespace df3d { namespace gui {
 
-class GuiFileInterface;
-class GuiSystemInterface;
-class GuiRenderInterface;
-
 class DF3D_DLL GuiManager
 {
     // Update, render, init and shutdown should be called only by Controller and RenderManager.
     friend class base::Controller;
     friend class render::RenderManager;
-
-    scoped_ptr<GuiFileInterface> m_fileInterface;
-    scoped_ptr<GuiSystemInterface> m_systemInterface;
-    scoped_ptr<GuiRenderInterface> m_renderInterface;
-
-    Rocket::Core::Context *m_rocketContext;
 
     GuiManager();
     ~GuiManager();
@@ -44,14 +30,7 @@ class DF3D_DLL GuiManager
     void processTextInputEvent(const SDL_TextInputEvent &ev);
 
 public:
-    RocketDocument loadDocument(const char *name);
-    RocketDocument loadDocumentFromMemory(const std::string &data);
-    void loadFont(const char *path);
 
-    void setDebuggerVisible(bool visible);
-    bool isDebuggerVisible();
-
-    Rocket::Core::Context *getRocketContext();
 };
 
 } }

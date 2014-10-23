@@ -2,11 +2,7 @@
 
 #include <chrono>
 
-namespace Rocket { namespace Core { class Element; class ElementDocument; } }
-
 typedef std::chrono::time_point<std::chrono::system_clock> TimePoint;
-typedef intrusive_ptr<Rocket::Core::ElementDocument> RocketDocument;
-typedef intrusive_ptr<Rocket::Core::Element> RocketElement;
 
 namespace df3d {
 

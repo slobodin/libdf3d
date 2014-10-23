@@ -33,9 +33,13 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TransformComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/DebugOverlayWindow.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketIntrusivePtr.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketKeyBindings.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiGeometryBufferImpl.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiImageCodecImpl.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiRendererImpl.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiRenderTargetImpl.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiResourceProviderImpl.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiTextureImpl.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiTextureTargetImpl.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
@@ -118,9 +122,12 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TransformComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/DebugOverlayWindow.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketIntrusivePtr.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketKeyBindings.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiGeometryBufferImpl.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiImageCodecImpl.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiRendererImpl.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiResourceProviderImpl.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiTextureImpl.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiTextureTargetImpl.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.cpp
@@ -183,6 +190,10 @@ add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD)
 source_group("Source Files\\audio" FILES AudioBuffer.cpp
                                          AudioManager.cpp
                                          OpenALCommon.cpp)
+
+if (WIN32 AND NOT CMAKE_PREFIX_PATH)
+    set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party" CACHE PATH "third-party")
+endif()
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200 /wd\"4251\"")
@@ -247,13 +258,11 @@ target_link_libraries(libdf3d
     libspark 
     libvorbis 
     ${OPENGL_LIBRARIES} 
-    ${OPENAL_LIBRARY})
+    ${OPENAL_LIBRARY}
+    ${CEGUI_LIBRARY})
 
 if (WIN32)
     target_link_libraries(libdf3d ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLTTF_LIBRARY} ${GLEW_LIBRARY})
-    target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/lib/win32/RocketControls.lib)
-    target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/lib/win32/RocketCore.lib)
-    target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/lib/win32/RocketDebugger.lib)
 else(WIN32)
-    target_link_libraries(libdf3d ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY} ${CEGUI_LIBRARY})
+    target_link_libraries(libdf3d ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY})
 endif(WIN32)

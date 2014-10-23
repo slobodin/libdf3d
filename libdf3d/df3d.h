@@ -42,10 +42,7 @@
 #include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
 
-#include <gui/RocketIntrusivePtr.h>
 #include <gui/GuiManager.h>
-#include <Rocket/Core.h>
-#include <Rocket/Controls.h>
 
 #include <scripting/ScriptManager.h>
 #if defined(DF3D_USES_PYTHON)

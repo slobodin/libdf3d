@@ -117,8 +117,6 @@ void Controller::shutdown()
 {
     m_appDelegate->onAppEnded();
 
-    if (m_debugWindow)
-        m_debugWindow->onRocketShutdown();
     if (m_resourceManager)
         m_resourceManager->shutdown();
     if (m_audioManager)

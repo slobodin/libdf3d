@@ -35,11 +35,6 @@
 #include "df3d_config.h"
 #include "libdf3d_dll.h"
 
-#if defined(__ANDROID__)
-// gcc workaround
-#include "gui/RocketIntrusivePtr.h"
-#endif
-
 #include <boost/smart_ptr.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/algorithm/clamp.hpp>
