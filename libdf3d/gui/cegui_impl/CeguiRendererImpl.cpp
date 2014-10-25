@@ -6,6 +6,7 @@
 #include "CeguiViewportTargetImpl.h"
 #include "CeguiGeometryBufferImpl.h"
 #include "CeguiTextureTargetImpl.h"
+#include "CeguiTextureImpl.h"
 
 #include <base/Controller.h>
 #include <render/RenderManager.h>
@@ -26,6 +27,20 @@ CeguiRendererImpl::CeguiRendererImpl(int width, int height)
 CeguiRendererImpl::~CeguiRendererImpl()
 {
     CEGUI_DELETE_AO m_defaultRenderTarget;
+}
+
+void CeguiRendererImpl::logTextureCreation(const CEGUI::String &name)
+{
+    auto logger = Logger::getSingletonPtr();
+    if (logger)
+        logger->logEvent("[libdf3d CEGUI renderer] Created texture: " + name);
+}
+
+void CeguiRendererImpl::logTextureDestruction(const CEGUI::String &name)
+{
+    auto logger = Logger::getSingletonPtr();
+    if (logger)
+        logger->logEvent("[libdf3d CEGUI renderer] Destroyed texture: " + name);
 }
 
 CeguiRendererImpl& CeguiRendererImpl::bootstrapSystem(int width, int height, const int abi)
@@ -115,42 +130,79 @@ void CeguiRendererImpl::destroyAllTextureTargets()
 
 CEGUI::Texture& CeguiRendererImpl::createTexture(const CEGUI::String &name)
 {
+    if (m_textures.find(name) != m_textures.end())
+        CEGUI_THROW(AlreadyExistsException("A texture named '" + name + "' already exists."));
 
+    auto texture = CEGUI_NEW_AO CeguiTextureImpl(name);
+    m_textures[name] = texture;
+
+    logTextureCreation(name);
+
+    return *texture;
 }
 
 CEGUI::Texture& CeguiRendererImpl::createTexture(const CEGUI::String &name, const CEGUI::String &filename, const CEGUI::String &resourceGroup)
 {
+    if (m_textures.find(name) != m_textures.end())
+        CEGUI_THROW(AlreadyExistsException("A texture named '" + name + "' already exists."));
 
+    auto texture = CEGUI_NEW_AO CeguiTextureImpl(name, filename, resourceGroup);
+    m_textures[name] = texture;
+
+    logTextureCreation(name);
+
+    return *texture;
 }
 
 CEGUI::Texture& CeguiRendererImpl::createTexture(const CEGUI::String &name, const CEGUI::Sizef &size)
 {
+    if (m_textures.find(name) != m_textures.end())
+        CEGUI_THROW(AlreadyExistsException("A texture named '" + name + "' already exists."));
 
+    auto texture = CEGUI_NEW_AO CeguiTextureImpl(name, size);
+    m_textures[name] = texture;
+
+    logTextureCreation(name);
+
+    return *texture;
 }
 
 void CeguiRendererImpl::destroyTexture(CEGUI::Texture &texture)
 {
-
+    destroyTexture(texture.getName());
 }
 
 void CeguiRendererImpl::destroyTexture(const CEGUI::String &name)
 {
+    auto found = m_textures.find(name);
 
+    if (found != m_textures.end())
+    {
+        logTextureDestruction(name);
+        CEGUI_DELETE_AO found->second;
+        m_textures.erase(found);
+    }
 }
 
 void CeguiRendererImpl::destroyAllTextures()
 {
-
+    while (!m_textures.empty())
+        destroyTexture(m_textures.begin()->first);
 }
 
 CEGUI::Texture& CeguiRendererImpl::getTexture(const CEGUI::String &name) const
 {
+    auto found = m_textures.find(name);
 
+    if (found == m_textures.end())
+        CEGUI_THROW(UnknownObjectException("Texture does not exist: " + name));
+
+    return *found->second;
 }
 
 bool CeguiRendererImpl::isTextureDefined(const CEGUI::String &name) const
 {
-
+    return m_textures.find(name) != m_textures.end();
 }
 
 void CeguiRendererImpl::beginRendering()

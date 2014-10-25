@@ -6,6 +6,7 @@ namespace df3d { namespace gui { namespace cegui_impl {
 
 class CeguiGeometryBufferImpl;
 class CeguiTextureTargetImpl;
+class CeguiTextureImpl;
 
 class CeguiRendererImpl : public CEGUI::Renderer
 {
@@ -18,8 +19,14 @@ class CeguiRendererImpl : public CEGUI::Renderer
     std::vector<CeguiGeometryBufferImpl*> m_geometryBuffers;
     std::vector<CeguiTextureTargetImpl*> m_textureTargets;
 
+    typedef std::map<CEGUI::String, CeguiTextureImpl*, CEGUI::StringFastLessCompare CEGUI_MAP_ALLOC(CEGUI::String, CeguiTextureImpl*)> TextureMap;
+    TextureMap m_textures;
+
     CeguiRendererImpl(int width, int height);
     virtual ~CeguiRendererImpl();
+
+    void logTextureCreation(const CEGUI::String &name);
+    void logTextureDestruction(const CEGUI::String &name);
 
 public:
     static CeguiRendererImpl& bootstrapSystem(int width, int height, const int abi = CEGUI_VERSION_ABI);

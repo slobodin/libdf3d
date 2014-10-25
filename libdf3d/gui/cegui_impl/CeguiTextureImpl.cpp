@@ -9,6 +9,18 @@ CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name)
 
 }
 
+CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name, const CEGUI::String &filename, const CEGUI::String &resourceGroup)
+    : CeguiTextureImpl(name)
+{
+
+}
+
+CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name, const CEGUI::Sizef &size)
+    : CeguiTextureImpl(name)
+{
+
+}
+
 const CEGUI::String& CeguiTextureImpl::getName() const
 {
     return m_name;

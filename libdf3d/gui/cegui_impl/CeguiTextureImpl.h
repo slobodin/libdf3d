@@ -13,6 +13,8 @@ class CeguiTextureImpl : public CEGUI::Texture
 
 public:
     CeguiTextureImpl(const CEGUI::String &name);
+    CeguiTextureImpl(const CEGUI::String &name, const CEGUI::String &filename, const CEGUI::String &resourceGroup);
+    CeguiTextureImpl(const CEGUI::String &name, const CEGUI::Sizef &size);
 
     const CEGUI::String& getName() const;
     const CEGUI::Sizef& getSize() const;
