@@ -24,7 +24,7 @@ bool GuiManager::init(int contextWidth, int contextHeight)
 
     try
     {
-        cegui_impl::CeguiRendererImpl::bootstrapSystem();
+        cegui_impl::CeguiRendererImpl::bootstrapSystem(contextWidth, contextHeight);
     }
     catch (const CEGUI::Exception &e)
     {
@@ -37,7 +37,15 @@ bool GuiManager::init(int contextWidth, int contextHeight)
 
 void GuiManager::shutdown()
 {
-
+    try
+    {
+        cegui_impl::CeguiRendererImpl::destroySystem();
+    }
+    catch (const CEGUI::Exception &e)
+    {
+        base::glog << "Failed to destroy CEGUI. Reason:" << e.what() << base::logcritical;
+        throw;
+    }
 }
 
 void GuiManager::update(float dt)

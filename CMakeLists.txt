@@ -40,6 +40,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiResourceProviderImpl.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiTextureImpl.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiTextureTargetImpl.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiViewportTargetImpl.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
@@ -128,6 +129,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiResourceProviderImpl.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiTextureImpl.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiTextureTargetImpl.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiViewportTargetImpl.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.cpp
@@ -187,9 +189,18 @@ set(libdf3d_SRC_LIST
 
 add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD)
 
-source_group("Source Files\\audio" FILES AudioBuffer.cpp
-                                         AudioManager.cpp
-                                         OpenALCommon.cpp)
+source_group(audio FILES AudioBuffer.h
+                         AudioManager.h
+                         OpenALCommon.h
+                         AudioBuffer.cpp
+                         AudioManager.cpp
+                         OpenALCommon.cpp)
+
+# source_group(base FILES Common.cpp
+#                         Controller.cpp
+#                         InputEvents.cpp
+#                         Log.cpp
+#                         ThreadPool.cpp)
 
 if (WIN32 AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party" CACHE PATH "third-party")

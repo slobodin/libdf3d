@@ -19,6 +19,8 @@ class Renderer
     scoped_ptr<GpuProgramState> m_programState;
     shared_ptr<Texture> m_whiteTexture;
 
+    int m_maxTextureSize = -1;
+
     void loadEmbedGPUPrograms() const;
     void createWhiteTexture();
 
@@ -37,6 +39,8 @@ class Renderer
     bool m_polygonDrawModeOverriden = false;
     bool m_depthTestOverriden = false;
     bool m_depthWriteOverriden = false;
+
+    bool m_initialized = false;
 
 public:
     Renderer();
@@ -99,6 +103,8 @@ public:
     // Debug draw:
     // Draw AABB
     // Draw Line etc
+
+    int getMaxTextureSize();
 };
 
 } }

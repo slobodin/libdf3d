@@ -1,14 +1,21 @@
 #pragma once
 
 #include <CEGUI/RenderTarget.h>
+#include <CEGUI/GeometryBuffer.h>
+#include "CeguiRendererImpl.h"
 
 namespace df3d { namespace gui { namespace cegui_impl {
 
-template <typename T = RenderTarget>
+template <typename T = CEGUI::RenderTarget>
 class CeguiRenderTargetImpl : public T
 {
+protected:
+    CEGUI::Rectf m_area = { 0.0f, 0.0f, 0.0f, 0.0f };
+    CeguiRendererImpl &m_owner;
+
 public:
-    CeguiRenderTargetImpl()
+    CeguiRenderTargetImpl(CeguiRendererImpl &owner)
+        : m_owner(owner)
     {
 
     }
@@ -18,24 +25,27 @@ public:
 
     }
 
-    void draw(const GeometryBuffer &buffer)
+    void draw(const CEGUI::GeometryBuffer &buffer)
     {
-
+        buffer.draw();
     }
 
-    void draw(const RenderQueue &queue)
+    void draw(const CEGUI::RenderQueue &queue)
     {
-
+        queue.draw();
     }
 
-    void setArea(const Rectf &area)
+    void setArea(const CEGUI::Rectf &area)
     {
+        m_area = area;
 
+        CEGUI::RenderTargetEventArgs args(this);
+        T::fireEvent(RenderTarget::EventAreaChanged, args);
     }
 
-    const Rectf& getArea() const
+    const CEGUI::Rectf& getArea() const
     {
-
+        return m_area;
     }
 
     void activate()
@@ -48,7 +58,7 @@ public:
 
     }
 
-    void unprojectPoint(const GeometryBuffer &buff, const Vector2f &p_in, Vector2f &p_out) const
+    void unprojectPoint(const CEGUI::GeometryBuffer &buff, const CEGUI::Vector2f &p_in, CEGUI::Vector2f &p_out) const
     {
 
     }

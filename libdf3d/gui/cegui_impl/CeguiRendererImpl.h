@@ -4,14 +4,26 @@
 
 namespace df3d { namespace gui { namespace cegui_impl {
 
+class CeguiGeometryBufferImpl;
+class CeguiTextureTargetImpl;
+
 class CeguiRendererImpl : public CEGUI::Renderer
 {
-public:
-    static CeguiRendererImpl& bootstrapSystem(const int abi = CEGUI_VERSION_ABI);
-    static void destroySystem();
+    const CEGUI::String m_rendererId;
 
-    static CeguiRendererImpl& create(const int abi = CEGUI_VERSION_ABI);
-    static void destroy(CeguiRendererImpl &renderer);
+    CEGUI::Sizef m_displaySize;
+    const CEGUI::Vector2f m_displayDpi;
+
+    CEGUI::RenderTarget *m_defaultRenderTarget;
+    std::vector<CeguiGeometryBufferImpl*> m_geometryBuffers;
+    std::vector<CeguiTextureTargetImpl*> m_textureTargets;
+
+    CeguiRendererImpl(int width, int height);
+    virtual ~CeguiRendererImpl();
+
+public:
+    static CeguiRendererImpl& bootstrapSystem(int width, int height, const int abi = CEGUI_VERSION_ABI);
+    static void destroySystem();
 
     CEGUI::RenderTarget& getDefaultRenderTarget();
     CEGUI::GeometryBuffer& createGeometryBuffer();
@@ -35,10 +47,6 @@ public:
     const CEGUI::Vector2f& getDisplayDPI() const;
     CEGUI::uint getMaxTextureSize() const;
     const CEGUI::String& getIdentifierString() const;
-
-protected:
-    CeguiRendererImpl();
-    virtual ~CeguiRendererImpl();
 };
 
 } } }

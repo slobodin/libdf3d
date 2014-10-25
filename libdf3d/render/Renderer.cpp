@@ -276,7 +276,11 @@ bool Renderer::initialize()
     loadEmbedGPUPrograms();
     createWhiteTexture();
 
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_maxTextureSize);
+
     printOpenGLError();
+
+    m_initialized = true;
 
     return true;
 }
@@ -557,6 +561,17 @@ void Renderer::drawVertexBuffer(shared_ptr<VertexBuffer> vb, shared_ptr<IndexBuf
     }
 
     printOpenGLError();
+}
+
+int Renderer::getMaxTextureSize()
+{
+    if (!m_initialized)
+    {
+        base::glog << "Failed to get max texture size. Renderer is not initialized" << base::logwarn;
+        return -1;
+    }
+
+    return m_maxTextureSize;
 }
 
 } }
