@@ -102,7 +102,7 @@ shared_ptr<Scene> SceneManager::setCurrentScene(const char *filePath)
     for (auto listener : m_listeners)
         listener->onSceneCreated(m_currentScene.get());
 
-    base::glog << "Scene manager was set up for" << filePath << base::logmess;
+    base::glog << "Scene manager was set up for" << filePath << base::logdebug;
 
     return m_currentScene;
 }

@@ -22,7 +22,7 @@ Log &Log::instance()
 
 Log &Log::operator<< (const char *text)
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     m_buffer << text << " ";
 
@@ -31,7 +31,7 @@ Log &Log::operator<< (const char *text)
 
 Log &Log::operator<< (const std::string &text)
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     m_buffer << text << " ";
 
@@ -40,7 +40,7 @@ Log &Log::operator<< (const std::string &text)
 
 Log &Log::operator<< (int num)
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     m_buffer << num << " ";
 
@@ -49,7 +49,7 @@ Log &Log::operator<< (int num)
 
 Log &Log::operator<< (long num)
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     m_buffer << num << " ";
 
@@ -58,7 +58,7 @@ Log &Log::operator<< (long num)
 
 Log &Log::operator<< (long long num)
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     m_buffer << num << " ";
 
@@ -67,7 +67,7 @@ Log &Log::operator<< (long long num)
 
 Log &Log::operator<< (unsigned num)
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     m_buffer << num << " ";
 
@@ -76,7 +76,7 @@ Log &Log::operator<< (unsigned num)
 
 Log &Log::operator<< (double num)
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     m_buffer << num << " ";
 
@@ -85,7 +85,7 @@ Log &Log::operator<< (double num)
 
 Log &Log::operator<< (const glm::vec2 &v)
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     m_buffer << "[x: " << v.x << " y: " << v.y << "] ";
 
@@ -94,7 +94,7 @@ Log &Log::operator<< (const glm::vec2 &v)
 
 Log &Log::operator<< (const glm::vec3 &v)
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     m_buffer << "[x: " << v.x << " y: " << v.y << " z: " << v.z << "] ";
 
@@ -103,7 +103,7 @@ Log &Log::operator<< (const glm::vec3 &v)
 
 Log &Log::operator<< (const glm::vec4 &v)
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     m_buffer << "[x: " << v.x << " y: " << v.y << " z: " << v.z << " w: " << v.w << "] ";
 
@@ -112,7 +112,7 @@ Log &Log::operator<< (const glm::vec4 &v)
 
 Log &Log::operator<< (const LoggerManipulator &man)
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
 #if 0
     // Print time.

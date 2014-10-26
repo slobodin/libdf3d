@@ -11,6 +11,8 @@
 #include <base/Controller.h>
 #include <render/RenderManager.h>
 #include <render/Renderer.h>
+#include <render/RenderPass.h>
+#include <render/GpuProgram.h>
 
 namespace df3d { namespace gui { namespace cegui_impl {
 
@@ -22,6 +24,13 @@ CeguiRendererImpl::CeguiRendererImpl(int width, int height)
     m_displayDpi(96.0f, 96.0f)
 {
     m_defaultRenderTarget = CEGUI_NEW_AO CeguiViewportTargetImpl(*this, width, height);
+
+    // Init default render pass which will be used by all geometry buffers.
+    m_defaultRenderPass = make_shared<render::RenderPass>();
+    m_defaultRenderPass->setFaceCullMode(render::RenderPass::FCM_NONE);
+    m_defaultRenderPass->setGpuProgram(render::GpuProgram::createFFP2DGpuProgram());
+    m_defaultRenderPass->enableDepthTest(false);
+    m_defaultRenderPass->setBlendMode(render::RenderPass::BM_ALPHA);
 }
 
 CeguiRendererImpl::~CeguiRendererImpl()
@@ -82,7 +91,7 @@ CEGUI::RenderTarget& CeguiRendererImpl::getDefaultRenderTarget()
 
 CEGUI::GeometryBuffer& CeguiRendererImpl::createGeometryBuffer()
 {
-    auto geometryBuffer = CEGUI_NEW_AO CeguiGeometryBufferImpl();
+    auto geometryBuffer = CEGUI_NEW_AO CeguiGeometryBufferImpl(*this);
     m_geometryBuffers.push_back(geometryBuffer);
 
     return *geometryBuffer;
@@ -207,12 +216,15 @@ bool CeguiRendererImpl::isTextureDefined(const CEGUI::String &name) const
 
 void CeguiRendererImpl::beginRendering()
 {
+    auto renderer = g_renderManager->getRenderer();
 
+    //renderer->enableScissorTest(true);
+    //renderer->enableDepthTest(false);
 }
 
 void CeguiRendererImpl::endRendering()
 {
-
+    
 }
 
 void CeguiRendererImpl::setDisplaySize(const CEGUI::Sizef &sz)
@@ -238,6 +250,11 @@ CEGUI::uint CeguiRendererImpl::getMaxTextureSize() const
 const CEGUI::String& CeguiRendererImpl::getIdentifierString() const
 {
     return m_rendererId;
+}
+
+shared_ptr<render::RenderPass> CeguiRendererImpl::getDefaultRenderPass() const
+{
+    return m_defaultRenderPass;
 }
 
 } } }

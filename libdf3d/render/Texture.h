@@ -36,6 +36,7 @@ private:
     bool m_mipmapped = true;
 
     shared_ptr<Image> m_image;
+    size_t m_actualWidth = 0, m_actualHeight = 0;
 
     // GL data.
     unsigned int m_glid = 0;
@@ -61,6 +62,11 @@ public:
 
     void setImage(shared_ptr<Image> image);
     shared_ptr<Image> getImage() const;
+
+    size_t getOriginalWidth() const;
+    size_t getOriginalHeight() const;
+    size_t getActualWidth() const;
+    size_t getActualHeight() const;
 
     bool bind(size_t unit);
     void unbind();

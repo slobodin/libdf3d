@@ -2,6 +2,8 @@
 
 #include <CEGUI/CEGUI.h>
 
+FWD_MODULE_CLASS(render, RenderPass)
+
 namespace df3d { namespace gui { namespace cegui_impl {
 
 class CeguiGeometryBufferImpl;
@@ -21,6 +23,8 @@ class CeguiRendererImpl : public CEGUI::Renderer
 
     typedef std::map<CEGUI::String, CeguiTextureImpl*, CEGUI::StringFastLessCompare CEGUI_MAP_ALLOC(CEGUI::String, CeguiTextureImpl*)> TextureMap;
     TextureMap m_textures;
+
+    shared_ptr<render::RenderPass> m_defaultRenderPass;
 
     CeguiRendererImpl(int width, int height);
     virtual ~CeguiRendererImpl();
@@ -54,6 +58,9 @@ public:
     const CEGUI::Vector2f& getDisplayDPI() const;
     CEGUI::uint getMaxTextureSize() const;
     const CEGUI::String& getIdentifierString() const;
+
+    // Use one render pass with different settings in order to draw geometry.
+    shared_ptr<render::RenderPass> getDefaultRenderPass() const;
 };
 
 } } }

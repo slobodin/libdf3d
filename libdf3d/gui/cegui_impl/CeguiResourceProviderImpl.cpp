@@ -11,14 +11,38 @@ namespace df3d  { namespace gui { namespace cegui_impl {
 
 using namespace CEGUI;
 
+CEGUI::String CeguiResourceProviderImpl::getFinalFilename(const CEGUI::String &filename, const CEGUI::String &resourceGroup)
+{
+    String finalFilename;
+
+    auto iter = m_resourceGroups.find(resourceGroup.empty() ? d_defaultResourceGroup : resourceGroup);
+    if (iter != m_resourceGroups.end())
+        finalFilename = (*iter).second;
+
+    return finalFilename + filename;
+}
+
 CeguiResourceProviderImpl::CeguiResourceProviderImpl()
 {
 
 }
 
+void CeguiResourceProviderImpl::setResourceGroupDirectory(const CEGUI::String &resourceGroup, const CEGUI::String &directory)
+{
+    if (directory.length() == 0)
+        return;
+
+    const CEGUI::String separators("\\/");
+
+    if (separators.find(directory[directory.length() - 1]) == CEGUI::String::npos)
+        m_resourceGroups[resourceGroup] = directory + '/';
+    else
+        m_resourceGroups[resourceGroup] = directory;
+}
+
 void CeguiResourceProviderImpl::loadRawDataContainer(const CEGUI::String &filename, CEGUI::RawDataContainer &output, const CEGUI::String &resourceGroup)
 {
-    auto fileSource = g_fileSystem->openFile(filename.c_str());
+    auto fileSource = g_fileSystem->openFile(getFinalFilename(filename, resourceGroup).c_str());
     if (!fileSource)
         CEGUI_THROW(InvalidRequestException("Unable to open resource file '" + filename + "'."));
 

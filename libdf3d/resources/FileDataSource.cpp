@@ -10,7 +10,7 @@ FileDataSource::FileDataSource(const char *fileName)
     : m_file(nullptr),
     m_filePath(fileName)
 {
-    std::unique_lock<std::mutex> lock(g_lock);
+    std::lock_guard<std::mutex> lock(g_lock);
 
     m_file = SDL_RWFromFile(fileName, "rb");
     if (!m_file)
@@ -32,7 +32,7 @@ bool FileDataSource::valid() const
 
 void FileDataSource::close()
 {
-    std::unique_lock<std::mutex> lock(g_lock);
+    std::lock_guard<std::mutex> lock(g_lock);
     if (m_file)
         SDL_RWclose(m_file);
     m_file = nullptr;

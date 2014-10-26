@@ -7,6 +7,7 @@
 
 #include <CEGUI/CEGUI.h>
 #include "cegui_impl/CeguiRendererImpl.h"
+#include "cegui_impl/CeguiResourceProviderImpl.h"
 
 namespace df3d { namespace gui {
 
@@ -80,6 +81,12 @@ void GuiManager::processKeyUpEvent(const SDL_KeyboardEvent &ev)
 
 void GuiManager::processTextInputEvent(const SDL_TextInputEvent &ev)
 {
+}
+
+void GuiManager::setResourceGroupDirectory(const char *resourceGroup, const char *directory)
+{
+    auto rp = static_cast<cegui_impl::CeguiResourceProviderImpl*>(CEGUI::System::getSingleton().getResourceProvider());
+    rp->setResourceGroupDirectory(resourceGroup, directory);
 }
 
 } }

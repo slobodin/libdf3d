@@ -18,7 +18,7 @@ namespace df3d { namespace resources {
 void ResourceManager::doRequest(DecodeRequest req)
 {
     // If 1 thread, need to be locked.
-    //std::unique_lock<std::recursive_mutex> lock(m_lock);
+    //std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     //base::glog << "Start load" << req.fileSource->getPath() << base::logmess;
 
@@ -82,7 +82,7 @@ bool ResourceManager::init()
 
 void ResourceManager::shutdown()
 {
-    //std::unique_lock<std::recursive_mutex> lock(m_lock);
+    //std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     m_threadPool.reset(nullptr);
     m_loadedResources.clear();
@@ -90,7 +90,7 @@ void ResourceManager::shutdown()
 
 shared_ptr<Resource> ResourceManager::loadResource(const char *path, LoadMode lm)
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     // First, try to find resource with given path.
     if (auto alreadyLoadedResource = findResource(path))
@@ -137,7 +137,7 @@ shared_ptr<Resource> ResourceManager::loadResource(const char *path, LoadMode lm
 
 void ResourceManager::loadResource(shared_ptr<Resource> resource)
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     auto &guid = resource->getGUID();
     if (!resource->valid() || !IsGUIDValid(guid))
@@ -157,7 +157,7 @@ void ResourceManager::loadResource(shared_ptr<Resource> resource)
 
 void ResourceManager::unloadResource(const ResourceGUID &guid)
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     auto found = m_loadedResources.find(guid);
     if (found == m_loadedResources.end() || found->second->isResident())
@@ -173,7 +173,7 @@ void ResourceManager::unloadResource(shared_ptr<Resource> resource)
 
 void ResourceManager::unloadUnused()
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     // Do this in such a way, because one resource can reference to an another.
     while (true)
@@ -199,7 +199,7 @@ void ResourceManager::unloadUnused()
 
 bool ResourceManager::isResourceExists(const char *path) const
 {
-    std::unique_lock<std::recursive_mutex> lock(m_lock);
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     if (findResource(path))
         return true;

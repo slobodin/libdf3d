@@ -30,7 +30,8 @@ class DF3D_DLL GuiManager
     void processTextInputEvent(const SDL_TextInputEvent &ev);
 
 public:
-
+    // CEGUI related stuff.
+    void setResourceGroupDirectory(const char *resourceGroup, const char *directory);
 };
 
 } }

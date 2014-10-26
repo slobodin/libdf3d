@@ -2,6 +2,8 @@
 
 #include <CEGUI/Texture.h>
 
+FWD_MODULE_CLASS(render, Texture)
+
 namespace df3d { namespace gui { namespace cegui_impl {
 
 class CeguiTextureImpl : public CEGUI::Texture
@@ -10,6 +12,8 @@ class CeguiTextureImpl : public CEGUI::Texture
     CEGUI::Sizef m_originalDataSize = { 0.0f, 0.0f };
     CEGUI::Sizef m_dataSize = { 0.0f, 0.0f };
     CEGUI::Vector2f m_texelScaling = { 0.0f, 0.0f };
+
+    shared_ptr<render::Texture> m_texture;
 
 public:
     CeguiTextureImpl(const CEGUI::String &name);
@@ -25,6 +29,8 @@ public:
     void blitFromMemory(const void *sourceData, const CEGUI::Rectf &area);
     void blitToMemory(void *targetData);
     bool isPixelFormatSupported(const PixelFormat fmt) const;
+
+    shared_ptr<render::Texture> getDf3dTexture() const;
 };
 
 } } }

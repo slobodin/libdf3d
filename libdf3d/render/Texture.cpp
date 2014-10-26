@@ -3,8 +3,29 @@
 
 #include "OpenGLCommon.h"
 #include "Image.h"
+#include <base/Controller.h>
+#include "RenderManager.h"
+#include "Renderer.h"
 
 namespace df3d { namespace render {
+
+bool isPot(size_t v)
+{
+    return v && !(v & (v - 1));
+}
+
+size_t getNextPot(size_t v)
+{
+    if (!isPot(v))
+    {
+        int n = 0;
+        while (v >>= 1)
+            ++n;
+
+        v = 1 << (n + 1);
+    }
+    return v;
+}
 
 #if defined(__WIN32__)
 
@@ -98,6 +119,21 @@ bool Texture::createGLTexture()
         return false;
     }
 
+    auto actWidth = getNextPot(m_image->width());
+    auto actHeight = getNextPot(m_image->height());
+    auto maxSize = g_renderManager->getRenderer()->getMaxTextureSize();
+    if (actWidth > maxSize || actHeight > maxSize)
+    {
+        base::glog << "Failed to create texture. Size is too big." << base::logwarn;
+        return false;
+    }
+
+    m_actualWidth = actWidth;
+    m_actualHeight = actHeight;
+
+    if (!(m_actualWidth == m_image->width() && m_actualHeight == m_image->height()))
+        base::glog << "Texture with name" << m_image->getGUID() << "is not pot" << base::logdebug;
+
     glGenTextures(1, &m_glid);
     glBindTexture(m_glType, m_glid);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -135,8 +171,10 @@ bool Texture::createGLTexture()
     }
     else if (m_textureType == TEXTURE_2D)
     {
-        glTexImage2D(m_glType, 0, glPixelFormat, m_image->width(), m_image->height(),
-            0, glPixelFormat, GL_UNSIGNED_BYTE, m_image->data());
+        // FIXME:
+        // Init empty texture.
+        glTexImage2D(m_glType, 0, glPixelFormat, m_actualWidth, m_actualHeight, 0, glPixelFormat, GL_UNSIGNED_BYTE, nullptr);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_image->width(), m_image->height(), glPixelFormat, GL_UNSIGNED_BYTE, m_image->data());
     }
     else if (m_textureType == TEXTURE_3D)
     {
@@ -237,6 +275,26 @@ void Texture::setImage(shared_ptr<Image> image)
 shared_ptr<Image> Texture::getImage() const
 {
     return m_image;
+}
+
+size_t Texture::getOriginalWidth() const
+{
+    return m_image ? m_image->width() : 0;
+}
+
+size_t Texture::getOriginalHeight() const
+{
+    return m_image ? m_image->height() : 0;
+}
+
+size_t Texture::getActualWidth() const
+{
+    return m_actualWidth;
+}
+
+size_t Texture::getActualHeight() const
+{
+    return m_actualHeight;
 }
 
 bool Texture::bind(size_t unit)
