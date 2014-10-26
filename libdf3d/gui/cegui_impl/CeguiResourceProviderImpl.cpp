@@ -11,17 +11,6 @@ namespace df3d  { namespace gui { namespace cegui_impl {
 
 using namespace CEGUI;
 
-CEGUI::String CeguiResourceProviderImpl::getFinalFilename(const CEGUI::String &filename, const CEGUI::String &resourceGroup)
-{
-    String finalFilename;
-
-    auto iter = m_resourceGroups.find(resourceGroup.empty() ? d_defaultResourceGroup : resourceGroup);
-    if (iter != m_resourceGroups.end())
-        finalFilename = (*iter).second;
-
-    return finalFilename + filename;
-}
-
 CeguiResourceProviderImpl::CeguiResourceProviderImpl()
 {
 
@@ -67,7 +56,20 @@ void CeguiResourceProviderImpl::unloadRawDataContainer(CEGUI::RawDataContainer &
 
 size_t CeguiResourceProviderImpl::getResourceGroupFileNames(std::vector<CEGUI::String> &out_vec, const CEGUI::String &file_pattern, const CEGUI::String &resource_group)
 {
+    // TODO:
+    CEGUI_THROW(InvalidRequestException("getResourceGroupFileNames for libdf3d is not implemented."));
     return 0;
+}
+
+CEGUI::String CeguiResourceProviderImpl::getFinalFilename(const CEGUI::String &filename, const CEGUI::String &resourceGroup)
+{
+    String finalFilename;
+
+    auto iter = m_resourceGroups.find(resourceGroup.empty() ? d_defaultResourceGroup : resourceGroup);
+    if (iter != m_resourceGroups.end())
+        finalFilename = (*iter).second;
+
+    return finalFilename + filename;
 }
 
 } } }

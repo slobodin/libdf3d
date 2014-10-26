@@ -11,6 +11,7 @@ namespace df3d { namespace render {
 class VertexBuffer;
 class IndexBuffer;
 class GpuProgramState;
+class Viewport;
 
 class Renderer
 {
@@ -53,7 +54,7 @@ public:
 
     void beginFrame();
     void endFrame();
-    void setViewport(unsigned int width, unsigned int height);
+    void setViewport(shared_ptr<const Viewport> viewport);
     void enableDepthTest(bool enable);
     void enableDepthWrite(bool enable);
     void enableScissorTest(bool enable);

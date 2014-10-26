@@ -13,6 +13,7 @@
 #include "GpuProgramUniform.h"
 #include "Texture.h"
 #include "Image.h"
+#include "Viewport.h"
 
 namespace df3d { namespace render {
 
@@ -88,7 +89,7 @@ void Renderer::createWhiteTexture()
     auto data = new unsigned char[w * h * 4];
     memset(data, 255, w * h * 4);
 
-    image->setWithData(data, w, h, h * 4, pf);
+    image->setWithData(data, w, h, pf);
     image->setInitialized(image->init());
 
     m_whiteTexture->setFilteringMode(Texture::NEAREST);
@@ -318,11 +319,17 @@ void Renderer::endFrame()
     glFlush();
 }
 
-void Renderer::setViewport(unsigned int width, unsigned int height)
+void Renderer::setViewport(shared_ptr<const Viewport> viewport)
 {
-    glViewport(0, 0, width, height);
+    if (!viewport)
+    {
+        base::glog << "Failed to set null viewport to the renderer." << base::logwarn;
+        return;
+    }
 
-    m_programState->m_pixelSize = glm::vec2(1.0f / (float)width, 1.0f / (float)height);
+    glViewport(viewport->x(), viewport->y(), viewport->width(), viewport->height());
+
+    m_programState->m_pixelSize = glm::vec2(1.0f / (float)viewport->width(), 1.0f / (float)viewport->height());
 }
 
 void Renderer::enableDepthTest(bool enable)

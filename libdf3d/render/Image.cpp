@@ -93,7 +93,7 @@ void Image::setPixelFormat(PixelFormat pf)
     m_pixelFormat = pf;
 }
 
-void Image::setWithData(const unsigned char *data, size_t w, size_t h, size_t pitch, PixelFormat pf)
+void Image::setWithData(const unsigned char *data, size_t w, size_t h, PixelFormat pf, int pitch)
 {
     if (!data || pf == PF_INVALID)
         return;
@@ -105,6 +105,9 @@ void Image::setWithData(const unsigned char *data, size_t w, size_t h, size_t pi
     auto size = w * h * m_depth;
     if (size == 0)
         return;
+
+    if (pitch == -1)
+        pitch = w * m_depth;
 
     SAFE_ARRAY_DELETE(m_data);
 
@@ -132,7 +135,7 @@ void Image::setWithData(SDL_Surface *surf)
         pf = render::Image::PF_RGBA;
 
     SDL_LockSurface(surf);
-    setWithData((const unsigned char *)surf->pixels, surf->w, surf->h, surf->pitch, pf);
+    setWithData((const unsigned char *)surf->pixels, surf->w, surf->h, pf, surf->pitch);
     SDL_UnlockSurface(surf);
 }
 

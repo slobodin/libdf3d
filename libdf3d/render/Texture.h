@@ -36,6 +36,7 @@ private:
     bool m_mipmapped = true;
 
     shared_ptr<Image> m_image;
+    bool m_imageDirty = true;
     size_t m_actualWidth = 0, m_actualHeight = 0;
 
     // GL data.
@@ -43,6 +44,7 @@ private:
     unsigned int m_glType;
 
     bool createGLTexture();
+    void deleteGLTexture();
 
 public:
     Texture();
@@ -61,7 +63,7 @@ public:
     void setWrapMode(WrapMode mode);
 
     void setImage(shared_ptr<Image> image);
-    shared_ptr<Image> getImage() const;
+    shared_ptr<const Image> getImage() const;
 
     size_t getOriginalWidth() const;
     size_t getOriginalHeight() const;
@@ -70,8 +72,6 @@ public:
 
     bool bind(size_t unit);
     void unbind();
-    // TODO:
-    void recreate();
 };
 
 } }

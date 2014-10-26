@@ -14,18 +14,27 @@ class CeguiGeometryBufferImpl : public CEGUI::GeometryBuffer
 {
     CeguiRendererImpl &m_owner;
 
-    scoped_ptr<render::RenderOperation> m_op;
+    struct Batch
+    {
+        bool clippingActive = false;
+        render::RenderOperation *m_op = nullptr;
+    };
+
+    std::vector<Batch> m_batches;
+
     CEGUI::Vector3f m_translation = { 0.0f, 0.0f, 0.0f };
     CEGUI::Quaternion m_rotation = CEGUI::Quaternion::IDENTITY;
     CEGUI::Vector3f m_pivot = { 0.0f, 0.0f, 0.0f };
     mutable bool m_matrixDirty = true;
-
-    glm::mat4 getMatrix() const;
+    mutable glm::mat4 m_matrix;
 
     CEGUI::Rectf m_clippingRegion = { 0.0f, 0.0f, 0.0f, 0.0f };
     bool m_clippingActive = true;
 
-    CeguiTextureImpl *m_texture = nullptr;
+    CeguiTextureImpl *m_activeTexture = nullptr;
+    CEGUI::RenderEffect *m_effect = nullptr;
+
+    const glm::mat4 &getMatrix() const;
 
 public:
     CeguiGeometryBufferImpl(CeguiRendererImpl &owner);

@@ -50,7 +50,7 @@ void RenderManager::createQuadRenderOperation()
 void RenderManager::createRenderTargets()
 {
     // Create screen RT.
-    m_screenRt = make_shared<RenderTargetScreen>();
+    m_screenRt = make_shared<RenderTargetScreen>(m_viewport->width(), m_viewport->height());
 
     m_textureRt = make_shared<RenderTargetTexture>(createOffscreenBuffer());
 
@@ -316,11 +316,6 @@ void RenderManager::drawOperation(const RenderOperation &op)
 
 void RenderManager::drawGUI()
 {
-    setupViewport(m_screenRt);
-
-    m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)m_screenRt->getWidth(), (float)m_screenRt->getHeight(), 0.0f));
-    m_renderer->setCameraMatrix(glm::mat4(1.0f));
-
     g_guiManager->render();
 }
 
@@ -332,8 +327,7 @@ void RenderManager::setupViewport(shared_ptr<RenderTarget> rt)
     auto h = rt->getHeight();
 
     m_viewport->setDimensions(0, 0, w, h);
-
-    m_renderer->setViewport((unsigned int)w, (unsigned int)h);
+    m_renderer->setViewport(m_viewport);
 }
 
 void RenderManager::onFrameBegin()
@@ -357,6 +351,11 @@ const RenderStats &RenderManager::getLastRenderStats() const
 shared_ptr<Viewport> RenderManager::getViewport()
 {
     return m_viewport;
+}
+
+shared_ptr<RenderTargetScreen> RenderManager::getScreenRenderTarget() const
+{
+    return m_screenRt;
 }
 
 Renderer *RenderManager::getRenderer() const

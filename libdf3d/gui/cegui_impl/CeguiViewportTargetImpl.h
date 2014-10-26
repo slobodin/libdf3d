@@ -7,7 +7,7 @@ namespace df3d { namespace gui { namespace cegui_impl {
 class CeguiViewportTargetImpl : public CeguiRenderTargetImpl<CEGUI::RenderTarget>
 {
 public:
-    CeguiViewportTargetImpl(CeguiRendererImpl &owner, int width, int height);
+    CeguiViewportTargetImpl(CeguiRendererImpl &owner);
     virtual ~CeguiViewportTargetImpl();
 
     bool isImageryCache() const;

@@ -91,6 +91,7 @@ public:
 
     const RenderStats &getLastRenderStats() const;
     shared_ptr<Viewport> getViewport();
+    shared_ptr<RenderTargetScreen> getScreenRenderTarget() const;
 
     Renderer *getRenderer() const;
 };

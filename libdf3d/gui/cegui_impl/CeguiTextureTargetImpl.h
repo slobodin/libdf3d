@@ -20,6 +20,7 @@ public:
     CEGUI::Texture& getTexture() const;
     void declareRenderSize(const CEGUI::Sizef &sz);
     bool isRenderingInverted() const;
+    void setArea(const CEGUI::Rectf &area);
 };
 
 } } }

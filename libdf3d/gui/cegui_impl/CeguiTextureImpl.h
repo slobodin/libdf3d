@@ -14,6 +14,8 @@ class CeguiTextureImpl : public CEGUI::Texture
     CEGUI::Vector2f m_texelScaling = { 0.0f, 0.0f };
 
     shared_ptr<render::Texture> m_texture;
+    void updateSizes();
+    void updateCachedScaleValues();
 
 public:
     CeguiTextureImpl(const CEGUI::String &name);

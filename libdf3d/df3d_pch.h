@@ -26,6 +26,7 @@
 #include <limits>
 #include <algorithm>
 #include <functional>
+#include <numeric>
 #include <thread>
 #include <mutex>
 #include <condition_variable>

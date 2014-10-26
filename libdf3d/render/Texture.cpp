@@ -103,6 +103,12 @@ GLint getGlWrapMode(Texture::WrapMode mode)
 
 bool Texture::createGLTexture()
 {
+    if (m_imageDirty)
+    {
+        deleteGLTexture();
+        m_imageDirty = false;
+    }
+
     if (m_glid)
         return true;
 
@@ -174,7 +180,9 @@ bool Texture::createGLTexture()
         // FIXME:
         // Init empty texture.
         glTexImage2D(m_glType, 0, glPixelFormat, m_actualWidth, m_actualHeight, 0, glPixelFormat, GL_UNSIGNED_BYTE, nullptr);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_image->width(), m_image->height(), glPixelFormat, GL_UNSIGNED_BYTE, m_image->data());
+
+        if (m_image->data())
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_image->width(), m_image->height(), glPixelFormat, GL_UNSIGNED_BYTE, m_image->data());
     }
     else if (m_textureType == TEXTURE_3D)
     {
@@ -220,6 +228,17 @@ bool Texture::createGLTexture()
     return true;
 }
 
+void Texture::deleteGLTexture()
+{
+    if (m_glid)
+    {
+        glBindTexture(m_glType, 0);
+        glDeleteTextures(1, &m_glid);
+
+        m_glid = 0;
+        m_glType = GL_INVALID_ENUM;
+    }
+}
 
 Texture::Texture()
     : m_glType(GL_INVALID_ENUM)
@@ -228,11 +247,7 @@ Texture::Texture()
 
 Texture::~Texture()
 {
-    if (m_glid)
-    {
-        glBindTexture(m_glType, 0);
-        glDeleteTextures(1, &m_glid);
-    }
+    deleteGLTexture();
 }
 
 void Texture::setType(Texture::Type newType)
@@ -270,9 +285,10 @@ void Texture::setImage(shared_ptr<Image> image)
     }
 
     m_image = image;
+    m_imageDirty = true;
 }
 
-shared_ptr<Image> Texture::getImage() const
+shared_ptr<const Image> Texture::getImage() const
 {
     return m_image;
 }
@@ -318,13 +334,6 @@ void Texture::unbind()
         return;
 
     glBindTexture(m_glType, 0);
-}
-
-void Texture::recreate()
-{
-    if (!m_image->valid())
-        return;
-    // TODO:
 }
 
 } }

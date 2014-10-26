@@ -51,7 +51,7 @@ public:
     void setPixelFormat(PixelFormat pf);
 
     //! Initializes image with given pixel array.
-    void setWithData(const unsigned char *data, size_t w, size_t h, size_t pitch, PixelFormat pf);
+    void setWithData(const unsigned char *data, size_t w, size_t h, PixelFormat pf, int pitch = -1);
     void setWithData(SDL_Surface *surf);
 };
 

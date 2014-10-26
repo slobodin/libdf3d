@@ -21,7 +21,7 @@ void RenderTargetTexture::createGLFramebuffer()
 
     glGenRenderbuffers(1, &m_renderBufferId);
     glBindRenderbuffer(GL_RENDERBUFFER, m_renderBufferId);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, m_texture->getImage()->width(), m_texture->getImage()->height());
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, m_texture->getActualWidth(), m_texture->getActualHeight());
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_renderBufferId);
 
 //#if defined(WIN32)
@@ -77,12 +77,12 @@ void RenderTargetTexture::unbind()
 
 int RenderTargetTexture::getWidth() const
 {
-    return m_texture->getImage()->width();
+    return m_texture->getOriginalWidth();
 }
 
 int RenderTargetTexture::getHeight() const
 {
-    return m_texture->getImage()->height();
+    return m_texture->getOriginalHeight();
 }
 
 shared_ptr<Texture> RenderTargetTexture::getTexture()
