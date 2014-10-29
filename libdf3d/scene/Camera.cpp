@@ -5,6 +5,7 @@
 #include <render/RenderManager.h>
 #include <render/Renderer.h>
 #include <render/Viewport.h>
+#include <render/RenderTargetScreen.h>
 
 namespace df3d { namespace scene {
 
@@ -53,8 +54,6 @@ Camera::Camera(const glm::vec3 &position, float fov, float nearZ, float farZ)
     m_projectionMatrixDirty(true)
 {
     buildCamMatrix();
-
-    m_viewport = g_renderManager->getViewport();
 }
 
 Camera::~Camera()
@@ -179,8 +178,10 @@ const glm::mat4 &Camera::getProjectionMatrix()
 {
     if (m_projectionMatrixDirty)
     {
-        float w = (float)m_viewport->width();
-        float h = (float)m_viewport->height();
+        const auto &vp = g_renderManager->getScreenRenderTarget()->getViewport();
+
+        float w = (float)vp.width();
+        float h = (float)vp.height();
 
         m_projectionMatrix = glm::perspective(glm::radians(m_fov), w / h, m_nearZ, m_farZ);
         m_projectionMatrixDirty = false;
@@ -191,8 +192,10 @@ const glm::mat4 &Camera::getProjectionMatrix()
 
 glm::vec3 Camera::screenToViewPoint(float x, float y, float z)
 {
-    float w = (float)g_renderManager->getViewport()->width();
-    float h = (float)g_renderManager->getViewport()->height();
+    const auto &vp = g_renderManager->getScreenRenderTarget()->getViewport();
+
+    float w = (float)vp.width();
+    float h = (float)vp.height();
     //float z = g_renderManager->getRenderer()->readDepthBuffer(x, h - y - 1);
 
     glm::vec4 viewport = glm::vec4(0.0f, 0.0f, w, h);
@@ -203,8 +206,10 @@ glm::vec3 Camera::screenToViewPoint(float x, float y, float z)
 
 glm::vec2 Camera::worldToScreenPoint(const glm::vec3 &world)
 {
-    float w = (float)g_renderManager->getViewport()->width();
-    float h = (float)g_renderManager->getViewport()->height();
+    const auto &vp = g_renderManager->getScreenRenderTarget()->getViewport();
+
+    float w = (float)vp.width();
+    float h = (float)vp.height();
 
     glm::vec4 viewport = glm::vec4(0.0f, 0.0f, w, h);
     auto screenPt = glm::project(world, getMatrix(), getProjectionMatrix(), viewport);

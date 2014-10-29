@@ -54,7 +54,7 @@ public:
 
     void beginFrame();
     void endFrame();
-    void setViewport(shared_ptr<const Viewport> viewport);
+    void setViewport(const Viewport &viewport);
     void enableDepthTest(bool enable);
     void enableDepthWrite(bool enable);
     void enableScissorTest(bool enable);

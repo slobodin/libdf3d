@@ -59,17 +59,15 @@ void CeguiTextureImpl::updateSizes()
 
     // TODO:
     // Get actual size!
-    m_dataSize.d_width = getNextPot(m_originalDataSize.d_width);
-    m_dataSize.d_height = getNextPot(m_originalDataSize.d_height);
+    m_dataSize.d_width = /*getNextPot(*/m_originalDataSize.d_width/*)*/;
+    m_dataSize.d_height = /*getNextPot(*/m_originalDataSize.d_height/*)*/;
 
     updateCachedScaleValues();
 }
 
 void CeguiTextureImpl::updateCachedScaleValues()
 {
-    //
     // calculate what to use for x scale
-    //
     const float orgW = m_originalDataSize.d_width;
     const float texW = m_dataSize.d_width;
 
@@ -82,9 +80,7 @@ void CeguiTextureImpl::updateCachedScaleValues()
     else
         m_texelScaling.d_x = 1.0f / ((orgW == texW) ? orgW : texW);
 
-    //
     // calculate what to use for y scale
-    //
     const float orgH = m_originalDataSize.d_height;
     const float texH = m_dataSize.d_height;
 
@@ -126,6 +122,13 @@ CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name, const CEGUI::Sizef
 
     m_texture->setImage(textureImage);
     
+    updateSizes();
+}
+
+CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name, shared_ptr<render::Texture> texture)
+    : m_name(name),
+    m_texture(texture)
+{
     updateSizes();
 }
 
@@ -177,12 +180,12 @@ void CeguiTextureImpl::loadFromMemory(const void *buffer, const CEGUI::Sizef &bu
 
 void CeguiTextureImpl::blitFromMemory(const void *sourceData, const CEGUI::Rectf &area)
 {
-
+    CEGUI_THROW(InvalidRequestException("CeguiTextureImpl::blitFromMemory is not supported."));
 }
 
 void CeguiTextureImpl::blitToMemory(void *targetData)
 {
-
+    CEGUI_THROW(InvalidRequestException("CeguiTextureImpl::blitToMemory is not supported."));
 }
 
 bool CeguiTextureImpl::isPixelFormatSupported(const PixelFormat fmt) const

@@ -11,6 +11,7 @@ public:
     virtual ~CeguiViewportTargetImpl();
 
     bool isImageryCache() const;
+    void setArea(const CEGUI::Rectf &area);
 };
 
 } } }

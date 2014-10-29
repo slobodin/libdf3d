@@ -4,6 +4,7 @@
 #include <base/Controller.h>
 #include <render/RenderManager.h>
 #include <render/RenderTargetScreen.h>
+#include <render/Viewport.h>
 
 namespace df3d { namespace gui { namespace cegui_impl {
 
@@ -12,7 +13,9 @@ CeguiViewportTargetImpl::CeguiViewportTargetImpl(CeguiRendererImpl &owner)
 {
     m_rt = g_renderManager->getScreenRenderTarget();
 
-    CEGUI::Rectf initArea(0.0f, 0.0f, (float)m_rt->getWidth(), (float)m_rt->getHeight());
+    const auto &vp = m_rt->getViewport();
+
+    CEGUI::Rectf initArea((float)vp.x(), (float)vp.y(), (float)vp.width(), (float)vp.height());
     setArea(initArea);
 }
 
@@ -23,6 +26,14 @@ CeguiViewportTargetImpl::~CeguiViewportTargetImpl()
 bool CeguiViewportTargetImpl::isImageryCache() const
 {
     return false;
+}
+
+void CeguiViewportTargetImpl::setArea(const CEGUI::Rectf &area)
+{
+    render::Viewport newvp(area.left(), area.top(), area.right(), area.bottom());
+    m_rt->setViewport(newvp);
+
+    CeguiRenderTargetImpl<CEGUI::RenderTarget>::setArea(area);
 }
 
 } } }

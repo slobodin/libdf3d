@@ -99,7 +99,7 @@ public:
     void dispatchAppEvent(SDL_Event *event);
     
     base::AppDelegate *getAppDelegate() { return m_appDelegate; }
-    shared_ptr<render::Viewport> getViewport();
+    const render::Viewport &getViewport() const;
 
     scene::SceneManager *getSceneManager() { return m_sceneManager; }
     resources::ResourceManager *getResourceManager() { return m_resourceManager; }

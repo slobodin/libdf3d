@@ -4,6 +4,8 @@
 #include "OpenGLCommon.h"
 #include "Texture.h"
 #include "Image.h"
+#include "RenderManager.h"
+#include <base/Controller.h>
 
 namespace df3d { namespace render {
 
@@ -41,10 +43,22 @@ void RenderTargetTexture::createGLFramebuffer()
     unbind();
 }
 
-RenderTargetTexture::RenderTargetTexture(shared_ptr<Texture> texture)
-    : m_texture(texture)
+RenderTargetTexture::RenderTargetTexture(const Viewport &vp)
 {
-    //assert(m_texture->valid());
+    m_viewport = vp;
+
+    m_texture = make_shared<Texture>();
+    m_texture->setMipmapped(false);
+    m_texture->setFilteringMode(Texture::NEAREST);
+    m_texture->setType(Texture::TEXTURE_2D);
+
+    auto image = make_shared<Image>();
+    image->setWidth(m_viewport.width());
+    image->setHeight(m_viewport.height());
+    image->setPixelFormat(Image::PF_RGBA);
+    image->setInitialized();
+
+    m_texture->setImage(image);
 }
 
 RenderTargetTexture::~RenderTargetTexture()
@@ -64,14 +78,18 @@ void RenderTargetTexture::bind()
     if (!m_fbo)
         return;
 
+    g_renderManager->getRenderer()->setViewport(m_viewport);
+
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     m_texture->bind(0);
 }
 
 void RenderTargetTexture::unbind()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    if (m_fbo)
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    if (m_renderBufferId)
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
     m_texture->unbind();
 }
 

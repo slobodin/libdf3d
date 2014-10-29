@@ -15,6 +15,7 @@
 #include <physics/PhysicsManager.h>
 #include <audio/AudioManager.h>
 #include <render/RenderStats.h>
+#include <render/RenderTargetScreen.h>
 #include <utils/JsonHelpers.h>
 #include <particlesys/SparkInterface.h>
 
@@ -382,9 +383,9 @@ void Controller::dispatchAppEvent(SDL_Event *event)
     }
 }
 
-shared_ptr<render::Viewport> Controller::getViewport()
+const render::Viewport &Controller::getViewport() const
 {
-    return m_renderManager->getViewport();
+    return m_renderManager->getScreenRenderTarget()->getViewport();
 }
 
 } }

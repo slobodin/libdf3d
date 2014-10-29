@@ -47,38 +47,16 @@ void RenderManager::createQuadRenderOperation()
     m_defaultPostProcessMaterial->setCurrentTechnique("default_technique");
 }
 
-void RenderManager::createRenderTargets()
+void RenderManager::createRenderTargets(const Viewport &vp)
 {
     // Create screen RT.
-    m_screenRt = make_shared<RenderTargetScreen>(m_viewport->width(), m_viewport->height());
+    m_screenRt = make_shared<RenderTargetScreen>(vp);
 
-    m_textureRt = make_shared<RenderTargetTexture>(createOffscreenBuffer());
+    m_textureRt = make_shared<RenderTargetTexture>(vp);
 
     for (size_t i = 0; i < MAX_POSPROCESS_PASSES; i++)
         // Doesn't actually create gpu buffer. Created when it's being used.
-        m_postProcessPassBuffers[i] = make_shared<RenderTargetTexture>(createOffscreenBuffer());
-}
-
-shared_ptr<Texture> RenderManager::createOffscreenBuffer()
-{
-    // Create texture RT. Used for post process scene effects.
-    auto offscreenBuffer = make_shared<Texture>();
-    offscreenBuffer->setMipmapped(false);
-    offscreenBuffer->setFilteringMode(Texture::NEAREST);
-    offscreenBuffer->setType(Texture::TEXTURE_2D);
-
-    auto image = make_shared<Image>();
-
-    // FIXME:
-    // Recreate when size of viewport is changed!
-    image->setWidth(m_viewport->width());
-    image->setHeight(m_viewport->height());
-    image->setPixelFormat(Image::PF_RGBA);
-    image->setInitialized();
-
-    offscreenBuffer->setImage(image);
-
-    return offscreenBuffer;
+        m_postProcessPassBuffers[i] = make_shared<RenderTargetTexture>(vp);
 }
 
 void RenderManager::createAmbientPassProps()
@@ -127,7 +105,7 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
         else
             rt = m_postProcessPassBuffers[passidx];
 
-        setupViewport(rt);
+        rt->bind();
 
         m_renderer->clearColorBuffer();
 
@@ -156,9 +134,6 @@ RenderManager::~RenderManager()
 
 bool RenderManager::init(RenderManagerInitParams params)
 {
-    m_viewport = make_shared<Viewport>();
-    m_viewport->setDimensions(0, 0, params.viewportWidth, params.viewportHeight);
-
 #if defined(__WIN32__) || defined(__ANDROID__)
     m_renderer.reset(new Renderer());
 #else
@@ -169,7 +144,7 @@ bool RenderManager::init(RenderManagerInitParams params)
 
     m_renderer->setRenderStatsLocation(&m_stats);
 
-    createRenderTargets();
+    createRenderTargets(Viewport(0, 0, params.viewportWidth, params.viewportHeight));
     createQuadRenderOperation();
     createAmbientPassProps();
 
@@ -227,7 +202,7 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
         rt = m_screenRt;
 
     // Draw whole scene to the texture or to the screen (depends on postprocess option).
-    setupViewport(rt);
+    rt->bind();
     m_renderer->setProjectionMatrix(camera->getProjectionMatrix());
 
     m_renderer->clearColorBuffer();
@@ -319,17 +294,6 @@ void RenderManager::drawGUI()
     g_guiManager->render();
 }
 
-void RenderManager::setupViewport(shared_ptr<RenderTarget> rt)
-{
-    rt->bind();
-
-    auto w = rt->getWidth();
-    auto h = rt->getHeight();
-
-    m_viewport->setDimensions(0, 0, w, h);
-    m_renderer->setViewport(m_viewport);
-}
-
 void RenderManager::onFrameBegin()
 {
     m_renderer->beginFrame();
@@ -346,11 +310,6 @@ void RenderManager::onFrameEnd()
 const RenderStats &RenderManager::getLastRenderStats() const
 {
     return m_lastStats;
-}
-
-shared_ptr<Viewport> RenderManager::getViewport()
-{
-    return m_viewport;
 }
 
 shared_ptr<RenderTargetScreen> RenderManager::getScreenRenderTarget() const

@@ -22,7 +22,7 @@ render::RenderPass::BlendingMode convertBlendingMode(CEGUI::BlendMode bm)
     case CEGUI::BM_NORMAL:
         return render::RenderPass::BM_ALPHA;
     case CEGUI::BM_RTT_PREMULTIPLIED:
-        return render::RenderPass::BM_ADDALPHA;
+        return render::RenderPass::BM_ALPHA;
     case CEGUI::BM_INVALID:
     default:
         break;
@@ -133,6 +133,7 @@ void CeguiGeometryBufferImpl::appendGeometry(const Vertex *const vbuff, uint ver
         renderPass->setFaceCullMode(render::RenderPass::FCM_NONE);
         renderPass->setGpuProgram(render::GpuProgram::createFFP2DGpuProgram());
         renderPass->enableDepthTest(false);
+        renderPass->enableDepthWrite(false);
         renderPass->setBlendMode(render::RenderPass::BM_ALPHA);
 
         if (m_activeTexture)
@@ -142,7 +143,7 @@ void CeguiGeometryBufferImpl::appendGeometry(const Vertex *const vbuff, uint ver
 
         newBatch.m_op = new render::RenderOperation();
         newBatch.m_op->passProps = renderPass;
-        newBatch.m_op->vertexData = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:2, tx:2, c:4"));
+        newBatch.m_op->vertexData = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
         newBatch.clippingActive = m_clippingActive;
 
         m_batches.push_back(newBatch);

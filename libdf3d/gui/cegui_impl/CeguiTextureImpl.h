@@ -21,6 +21,7 @@ public:
     CeguiTextureImpl(const CEGUI::String &name);
     CeguiTextureImpl(const CEGUI::String &name, const CEGUI::String &filename, const CEGUI::String &resourceGroup);
     CeguiTextureImpl(const CEGUI::String &name, const CEGUI::Sizef &size);
+    CeguiTextureImpl(const CEGUI::String &name, shared_ptr<render::Texture> texture);
 
     const CEGUI::String& getName() const;
     const CEGUI::Sizef& getSize() const;

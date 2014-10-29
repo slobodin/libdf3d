@@ -1,6 +1,5 @@
 #pragma once
 
-FWD_MODULE_CLASS(render, Viewport)
 FWD_MODULE_CLASS(base, MouseMotionEvent)
 
 namespace df3d { namespace scene {
@@ -20,8 +19,6 @@ class DF3D_DLL Camera
 
     glm::mat4 m_worldToCamera;
     glm::mat4 m_projectionMatrix;
-
-    shared_ptr<render::Viewport> m_viewport;
 
     //! Field of view.
     float m_fov;

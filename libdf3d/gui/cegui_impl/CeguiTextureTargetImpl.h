@@ -5,11 +5,9 @@
 
 namespace df3d { namespace gui { namespace cegui_impl {
 
-class CeguiTextureImpl;
-
 class CeguiTextureTargetImpl : public CeguiRenderTargetImpl<CEGUI::TextureTarget>
 {
-    CeguiTextureImpl *m_texture = nullptr;
+    CEGUI::Texture *m_texture = nullptr;
 
 public:
     CeguiTextureTargetImpl(CeguiRendererImpl &owner);

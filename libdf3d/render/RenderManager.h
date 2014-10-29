@@ -53,13 +53,10 @@ class RenderManager
     // FIXME: oes2.0 doesn't support mrt's.
     shared_ptr<RenderTargetTexture> m_postProcessPassBuffers[MAX_POSPROCESS_PASSES];
 
-    shared_ptr<Viewport> m_viewport;
-
     scoped_ptr<RenderQueue> m_renderQueue;
 
     void createQuadRenderOperation();
-    void createRenderTargets();
-    shared_ptr<Texture> createOffscreenBuffer();
+    void createRenderTargets(const Viewport &vp);
     void createAmbientPassProps();
 
     void debugDrawPass();
@@ -84,13 +81,10 @@ public:
     void drawOperation(const RenderOperation &op);
     void drawGUI();
 
-    void setupViewport(shared_ptr<RenderTarget> rt);
-
     void onFrameBegin();
     void onFrameEnd();
 
     const RenderStats &getLastRenderStats() const;
-    shared_ptr<Viewport> getViewport();
     shared_ptr<RenderTargetScreen> getScreenRenderTarget() const;
 
     Renderer *getRenderer() const;

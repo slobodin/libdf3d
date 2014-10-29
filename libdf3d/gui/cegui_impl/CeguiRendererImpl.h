@@ -2,6 +2,8 @@
 
 #include <CEGUI/CEGUI.h>
 
+FWD_MODULE_CLASS(render, Texture)
+
 namespace df3d { namespace gui { namespace cegui_impl {
 
 class CeguiGeometryBufferImpl;
@@ -42,6 +44,7 @@ public:
     CEGUI::Texture& createTexture(const CEGUI::String &name);
     CEGUI::Texture& createTexture(const CEGUI::String &name, const CEGUI::String &filename, const CEGUI::String &resourceGroup);
     CEGUI::Texture& createTexture(const CEGUI::String &name, const CEGUI::Sizef &size);
+    CEGUI::Texture& createTexture(const CEGUI::String &name, shared_ptr<render::Texture> texture);
     void destroyTexture(CEGUI::Texture &texture);
     void destroyTexture(const CEGUI::String &name);
     void destroyAllTextures();

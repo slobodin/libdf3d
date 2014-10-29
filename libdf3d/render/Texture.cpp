@@ -125,8 +125,8 @@ bool Texture::createGLTexture()
         return false;
     }
 
-    auto actWidth = getNextPot(m_image->width());
-    auto actHeight = getNextPot(m_image->height());
+    auto actWidth = /*getNextPot(*/m_image->width();
+    auto actHeight = /*getNextPot(*/m_image->height();
     auto maxSize = g_renderManager->getRenderer()->getMaxTextureSize();
     if (actWidth > maxSize || actHeight > maxSize)
     {

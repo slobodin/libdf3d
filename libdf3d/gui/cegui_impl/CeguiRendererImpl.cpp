@@ -61,8 +61,8 @@ CeguiRendererImpl& CeguiRendererImpl::bootstrapSystem(int width, int height, con
 
 void CeguiRendererImpl::destroySystem()
 {
-    System *sys;
-    if (!(sys = System::getSingletonPtr()))
+    auto sys = System::getSingletonPtr();
+    if (!sys)
         CEGUI_THROW(InvalidRequestException("CEGUI::System object is not created or was already destroyed."));
 
     auto renderer = static_cast<CeguiRendererImpl*>(sys->getRenderer());
@@ -167,6 +167,19 @@ CEGUI::Texture& CeguiRendererImpl::createTexture(const CEGUI::String &name, cons
     return *texture;
 }
 
+CEGUI::Texture& CeguiRendererImpl::createTexture(const CEGUI::String &name, shared_ptr<render::Texture> texture)
+{
+    if (m_textures.find(name) != m_textures.end())
+        CEGUI_THROW(AlreadyExistsException("A texture named '" + name + "' already exists."));
+
+    auto t = CEGUI_NEW_AO CeguiTextureImpl(name, texture);
+    m_textures[name] = t;
+
+    logTextureCreation(name);
+
+    return *t;
+}
+
 void CeguiRendererImpl::destroyTexture(CEGUI::Texture &texture)
 {
     destroyTexture(texture.getName());
@@ -217,7 +230,14 @@ void CeguiRendererImpl::endRendering()
 
 void CeguiRendererImpl::setDisplaySize(const CEGUI::Sizef &sz)
 {
-    m_displaySize = sz;
+    if (sz != m_displaySize) {
+        m_displaySize = sz;
+
+        auto &defaultTarget = getDefaultRenderTarget();
+        Rectf area(defaultTarget.getArea());
+        area.setSize(sz);
+        defaultTarget.setArea(area);
+    }
 }
 
 const CEGUI::Sizef& CeguiRendererImpl::getDisplaySize() const

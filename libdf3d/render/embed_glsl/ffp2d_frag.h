@@ -7,6 +7,6 @@ varying LOWP vec2 UV;                                                   \n\
 \
 void main()                                                             \n\
 {                                                                       \n\
-    gl_FragColor = color * texture2D(diffuseMap, UV);                   \n\
+    gl_FragColor = texture2D(diffuseMap, UV) * color;                   \n\
 }                                                                       \n\
 "

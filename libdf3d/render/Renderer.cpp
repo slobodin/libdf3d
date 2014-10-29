@@ -319,17 +319,11 @@ void Renderer::endFrame()
     glFlush();
 }
 
-void Renderer::setViewport(shared_ptr<const Viewport> viewport)
+void Renderer::setViewport(const Viewport &viewport)
 {
-    if (!viewport)
-    {
-        base::glog << "Failed to set null viewport to the renderer." << base::logwarn;
-        return;
-    }
+    glViewport(viewport.x(), viewport.y(), viewport.width(), viewport.height());
 
-    glViewport(viewport->x(), viewport->y(), viewport->width(), viewport->height());
-
-    m_programState->m_pixelSize = glm::vec2(1.0f / (float)viewport->width(), 1.0f / (float)viewport->height());
+    m_programState->m_pixelSize = glm::vec2(1.0f / (float)viewport.width(), 1.0f / (float)viewport.height());
 }
 
 void Renderer::enableDepthTest(bool enable)

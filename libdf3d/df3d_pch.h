@@ -52,6 +52,7 @@ using boost::scoped_ptr;
 using boost::weak_ptr;
 using boost::intrusive_ptr;
 using boost::dynamic_pointer_cast;
+using boost::static_pointer_cast;
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>

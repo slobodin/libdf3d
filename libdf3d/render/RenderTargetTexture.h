@@ -15,7 +15,8 @@ class RenderTargetTexture : public RenderTarget
     void createGLFramebuffer();
 
 public:
-    RenderTargetTexture(shared_ptr<Texture> texture);
+    // Viewport is a render target size.
+    RenderTargetTexture(const Viewport &vp);
     ~RenderTargetTexture();
 
     void bind();

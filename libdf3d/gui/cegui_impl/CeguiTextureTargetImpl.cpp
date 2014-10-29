@@ -60,18 +60,15 @@ bool CeguiTextureTargetImpl::isRenderingInverted() const
 
 void CeguiTextureTargetImpl::setArea(const CEGUI::Rectf &area)
 {
-    m_texture = &static_cast<CeguiTextureImpl &>(m_owner.createTexture(generateTextureName(), area.getSize()));
+    if (m_texture)
+        m_owner.destroyTexture(*m_texture);
 
-    auto image = make_shared<render::Image>();
+    auto vp = render::Viewport(area.left(), area.top(), area.right(), area.bottom());
+    m_rt = make_shared<render::RenderTargetTexture>(vp);
 
-    image->setWidth(area.getWidth());
-    image->setHeight(area.getHeight());
-    image->setPixelFormat(render::Image::PF_RGBA);
-    image->setInitialized();
+    auto df3dTexture = static_pointer_cast<render::RenderTargetTexture>(m_rt)->getTexture();
 
-    m_texture->getDf3dTexture()->setImage(image);
-
-    m_rt = make_shared<render::RenderTargetTexture>(m_texture->getDf3dTexture());
+    m_texture = &m_owner.createTexture(generateTextureName(), df3dTexture);
 
     CeguiRenderTargetImpl<CEGUI::TextureTarget>::setArea(area);
 }
