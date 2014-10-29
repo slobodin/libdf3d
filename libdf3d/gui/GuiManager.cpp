@@ -61,14 +61,42 @@ void GuiManager::render()
 
 void GuiManager::processMouseButtonEvent(const SDL_MouseButtonEvent &ev)
 {
+    CEGUI::MouseButton mb;
+    switch (ev.button)
+    {
+    case SDL_BUTTON_LEFT:
+        mb = CEGUI::LeftButton;
+        break;
+    case SDL_BUTTON_RIGHT:
+        mb = CEGUI::RightButton;
+        break;
+    case SDL_BUTTON_MIDDLE:
+        mb = CEGUI::MiddleButton;
+        break;
+    case SDL_BUTTON_X1:
+        mb = CEGUI::X1Button;
+        break;
+    case SDL_BUTTON_X2:
+        mb = CEGUI::X2Button;
+        break;
+    default:
+        return;
+    }
+
+    if (ev.type == SDL_MOUSEBUTTONDOWN)
+        CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(mb);
+    else if (ev.type == SDL_MOUSEBUTTONUP)
+        CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(mb);
 }
 
 void GuiManager::processMouseMotionEvent(const base::MouseMotionEvent &ev)
 {
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(ev.x, ev.y);
 }
 
 void GuiManager::processMouseWheelEvent(const SDL_MouseWheelEvent &ev)
 {
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseWheelChange(ev.y);
 }
 
 void GuiManager::processKeyDownEvent(const SDL_KeyboardEvent &ev)
