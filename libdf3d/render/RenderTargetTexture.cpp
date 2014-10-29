@@ -52,13 +52,7 @@ RenderTargetTexture::RenderTargetTexture(const Viewport &vp)
     m_texture->setFilteringMode(Texture::NEAREST);
     m_texture->setType(Texture::TEXTURE_2D);
 
-    auto image = make_shared<Image>();
-    image->setWidth(m_viewport.width());
-    image->setHeight(m_viewport.height());
-    image->setPixelFormat(Image::PF_RGBA);
-    image->setInitialized();
-
-    m_texture->setImage(image);
+    setViewport(vp);
 }
 
 RenderTargetTexture::~RenderTargetTexture()
@@ -93,14 +87,15 @@ void RenderTargetTexture::unbind()
     m_texture->unbind();
 }
 
-int RenderTargetTexture::getWidth() const
+void RenderTargetTexture::setViewport(const Viewport &vp)
 {
-    return m_texture->getOriginalWidth();
-}
+    auto image = make_shared<Image>();
+    image->setWidth(m_viewport.width());
+    image->setHeight(m_viewport.height());
+    image->setPixelFormat(Image::PF_RGBA);
+    image->setInitialized();
 
-int RenderTargetTexture::getHeight() const
-{
-    return m_texture->getOriginalHeight();
+    m_texture->setImage(image);
 }
 
 shared_ptr<Texture> RenderTargetTexture::getTexture()

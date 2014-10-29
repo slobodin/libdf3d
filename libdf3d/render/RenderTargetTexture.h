@@ -22,8 +22,7 @@ public:
     void bind();
     void unbind();
 
-    int getWidth() const;
-    int getHeight() const;
+    void setViewport(const Viewport &vp);
 
     shared_ptr<Texture> getTexture();
 };
