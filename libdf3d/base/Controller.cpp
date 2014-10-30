@@ -124,14 +124,14 @@ void Controller::shutdown()
         m_audioManager->shutdown();
     if (m_physics)
         m_physics->shutdown();
+    if (m_guiManager)
+        m_guiManager->shutdown();
     if (m_renderManager)
         m_renderManager->shutdown();
     if (m_scriptManager)
         m_scriptManager->shutdown();
     if (m_sceneManager)
         m_sceneManager->shutdown();
-    if (m_guiManager)
-        m_guiManager->shutdown();
     if (m_application)
         m_application->shutdown();
 

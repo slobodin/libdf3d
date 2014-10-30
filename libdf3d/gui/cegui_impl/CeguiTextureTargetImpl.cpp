@@ -65,7 +65,7 @@ void CeguiTextureTargetImpl::setArea(const CEGUI::Rectf &area)
     if (m_texture)
         m_owner.destroyTexture(*m_texture);
 
-    auto vp = render::Viewport(area.left(), area.top(), area.right(), area.bottom());
+    auto vp = render::Viewport((int)area.left(), (int)area.top(), (int)area.right(), (int)area.bottom());
     m_rt = make_shared<render::RenderTargetTexture>(vp);
 
     auto df3dTexture = static_pointer_cast<render::RenderTargetTexture>(m_rt)->getTexture();
