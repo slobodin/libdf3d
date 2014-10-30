@@ -35,7 +35,9 @@ bool CeguiTextureTargetImpl::isImageryCache() const
 
 void CeguiTextureTargetImpl::clear()
 {
-
+    m_rt->bind();
+    g_renderManager->getRenderer()->clearColorBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+    m_rt->unbind();
 }
 
 CEGUI::Texture& CeguiTextureTargetImpl::getTexture() const

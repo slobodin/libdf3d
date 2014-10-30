@@ -75,7 +75,7 @@ public:
     void disableDepthTestOverride() { m_depthTestOverriden = false; }
     void disableDepthWriteOverride() { m_depthWriteOverriden = false; }
 
-    void clearColorBuffer(const glm::vec3 &color = glm::vec3());
+    void clearColorBuffer(const glm::vec4 &color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     void clearDepthBuffer();
     void clearStencilBuffer();
 

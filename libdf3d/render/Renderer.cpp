@@ -406,9 +406,9 @@ void Renderer::enableDepthWriteOverride(bool enable)
     m_depthWriteOverriden = true;
 }
 
-void Renderer::clearColorBuffer(const glm::vec3 &color)
+void Renderer::clearColorBuffer(const glm::vec4 &color)
 {
-    glClearColor(color.r, color.g, color.b, 1.0f);
+    glClearColor(color.r, color.g, color.b, color.a);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 

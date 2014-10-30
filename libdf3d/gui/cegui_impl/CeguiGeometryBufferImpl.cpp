@@ -174,6 +174,7 @@ void CeguiGeometryBufferImpl::appendGeometry(const Vertex *const vbuff, uint ver
         newBatch.m_op = new render::RenderOperation();
         newBatch.m_op->passProps = renderPass;
         newBatch.m_op->vertexData = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
+        newBatch.m_op->vertexData->setUsageType(render::GB_USAGE_DYNAMIC);
         newBatch.clippingActive = m_clippingActive;
 
         m_batches.push_back(newBatch);

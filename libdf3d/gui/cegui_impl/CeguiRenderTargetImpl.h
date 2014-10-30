@@ -23,6 +23,18 @@ protected:
     // Subclasses should init it properly.
     shared_ptr<render::RenderTarget> m_rt;
 
+    bool m_matrixDirty = true;
+    glm::mat4 m_matrix;
+
+    void updateMatrix()
+    {
+        if (m_matrixDirty)
+        {
+            m_matrix = glm::ortho(m_area.left(), m_area.right(), m_area.bottom(), m_area.top());
+            m_matrixDirty = false;
+        }
+    }
+
 public:
     CeguiRenderTargetImpl(CeguiRendererImpl &owner)
         : m_owner(owner)
@@ -48,6 +60,7 @@ public:
     void setArea(const CEGUI::Rectf &area)
     {
         m_area = area;
+        m_matrixDirty = true;
 
         CEGUI::RenderTargetEventArgs args(this);
         T::fireEvent(RenderTarget::EventAreaChanged, args);
@@ -60,12 +73,11 @@ public:
 
     void activate()
     {
+        updateMatrix();
         m_rt->bind();
 
         g_renderManager->getRenderer()->setCameraMatrix(glm::mat4(1.0f));
-        // TODO:
-        // Cache this matrix.
-        g_renderManager->getRenderer()->setProjectionMatrix(glm::ortho(m_area.left(), m_area.right(), m_area.bottom(), m_area.top()));
+        g_renderManager->getRenderer()->setProjectionMatrix(m_matrix);
 
         m_owner.setActiveRenderTarget(this);
     }
