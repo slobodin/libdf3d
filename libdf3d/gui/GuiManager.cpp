@@ -91,12 +91,12 @@ void GuiManager::processMouseButtonEvent(const SDL_MouseButtonEvent &ev)
 
 void GuiManager::processMouseMotionEvent(const base::MouseMotionEvent &ev)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(ev.x, ev.y);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)ev.x, (float)ev.y);
 }
 
 void GuiManager::processMouseWheelEvent(const SDL_MouseWheelEvent &ev)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseWheelChange(ev.y);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseWheelChange((float)ev.y);
 }
 
 void GuiManager::processKeyDownEvent(const SDL_KeyboardEvent &ev)
