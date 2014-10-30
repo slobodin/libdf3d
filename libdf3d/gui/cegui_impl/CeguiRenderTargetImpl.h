@@ -2,6 +2,7 @@
 
 #include <CEGUI/RenderTarget.h>
 #include <CEGUI/GeometryBuffer.h>
+#include <cegui/Exceptions.h>
 #include "CeguiRendererImpl.h"
 #include <base/Controller.h>
 #include <render/RenderManager.h>
@@ -59,14 +60,14 @@ public:
 
     void activate()
     {
-        assert(m_rt);
-
         m_rt->bind();
 
         g_renderManager->getRenderer()->setCameraMatrix(glm::mat4(1.0f));
         // TODO:
         // Cache this matrix.
         g_renderManager->getRenderer()->setProjectionMatrix(glm::ortho(m_area.left(), m_area.right(), m_area.bottom(), m_area.top()));
+
+        m_owner.setActiveRenderTarget(this);
     }
 
     void deactivate()
@@ -76,7 +77,8 @@ public:
 
     void unprojectPoint(const CEGUI::GeometryBuffer &buff, const CEGUI::Vector2f &p_in, CEGUI::Vector2f &p_out) const
     {
-
+        using namespace CEGUI;
+        CEGUI_THROW(InvalidRequestException("unprojectPoint for libdf3d is not implemented."));
     }
 };
 

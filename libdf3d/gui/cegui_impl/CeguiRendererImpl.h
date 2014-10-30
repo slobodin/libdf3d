@@ -15,9 +15,10 @@ class CeguiRendererImpl : public CEGUI::Renderer
     const CEGUI::String m_rendererId;
 
     CEGUI::Sizef m_displaySize;
-    const CEGUI::Vector2f m_displayDpi;
+    const CEGUI::Vector2f m_displayDpi = { 96.0f, 96.0f };
 
     CEGUI::RenderTarget *m_defaultRenderTarget;
+    CEGUI::RenderTarget *m_activeRenderTarget = nullptr;
     std::vector<CeguiGeometryBufferImpl*> m_geometryBuffers;
     std::vector<CeguiTextureTargetImpl*> m_textureTargets;
 
@@ -57,6 +58,9 @@ public:
     const CEGUI::Vector2f& getDisplayDPI() const;
     CEGUI::uint getMaxTextureSize() const;
     const CEGUI::String& getIdentifierString() const;
+
+    void setActiveRenderTarget(CEGUI::RenderTarget *target);
+    const CEGUI::RenderTarget* getActiveRenderTarget() const;
 };
 
 } } }

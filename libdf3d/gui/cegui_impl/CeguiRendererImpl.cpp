@@ -18,8 +18,7 @@ using namespace CEGUI;
 
 CeguiRendererImpl::CeguiRendererImpl(int width, int height)
     : m_rendererId("CEGUI libdf3d renderer."),
-    m_displaySize((float)width, (float)height),
-    m_displayDpi(96.0f, 96.0f)
+    m_displaySize((float)width, (float)height)
 {
     m_defaultRenderTarget = CEGUI_NEW_AO CeguiViewportTargetImpl(*this);
 }
@@ -220,7 +219,6 @@ bool CeguiRendererImpl::isTextureDefined(const CEGUI::String &name) const
 
 void CeguiRendererImpl::beginRendering()
 {
-    // Just nothing!
 }
 
 void CeguiRendererImpl::endRendering()
@@ -258,6 +256,16 @@ CEGUI::uint CeguiRendererImpl::getMaxTextureSize() const
 const CEGUI::String& CeguiRendererImpl::getIdentifierString() const
 {
     return m_rendererId;
+}
+
+void CeguiRendererImpl::setActiveRenderTarget(CEGUI::RenderTarget *target)
+{
+    m_activeRenderTarget = target;
+}
+
+const CEGUI::RenderTarget* CeguiRendererImpl::getActiveRenderTarget() const
+{
+    return m_activeRenderTarget;
 }
 
 } } }

@@ -35,6 +35,7 @@ class CeguiGeometryBufferImpl : public CEGUI::GeometryBuffer
     CEGUI::RenderEffect *m_effect = nullptr;
 
     const glm::mat4 &getMatrix() const;
+    void setupScissorRegion(bool active) const;
 
 public:
     CeguiGeometryBufferImpl(CeguiRendererImpl &owner);

@@ -56,6 +56,23 @@ const glm::mat4 &CeguiGeometryBufferImpl::getMatrix() const
     return m_matrix;
 }
 
+void CeguiGeometryBufferImpl::setupScissorRegion(bool active) const
+{
+    g_renderManager->getRenderer()->enableScissorTest(active);
+
+    if (active)
+    {
+        const auto &viewport = m_owner.getActiveRenderTarget()->getArea();
+
+        auto scissorX = static_cast<int>(m_clippingRegion.left());
+        auto scissorY = static_cast<int>(viewport.getHeight() - m_clippingRegion.bottom());
+        auto scissorWidth = static_cast<int>(m_clippingRegion.getWidth());
+        auto scissorHeight = static_cast<int>(m_clippingRegion.getHeight());
+        
+        g_renderManager->getRenderer()->setScissorRegion(scissorX, scissorY, scissorWidth, scissorHeight);
+    }
+}
+
 CeguiGeometryBufferImpl::CeguiGeometryBufferImpl(CeguiRendererImpl &owner)
     : m_owner(owner)
 {
@@ -70,17 +87,27 @@ CeguiGeometryBufferImpl::~CeguiGeometryBufferImpl()
 void CeguiGeometryBufferImpl::draw() const
 {
     const auto &matrix = getMatrix();
-    for (auto &batch : m_batches)
+
+    const int passCount = m_effect ? m_effect->getPassCount() : 1;
+    size_t pos = 0;
+    for (int pass = 0; pass < passCount; ++pass)
     {
-        // FIXME: clipping relies on the viewport.
-        g_renderManager->getRenderer()->enableScissorTest(batch.clippingActive);
-        g_renderManager->getRenderer()->setScissorRegion(m_clippingRegion.left(), m_clippingRegion.top(), m_clippingRegion.right(), m_clippingRegion.bottom());
+        if (m_effect)
+            m_effect->performPreRenderFunctions(pass);
 
-        batch.m_op->worldTransform = matrix;
-        batch.m_op->passProps->setBlendMode(convertBlendingMode(d_blendMode));
+        for (const auto &batch : m_batches)
+        {
+            setupScissorRegion(batch.clippingActive);
 
-        g_renderManager->drawOperation(*batch.m_op);
+            batch.m_op->worldTransform = matrix;
+            batch.m_op->passProps->setBlendMode(convertBlendingMode(d_blendMode));
+
+            g_renderManager->drawOperation(*batch.m_op);
+        }
     }
+
+    if (m_effect)
+        m_effect->performPostRenderFunctions();
 }
 
 void CeguiGeometryBufferImpl::setTranslation(const Vector3f &v)
@@ -103,7 +130,10 @@ void CeguiGeometryBufferImpl::setPivot(const Vector3f &p)
 
 void CeguiGeometryBufferImpl::setClippingRegion(const Rectf &region)
 {
-    m_clippingRegion = region;
+    m_clippingRegion.top(ceguimax(0.0f, region.top()));
+    m_clippingRegion.left(ceguimax(0.0f, region.left()));
+    m_clippingRegion.bottom(ceguimax(0.0f, region.bottom()));
+    m_clippingRegion.right(ceguimax(0.0f, region.right()));
 }
 
 void CeguiGeometryBufferImpl::appendVertex(const Vertex &vertex)
@@ -153,10 +183,9 @@ void CeguiGeometryBufferImpl::appendGeometry(const Vertex *const vbuff, uint ver
     const Vertex *vs = vbuff;
     Batch &currentBatch = m_batches.back();
     currentBatch.m_op->vertexData->setDirty();
+    
     for (size_t i = 0; i < vertex_count; i++, vs++)
     {
-        // FIXME:
-        // Can directly map between CEGUI::Vertex and libdf3d vertex.
         render::Vertex_3p2tx4c v;
         v.p.x = vs->position.d_x;
         v.p.y = vs->position.d_y;
