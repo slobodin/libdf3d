@@ -89,6 +89,7 @@ public:
 
     void unprojectPoint(const CEGUI::GeometryBuffer &buff, const CEGUI::Vector2f &p_in, CEGUI::Vector2f &p_out) const
     {
+        // TODO:
         using namespace CEGUI;
         CEGUI_THROW(InvalidRequestException("unprojectPoint for libdf3d is not implemented."));
     }

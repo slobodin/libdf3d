@@ -51,7 +51,7 @@ void GuiManager::shutdown()
 
 void GuiManager::update(float dt)
 {
-
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(dt);
 }
 
 void GuiManager::render()

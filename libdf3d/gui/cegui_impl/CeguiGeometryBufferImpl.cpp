@@ -17,12 +17,13 @@ using namespace CEGUI;
 
 render::RenderPass::BlendingMode convertBlendingMode(CEGUI::BlendMode bm)
 {
+    // FIXME:
     switch (bm)
     {
     case CEGUI::BM_NORMAL:
         return render::RenderPass::BM_ALPHA;
     case CEGUI::BM_RTT_PREMULTIPLIED:
-        return render::RenderPass::BM_ADDALPHA;
+        return render::RenderPass::BM_ALPHA;
     case CEGUI::BM_INVALID:
     default:
         break;
