@@ -15,6 +15,8 @@ namespace df3d { namespace scene {
 // A node in a scene graph.
 // FIXME:
 // Use more cache-friendly structure.
+// FIXME:
+// Maybe create separate class VisibleNode? or something like that with methods draw etc.
 
 class DF3D_DLL Node : public boost::enable_shared_from_this<Node>, private boost::noncopyable
 {
@@ -35,6 +37,8 @@ protected:
 
     void broadcastNodeEvent(components::Event ev);
     void broadcastComponentEvent(const components::NodeComponent *who, components::Event ev);
+
+    virtual void onComponentEvent(const components::NodeComponent *who, components::Event ev) { }
 
 public:
     Node(const char *name = "");

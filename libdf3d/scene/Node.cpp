@@ -34,6 +34,8 @@ void Node::broadcastComponentEvent(const components::NodeComponent *who, compone
             c->onEvent(ev);
     }
 
+    onComponentEvent(who, ev);
+
     for (auto c : m_children)
         c.second->broadcastComponentEvent(who, ev);
 }

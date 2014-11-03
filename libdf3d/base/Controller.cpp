@@ -95,8 +95,6 @@ void Controller::updateController(float dt)
 {
     m_timeElapsed = IntervalBetweenNowAnd(m_timeStarted);
 
-    if (m_sceneManager->getCamera())
-        m_sceneManager->getCamera()->onUpdate(dt);
     m_audioManager->update(dt);
     m_physics->update(dt);
     m_sceneManager->update(dt);
@@ -344,14 +342,10 @@ void Controller::dispatchAppEvent(SDL_Event *event)
     case SDL_KEYUP:
         m_guiManager->processKeyUpEvent(event->key);
         m_appDelegate->onKeyUp(event->key);
-        if (m_sceneManager->getCamera())
-            m_sceneManager->getCamera()->onKeyUp(event->key);
         break;
     case SDL_KEYDOWN:
         m_guiManager->processKeyDownEvent(event->key);
         m_appDelegate->onKeyDown(event->key);
-        if (m_sceneManager->getCamera())
-            m_sceneManager->getCamera()->onKeyDown(event->key);
         break;
     case SDL_TEXTINPUT:
         m_guiManager->processTextInputEvent(event->text);
@@ -367,8 +361,6 @@ void Controller::dispatchAppEvent(SDL_Event *event)
     case SDL_MOUSEMOTION:
         m_guiManager->processMouseMotionEvent(event->motion);
         m_appDelegate->onMouseMotionEvent(event->motion);
-        if (m_sceneManager->getCamera())
-            m_sceneManager->getCamera()->onMouseMotionEvent(event->motion);
         break;
     case SDL_MOUSEWHEEL:
         m_guiManager->processMouseWheelEvent(event->wheel);

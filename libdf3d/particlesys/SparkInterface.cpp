@@ -5,6 +5,7 @@
 #include <base/Controller.h>
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
+#include <components/TransformComponent.h>
 #include <resources/ResourceManager.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/GpuProgram.h>
@@ -275,7 +276,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group& group)
 
     const auto &dir = g_sceneManager->getCamera()->getDir();
     const auto &up = g_sceneManager->getCamera()->getUp();
-    const auto &pos = g_sceneManager->getCamera()->getPosition();
+    const auto &pos = g_sceneManager->getCamera()->transform()->getPosition();
 
     bool globalOrientation = precomputeOrientation3D(group, SPK::Vector3D(dir.x, dir.y, dir.z), SPK::Vector3D(up.x, up.y, up.z), SPK::Vector3D(pos.x, pos.y, pos.z));
     auto totalParticles = group.getNbParticles();

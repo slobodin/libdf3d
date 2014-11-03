@@ -111,10 +111,13 @@ void PhysicsManager::drawDebug()
     m_pimpl->m_debugDraw->flushRenderOperations();
 }
 
-NodeMotionState::NodeMotionState(const btTransform &initialPos, scene::Node *node)
-    : m_node(node),
-    m_transform(new btTransform(initialPos))
+NodeMotionState::NodeMotionState(scene::Node *node)
+    : m_node(node)
 {
+    auto orientation = node->transform()->getOrientation();
+    auto pos = node->transform()->getPosition();
+
+    m_transform = new btTransform(btQuaternion(orientation.x, orientation.y, orientation.z, orientation.w), glmTobt(pos));
 }
 
 NodeMotionState::~NodeMotionState()

@@ -7,6 +7,7 @@
 #include <scene/Camera.h>
 #include <scene/FPSCamera.h>
 #include <scene/SceneManager.h>
+#include <components/TransformComponent.h>
 #include <base/Controller.h>
 #include <resources/ResourceManager.h>
 #include <render/MaterialLib.h>
@@ -82,21 +83,21 @@ void parseCamera(const Json::Value &cameraNode, scene::Scene *sc)
     {
         camera = make_shared<scene::Camera>();
     }
-    else if (type == "FPSCamera")
-    {
-        auto fpscamera = make_shared<scene::FPSCamera>(velocity);
-        fpscamera->setFreeMove(freeMove);
+    //else if (type == "FPSCamera")
+    //{
+    //    auto fpscamera = make_shared<scene::FPSCamera>(velocity);
+    //    fpscamera->setFreeMove(freeMove);
 
-        camera = fpscamera;
-    }
+    //    camera = fpscamera;
+    //}
     else
     {
         base::glog << "Unknown camera type found while parsing scene definition" << type << base::logwarn;
         return;
     }
 
-    camera->setPosition(position);
-    camera->setRotation(rotation.y, rotation.x, rotation.z);
+    camera->transform()->setPosition(position);
+    camera->transform()->setOrientation(rotation);
     camera->setFov(fov);
 
     sc->setCamera(camera);

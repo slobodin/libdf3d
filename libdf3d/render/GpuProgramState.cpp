@@ -7,6 +7,7 @@
 #include <base/Controller.h>
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
+#include <components/TransformComponent.h>
 
 namespace df3d { namespace render {
 
@@ -137,7 +138,7 @@ void GpuProgramState::onFrameBegin()
     m_currentShader = nullptr;
 
     if (g_sceneManager->getCamera())
-        m_cameraPosition = g_sceneManager->getCamera()->getPosition();
+        m_cameraPosition = g_sceneManager->getCamera()->transform()->getPosition();
 }
 
 void GpuProgramState::onFrameEnd()

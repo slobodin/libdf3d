@@ -213,7 +213,7 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
     m_renderer->setAmbientLight(sc->getAmbientLight());
     m_renderer->enableFog(sc->getFogDensity(), sc->getFogColor());
 
-    m_renderer->setCameraMatrix(camera->getMatrix());
+    m_renderer->setCameraMatrix(camera->getViewMatrix());
 
     m_renderQueue->sort();
 

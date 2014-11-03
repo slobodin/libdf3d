@@ -41,7 +41,7 @@ class NodeMotionState : public btMotionState
     btTransform *m_transform;
 
 public:
-    NodeMotionState(const btTransform &initialPos, scene::Node *node);
+    NodeMotionState(scene::Node *node);
     ~NodeMotionState();
 
     void getWorldTransform(btTransform &worldTrans) const;

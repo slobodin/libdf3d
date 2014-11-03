@@ -95,6 +95,12 @@ void TransformComponent::setOrientation(const glm::vec3 &eulerAngles, bool rads)
 
 void TransformComponent::setTransformation(const glm::mat4 &tr)
 {
+    //auto parent = m_holder->getParent();
+    //if (parent)
+    //    m_transformation = parent->transform()->getTransformation() * tr;
+    //else
+    //    m_transformation = tr;
+
     m_transformation = tr;
     markDirty(false);
 

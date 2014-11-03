@@ -105,7 +105,7 @@ void init(components::PhysicsComponent *component, const char *definitionFile)
     float angularDamping = utils::jsonGetValueWithDefault(root["angularDamping"], 0.0f);
 
     // Set initial transformation.
-    btTransform startTransform = btTransform::getIdentity();
+    /*btTransform startTransform = btTransform::getIdentity();
 
     auto pos = component->getHolder()->transform()->getPosition();
     auto orient = component->getHolder()->transform()->getRotation(true);
@@ -113,14 +113,14 @@ void init(components::PhysicsComponent *component, const char *definitionFile)
 
     startTransform.setOrigin(btVector3(pos.x, pos.y, pos.z));
     startTransform.setRotation(btQuaternion(orient.y, orient.x, orient.z));
-    //startTransform.setRotation(btQuaternion(orient.x, orient.y, orient.z, orient.w));
+    //startTransform.setRotation(btQuaternion(orient.x, orient.y, orient.z, orient.w));*/
 
     btVector3 localInertia(0, 0, 0);
     if (!glm::epsilonEqual(mass, 0.0f, glm::epsilon<float>()))
         colShape->calculateLocalInertia(mass, localInertia);
 
     // Set motion state.
-    auto myMotionState = new physics::NodeMotionState(startTransform, component->getHolder());
+    auto myMotionState = new physics::NodeMotionState(component->getHolder());
 
     // Fill body properties.
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);

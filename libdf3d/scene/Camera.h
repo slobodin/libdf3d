@@ -1,36 +1,27 @@
 #pragma once
 
-FWD_MODULE_CLASS(base, MouseMotionEvent)
+#include "Node.h"
 
 namespace df3d { namespace scene {
 
-class DF3D_DLL Camera
+class DF3D_DLL Camera : public Node
 {
-    //! Position of the camera in the world.
-    glm::vec3 m_position;
-    //! Right vector.
-    glm::vec3 m_right;
-    //! Up vector.
-    glm::vec3 m_up;
-    //! Direction vector.
-    glm::vec3 m_dir;
-
-    float m_yaw, m_pitch, m_roll;
-
     glm::mat4 m_worldToCamera;
     glm::mat4 m_projectionMatrix;
 
     //! Field of view.
     float m_fov;
-
     //! Near Z-clipping plane position.
     float m_nearZ;
     //! Far Z-clipping plane position.
     float m_farZ;
 
-    bool m_viewMatrixDirty;
-    bool m_projectionMatrixDirty;
-    void buildCamMatrix();
+    bool m_viewMatrixDirty = true;
+    bool m_projectionMatrixDirty = true;
+    void buildViewMatrix();
+    void buildProjectionMatrix();
+
+    void onComponentEvent(const components::NodeComponent *who, components::Event ev);
 
 public:
     /** 
@@ -43,41 +34,22 @@ public:
         float farZ = 8000.f);
     ~Camera();
 
-    void setPosition(const glm::vec3 &pos);
-    glm::vec3 getPosition() const { return m_position; }
-    
-    void moveForward(float step);
-    void moveBackward(float step);
-    void moveLeft(float step);
-    void moveRight(float step);
-
-    void move(const glm::vec3 &vec);
-    void lookAt(const glm::vec3 &pt);
-
     void setFov(float fov);
 
-    void setRotation(float yaw, float pitch, float roll, bool rads = false);
-    glm::vec3 getRotation(bool rads = false) const;
-
-    const glm::mat4 &getMatrix();
-
-    const glm::vec3 &getRight();
-    const glm::vec3 &getUp();
-    const glm::vec3 &getDir();
+    const glm::mat4 &getViewMatrix();
+    const glm::mat4 &getProjectionMatrix();
+    glm::vec3 getRight();
+    glm::vec3 getUp();
+    glm::vec3 getDir();
 
     float getFov() const { return m_fov; }
     float getNearZ() const { return m_nearZ; }
     float getFarZ() const { return m_farZ; }
 
-    const glm::mat4 &getProjectionMatrix();
+    
 
     glm::vec3 screenToViewPoint(float x, float y, float z = 0.0f);
     glm::vec2 worldToScreenPoint(const glm::vec3 &world);
-
-    virtual void onUpdate(float dt) { }
-    virtual void onMouseMotionEvent(const base::MouseMotionEvent &mouseMotionEvent) { }
-    virtual void onKeyUp(const SDL_KeyboardEvent &keyEvent) { }
-    virtual void onKeyDown(const SDL_KeyboardEvent &keyEvent) { }
 };
 
 } }

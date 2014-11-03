@@ -22,7 +22,7 @@ void ParticleSystemComponent::onUpdate(float dt)
     if (!m_system || m_paused)
         return;
 
-    m_system->setCameraPosition(particlesys::glmToSpk(g_sceneManager->getCamera()->getPosition()));
+    m_system->setCameraPosition(particlesys::glmToSpk(g_sceneManager->getCamera()->transform()->getPosition()));
     m_system->update(dt);
 
     if (m_systemLifeTime > 0.0f)

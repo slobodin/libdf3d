@@ -1,8 +1,9 @@
 #include "df3d_pch.h"
 #include "AudioManager.h"
 
-#include <base/Controller.h>
 #include "OpenALCommon.h"
+#include <base/Controller.h>
+#include <components/TransformComponent.h>
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
 #include <utils/Utils.h>
@@ -76,7 +77,7 @@ void AudioManager::update(float dt)
     auto cam = g_sceneManager->getCamera();
     if (cam)
     {
-        alListenerfv(AL_POSITION, glm::value_ptr(cam->getPosition()));
+        alListenerfv(AL_POSITION, glm::value_ptr(cam->transform()->getPosition()));
 
         const auto &dir = cam->getDir();
         const auto &up = cam->getUp();
