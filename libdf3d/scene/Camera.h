@@ -75,7 +75,7 @@ public:
     glm::vec2 worldToScreenPoint(const glm::vec3 &world);
 
     virtual void onUpdate(float dt) { }
-    virtual void onMouseMotionEvent(const base::MouseMotionEvent &mouseMotionEvent) {}
+    virtual void onMouseMotionEvent(const base::MouseMotionEvent &mouseMotionEvent) { }
     virtual void onKeyUp(const SDL_KeyboardEvent &keyEvent) { }
     virtual void onKeyDown(const SDL_KeyboardEvent &keyEvent) { }
 };

@@ -78,7 +78,7 @@ void parseCamera(const Json::Value &cameraNode, scene::Scene *sc)
     auto velocity = jsonGetValueWithDefault(cameraNode["velocity"], 0.0f);
 
     shared_ptr<scene::Camera> camera = nullptr;
-    if (type.empty())
+    if (type.empty() || type == "Camera")
     {
         camera = make_shared<scene::Camera>();
     }
