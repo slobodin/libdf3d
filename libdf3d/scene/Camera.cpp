@@ -112,11 +112,7 @@ glm::vec3 Camera::getUp()
 
 glm::vec3 Camera::getDir()
 {
-    // FIXME:
-    // !!!!
-    auto dir = glm::vec3(glm::row(transform()->getTransformation(), 2));
-    //dir.z = -dir.z;
-    return dir;
+    return glm::vec3(glm::row(transform()->getTransformation(), 2));
 }
 
 glm::vec3 Camera::screenToViewPoint(float x, float y, float z)

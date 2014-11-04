@@ -27,7 +27,6 @@ class DF3D_DLL ParticleSystemComponent : public NodeComponent
 
     void onUpdate(float dt);
 
-    // Only for render manager.
     size_t getGroupCount();
     void prepareRenderOperations();
     const render::RenderOperation &getRenderOperation(size_t groupIdx);

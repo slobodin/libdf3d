@@ -75,7 +75,7 @@ const render::RenderOperation &ParticleSystemComponent::getRenderOperation(size_
 {
     render::RenderOperation *op = m_renderOps[groupIdx];
 
-    particlesys::ParticleSystemRenderer *rend = dynamic_cast<particlesys::ParticleSystemRenderer *>(m_system->getGroup(groupIdx)->getRenderer());
+    particlesys::ParticleSystemRenderer *rend = static_cast<particlesys::ParticleSystemRenderer *>(m_system->getGroup(groupIdx)->getRenderer());
     op->vertexData = rend->getVertexBuffer();
     op->indexData = rend->getIndexBuffer();
     op->passProps = rend->m_pass;

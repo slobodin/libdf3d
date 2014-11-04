@@ -125,6 +125,7 @@ void QuadParticleSystemRenderer::render2D(const SPK::Particle& particle) const
     float r = particle.getR();
     float g = particle.getG();
     float b = particle.getB();
+    float a = particle.getParamCurrentValue(SPK::PARAM_ALPHA);
 
     const auto &position = particle.position();
     const auto &right = quadSide();
@@ -181,6 +182,8 @@ void QuadParticleSystemRenderer::render2D(const SPK::Particle& particle) const
 void QuadParticleSystemRenderer::render2DRot(const SPK::Particle& particle) const
 {
     rotateAndScaleQuadVectors(particle, scaleX, scaleY);
+    // TODO:
+    assert(false);
 }
 
 QuadParticleSystemRenderer::QuadParticleSystemRenderer(float scaleX, float scaleY)
@@ -278,7 +281,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group& group)
     const auto &up = g_sceneManager->getCamera()->getUp();
     const auto &pos = g_sceneManager->getCamera()->transform()->getPosition();
 
-    bool globalOrientation = precomputeOrientation3D(group, SPK::Vector3D(dir.x, dir.y, dir.z), SPK::Vector3D(up.x, up.y, up.z), SPK::Vector3D(pos.x, pos.y, pos.z));
+    bool globalOrientation = precomputeOrientation3D(group, glmToSpk(dir), glmToSpk(up), glmToSpk(pos));
     auto totalParticles = group.getNbParticles();
 
     if (globalOrientation)
