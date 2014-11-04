@@ -115,7 +115,7 @@ glm::vec3 Camera::getDir()
     // FIXME:
     // !!!!
     auto dir = glm::vec3(glm::row(transform()->getTransformation(), 2));
-    dir.z = -dir.z;
+    //dir.z = -dir.z;
     return dir;
 }
 

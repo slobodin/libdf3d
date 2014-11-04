@@ -60,7 +60,7 @@ const size_t MyBufferCreator::STRIDE_BETWEEN_VERTICES = 9;
 ParticleSystemRenderer::ParticleSystemRenderer()
 {
     m_pass = make_shared<render::RenderPass>();
-    m_pass->setFaceCullMode(render::RenderPass::FCM_BACK);
+    m_pass->setFaceCullMode(render::RenderPass::FCM_NONE);
     m_pass->setFrontFaceWinding(render::RenderPass::WO_CCW);
     m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f);
 
