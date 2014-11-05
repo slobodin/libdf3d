@@ -35,7 +35,8 @@ public:
     ~Camera();
 
     void setFov(float fov);
-
+    void setViewMatrix(const glm::mat4 &viewm);
+    
     const glm::mat4 &getViewMatrix();
     const glm::mat4 &getProjectionMatrix();
     glm::vec3 getRight();

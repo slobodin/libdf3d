@@ -86,6 +86,12 @@ void Camera::setFov(float fov)
     m_projectionMatrixDirty = true;
 }
 
+void Camera::setViewMatrix(const glm::mat4 &viewm)
+{
+    m_worldToCamera = viewm;
+    m_viewMatrixDirty = false;
+}
+
 const glm::mat4 &Camera::getViewMatrix()
 {
     buildViewMatrix();

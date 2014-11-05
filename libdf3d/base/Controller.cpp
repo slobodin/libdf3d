@@ -265,11 +265,11 @@ void Controller::run()
 
         m_application->pollEvents();
 
-        // Update user code.
-        m_appDelegate->onAppUpdate(dt);
-
         // Update engine.
         updateController(dt);
+
+        // Update user code.
+        m_appDelegate->onAppUpdate(dt);
 
         // Render frame.
         runFrame();
