@@ -104,17 +104,6 @@ void init(components::PhysicsComponent *component, const char *definitionFile)
     float linearDamping = utils::jsonGetValueWithDefault(root["linearDamping"], 0.0f);
     float angularDamping = utils::jsonGetValueWithDefault(root["angularDamping"], 0.0f);
 
-    // Set initial transformation.
-    /*btTransform startTransform = btTransform::getIdentity();
-
-    auto pos = component->getHolder()->transform()->getPosition();
-    auto orient = component->getHolder()->transform()->getRotation(true);
-    //auto orient = node->getOrientation();
-
-    startTransform.setOrigin(btVector3(pos.x, pos.y, pos.z));
-    startTransform.setRotation(btQuaternion(orient.y, orient.x, orient.z));
-    //startTransform.setRotation(btQuaternion(orient.x, orient.y, orient.z, orient.w));*/
-
     btVector3 localInertia(0, 0, 0);
     if (!glm::epsilonEqual(mass, 0.0f, glm::epsilon<float>()))
         colShape->calculateLocalInertia(mass, localInertia);
