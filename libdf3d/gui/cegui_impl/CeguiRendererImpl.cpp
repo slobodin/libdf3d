@@ -89,8 +89,8 @@ CEGUI::GeometryBuffer& CeguiRendererImpl::createGeometryBuffer()
 
 void CeguiRendererImpl::destroyGeometryBuffer(const CEGUI::GeometryBuffer &buffer)
 {
-    auto found = std::find(m_geometryBuffers.begin(), m_geometryBuffers.end(), &buffer);
-    if (found != m_geometryBuffers.end())
+    auto found = std::find(m_geometryBuffers.cbegin(), m_geometryBuffers.cend(), &buffer);
+    if (found != m_geometryBuffers.cend())
     {
         m_geometryBuffers.erase(found);
         CEGUI_DELETE_AO &buffer;
@@ -100,7 +100,7 @@ void CeguiRendererImpl::destroyGeometryBuffer(const CEGUI::GeometryBuffer &buffe
 void CeguiRendererImpl::destroyAllGeometryBuffers()
 {
     while (!m_geometryBuffers.empty())
-        destroyGeometryBuffer(**m_geometryBuffers.begin());
+        destroyGeometryBuffer(**m_geometryBuffers.cbegin());
 }
 
 CEGUI::TextureTarget* CeguiRendererImpl::createTextureTarget()
@@ -113,8 +113,8 @@ CEGUI::TextureTarget* CeguiRendererImpl::createTextureTarget()
 
 void CeguiRendererImpl::destroyTextureTarget(CEGUI::TextureTarget *target)
 {
-    auto found = std::find(m_textureTargets.begin(), m_textureTargets.end(), target);
-    if (found != m_textureTargets.end())
+    auto found = std::find(m_textureTargets.cbegin(), m_textureTargets.cend(), target);
+    if (found != m_textureTargets.cend())
     {
         m_textureTargets.erase(found);
         CEGUI_DELETE_AO target;
@@ -124,7 +124,7 @@ void CeguiRendererImpl::destroyTextureTarget(CEGUI::TextureTarget *target)
 void CeguiRendererImpl::destroyAllTextureTargets()
 {
     while (!m_textureTargets.empty())
-        destroyTextureTarget(*m_textureTargets.begin());
+        destroyTextureTarget(*m_textureTargets.cbegin());
 }
 
 CEGUI::Texture& CeguiRendererImpl::createTexture(const CEGUI::String &name)
@@ -199,7 +199,7 @@ void CeguiRendererImpl::destroyTexture(const CEGUI::String &name)
 void CeguiRendererImpl::destroyAllTextures()
 {
     while (!m_textures.empty())
-        destroyTexture(m_textures.begin()->first);
+        destroyTexture(m_textures.cbegin()->first);
 }
 
 CEGUI::Texture& CeguiRendererImpl::getTexture(const CEGUI::String &name) const

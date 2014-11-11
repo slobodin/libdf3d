@@ -147,9 +147,9 @@ void SceneManager::addNodeToScene(shared_ptr<Node> node)
 
 void SceneManager::registerListener(SceneManagerListener *listener)
 {
-    auto found = std::find(m_listeners.begin(), m_listeners.end(), listener);
+    auto found = std::find(m_listeners.cbegin(), m_listeners.cend(), listener);
 
-    if (found != m_listeners.end())
+    if (found != m_listeners.cend())
     {
         base::glog << "Trying to add duplicate scene manager listener" << base::logwarn;
         return;
@@ -160,9 +160,9 @@ void SceneManager::registerListener(SceneManagerListener *listener)
 
 void SceneManager::unregisterListener(SceneManagerListener *listener)
 {
-    auto found = std::find(m_listeners.begin(), m_listeners.end(), listener);
+    auto found = std::find(m_listeners.cbegin(), m_listeners.cend(), listener);
 
-    if (found == m_listeners.end())
+    if (found == m_listeners.cend())
     {
         base::glog << "Trying to remove not existing scene manager listener" << base::logwarn;
         return;

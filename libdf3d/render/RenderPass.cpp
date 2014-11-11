@@ -74,8 +74,8 @@ std::vector<Sampler> &RenderPass::getSamplers()
 
 shared_ptr<Texture> RenderPass::getSampler(const char *name)
 {
-    auto found = std::find_if(m_samplers.begin(), m_samplers.end(), [&](const Sampler &s) -> bool { return s.name == name; });
-    if (found == m_samplers.end())
+    auto found = std::find_if(m_samplers.cbegin(), m_samplers.cend(), [&](const Sampler &s) -> bool { return s.name == name; });
+    if (found == m_samplers.cend())
         return nullptr;
     return found->texture;
 }
@@ -88,8 +88,8 @@ void RenderPass::addPassParam(const RenderPassParam &param)
         return;
     }
 
-    auto found = std::find_if(m_passParams.begin(), m_passParams.end(), [&](const RenderPassParam &p) -> bool { return p.name == param.name; });
-    if (found != m_passParams.end())
+    auto found = std::find_if(m_passParams.cbegin(), m_passParams.cend(), [&](const RenderPassParam &p) -> bool { return p.name == param.name; });
+    if (found != m_passParams.cend())
     {
         base::glog << "Render pass" << m_name << "already have shader parameter" << param.name << base::logwarn;
         return;

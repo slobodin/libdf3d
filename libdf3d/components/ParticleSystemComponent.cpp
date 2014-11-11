@@ -68,7 +68,7 @@ void ParticleSystemComponent::prepareRenderOperations()
     glm::mat4 worldTransf = glm::translate(glm::vec3(tr[12], tr[13], tr[14]));
 
     for (auto op : m_renderOps)
-        op->worldTransform = worldTransf;
+        op->worldTransform = m_holder->transform()->getTransformation();
 }
 
 const render::RenderOperation &ParticleSystemComponent::getRenderOperation(size_t groupIdx)

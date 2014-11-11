@@ -180,8 +180,8 @@ void ResourceManager::unloadUnused()
     {
         bool somethingRemoved = false;
 
-        auto it = m_loadedResources.begin();
-        while (it != m_loadedResources.end())
+        auto it = m_loadedResources.cbegin();
+        while (it != m_loadedResources.cend())
         {
             if (it->second.unique() && !it->second->isResident())
             {

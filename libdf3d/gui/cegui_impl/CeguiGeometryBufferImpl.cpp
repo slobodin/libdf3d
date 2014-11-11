@@ -224,7 +224,8 @@ Texture* CeguiGeometryBufferImpl::getActiveTexture() const
 
 uint CeguiGeometryBufferImpl::getVertexCount() const
 {
-    auto count = std::accumulate(m_batches.begin(), m_batches.end(), 0, [](int res, const Batch &b) { return res += b.m_op->vertexData->getVerticesCount(); });
+    auto count = std::accumulate(m_batches.cbegin(), m_batches.cend(), 0, 
+        [](int res, const Batch &b) { return res += b.m_op->vertexData->getVerticesCount(); });
     return count;
 }
 

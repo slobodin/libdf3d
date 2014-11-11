@@ -183,7 +183,7 @@ void IndexBuffer::appendIndices(const IndexArray &indices)
         return;
 
     m_indices.reserve(m_indices.size() + indices.size());
-    std::copy(indices.begin(), indices.end(), std::back_inserter(m_indices));
+    std::copy(indices.cbegin(), indices.cend(), std::back_inserter(m_indices));
 }
 
 void IndexBuffer::bind()

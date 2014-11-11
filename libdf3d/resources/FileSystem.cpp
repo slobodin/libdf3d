@@ -122,8 +122,8 @@ void FileSystem::addSearchPath(const char *path)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-    auto found = std::find_if(m_searchPaths.begin(), m_searchPaths.end(), [&](const std::string &it) { return it == path; });
-    if (found != m_searchPaths.end())
+    auto found = std::find_if(m_searchPaths.cbegin(), m_searchPaths.cend(), [&](const std::string &it) { return it == path; });
+    if (found != m_searchPaths.cend())
     {
         base::glog << "Trying to add duplicate search path" << path << base::logwarn;
         return;
@@ -227,7 +227,7 @@ std::string FileSystem::getFilenameWithoutExtension(const std::string &filePath)
     if (dotPos == std::string::npos)
         return "";
 
-    return std::string(filename.begin(), filename.begin() + dotPos);
+    return std::string(filename.cbegin(), filename.cbegin() + dotPos);
 }
 
 } }

@@ -178,7 +178,7 @@ public:
                 std::string define;
                 is >> define;
 
-                skippingLines = std::find(render::MaterialLib::Defines.begin(), render::MaterialLib::Defines.end(), define) == render::MaterialLib::Defines.end();
+                skippingLines = std::find(render::MaterialLib::Defines.cbegin(), render::MaterialLib::Defines.cend(), define) == render::MaterialLib::Defines.cend();
                 continue;
             }
 

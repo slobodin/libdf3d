@@ -11,8 +11,6 @@ class Material;
 #define INDICES_16_BIT uint16_t
 #define INDICES_32_BIT uint32_t
 
-typedef INDICES_32_BIT INDICES_TYPE;
-
 enum GpuBufferUsageType
 {
     GB_USAGE_STATIC,
@@ -20,7 +18,8 @@ enum GpuBufferUsageType
     GB_USAGE_STREAM
 };
 
-typedef std::vector<INDICES_TYPE> IndexArray;
+using INDICES_TYPE = INDICES_32_BIT;
+using IndexArray = std::vector<INDICES_TYPE>;
 
 class GpuBuffer : boost::noncopyable
 {

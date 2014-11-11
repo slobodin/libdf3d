@@ -12,8 +12,8 @@ shared_ptr<RenderPass> Technique::findPass(const std::string &name) const
         return pass->getName() == name;
     };
 
-    auto found = std::find_if(m_passes.begin(), m_passes.end(), findFn);
-    if (found == m_passes.end())
+    auto found = std::find_if(m_passes.cbegin(), m_passes.cend(), findFn);
+    if (found == m_passes.cend())
         return nullptr;
 
     return *found;

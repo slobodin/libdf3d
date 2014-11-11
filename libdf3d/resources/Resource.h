@@ -2,7 +2,7 @@
 
 namespace df3d { namespace resources {
 
-typedef std::string ResourceGUID;
+using ResourceGUID = std::string;
 
 class DF3D_DLL Resource : boost::noncopyable
 {

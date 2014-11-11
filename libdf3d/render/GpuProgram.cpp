@@ -142,10 +142,10 @@ void GpuProgram::attachShader(shared_ptr<Shader> shader)
 
 void GpuProgram::detachShader(shared_ptr<Shader> shader)
 {
-    auto erasepos = std::find_if(m_shaders.begin(), m_shaders.end(), 
+    auto erasepos = std::find_if(m_shaders.cbegin(), m_shaders.cend(), 
         [=](const shared_ptr<Shader> val) -> bool { return shader->getDescriptor() == val->getDescriptor(); });
 
-    if (erasepos == m_shaders.end())
+    if (erasepos == m_shaders.cend())
         return;
 
     m_shaders.erase(erasepos);

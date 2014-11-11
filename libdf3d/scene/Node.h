@@ -24,7 +24,7 @@ class DF3D_DLL Node : public boost::enable_shared_from_this<Node>, private boost
 
 public:
     // Map instead of unordered_map because of Python.
-    typedef std::map<std::string, shared_ptr<Node>> NodeChildren;
+    using NodeChildren = std::map<std::string, shared_ptr<Node>>;
 
 protected:
     std::string m_nodeName;

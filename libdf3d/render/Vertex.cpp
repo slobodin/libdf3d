@@ -48,7 +48,7 @@ size_t VertexFormat::getOffsetTo(VertexComponent::Type component) const
 
 bool VertexFormat::hasComponent(VertexComponent::Type component) const
 {
-    return std::find_if(m_components.begin(), m_components.end(), [&](const VertexComponent &c) { return c.getType() == component; }) != m_components.end();
+    return std::find_if(m_components.cbegin(), m_components.cend(), [&](const VertexComponent &c) { return c.getType() == component; }) != m_components.cend();
 }
 
 const VertexComponent *VertexFormat::getComponent(VertexComponent::Type component) const

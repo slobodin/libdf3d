@@ -37,7 +37,7 @@ struct DF3D_DLL EngineInitParams
     // windowed, fullscreen mode
 };
 
-typedef std::function<std::string(const std::string &)> ConsoleCommandHandler;
+using ConsoleCommandHandler = std::function<std::string(const std::string &)>;
 
 class DF3D_DLL Controller : boost::noncopyable
 {

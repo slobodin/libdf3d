@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-typedef std::chrono::time_point<std::chrono::system_clock> TimePoint;
+using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
 
 namespace df3d {
 
