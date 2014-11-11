@@ -9,6 +9,7 @@
 #include <resources/ResourceManager.h>
 #include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
+#include <utils/Utils.h>
 
 namespace df3d { namespace scene {
 
@@ -147,9 +148,7 @@ void SceneManager::addNodeToScene(shared_ptr<Node> node)
 
 void SceneManager::registerListener(SceneManagerListener *listener)
 {
-    auto found = std::find(m_listeners.cbegin(), m_listeners.cend(), listener);
-
-    if (found != m_listeners.cend())
+    if (utils::contains(m_listeners, listener))
     {
         base::glog << "Trying to add duplicate scene manager listener" << base::logwarn;
         return;

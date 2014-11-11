@@ -82,7 +82,7 @@ void DecoderOBJ::processLine_vn(std::istream &is)
 
 void DecoderOBJ::processLine_vp(std::istream &is)
 {
-    utils::skipLine(is);
+    utils::skip_line(is);
 }
 
 void DecoderOBJ::processLine_f(std::istream &is)
@@ -161,17 +161,17 @@ void DecoderOBJ::processLine_mtl(std::istream &is)
 
 void DecoderOBJ::processLine_o(std::istream &is)
 {
-    utils::skipLine(is);
+    utils::skip_line(is);
 }
 
 void DecoderOBJ::processLine_g(std::istream &is)
 {
-    utils::skipLine(is);
+    utils::skip_line(is);
 }
 
 void DecoderOBJ::processLine_s(std::istream &is)
 {
-    utils::skipLine(is);
+    utils::skip_line(is);
 }
 
 DecoderOBJ::DecoderOBJ()
@@ -211,7 +211,7 @@ bool DecoderOBJ::decodeResource(const shared_ptr<FileDataSource> file, shared_pt
 
         if (tok.empty() || tok[0] == '#')
         {
-            utils::skipLine(input);
+            utils::skip_line(input);
             continue;
         }
 

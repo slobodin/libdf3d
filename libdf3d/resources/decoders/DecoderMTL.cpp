@@ -124,7 +124,7 @@ struct MaterialLibNode
 private:
     static bool isKeyWord(const std::string &name)
     {
-        return std::find(std::begin(NodesTypes), std::end(NodesTypes), name) != std::end(NodesTypes);
+        return utils::contains(NodesTypes, name);
     }
 
 public:
@@ -150,14 +150,14 @@ public:
         {
             if (boost::starts_with(tok, "#endif"))
             {
-                utils::skipLine(is);
+                utils::skip_line(is);
                 skippingLines = false;
                 continue;
             }
 
             if (skippingLines)
             {
-                utils::skipLine(is);
+                utils::skip_line(is);
                 continue;
             }
 
@@ -169,7 +169,7 @@ public:
             // Skip comment lines.
             if (boost::starts_with(tok, "//"))
             {
-                utils::skipLine(is);
+                utils::skip_line(is);
                 continue;
             }
 
@@ -178,7 +178,7 @@ public:
                 std::string define;
                 is >> define;
 
-                skippingLines = std::find(render::MaterialLib::Defines.cbegin(), render::MaterialLib::Defines.cend(), define) == render::MaterialLib::Defines.cend();
+                skippingLines = !utils::contains(render::MaterialLib::Defines, define);
                 continue;
             }
 
