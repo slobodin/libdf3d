@@ -19,11 +19,11 @@ namespace df3d { namespace components {
 shared_ptr<render::RenderPass> TextMeshComponent::createRenderPass()
 {
     auto pass = make_shared<render::RenderPass>("text_mesh_render_pass");
-    pass->setFrontFaceWinding(render::RenderPass::WO_CCW);
-    pass->setFaceCullMode(render::RenderPass::FCM_NONE);
-    pass->setPolygonDrawMode(render::RenderPass::PM_FILL);
+    pass->setFrontFaceWinding(render::RenderPass::WindingOrder::CCW);
+    pass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
+    pass->setPolygonDrawMode(render::RenderPass::PolygonMode::FILL);
     pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    pass->setBlendMode(render::RenderPass::BM_ALPHA);
+    pass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 
     auto program = g_resourceManager->getResource<render::GpuProgram>(render::COLORED_PROGRAM_EMBED_PATH);
     pass->setGpuProgram(program);
@@ -101,7 +101,7 @@ TextMeshComponent::TextMeshComponent(const char *fontPath, int size)
     // Init render operation.
     m_op.passProps = createRenderPass();
     m_op.vertexData = createQuad(0.0f, 0.0f, 2.0f, 2.0f);
-    m_op.vertexData->setUsageType(render::GB_USAGE_STATIC);
+    m_op.vertexData->setUsageType(render::GpuBufferUsageType::STATIC);
 }
 
 TextMeshComponent::~TextMeshComponent()
@@ -127,9 +127,9 @@ void TextMeshComponent::drawText(const char *text, const glm::vec4 &color)
     auto texture = make_shared<render::Texture>();
     texture->setImage(textureImage);
 
-    texture->setType(render::Texture::TEXTURE_2D);
-    texture->setWrapMode(render::Texture::WM_CLAMP);
-    texture->setFilteringMode(render::Texture::TRILINEAR);
+    texture->setType(render::Texture::Type::TEXTURE_2D);
+    texture->setWrapMode(render::Texture::WrapMode::CLAMP);
+    texture->setFilteringMode(render::Texture::Filtering::TRILINEAR);
     texture->setMipmapped(false);
 
     m_op.passProps->setSampler("diffuseMap", texture);

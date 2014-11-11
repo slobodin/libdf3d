@@ -23,7 +23,7 @@ void TransformComponent::updateTransformation()
 
     markDirty(false);
 
-    sendEvent(CE_TRANFORM_CHANGED);
+    sendEvent(ComponentEvent::TRANFORM_CHANGED);
 }
 
 void TransformComponent::markDirty(bool dirty)
@@ -41,7 +41,7 @@ void TransformComponent::markDirty(bool dirty)
 }
 
 TransformComponent::TransformComponent()
-    : NodeComponent(CT_TRANSFORM)
+    : NodeComponent(ComponentType::TRANSFORM)
 {
 
 }
@@ -104,7 +104,7 @@ void TransformComponent::setTransformation(const glm::mat4 &tr)
     m_transformation = tr;
     markDirty(false);
 
-    sendEvent(CE_TRANFORM_CHANGED);
+    sendEvent(ComponentEvent::TRANFORM_CHANGED);
 }
 
 void TransformComponent::translate(const glm::vec3 &v)

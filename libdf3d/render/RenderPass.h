@@ -29,32 +29,32 @@ private:
 class DF3D_DLL RenderPass : boost::noncopyable
 {
 public:
-    enum WindingOrder
+    enum class WindingOrder
     {
-        WO_CW,
-        WO_CCW
+        CW,
+        CCW
     };
 
-    enum PolygonMode
+    enum class PolygonMode
     {
-        PM_FILL,
-        PM_WIRE
+        FILL,
+        WIRE
     };
 
-    enum FaceCullMode
+    enum class FaceCullMode
     {
-        FCM_NONE,
-        FCM_FRONT,
-        FCM_BACK,
-        FCM_FRONT_AND_BACK
+        NONE,
+        FRONT,
+        BACK,
+        FRONT_AND_BACK
     };
 
-    enum BlendingMode
+    enum class BlendingMode
     {
-        BM_NONE,
-        BM_ADDALPHA,
-        BM_ALPHA,
-        BM_ADD
+        NONE,
+        ADDALPHA,
+        ALPHA,
+        ADD
     };
 
 private:
@@ -78,13 +78,13 @@ private:
     float m_shininess = 64.0f;
 
     //! Front face winding order.
-    WindingOrder m_frontFaceWo = WO_CCW;
+    WindingOrder m_frontFaceWo = WindingOrder::CCW;
     //! Face culling mode.
-    FaceCullMode m_faceCullMode = FCM_BACK;
+    FaceCullMode m_faceCullMode = FaceCullMode::BACK;
     //! Polygon fill mode.
-    PolygonMode m_polygonMode = PM_FILL;
+    PolygonMode m_polygonMode = PolygonMode::FILL;
     //! Blending.
-    BlendingMode m_blendMode = BM_NONE;
+    BlendingMode m_blendMode = BlendingMode::NONE;
 
     bool m_depthTest = true;
     bool m_depthWrite = true;

@@ -9,11 +9,11 @@ GLenum getGLUsageType(GpuBufferUsageType t)
 {
     switch (t)
     {
-    case GB_USAGE_STATIC:
+    case GpuBufferUsageType::STATIC:
         return GL_STATIC_DRAW;
-    case GB_USAGE_DYNAMIC:
+    case GpuBufferUsageType::DYNAMIC:
         return GL_DYNAMIC_DRAW;
-    case GB_USAGE_STREAM:
+    case GpuBufferUsageType::STREAM:
         return GL_STREAM_DRAW;
     default:
         break;

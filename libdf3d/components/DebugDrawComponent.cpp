@@ -3,7 +3,7 @@
 
 namespace df3d { namespace components {
 
-void DebugDrawComponent::onEvent(components::Event ev)
+void DebugDrawComponent::onEvent(components::ComponentEvent ev)
 {
 
 }
@@ -14,7 +14,7 @@ void DebugDrawComponent::onDraw(render::RenderQueue *ops)
 }
 
 DebugDrawComponent::DebugDrawComponent()
-    : NodeComponent(CT_DEBUG_DRAW)
+    : NodeComponent(ComponentType::DEBUG_DRAW)
 {
 }
 

@@ -7,18 +7,18 @@ namespace df3d { namespace components {
 class DF3D_DLL LightComponent : public NodeComponent
 {
 public:
-    enum LightType
+    enum class Type
     {
         // Only directional light works (due to android...)
         // FIXME:
         // Rewrite shaders.
-        LT_DIRECTIONAL_LIGHT,
-        LT_POINT_LIGHT,
-        LT_SPOT_LIGHT
+        DIRECTIONAL,
+        POINT,
+        SPOT
     };
 
 private:
-    LightType m_type;
+    Type m_type;
 
     static const size_t MAX_LIGHTS;
     static size_t NumLights;
@@ -39,7 +39,7 @@ private:
     void onDraw(render::RenderQueue *ops);
 
 public:
-    LightComponent(LightType type);
+    LightComponent(Type type);
     LightComponent(const Json::Value &root);
     ~LightComponent();
 
@@ -47,7 +47,7 @@ public:
     void turnoff() { m_isEnabled = false; }
 
     bool enabled() const { return m_isEnabled; }
-    LightType type() const { return m_type; }
+    Type type() const { return m_type; }
     unsigned int id() const { return m_lightId; }
 
     void setDirection(const glm::vec3 &dir);

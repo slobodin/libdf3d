@@ -33,13 +33,13 @@ GLenum getGLTextureType(Texture::Type type)
 {
     switch (type)
     {
-    case Texture::TEXTURE_1D:
+    case Texture::Type::TEXTURE_1D:
         return GL_TEXTURE_1D;
-    case Texture::TEXTURE_2D:
+    case Texture::Type::TEXTURE_2D:
         return GL_TEXTURE_2D;
-    case Texture::TEXTURE_3D:
+    case Texture::Type::TEXTURE_3D:
         return GL_TEXTURE_3D;
-    case Texture::TEXTURE_CUBE:
+    case Texture::Type::TEXTURE_CUBE:
         return GL_TEXTURE_CUBE_MAP;
     default:
         break;
@@ -54,12 +54,12 @@ GLenum getGLTextureType(Texture::Type type)
 {
     switch (type)
     {
-    case Texture::TEXTURE_2D:
+    case Texture::Type::TEXTURE_2D:
         return GL_TEXTURE_2D;
-    case Texture::TEXTURE_CUBE:
+    case Texture::Type::TEXTURE_CUBE:
         return GL_TEXTURE_CUBE_MAP;
-    case Texture::TEXTURE_3D:
-    case Texture::TEXTURE_1D:
+    case Texture::Type::TEXTURE_3D:
+    case Texture::Type::TEXTURE_1D:
     default:
         break;
     }
@@ -73,11 +73,11 @@ GLint getGLFilteringMode(Texture::Filtering filtering, bool mipmapped)
 {
     switch (filtering)
     {
-    case Texture::NEAREST:
+    case Texture::Filtering::NEAREST:
         return !mipmapped ? GL_NEAREST : GL_NEAREST_MIPMAP_NEAREST;
-    case Texture::BILINEAR:
+    case Texture::Filtering::BILINEAR:
         return !mipmapped ? GL_LINEAR : GL_LINEAR_MIPMAP_NEAREST;
-    case Texture::TRILINEAR:
+    case Texture::Filtering::TRILINEAR:
         return !mipmapped ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR;
     default:
         break;
@@ -90,9 +90,9 @@ GLint getGlWrapMode(Texture::WrapMode mode)
 {
     switch (mode)
     {
-    case Texture::WM_WRAP:
+    case Texture::WrapMode::WRAP:
         return GL_REPEAT;
-    case Texture::WM_CLAMP:
+    case Texture::WrapMode::CLAMP:
         return GL_CLAMP_TO_EDGE;
     default:
         break;
@@ -112,7 +112,7 @@ bool Texture::createGLTexture()
     if (m_glid)
         return true;
 
-    if (m_textureType == Texture::TEXTURE_TYPE_NONE)
+    if (m_textureType == Texture::Type::NONE)
     {
         base::glog << "Can not create texture. Specify texture type." << base::logwarn;
         return false;
@@ -150,20 +150,20 @@ bool Texture::createGLTexture()
 #if defined(__WIN32__)
     glTexParameteri(m_glType, GL_TEXTURE_WRAP_R, wrapMode);
 #endif
-    glTexParameteri(m_glType, GL_TEXTURE_MAG_FILTER, m_filteringMode == NEAREST ? GL_NEAREST : GL_LINEAR);
+    glTexParameteri(m_glType, GL_TEXTURE_MAG_FILTER, m_filteringMode == Filtering::NEAREST ? GL_NEAREST : GL_LINEAR);
     glTexParameteri(m_glType, GL_TEXTURE_MIN_FILTER, getGLFilteringMode(m_filteringMode, m_mipmapped));
 
     unsigned int glPixelFormat = 0;
     switch (m_image->pixelFormat())
     {
-    case Image::PF_RGB:
-    case Image::PF_BGR:
+    case Image::Format::RGB:
+    case Image::Format::BGR:
         glPixelFormat = GL_RGB;
         break;
-    case Image::PF_RGBA:
+    case Image::Format::RGBA:
         glPixelFormat = GL_RGBA;
         break;
-    case Image::PF_GRAYSCALE:
+    case Image::Format::GRAYSCALE:
         glPixelFormat = GL_LUMINANCE;   // FIXME: is it valid on ES?
         break;
     default:
@@ -171,11 +171,11 @@ bool Texture::createGLTexture()
         return false;
     }
 
-    if (m_textureType == TEXTURE_1D)
+    if (m_textureType == Type::TEXTURE_1D)
     {
         return false;
     }
-    else if (m_textureType == TEXTURE_2D)
+    else if (m_textureType == Type::TEXTURE_2D)
     {
         // FIXME:
         // Init empty texture.
@@ -184,13 +184,13 @@ bool Texture::createGLTexture()
         if (m_image->data())
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_image->width(), m_image->height(), glPixelFormat, GL_UNSIGNED_BYTE, m_image->data());
     }
-    else if (m_textureType == TEXTURE_3D)
+    else if (m_textureType == Type::TEXTURE_3D)
     {
         return false;
         //glTexImage3D(m_glType, 0, glPixelFormat, m_image->width(), m_image->depth(), ..., 0,
         //    glPixelFormat, GL_UNSIGNED_BYTE, )
     }
-    else if (m_textureType == TEXTURE_CUBE)
+    else if (m_textureType == Type::TEXTURE_CUBE)
     {
 #if defined(__WIN32__)
         return false;

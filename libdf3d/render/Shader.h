@@ -5,15 +5,15 @@ namespace df3d { namespace render {
 class Shader
 {
 public:
-    enum ShaderType
+    enum class Type
     {
-        ST_UNDEFINED,
-        ST_VERTEX,
-        ST_FRAGMENT
+        UNDEFINED,
+        VERTEX,
+        FRAGMENT
     };
 
 private:
-    ShaderType m_type = ST_UNDEFINED;
+    Type m_type = Type::UNDEFINED;
     unsigned int m_shaderDescriptor = 0;
     std::string m_shaderData;
 
@@ -21,7 +21,7 @@ private:
 
     void createGLShader();
 public:
-    Shader(ShaderType type = ST_UNDEFINED);
+    Shader(Type type = Type::UNDEFINED);
     ~Shader();
 
     bool compile();
@@ -32,9 +32,9 @@ public:
     void setShaderDescriptor(unsigned int descr);
     void setShaderData(const std::string &data);
     void setShaderData(const char **data, size_t lnCount);
-    void setType(ShaderType type);
+    void setType(Type type);
 
-    ShaderType getType() const;
+    Type getType() const;
     unsigned int getDescriptor() const;
 
     // FIXME:

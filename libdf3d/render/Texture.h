@@ -7,32 +7,32 @@ class Image;
 class Texture
 {
 public:
-    enum Filtering
+    enum class Filtering
     {
         NEAREST,
         BILINEAR,
         TRILINEAR
     };
 
-    enum Type
+    enum class Type
     {
-        TEXTURE_TYPE_NONE,
+        NONE,
         TEXTURE_1D,
         TEXTURE_2D,
         TEXTURE_3D,
         TEXTURE_CUBE
     };
 
-    enum WrapMode
+    enum class WrapMode
     {
-        WM_WRAP,
-        WM_CLAMP
+        WRAP,
+        CLAMP
     };
 
 private:
-    Filtering m_filteringMode = TRILINEAR;
-    Type m_textureType = TEXTURE_2D;
-    WrapMode m_wrapMode = WM_CLAMP;
+    Filtering m_filteringMode = Filtering::TRILINEAR;
+    Type m_textureType = Type::TEXTURE_2D;
+    WrapMode m_wrapMode = WrapMode::CLAMP;
     bool m_mipmapped = true;
 
     shared_ptr<Image> m_image;

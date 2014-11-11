@@ -22,9 +22,9 @@ void Renderer::loadEmbedGPUPrograms() const
     auto loadInternal = [&](const char *name, const std::string &dataVert, const std::string &dataFrag)
     {
         auto program = make_shared<GpuProgram>();
-        auto vertexShader = make_shared<Shader>(Shader::ST_VERTEX);
+        auto vertexShader = make_shared<Shader>(Shader::Type::VERTEX);
         vertexShader->setShaderData(dataVert);
-        auto fragmentShader = make_shared<Shader>(Shader::ST_FRAGMENT);
+        auto fragmentShader = make_shared<Shader>(Shader::Type::FRAGMENT);
         fragmentShader->setShaderData(dataFrag);
 
         program->attachShader(vertexShader);
@@ -84,7 +84,7 @@ void Renderer::createWhiteTexture()
 
     auto w = 32;
     auto h = 32;
-    auto pf = Image::PF_RGBA;
+    auto pf = Image::Format::RGBA;
 
     auto data = new unsigned char[w * h * 4];
     memset(data, 255, w * h * 4);
@@ -92,9 +92,9 @@ void Renderer::createWhiteTexture()
     image->setWithData(data, w, h, pf);
     image->setInitialized(image->init());
 
-    m_whiteTexture->setFilteringMode(Texture::NEAREST);
+    m_whiteTexture->setFilteringMode(Texture::Filtering::NEAREST);
     m_whiteTexture->setMipmapped(false);
-    m_whiteTexture->setWrapMode(Texture::WM_WRAP);
+    m_whiteTexture->setWrapMode(Texture::WrapMode::WRAP);
     m_whiteTexture->setImage(image);
 
     delete [] data;
@@ -107,18 +107,18 @@ void Renderer::setBlendMode(RenderPass::BlendingMode bm)
 
     switch (bm)
     {
-    case RenderPass::BM_NONE:
+    case RenderPass::BlendingMode::NONE:
         glDisable(GL_BLEND);
         break;
-    case RenderPass::BM_ADDALPHA:
+    case RenderPass::BlendingMode::ADDALPHA:
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
         break;
-    case RenderPass::BM_ALPHA:
+    case RenderPass::BlendingMode::ALPHA:
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         break;
-    case RenderPass::BM_ADD:
+    case RenderPass::BlendingMode::ADD:
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
         break;
@@ -134,10 +134,10 @@ void Renderer::setFrontFace(RenderPass::WindingOrder wo)
 
     switch (wo)
     {
-    case RenderPass::WO_CW:
+    case RenderPass::WindingOrder::CW:
         glFrontFace(GL_CW);
         break;
-    case RenderPass::WO_CCW:
+    case RenderPass::WindingOrder::CCW:
         glFrontFace(GL_CCW);
     default:
         break;
@@ -151,18 +151,18 @@ void Renderer::setCullFace(RenderPass::FaceCullMode cm)
 
     switch (cm)
     {
-    case RenderPass::FCM_NONE:
+    case RenderPass::FaceCullMode::NONE:
         glDisable(GL_CULL_FACE);
         break;
-    case RenderPass::FCM_FRONT:
+    case RenderPass::FaceCullMode::FRONT:
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
         break;
-    case RenderPass::FCM_BACK:
+    case RenderPass::FaceCullMode::BACK:
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
         break;
-    case RenderPass::FCM_FRONT_AND_BACK:
+    case RenderPass::FaceCullMode::FRONT_AND_BACK:
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT_AND_BACK);
         break;
@@ -180,10 +180,10 @@ void Renderer::setPolygonDrawMode(RenderPass::PolygonMode pm)
 #if defined(__WIN32__)
     switch (pm)
     {
-    case RenderPass::PM_FILL:
+    case RenderPass::PolygonMode::FILL:
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         break;
-    case RenderPass::PM_WIRE:
+    case RenderPass::PolygonMode::WIRE:
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         break;
     default:
@@ -304,7 +304,7 @@ void Renderer::beginFrame()
     enableDepthTest(true);
     enableDepthWrite(true);
     enableScissorTest(false);
-    setBlendMode(RenderPass::BM_NONE);
+    setBlendMode(RenderPass::BlendingMode::NONE);
 
     m_programState->onFrameBegin();
 
@@ -466,12 +466,12 @@ void Renderer::setLight(const components::LightComponent *light)
     glslLight.k2Param = light->getQuadraticAttenuation();
 
     // Since we calculate lighting in the view space we should translate position and direction.
-    if (light->type() == components::LightComponent::LT_DIRECTIONAL_LIGHT)
+    if (light->type() == components::LightComponent::Type::DIRECTIONAL)
     {
         auto dir = light->getDirection();
         glslLight.positionParam = m_programState->getViewMatrix() * glm::vec4(dir, 0.0f);
     }
-    else if (light->type() == components::LightComponent::LT_POINT_LIGHT)
+    else if (light->type() == components::LightComponent::Type::POINT)
     {
         auto pos = light->getPosition();
         glslLight.positionParam = m_programState->getViewMatrix() * glm::vec4(pos, 1.0f);
@@ -534,11 +534,11 @@ void Renderer::drawVertexBuffer(shared_ptr<VertexBuffer> vb, shared_ptr<IndexBuf
 
     switch (type)
     {
-    case RenderOperation::LINE_LIST:
+    case RenderOperation::Type::LINES:
         if (vbUsed > 0)
             glDrawArrays(GL_LINES, 0, vbUsed);
         break;
-    case RenderOperation::TRIANGLE_LIST:
+    case RenderOperation::Type::TRIANGLES:
         if (indexed)
             glDrawElements(GL_TRIANGLES, ib->getElementsUsed(), GL_UNSIGNED_INT, nullptr);
         else if (vbUsed > 0)
@@ -557,7 +557,7 @@ void Renderer::drawVertexBuffer(shared_ptr<VertexBuffer> vb, shared_ptr<IndexBuf
         m_renderStats->drawCalls++;
 
         // FIXME:
-        if (type != RenderOperation::LINE_LIST)
+        if (type != RenderOperation::Type::LINES)
             m_renderStats->totalTriangles += indexed ? ib->getElementsUsed() / 3 : vb->getElementsUsed() / 3;
     }
 

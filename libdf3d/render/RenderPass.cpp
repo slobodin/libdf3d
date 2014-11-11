@@ -185,7 +185,7 @@ void RenderPass::setPolygonDrawMode(PolygonMode mode)
 void RenderPass::setBlendMode(BlendingMode mode)
 {
     m_blendMode = mode;
-    m_isTransparent = m_blendMode != BM_NONE;
+    m_isTransparent = m_blendMode != BlendingMode::NONE;
 }
 
 void RenderPass::enableDepthTest(bool enable)
@@ -206,11 +206,11 @@ void RenderPass::enableLighting(bool enable)
 shared_ptr<RenderPass> RenderPass::createDebugDrawPass()
 {
     auto pass = make_shared<render::RenderPass>("debug_draw_pass");
-    pass->setFrontFaceWinding(render::RenderPass::WO_CCW);
-    pass->setFaceCullMode(render::RenderPass::FCM_NONE);
-    pass->setPolygonDrawMode(render::RenderPass::PM_WIRE);
+    pass->setFrontFaceWinding(WindingOrder::CCW);
+    pass->setFaceCullMode(FaceCullMode::NONE);
+    pass->setPolygonDrawMode(PolygonMode::WIRE);
     pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 0.2f);
-    pass->setBlendMode(render::RenderPass::BM_ALPHA);
+    pass->setBlendMode(BlendingMode::ALPHA);
 
     auto program = g_resourceManager->getResource<GpuProgram>(COLORED_PROGRAM_EMBED_PATH);
     pass->setGpuProgram(program);

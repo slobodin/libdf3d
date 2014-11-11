@@ -12,19 +12,19 @@
 
 namespace df3d { namespace utils { namespace particle_system_loader {
 
-enum ModelParamType
+enum class ModelParamType
 {
-    MPT_ENABLED,
-    MPT_MUTABLE,
-    MPT_RANDOM,
+    ENABLED,
+    MUTABLE,
+    RANDOM,
 
-    MPT_INVALID
+    INVALID
 };
 
 struct SparkModelParam
 {
     std::string name;
-    ModelParamType type = MPT_INVALID;
+    ModelParamType type = ModelParamType::INVALID;
     float value = 0.0f;
     float birthValue = 0.0f;
     float deathValue = 0.0f;
@@ -43,23 +43,23 @@ struct SparkModelParam
         auto typeStr = v["type"].asString();
         if (typeStr == "enabled")
         {
-            type = MPT_ENABLED;
+            type = ModelParamType::ENABLED;
             value = jsonGetValueWithDefault(v["value"], 0.0f);
         }
         else if (typeStr == "mutable")
         {
-            type = MPT_MUTABLE;
+            type = ModelParamType::MUTABLE;
             birthValue = jsonGetValueWithDefault(v["birth"], 0.0f);
             deathValue = jsonGetValueWithDefault(v["death"], 0.0f);
         }
         else if (typeStr == "random")
         {
-            type = MPT_RANDOM;
+            type = ModelParamType::RANDOM;
             minValue = jsonGetValueWithDefault(v["min"], 0.0f);
             maxValue = jsonGetValueWithDefault(v["max"], 0.0f);
         }
         else
-            base::glog << "Invalid model parameter type" << type << base::logwarn;
+            base::glog << "Invalid model parameter type" << static_cast<size_t>(type) << base::logwarn;
     }
 };
 
@@ -85,13 +85,13 @@ SPK::Model *parseSparkModel(const Json::Value &modelJson)
     int randomFlags = 0;
     for (auto &p : params)
     {
-        if (p.type == MPT_INVALID)
+        if (p.type == ModelParamType::INVALID)
             continue;
 
         enabledFlags |= p.sparkFlag;
-        if (p.type == MPT_MUTABLE)
+        if (p.type == ModelParamType::MUTABLE)
             mutableFlags |= p.sparkFlag;
-        else if (p.type == MPT_RANDOM)
+        else if (p.type == ModelParamType::RANDOM)
             randomFlags |= p.sparkFlag;
     }
 
@@ -101,18 +101,18 @@ SPK::Model *parseSparkModel(const Json::Value &modelJson)
 
     for (auto &p : params)
     {
-        if (p.type == MPT_INVALID)
+        if (p.type == ModelParamType::INVALID)
             continue;
 
-        if (p.type == MPT_ENABLED)
+        if (p.type == ModelParamType::ENABLED)
         {
             model->setParam(p.sparkType, p.value);
         }
-        else if (p.type == MPT_MUTABLE)
+        else if (p.type == ModelParamType::MUTABLE)
         {
             model->setParam(p.sparkType, p.birthValue, p.deathValue);
         }
-        else if (p.type == MPT_RANDOM)
+        else if (p.type == ModelParamType::RANDOM)
         {
             model->setParam(p.sparkType, p.minValue, p.maxValue);
         }

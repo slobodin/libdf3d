@@ -17,10 +17,10 @@ class DF3D_DLL ResourceManager : boost::noncopyable
 {
     friend class base::Controller;
 public:
-    enum LoadMode
+    enum class LoadMode
     {
-        LOAD_MODE_IMMEDIATE,    /**< Load resource in current thread. */
-        LOAD_MODE_ASYNC         /**< Load in separate thread. */
+        IMMEDIATE,    /**< Load resource in current thread. */
+        ASYNC         /**< Load in separate thread. */
     };
 
 private:
@@ -49,9 +49,9 @@ private:
 
 public:
     template<typename T>
-    shared_ptr<T> getResource(const char *path, LoadMode lm = LOAD_MODE_IMMEDIATE);
+    shared_ptr<T> getResource(const char *path, LoadMode lm = LoadMode::IMMEDIATE);
 
-    shared_ptr<Resource> loadResource(const char *path, LoadMode lm = LOAD_MODE_IMMEDIATE);
+    shared_ptr<Resource> loadResource(const char *path, LoadMode lm = LoadMode::IMMEDIATE);
     void loadResource(shared_ptr<Resource> resource);
     void unloadResource(const ResourceGUID &guid);
     void unloadResource(shared_ptr<Resource> resource);

@@ -39,8 +39,8 @@ struct MyBufferCreator : public SPK::BufferCreator
 
         auto vb = make_shared<render::VertexBuffer>(render::VertexFormat::create(PS_VERTEX_FORMAT));
         auto ib = make_shared<render::IndexBuffer>();
-        vb->setUsageType(render::GB_USAGE_STREAM);
-        ib->setUsageType(render::GB_USAGE_STATIC);
+        vb->setUsageType(render::GpuBufferUsageType::STREAM);
+        ib->setUsageType(render::GpuBufferUsageType::STATIC);
 
         // 4 vertices per quad.
         vb->resize(nbParticles * 4);
@@ -60,8 +60,8 @@ const size_t MyBufferCreator::STRIDE_BETWEEN_VERTICES = 9;
 ParticleSystemRenderer::ParticleSystemRenderer()
 {
     m_pass = make_shared<render::RenderPass>();
-    m_pass->setFaceCullMode(render::RenderPass::FCM_NONE);
-    m_pass->setFrontFaceWinding(render::RenderPass::WO_CCW);
+    m_pass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
+    m_pass->setFrontFaceWinding(render::RenderPass::WindingOrder::CCW);
     m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f);
 
     auto program = g_resourceManager->getResource<render::GpuProgram>(render::COLORED_PROGRAM_EMBED_PATH);
@@ -77,13 +77,13 @@ void ParticleSystemRenderer::setBlending(SPK::BlendingMode blendMode)
     switch (blendMode)
     {
     case SPK::BLENDING_NONE:
-        m_pass->setBlendMode(render::RenderPass::BM_NONE);
+        m_pass->setBlendMode(render::RenderPass::BlendingMode::NONE);
         break;
     case SPK::BLENDING_ADD:
-        m_pass->setBlendMode(render::RenderPass::BM_ADDALPHA);
+        m_pass->setBlendMode(render::RenderPass::BlendingMode::ADDALPHA);
         break;
     case SPK::BLENDING_ALPHA:
-        m_pass->setBlendMode(render::RenderPass::BM_ALPHA);
+        m_pass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
         break;
     default:
         break;

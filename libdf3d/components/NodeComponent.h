@@ -5,25 +5,25 @@ FWD_MODULE_CLASS(render, RenderQueue)
 
 namespace df3d { namespace components {
 
-enum ComponentType
+enum class ComponentType
 {
-    CT_TRANSFORM,
-    CT_MESH,
-    CT_PARTICLE_EFFECT,
-    CT_AUDIO,
-    CT_PHYSICS,
-    CT_LIGHT,
-    CT_DEBUG_DRAW,
+    TRANSFORM,
+    MESH,
+    PARTICLE_EFFECT,
+    AUDIO,
+    PHYSICS,
+    LIGHT,
+    DEBUG_DRAW,
 
-    CT_COUNT
+    COUNT
 };
 
-enum Event
+enum class ComponentEvent
 {
-    CE_TRANFORM_CHANGED,
-    CE_CHILD_ATTACHED,
-    CE_CHILD_REMOVED,
-    CE_ALL_CHILDREN_REMOVED
+    TRANFORM_CHANGED,
+    CHILD_ATTACHED,
+    CHILD_REMOVED,
+    ALL_CHILDREN_REMOVED
 };
 
 class DF3D_DLL NodeComponent : boost::noncopyable
@@ -42,9 +42,9 @@ public:
     scene::Node *getHolder() { return m_holder; }
     const char *getName() const;
 
-    void sendEvent(Event ev);
+    void sendEvent(ComponentEvent ev);
 
-    virtual void onEvent(Event ev) { }
+    virtual void onEvent(ComponentEvent ev) { }
     virtual void onUpdate(float dt) { }
     virtual void onAttached() { }
     virtual void onDetached() { }

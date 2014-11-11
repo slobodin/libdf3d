@@ -32,7 +32,7 @@ bool DecoderOBJ::hasTxCoords() const
 shared_ptr<render::VertexBuffer> DecoderOBJ::createVertexBuffer()
 {
     auto vb = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, n:3, tx:2, c:4, tan:3, bitan:3"));
-    vb->setUsageType(render::GB_USAGE_STATIC);
+    vb->setUsageType(render::GpuBufferUsageType::STATIC);
 
     return vb;
 }

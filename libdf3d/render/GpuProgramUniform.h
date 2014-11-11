@@ -2,7 +2,7 @@
 
 namespace df3d { namespace render {
 
-enum SharedUniformType
+enum class SharedUniformType
 {
     WORLD_VIEW_PROJECTION_MATRIX_UNIFORM,
     WORLD_VIEW_MATRIX_UNIFORM,
@@ -40,7 +40,7 @@ enum SharedUniformType
     SCENE_LIGHT_KL_UNIFORM,
     SCENE_LIGHT_KQ_UNIFORM,
 
-    SHARED_UNIFORMS_COUNT
+    COUNT
 };
 
 class GpuProgramUniform
@@ -51,7 +51,7 @@ class GpuProgramUniform
     int m_location = -1;
     unsigned m_glType = 0;
 
-    SharedUniformType m_sharedId = SHARED_UNIFORMS_COUNT;
+    SharedUniformType m_sharedId = SharedUniformType::COUNT;
     bool m_isSampler = false;
 
     GpuProgramUniform(const std::string &name);
@@ -62,7 +62,7 @@ public:
     void update(const void *data) const;
 
     SharedUniformType getSharedType() const { return m_sharedId; }
-    bool isShared() const { return m_sharedId != SHARED_UNIFORMS_COUNT; }
+    bool isShared() const { return m_sharedId != SharedUniformType::COUNT; }
     bool isSampler() const { return m_isSampler; }
     const std::string &getName() const { return m_name; }
 };

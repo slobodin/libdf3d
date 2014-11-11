@@ -24,15 +24,15 @@ void shaderLog(unsigned int shader)
 
 void Shader::createGLShader()
 {
-    if (m_type == Shader::ST_VERTEX)
+    if (m_type == Type::VERTEX)
         m_shaderDescriptor = glCreateShader(GL_VERTEX_SHADER);
-    else if (m_type == Shader::ST_FRAGMENT)
+    else if (m_type == Type::FRAGMENT)
         m_shaderDescriptor = glCreateShader(GL_FRAGMENT_SHADER);
     else
         m_shaderDescriptor = 0;
 }
 
-Shader::Shader(ShaderType type)
+Shader::Shader(Type type)
     : m_type(type)
 {
 }
@@ -52,7 +52,7 @@ bool Shader::compile()
     if (m_shaderDescriptor == 0)
         createGLShader();
 
-    if (m_shaderDescriptor == 0 || m_type == Shader::ST_UNDEFINED)
+    if (m_shaderDescriptor == 0 || m_type == Type::UNDEFINED)
     {
         base::glog << "Can not compile GLSL shader due to undefined type" << base::logwarn;
         return false;
@@ -129,12 +129,12 @@ void Shader::setShaderData(const char **data, size_t lnCount)
     }
 }
 
-void Shader::setType(ShaderType type)
+void Shader::setType(Type type)
 {
     m_type = type;
 }
 
-Shader::ShaderType Shader::getType() const
+Shader::Type Shader::getType() const
 {
     return m_type;
 }
@@ -157,9 +157,9 @@ shared_ptr<Shader> Shader::createFromFile(const char *filePath)
     const std::string &ext = g_fileSystem->getFileExtension(filePath);
 
     if (ext == ".vert")
-        shader->setType(render::Shader::ST_VERTEX);
+        shader->setType(render::Shader::Type::VERTEX);
     else if (ext == ".frag")
-        shader->setType(render::Shader::ST_FRAGMENT);
+        shader->setType(render::Shader::Type::FRAGMENT);
     else
     {
         base::glog << "Can not decode GLSL shader because it's type is undefined" << filePath << base::logwarn;

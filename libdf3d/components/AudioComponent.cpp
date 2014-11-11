@@ -20,14 +20,14 @@ void AudioComponent::onUpdate(float dt)
     alSourcefv(m_audioSourceId, AL_POSITION, glm::value_ptr(pos));
 
     // If it has stopped, then remove from the holder.
-    if (getState() == S_STOPPED)
+    if (getState() == State::STOPPED)
     {
-        m_holder->detachComponent(CT_AUDIO);
+        m_holder->detachComponent(ComponentType::AUDIO);
     }
 }
 
 AudioComponent::AudioComponent(const char *audioFilePath)
-    : NodeComponent(CT_AUDIO)
+    : NodeComponent(ComponentType::AUDIO)
 {
     m_buffer = g_resourceManager->getResource<audio::AudioBuffer>(audioFilePath);
     if (!m_buffer)
@@ -67,19 +67,19 @@ AudioComponent::~AudioComponent()
 
 void AudioComponent::play()
 {
-    if (m_audioSourceId && getState() != S_PLAYING)
+    if (m_audioSourceId && getState() != State::PLAYING)
         alSourcePlay(m_audioSourceId);
 }
 
 void AudioComponent::stop()
 {
-    if (m_audioSourceId && getState() != S_STOPPED)
+    if (m_audioSourceId && getState() != State::STOPPED)
         alSourceStop(m_audioSourceId);
 }
 
 void AudioComponent::pause()
 {
-    if (m_audioSourceId && getState() != S_PAUSED)
+    if (m_audioSourceId && getState() != State::PAUSED)
         alSourcePause(m_audioSourceId);
 }
 
@@ -107,7 +107,7 @@ void AudioComponent::setLooped(bool looped)
 AudioComponent::State AudioComponent::getState()
 {
     if (!m_audioSourceId)
-        return S_INITIAL;
+        return State::INITIAL;
 
     ALint state;
     alGetSourcei(m_audioSourceId, AL_SOURCE_STATE, &state);
@@ -115,16 +115,16 @@ AudioComponent::State AudioComponent::getState()
     switch (state)
     {
     case AL_PLAYING:
-        return S_PLAYING;
+        return State::PLAYING;
     case AL_PAUSED:
-        return S_PAUSED;
+        return State::PAUSED;
     case AL_STOPPED:
-        return S_STOPPED;
+        return State::STOPPED;
     default:
-        return S_INITIAL;
+        return State::INITIAL;
     }
 
-    return S_INITIAL;
+    return State::INITIAL;
 }
 
 shared_ptr<NodeComponent> AudioComponent::clone() const

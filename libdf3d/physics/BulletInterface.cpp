@@ -14,8 +14,8 @@ BulletDebugDraw::BulletDebugDraw()
     m_linesOp.passProps = render::RenderPass::createDebugDrawPass();
     m_linesOp.passProps->setDiffuseColor(1.0f, 1.0f, 1.0f, 0.7f);
     m_linesOp.vertexData = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
-    m_linesOp.vertexData->setUsageType(render::GB_USAGE_STREAM);
-    m_linesOp.type = render::RenderOperation::LINE_LIST;
+    m_linesOp.vertexData->setUsageType(render::GpuBufferUsageType::STATIC);
+    m_linesOp.type = render::RenderOperation::Type::LINES;
 }
 
 BulletDebugDraw::~BulletDebugDraw()

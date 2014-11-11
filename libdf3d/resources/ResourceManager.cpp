@@ -125,9 +125,9 @@ shared_ptr<Resource> ResourceManager::loadResource(const char *path, LoadMode lm
     request.filePath = fullPath;
     request.resource = resource;
 
-    if (lm == LOAD_MODE_ASYNC)
+    if (lm == LoadMode::ASYNC)
         m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, request));
-    else if (lm == LOAD_MODE_IMMEDIATE)
+    else if (lm == LoadMode::IMMEDIATE)
         doRequest(request);
     else
         return nullptr;

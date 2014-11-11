@@ -10,13 +10,13 @@ class RenderPass;
 class RenderOperation
 {
 public:
-    enum Type
+    enum class Type
     {
-        LINE_LIST,
-        TRIANGLE_LIST
+        LINES,
+        TRIANGLES
     };
 
-    Type type = TRIANGLE_LIST;
+    Type type = Type::TRIANGLES;
 
     glm::mat4 worldTransform;
 

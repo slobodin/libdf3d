@@ -21,15 +21,15 @@ render::RenderPass::BlendingMode convertBlendingMode(CEGUI::BlendMode bm)
     switch (bm)
     {
     case CEGUI::BM_NORMAL:
-        return render::RenderPass::BM_ALPHA;
+        return render::RenderPass::BlendingMode::ALPHA;
     case CEGUI::BM_RTT_PREMULTIPLIED:
-        return render::RenderPass::BM_ALPHA;
+        return render::RenderPass::BlendingMode::ALPHA;
     case CEGUI::BM_INVALID:
     default:
         break;
     }
 
-    return render::RenderPass::BM_NONE;
+    return render::RenderPass::BlendingMode::NONE;
 }
 
 const glm::mat4 &CeguiGeometryBufferImpl::getMatrix() const
@@ -161,11 +161,11 @@ void CeguiGeometryBufferImpl::appendGeometry(const Vertex *const vbuff, uint ver
         Batch newBatch;
 
         auto renderPass = make_shared<render::RenderPass>();
-        renderPass->setFaceCullMode(render::RenderPass::FCM_NONE);
+        renderPass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
         renderPass->setGpuProgram(render::GpuProgram::createFFP2DGpuProgram());
         renderPass->enableDepthTest(false);
         renderPass->enableDepthWrite(false);
-        renderPass->setBlendMode(render::RenderPass::BM_ALPHA);
+        renderPass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 
         if (m_activeTexture)
             renderPass->setSampler("diffuseMap", m_activeTexture->getDf3dTexture());
@@ -175,7 +175,7 @@ void CeguiGeometryBufferImpl::appendGeometry(const Vertex *const vbuff, uint ver
         newBatch.m_op = new render::RenderOperation();
         newBatch.m_op->passProps = renderPass;
         newBatch.m_op->vertexData = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
-        newBatch.m_op->vertexData->setUsageType(render::GB_USAGE_DYNAMIC);
+        newBatch.m_op->vertexData->setUsageType(render::GpuBufferUsageType::DYNAMIC);
         newBatch.clippingActive = m_clippingActive;
 
         m_batches.push_back(newBatch);

@@ -33,7 +33,7 @@ void PhysicsComponent::onAttached()
 }
 
 PhysicsComponent::PhysicsComponent(const char *definitionFile, short group, short mask)
-    : NodeComponent(CT_PHYSICS),
+    : NodeComponent(ComponentType::PHYSICS),
     m_definitionFile(definitionFile),
     m_group(group),
     m_mask(mask)

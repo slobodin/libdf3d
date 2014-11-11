@@ -14,7 +14,7 @@ namespace df3d { namespace scene {
 
 static long nodesCount = 0;
 
-void Node::broadcastNodeEvent(components::Event ev)
+void Node::broadcastNodeEvent(components::ComponentEvent ev)
 {
     for (auto c : m_components)
     {
@@ -26,7 +26,7 @@ void Node::broadcastNodeEvent(components::Event ev)
         c.second->broadcastNodeEvent(ev);
 }
 
-void Node::broadcastComponentEvent(const components::NodeComponent *who, components::Event ev)
+void Node::broadcastComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev)
 {
     for (auto c : m_components)
     {
@@ -71,7 +71,8 @@ void Node::setName(const char *newName)
 void Node::update(float dt)
 {
     // Update all components.
-    for (size_t i = 0; i < components::CT_COUNT; i++)
+    auto count = static_cast<size_t>(components::ComponentType::COUNT);
+    for (size_t i = 0; i < count; i++)
     {
         auto c = m_components[i];
         if (c)
@@ -87,7 +88,8 @@ void Node::draw(render::RenderQueue *ops)
     if (!isVisible())
         return;
 
-    for (size_t i = 0; i < components::CT_COUNT; i++)
+    auto count = static_cast<size_t>(components::ComponentType::COUNT);
+    for (size_t i = 0; i < count; i++)
     {
         auto c = m_components[i];
         if (c)
@@ -129,7 +131,7 @@ void Node::addChild(shared_ptr<Node> child)
     child->m_parent = shared_from_this();
     m_children[child->m_nodeName] = child;
 
-    broadcastNodeEvent(components::CE_CHILD_ATTACHED);
+    broadcastNodeEvent(components::ComponentEvent::CHILD_ATTACHED);
 }
 
 void Node::removeChild(shared_ptr<Node> child)
@@ -144,14 +146,14 @@ void Node::removeChild(const char *name)
 
     m_children.erase(name);
 
-    broadcastNodeEvent(components::CE_CHILD_REMOVED);
+    broadcastNodeEvent(components::ComponentEvent::CHILD_REMOVED);
 }
 
 void Node::removeAllChildren()
 {
     m_children.clear();
 
-    broadcastNodeEvent(components::CE_ALL_CHILDREN_REMOVED);
+    broadcastNodeEvent(components::ComponentEvent::ALL_CHILDREN_REMOVED);
 }
 
 shared_ptr<Node> Node::getChildByName(const char *name) const
@@ -187,37 +189,39 @@ shared_ptr<Node> Node::clone() const
 
 shared_ptr<components::TransformComponent> Node::transform()
 { 
-    return dynamic_pointer_cast<components::TransformComponent>(getComponent(components::CT_TRANSFORM));
+    return dynamic_pointer_cast<components::TransformComponent>(getComponent(components::ComponentType::TRANSFORM));
 }
 
 shared_ptr<components::MeshComponent> Node::mesh()
 { 
-    return dynamic_pointer_cast<components::MeshComponent>(getComponent(components::CT_MESH)); 
+    return dynamic_pointer_cast<components::MeshComponent>(getComponent(components::ComponentType::MESH));
 }
 
 shared_ptr<components::LightComponent> Node::light()
 {
-    return dynamic_pointer_cast<components::LightComponent>(getComponent(components::CT_LIGHT));
+    return dynamic_pointer_cast<components::LightComponent>(getComponent(components::ComponentType::LIGHT));
 }
 
 shared_ptr<components::AudioComponent> Node::audio()
 {
-    return dynamic_pointer_cast<components::AudioComponent>(getComponent(components::CT_AUDIO));
+    return dynamic_pointer_cast<components::AudioComponent>(getComponent(components::ComponentType::AUDIO));
 }
 
 shared_ptr<components::ParticleSystemComponent> Node::vfx()
 {
-    return dynamic_pointer_cast<components::ParticleSystemComponent>(getComponent(components::CT_PARTICLE_EFFECT));
+    return dynamic_pointer_cast<components::ParticleSystemComponent>(getComponent(components::ComponentType::PARTICLE_EFFECT));
 }
 
 shared_ptr<components::PhysicsComponent> Node::physics()
 {
-    return dynamic_pointer_cast<components::PhysicsComponent>(getComponent(components::CT_PHYSICS));
+    return dynamic_pointer_cast<components::PhysicsComponent>(getComponent(components::ComponentType::PHYSICS));
 }
 
 void Node::attachComponent(shared_ptr<components::NodeComponent> component)
 {
-    auto currentComponent = m_components[component->type];
+    auto idx = static_cast<size_t>(component->type);
+
+    auto currentComponent = m_components[idx];
     if (currentComponent)
     {
         currentComponent->onDetached();
@@ -225,14 +229,16 @@ void Node::attachComponent(shared_ptr<components::NodeComponent> component)
     }
 
     component->m_holder = this;     // shared_from_this(), wanna use weak_ptr, but doesn't work in ctor.
-    m_components[component->type] = component;
+    m_components[idx] = component;
 
     component->onAttached();
 }
 
 void Node::detachComponent(components::ComponentType type)
 {
-    auto component = m_components[type];
+    auto idx = static_cast<size_t>(type);
+
+    auto component = m_components[idx];
     if (!component)
     {
         base::glog << "Trying to detach non existing node component" << base::logwarn;
@@ -240,7 +246,7 @@ void Node::detachComponent(components::ComponentType type)
     }
 
     component->onDetached();
-    m_components[type].reset();
+    m_components[idx].reset();
 }
 
 shared_ptr<Node> Node::fromFile(const char *jsonDefinition)

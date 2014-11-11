@@ -13,7 +13,7 @@ namespace df3d { namespace components {
 class DF3D_DLL MeshComponent : public NodeComponent
 {
 protected:
-    void onEvent(components::Event ev);
+    void onEvent(components::ComponentEvent ev);
     void onDraw(render::RenderQueue *ops);
 
     shared_ptr<render::MeshData> m_geometry;

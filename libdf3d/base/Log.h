@@ -5,14 +5,7 @@
 
 namespace df3d { namespace base {
 
-enum MessageType
-{
-    MT_DEBUG,
-    MT_MESSAGE,
-    MT_WARNING,
-    MT_CRITICAL,
-    MT_GAME
-};
+enum class MessageType;
 
 class LoggerManipulator
 {
@@ -29,8 +22,6 @@ public:
 /**
  * @brief Simple log support.
  */
-// TODO:
-// make thread_safe
 class DF3D_DLL Log
 {
     std::stringstream m_buffer;

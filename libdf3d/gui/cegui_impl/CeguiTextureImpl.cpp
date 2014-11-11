@@ -30,14 +30,14 @@ size_t getNextPot(size_t v)
     return v;
 }
 
-render::Image::PixelFormat convertPixelFormat(const Texture::PixelFormat fmt)
+render::Image::Format convertPixelFormat(const Texture::PixelFormat fmt)
 {
     switch (fmt)
     {
     case Texture::PF_RGBA:
-        return render::Image::PF_RGBA;
+        return render::Image::Format::RGBA;
     case Texture::PF_RGB:
-        return render::Image::PF_RGB;
+        return render::Image::Format::RGB;
     case Texture::PF_RGB_565:
     case Texture::PF_RGBA_4444:
     case Texture::PF_PVRTC2:
@@ -49,7 +49,7 @@ render::Image::PixelFormat convertPixelFormat(const Texture::PixelFormat fmt)
         break;
     }
 
-    return render::Image::PF_INVALID;
+    return render::Image::Format::INVALID;
 }
 
 void CeguiTextureImpl::updateSizes()
@@ -98,8 +98,8 @@ CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name)
     : m_name(name),
     m_texture(new render::Texture())
 {
-    m_texture->setType(render::Texture::TEXTURE_2D);
-    m_texture->setFilteringMode(render::Texture::BILINEAR);
+    m_texture->setType(render::Texture::Type::TEXTURE_2D);
+    m_texture->setFilteringMode(render::Texture::Filtering::BILINEAR);
     m_texture->setMipmapped(false);
 
     updateSizes();
@@ -117,7 +117,7 @@ CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name, const CEGUI::Sizef
     auto textureImage = make_shared<render::Image>();
     textureImage->setWidth(size.d_width);
     textureImage->setHeight(size.d_height);
-    textureImage->setPixelFormat(render::Image::PF_RGBA);
+    textureImage->setPixelFormat(render::Image::Format::RGBA);
     textureImage->setInitialized();
 
     m_texture->setImage(textureImage);

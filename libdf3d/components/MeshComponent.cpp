@@ -17,9 +17,9 @@
 
 namespace df3d { namespace components {
 
-void MeshComponent::onEvent(components::Event ev)
+void MeshComponent::onEvent(components::ComponentEvent ev)
 {
-    if (ev != components::CE_TRANFORM_CHANGED)
+    if (ev != components::ComponentEvent::TRANFORM_CHANGED)
         return;
 
     m_transformedAabbDirty = true;
@@ -133,7 +133,7 @@ void MeshComponent::constructOBB()
 }
 
 MeshComponent::MeshComponent()
-    : NodeComponent(CT_MESH)
+    : NodeComponent(ComponentType::MESH)
 {
 
 }
@@ -141,7 +141,7 @@ MeshComponent::MeshComponent()
 MeshComponent::MeshComponent(const char *meshFilePath)
     : MeshComponent()
 {
-    auto meshData = g_resourceManager->getResource<render::MeshData>(meshFilePath, resources::ResourceManager::LOAD_MODE_ASYNC);
+    auto meshData = g_resourceManager->getResource<render::MeshData>(meshFilePath, resources::ResourceManager::LoadMode::ASYNC);
     setGeometry(meshData);
 }
 

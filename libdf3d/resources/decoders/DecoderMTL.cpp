@@ -26,58 +26,58 @@ namespace df3d { namespace resources {
 
 std::map<std::string, render::RenderPass::WindingOrder> woValues = 
 {
-    std::make_pair("CW", render::RenderPass::WO_CW),
-    std::make_pair("CCW", render::RenderPass::WO_CCW)
+    { "CW", render::RenderPass::WindingOrder::CW },
+    { "CCW", render::RenderPass::WindingOrder::CCW }
 };
 
 std::map<std::string, render::RenderPass::PolygonMode> polygonModeValues =
 {
-    std::make_pair("FILL", render::RenderPass::PM_FILL),
-    std::make_pair("WIRE", render::RenderPass::PM_WIRE)
+    { "FILL", render::RenderPass::PolygonMode::FILL },
+    { "WIRE", render::RenderPass::PolygonMode::WIRE }
 };
 
 std::map<std::string, render::RenderPass::FaceCullMode> faceCullModeValues =
 {
-    std::make_pair("NONE", render::RenderPass::FCM_NONE),
-    std::make_pair("BACK", render::RenderPass::FCM_BACK),
-    std::make_pair("FRONT", render::RenderPass::FCM_FRONT),
-    std::make_pair("FRONT_AND_BACK", render::RenderPass::FCM_FRONT_AND_BACK)
+    { "NONE", render::RenderPass::FaceCullMode::NONE },
+    { "BACK", render::RenderPass::FaceCullMode::BACK },
+    { "FRONT", render::RenderPass::FaceCullMode::FRONT },
+    { "FRONT_AND_BACK", render::RenderPass::FaceCullMode::FRONT_AND_BACK }
 };
 
 std::map<std::string, render::Texture::Type> textureTypeValues = 
 {
-    std::make_pair("TEXTURE_1D", render::Texture::TEXTURE_1D),
-    std::make_pair("TEXTURE_2D", render::Texture::TEXTURE_2D),
-    std::make_pair("TEXTURE_3D", render::Texture::TEXTURE_3D),
-    std::make_pair("TEXTURE_CUBE", render::Texture::TEXTURE_CUBE)
+    { "TEXTURE_1D", render::Texture::Type::TEXTURE_1D },
+    { "TEXTURE_2D", render::Texture::Type::TEXTURE_2D },
+    { "TEXTURE_3D", render::Texture::Type::TEXTURE_3D },
+    { "TEXTURE_CUBE", render::Texture::Type::TEXTURE_CUBE }
 };
 
 std::map<std::string, render::Texture::Filtering> textureFilteringValues =
 {
-    std::make_pair("NEAREST", render::Texture::NEAREST),
-    std::make_pair("BILINEAR", render::Texture::BILINEAR),
-    std::make_pair("TRILINEAR", render::Texture::TRILINEAR)
+    { "NEAREST", render::Texture::Filtering::NEAREST },
+    { "BILINEAR", render::Texture::Filtering::BILINEAR },
+    { "TRILINEAR", render::Texture::Filtering::TRILINEAR }
 };
 
 std::map<std::string, render::Texture::WrapMode> textureWrapValues =
 {
-    std::make_pair("WRAP", render::Texture::WM_WRAP),
-    std::make_pair("CLAMP", render::Texture::WM_CLAMP)
+    { "WRAP", render::Texture::WrapMode::WRAP },
+    { "CLAMP", render::Texture::WrapMode::CLAMP }
 };
 
 std::map<std::string, render::RenderPass::BlendingMode> blendModeValues = 
 {
-    std::make_pair("NONE", render::RenderPass::BM_NONE),
-    std::make_pair("ALPHA", render::RenderPass::BM_ALPHA),
-    std::make_pair("ADDALPHA", render::RenderPass::BM_ADDALPHA)
+    { "NONE", render::RenderPass::BlendingMode::NONE },
+    { "ALPHA", render::RenderPass::BlendingMode::ALPHA },
+    { "ADDALPHA", render::RenderPass::BlendingMode::ADDALPHA }
 };
 
 std::map<std::string, bool> boolValues =
 {
-    std::make_pair("true", true),
-    std::make_pair("false", false),
-    std::make_pair("1", true),
-    std::make_pair("0", false)
+    { "true", true },
+    { "false", false },
+    { "1", true },
+    { "0", false }
 };
 
 template<typename V>
@@ -448,7 +448,7 @@ shared_ptr<render::Texture> DecoderMTL::parseSamplerNode(MaterialLibNode &node)
 
     std::string path = node.keyValues["path"];
 
-    auto textureImage = g_resourceManager->getResource<render::Image>(path.c_str(), ResourceManager::LOAD_MODE_ASYNC);
+    auto textureImage = g_resourceManager->getResource<render::Image>(path.c_str(), ResourceManager::LoadMode::ASYNC);
     if (!textureImage)
         return nullptr;
 

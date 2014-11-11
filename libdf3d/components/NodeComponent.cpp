@@ -13,24 +13,24 @@ namespace df3d { namespace components {
 
 static const std::map<std::string, ComponentType> TypeName = 
 {
-    std::make_pair("transform", CT_TRANSFORM),
-    std::make_pair("mesh", CT_MESH),
-    std::make_pair("vfx", CT_PARTICLE_EFFECT),
-    std::make_pair("audio", CT_AUDIO),
-    std::make_pair("physics", CT_PHYSICS),
-    std::make_pair("light", CT_LIGHT),
-    std::make_pair("debug_draw", CT_DEBUG_DRAW)
+    { "transform", ComponentType::TRANSFORM },
+    { "mesh", ComponentType::MESH },
+    { "vfx", ComponentType::PARTICLE_EFFECT },
+    { "audio", ComponentType::AUDIO },
+    { "physics", ComponentType::PHYSICS },
+    { "light", ComponentType::LIGHT },
+    { "debug_draw", ComponentType::DEBUG_DRAW }
 };
 
 static const std::map<ComponentType, std::string> TypeNameInv = // dunno how to name it
 {
-    std::make_pair(CT_TRANSFORM, "transform"),
-    std::make_pair(CT_MESH, "mesh"),
-    std::make_pair(CT_PARTICLE_EFFECT, "vfx"),
-    std::make_pair(CT_AUDIO, "audio"),
-    std::make_pair(CT_PHYSICS, "physics"),
-    std::make_pair(CT_LIGHT, "light"),
-    std::make_pair(CT_DEBUG_DRAW, "debug_draw")
+    { ComponentType::TRANSFORM, "transform" },
+    { ComponentType::MESH, "mesh" },
+    { ComponentType::PARTICLE_EFFECT, "vfx" },
+    { ComponentType::AUDIO, "audio" },
+    { ComponentType::PHYSICS, "physics" },
+    { ComponentType::LIGHT, "light" },
+    { ComponentType::DEBUG_DRAW, "debug_draw" }
 };
 
 NodeComponent::NodeComponent(ComponentType t)
@@ -44,7 +44,7 @@ const char *NodeComponent::getName() const
     return TypeNameInv.find(type)->second.c_str();
 }
 
-void NodeComponent::sendEvent(Event ev)
+void NodeComponent::sendEvent(ComponentEvent ev)
 {
     getHolder()->broadcastComponentEvent(this, ev);
 }
@@ -73,19 +73,19 @@ shared_ptr<NodeComponent> NodeComponent::create(const Json::Value &root)
 
     switch (type->second)
     {
-    case CT_TRANSFORM:
+    case ComponentType::TRANSFORM:
         return make_shared<TransformComponent>(root["data"]);
-    case CT_MESH:
+    case ComponentType::MESH:
         return make_shared<MeshComponent>(root["data"]["path"].asCString());
-    case CT_PARTICLE_EFFECT:
+    case ComponentType::PARTICLE_EFFECT:
         return make_shared<ParticleSystemComponent>(root["data"]["path"].asCString());
-    case CT_AUDIO:
+    case ComponentType::AUDIO:
         return make_shared<AudioComponent>(root["data"]);
-    case CT_PHYSICS:
+    case ComponentType::PHYSICS:
         return make_shared<PhysicsComponent>(root["data"]["path"].asCString());
-    case CT_LIGHT:
+    case ComponentType::LIGHT:
         return make_shared<LightComponent>(root["data"]);
-    case CT_DEBUG_DRAW:
+    case ComponentType::DEBUG_DRAW:
         break;
     default:
         break;

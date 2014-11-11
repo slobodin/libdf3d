@@ -7,14 +7,14 @@ namespace df3d { namespace components {
 class DF3D_DLL DebugDrawComponent : public NodeComponent
 {
 public:
-    enum Type
+    enum class Type
     {
-        TYPE_AABB,
-        TYPE_OBB
+        AABB,
+        OBB
     };
 
 protected:
-    void onEvent(components::Event ev);
+    void onEvent(components::ComponentEvent ev);
     void onDraw(render::RenderQueue *ops);
 
     DebugDrawComponent();

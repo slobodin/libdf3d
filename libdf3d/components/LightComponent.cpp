@@ -17,8 +17,8 @@ void LightComponent::onDraw(render::RenderQueue *ops)
         ops->lights.push_back(this);
 }
 
-LightComponent::LightComponent(LightType type)
-    : NodeComponent(CT_LIGHT)
+LightComponent::LightComponent(Type type)
+    : NodeComponent(ComponentType::LIGHT)
 {
     if (NumLights >= MAX_LIGHTS)
     {
@@ -40,7 +40,7 @@ LightComponent::LightComponent(LightType type)
 LightComponent::LightComponent(const Json::Value &root)
     // FIXME:
     // Support other light types!
-    : LightComponent(LT_DIRECTIONAL_LIGHT)
+    : LightComponent(Type::DIRECTIONAL)
 {
     auto typeStr = root["type"].asString();
     if (typeStr != "directional")
@@ -61,7 +61,7 @@ LightComponent::~LightComponent()
 
 void LightComponent::setDirection(const glm::vec3 &dir)
 {
-    if (m_type != LT_DIRECTIONAL_LIGHT)
+    if (m_type != Type::DIRECTIONAL)
     {
         base::glog << "Trying to set direction to not directional light" << base::logwarn;
         return;

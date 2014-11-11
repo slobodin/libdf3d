@@ -61,9 +61,9 @@ void Camera::buildProjectionMatrix()
     m_projectionMatrixDirty = false;
 }
 
-void Camera::onComponentEvent(const components::NodeComponent *who, components::Event ev)
+void Camera::onComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev)
 {
-    if (ev == components::CE_TRANFORM_CHANGED)
+    if (ev == components::ComponentEvent::TRANFORM_CHANGED)
         m_viewMatrixDirty = true;
 }
 

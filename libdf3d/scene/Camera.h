@@ -21,7 +21,7 @@ class DF3D_DLL Camera : public Node
     void buildViewMatrix();
     void buildProjectionMatrix();
 
-    void onComponentEvent(const components::NodeComponent *who, components::Event ev);
+    void onComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev);
 
 public:
     /** 

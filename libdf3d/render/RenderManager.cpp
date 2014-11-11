@@ -28,16 +28,16 @@ namespace df3d { namespace render {
 void RenderManager::createQuadRenderOperation()
 {
     auto passThrough = make_shared<RenderPass>();
-    passThrough->setFrontFaceWinding(RenderPass::WO_CCW);
-    passThrough->setFaceCullMode(RenderPass::FCM_BACK);
+    passThrough->setFrontFaceWinding(RenderPass::WindingOrder::CCW);
+    passThrough->setFaceCullMode(RenderPass::FaceCullMode::BACK);
     auto program = g_resourceManager->getResource<GpuProgram>(RTT_QUAD_PROGRAM_EMBED_PATH);
     passThrough->setGpuProgram(program);
-    passThrough->setBlendMode(RenderPass::BM_NONE);
+    passThrough->setBlendMode(RenderPass::BlendingMode::NONE);
     passThrough->enableDepthTest(false);
     passThrough->enableDepthWrite(false);
 
     m_quadVb = render::createQuad(VertexFormat::create("p:3, tx:2"), 0.0f, 0.0f, 2.0, 2.0f);
-    m_quadVb->setUsageType(GB_USAGE_STATIC);
+    m_quadVb->setUsageType(GpuBufferUsageType::STATIC);
 
     m_defaultPostProcessMaterial = shared_ptr<render::Material>(new render::Material("default_postprocess_material"));
     auto defaultTech = shared_ptr<render::Technique>(new render::Technique("default_technique"));
@@ -218,7 +218,7 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
     m_renderQueue->sort();
 
     // Ambient pass.
-    m_renderer->enableBlendModeOverride(RenderPass::BM_NONE);
+    m_renderer->enableBlendModeOverride(RenderPass::BlendingMode::NONE);
     m_renderer->enableDepthTestOverride(true);
     m_renderer->enableDepthWriteOverride(true);
 
@@ -235,7 +235,7 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
     }
 
     // Opaque pass with lights on.
-    m_renderer->enableBlendModeOverride(RenderPass::BM_ADD);
+    m_renderer->enableBlendModeOverride(RenderPass::BlendingMode::ADD);
     m_renderer->enableDepthWriteOverride(false);
     
     for (const auto &op : m_renderQueue->litOpaqueOperations)

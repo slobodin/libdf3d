@@ -53,10 +53,10 @@ const unsigned char *Image::pixelAt(size_t x, size_t y) const
     return m_data + m_width * y * m_depth + x * m_depth;
 }
 
-Image::PixelFormat Image::pixelFormat() const
+Image::Format Image::pixelFormat() const
 {
     if (!valid())
-        return PF_INVALID;
+        return Format::INVALID;
     return m_pixelFormat;
 }
 
@@ -70,21 +70,21 @@ void Image::setHeight(size_t h)
     m_height = h;
 }
 
-void Image::setPixelFormat(PixelFormat pf)
+void Image::setPixelFormat(Format pf)
 {
     switch (pf)
     {
-    case PF_RGB:
-    case PF_BGR:
+    case Format::RGB:
+    case Format::BGR:
         m_depth = 3;
         break;
-    case PF_RGBA:
+    case Format::RGBA:
         m_depth = 4;
         break;
-    case PF_GRAYSCALE:
+    case Format::GRAYSCALE:
         m_depth = 1;
         break;
-    case PF_INVALID:
+    case Format::INVALID:
     default:
         base::glog << "Trying to set up invalid pixel format for image" << getGUID() << base::logwarn;
         return;
@@ -93,9 +93,9 @@ void Image::setPixelFormat(PixelFormat pf)
     m_pixelFormat = pf;
 }
 
-void Image::setWithData(const unsigned char *data, size_t w, size_t h, PixelFormat pf, int pitch)
+void Image::setWithData(const unsigned char *data, size_t w, size_t h, Format pf, int pitch)
 {
-    if (!data || pf == PF_INVALID)
+    if (!data || pf == Format::INVALID)
         return;
 
     setPixelFormat(pf);
@@ -126,13 +126,13 @@ void Image::setWithData(SDL_Surface *surf)
 {
     // FIXME:
     // Format
-    render::Image::PixelFormat pf = render::Image::PF_INVALID;
+    auto pf = Format::INVALID;
     if (surf->format->BytesPerPixel == 1)
-        pf = render::Image::PF_GRAYSCALE;
+        pf = Format::GRAYSCALE;
     else if (surf->format->BytesPerPixel == 3)
-        pf = render::Image::PF_RGB;
+        pf = Format::RGB;
     else if (surf->format->BytesPerPixel == 4)
-        pf = render::Image::PF_RGBA;
+        pf = Format::RGBA;
 
     SDL_LockSurface(surf);
     setWithData((const unsigned char *)surf->pixels, surf->w, surf->h, pf, surf->pitch);

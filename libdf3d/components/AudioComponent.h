@@ -9,12 +9,12 @@ namespace df3d { namespace components {
 class DF3D_DLL AudioComponent : public components::NodeComponent
 {
 public:
-    enum State
+    enum class State
     {
-        S_INITIAL,
-        S_PLAYING,
-        S_PAUSED,
-        S_STOPPED
+        INITIAL,
+        PLAYING,
+        PAUSED,
+        STOPPED
     };
 
 private:

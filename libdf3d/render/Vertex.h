@@ -2,51 +2,6 @@
 
 namespace df3d { namespace render {
 
-//enum VertexFormat
-//{
-//    VF_INVALID
-//};
-
-// TODO:
-// Align 4 bytes?
-
-#pragma pack(push, 1)
-
-//! Vertex of a mesh.
-//struct Vertex
-//{
-//    //! Vertex point.
-//    glm::vec3 p;
-//    //! Vertex normal.
-//    glm::vec3 n;
-//    //! Vertex texture coordinates.
-//    glm::vec2 t;
-//    //! Color.
-//    glm::vec4 color;
-//    //! Tangent space basis.
-//    glm::vec3 tangent;
-//    glm::vec3 bitangent;
-//
-//    Vertex()
-//    {
-//        color.r = color.g = color.b = color.a = 1.0f;
-//    }
-//
-//    static unsigned int ptOffset() { return 0; }
-//    static unsigned int normalsOffset() { return sizeof(glm::vec3); }
-//    static unsigned int txCoordOffset() { return sizeof(glm::vec3) + sizeof(glm::vec3); }
-//    static unsigned int colorOffset() { return txCoordOffset() + sizeof(glm::vec2); }
-//    static unsigned int tangentOffset() { return colorOffset() + sizeof(glm::vec4); }
-//    static unsigned int bitangentOffset() { return tangentOffset() + sizeof(glm::vec3); }
-//
-//    bool operator< (const Vertex &other) const
-//    {
-//        return memcmp(this, &other, sizeof(Vertex)) > 0;
-//    }
-//};
-
-#pragma pack(pop)
-
 class VertexFormat;
 
 class VertexComponent

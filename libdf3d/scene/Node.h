@@ -30,15 +30,15 @@ protected:
     std::string m_nodeName;
     bool m_visible = true;
 
-    shared_ptr<components::NodeComponent> m_components[components::CT_COUNT];
+    shared_ptr<components::NodeComponent> m_components[(size_t)components::ComponentType::COUNT];
 
     weak_ptr<Node> m_parent;
     NodeChildren m_children;
 
-    void broadcastNodeEvent(components::Event ev);
-    void broadcastComponentEvent(const components::NodeComponent *who, components::Event ev);
+    void broadcastNodeEvent(components::ComponentEvent ev);
+    void broadcastComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev);
 
-    virtual void onComponentEvent(const components::NodeComponent *who, components::Event ev) { }
+    virtual void onComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev) { }
 
 public:
     Node(const char *name = "");
@@ -70,7 +70,7 @@ public:
 
     shared_ptr<Node> clone() const;
 
-    shared_ptr<components::NodeComponent> getComponent(components::ComponentType type) { return m_components[type]; }
+    shared_ptr<components::NodeComponent> getComponent(components::ComponentType type) { return m_components[(size_t)type]; }
     shared_ptr<components::TransformComponent> transform();
     shared_ptr<components::MeshComponent> mesh();
     shared_ptr<components::LightComponent> light();

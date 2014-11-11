@@ -11,11 +11,11 @@ class Material;
 #define INDICES_16_BIT uint16_t
 #define INDICES_32_BIT uint32_t
 
-enum GpuBufferUsageType
+enum class GpuBufferUsageType
 {
-    GB_USAGE_STATIC,
-    GB_USAGE_DYNAMIC,
-    GB_USAGE_STREAM
+    STATIC,
+    DYNAMIC,
+    STREAM
 };
 
 using INDICES_TYPE = INDICES_32_BIT;
@@ -24,7 +24,7 @@ using IndexArray = std::vector<INDICES_TYPE>;
 class GpuBuffer : boost::noncopyable
 {
 protected:
-    GpuBufferUsageType m_usageType = GB_USAGE_STATIC;
+    GpuBufferUsageType m_usageType = GpuBufferUsageType::STATIC;
 
     unsigned int m_glBufferId = 0;
 

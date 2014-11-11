@@ -9,6 +9,15 @@ namespace df3d { namespace base {
 
 const size_t MAX_LOG_SIZE = 2 << 18;
 
+enum class MessageType
+{
+    DEBUG,
+    MESSAGE,
+    WARNING,
+    CRITICAL,
+    GAME
+};
+
 Log::Log()
 {
 }
@@ -126,35 +135,35 @@ Log &Log::operator<< (const LoggerManipulator &man)
 
     switch (man.m_type)
     {
-    case MT_DEBUG:
+    case MessageType::DEBUG:
         std::cerr << "[debug]: ";
 #if defined(__ANDROID__)
         androidPriority = ANDROID_LOG_DEBUG;
 #endif
         break;
 
-    case MT_MESSAGE:
+    case MessageType::MESSAGE:
         std::cerr << "[message]: ";
 #if defined(__ANDROID__)
         androidPriority = ANDROID_LOG_INFO;
 #endif
         break;
 
-    case MT_WARNING:
+    case MessageType::WARNING:
         std::cerr << "[warning]: ";
 #if defined(__ANDROID__)
         androidPriority = ANDROID_LOG_WARN;
 #endif
         break;
 
-    case MT_CRITICAL:
+    case MessageType::CRITICAL:
         std::cerr << "[critical]: ";
 #if defined(__ANDROID__)
         androidPriority = ANDROID_LOG_FATAL;
 #endif
         break;
 
-    case MT_GAME:
+    case MessageType::GAME:
         std::cerr << "[game]: ";
 #if defined(__ANDROID__)
         androidPriority = ANDROID_LOG_INFO;
@@ -188,10 +197,10 @@ const std::string &Log::logData() const
 }
 
 Log &glog = Log::instance();
-const LoggerManipulator logdebug(MT_DEBUG);
-const LoggerManipulator logmess(MT_MESSAGE);
-const LoggerManipulator logwarn(MT_WARNING);
-const LoggerManipulator logcritical(MT_CRITICAL);
-const LoggerManipulator loggame(MT_GAME);
+const LoggerManipulator logdebug(MessageType::DEBUG);
+const LoggerManipulator logmess(MessageType::MESSAGE);
+const LoggerManipulator logwarn(MessageType::WARNING);
+const LoggerManipulator logcritical(MessageType::CRITICAL);
+const LoggerManipulator loggame(MessageType::GAME);
 
 } }

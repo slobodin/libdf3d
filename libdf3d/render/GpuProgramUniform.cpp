@@ -8,59 +8,59 @@ namespace df3d { namespace render {
 SharedUniformType getSharedTypeForUniform(const std::string &name)
 {
     if (name == "WorldViewProjectionMatrix")
-        return WORLD_VIEW_PROJECTION_MATRIX_UNIFORM;
+        return SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM;
     else if (name == "WorldViewMatrix")
-        return WORLD_VIEW_MATRIX_UNIFORM;
+        return SharedUniformType::WORLD_VIEW_MATRIX_UNIFORM;
     else if (name == "WorldViewMatrix3x3")
-        return WORLD_VIEW_3X3_MATRIX_UNIFORM;
+        return SharedUniformType::WORLD_VIEW_3X3_MATRIX_UNIFORM;
     else if (name == "ViewMatrixInverse")
-        return VIEW_INVERSE_MATRIX_UNIFORM;
+        return SharedUniformType::VIEW_INVERSE_MATRIX_UNIFORM;
     else if (name == "ViewMatrix")
-        return VIEW_MATRIX_UNIFORM;
+        return SharedUniformType::VIEW_MATRIX_UNIFORM;
     else if (name == "ProjectionMatrix")
-        return PROJECTION_MATRIX_UNIFORM;
+        return SharedUniformType::PROJECTION_MATRIX_UNIFORM;
     else if (name == "WorldMatrix")
-        return WORLD_MATRIX_UNIFORM;
+        return SharedUniformType::WORLD_MATRIX_UNIFORM;
     else if (name == "WorldMatrixInverse")
-        return WORLD_INVERSE_MATRIX_UNIFORM;
+        return SharedUniformType::WORLD_INVERSE_MATRIX_UNIFORM;
     else if (name == "NormalMatrix")
-        return NORMAL_MATRIX_UNIFORM;
+        return SharedUniformType::NORMAL_MATRIX_UNIFORM;
     else if (name == "globalAmbient")
-        return GLOBAL_AMBIENT_UNIFORM;
+        return SharedUniformType::GLOBAL_AMBIENT_UNIFORM;
     else if (name == "CameraPosition")
-        return CAMERA_POSITION_UNIFORM;
+        return SharedUniformType::CAMERA_POSITION_UNIFORM;
     else if (name == "FogDensity")
-        return FOG_DENSITY_UNIFORM;
+        return SharedUniformType::FOG_DENSITY_UNIFORM;
     else if (name == "FogColor")
-        return FOG_COLOR_UNIFORM;
+        return SharedUniformType::FOG_COLOR_UNIFORM;
     else if (name == "PixelSize")
-        return PIXEL_SIZE_UNIFORM;
+        return SharedUniformType::PIXEL_SIZE_UNIFORM;
     else if (name == "ElapsedTime")
-        return ELAPSED_TIME_UNIFORM;
+        return SharedUniformType::ELAPSED_TIME_UNIFORM;
     else if (name == "material.ambient")
-        return MATERIAL_AMBIENT_UNIFORM;
+        return SharedUniformType::MATERIAL_AMBIENT_UNIFORM;
     else if (name == "material.diffuse")
-        return MATERIAL_DIFFUSE_UNIFORM;
+        return SharedUniformType::MATERIAL_DIFFUSE_UNIFORM;
     else if (name == "material.specular")
-        return MATERIAL_SPECULAR_UNIFORM;
+        return SharedUniformType::MATERIAL_SPECULAR_UNIFORM;
     else if (name == "material.emissive")
-        return MATERIAL_EMISSIVE_UNIFORM;
+        return SharedUniformType::MATERIAL_EMISSIVE_UNIFORM;
     else if (name == "material.shininess")
-        return MATERIAL_SHININESS_UNIFORM;
+        return SharedUniformType::MATERIAL_SHININESS_UNIFORM;
     else if (name == "current_light.diffuse")
-        return SCENE_LIGHT_DIFFUSE_UNIFORM;
+        return SharedUniformType::SCENE_LIGHT_DIFFUSE_UNIFORM;
     else if (name == "current_light.specular")
-        return SCENE_LIGHT_SPECULAR_UNIFORM;
+        return SharedUniformType::SCENE_LIGHT_SPECULAR_UNIFORM;
     else if (name == "current_light.position")
-        return SCENE_LIGHT_POSITION_UNIFORM;
+        return SharedUniformType::SCENE_LIGHT_POSITION_UNIFORM;
     else if (name == "current_light.constantAttenuation")
-        return SCENE_LIGHT_KC_UNIFORM;
+        return SharedUniformType::SCENE_LIGHT_KC_UNIFORM;
     else if (name == "current_light.linearAttenuation")
-        return SCENE_LIGHT_KL_UNIFORM;
+        return SharedUniformType::SCENE_LIGHT_KL_UNIFORM;
     else if (name == "current_light.quadraticAttenuation")
-        return SCENE_LIGHT_KQ_UNIFORM;
+        return SharedUniformType::SCENE_LIGHT_KQ_UNIFORM;
 
-    return SHARED_UNIFORMS_COUNT;
+    return SharedUniformType::COUNT;
 }
 
 GpuProgramUniform::GpuProgramUniform(const std::string &name)

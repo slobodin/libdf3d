@@ -8,13 +8,13 @@ class Image : public resources::Resource
 {
 public:
     //! Each channel is 8 bits.
-    enum PixelFormat
+    enum class Format
     {
-        PF_INVALID,
-        PF_RGB,
-        PF_BGR,
-        PF_RGBA,
-        PF_GRAYSCALE
+        INVALID,
+        RGB,
+        BGR,
+        RGBA,
+        GRAYSCALE
     };
 
 private:
@@ -25,7 +25,7 @@ private:
     //! Bytes per pixel.
     size_t m_depth = 0;
 
-    PixelFormat m_pixelFormat = PF_RGB;
+    Format m_pixelFormat = Format::RGB;
 
 public:
     Image();
@@ -44,14 +44,14 @@ public:
     //! Returns pixel at given coordinates.
     const unsigned char *pixelAt(size_t x, size_t y) const;
     //! Returns image format.
-    PixelFormat pixelFormat() const;
+    Format pixelFormat() const;
 
     void setWidth(size_t w);
     void setHeight(size_t h);
-    void setPixelFormat(PixelFormat pf);
+    void setPixelFormat(Format pf);
 
     //! Initializes image with given pixel array.
-    void setWithData(const unsigned char *data, size_t w, size_t h, PixelFormat pf, int pitch = -1);
+    void setWithData(const unsigned char *data, size_t w, size_t h, Format pf, int pitch = -1);
     void setWithData(SDL_Surface *surf);
 };
 
