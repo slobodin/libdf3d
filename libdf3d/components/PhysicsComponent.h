@@ -13,7 +13,7 @@ class DF3D_DLL PhysicsComponent : public NodeComponent
     short m_mask = -1;
 
     //void onUpdate(float dt);
-    void onAttached();
+    void onAttached() override;
 
 public:
     btRigidBody *body = nullptr;
@@ -24,7 +24,7 @@ public:
     PhysicsComponent(const char *definitionFile, short group = -1, short mask = -1);
     ~PhysicsComponent();
 
-    shared_ptr<NodeComponent> clone() const;
+    shared_ptr<NodeComponent> clone() const override;
 };
 
 } }

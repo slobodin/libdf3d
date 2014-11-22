@@ -15,12 +15,12 @@ public:
     BoundingSphere();
     ~BoundingSphere();
 
-    void reset();
-    void updateBounds(const glm::vec3 &point);
+    void reset() override;
+    void updateBounds(const glm::vec3 &point) override;
     void setPosition(const glm::vec3 &pos);
     void setRadius(float radius);
 
-    bool isValid() const;
+    bool isValid() const override;
 
     bool contains(const glm::vec3 &point) const;
     bool intersects(const BoundingSphere &other) const;

@@ -40,7 +40,7 @@ class RenderManager
 
     friend class base::Controller;
 
-    scoped_ptr<Renderer> m_renderer;
+    unique_ptr<Renderer> m_renderer;
 
     // Ambient pass support.
     shared_ptr<RenderPass> m_ambientPassProps;
@@ -53,7 +53,7 @@ class RenderManager
     // FIXME: oes2.0 doesn't support mrt's.
     shared_ptr<RenderTargetTexture> m_postProcessPassBuffers[MAX_POSPROCESS_PASSES];
 
-    scoped_ptr<RenderQueue> m_renderQueue;
+    unique_ptr<RenderQueue> m_renderQueue;
 
     void createQuadRenderOperation();
     void createRenderTargets(const Viewport &vp);

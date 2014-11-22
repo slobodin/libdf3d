@@ -25,7 +25,7 @@ private:
     float m_gain = 1.0f;
     bool m_looped = false;
 
-    void onUpdate(float dt);
+    void onUpdate(float dt) override;
 
 public:
     AudioComponent(const char *audioFilePath);
@@ -46,7 +46,7 @@ public:
 
     State getState();
 
-    shared_ptr<NodeComponent> clone() const;
+    shared_ptr<NodeComponent> clone() const override;
 };
 
 } }

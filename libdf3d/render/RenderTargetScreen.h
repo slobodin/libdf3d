@@ -9,8 +9,8 @@ class RenderTargetScreen : public RenderTarget
 public:
     RenderTargetScreen(const Viewport &vp);
 
-    void bind();
-    void unbind();
+    void bind() override;
+    void unbind() override;
 };
 
 } }

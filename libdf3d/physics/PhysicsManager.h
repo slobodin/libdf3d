@@ -15,7 +15,7 @@ class DF3D_DLL PhysicsManager
     friend class render::RenderManager;
 
     struct Impl;
-    scoped_ptr<Impl> m_pimpl;
+    unique_ptr<Impl> m_pimpl;
 
     bool m_paused = false;
 

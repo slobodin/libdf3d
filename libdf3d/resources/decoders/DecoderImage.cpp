@@ -27,7 +27,7 @@ bool DecoderImage::decodeResource(const shared_ptr<FileDataSource> file, shared_
     if (!file || !file->valid())
         return false;
 
-    auto texture = boost::dynamic_pointer_cast<render::Image>(resource);
+    auto texture = dynamic_pointer_cast<render::Image>(resource);
     if (!texture)
         return false;
 

@@ -73,7 +73,7 @@ shared_ptr<ResourceDecoder> ResourceManager::getDecoder(const std::string &exten
 
 bool ResourceManager::init()
 {
-    m_threadPool.reset(new base::ThreadPool(2));
+    m_threadPool = make_unique<base::ThreadPool>(2);
     // TODO:
     // Add embedded resources.
 

@@ -59,7 +59,7 @@ bool DecoderWAV::decodeResource(const shared_ptr<FileDataSource> file, shared_pt
     if (!file || !file->valid())
         return false;
 
-    auto buffer = boost::dynamic_pointer_cast<audio::AudioBuffer>(resource);
+    auto buffer = dynamic_pointer_cast<audio::AudioBuffer>(resource);
     if (!buffer)
         return false;
 

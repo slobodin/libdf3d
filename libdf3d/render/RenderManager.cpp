@@ -124,7 +124,7 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
 }
 
 RenderManager::RenderManager()
-    : m_renderQueue(new RenderQueue())
+    : m_renderQueue(make_unique<RenderQueue>())
 {
 }
 
@@ -135,7 +135,7 @@ RenderManager::~RenderManager()
 bool RenderManager::init(RenderManagerInitParams params)
 {
 #if defined(__WIN32__) || defined(__ANDROID__)
-    m_renderer.reset(new Renderer());
+    m_renderer = make_unique<Renderer>();
 #else
 #error "Unsupported platform"
 #endif

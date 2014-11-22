@@ -15,13 +15,13 @@ protected:
     SDLApplication();
     virtual ~SDLApplication();
 
-    bool init(AppInitParams params);
-    void shutdown();
+    bool init(AppInitParams params) override;
+    void shutdown() override;
 
-    void pollEvents();
-    void swapBuffers();
+    void pollEvents() override;
+    void swapBuffers() override;
 
-    void setTitle(const char *title);
+    void setTitle(const char *title) override;
 };
 
 } }

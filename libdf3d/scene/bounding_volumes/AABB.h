@@ -14,13 +14,13 @@ public:
     AABB();
     ~AABB();
 
-    void reset();
-    void updateBounds(const glm::vec3 &point);
+    void reset() override;
+    void updateBounds(const glm::vec3 &point) override;
 
     const glm::vec3 &minPoint() const;
     const glm::vec3 &maxPoint() const;
 
-    bool isValid() const;
+    bool isValid() const override;
 
     bool contains(const glm::vec3 &point) const;
     bool intersects(const AABB &other) const;

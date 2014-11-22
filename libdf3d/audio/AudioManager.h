@@ -12,7 +12,7 @@ class DF3D_DLL AudioManager
     friend class AudioNode;
 
     struct Impl;
-    scoped_ptr<Impl> m_pimpl;
+    unique_ptr<Impl> m_pimpl;
 
     AudioManager();
     ~AudioManager();

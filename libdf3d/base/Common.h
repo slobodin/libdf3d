@@ -1,8 +1,17 @@
 #pragma once
 
 #include <chrono>
+#include <memory>
 
 using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
+
+using std::shared_ptr;
+using std::make_shared;
+using std::unique_ptr;
+using std::make_unique;
+using std::weak_ptr;
+using std::dynamic_pointer_cast;
+using std::static_pointer_cast;
 
 namespace df3d {
 

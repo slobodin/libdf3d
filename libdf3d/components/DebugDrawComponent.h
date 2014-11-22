@@ -14,8 +14,8 @@ public:
     };
 
 protected:
-    void onEvent(components::ComponentEvent ev);
-    void onDraw(render::RenderQueue *ops);
+    void onEvent(components::ComponentEvent ev) override;
+    void onDraw(render::RenderQueue *ops) override;
 
     DebugDrawComponent();
 
@@ -23,7 +23,7 @@ public:
     DebugDrawComponent(Type type);
     ~DebugDrawComponent();
 
-    shared_ptr<NodeComponent> clone() const;
+    shared_ptr<NodeComponent> clone() const override;
 };
 
 } }

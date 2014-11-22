@@ -17,7 +17,7 @@ class Renderer
 {
     RenderStats *m_renderStats = nullptr;
 
-    scoped_ptr<GpuProgramState> m_programState;
+    unique_ptr<GpuProgramState> m_programState;
     shared_ptr<Texture> m_whiteTexture;
 
     int m_maxTextureSize = -1;

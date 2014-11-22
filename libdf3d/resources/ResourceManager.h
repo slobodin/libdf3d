@@ -32,7 +32,7 @@ private:
     };
     void doRequest(DecodeRequest req);
 
-    scoped_ptr<base::ThreadPool> m_threadPool;
+    unique_ptr<base::ThreadPool> m_threadPool;
     mutable std::recursive_mutex m_lock;
 
     std::unordered_map<ResourceGUID, shared_ptr<Resource>> m_loadedResources;
@@ -66,8 +66,8 @@ shared_ptr<T> ResourceManager::getResource(const char *path, LoadMode lm)
 {
     auto resFound = loadResource(path, lm);
 
-    if (resFound && boost::dynamic_pointer_cast<T>(resFound))
-        return boost::dynamic_pointer_cast<T>(resFound);
+    if (resFound && std::dynamic_pointer_cast<T>(resFound))
+        return std::dynamic_pointer_cast<T>(resFound);
     else
         return nullptr;
 }

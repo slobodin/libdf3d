@@ -85,7 +85,7 @@ shared_ptr<MeshData> MeshData::clone() const
 
     for (auto sm : m_submeshes)
     {
-        auto newSubMesh = boost::make_shared<render::SubMesh>();
+        auto newSubMesh = make_shared<render::SubMesh>();
 
         // Share vertex and index buffer.
         if (sm->getVertexBuffer())

@@ -18,7 +18,7 @@ namespace df3d { namespace scene {
 // FIXME:
 // Maybe create separate class VisibleNode? or something like that with methods draw etc.
 
-class DF3D_DLL Node : public boost::enable_shared_from_this<Node>, private boost::noncopyable
+class DF3D_DLL Node : public std::enable_shared_from_this<Node>, private boost::noncopyable
 {
     friend class components::NodeComponent;
 
@@ -30,7 +30,7 @@ protected:
     std::string m_nodeName;
     bool m_visible = true;
 
-    shared_ptr<components::NodeComponent> m_components[(size_t)components::ComponentType::COUNT];
+    shared_ptr<components::NodeComponent> m_components[static_cast<size_t>(components::ComponentType::COUNT)];
 
     weak_ptr<Node> m_parent;
     NodeChildren m_children;

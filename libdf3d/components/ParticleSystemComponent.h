@@ -25,13 +25,13 @@ class DF3D_DLL ParticleSystemComponent : public NodeComponent
     // One render operation per group.
     std::vector<render::RenderOperation *> m_renderOps;
 
-    void onUpdate(float dt);
+    void onUpdate(float dt) override;
 
     size_t getGroupCount();
     void prepareRenderOperations();
     const render::RenderOperation &getRenderOperation(size_t groupIdx);
 
-    void onDraw(render::RenderQueue *ops);
+    void onDraw(render::RenderQueue *ops) override;
 
     ParticleSystemComponent();
 
@@ -46,7 +46,7 @@ public:
 
     SPK::System *getSpk() { return m_system; }
 
-    shared_ptr<NodeComponent> clone() const;
+    shared_ptr<NodeComponent> clone() const override;
 };
 
 } }

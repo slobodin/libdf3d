@@ -3,11 +3,12 @@
 #include "libdf3d_dll.h"
 #include "df3d_config.h"
 
+#include <base/MacroDefs.h>
+#include <base/Common.h>
+
 #include <utils/Utils.h>
 #include <utils/JsonHelpers.h>
 
-#include <base/MacroDefs.h>
-#include <base/Common.h>
 #include <base/Controller.h>
 #include <base/AppDelegate.h>
 #include <base/Log.h>

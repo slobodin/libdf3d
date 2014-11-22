@@ -541,7 +541,7 @@ bool DecoderMTL::decodeResource(const shared_ptr<FileDataSource> file, shared_pt
     if (!file || !file->valid())
         return false;
 
-    auto mtllib = boost::dynamic_pointer_cast<render::MaterialLib>(resource);
+    auto mtllib = dynamic_pointer_cast<render::MaterialLib>(resource);
     if (!mtllib)
         return false;
 

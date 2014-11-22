@@ -36,7 +36,7 @@ private:
 
     glm::vec3 m_direction;     // Only for directional light.
 
-    void onDraw(render::RenderQueue *ops);
+    void onDraw(render::RenderQueue *ops) override;
 
 public:
     LightComponent(Type type);
@@ -69,7 +69,7 @@ public:
     float getLinearAttenuation() const { return m_linearAttenuation; }
     float getQuadraticAttenuation() const { return m_quadraticAttenuation; }
 
-    shared_ptr<NodeComponent> clone() const;
+    shared_ptr<NodeComponent> clone() const override;
 };
 
 } }

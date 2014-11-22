@@ -195,7 +195,7 @@ bool DecoderOBJ::decodeResource(const shared_ptr<FileDataSource> file, shared_pt
         return false;
     }
 
-    auto mesh = boost::dynamic_pointer_cast<render::MeshData>(resource);
+    auto mesh = dynamic_pointer_cast<render::MeshData>(resource);
     if (!mesh)
         return false;
 

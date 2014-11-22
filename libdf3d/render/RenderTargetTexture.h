@@ -19,10 +19,10 @@ public:
     RenderTargetTexture(const Viewport &vp);
     ~RenderTargetTexture();
 
-    void bind();
-    void unbind();
+    void bind() override;
+    void unbind() override;
 
-    void setViewport(const Viewport &vp);
+    void setViewport(const Viewport &vp) override;
 
     shared_ptr<Texture> getTexture();
 };

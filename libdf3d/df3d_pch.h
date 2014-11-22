@@ -32,12 +32,11 @@
 #include <condition_variable>
 #include <chrono>
 #include <atomic>
+#include <memory>
 
 #include "df3d_config.h"
 #include "libdf3d_dll.h"
 
-#include <boost/smart_ptr.hpp>
-#include <boost/scoped_array.hpp>
 #include <boost/algorithm/clamp.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/utility.hpp>
@@ -45,14 +44,6 @@
 #include <boost/tokenizer.hpp>
 #include <boost/function.hpp>
 #include <boost/functional/hash.hpp>
-
-using boost::shared_ptr;
-using boost::make_shared;
-using boost::scoped_ptr;
-using boost::weak_ptr;
-using boost::intrusive_ptr;
-using boost::dynamic_pointer_cast;
-using boost::static_pointer_cast;
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>

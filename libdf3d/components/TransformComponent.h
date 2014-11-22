@@ -42,7 +42,7 @@ public:
     glm::mat4 getTransformation();
     glm::vec3 getRotation(bool rads = false);
 
-    shared_ptr<NodeComponent> clone() const;
+    shared_ptr<NodeComponent> clone() const override;
 };
 
 } }

@@ -76,7 +76,7 @@ bool DecoderOGG::decodeResource(const shared_ptr<FileDataSource> file, shared_pt
     if (!file || !file->valid())
         return false;
 
-    auto audiobuffer = boost::dynamic_pointer_cast<audio::AudioBuffer>(resource);
+    auto audiobuffer = dynamic_pointer_cast<audio::AudioBuffer>(resource);
     if (!audiobuffer)
         return false;
 
