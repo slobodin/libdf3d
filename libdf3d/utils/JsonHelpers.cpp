@@ -24,7 +24,7 @@ Json::Value jsonLoadFromFile(const char *path)
 
     if (!reader.parse(buffer.c_str(), root))
     {
-        base::glog << "Failed to parse json from" << path << ". Error:" << reader.getFormatedErrorMessages() << base::logwarn;
+        base::glog << "Failed to parse json from" << path << ". Error:" << reader.getFormattedErrorMessages() << base::logwarn;
         return Json::Value();
     }
 
@@ -38,7 +38,7 @@ Json::Value jsonLoadFromSource(const char *data)
 
     if (!reader.parse(data, root))
     {
-        base::glog << "Failed to parse json. Error:" << reader.getFormatedErrorMessages() << base::logwarn;
+        base::glog << "Failed to parse json. Error:" << reader.getFormattedErrorMessages() << base::logwarn;
         return Json::Value();
     }
 

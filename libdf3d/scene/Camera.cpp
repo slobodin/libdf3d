@@ -12,34 +12,6 @@ namespace df3d { namespace scene {
 
 void Camera::buildViewMatrix()
 {
-    //// Get inverse orientation.
-    //auto orientation = glm::angleAxis(glm::radians(-m_pitch), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::angleAxis(glm::radians(-m_yaw), glm::vec3(0.0f, 1.0f, 0.0f));
-    //// Apply inverse translation, then inverse orientation.
-    //m_worldToCamera = glm::translate(glm::toMat4(orientation), -m_position);
-
-    //// Compute basis vectors.
-    //m_up = glm::vec3(0.0f, 1.0f, 0.0f);
-    //m_dir = glm::vec3(0.0f, 0.0f, -1.0f);
-    //m_right = glm::vec3(1.0f, 0.0f, 0.0f);
-
-    //// Get camera world orientation. Actually we should get inverse of m_worldToCamera matrix,
-    //// but we need only rotation component, so we can transpose matrix (rotation matrices are orthogonal).
-    //auto cameraWorldOrientation = glm::transpose(m_worldToCamera);
-
-    //// Rotate basis vectors.
-    //m_up = glm::vec3(cameraWorldOrientation * glm::vec4(m_up, 0.0f));
-    //m_dir = glm::vec3(cameraWorldOrientation * glm::vec4(m_dir, 0.0f));
-    //m_right = glm::vec3(cameraWorldOrientation * glm::vec4(m_right, 0.0f));
-
-    //// Normalize.
-    //// FIXME:
-    //// Should we make this basis orthogonal?
-    //glm::normalize(m_up);
-    //glm::normalize(m_dir);
-    //glm::normalize(m_right);
-
-    //m_viewMatrixDirty = false;
-
     if (!m_viewMatrixDirty)
         return;
 

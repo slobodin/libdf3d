@@ -100,7 +100,7 @@ void PhysicsManager::shutdown()
 void PhysicsManager::update(float dt)
 {
     if (!m_paused)
-        m_pimpl->m_dynamicsWorld->stepSimulation(dt, 1);
+        m_pimpl->m_dynamicsWorld->stepSimulation(dt, 10);
 }
 
 void PhysicsManager::drawDebug()

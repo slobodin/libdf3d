@@ -226,9 +226,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 list(APPEND libdf3d_SRC_LIST
-    ${PROJECT_SOURCE_DIR}/third-party/src/lib_json/json_reader.cpp
-    ${PROJECT_SOURCE_DIR}/third-party/src/lib_json/json_value.cpp
-    ${PROJECT_SOURCE_DIR}/third-party/src/lib_json/json_writer.cpp
+    ${PROJECT_SOURCE_DIR}/third-party/src/lib_json/jsoncpp.cpp
 )
 
 if (WIN32)
