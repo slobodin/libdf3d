@@ -189,32 +189,32 @@ shared_ptr<Node> Node::clone() const
 
 shared_ptr<components::TransformComponent> Node::transform()
 { 
-    return dynamic_pointer_cast<components::TransformComponent>(getComponent(components::ComponentType::TRANSFORM));
+    return static_pointer_cast<components::TransformComponent>(getComponent(components::ComponentType::TRANSFORM));
 }
 
 shared_ptr<components::MeshComponent> Node::mesh()
 { 
-    return dynamic_pointer_cast<components::MeshComponent>(getComponent(components::ComponentType::MESH));
+    return static_pointer_cast<components::MeshComponent>(getComponent(components::ComponentType::MESH));
 }
 
 shared_ptr<components::LightComponent> Node::light()
 {
-    return dynamic_pointer_cast<components::LightComponent>(getComponent(components::ComponentType::LIGHT));
+    return static_pointer_cast<components::LightComponent>(getComponent(components::ComponentType::LIGHT));
 }
 
 shared_ptr<components::AudioComponent> Node::audio()
 {
-    return dynamic_pointer_cast<components::AudioComponent>(getComponent(components::ComponentType::AUDIO));
+    return static_pointer_cast<components::AudioComponent>(getComponent(components::ComponentType::AUDIO));
 }
 
 shared_ptr<components::ParticleSystemComponent> Node::vfx()
 {
-    return dynamic_pointer_cast<components::ParticleSystemComponent>(getComponent(components::ComponentType::PARTICLE_EFFECT));
+    return static_pointer_cast<components::ParticleSystemComponent>(getComponent(components::ComponentType::PARTICLE_EFFECT));
 }
 
 shared_ptr<components::PhysicsComponent> Node::physics()
 {
-    return dynamic_pointer_cast<components::PhysicsComponent>(getComponent(components::ComponentType::PHYSICS));
+    return static_pointer_cast<components::PhysicsComponent>(getComponent(components::ComponentType::PHYSICS));
 }
 
 void Node::attachComponent(shared_ptr<components::NodeComponent> component)

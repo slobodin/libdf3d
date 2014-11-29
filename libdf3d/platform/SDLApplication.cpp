@@ -1,7 +1,6 @@
 #include "df3d_pch.h"
 #include "SDLApplication.h"
 
-#include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <base/Controller.h>
 
@@ -65,15 +64,6 @@ bool SDLApplication::init(AppInitParams params)
         return false;
     }
 
-    // SDL_Image init.
-    int imgLibInitFlags = IMG_INIT_JPG | IMG_INIT_PNG;
-    auto imgLibInitialized = IMG_Init(imgLibInitFlags);
-    if ((imgLibInitFlags & imgLibInitialized) != imgLibInitFlags)
-    {
-        base::glog << "Couldn't load image support library due to" << IMG_GetError() << base::logcritical;
-        return false;
-    }
-
     // SDL_ttf init.
     if (TTF_Init() == -1)
     {
@@ -88,7 +78,6 @@ void SDLApplication::shutdown()
 {
     SDL_GL_DeleteContext(m_glContext);
     SDL_DestroyWindow(m_window);
-    IMG_Quit();
     TTF_Quit();
     SDL_Quit();
 }
