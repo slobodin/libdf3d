@@ -2,8 +2,6 @@
 
 #pragma warning(disable : 4458)
 
-#include <SDL.h>
-
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>

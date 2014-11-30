@@ -177,7 +177,7 @@ void Renderer::setPolygonDrawMode(RenderPass::PolygonMode pm)
         return;
 
     // Doesn't work in OpenGL ES 2.x
-#if defined(__WIN32__)
+#if defined(__WINDOWS__)
     switch (pm)
     {
     case RenderPass::PolygonMode::FILL:
@@ -241,7 +241,7 @@ Renderer::~Renderer()
 
 bool Renderer::initialize()
 {
-#if defined(__WIN32__)
+#if defined(__WINDOWS__)
     glewExperimental = GL_TRUE;
 
     auto glewerr = glewInit();

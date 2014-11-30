@@ -56,6 +56,3 @@
 #include <bullet/btBulletDynamicsCommon.h>
 
 #include <audio/AudioManager.h>
-
-#include <SDL.h>
-#undef main

@@ -19,9 +19,8 @@
 #include <utils/JsonHelpers.h>
 #include <particlesys/SparkInterface.h>
 
-#include <platform/SDLApplication.h>
-
 #if defined(__WINDOWS__)
+#include <platform/WindowsApplication.h>
 #define ENABLE_DEBUG_WINDOW
 #endif
 
@@ -172,8 +171,8 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
 
     m_appDelegate = appDelegate;
 
-#if defined(__WINDOWS__) || defined(__ANDROID__)
-    m_application = new platform::SDLApplication();
+#if defined(__WINDOWS__)
+    m_application = new platform::WindowsApplication();
 #else
 #error "Unsupported platform"
 #endif
@@ -259,39 +258,42 @@ void Controller::run()
 
     while (!m_quitRequested)
     {
-        currtime = system_clock::now();
-
-        auto dt = IntervalBetween(currtime, prevtime);
-
-        m_application->pollEvents();
-
-        // Update engine.
-        updateController(dt);
-
-        // Update user code.
-        m_appDelegate->onAppUpdate(dt);
-
-        // Render frame.
-        runFrame();
-        m_application->swapBuffers();
-
-        // Clean up.
-        m_sceneManager->cleanStep();
-
-        prevtime = currtime;
-
-        m_currentFPS = 1.f / dt;
-        lastFpsCheck += dt;
-
-        if (lastFpsCheck > 1.0f)        // every second
+        if (!m_application->pollEvents())
         {
-            std::ostringstream os;
-            os << "Frame time: " << dt << ", fps: " << m_currentFPS << ", draw calls: " << m_renderManager->getLastRenderStats().drawCalls;
+            currtime = system_clock::now();
 
-            m_application->setTitle(os.str().c_str());
-            lastFpsCheck = 0.0f;
+            auto dt = IntervalBetween(currtime, prevtime);
 
-            //base::glog << "FPS" << m_currentFPS << "frame time" << dt << base::logdebug;
+            m_application->pollEvents();
+
+            // Update engine.
+            updateController(dt);
+
+            // Update user code.
+            m_appDelegate->onAppUpdate(dt);
+
+            // Render frame.
+            runFrame();
+            m_application->swapBuffers();
+
+            // Clean up.
+            m_sceneManager->cleanStep();
+
+            prevtime = currtime;
+
+            m_currentFPS = 1.f / dt;
+            lastFpsCheck += dt;
+
+            if (lastFpsCheck > 1.0f)        // every second
+            {
+                std::ostringstream os;
+                os << "Frame time: " << dt << ", fps: " << m_currentFPS << ", draw calls: " << m_renderManager->getLastRenderStats().drawCalls;
+
+                m_application->setTitle(os.str().c_str());
+                lastFpsCheck = 0.0f;
+
+                //base::glog << "FPS" << m_currentFPS << "frame time" << dt << base::logdebug;
+            }
         }
     }
 
@@ -332,43 +334,36 @@ void Controller::unregisterConsoleCommandHandler(const char *commandName)
     m_consoleCommandsHandlers.erase(commandName);
 }
 
-void Controller::dispatchAppEvent(SDL_Event *event)
+void Controller::dispatchAppEvent(const platform::AppEvent &event)
 {
-    switch (event->type)
+    switch (event.type)
     {
-    case SDL_QUIT:
+    case platform::AppEvent::Type::QUIT:
         m_quitRequested = true;
         break;
-    case SDL_KEYUP:
-        m_guiManager->processKeyUpEvent(event->key);
-        m_appDelegate->onKeyUp(event->key);
+    case platform::AppEvent::Type::MOUSE_MOTION:
+        m_guiManager->processMouseMotionEvent(event.mouseMotion);
+        m_appDelegate->onMouseMotionEvent(event.mouseMotion);
         break;
-    case SDL_KEYDOWN:
-        m_guiManager->processKeyDownEvent(event->key);
-        m_appDelegate->onKeyDown(event->key);
+    case platform::AppEvent::Type::MOUSE_BUTTON:
+        m_guiManager->processMouseButtonEvent(event.mouseButton);
+        m_appDelegate->onMouseButtonEvent(event.mouseButton);
         break;
-    case SDL_TEXTINPUT:
-        m_guiManager->processTextInputEvent(event->text);
+    case platform::AppEvent::Type::MOUSE_WHEEL:
+        m_guiManager->processMouseWheelEvent(event.mouseWheel);
         break;
-    case SDL_MOUSEBUTTONDOWN:
-    case SDL_MOUSEBUTTONUP:
-        m_guiManager->processMouseButtonEvent(event->button);
-#ifdef ENABLE_DEBUG_WINDOW
-        m_debugWindow->onMouseButtonEvent(event->button);
-#endif
-        m_appDelegate->onMouseButtonEvent(event->button);
-        break;
-    case SDL_MOUSEMOTION:
-        m_guiManager->processMouseMotionEvent(event->motion);
-        m_appDelegate->onMouseMotionEvent(event->motion);
-        break;
-    case SDL_MOUSEWHEEL:
-        m_guiManager->processMouseWheelEvent(event->wheel);
-        break;
-    case SDL_FINGERMOTION:
-    case SDL_FINGERDOWN:
-    case SDL_FINGERUP:
-        m_appDelegate->onFingerEvent(event->tfinger);
+    case platform::AppEvent::Type::KEYBOARD:
+        if (event.keyboard.state == KeyboardEvent::State::PRESSED)
+        {
+            m_guiManager->processKeyDownEvent(event.keyboard.keycode);
+            m_appDelegate->onKeyDown(event.keyboard.keycode);
+        }
+        else if (event.keyboard.state == KeyboardEvent::State::RELEASED)
+        {
+            m_guiManager->processKeyUpEvent(event.keyboard.keycode);
+            m_appDelegate->onKeyUp(event.keyboard.keycode);
+        }
+
         break;
     default:
         break;

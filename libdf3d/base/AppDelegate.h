@@ -1,8 +1,8 @@
 #pragma once
 
-namespace df3d { namespace base {
+#include "InputEvents.h"
 
-class MouseMotionEvent;
+namespace df3d { namespace base {
 
 class AppDelegate
 {
@@ -14,11 +14,10 @@ public:
     virtual void onAppEnded() = 0;
 
     virtual void onAppUpdate(float dt) = 0;
-    virtual void onMouseButtonEvent(const SDL_MouseButtonEvent &mouseButtonEvent) = 0;
+    virtual void onMouseButtonEvent(const MouseButtonEvent &mouseButtonEvent) = 0;
     virtual void onMouseMotionEvent(const MouseMotionEvent &mouseMotionEvent) = 0;
-    virtual void onFingerEvent(const SDL_TouchFingerEvent &fingerEvent) = 0;
-    virtual void onKeyUp(const SDL_KeyboardEvent &keyEvent) = 0;
-    virtual void onKeyDown(const SDL_KeyboardEvent &keyEvent) = 0;
+    virtual void onKeyUp(const base::KeyboardEvent::KeyCode &code) = 0;
+    virtual void onKeyDown(const base::KeyboardEvent::KeyCode &code) = 0;
 };
 
 } }

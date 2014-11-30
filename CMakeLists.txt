@@ -45,7 +45,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/Application.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/SDLApplication.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/platform/WindowsApplication.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.h
@@ -134,7 +134,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/Application.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/SDLApplication.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/platform/WindowsApplication.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.cpp
@@ -233,14 +233,6 @@ if (WIN32)
     find_package(GLEW REQUIRED)
 endif(WIN32)
 
-if (WIN32)
-    find_package(SDL REQUIRED)
-    find_package(SDL_ttf REQUIRED)
-else(WIN32)
-    INCLUDE(FindPkgConfig)
-    pkg_search_module(SDL2 REQUIRED sdl2)
-    pkg_search_module(SDL2TTF REQUIRED SDL2_ttf>=2.0)
-endif(WIN32)
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
 find_package(Boost REQUIRED)
@@ -250,7 +242,6 @@ add_library(libdf3d SHARED ${libdf3d_SRC_LIST} ${libdf3d_HEADER_LIST})
 
 include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/include
-                    ${SDL2_INCLUDE_DIRS}
                     ${Boost_INCLUDE_DIRS}
                     ${OpenAL_INCLUDE_DIRS}
                     ${CEGUI_INCLUDE_DIRS})
@@ -269,7 +260,5 @@ target_link_libraries(libdf3d
     ${CEGUI_LIBRARY})
 
 if (WIN32)
-    target_link_libraries(libdf3d ${SDL_LIBRARY} ${SDLTTF_LIBRARY} ${GLEW_LIBRARY})
-else(WIN32)
-    target_link_libraries(libdf3d ${SDL2_LIBRARY} ${SDL2TTF_LIBRARY})
+    target_link_libraries(libdf3d ${GLEW_LIBRARY})
 endif(WIN32)

@@ -1,12 +1,30 @@
 #pragma once
 
+#include <base/InputEvents.h>
+
 FWD_MODULE_CLASS(base, Controller)
 
 namespace df3d { namespace platform {
 
-struct AppEvent
+class AppEvent
 {
-    virtual ~AppEvent() { }
+public:
+    enum class Type
+    {
+        QUIT,
+        KEYBOARD,
+        MOUSE_BUTTON,
+        MOUSE_MOTION,
+        MOUSE_WHEEL,
+        FINGER
+    };
+
+    Type type;
+
+    base::MouseMotionEvent mouseMotion;
+    base::MouseButtonEvent mouseButton;
+    base::MouseWheelEvent mouseWheel;
+    base::KeyboardEvent keyboard;
 };
 
 struct AppInitParams
@@ -18,16 +36,16 @@ struct AppInitParams
 
 class Application
 {
-protected:
     friend class base::Controller;
 
+protected:
     Application();
     virtual ~Application();
 
     virtual bool init(AppInitParams params) = 0;
     virtual void shutdown() = 0;
 
-    virtual void pollEvents() = 0;
+    virtual bool pollEvents() = 0;
     virtual void swapBuffers() = 0;
 
     virtual void setTitle(const char *title) = 0;

@@ -4,21 +4,20 @@
 
 namespace df3d { namespace platform {
 
-class SDLApplication : public Application
+class WindowsApplication : public Application
 {
     friend class base::Controller;
-
-    SDL_Window *m_window;
-    SDL_GLContext m_glContext;
+    struct Impl;
+    unique_ptr<Impl> m_pImpl;
 
 protected:
-    SDLApplication();
-    virtual ~SDLApplication();
+    WindowsApplication();
+    virtual ~WindowsApplication();
 
     bool init(AppInitParams params) override;
     void shutdown() override;
 
-    void pollEvents() override;
+    bool pollEvents() override;
     void swapBuffers() override;
 
     void setTitle(const char *title) override;

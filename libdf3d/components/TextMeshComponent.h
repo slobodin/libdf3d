@@ -2,9 +2,6 @@
 
 #include "MeshComponent.h"
 #include <render/RenderOperation.h>
-// FIXME:
-// Do not want to expose SDL ttf to the client.
-#include <SDL_ttf.h>
 
 FWD_MODULE_CLASS(render, RenderPass)
 
@@ -12,7 +9,7 @@ namespace df3d { namespace components {
 
 class DF3D_DLL TextMeshComponent : public MeshComponent
 {
-    TTF_Font *m_font = nullptr;
+    //int *m_font = nullptr;
     render::RenderOperation m_op;
 
     shared_ptr<render::RenderPass> createRenderPass();

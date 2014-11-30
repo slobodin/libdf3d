@@ -52,7 +52,6 @@ public:
 
     //! Initializes image with given pixel array.
     void setWithData(const unsigned char *data, size_t w, size_t h, Format pf, int pitch = -1);
-    void setWithData(SDL_Surface *surf);
 };
 
 } }

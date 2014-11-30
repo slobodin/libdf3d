@@ -7,7 +7,7 @@ namespace df3d { namespace resources {
 
 bool isPathAbsolute(const std::string &path)
 {
-#if defined(__WIN32__)
+#if defined(__WINDOWS__)
     if (path.size() < 2)
         return false;
 
@@ -36,7 +36,7 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
     if (rawPath.empty())
         return "";
 
-#if defined(__WIN32__)
+#if defined(__WINDOWS__)
     if (!pathExists(rawPath))
         return "";
 #endif
@@ -87,7 +87,7 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
 
 bool FileSystem::pathExists(const std::string &path)
 {
-#if defined(__WIN32__)
+#if defined(__WINDOWS__)
     DWORD attrs = GetFileAttributesA(path.c_str());
 
     return (attrs != INVALID_FILE_ATTRIBUTES && !(attrs & FILE_ATTRIBUTE_DIRECTORY));

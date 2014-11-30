@@ -40,7 +40,6 @@ public:
     ~DebugOverlayWindow() { }
 
     void toggle() { }
-    void onMouseButtonEvent(const SDL_MouseButtonEvent &) { }
 };
 
 } }

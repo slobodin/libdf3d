@@ -59,33 +59,26 @@ void GuiManager::render()
     CEGUI::System::getSingleton().renderAllGUIContexts();
 }
 
-void GuiManager::processMouseButtonEvent(const SDL_MouseButtonEvent &ev)
+void GuiManager::processMouseButtonEvent(const base::MouseButtonEvent &ev)
 {
     CEGUI::MouseButton mb;
     switch (ev.button)
     {
-    case SDL_BUTTON_LEFT:
+    case base::MouseButtonEvent::Button::LEFT:
         mb = CEGUI::LeftButton;
         break;
-    case SDL_BUTTON_RIGHT:
+    case base::MouseButtonEvent::Button::RIGHT:
         mb = CEGUI::RightButton;
         break;
-    case SDL_BUTTON_MIDDLE:
+    case base::MouseButtonEvent::Button::MIDDLE:
         mb = CEGUI::MiddleButton;
-        break;
-    case SDL_BUTTON_X1:
-        mb = CEGUI::X1Button;
-        break;
-    case SDL_BUTTON_X2:
-        mb = CEGUI::X2Button;
-        break;
     default:
         return;
     }
 
-    if (ev.type == SDL_MOUSEBUTTONDOWN)
+    if (ev.state == base::MouseButtonEvent::State::PRESSED)
         CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(mb);
-    else if (ev.type == SDL_MOUSEBUTTONUP)
+    else if (ev.state == base::MouseButtonEvent::State::RELEASED)
         CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(mb);
 }
 
@@ -94,20 +87,16 @@ void GuiManager::processMouseMotionEvent(const base::MouseMotionEvent &ev)
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)ev.x, (float)ev.y);
 }
 
-void GuiManager::processMouseWheelEvent(const SDL_MouseWheelEvent &ev)
+void GuiManager::processMouseWheelEvent(const base::MouseWheelEvent &ev)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseWheelChange((float)ev.y);
+    //CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseWheelChange((float)ev.y);
 }
 
-void GuiManager::processKeyDownEvent(const SDL_KeyboardEvent &ev)
-{
-}
-
-void GuiManager::processKeyUpEvent(const SDL_KeyboardEvent &ev)
+void GuiManager::processKeyDownEvent(const base::KeyboardEvent::KeyCode &code)
 {
 }
 
-void GuiManager::processTextInputEvent(const SDL_TextInputEvent &ev)
+void GuiManager::processKeyUpEvent(const base::KeyboardEvent::KeyCode &code)
 {
 }
 

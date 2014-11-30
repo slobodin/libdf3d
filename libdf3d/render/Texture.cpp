@@ -27,7 +27,7 @@ size_t getNextPot(size_t v)
     return v;
 }
 
-#if defined(__WIN32__)
+#if defined(__WINDOWS__)
 
 GLenum getGLTextureType(Texture::Type type)
 {
@@ -147,7 +147,7 @@ bool Texture::createGLTexture()
     auto wrapMode = getGlWrapMode(m_wrapMode);
     glTexParameteri(m_glType, GL_TEXTURE_WRAP_S, wrapMode);
     glTexParameteri(m_glType, GL_TEXTURE_WRAP_T, wrapMode);
-#if defined(__WIN32__)
+#if defined(__WINDOWS__)
     glTexParameteri(m_glType, GL_TEXTURE_WRAP_R, wrapMode);
 #endif
     glTexParameteri(m_glType, GL_TEXTURE_MAG_FILTER, m_filteringMode == Filtering::NEAREST ? GL_NEAREST : GL_LINEAR);
@@ -192,7 +192,7 @@ bool Texture::createGLTexture()
     }
     else if (m_textureType == Type::TEXTURE_CUBE)
     {
-#if defined(__WIN32__)
+#if defined(__WINDOWS__)
         return false;
         //GLsizei width = m_width / 6;
         //GLsizei height = m_height;

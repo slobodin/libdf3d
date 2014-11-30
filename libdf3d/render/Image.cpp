@@ -122,21 +122,4 @@ void Image::setWithData(const unsigned char *data, size_t w, size_t h, Format pf
     }
 }
 
-void Image::setWithData(SDL_Surface *surf)
-{
-    // FIXME:
-    // Format
-    auto pf = Format::INVALID;
-    if (surf->format->BytesPerPixel == 1)
-        pf = Format::GRAYSCALE;
-    else if (surf->format->BytesPerPixel == 3)
-        pf = Format::RGB;
-    else if (surf->format->BytesPerPixel == 4)
-        pf = Format::RGBA;
-
-    SDL_LockSurface(surf);
-    setWithData((const unsigned char *)surf->pixels, surf->w, surf->h, pf, surf->pitch);
-    SDL_UnlockSurface(surf);
-}
-
 } }

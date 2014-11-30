@@ -5,7 +5,7 @@ namespace df3d { namespace audio {
 
 std::string checkALError()
 {
-#if defined(__WIN32__)
+#if defined(__WINDOWS__)
     std::string errString;
 
     ALenum errCode = alGetError();
@@ -22,7 +22,7 @@ std::string checkALError()
 
 void checkAndPrintALError(const char *file, int line)
 {
-#if defined(__WIN32__) && defined(_DEBUG)
+#if defined(__WINDOWS__) && defined(_DEBUG)
     auto err = checkALError();
     if (!err.empty())
         base::glog << "OpenAL error:" << err << ". File:" << file << ". Line:" << line << base::logwarn;

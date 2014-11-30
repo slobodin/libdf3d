@@ -134,7 +134,7 @@ RenderManager::~RenderManager()
 
 bool RenderManager::init(RenderManagerInitParams params)
 {
-#if defined(__WIN32__) || defined(__ANDROID__)
+#if defined(__WINDOWS__) || defined(__ANDROID__)
     m_renderer = make_unique<Renderer>();
 #else
 #error "Unsupported platform"

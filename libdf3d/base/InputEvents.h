@@ -9,8 +9,51 @@ public:
     bool rightPressed = false;
     int x = 0;
     int y = 0;
+};
 
-    MouseMotionEvent(const SDL_MouseMotionEvent &other);
+class DF3D_DLL MouseButtonEvent
+{
+public:
+    enum class State
+    {
+        PRESSED,
+        RELEASED
+    };
+
+    enum class Button
+    {
+        LEFT,
+        RIGHT,
+        MIDDLE
+    };
+
+    State state;
+    Button button;
+    int x = 0;
+    int y = 0;
+};
+
+class DF3D_DLL MouseWheelEvent
+{
+public:
+};
+
+class DF3D_DLL KeyboardEvent
+{
+public:
+    enum class State
+    {
+        PRESSED,
+        RELEASED
+    };
+
+    enum class KeyCode
+    {
+
+    };
+
+    State state;
+    KeyCode keycode;
 };
 
 } }

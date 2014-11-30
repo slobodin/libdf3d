@@ -1,7 +1,8 @@
 #pragma once
 
+#include <base/InputEvents.h>
+
 FWD_MODULE_CLASS(base, Controller)
-FWD_MODULE_CLASS(base, MouseMotionEvent)
 FWD_MODULE_CLASS(render, RenderManager)
 
 namespace df3d { namespace gui {
@@ -22,12 +23,11 @@ class DF3D_DLL GuiManager
     void update(float dt);
     void render();
 
-    void processMouseButtonEvent(const SDL_MouseButtonEvent &ev);
+    void processMouseButtonEvent(const base::MouseButtonEvent &ev);
     void processMouseMotionEvent(const base::MouseMotionEvent &ev);
-    void processMouseWheelEvent(const SDL_MouseWheelEvent &ev);
-    void processKeyDownEvent(const SDL_KeyboardEvent &ev);
-    void processKeyUpEvent(const SDL_KeyboardEvent &ev);
-    void processTextInputEvent(const SDL_TextInputEvent &ev);
+    void processMouseWheelEvent(const base::MouseWheelEvent &ev);
+    void processKeyDownEvent(const base::KeyboardEvent::KeyCode &code);
+    void processKeyUpEvent(const base::KeyboardEvent::KeyCode &code);
 
 public:
     // CEGUI related stuff.

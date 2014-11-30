@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(__WIN32__)
+#if defined(__WINDOWS__)
 #include <GL/glew.h>
 #include <GL/GL.h>
 #include <GL/GLU.h>

@@ -1,13 +1,10 @@
 #pragma once
 
-struct SDL_RWops;
-
 namespace df3d { namespace resources {
 
 class DF3D_DLL FileDataSource : boost::noncopyable
 {
-    SDL_RWops *m_file;
-
+    FILE *m_file = nullptr;
     std::string m_filePath;
 
 public:
@@ -22,14 +19,12 @@ public:
 
     size_t getRaw(void *buffer, size_t sizeInBytes);
     //! Returns size in bytes.
-    size_t getSize() const;
+    long getSize();
 
-    size_t tell();
+    long tell();
     bool seek(long offset, std::ios_base::seekdir origin);
 
     const std::string &getPath() const { return m_filePath; }
-
-    SDL_RWops *getSdlRwops() const { return m_file; }
 };
 
 template<typename T>

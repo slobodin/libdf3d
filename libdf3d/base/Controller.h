@@ -1,7 +1,5 @@
 #pragma once
 
-union SDL_Event;
-
 FWD_MODULE_CLASS(render, RenderManager)
 FWD_MODULE_CLASS(render, RenderStats)
 FWD_MODULE_CLASS(render, Viewport)
@@ -10,6 +8,7 @@ FWD_MODULE_CLASS(resources, ResourceManager)
 FWD_MODULE_CLASS(resources, FileSystem)
 FWD_MODULE_CLASS(base, AppDelegate)
 FWD_MODULE_CLASS(platform, Application)
+FWD_MODULE_CLASS(platform, AppEvent)
 FWD_MODULE_CLASS(gui, GuiManager)
 FWD_MODULE_CLASS(gui, DebugOverlayWindow)
 FWD_MODULE_CLASS(scripting, ScriptManager)
@@ -94,9 +93,7 @@ public:
 
     bool initialized() const { return m_initialized; }
 
-    // FIXME:
-    // Should we use SDL everywhere?
-    void dispatchAppEvent(SDL_Event *event);
+    void dispatchAppEvent(const platform::AppEvent &event);
     
     base::AppDelegate *getAppDelegate() { return m_appDelegate; }
     const render::Viewport &getViewport() const;
