@@ -19,10 +19,10 @@ void parseFog(const Json::Value &fogNode, scene::Scene *sc)
     if (!fogNode)
         return;
 
-    auto density = fogNode["density"].asDouble();
+    auto density = fogNode["density"].asFloat();
     auto color = jsonGetValueWithDefault(fogNode["color"], sc->getFogColor());
 
-    sc->setFog((float)density, color);
+    sc->setFog(density, color);
 }
 
 void parseObjects(const Json::Value &objectsNode, scene::Scene *sc)

@@ -27,6 +27,7 @@ public:
 
     LRESULT handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
     void swapBuffers();
+    void setTitle(const char *title);
 };
 
 struct WindowSetupParam
@@ -279,6 +280,12 @@ LRESULT AppWindow::handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     return DefWindowProc(hwnd, msg, wp, lp);
 }
 
+void AppWindow::setTitle(const char *title)
+{
+    if (m_hWnd)
+        SetWindowText(m_hWnd, title);
+}
+
 struct WindowsApplication::Impl
 {
     unique_ptr<AppWindow> window;
@@ -334,6 +341,7 @@ void WindowsApplication::swapBuffers()
 
 void WindowsApplication::setTitle(const char *title)
 {
+    m_pImpl->window->setTitle(title);
 }
 
 } }

@@ -135,7 +135,13 @@ shared_ptr<Resource> ResourceManager::loadResource(const char *path, LoadMode lm
     return resource;
 }
 
-void ResourceManager::loadResource(shared_ptr<Resource> resource)
+void ResourceManager::loadResources(const std::vector<std::string> &resourcesList, ResourceManager::LoadMode lm)
+{
+    for (const auto &path : resourcesList)
+        loadResource(path.c_str(), lm);
+}
+
+void ResourceManager::appendResource(shared_ptr<Resource> resource)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 

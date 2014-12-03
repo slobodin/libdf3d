@@ -218,7 +218,7 @@ shared_ptr<GpuProgram> GpuProgram::create(const char *vshader, const char *fshad
     program->setGUID(gpuProgramId);
     program->setInitialized(program->init());
     // Store in resource manager.
-    g_resourceManager->loadResource(program);
+    g_resourceManager->appendResource(program);
 
     return program;
 }

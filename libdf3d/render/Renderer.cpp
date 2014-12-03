@@ -36,7 +36,7 @@ void Renderer::loadEmbedGPUPrograms() const
 
         program->setInitialized(program->init());
         // Store in resource manager.
-        g_resourceManager->loadResource(program);
+        g_resourceManager->appendResource(program);
     };
 
     const std::string simple_lighting_vert =

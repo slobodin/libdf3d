@@ -52,10 +52,12 @@ public:
     shared_ptr<T> getResource(const char *path, LoadMode lm = LoadMode::IMMEDIATE);
 
     shared_ptr<Resource> loadResource(const char *path, LoadMode lm = LoadMode::IMMEDIATE);
-    void loadResource(shared_ptr<Resource> resource);
+    void loadResources(const std::vector<std::string> &resourcesList, LoadMode lm = LoadMode::IMMEDIATE);
+
+    void appendResource(shared_ptr<Resource> resource);
+
     void unloadResource(const ResourceGUID &guid);
     void unloadResource(shared_ptr<Resource> resource);
-
     void unloadUnused();
 
     bool isResourceExists(const char *path) const;
