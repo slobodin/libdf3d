@@ -3,6 +3,21 @@
 #include <chrono>
 #include <memory>
 
+// Common includes.
+#define GLM_FORCE_RADIANS
+#define GLM_MESSAGES
+#define GLM_SWIZZLE
+#include <glm/glm.hpp>
+#include <glm/gtx/fast_square_root.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/epsilon.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/matrix_access.hpp>
+
+#include <json/json.h>
+
 using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
 
 using std::shared_ptr;

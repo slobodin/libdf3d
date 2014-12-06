@@ -1,6 +1,11 @@
 #include "df3d_pch.h"
 #include "FileSystem.h"
 
+#if defined(__WINDOWS__)
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
+
 #include "FileDataSource.h"
 
 namespace df3d { namespace resources {

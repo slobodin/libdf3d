@@ -43,16 +43,7 @@
 #include <boost/function.hpp>
 #include <boost/functional/hash.hpp>
 
-#define GLM_FORCE_RADIANS
-#include <glm/glm.hpp>
-#include <glm/ext.hpp>
-
-#include <json/json.h>
-
-#ifdef WIN32
-#include <windows.h>
-#endif // WIN32
-
+#include <base/Common.h>
 #include <base/Log.h>
 #include <base/MacroDefs.h>
-#include <base/Common.h>
+
