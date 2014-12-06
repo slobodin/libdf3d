@@ -76,6 +76,11 @@ void TransformComponent::setScale(float x, float y, float z)
     setScale(glm::vec3(x, y, z));
 }
 
+void TransformComponent::setScale(float uniform)
+{
+    setScale(uniform, uniform, uniform);
+}
+
 void TransformComponent::setOrientation(const glm::quat &newOrientation)
 {
     m_orientation = newOrientation;
@@ -123,17 +128,17 @@ void TransformComponent::scale(const glm::vec3 &v)
     scale(v.x, v.y, v.z);
 }
 
-void TransformComponent::scale(float uniform)
-{
-    scale(uniform, uniform, uniform);
-}
-
 void TransformComponent::scale(float x, float y, float z)
 {
     m_scale.x *= x;
     m_scale.y *= y;
     m_scale.z *= z;
     markDirty(true);
+}
+
+void TransformComponent::scale(float uniform)
+{
+    scale(uniform, uniform, uniform);
 }
 
 void TransformComponent::rotateYaw(float yaw, bool rads)

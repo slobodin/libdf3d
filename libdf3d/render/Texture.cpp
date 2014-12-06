@@ -9,6 +9,8 @@
 
 namespace df3d { namespace render {
 
+const int ANISOTROPY_LEVEL_MAX = -1;
+
 bool isPot(size_t v)
 {
     return v && !(v & (v - 1));
@@ -221,6 +223,26 @@ bool Texture::createGLTexture()
     if (m_mipmapped)
         glGenerateMipmap(m_glType);
 
+    if (m_maxAnisotropy != 1)
+    {
+        float aniso = 0.0f;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+        if (m_maxAnisotropy == -1)
+        {
+            // Use max value.
+        }
+        else if (m_maxAnisotropy > aniso)
+        {
+            base::glog << "Anisotropy level is bigger than supported. Setting maximum." << base::logwarn;
+        }
+        else
+        { 
+            aniso = m_maxAnisotropy;
+        }
+
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
+    }
+
     glBindTexture(m_glType, 0);
 
     printOpenGLError();
@@ -274,6 +296,11 @@ void Texture::setMipmapped(bool hasMipmaps)
 void Texture::setWrapMode(WrapMode mode)
 {
     m_wrapMode = mode;
+}
+
+void Texture::setMaxAnisotropy(int aniso)
+{
+    m_maxAnisotropy = aniso;
 }
 
 void Texture::setImage(shared_ptr<Image> image)

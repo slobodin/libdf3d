@@ -477,6 +477,18 @@ shared_ptr<render::Texture> DecoderMTL::parseSamplerNode(MaterialLibNode &node)
             std::function<void(bool)> fn = std::bind(&render::Texture::setMipmapped, texture.get(), std::placeholders::_1);
             setPassParam(keyval.first, keyval.second, boolValues, fn, m_libName);
         }
+        else if (keyval.first == "anisotropy")
+        {
+            if (keyval.second == "max")
+            {
+                texture->setMaxAnisotropy(render::ANISOTROPY_LEVEL_MAX);
+            }
+            else
+            {
+                auto anisotropyLevel = boost::lexical_cast<int>(keyval.second);
+                texture->setMaxAnisotropy(anisotropyLevel);
+            }
+        }
     }
 
     return texture;

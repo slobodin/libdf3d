@@ -2,6 +2,8 @@
 
 namespace df3d { namespace render {
 
+extern const DF3D_DLL int ANISOTROPY_LEVEL_MAX;
+
 class Image;
 
 class Texture
@@ -34,6 +36,7 @@ private:
     Type m_textureType = Type::TEXTURE_2D;
     WrapMode m_wrapMode = WrapMode::CLAMP;
     bool m_mipmapped = true;
+    int m_maxAnisotropy = 1;
 
     shared_ptr<Image> m_image;
     bool m_imageDirty = true;
@@ -61,6 +64,7 @@ public:
     void setFilteringMode(Filtering newFiltering);
     void setMipmapped(bool hasMipmaps);
     void setWrapMode(WrapMode mode);
+    void setMaxAnisotropy(int aniso);
 
     void setImage(shared_ptr<Image> image);
     shared_ptr<const Image> getImage() const;

@@ -83,17 +83,17 @@ const glm::mat4 &Camera::getProjectionMatrix()
 
 glm::vec3 Camera::getRight()
 {
-    return glm::vec3(glm::column(transform()->getTransformation(), 0));
+    return glm::normalize(glm::vec3(glm::column(transform()->getTransformation(), 0)));
 }
 
 glm::vec3 Camera::getUp()
 {
-    return glm::vec3(glm::column(transform()->getTransformation(), 1));
+    return glm::normalize(glm::vec3(glm::column(transform()->getTransformation(), 1)));
 }
 
 glm::vec3 Camera::getDir()
 {
-    return glm::vec3(glm::column(transform()->getTransformation(), 2));
+    return glm::normalize(glm::vec3(glm::column(transform()->getTransformation(), 2)));
 }
 
 glm::vec3 Camera::screenToViewPoint(float x, float y, float z)

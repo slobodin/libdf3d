@@ -12,15 +12,6 @@ inline void skip_line(std::istream &is)
     std::getline(is, temp);
 }
 
-// gcc doesn't support std::to_string
-template<typename T>
-inline std::string to_string(T val)
-{
-    std::stringstream ss;
-    ss << val;
-    return ss.str();
-}
-
 template<typename T>
 struct shared_ptr_less
 {

@@ -23,6 +23,7 @@ public:
     void setPosition(float x, float y, float z);
     void setScale(const glm::vec3 &newScale);
     void setScale(float x, float y, float z);
+    void setScale(float uniform);
     void setOrientation(const glm::quat &newOrientation);
     void setOrientation(const glm::vec3 &eulerAngles, bool rads = false);
     void setTransformation(const glm::mat4 &tr);
