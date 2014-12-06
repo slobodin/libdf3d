@@ -5,7 +5,6 @@
 #include <scene/Scene.h>
 #include <scene/Node.h>
 #include <scene/Camera.h>
-#include <scene/FPSCamera.h>
 #include <scene/SceneManager.h>
 #include <components/TransformComponent.h>
 #include <base/Controller.h>

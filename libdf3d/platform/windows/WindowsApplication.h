@@ -1,16 +1,17 @@
 #pragma once
 
-#include "Application.h"
+#include "../Application.h"
 
 namespace df3d { namespace platform {
 
 class WindowsApplication : public Application
 {
     friend class base::Controller;
+    friend class Application;
+
     struct Impl;
     unique_ptr<Impl> m_pImpl;
 
-protected:
     WindowsApplication();
     virtual ~WindowsApplication();
 

@@ -2,6 +2,7 @@
 #include "WindowsApplication.h"
 
 #include <base/Controller.h>
+#include "WindowsKeyCodes.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -186,11 +187,15 @@ LRESULT AppWindow::handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     {
     case WM_KEYDOWN:
         ev.type = AppEvent::Type::KEYBOARD;
+        ev.keyboard.keycode = convertKeyCode(wp);
+        ev.keyboard.state = base::KeyboardEvent::State::PRESSED;
         g_engineController->dispatchAppEvent(ev);
         break;
 
     case WM_KEYUP:
         ev.type = AppEvent::Type::KEYBOARD;
+        ev.keyboard.keycode = convertKeyCode(wp);
+        ev.keyboard.state = base::KeyboardEvent::State::RELEASED;
         g_engineController->dispatchAppEvent(ev);
         break;
 

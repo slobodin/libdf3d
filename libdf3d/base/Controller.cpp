@@ -20,7 +20,6 @@
 #include <particlesys/SparkInterface.h>
 
 #if defined(__WINDOWS__)
-#include <platform/WindowsApplication.h>
 #define ENABLE_DEBUG_WINDOW
 #endif
 
@@ -171,11 +170,7 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
 
     m_appDelegate = appDelegate;
 
-#if defined(__WINDOWS__)
-    m_application = new platform::WindowsApplication();
-#else
-#error "Unsupported platform"
-#endif
+    m_application = platform::Application::create();
 
     parseConfig(params);
 

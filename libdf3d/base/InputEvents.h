@@ -49,7 +49,12 @@ public:
 
     enum class KeyCode
     {
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT,
 
+        UNDEFINED
     };
 
     State state;

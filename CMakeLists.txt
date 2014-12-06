@@ -45,7 +45,8 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/Application.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/WindowsApplication.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsApplication.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsKeyCodes.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.h
@@ -84,7 +85,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/DebugDrawAABBNode.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/DebugDrawOBBNode.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/FPSCamera.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.h
@@ -134,7 +134,8 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/Application.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/WindowsApplication.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsApplication.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsKeyCodes.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.cpp
@@ -171,7 +172,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/DebugDrawAABBNode.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/DebugDrawOBBNode.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/FPSCamera.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.cpp

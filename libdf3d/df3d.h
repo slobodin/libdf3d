@@ -24,7 +24,6 @@
 
 #include <scene/Node.h>
 #include <scene/Camera.h>
-#include <scene/FPSCamera.h>
 #include <scene/Scene.h>
 #include <scene/SceneManager.h>
 #include <scene/bounding_volumes/BoundingVolume.h>

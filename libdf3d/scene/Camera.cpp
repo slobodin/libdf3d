@@ -15,6 +15,9 @@ void Camera::buildViewMatrix()
     if (!m_viewMatrixDirty)
         return;
 
+    // View matrix is the inverse of camera transformation matrix.
+    // FIXME:
+    // Could use transpose(rotation) and inverse translation vector instead computing inverse matrix.
     m_worldToCamera = glm::inverse(transform()->getTransformation());
     m_viewMatrixDirty = false;
 }
@@ -80,17 +83,17 @@ const glm::mat4 &Camera::getProjectionMatrix()
 
 glm::vec3 Camera::getRight()
 {
-    return glm::vec3(glm::row(transform()->getTransformation(), 0));
+    return glm::vec3(glm::column(transform()->getTransformation(), 0));
 }
 
 glm::vec3 Camera::getUp()
 {
-    return glm::vec3(glm::row(transform()->getTransformation(), 1));
+    return glm::vec3(glm::column(transform()->getTransformation(), 1));
 }
 
 glm::vec3 Camera::getDir()
 {
-    return glm::vec3(glm::row(transform()->getTransformation(), 2));
+    return glm::vec3(glm::column(transform()->getTransformation(), 2));
 }
 
 glm::vec3 Camera::screenToViewPoint(float x, float y, float z)
