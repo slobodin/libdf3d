@@ -123,6 +123,11 @@ void TransformComponent::scale(const glm::vec3 &v)
     scale(v.x, v.y, v.z);
 }
 
+void TransformComponent::scale(float uniform)
+{
+    scale(uniform, uniform, uniform);
+}
+
 void TransformComponent::scale(float x, float y, float z)
 {
     m_scale.x *= x;

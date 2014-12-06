@@ -31,6 +31,7 @@ public:
     void translate(float x, float y, float z);
     void scale(const glm::vec3 &v);
     void scale(float x, float y, float z);
+    void scale(float uniform);
     void rotateYaw(float yaw, bool rads = false);
     void rotatePitch(float pitch, bool rads = false);
     void rotateRoll(float roll, bool rads = false);
