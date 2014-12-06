@@ -107,6 +107,7 @@ void saveMaterials(std::ostream &os, const std::vector<MaterialProps> &materials
         os << indent << "    filtering TRILINEAR\n";
         os << indent << "    wrap_mode CLAMP\n";
         os << indent << "    mipmaps true\n";
+        os << indent << "    anisotropy max\n";
         os << indent << "}\n";
     };
 
