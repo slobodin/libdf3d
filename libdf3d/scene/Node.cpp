@@ -62,6 +62,12 @@ void Node::setName(const char *newName)
         return;
     }
 
+    if (!newName)
+    {
+        base::glog << "Can not set invalid name for a node." << base::logwarn;
+        return;
+    }
+
     m_nodeName = newName;
 
     // FIXME:

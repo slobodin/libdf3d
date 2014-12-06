@@ -36,4 +36,15 @@ inline bool contains(const C &container, const T &val)
     return std::find(std::begin(container), std::end(container), val) != std::end(container);
 }
 
+namespace math {
+
+extern const DF3D_DLL glm::vec4 XAxis;
+extern const DF3D_DLL glm::vec4 YAxis;
+extern const DF3D_DLL glm::vec4 ZAxis;
+
+// Creates rotation which rotates from v1 to v2.
+DF3D_DLL glm::quat fromToRotation(const glm::vec3 &v1, const glm::vec3 &v2);
+
+}
+
 } }

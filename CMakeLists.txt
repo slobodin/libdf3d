@@ -185,6 +185,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ParticleSystemLoader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/PhysicsLoader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneLoader.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.cpp
 )
 
 add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD)
