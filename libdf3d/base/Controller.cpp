@@ -91,7 +91,8 @@ void Controller::parseConfig(EngineInitParams &config)
 
 void Controller::shutdown()
 {
-    m_appDelegate->onAppEnded();
+    if (m_appDelegate)
+        m_appDelegate->onAppEnded();
 
     particlesys::destroySparkEngine();
 
