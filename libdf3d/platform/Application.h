@@ -42,16 +42,13 @@ protected:
     Application();
     virtual ~Application();
 
-    virtual bool init(AppInitParams params) = 0;
-    virtual void shutdown() = 0;
-
     virtual bool pollEvents() = 0;
     virtual void swapBuffers() = 0;
 
     virtual void setTitle(const char *title) = 0;
 
     // Creates application instance depending on platform.
-    static Application *create();
+    static Application *create(const AppInitParams &params);
 };
 
 } }

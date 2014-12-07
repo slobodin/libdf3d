@@ -18,10 +18,10 @@ Application::~Application()
 
 }
 
-Application *Application::create()
+Application *Application::create(const AppInitParams &params)
 {
 #if defined(__WINDOWS__)
-    return new WindowsApplication();
+    return new WindowsApplication(params);
 #else
     return nullptr;
 #endif

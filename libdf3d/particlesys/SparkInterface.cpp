@@ -277,8 +277,6 @@ void QuadParticleSystemRenderer::render(const SPK::Group& group)
         m_renderParticle = &QuadParticleSystemRenderer::render2D;
     }
 
-    auto viewm = g_sceneManager->getCamera()->getViewMatrix();
-
     const auto &pos = g_sceneManager->getCamera()->transform()->getPosition();
 
     bool globalOrientation = precomputeOrientation3D(group, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }, glmToSpk(pos));

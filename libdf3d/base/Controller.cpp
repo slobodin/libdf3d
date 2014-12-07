@@ -113,8 +113,6 @@ void Controller::runFrame()
 void Controller::shutdown()
 {
     m_appDelegate->onAppEnded();
-    if (m_application)
-        m_application->shutdown();
 
     particlesys::destroySparkEngine();
 
@@ -152,21 +150,18 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
     // Init filesystem.
     m_fileSystem = new resources::FileSystem();
     m_fileSystem->addSearchPath("data/");
-
-    m_appDelegate = appDelegate;
-
-    m_application = platform::Application::create();
-
     parseConfig(params);
 
+    // Init application.
     platform::AppInitParams appParams;
     appParams.windowWidth = params.windowWidth;
     appParams.windowHeight = params.windowHeight;
     appParams.fullscreen = params.fullscreen;
 
-    // Init application.
-    if (!m_application->init(appParams))
-        return false;
+    m_application = platform::Application::create(appParams);
+
+    // Set up delegate.
+    m_appDelegate = appDelegate;
 
     // Init resource manager.
     m_resourceManager = new resources::ResourceManager();

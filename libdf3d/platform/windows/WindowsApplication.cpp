@@ -296,33 +296,14 @@ struct WindowsApplication::Impl
     unique_ptr<AppWindow> window;
 };
 
-WindowsApplication::WindowsApplication()
+WindowsApplication::WindowsApplication(const AppInitParams &params)
     : m_pImpl(make_unique<Impl>())
 {
+    m_pImpl->window = make_unique<AppWindow>(params);
 }
 
 WindowsApplication::~WindowsApplication()
 {
-}
-
-bool WindowsApplication::init(AppInitParams params)
-{
-    try
-    {
-        m_pImpl->window = make_unique<AppWindow>(params);
-    }
-    catch (std::runtime_error &e)
-    {
-        base::glog << "App init failed due to" << e.what() << base::logwarn;
-        return false;
-    }
-
-    return true;
-}
-
-void WindowsApplication::shutdown()
-{
-    m_pImpl->window.reset();
 }
 
 bool WindowsApplication::pollEvents()
