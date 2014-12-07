@@ -24,10 +24,6 @@ class DF3D_DLL SceneManager : boost::noncopyable
     std::list<shared_ptr<Node>> m_nodesMarkedForRemoval;
     std::list<SceneManagerListener *> m_listeners;
 
-    // These are only for controller.
-    bool init();
-    void shutdown();
-
     void update(float dt);
     void cleanStep();
 

@@ -17,11 +17,9 @@ class DF3D_DLL AudioManager
     AudioManager();
     ~AudioManager();
 
-    // These are only for controller.
-    bool init();
-    void shutdown();
-
+    // Only for controller.
     void update(float dt);
+
 public:
 
 };

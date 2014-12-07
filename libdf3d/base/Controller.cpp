@@ -113,21 +113,6 @@ void Controller::runFrame()
 void Controller::shutdown()
 {
     m_appDelegate->onAppEnded();
-
-    if (m_resourceManager)
-        m_resourceManager->shutdown();
-    if (m_audioManager)
-        m_audioManager->shutdown();
-    if (m_physics)
-        m_physics->shutdown();
-    if (m_guiManager)
-        m_guiManager->shutdown();
-    if (m_renderManager)
-        m_renderManager->shutdown();
-    if (m_scriptManager)
-        m_scriptManager->shutdown();
-    if (m_sceneManager)
-        m_sceneManager->shutdown();
     if (m_application)
         m_application->shutdown();
 
@@ -185,35 +170,25 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
 
     // Init resource manager.
     m_resourceManager = new resources::ResourceManager();
-    if (!m_resourceManager->init())
-        return false;
 
     // Init render system.
-    m_renderManager =  new render::RenderManager();
     render::RenderManagerInitParams renderParams;
     renderParams.viewportWidth = params.windowWidth;
     renderParams.viewportHeight = params.windowHeight;
     renderParams.debugDraw = params.debugDraw;
-    if (!m_renderManager->init(renderParams))
-        return false;
+    m_renderManager = new render::RenderManager(renderParams);
 
     // Init scene manager.
     m_sceneManager = new scene::SceneManager();
-    if (!m_sceneManager->init())
-        return false;
 
     // Spark particle engine init.
     particlesys::initSparkEngine();
 
     // Init scripting subsystem.
     m_scriptManager = new scripting::ScriptManager();
-    if (!m_scriptManager->init())
-        return false;
 
     // Init GUI.
-    m_guiManager = new gui::GuiManager();
-    if (!m_guiManager->init(params.windowWidth, params.windowHeight))
-        return false;
+    m_guiManager = new gui::GuiManager(params.windowWidth, params.windowHeight);
 
     // Init debug window.
 #ifdef ENABLE_DEBUG_WINDOW
@@ -222,13 +197,9 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
 
     // Init physics.
     m_physics = new physics::PhysicsManager();
-    if (!m_physics->init())
-        return false;
 
     // Init audio subsystem.
     m_audioManager = new audio::AudioManager();
-    if (!m_audioManager->init())
-        return false;
 
     base::glog << "Engine initialized" << base::logmess;
 

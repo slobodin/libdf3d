@@ -11,32 +11,14 @@
 
 namespace df3d { namespace gui {
 
-GuiManager::GuiManager()
-{
-}
-
-GuiManager::~GuiManager()
-{
-}
-
-bool GuiManager::init(int contextWidth, int contextHeight)
+GuiManager::GuiManager(int contextWidth, int contextHeight)
 {
     base::glog << "Initializing CEGUI" << base::logmess;
 
-    try
-    {
-        cegui_impl::CeguiRendererImpl::bootstrapSystem(contextWidth, contextHeight);
-    }
-    catch (const CEGUI::Exception &e)
-    {
-        base::glog << "Failed to init CEGUI. Reason:" << e.what() << base::logcritical;
-        return false;
-    }
-
-    return true;
+    cegui_impl::CeguiRendererImpl::bootstrapSystem(contextWidth, contextHeight);
 }
 
-void GuiManager::shutdown()
+GuiManager::~GuiManager()
 {
     try
     {
@@ -45,7 +27,6 @@ void GuiManager::shutdown()
     catch (const CEGUI::Exception &e)
     {
         base::glog << "Failed to destroy CEGUI. Reason:" << e.what() << base::logcritical;
-        throw;
     }
 }
 

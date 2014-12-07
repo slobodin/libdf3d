@@ -236,29 +236,19 @@ void Renderer::updateTextureSamplers()
 Renderer::Renderer()
     : m_programState(new GpuProgramState())
 {
-}
-
-Renderer::~Renderer()
-{
-}
-
-bool Renderer::initialize()
-{
 #if defined(__WINDOWS__)
     glewExperimental = GL_TRUE;
 
     auto glewerr = glewInit();
     if (glewerr != GLEW_OK)
     {
-        base::glog << "GLEW initialization failed:" << (const char *)glewGetErrorString(glewerr) << base::logcritical;
-        return false;
+        std::string errStr = "GLEW initialization failed: ";
+        errStr += (const char *)glewGetErrorString(glewerr);
+        throw std::runtime_error(errStr);
     }
 
     if (!glewIsSupported("GL_VERSION_2_1"))
-    {
-        base::glog << "GL 2.1 unsupported" << base::logcritical;
-        return false;
-    }
+        throw std::runtime_error("GL 2.1 unsupported");
 #endif
 
     const char *ver = (const char *)glGetString(GL_VERSION);
@@ -285,13 +275,10 @@ bool Renderer::initialize()
     printOpenGLError();
 
     m_initialized = true;
-
-    return true;
 }
 
-void Renderer::shutdown()
+Renderer::~Renderer()
 {
-    m_programState.reset();
 }
 
 void Renderer::setRenderStatsLocation(RenderStats *renderStats)

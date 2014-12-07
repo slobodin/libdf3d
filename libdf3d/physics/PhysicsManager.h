@@ -27,10 +27,6 @@ public:
     void pauseSimulation(bool pause);
 
 private:
-    // These are only for controller.
-    bool init();
-    void shutdown();
-
     void update(float dt);
     void drawDebug();
 };

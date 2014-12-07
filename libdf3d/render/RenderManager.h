@@ -67,12 +67,10 @@ class RenderManager
 
     bool m_debugDrawEnabled = false;
 
-    RenderManager();
+    RenderManager(RenderManagerInitParams params);
     ~RenderManager();
 
 public:
-    bool init(RenderManagerInitParams params);
-    void shutdown();
     void enableDebugDraw(bool enable);
     bool isDebugDrawEnabled();
 

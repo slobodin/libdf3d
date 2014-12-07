@@ -43,10 +43,6 @@ private:
     shared_ptr<Resource> findResource(const std::string &fullPath) const;
     shared_ptr<ResourceDecoder> getDecoder(const std::string &extension) const;
 
-    // These are only for controller.
-    bool init();
-    void shutdown();
-
 public:
     template<typename T>
     shared_ptr<T> getResource(const char *path, LoadMode lm = LoadMode::IMMEDIATE);

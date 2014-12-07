@@ -13,12 +13,8 @@ class DF3D_DLL GuiManager
     friend class base::Controller;
     friend class render::RenderManager;
 
-    GuiManager();
+    GuiManager(int contextWidth, int contextHeight);
     ~GuiManager();
-
-    // These are only for controller and render manager.
-    bool init(int contextWidth, int contextHeight);
-    void shutdown();
 
     void update(float dt);
     void render();

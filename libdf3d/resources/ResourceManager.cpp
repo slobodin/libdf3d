@@ -35,10 +35,17 @@ void ResourceManager::doRequest(DecodeRequest req)
 
 ResourceManager::ResourceManager()
 {
+    m_threadPool = make_unique<base::ThreadPool>(2);
+    // TODO:
+    // Add embedded resources.
 }
 
 ResourceManager::~ResourceManager()
 {
+    //std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+    m_threadPool.reset(nullptr);
+    m_loadedResources.clear();
 }
 
 shared_ptr<Resource> ResourceManager::findResource(const std::string &fullPath) const
@@ -69,23 +76,6 @@ shared_ptr<ResourceDecoder> ResourceManager::getDecoder(const std::string &exten
         base::glog << "Decoder for resources of type" << extension << "doesn't exist." << base::logwarn;
         return nullptr;
     }
-}
-
-bool ResourceManager::init()
-{
-    m_threadPool = make_unique<base::ThreadPool>(2);
-    // TODO:
-    // Add embedded resources.
-
-    return true;
-}
-
-void ResourceManager::shutdown()
-{
-    //std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-    m_threadPool.reset(nullptr);
-    m_loadedResources.clear();
 }
 
 shared_ptr<Resource> ResourceManager::loadResource(const char *path, LoadMode lm)

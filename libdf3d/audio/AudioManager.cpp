@@ -19,14 +19,6 @@ struct AudioManager::Impl
 AudioManager::AudioManager()
     : m_pimpl(new AudioManager::Impl())
 {
-}
-
-AudioManager::~AudioManager()
-{
-}
-
-bool AudioManager::init()
-{
     base::glog << "Initializing OpenAL" << base::logmess;
 
     std::string devices;
@@ -46,26 +38,18 @@ bool AudioManager::init()
 
     m_pimpl->m_device = alcOpenDevice(nullptr);
     if (!m_pimpl->m_device)
-    {
-        base::glog << "Can not open audio device" << base::logwarn;
-        return false;
-    }
+        throw std::runtime_error("Can not open audio device");
 
     m_pimpl->m_context = alcCreateContext(m_pimpl->m_device, nullptr);
     if (!m_pimpl->m_context)
-    {
-        base::glog << "Can not create OpenAL context" << base::logwarn;
-        return false;
-    }
+        throw std::runtime_error("Can not create OpenAL context");
 
     alcMakeContextCurrent(m_pimpl->m_context);
 
     printOpenALError();
-
-    return true;
 }
 
-void AudioManager::shutdown()
+AudioManager::~AudioManager()
 {
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(m_pimpl->m_context);

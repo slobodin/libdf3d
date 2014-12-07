@@ -15,22 +15,12 @@ namespace df3d { namespace scene {
 
 SceneManager::SceneManager()
 {
+    base::glog << "Initializing scene manager" << base::logmess;
 }
 
 SceneManager::~SceneManager()
 {
-}
 
-bool SceneManager::init()
-{
-    base::glog << "Initializing scene manager" << base::logmess;
-
-    return true;
-}
-
-void SceneManager::shutdown()
-{
-    m_currentScene.reset();
 }
 
 void SceneManager::update(float dt)

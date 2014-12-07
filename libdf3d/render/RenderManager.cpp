@@ -123,25 +123,14 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
     }
 }
 
-RenderManager::RenderManager()
+RenderManager::RenderManager(RenderManagerInitParams params)
     : m_renderQueue(make_unique<RenderQueue>())
-{
-}
-
-RenderManager::~RenderManager()
-{
-}
-
-bool RenderManager::init(RenderManagerInitParams params)
 {
 #if defined(__WINDOWS__) || defined(__ANDROID__)
     m_renderer = make_unique<Renderer>();
 #else
 #error "Unsupported platform"
 #endif
-    if (!m_renderer->initialize())
-        return false;
-
     m_renderer->setRenderStatsLocation(&m_stats);
 
     createRenderTargets(Viewport(0, 0, params.viewportWidth, params.viewportHeight));
@@ -149,14 +138,11 @@ bool RenderManager::init(RenderManagerInitParams params)
     createAmbientPassProps();
 
     enableDebugDraw(params.debugDraw);
+}
 
-    return true;
-} 
-
-void RenderManager::shutdown()
+RenderManager::~RenderManager()
 {
-    m_renderQueue->clear();
-    m_renderer->shutdown();
+
 }
 
 void RenderManager::enableDebugDraw(bool enable)

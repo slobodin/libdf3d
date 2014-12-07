@@ -66,7 +66,8 @@ struct PhysicsManager::Impl
 PhysicsManager::PhysicsManager()
     : m_pimpl(new Impl())
 {
-
+    base::glog << "Initializing bullet physics" << base::logmess;
+    m_pimpl->init();
 }
 
 PhysicsManager::~PhysicsManager()
@@ -82,19 +83,6 @@ btDynamicsWorld *PhysicsManager::getWorld()
 void PhysicsManager::pauseSimulation(bool pause)
 {
     m_paused = pause;
-}
-
-bool PhysicsManager::init()
-{
-    base::glog << "Initializing bullet physics" << base::logmess;
-    m_pimpl->init();
-
-    return true;
-}
-
-void PhysicsManager::shutdown()
-{
-    m_pimpl->clean();
 }
 
 void PhysicsManager::update(float dt)

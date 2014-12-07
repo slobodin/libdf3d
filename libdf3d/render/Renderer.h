@@ -47,9 +47,6 @@ public:
     Renderer();
     ~Renderer();
 
-    bool initialize();
-    void shutdown();
-
     void setRenderStatsLocation(RenderStats *renderStats);
 
     void beginFrame();
