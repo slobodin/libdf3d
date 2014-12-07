@@ -5,7 +5,7 @@
 
 // Common includes.
 #define GLM_FORCE_RADIANS
-#define GLM_MESSAGES
+//#define GLM_MESSAGES
 #define GLM_SWIZZLE
 #include <glm/glm.hpp>
 #include <glm/gtx/fast_square_root.hpp>
