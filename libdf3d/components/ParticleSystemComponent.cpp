@@ -50,25 +50,9 @@ void ParticleSystemComponent::prepareRenderOperations()
 
     m_system->render();
 
-    //auto holderTransform = m_holder->transform()->getTransformation();
-    //auto dir = particlesys::spkToGlm(m_system->getLocalTransformLookLH());
-    //auto right = particlesys::spkToGlm(m_system->getLocalTransformSide());
-    //auto up = particlesys::spkToGlm(m_system->getLocalTransformUp());
-    //auto pos = particlesys::spkToGlm(m_system->getLocalTransformPos());
-
-    //auto rot = glm::mat3(right.x, right.y, right.z, up.x, up.y, up.z, dir.x, dir.y, dir.z);
-    //auto myTransform = glm::mat4(rot);
-
-    //auto resultTransform = holderTransform * myTransform;
-
-    // FIXME:
-    // Including only translation.
-    
-    auto tr = glm::value_ptr(m_holder->transform()->getTransformation());
-    glm::mat4 worldTransf = glm::translate(glm::vec3(tr[12], tr[13], tr[14]));
-
+    glm::mat4 tr = m_holder->transform()->getTransformation();
     for (auto op : m_renderOps)
-        op->worldTransform = m_holder->transform()->getTransformation();
+        op->worldTransform = tr;
 }
 
 const render::RenderOperation &ParticleSystemComponent::getRenderOperation(size_t groupIdx)

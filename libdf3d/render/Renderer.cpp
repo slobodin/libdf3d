@@ -220,8 +220,11 @@ void Renderer::updateTextureSamplers()
             texture = m_whiteTexture;
 
         auto bound = texture->bind(textureUnit);
-        if (!bound)
-            continue;
+        if (!bound) 
+        {
+            texture = m_whiteTexture;
+            texture->bind(textureUnit);
+        }
 
         // FIXME:
         auto location = glGetUniformLocation(m_programState->m_currentShader->descriptor(), samplers[i].name.c_str());

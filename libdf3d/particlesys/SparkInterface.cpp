@@ -60,7 +60,7 @@ const size_t MyBufferCreator::STRIDE_BETWEEN_VERTICES = 9;
 ParticleSystemRenderer::ParticleSystemRenderer()
 {
     m_pass = make_shared<render::RenderPass>();
-    m_pass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
+    m_pass->setFaceCullMode(render::RenderPass::FaceCullMode::BACK);
     m_pass->setFrontFaceWinding(render::RenderPass::WindingOrder::CCW);
     m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f);
 
@@ -277,11 +277,11 @@ void QuadParticleSystemRenderer::render(const SPK::Group& group)
         m_renderParticle = &QuadParticleSystemRenderer::render2D;
     }
 
-    const auto &dir = g_sceneManager->getCamera()->getDir();
-    const auto &up = g_sceneManager->getCamera()->getUp();
+    auto viewm = g_sceneManager->getCamera()->getViewMatrix();
+
     const auto &pos = g_sceneManager->getCamera()->transform()->getPosition();
 
-    bool globalOrientation = precomputeOrientation3D(group, glmToSpk(dir), glmToSpk(up), glmToSpk(pos));
+    bool globalOrientation = precomputeOrientation3D(group, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }, glmToSpk(pos));
     auto totalParticles = group.getNbParticles();
 
     if (globalOrientation)
