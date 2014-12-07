@@ -89,27 +89,6 @@ void Controller::parseConfig(EngineInitParams &config)
 #endif
 }
 
-void Controller::updateController(float dt)
-{
-    m_timeElapsed = IntervalBetweenNowAnd(m_timeStarted);
-
-    m_audioManager->update(dt);
-    m_physics->update(dt);
-    m_sceneManager->update(dt);
-    m_guiManager->update(dt);
-    m_renderManager->update(m_sceneManager->getCurrentScene());
-}
-
-void Controller::runFrame()
-{
-    m_renderManager->onFrameBegin();
-
-    m_renderManager->drawScene(m_sceneManager->getCurrentScene());
-    m_renderManager->drawGUI();
-
-    m_renderManager->onFrameEnd();
-}
-
 void Controller::shutdown()
 {
     m_appDelegate->onAppEnded();
@@ -236,18 +215,8 @@ void Controller::run()
 
             auto dt = IntervalBetween(currtime, prevtime);
 
-            // Update engine.
-            updateController(dt);
-
-            // Update user code.
-            m_appDelegate->onAppUpdate(dt);
-
-            // Render frame.
+            update(dt);
             runFrame();
-            m_application->swapBuffers();
-
-            // Clean up.
-            m_sceneManager->cleanStep();
 
             prevtime = currtime;
 
@@ -261,8 +230,6 @@ void Controller::run()
 
                 m_application->setTitle(os.str().c_str());
                 lastFpsCheck = 0.0f;
-
-                //base::glog << "FPS" << m_currentFPS << "frame time" << dt << base::logdebug;
             }
         }
     }
@@ -272,7 +239,42 @@ void Controller::run()
 
 void Controller::requestShutdown()
 {
-    m_quitRequested = true;
+    if (m_appDelegate)
+        m_quitRequested = true;
+    else
+        shutdown();
+}
+
+void Controller::update(float dt)
+{
+    // Update engine.
+    m_timeElapsed = IntervalBetweenNowAnd(m_timeStarted);
+
+    m_audioManager->update(dt);
+    m_physics->update(dt);
+    m_sceneManager->update(dt);
+    m_guiManager->update(dt);
+    m_renderManager->update(m_sceneManager->getCurrentScene());
+
+    // Update user code.
+    if (m_appDelegate)
+        m_appDelegate->onAppUpdate(dt);
+
+    // Clean up.
+    m_sceneManager->cleanStep();
+}
+
+void Controller::runFrame()
+{
+    m_renderManager->onFrameBegin();
+
+    m_renderManager->drawScene(m_sceneManager->getCurrentScene());
+    m_renderManager->drawGUI();
+
+    m_renderManager->onFrameEnd();
+
+    if (m_application)
+        m_application->swapBuffers();
 }
 
 const render::RenderStats &Controller::getLastRenderStats() const

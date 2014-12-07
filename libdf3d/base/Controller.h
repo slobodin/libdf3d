@@ -69,9 +69,6 @@ class DF3D_DLL Controller : boost::noncopyable
     float m_timeElapsed = 0;
 
     void parseConfig(EngineInitParams &config);
-
-    void updateController(float dt);
-    void runFrame();
     void shutdown();
 
 public:
@@ -80,6 +77,9 @@ public:
     bool init(EngineInitParams params, base::AppDelegate *appDelegate = nullptr);
     void run();
     void requestShutdown();
+
+    void update(float dt);
+    void runFrame();
 
     float getElapsedTime() const { return m_timeElapsed; }
 
