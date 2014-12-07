@@ -209,21 +209,17 @@ if (WIN32 AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party" CACHE PATH "third-party")
 endif()
 
-if(MSVC_IDE)
+if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200 /wd\"4251\"")
 
     add_definitions(-DWIN32 -D_WINDOWS -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS)
 
     set(PRECOMPILED_H ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.h)
     set(PRECOMPILED_CPP ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.cpp)
-    set_source_files_properties(${PRECOMPILED_CPP} PROPERTIES COMPILE_FLAGS "/Ycdf3d_pch.h")
 
-    foreach(src_file ${libdf3d_SRC_LIST})
-        set_source_files_properties(${src_file} PROPERTIES COMPILE_FLAGS "/Yudf3d_pch.h")
-    endforeach(src_file ${libdf3d_SRC_LIST})
-
-    list(APPEND libdf3d_SRC_LIST ${PRECOMPILED_CPP})
-endif(MSVC_IDE)
+    set_source_files_properties(${PRECOMPILED_CPP} PROPERTIES COMPILE_FLAGS "/Ycdf3d_pch.h" OBJECT_OUTPUTS "${CMAKE_CURRENT_BINARY_DIR}/df3d_pch.pch")
+    set_source_files_properties(${libdf3d_SRC_LIST} PROPERTIES COMPILE_FLAGS "/Yudf3d_pch.h" OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/df3d_pch.pch")
+endif(MSVC)
 
 if (CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
@@ -245,6 +241,7 @@ find_package(CEGUI REQUIRED)
 add_library(libdf3d SHARED
     ${libdf3d_SRC_LIST}
     ${third_party_SRC_FILES}
+    ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.cpp
     ${libdf3d_HEADER_LIST}
 )
 
