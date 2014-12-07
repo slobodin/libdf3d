@@ -259,8 +259,6 @@ void Controller::run()
 
             auto dt = IntervalBetween(currtime, prevtime);
 
-            m_application->pollEvents();
-
             // Update engine.
             updateController(dt);
 
