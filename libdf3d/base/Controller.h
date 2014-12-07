@@ -77,7 +77,7 @@ class DF3D_DLL Controller : boost::noncopyable
 public:
     static Controller *getInstance();
 
-    bool init(EngineInitParams params, base::AppDelegate *appDelegate);
+    bool init(EngineInitParams params, base::AppDelegate *appDelegate = nullptr);
     void run();
     void requestShutdown();
 

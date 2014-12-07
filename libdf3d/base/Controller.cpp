@@ -145,63 +145,74 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
 {
     base::glog << "Initializing engine" << base::logmess;
 
-    srand((unsigned int)time(0));
+    try
+    {
+        srand((unsigned int)time(0));
 
-    // Init filesystem.
-    m_fileSystem = new resources::FileSystem();
-    m_fileSystem->addSearchPath("data/");
-    parseConfig(params);
+        // Init filesystem.
+        m_fileSystem = new resources::FileSystem();
+        m_fileSystem->addSearchPath("data/");
+        parseConfig(params);
 
-    // Init application.
-    platform::AppInitParams appParams;
-    appParams.windowWidth = params.windowWidth;
-    appParams.windowHeight = params.windowHeight;
-    appParams.fullscreen = params.fullscreen;
+        // Init application.
+        if (appDelegate)
+        {
+            platform::AppInitParams appParams;
+            appParams.windowWidth = params.windowWidth;
+            appParams.windowHeight = params.windowHeight;
+            appParams.fullscreen = params.fullscreen;
 
-    m_application = platform::Application::create(appParams);
+            m_application = platform::Application::create(appParams);
 
-    // Set up delegate.
-    m_appDelegate = appDelegate;
+            // Set up delegate.
+            m_appDelegate = appDelegate;
+        }
 
-    // Init resource manager.
-    m_resourceManager = new resources::ResourceManager();
+        // Init resource manager.
+        m_resourceManager = new resources::ResourceManager();
 
-    // Init render system.
-    render::RenderManagerInitParams renderParams;
-    renderParams.viewportWidth = params.windowWidth;
-    renderParams.viewportHeight = params.windowHeight;
-    renderParams.debugDraw = params.debugDraw;
-    m_renderManager = new render::RenderManager(renderParams);
+        // Init render system.
+        render::RenderManagerInitParams renderParams;
+        renderParams.viewportWidth = params.windowWidth;
+        renderParams.viewportHeight = params.windowHeight;
+        renderParams.debugDraw = params.debugDraw;
+        m_renderManager = new render::RenderManager(renderParams);
 
-    // Init scene manager.
-    m_sceneManager = new scene::SceneManager();
+        // Init scene manager.
+        m_sceneManager = new scene::SceneManager();
 
-    // Spark particle engine init.
-    particlesys::initSparkEngine();
+        // Spark particle engine init.
+        particlesys::initSparkEngine();
 
-    // Init scripting subsystem.
-    m_scriptManager = new scripting::ScriptManager();
+        // Init scripting subsystem.
+        m_scriptManager = new scripting::ScriptManager();
 
-    // Init GUI.
-    m_guiManager = new gui::GuiManager(params.windowWidth, params.windowHeight);
+        // Init GUI.
+        m_guiManager = new gui::GuiManager(params.windowWidth, params.windowHeight);
 
-    // Init debug window.
+        // Init debug window.
 #ifdef ENABLE_DEBUG_WINDOW
-    m_debugWindow = new gui::DebugOverlayWindow();
+        m_debugWindow = new gui::DebugOverlayWindow();
 #endif
 
-    // Init physics.
-    m_physics = new physics::PhysicsManager();
+        // Init physics.
+        m_physics = new physics::PhysicsManager();
 
-    // Init audio subsystem.
-    m_audioManager = new audio::AudioManager();
+        // Init audio subsystem.
+        m_audioManager = new audio::AudioManager();
 
-    base::glog << "Engine initialized" << base::logmess;
+        base::glog << "Engine initialized" << base::logmess;
 
-    m_initialized = true;
+        m_initialized = true;
 
-    // Send app started to the client.
-    m_appDelegate->onAppStarted();
+        // Send app started to the client.
+        if (m_appDelegate)
+            m_appDelegate->onAppStarted();
+    }
+    catch (std::exception &e)
+    {
+        base::glog << "Engine initialization failed due to" << e.what() << base::logcritical;
+    }
 
     return m_initialized;
 }
