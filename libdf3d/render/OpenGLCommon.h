@@ -1,7 +1,10 @@
 #pragma once
 
 #if defined(__WINDOWS__)
-#include <GL/gl3w.h>
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GL/GL.h>
+#include <GL/GLU.h>
 #elif defined(__ANDROID__)
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>

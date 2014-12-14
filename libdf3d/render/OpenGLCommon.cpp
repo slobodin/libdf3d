@@ -1,8 +1,6 @@
 #include "df3d_pch.h"
 #include "OpenGLCommon.h"
 
-#include <GL/GLU.h>
-
 namespace df3d { namespace render {
 
 std::string checkGLError()

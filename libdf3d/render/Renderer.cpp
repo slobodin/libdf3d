@@ -237,11 +237,18 @@ Renderer::Renderer()
     : m_programState(new GpuProgramState())
 {
 #if defined(__WINDOWS__)
-    if (gl3wInit() != 0)
-        throw std::runtime_error("GL3W initialization failed");
+    glewExperimental = GL_TRUE;
 
-    if (!gl3wIsSupported(3, 2))
-        throw std::runtime_error("GL 3.2 is unsupported");
+    auto glewerr = glewInit();
+    if (glewerr != GLEW_OK)
+    {
+        std::string errStr = "GLEW initialization failed: ";
+        errStr += (const char *)glewGetErrorString(glewerr);
+        throw std::runtime_error(errStr);
+    }
+
+    if (!glewIsSupported("GL_VERSION_2_1"))
+        throw std::runtime_error("GL 2.1 unsupported");
 #endif
 
     const char *ver = (const char *)glGetString(GL_VERSION);

@@ -214,13 +214,22 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 set(third_party_SRC_FILES
     ${PROJECT_SOURCE_DIR}/third-party/src/lib_json/jsoncpp.cpp
-    ${PROJECT_SOURCE_DIR}/third-party/src/GL/gl3w.c
 )
 
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
 find_package(Boost REQUIRED)
 find_package(CEGUI REQUIRED)
+find_package(GLEW REQUIRED)
+
+include_directories(${PROJECT_SOURCE_DIR}/libdf3d
+                    ${PROJECT_SOURCE_DIR}/third-party/include
+                    ${Boost_INCLUDE_DIRS}
+                    ${CEGUI_INCLUDE_DIRS})
+
+if (WIN32)
+    include_directories(${GLEW_INCLUDE_DIRS})
+endif(WIN32)
 
 add_library(libdf3d SHARED
     ${libdf3d_SRC_LIST}
@@ -228,11 +237,6 @@ add_library(libdf3d SHARED
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.cpp
     ${libdf3d_HEADER_LIST}
 )
-
-include_directories(${PROJECT_SOURCE_DIR}/libdf3d
-                    ${PROJECT_SOURCE_DIR}/third-party/include
-                    ${Boost_INCLUDE_DIRS}
-                    ${CEGUI_INCLUDE_DIRS})
 
 target_link_libraries(libdf3d 
     BulletPhysics 
@@ -242,3 +246,7 @@ target_link_libraries(libdf3d
     ${OPENGL_LIBRARIES} 
     ${OPENAL_LIBRARY}
     ${CEGUI_LIBRARY})
+
+if (WIN32)
+    target_link_libraries(libdf3d ${GLEW_LIBRARIES})
+endif(WIN32)
