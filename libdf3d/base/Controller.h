@@ -97,6 +97,7 @@ public:
     
     base::AppDelegate *getAppDelegate() { return m_appDelegate; }
     const render::Viewport &getViewport() const;
+    void setViewport(const render::Viewport &newvp);
 
     scene::SceneManager *getSceneManager() { return m_sceneManager; }
     resources::ResourceManager *getResourceManager() { return m_resourceManager; }

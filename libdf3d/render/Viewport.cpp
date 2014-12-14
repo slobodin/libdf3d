@@ -46,4 +46,14 @@ int Viewport::height() const
     return m_h;
 }
 
+bool Viewport::operator== (const Viewport &other) const
+{
+    return m_x == other.m_x && m_y == other.m_y && m_w == other.m_w && m_h == other.m_h;
+}
+
+bool Viewport::operator!= (const Viewport &other) const
+{
+    return !(*this == other);
+}
+
 } }

@@ -17,6 +17,9 @@ public:
     int y() const;
     int width() const;
     int height() const;
+
+    bool operator== (const Viewport &other) const;
+    bool operator!= (const Viewport &other) const;
 };
 
 } }

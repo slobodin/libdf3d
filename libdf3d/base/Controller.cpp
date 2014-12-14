@@ -348,4 +348,9 @@ const render::Viewport &Controller::getViewport() const
     return m_renderManager->getScreenRenderTarget()->getViewport();
 }
 
+void Controller::setViewport(const render::Viewport &newvp)
+{
+    m_renderManager->getScreenRenderTarget()->setViewport(newvp);
+}
+
 } }

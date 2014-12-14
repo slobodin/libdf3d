@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Node.h"
+#include <render/Viewport.h>
 
 namespace df3d { namespace scene {
 
@@ -15,6 +16,9 @@ class DF3D_DLL Camera : public Node
     float m_nearZ;
     //! Far Z-clipping plane position.
     float m_farZ;
+
+    //! Cached copy of the current screen viewport.
+    render::Viewport m_currentViewport;
 
     bool m_viewMatrixDirty = true;
     bool m_projectionMatrixDirty = true;

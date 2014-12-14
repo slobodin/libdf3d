@@ -24,16 +24,20 @@ void Camera::buildViewMatrix()
 
 void Camera::buildProjectionMatrix()
 {
+    const auto &vp = g_renderManager->getScreenRenderTarget()->getViewport();
+
+    if (m_currentViewport != vp)
+        m_projectionMatrixDirty = true;
+
     if (!m_projectionMatrixDirty)
         return;
-
-    const auto &vp = g_renderManager->getScreenRenderTarget()->getViewport();
 
     float w = (float)vp.width();
     float h = (float)vp.height();
 
     m_projectionMatrix = glm::perspective(glm::radians(m_fov), w / h, m_nearZ, m_farZ);
     m_projectionMatrixDirty = false;
+    m_currentViewport = vp;
 }
 
 void Camera::onComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev)
