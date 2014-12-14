@@ -192,19 +192,6 @@ set(libdf3d_SRC_LIST
 
 add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD)
 
-source_group(audio FILES AudioBuffer.h
-                         AudioManager.h
-                         OpenALCommon.h
-                         AudioBuffer.cpp
-                         AudioManager.cpp
-                         OpenALCommon.cpp)
-
-# source_group(base FILES Common.cpp
-#                         Controller.cpp
-#                         InputEvents.cpp
-#                         Log.cpp
-#                         ThreadPool.cpp)
-
 if (WIN32 AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party" CACHE PATH "third-party")
 endif()
@@ -227,11 +214,8 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 set(third_party_SRC_FILES
     ${PROJECT_SOURCE_DIR}/third-party/src/lib_json/jsoncpp.cpp
+    ${PROJECT_SOURCE_DIR}/third-party/src/GL/gl3w.c
 )
-
-if (WIN32)
-    find_package(GLEW REQUIRED)
-endif(WIN32)
 
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
@@ -248,12 +232,7 @@ add_library(libdf3d SHARED
 include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/include
                     ${Boost_INCLUDE_DIRS}
-                    ${OpenAL_INCLUDE_DIRS}
                     ${CEGUI_INCLUDE_DIRS})
-
-if (WIN32)
-    include_directories(${GLEW_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR})
-endif(WIN32)
 
 target_link_libraries(libdf3d 
     BulletPhysics 
@@ -263,7 +242,3 @@ target_link_libraries(libdf3d
     ${OPENGL_LIBRARIES} 
     ${OPENAL_LIBRARY}
     ${CEGUI_LIBRARY})
-
-if (WIN32)
-    target_link_libraries(libdf3d ${GLEW_LIBRARY})
-endif(WIN32)

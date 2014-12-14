@@ -7,6 +7,9 @@
 #include "RenderManager.h"
 #include "Renderer.h"
 
+#define GL_TEXTURE_MAX_ANISOTROPY_EXT     0x84FE
+#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
+
 namespace df3d { namespace render {
 
 const int ANISOTROPY_LEVEL_MAX = -1;
@@ -166,7 +169,8 @@ bool Texture::createGLTexture()
         glPixelFormat = GL_RGBA;
         break;
     case Image::Format::GRAYSCALE:
-        glPixelFormat = GL_LUMINANCE;   // FIXME: is it valid on ES?
+        return false;
+        //glPixelFormat = GL_LUMINANCE;   // FIXME: is it valid on ES?
         break;
     default:
         base::glog << "Invalid GL texture pixel format" << base::logwarn;
