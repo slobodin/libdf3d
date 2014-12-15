@@ -67,6 +67,7 @@ public:
 
     shared_ptr<Node> getChildByName(const char *name) const;
     shared_ptr<Node> getParent() const { return m_parent.lock(); }
+    size_t getChildrenCount() const { return m_children.size(); }
 
     shared_ptr<Node> clone() const;
 
