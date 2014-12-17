@@ -78,6 +78,7 @@ public:
     shared_ptr<components::AudioComponent> audio();
     shared_ptr<components::ParticleSystemComponent> vfx();
     shared_ptr<components::PhysicsComponent> physics();
+    size_t attachedComponentsCount() const;
 
     void attachComponent(shared_ptr<components::NodeComponent> component);
     void detachComponent(components::ComponentType type);

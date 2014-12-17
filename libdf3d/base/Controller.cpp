@@ -93,9 +93,7 @@ void Controller::shutdown()
 {
     if (m_appDelegate)
         m_appDelegate->onAppEnded();
-
-    particlesys::destroySparkEngine();
-
+    
     SAFE_DELETE(m_physics);
     SAFE_DELETE(m_scriptManager);
     SAFE_DELETE(m_sceneManager);
@@ -106,6 +104,8 @@ void Controller::shutdown()
     SAFE_DELETE(m_fileSystem);
     SAFE_DELETE(m_audioManager);
     SAFE_DELETE(m_debugWindow);
+
+    particlesys::destroySparkEngine();
 
     base::glog << "Shutdown success" << base::logmess;
 

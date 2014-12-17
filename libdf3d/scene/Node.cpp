@@ -223,6 +223,18 @@ shared_ptr<components::PhysicsComponent> Node::physics()
     return static_pointer_cast<components::PhysicsComponent>(getComponent(components::ComponentType::PHYSICS));
 }
 
+size_t Node::attachedComponentsCount() const
+{
+    size_t result = 0;
+    for (auto component : m_components)
+    {
+        if (component)
+            result++;
+    }
+
+    return result;
+}
+
 void Node::attachComponent(shared_ptr<components::NodeComponent> component)
 {
     auto idx = static_cast<size_t>(component->type);
