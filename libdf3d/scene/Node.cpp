@@ -303,9 +303,26 @@ shared_ptr<Node> Node::fromJson(const Json::Value &root)
     return result;
 }
 
-void Node::toJson(shared_ptr<const Node> node)
+Json::Value Node::toJson(shared_ptr<const Node> node)
 {
+    Json::Value result(Json::objectValue);
+    Json::Value componentsJson(Json::arrayValue);
 
+    result["name"] = node->getName();
+
+    auto count = (size_t)df3d::components::ComponentType::COUNT;
+    for (size_t i = 0; i < count; i++)
+    {
+        auto comp = node->getComponent((df3d::components::ComponentType)i);
+        if (!comp)
+            continue;
+        // TODO:
+        componentsJson.append(Json::Value(Json::objectValue));
+    }
+
+    result["components"] = componentsJson;
+
+    return result;
 }
 
 } }

@@ -41,8 +41,11 @@ void parseObjects(const Json::Value &objectsNode, scene::Scene *sc)
 
 Json::Value saveObjects(const scene::Scene *sc)
 {
-    // TODO:
-    return Json::Value();
+    Json::Value res(Json::arrayValue);
+    for (auto ch : *sc->getRoot())
+        res.append(scene::Node::toJson(ch.second));
+
+    return res;
 }
 
 void parseAmbientLight(const Json::Value &root, scene::Scene *sc)
@@ -172,8 +175,9 @@ void save(const scene::Scene *sc, const char *sceneDefinitionFile)
     root["post_process"] = savePostProcessOption(sc);
     root["camera"] = saveCamera(sc);
 
-    auto buf = writer.write(root);
-    file << buf;
+    file << writer.write(root);
+
+    base::glog << "Scene was successfully saved to" << sceneDefinitionFile << base::logdebug;
 }
 
 } } }

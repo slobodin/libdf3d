@@ -10,7 +10,7 @@
 #include <render/RenderOperation.h>
 #include <render/Image.h>
 
-namespace df3d { namespace utils { namespace serializers {
+namespace df3d { namespace components { namespace serializers {
 
 enum class ModelParamType
 {
@@ -37,6 +37,8 @@ struct SparkModelParam
     SparkModelParam(const Json::Value &v, SPK::ModelParam spkType, SPK::ModelParamFlag spkFlag)
         : sparkType(spkType), sparkFlag(spkFlag)
     {
+        using namespace utils;
+
         if (v.empty() || !v.isObject())
             return;
 
@@ -65,6 +67,8 @@ struct SparkModelParam
 
 SPK::Model *parseSparkModel(const Json::Value &modelJson)
 {
+    using namespace utils;
+
     if (modelJson.empty())
         return nullptr;
 
@@ -123,6 +127,8 @@ SPK::Model *parseSparkModel(const Json::Value &modelJson)
 
 SPK::Emitter *parseSparkEmitter(const Json::Value &emitterJson)
 {
+    using namespace utils;
+
     const auto &zoneJson = emitterJson["Zone"];
     if (zoneJson.empty())
     {
@@ -244,6 +250,8 @@ SPK::Emitter *parseSparkEmitter(const Json::Value &emitterJson)
 
 void load(components::ParticleSystemComponent *component, const char *vfxDefinitionFile)
 {
+    using namespace utils;
+
     auto root = jsonLoadFromFile(vfxDefinitionFile);
     if (root.isNull())
         return;

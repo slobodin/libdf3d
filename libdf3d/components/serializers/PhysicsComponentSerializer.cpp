@@ -12,7 +12,7 @@
 #include <render/MeshData.h>
 #include <scene/Node.h>
 
-namespace df3d { namespace utils { namespace serializers {
+namespace df3d { namespace components { namespace serializers {
 
 void load(components::PhysicsComponent *component, const char *definitionFile)
 {

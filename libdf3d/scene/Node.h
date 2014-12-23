@@ -71,7 +71,7 @@ public:
 
     shared_ptr<Node> clone() const;
 
-    shared_ptr<components::NodeComponent> getComponent(components::ComponentType type) { return m_components[(size_t)type]; }
+    shared_ptr<components::NodeComponent> getComponent(components::ComponentType type) const { return m_components[(size_t)type]; }
     shared_ptr<components::TransformComponent> transform();
     shared_ptr<components::MeshComponent> mesh();
     shared_ptr<components::LightComponent> light();
@@ -85,7 +85,7 @@ public:
 
     static shared_ptr<Node> fromFile(const char *jsonDefinition);
     static shared_ptr<Node> fromJson(const Json::Value &root);
-    static void toJson(shared_ptr<const Node> node);
+    static Json::Value toJson(shared_ptr<const Node> node);
 };
 
 } }
