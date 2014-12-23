@@ -1,5 +1,5 @@
 #include "df3d_pch.h"
-#include "SceneLoader.h"
+#include "SceneSerializer.h"
 
 #include "JsonHelpers.h"
 #include <scene/Scene.h>
@@ -11,7 +11,7 @@
 #include <resources/ResourceManager.h>
 #include <render/MaterialLib.h>
 
-namespace df3d { namespace utils { namespace scene_loader {
+namespace df3d { namespace utils { namespace serializers {
 
 void parseFog(const Json::Value &fogNode, scene::Scene *sc)
 {
@@ -24,6 +24,12 @@ void parseFog(const Json::Value &fogNode, scene::Scene *sc)
     sc->setFog(density, color);
 }
 
+Json::Value saveFog(const scene::Scene *sc)
+{
+    // TODO:
+    return Json::Value();
+}
+
 void parseObjects(const Json::Value &objectsNode, scene::Scene *sc)
 {
     if (!objectsNode)
@@ -33,10 +39,23 @@ void parseObjects(const Json::Value &objectsNode, scene::Scene *sc)
         sc->addChild(scene::Node::fromJson(objectsNode[objIdx]));
 }
 
+Json::Value saveObjects(const scene::Scene *sc)
+{
+    // TODO:
+    return Json::Value();
+}
+
 void parseAmbientLight(const Json::Value &root, scene::Scene *sc)
 {
     auto intensity = jsonGetValueWithDefault(root, sc->getAmbientLight());
     sc->setAmbientLight(intensity.x, intensity.y, intensity.z);
+}
+
+Json::Value saveAmbientLight(const scene::Scene *sc)
+{
+    auto ambientIntensity = sc->getAmbientLight();
+    // TODO:
+    return Json::Value();
 }
 
 void parsePostProcessOption(const Json::Value &postFxNode, scene::Scene *sc)
@@ -59,6 +78,13 @@ void parsePostProcessOption(const Json::Value &postFxNode, scene::Scene *sc)
         return;
 
     sc->setPostProcessMaterial(material);
+}
+
+Json::Value savePostProcessOption(const scene::Scene *sc)
+{
+    auto material = sc->getPostProcessMaterial();
+    // TODO:
+    return Json::Value();
 }
 
 void parseCamera(const Json::Value &cameraNode, scene::Scene *sc)
@@ -102,7 +128,14 @@ void parseCamera(const Json::Value &cameraNode, scene::Scene *sc)
     sc->setCamera(camera);
 }
 
-void init(scene::Scene *sc, const char *sceneDefinitionFile)
+Json::Value saveCamera(const scene::Scene *sc)
+{
+    auto cam = sc->getCamera();
+    // TODO:
+    return Json::Value();
+}
+
+void load(scene::Scene *sc, const char *sceneDefinitionFile)
 {
     auto root = jsonLoadFromFile(sceneDefinitionFile);
     if (root.empty())
@@ -113,6 +146,34 @@ void init(scene::Scene *sc, const char *sceneDefinitionFile)
     parseAmbientLight(root["ambient_light"], sc);
     parsePostProcessOption(root["post_process"], sc);
     parseCamera(root["camera"], sc);
+}
+
+void save(const scene::Scene *sc, const char *sceneDefinitionFile)
+{
+    if (!sc)
+    {
+        base::glog << "Failed to serialize null scene" << base::logwarn;
+        return;
+    }
+
+    std::ofstream file(sceneDefinitionFile);    // This function intended to be used only on desktop, so use default filestream.
+    if (!file)
+    {
+        base::glog << "Failed to open file" << sceneDefinitionFile << ". Can not serialize scene" << base::logwarn;
+        return;
+    }
+
+    Json::StyledWriter writer;
+    Json::Value root;
+
+    root["objects"] = saveObjects(sc);
+    root["fog"] = saveFog(sc);
+    root["ambient_light"] = saveAmbientLight(sc);
+    root["post_process"] = savePostProcessOption(sc);
+    root["camera"] = saveCamera(sc);
+
+    auto buf = writer.write(root);
+    file << buf;
 }
 
 } } }

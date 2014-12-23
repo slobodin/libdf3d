@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "Scene.h"
 
-#include <utils/SceneLoader.h>
+#include <utils/SceneSerializer.h>
 #include <scene/Node.h>
 #include <render/RenderStats.h>
 #include <components/ParticleSystemComponent.h>
@@ -22,7 +22,7 @@ void statsCollector(render::RenderStats *stats, shared_ptr<Node> n)
 Scene::Scene(const char *sceneDefinitionFile)
     : m_root(make_shared<Node>("__root"))
 {
-    utils::scene_loader::init(this, sceneDefinitionFile);
+    utils::serializers::load(this, sceneDefinitionFile);
 }
 
 Scene::~Scene()

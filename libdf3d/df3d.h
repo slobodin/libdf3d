@@ -8,6 +8,7 @@
 
 #include <utils/Utils.h>
 #include <utils/JsonHelpers.h>
+#include <utils/SceneSerializer.h>
 
 #include <base/Controller.h>
 #include <base/AppDelegate.h>

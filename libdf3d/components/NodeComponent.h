@@ -53,7 +53,7 @@ public:
 
     virtual shared_ptr<NodeComponent> clone() const = 0;
 
-    static shared_ptr<NodeComponent> create(const Json::Value &root);
+    static shared_ptr<NodeComponent> fromJson(const Json::Value &root);
 };
 
 } }

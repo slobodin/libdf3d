@@ -49,7 +49,7 @@ void NodeComponent::sendEvent(ComponentEvent ev)
     getHolder()->broadcastComponentEvent(this, ev);
 }
 
-shared_ptr<NodeComponent> NodeComponent::create(const Json::Value &root)
+shared_ptr<NodeComponent> NodeComponent::fromJson(const Json::Value &root)
 {
     if (root.empty())
     {

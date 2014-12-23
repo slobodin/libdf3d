@@ -298,9 +298,14 @@ shared_ptr<Node> Node::fromJson(const Json::Value &root)
 
     auto result = make_shared<scene::Node>(objName.c_str());
     for (const auto &component : componentsJson)
-        result->attachComponent(components::NodeComponent::create(component));
+        result->attachComponent(components::NodeComponent::fromJson(component));
 
     return result;
+}
+
+void Node::toJson(shared_ptr<const Node> node)
+{
+
 }
 
 } }

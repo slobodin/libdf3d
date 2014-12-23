@@ -2,7 +2,6 @@
 #include "ParticleSystemComponent.h"
 
 #include <components/TransformComponent.h>
-#include <utils/ParticleSystemLoader.h>
 #include <particlesys/SparkInterface.h>
 #include <base/Controller.h>
 #include <scene/SceneManager.h>
@@ -95,7 +94,7 @@ ParticleSystemComponent::ParticleSystemComponent()
 ParticleSystemComponent::ParticleSystemComponent(const char *vfxDefinitionFile)
     : ParticleSystemComponent()
 {
-    utils::particle_system_loader::init(this, vfxDefinitionFile);
+    utils::serializers::load(this, vfxDefinitionFile);
 }
 
 ParticleSystemComponent::~ParticleSystemComponent()

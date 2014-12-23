@@ -1,7 +1,7 @@
 #pragma once
 
 #include "NodeComponent.h"
-#include <utils/ParticleSystemLoader.h>
+#include <utils/ParticleSystemComponentSerializer.h>
 
 FWD_MODULE_CLASS(render, RenderPass)
 FWD_MODULE_CLASS(render, VertexBuffer)
@@ -15,7 +15,7 @@ namespace df3d { namespace components {
 class DF3D_DLL ParticleSystemComponent : public NodeComponent
 {
     // fk this sht
-    friend void df3d::utils::particle_system_loader::init(components::ParticleSystemComponent *component, const char *vfxDefinitionFile);
+    friend void df3d::utils::serializers::load(components::ParticleSystemComponent *component, const char *vfxDefinitionFile);
 
     SPK::System *m_system = nullptr;
     bool m_paused = false;

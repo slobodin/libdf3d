@@ -38,7 +38,7 @@ public:
     shared_ptr<Camera> getCamera() const { return m_camera; }
 
     void setPostProcessMaterial(shared_ptr<render::Material> material);
-    shared_ptr<render::Material> getPostProcessMaterial() { return m_postProcessMaterial; }
+    shared_ptr<render::Material> getPostProcessMaterial() const { return m_postProcessMaterial; }
 
     shared_ptr<Node> getRoot() const { return m_root; }
 

@@ -85,6 +85,7 @@ public:
 
     static shared_ptr<Node> fromFile(const char *jsonDefinition);
     static shared_ptr<Node> fromJson(const Json::Value &root);
+    static void toJson(shared_ptr<const Node> node);
 };
 
 } }

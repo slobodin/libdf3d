@@ -1,5 +1,5 @@
 #include "df3d_pch.h"
-#include "ParticleSystemLoader.h"
+#include "ParticleSystemComponentSerializer.h"
 
 #include <components/ParticleSystemComponent.h>
 #include <utils/JsonHelpers.h>
@@ -10,7 +10,7 @@
 #include <render/RenderOperation.h>
 #include <render/Image.h>
 
-namespace df3d { namespace utils { namespace particle_system_loader {
+namespace df3d { namespace utils { namespace serializers {
 
 enum class ModelParamType
 {
@@ -242,7 +242,7 @@ SPK::Emitter *parseSparkEmitter(const Json::Value &emitterJson)
     return emitter;
 }
 
-void init(components::ParticleSystemComponent *component, const char *vfxDefinitionFile)
+void load(components::ParticleSystemComponent *component, const char *vfxDefinitionFile)
 {
     auto root = jsonLoadFromFile(vfxDefinitionFile);
     if (root.isNull())
@@ -366,6 +366,11 @@ void init(components::ParticleSystemComponent *component, const char *vfxDefinit
         component->m_renderOps.push_back(new render::RenderOperation());
         component->m_system->addGroup(group);
     }
+}
+
+void save(const components::ParticleSystemComponent *component, const char *vfxDefinitionFile)
+{
+
 }
 
 } } }

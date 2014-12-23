@@ -99,9 +99,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scripting/ScriptManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshIndexer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/ParticleSystemLoader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/PhysicsLoader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneLoader.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/ParticleSystemComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/PhysicsComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.h
 )
 
@@ -184,9 +184,9 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scripting/ScriptManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonHelpers.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshIndexer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/ParticleSystemLoader.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/PhysicsLoader.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneLoader.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/ParticleSystemComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/PhysicsComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.cpp
 )
 

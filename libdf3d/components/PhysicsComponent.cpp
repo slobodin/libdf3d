@@ -6,7 +6,7 @@
 #include <components/TransformComponent.h>
 #include <base/Controller.h>
 #include <physics/PhysicsManager.h>
-#include <utils/PhysicsLoader.h>
+#include <utils/PhysicsComponentSerializer.h>
 
 namespace df3d { namespace components {
 
@@ -24,7 +24,7 @@ namespace df3d { namespace components {
 
 void PhysicsComponent::onAttached()
 {
-    utils::physics_loader::init(this, m_definitionFile.c_str());
+    utils::serializers::load(this, m_definitionFile.c_str());
 
     if (m_group != -1 && m_mask != -1)
         g_physicsWorld->addRigidBody(body, m_group, m_mask);

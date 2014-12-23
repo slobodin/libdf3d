@@ -1,5 +1,5 @@
 #include "df3d_pch.h"
-#include "PhysicsLoader.h"
+#include "PhysicsComponentSerializer.h"
 
 #include <utils/JsonHelpers.h>
 #include <components/PhysicsComponent.h>
@@ -12,9 +12,9 @@
 #include <render/MeshData.h>
 #include <scene/Node.h>
 
-namespace df3d { namespace utils { namespace physics_loader {
+namespace df3d { namespace utils { namespace serializers {
 
-void init(components::PhysicsComponent *component, const char *definitionFile)
+void load(components::PhysicsComponent *component, const char *definitionFile)
 {
     auto root = utils::jsonLoadFromFile(definitionFile);
     if (root.empty())
@@ -119,6 +119,11 @@ void init(components::PhysicsComponent *component, const char *definitionFile)
     rbInfo.m_angularDamping = angularDamping;
 
     component->body = new btRigidBody(rbInfo);
+}
+
+void save(const components::PhysicsComponent *component, const char *definitionFile)
+{
+
 }
 
 } } }
