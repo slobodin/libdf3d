@@ -121,9 +121,14 @@ void load(components::PhysicsComponent *component, const char *definitionFile)
     component->body = new btRigidBody(rbInfo);
 }
 
-void save(const components::PhysicsComponent *component, const char *definitionFile)
+Json::Value save(const components::PhysicsComponent *component)
 {
+    // TODO:
 
+    Json::Value result;
+    result["path"] = component->getDefinitionFile();
+    
+    return result;
 }
 
 } } }

@@ -3,6 +3,7 @@
 
 #include <scene/Node.h>
 #include <utils/JsonHelpers.h>
+#include "serializers/TransformComponentSerializer.h"
 
 namespace df3d { namespace components {
 
@@ -49,9 +50,7 @@ TransformComponent::TransformComponent()
 TransformComponent::TransformComponent(const Json::Value &root)
     : TransformComponent()
 {
-    setPosition(utils::jsonGetValueWithDefault(root["position"], m_position));
-    setOrientation(utils::jsonGetValueWithDefault(root["rotation"], glm::vec3()));
-    setScale(utils::jsonGetValueWithDefault(root["scale"], m_scale));
+    serializers::load(this, root);
 }
 
 void TransformComponent::setPosition(const glm::vec3 &newPosition)

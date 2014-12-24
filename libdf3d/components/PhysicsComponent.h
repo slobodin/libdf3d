@@ -24,6 +24,8 @@ public:
     PhysicsComponent(const char *definitionFile, short group = -1, short mask = -1);
     ~PhysicsComponent();
 
+    const std::string &getDefinitionFile() const { return m_definitionFile; }
+
     shared_ptr<NodeComponent> clone() const override;
 };
 

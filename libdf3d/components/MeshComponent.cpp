@@ -143,6 +143,8 @@ MeshComponent::MeshComponent(const char *meshFilePath)
 {
     auto meshData = g_resourceManager->getResource<render::MeshData>(meshFilePath, resources::ResourceManager::LoadMode::ASYNC);
     setGeometry(meshData);
+
+    m_meshFilePath = meshFilePath;
 }
 
 MeshComponent::~MeshComponent()

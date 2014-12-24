@@ -56,9 +56,7 @@ void parseAmbientLight(const Json::Value &root, scene::Scene *sc)
 
 Json::Value saveAmbientLight(const scene::Scene *sc)
 {
-    auto ambientIntensity = sc->getAmbientLight();
-    // TODO:
-    return Json::Value();
+    return glmToJson(sc->getAmbientLight());
 }
 
 void parsePostProcessOption(const Json::Value &postFxNode, scene::Scene *sc)
@@ -92,41 +90,23 @@ Json::Value savePostProcessOption(const scene::Scene *sc)
 
 void parseCamera(const Json::Value &cameraNode, scene::Scene *sc)
 {
+    auto camera = make_shared<scene::Camera>();
+
     if (cameraNode.empty())
     {
         // Set up default camera.
-        sc->setCamera(make_shared<scene::Camera>());
-        return;
+        sc->setCamera(camera);
     }
-
-    auto type = cameraNode["type"].asString();
-    auto position = jsonGetValueWithDefault(cameraNode["position"], glm::vec3());
-    auto rotation = jsonGetValueWithDefault(cameraNode["rotation"], glm::vec3());
-    auto freeMove = jsonGetValueWithDefault(cameraNode["free_move"], false);
-    auto fov = jsonGetValueWithDefault(cameraNode["fov"], 60.0f);
-    auto velocity = jsonGetValueWithDefault(cameraNode["velocity"], 0.0f);
-
-    shared_ptr<scene::Camera> camera = nullptr;
-    if (type.empty() || type == "Camera")
-    {
-        camera = make_shared<scene::Camera>();
-    }
-    //else if (type == "FPSCamera")
-    //{
-    //    auto fpscamera = make_shared<scene::FPSCamera>(velocity);
-    //    fpscamera->setFreeMove(freeMove);
-
-    //    camera = fpscamera;
-    //}
     else
     {
-        base::glog << "Unknown camera type found while parsing scene definition" << type << base::logwarn;
-        return;
-    }
+        auto position = jsonGetValueWithDefault(cameraNode["position"], glm::vec3());
+        auto rotation = jsonGetValueWithDefault(cameraNode["rotation"], glm::vec3());
+        auto fov = jsonGetValueWithDefault(cameraNode["fov"], 60.0f);
 
-    camera->transform()->setPosition(position);
-    camera->transform()->setOrientation(rotation);
-    camera->setFov(fov);
+        camera->transform()->setPosition(position);
+        camera->transform()->setOrientation(rotation);
+        camera->setFov(fov);
+    }
 
     sc->setCamera(camera);
 }

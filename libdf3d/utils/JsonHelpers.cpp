@@ -112,4 +112,25 @@ std::vector<std::string> jsonArrayAsStrings(const Json::Value &v)
     return result;
 }
 
+Json::Value glmToJson(const glm::vec3 &v)
+{
+    Json::Value result(Json::arrayValue);
+    result.append(Json::Value(v.x));
+    result.append(Json::Value(v.y));
+    result.append(Json::Value(v.z));
+
+    return result;
+}
+
+Json::Value glmToJson(const glm::vec4 &v)
+{
+    Json::Value result(Json::arrayValue);
+    result.append(Json::Value(v.x));
+    result.append(Json::Value(v.y));
+    result.append(Json::Value(v.z));
+    result.append(Json::Value(v.w));
+
+    return result;
+}
+
 } }

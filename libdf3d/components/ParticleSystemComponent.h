@@ -21,6 +21,8 @@ class DF3D_DLL ParticleSystemComponent : public NodeComponent
     bool m_paused = false;
     float m_systemLifeTime = -1.0f;
     float m_systemAge = 0.0f;
+
+    std::string m_vfxDefinitionFile;
     
     // One render operation per group.
     std::vector<render::RenderOperation *> m_renderOps;
@@ -45,6 +47,7 @@ public:
     void pause(bool paused) { m_paused = paused; }
 
     SPK::System *getSpk() { return m_system; }
+    const std::string &getVfxDefinition() const { return m_vfxDefinitionFile; }
 
     shared_ptr<NodeComponent> clone() const override;
 };

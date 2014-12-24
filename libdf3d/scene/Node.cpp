@@ -271,18 +271,7 @@ shared_ptr<Node> Node::fromFile(const char *jsonDefinition)
 {
     auto root = utils::jsonLoadFromFile(jsonDefinition);
 
-    auto result = fromJson(root);
-    if (!result)
-        return nullptr;
-
-    const auto &childrenJson = root["children"];
-    for (Json::UInt objIdx = 0; objIdx < childrenJson.size(); ++objIdx)
-    {
-        const auto &childJson = childrenJson[objIdx];
-        result->addChild(fromJson(childJson));
-    }
-
-    return result;
+    return fromJson(root);
 }
 
 shared_ptr<Node> Node::fromJson(const Json::Value &root)
@@ -300,6 +289,13 @@ shared_ptr<Node> Node::fromJson(const Json::Value &root)
     for (const auto &component : componentsJson)
         result->attachComponent(components::NodeComponent::fromJson(component));
 
+    const auto &childrenJson = root["children"];
+    for (Json::UInt objIdx = 0; objIdx < childrenJson.size(); ++objIdx)
+    {
+        const auto &childJson = childrenJson[objIdx];
+        result->addChild(fromJson(childJson));
+    }
+
     return result;
 }
 
@@ -307,6 +303,7 @@ Json::Value Node::toJson(shared_ptr<const Node> node)
 {
     Json::Value result(Json::objectValue);
     Json::Value componentsJson(Json::arrayValue);
+    Json::Value childrenJson(Json::arrayValue);
 
     result["name"] = node->getName();
 
@@ -316,11 +313,17 @@ Json::Value Node::toJson(shared_ptr<const Node> node)
         auto comp = node->getComponent((df3d::components::ComponentType)i);
         if (!comp)
             continue;
-        // TODO:
-        componentsJson.append(Json::Value(Json::objectValue));
+
+        componentsJson.append(components::NodeComponent::toJson(comp));
+    }
+
+    for (auto it = node->cbegin(); it != node->cend(); it++)
+    {
+        childrenJson.append(toJson(it->second));
     }
 
     result["components"] = componentsJson;
+    result["children"] = childrenJson;
 
     return result;
 }

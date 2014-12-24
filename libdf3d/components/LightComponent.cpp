@@ -5,6 +5,7 @@
 #include <render/RenderQueue.h>
 #include <scene/Node.h>
 #include <components/TransformComponent.h>
+#include "serializers/LightComponentSerializer.h"
 
 namespace df3d { namespace components {
 
@@ -26,6 +27,14 @@ LightComponent::LightComponent(Type type)
         throw std::runtime_error("light limit reached");
     }
 
+    if (type != Type::DIRECTIONAL)
+    {
+        // FIXME:
+        // Support other light types!
+        base::glog << "Can not create light component. Unsupported light type" << base::logwarn;
+        throw std::runtime_error("Unsupported light type");
+    }
+
     m_type = type;
     m_lightId = NumLights++;
 
@@ -38,20 +47,9 @@ LightComponent::LightComponent(Type type)
 }
 
 LightComponent::LightComponent(const Json::Value &root)
-    // FIXME:
-    // Support other light types!
     : LightComponent(Type::DIRECTIONAL)
 {
-    auto typeStr = root["type"].asString();
-    if (typeStr != "directional")
-    {
-        base::glog << "Can not create light component. Unsupported light type" << typeStr << base::logwarn;
-        throw std::runtime_error("Unsupported light type");
-    }
-
-    setDirection(utils::jsonGetValueWithDefault(root["direction"], m_direction));
-    setDiffuseIntensity(utils::jsonGetValueWithDefault(root["diffuse"], m_diffuse));
-    setSpecularIntensity(utils::jsonGetValueWithDefault(root["specular"], m_specular));
+    serializers::load(this, root);
 }
 
 LightComponent::~LightComponent()

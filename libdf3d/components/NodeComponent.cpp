@@ -8,10 +8,15 @@
 #include "MeshComponent.h"
 #include "TransformComponent.h"
 #include "LightComponent.h"
+#include "serializers/TransformComponentSerializer.h"
+#include "serializers/PhysicsComponentSerializer.h"
+#include "serializers/ParticleSystemComponentSerializer.h"
+#include "serializers/AudioComponentSerializer.h"
+#include "serializers/LightComponentSerializer.h"
 
 namespace df3d { namespace components {
 
-static const std::map<std::string, ComponentType> TypeName = 
+static const std::map<std::string, ComponentType> NameType = 
 {
     { "transform", ComponentType::TRANSFORM },
     { "mesh", ComponentType::MESH },
@@ -22,9 +27,9 @@ static const std::map<std::string, ComponentType> TypeName =
     { "debug_draw", ComponentType::DEBUG_DRAW }
 };
 
-static const std::map<ComponentType, std::string> TypeNameInv = // dunno how to name it
+static const std::map<ComponentType, std::string> TypeName =
 {
-    { ComponentType::TRANSFORM, "transform" },
+    { ComponentType::TRANSFORM, "transform"},
     { ComponentType::MESH, "mesh" },
     { ComponentType::PARTICLE_EFFECT, "vfx" },
     { ComponentType::AUDIO, "audio" },
@@ -41,7 +46,7 @@ NodeComponent::NodeComponent(ComponentType t)
 
 const char *NodeComponent::getName() const
 {
-    return TypeNameInv.find(type)->second.c_str();
+    return TypeName.find(type)->second.c_str();
 }
 
 void NodeComponent::sendEvent(ComponentEvent ev)
@@ -58,8 +63,8 @@ shared_ptr<NodeComponent> NodeComponent::fromJson(const Json::Value &root)
     }
 
     auto typeStr = root["type"].asCString();
-    auto type = TypeName.find(typeStr);
-    if (type == TypeName.end())
+    auto type = NameType.find(typeStr);
+    if (type == NameType.end())
     {
         base::glog << "Failed to create component of a type" << typeStr << ". Unknown type" << base::logwarn;
         return nullptr;
@@ -93,6 +98,59 @@ shared_ptr<NodeComponent> NodeComponent::fromJson(const Json::Value &root)
 
     base::glog << "Unsupported component type" << typeStr << base::logwarn;
     return nullptr;
+}
+
+Json::Value NodeComponent::toJson(shared_ptr<const NodeComponent> component)
+{
+    Json::Value result;
+    auto rawComp = component.get();
+    if (!rawComp)
+    {
+        base::glog << "Failed to serialize null component" << base::logwarn;
+        return result;
+    }
+
+    result["type"] = component->getName();
+    Json::Value dataJson;
+
+    // FIXME:
+    // Refactor serializing.
+
+    switch (component->type)
+    {
+    case ComponentType::TRANSFORM:
+        dataJson = serializers::save((TransformComponent*)rawComp);
+        break;
+    case ComponentType::MESH:
+        dataJson["path"] = static_cast<const MeshComponent*>(rawComp)->getMeshFilePath();
+        break;
+    case ComponentType::PARTICLE_EFFECT:
+        dataJson["path"] = static_cast<const ParticleSystemComponent*>(rawComp)->getVfxDefinition();
+        break;
+    case ComponentType::AUDIO:
+        dataJson = serializers::save(static_cast<const AudioComponent*>(rawComp));
+        break;
+    case ComponentType::PHYSICS:
+        dataJson = serializers::save(static_cast<const PhysicsComponent*>(rawComp));
+        break;
+    case ComponentType::LIGHT:
+        dataJson = serializers::save(static_cast<const LightComponent*>(rawComp));
+        break;
+    case ComponentType::DEBUG_DRAW:
+        break;
+    default:
+        break;
+    }
+
+    if (dataJson.empty())
+    {
+        base::glog << "Failed to serialize a component: unsupported type" << base::logwarn;
+        return result;
+    }
+
+    result["data"] = dataJson;
+
+    return result;
 }
 
 } }

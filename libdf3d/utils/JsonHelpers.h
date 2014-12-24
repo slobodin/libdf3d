@@ -18,4 +18,7 @@ DF3D_DLL size_t jsonGetValueWithDefault(const Json::Value &v, size_t defVal = 0)
 
 DF3D_DLL std::vector<std::string> jsonArrayAsStrings(const Json::Value &v);
 
+DF3D_DLL Json::Value glmToJson(const glm::vec3 &v);
+DF3D_DLL Json::Value glmToJson(const glm::vec4 &v);
+
 } }
