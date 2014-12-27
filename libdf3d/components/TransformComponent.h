@@ -17,7 +17,6 @@ class DF3D_DLL TransformComponent : public NodeComponent
 
 public:
     TransformComponent();
-    TransformComponent(const Json::Value &root);
 
     void setPosition(const glm::vec3 &newPosition);
     void setPosition(float x, float y, float z);

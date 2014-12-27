@@ -1,7 +1,6 @@
 #pragma once
 
 #include "NodeComponent.h"
-#include <components/serializers/ParticleSystemComponentSerializer.h>
 
 FWD_MODULE_CLASS(render, RenderPass)
 FWD_MODULE_CLASS(render, VertexBuffer)
@@ -12,18 +11,17 @@ namespace SPK { class System; }
 
 namespace df3d { namespace components {
 
+namespace serializers { class ParticleSystemComponentSerializer; }
+
 class DF3D_DLL ParticleSystemComponent : public NodeComponent
 {
-    // fk this sht
-    friend void df3d::components::serializers::load(components::ParticleSystemComponent *component, const char *vfxDefinitionFile);
+    friend class df3d::components::serializers::ParticleSystemComponentSerializer;
 
     SPK::System *m_system = nullptr;
     bool m_paused = false;
     float m_systemLifeTime = -1.0f;
     float m_systemAge = 0.0f;
 
-    std::string m_vfxDefinitionFile;
-    
     // One render operation per group.
     std::vector<render::RenderOperation *> m_renderOps;
 
@@ -35,10 +33,8 @@ class DF3D_DLL ParticleSystemComponent : public NodeComponent
 
     void onDraw(render::RenderQueue *ops) override;
 
-    ParticleSystemComponent();
-
 public:
-    ParticleSystemComponent(const char *vfxDefinitionFile);
+    ParticleSystemComponent();
     ~ParticleSystemComponent();
 
     size_t getParticlesCount() const;
@@ -47,7 +43,6 @@ public:
     void pause(bool paused) { m_paused = paused; }
 
     SPK::System *getSpk() { return m_system; }
-    const std::string &getVfxDefinition() const { return m_vfxDefinitionFile; }
 
     shared_ptr<NodeComponent> clone() const override;
 };

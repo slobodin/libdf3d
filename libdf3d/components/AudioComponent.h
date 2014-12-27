@@ -29,7 +29,6 @@ private:
 
 public:
     AudioComponent(const char *audioFilePath);
-    AudioComponent(const Json::Value &root);
     ~AudioComponent();
 
     void play();

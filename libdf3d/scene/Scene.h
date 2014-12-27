@@ -23,7 +23,7 @@ class DF3D_DLL Scene
     glm::vec3 m_fogColor;
 
 public:
-    Scene(const char *sceneDefinitionFile);
+    Scene();
     ~Scene();
 
     void setAmbientLight(float ra, float ga, float ba);
@@ -50,6 +50,10 @@ public:
     void removeChild(shared_ptr<Node> child);
     void removeChild(const char *name);
     void removeAllChildren();
+
+    static shared_ptr<Scene> fromJson(const char *jsonFile);
+    static shared_ptr<Scene> fromJson(const Json::Value &root);
+    static Json::Value toJson(shared_ptr<const Scene> scene);
 };
 
 } }

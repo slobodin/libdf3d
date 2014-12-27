@@ -7,16 +7,30 @@
 
 namespace df3d { namespace components { namespace serializers {
 
-Json::Value save(const components::AudioComponent *component)
+shared_ptr<NodeComponent> AudioComponentSerializer::fromJson(const Json::Value &root)
 {
-    Json::Value result;
+    auto result = make_shared<AudioComponent>(root["path"].asCString());
 
-    result["path"] = component->getBuffer()->getGUID(); // FIXME:
-    result["pitch"] = component->getPitch();
-    result["gain"] = component->getGain();
-    result["looped"] = component->isLooped();
+    result->setPitch(utils::jsonGetValueWithDefault(root["pitch"], result->getPitch()));
+    result->setGain(utils::jsonGetValueWithDefault(root["gain"], result->getGain()));
+    result->setLooped(utils::jsonGetValueWithDefault(root["looped"], result->isLooped()));
 
     return result;
 }
+
+Json::Value AudioComponentSerializer::toJson(shared_ptr<const NodeComponent> component)
+{
+    Json::Value result;
+
+    auto comp = static_cast<const AudioComponent*>(component.get());
+
+    result["path"] = comp->getBuffer()->getGUID(); // FIXME:
+    result["pitch"] = comp->getPitch();
+    result["gain"] = comp->getGain();
+    result["looped"] = comp->isLooped();
+
+    return result;
+}
+
 
 } } }

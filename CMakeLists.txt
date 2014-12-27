@@ -34,7 +34,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TextMeshComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TransformComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/AudioComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/LightComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/MeshComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/TransformComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ParticleSystemComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/PhysicsComponentSerializer.h
@@ -127,7 +129,9 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TextMeshComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TransformComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/AudioComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/LightComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/MeshComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/TransformComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ParticleSystemComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/PhysicsComponentSerializer.cpp

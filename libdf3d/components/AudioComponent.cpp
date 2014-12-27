@@ -48,14 +48,6 @@ AudioComponent::AudioComponent(const char *audioFilePath)
     printOpenALError();
 }
 
-AudioComponent::AudioComponent(const Json::Value &root)
-    : AudioComponent(root["path"].asCString())
-{
-    setPitch(utils::jsonGetValueWithDefault(root["pitch"], m_pitch));
-    setGain(utils::jsonGetValueWithDefault(root["gain"], m_gain));
-    setLooped(utils::jsonGetValueWithDefault(root["looped"], m_looped));
-}
-
 AudioComponent::~AudioComponent()
 {
     if (m_audioSourceId)

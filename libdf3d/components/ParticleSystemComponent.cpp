@@ -91,13 +91,6 @@ ParticleSystemComponent::ParticleSystemComponent()
 
 }
 
-ParticleSystemComponent::ParticleSystemComponent(const char *vfxDefinitionFile)
-    : ParticleSystemComponent()
-{
-    serializers::load(this, vfxDefinitionFile);
-    m_vfxDefinitionFile = vfxDefinitionFile;
-}
-
 ParticleSystemComponent::~ParticleSystemComponent()
 {
     for (auto op : m_renderOps)

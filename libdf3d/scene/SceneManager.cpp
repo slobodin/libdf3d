@@ -80,7 +80,7 @@ shared_ptr<Scene> SceneManager::setCurrentScene(const char *filePath)
 
     clearCurrentScene();
 
-    auto scene = make_shared<scene::Scene>(filePath);
+    auto scene = scene::Scene::fromJson(filePath);
     if (!scene)
     {
         base::glog << "Can not set scene to scene manager. Node at" << filePath << "is invalid" << base::logwarn;

@@ -46,12 +46,6 @@ LightComponent::LightComponent(Type type)
     m_quadraticAttenuation = 1.0f;
 }
 
-LightComponent::LightComponent(const Json::Value &root)
-    : LightComponent(Type::DIRECTIONAL)
-{
-    serializers::load(this, root);
-}
-
 LightComponent::~LightComponent()
 {
     NumLights--;

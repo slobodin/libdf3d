@@ -6,27 +6,27 @@
 
 namespace df3d { namespace components { namespace serializers {
 
-void load(components::LightComponent *component, const Json::Value &root)
+shared_ptr<NodeComponent> LightComponentSerializer::fromJson(const Json::Value &root)
 {
-    //auto typeStr = root["type"].asString();
-    //if (typeStr != "directional")
-    //{
-    //    return;
-    //}
+    auto result = make_shared<LightComponent>(LightComponent::Type::DIRECTIONAL);
 
-    component->setDirection(utils::jsonGetValueWithDefault(root["direction"], component->getDirection()));
-    component->setDiffuseIntensity(utils::jsonGetValueWithDefault(root["diffuse"], component->getDiffuseColor()));
-    component->setSpecularIntensity(utils::jsonGetValueWithDefault(root["specular"], component->getSpecularColor()));
+    result->setDirection(utils::jsonGetValueWithDefault(root["direction"], result->getDirection()));
+    result->setDiffuseIntensity(utils::jsonGetValueWithDefault(root["diffuse"], result->getDiffuseColor()));
+    result->setSpecularIntensity(utils::jsonGetValueWithDefault(root["specular"], result->getSpecularColor()));
+
+    return result;
 }
 
-Json::Value save(const components::LightComponent *component)
+Json::Value LightComponentSerializer::toJson(shared_ptr<const NodeComponent> component)
 {
     Json::Value result;
 
+    auto comp = static_cast<const LightComponent*>(component.get());
+
     result["type"] = "directional"; // FIXME:
-    result["direction"] = utils::glmToJson(component->getDirection());
-    result["diffuse"] = utils::glmToJson(component->getDiffuseColor());
-    result["specular"] = utils::glmToJson(component->getSpecularColor());
+    result["direction"] = utils::glmToJson(comp->getDirection());
+    result["diffuse"] = utils::glmToJson(comp->getDiffuseColor());
+    result["specular"] = utils::glmToJson(comp->getSpecularColor());
 
     return result;
 }

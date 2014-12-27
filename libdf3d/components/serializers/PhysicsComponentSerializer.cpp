@@ -14,13 +14,11 @@
 
 namespace df3d { namespace components { namespace serializers {
 
-void load(components::PhysicsComponent *component, const char *definitionFile)
+shared_ptr<NodeComponent> PhysicsComponentSerializer::fromJson(const Json::Value &root)
 {
-    auto root = utils::jsonLoadFromFile(definitionFile);
-    if (root.empty())
-        return;
+    return nullptr;
 
-    auto type = root["type"].asString();
+    /*auto type = root["type"].asString();
     if (type != "StaticBody")
     {
         base::glog << "Unsupported rigid body type" << type << base::logwarn;
@@ -118,15 +116,15 @@ void load(components::PhysicsComponent *component, const char *definitionFile)
     rbInfo.m_linearDamping = linearDamping;
     rbInfo.m_angularDamping = angularDamping;
 
-    component->body = new btRigidBody(rbInfo);
+    component->body = new btRigidBody(rbInfo);*/
 }
 
-Json::Value save(const components::PhysicsComponent *component)
+Json::Value PhysicsComponentSerializer::toJson(shared_ptr<const NodeComponent> node)
 {
     // TODO:
 
     Json::Value result;
-    result["path"] = component->getDefinitionFile();
+    //result["path"] = component->getDefinitionFile();
     
     return result;
 }

@@ -40,7 +40,6 @@ private:
 
 public:
     LightComponent(Type type);
-    LightComponent(const Json::Value &root);
     ~LightComponent();
 
     void turnon() { m_isEnabled = true; }

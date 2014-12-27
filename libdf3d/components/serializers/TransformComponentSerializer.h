@@ -1,10 +1,14 @@
 #pragma once
 
-FWD_MODULE_CLASS(components, TransformComponent)
+#include "ComponentSerializer.h"
 
 namespace df3d { namespace components { namespace serializers {
 
-DF3D_DLL void load(components::TransformComponent *component, const Json::Value &root);
-DF3D_DLL Json::Value save(components::TransformComponent *component);
+class TransformComponentSerializer : public ComponentSerializer
+{
+public:
+    shared_ptr<NodeComponent> fromJson(const Json::Value &root);
+    Json::Value toJson(shared_ptr<const NodeComponent> component);
+};
 
 } } }

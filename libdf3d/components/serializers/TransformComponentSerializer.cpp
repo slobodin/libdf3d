@@ -6,20 +6,26 @@
 
 namespace df3d { namespace components { namespace serializers {
 
-void load(components::TransformComponent *component, const Json::Value &root)
+shared_ptr<NodeComponent> TransformComponentSerializer::fromJson(const Json::Value &root)
 {
-    component->setPosition(utils::jsonGetValueWithDefault(root["position"], glm::vec3()));
-    component->setOrientation(utils::jsonGetValueWithDefault(root["rotation"], glm::vec3()));
-    component->setScale(utils::jsonGetValueWithDefault(root["scale"], glm::vec3(1.0f, 1.0f, 1.0f)));
+    auto result = make_shared<TransformComponent>();
+
+    result->setPosition(utils::jsonGetValueWithDefault(root["position"], glm::vec3()));
+    result->setOrientation(utils::jsonGetValueWithDefault(root["rotation"], glm::vec3()));
+    result->setScale(utils::jsonGetValueWithDefault(root["scale"], glm::vec3(1.0f, 1.0f, 1.0f)));
+
+    return result;
 }
 
-Json::Value save(components::TransformComponent *component)
+Json::Value TransformComponentSerializer::toJson(shared_ptr<const NodeComponent> component)
 {
     Json::Value result;
 
-    result["position"] = utils::glmToJson(component->getPosition());
-    result["rotation"] = utils::glmToJson(component->getRotation());
-    result["scale"] = utils::glmToJson(component->getScale());
+    auto comp = (TransformComponent*)component.get();
+
+    result["position"] = utils::glmToJson(comp->getPosition());
+    result["rotation"] = utils::glmToJson(comp->getRotation());
+    result["scale"] = utils::glmToJson(comp->getScale());
 
     return result;
 }

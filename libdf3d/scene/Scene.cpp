@@ -2,6 +2,7 @@
 #include "Scene.h"
 
 #include <utils/SceneSerializer.h>
+#include <utils/JsonHelpers.h>
 #include <scene/Node.h>
 #include <render/RenderStats.h>
 #include <components/ParticleSystemComponent.h>
@@ -19,10 +20,9 @@ void statsCollector(render::RenderStats *stats, shared_ptr<Node> n)
     }
 }
 
-Scene::Scene(const char *sceneDefinitionFile)
+Scene::Scene()
     : m_root(make_shared<Node>("__root"))
 {
-    utils::serializers::load(this, sceneDefinitionFile);
 }
 
 Scene::~Scene()
@@ -110,6 +110,21 @@ void Scene::removeChild(const char *name)
 void Scene::removeAllChildren()
 {
     m_root->removeAllChildren();
+}
+
+shared_ptr<Scene> Scene::fromJson(const char *jsonFile)
+{
+    return fromJson(utils::jsonLoadFromFile(jsonFile));
+}
+
+shared_ptr<Scene> Scene::fromJson(const Json::Value &root)
+{
+    return utils::serializers::fromJson(root);
+}
+
+Json::Value Scene::toJson(shared_ptr<const Scene> scene)
+{
+    return utils::serializers::toJson(scene);
 }
 
 } }

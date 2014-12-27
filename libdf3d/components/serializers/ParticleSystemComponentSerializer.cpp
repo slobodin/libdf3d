@@ -248,19 +248,15 @@ SPK::Emitter *parseSparkEmitter(const Json::Value &emitterJson)
     return emitter;
 }
 
-void load(components::ParticleSystemComponent *component, const char *vfxDefinitionFile)
+shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
 {
     using namespace utils;
-
-    auto root = jsonLoadFromFile(vfxDefinitionFile);
-    if (root.isNull())
-        return;
 
     const auto &groupsJson = root["groups"];
     if (groupsJson.empty())
     {
         base::glog << "Failed to parse particle system configs. Groups node wasn't found" << base::logwarn;
-        return;
+        return nullptr;
     }
 
     std::vector<SPK::Group *> systemGroups;
@@ -361,24 +357,29 @@ void load(components::ParticleSystemComponent *component, const char *vfxDefinit
     if (systemGroups.empty())
     {
         base::glog << "Particle system has no groups" << base::logwarn;
-        return;
+        return nullptr;
     }
 
-    component->m_systemLifeTime = jsonGetValueWithDefault(root["systemLifeTime"], -1.0f);
+    auto result = make_shared<ParticleSystemComponent>();
+
+    result->m_systemLifeTime = jsonGetValueWithDefault(root["systemLifeTime"], -1.0f);
 
     // Finally, create a particle system.
-    component->m_system = SPK::System::create();
+    result->m_system = SPK::System::create();
 
     for (auto group : systemGroups)
     {
-        component->m_renderOps.push_back(new render::RenderOperation());
-        component->m_system->addGroup(group);
+        result->m_renderOps.push_back(new render::RenderOperation());
+        result->m_system->addGroup(group);
     }
+
+    return result;
 }
 
-void save(const components::ParticleSystemComponent *component, const char *vfxDefinitionFile)
+Json::Value ParticleSystemComponentSerializer::toJson(shared_ptr<const NodeComponent> component)
 {
-
+    // TODO:
+    return Json::Value();
 }
 
 } } }

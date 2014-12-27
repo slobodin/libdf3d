@@ -24,7 +24,7 @@ namespace df3d { namespace components {
 
 void PhysicsComponent::onAttached()
 {
-    serializers::load(this, m_definitionFile.c_str());
+    //serializers::load(this, m_definitionFile.c_str());
 
     if (m_group != -1 && m_mask != -1)
         g_physicsWorld->addRigidBody(body, m_group, m_mask);
@@ -32,14 +32,13 @@ void PhysicsComponent::onAttached()
         g_physicsWorld->addRigidBody(body);
 }
 
-PhysicsComponent::PhysicsComponent(const char *definitionFile, short group, short mask)
-    : NodeComponent(ComponentType::PHYSICS),
-    m_definitionFile(definitionFile),
-    m_group(group),
-    m_mask(mask)
-{
-
-}
+//PhysicsComponent::PhysicsComponent(const char *definitionFile, short group, short mask)
+//    : NodeComponent(ComponentType::PHYSICS),
+//    m_group(group),
+//    m_mask(mask)
+//{
+//
+//}
 
 PhysicsComponent::~PhysicsComponent()
 {

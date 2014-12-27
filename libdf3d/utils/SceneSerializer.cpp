@@ -13,53 +13,53 @@
 
 namespace df3d { namespace utils { namespace serializers {
 
-void parseFog(const Json::Value &fogNode, scene::Scene *sc)
+void parseFog(const Json::Value &fogNode, shared_ptr<scene::Scene> scene)
 {
     if (!fogNode)
         return;
 
     auto density = fogNode["density"].asFloat();
-    auto color = jsonGetValueWithDefault(fogNode["color"], sc->getFogColor());
+    auto color = jsonGetValueWithDefault(fogNode["color"], scene->getFogColor());
 
-    sc->setFog(density, color);
+    scene->setFog(density, color);
 }
 
-Json::Value saveFog(const scene::Scene *sc)
+Json::Value saveFog(shared_ptr<const scene::Scene> scene)
 {
     // TODO:
     return Json::Value();
 }
 
-void parseObjects(const Json::Value &objectsNode, scene::Scene *sc)
+void parseObjects(const Json::Value &objectsNode, shared_ptr<scene::Scene> scene)
 {
     if (!objectsNode)
         return;
 
     for (Json::UInt objIdx = 0; objIdx < objectsNode.size(); ++objIdx)
-        sc->addChild(scene::Node::fromJson(objectsNode[objIdx]));
+        scene->addChild(scene::Node::fromJson(objectsNode[objIdx]));
 }
 
-Json::Value saveObjects(const scene::Scene *sc)
+Json::Value saveObjects(shared_ptr<const scene::Scene> scene)
 {
     Json::Value res(Json::arrayValue);
-    for (auto ch : *sc->getRoot())
+    for (auto ch : *scene->getRoot())
         res.append(scene::Node::toJson(ch.second));
 
     return res;
 }
 
-void parseAmbientLight(const Json::Value &root, scene::Scene *sc)
+void parseAmbientLight(const Json::Value &root, shared_ptr<scene::Scene> scene)
 {
-    auto intensity = jsonGetValueWithDefault(root, sc->getAmbientLight());
-    sc->setAmbientLight(intensity.x, intensity.y, intensity.z);
+    auto intensity = jsonGetValueWithDefault(root, scene->getAmbientLight());
+    scene->setAmbientLight(intensity.x, intensity.y, intensity.z);
 }
 
-Json::Value saveAmbientLight(const scene::Scene *sc)
+Json::Value saveAmbientLight(shared_ptr<const scene::Scene> scene)
 {
-    return glmToJson(sc->getAmbientLight());
+    return glmToJson(scene->getAmbientLight());
 }
 
-void parsePostProcessOption(const Json::Value &postFxNode, scene::Scene *sc)
+void parsePostProcessOption(const Json::Value &postFxNode, shared_ptr<scene::Scene> scene)
 {
     if (postFxNode.empty())
         return;
@@ -78,24 +78,24 @@ void parsePostProcessOption(const Json::Value &postFxNode, scene::Scene *sc)
     if (!material)
         return;
 
-    sc->setPostProcessMaterial(material);
+    scene->setPostProcessMaterial(material);
 }
 
-Json::Value savePostProcessOption(const scene::Scene *sc)
+Json::Value savePostProcessOption(shared_ptr<const scene::Scene> scene)
 {
-    auto material = sc->getPostProcessMaterial();
+    auto material = scene->getPostProcessMaterial();
     // TODO:
     return Json::Value();
 }
 
-void parseCamera(const Json::Value &cameraNode, scene::Scene *sc)
+void parseCamera(const Json::Value &cameraNode, shared_ptr<scene::Scene> scene)
 {
     auto camera = make_shared<scene::Camera>();
 
     if (cameraNode.empty())
     {
         // Set up default camera.
-        sc->setCamera(camera);
+        scene->setCamera(camera);
     }
     else
     {
@@ -108,56 +108,46 @@ void parseCamera(const Json::Value &cameraNode, scene::Scene *sc)
         camera->setFov(fov);
     }
 
-    sc->setCamera(camera);
+    scene->setCamera(camera);
 }
 
-Json::Value saveCamera(const scene::Scene *sc)
+Json::Value saveCamera(shared_ptr<const scene::Scene> scene)
 {
-    auto cam = sc->getCamera();
+    auto cam = scene->getCamera();
     // TODO:
     return Json::Value();
 }
 
-void load(scene::Scene *sc, const char *sceneDefinitionFile)
+shared_ptr<scene::Scene> fromJson(const Json::Value &root)
 {
-    auto root = jsonLoadFromFile(sceneDefinitionFile);
-    if (root.empty())
-        return;
+    auto result = make_shared<scene::Scene>();
 
-    parseObjects(root["objects"], sc);
-    parseFog(root["fog"], sc);
-    parseAmbientLight(root["ambient_light"], sc);
-    parsePostProcessOption(root["post_process"], sc);
-    parseCamera(root["camera"], sc);
+    parseObjects(root["objects"], result);
+    parseFog(root["fog"], result);
+    parseAmbientLight(root["ambient_light"], result);
+    parsePostProcessOption(root["post_process"], result);
+    parseCamera(root["camera"], result);
+
+    return result;
 }
 
-void save(const scene::Scene *sc, const char *sceneDefinitionFile)
+Json::Value toJson(shared_ptr<const scene::Scene> scene)
 {
-    if (!sc)
+    if (!scene)
     {
         base::glog << "Failed to serialize null scene" << base::logwarn;
-        return;
+        return Json::Value();
     }
 
-    std::ofstream file(sceneDefinitionFile);    // This function intended to be used only on desktop, so use default filestream.
-    if (!file)
-    {
-        base::glog << "Failed to open file" << sceneDefinitionFile << ". Can not serialize scene" << base::logwarn;
-        return;
-    }
+    Json::Value result;
 
-    Json::StyledWriter writer;
-    Json::Value root;
+    result["objects"] = saveObjects(scene);
+    result["fog"] = saveFog(scene);
+    result["ambient_light"] = saveAmbientLight(scene);
+    result["post_process"] = savePostProcessOption(scene);
+    result["camera"] = saveCamera(scene);
 
-    root["objects"] = saveObjects(sc);
-    root["fog"] = saveFog(sc);
-    root["ambient_light"] = saveAmbientLight(sc);
-    root["post_process"] = savePostProcessOption(sc);
-    root["camera"] = saveCamera(sc);
-
-    file << writer.write(root);
-
-    base::glog << "Scene was successfully saved to" << sceneDefinitionFile << base::logdebug;
+    return result;
 }
 
 } } }
