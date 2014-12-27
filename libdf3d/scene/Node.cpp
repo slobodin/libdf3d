@@ -318,9 +318,7 @@ Json::Value Node::toJson(shared_ptr<const Node> node)
     }
 
     for (auto it = node->cbegin(); it != node->cend(); it++)
-    {
         childrenJson.append(toJson(it->second));
-    }
 
     result["components"] = componentsJson;
     result["children"] = childrenJson;

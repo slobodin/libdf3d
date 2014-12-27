@@ -378,6 +378,7 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
 
 Json::Value ParticleSystemComponentSerializer::toJson(shared_ptr<const NodeComponent> component)
 {
+    assert(false);
     // TODO:
     return Json::Value();
 }

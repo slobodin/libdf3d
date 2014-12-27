@@ -67,9 +67,10 @@ shared_ptr<NodeComponent> NodeComponent::fromJson(const Json::Value &root)
     }
 
     const Json::Value &dataJson = root["data"];
-    if (dataJson.empty())
+    const Json::Value &externalDataJson = root["external_data"];
+    if (dataJson.empty() && externalDataJson.empty())
     {
-        base::glog << "Failed to init component" << typeStr << ". Empty \"data\" field" << base::logwarn;
+        base::glog << "Failed to init component" << typeStr << ". Empty \"data\" or \"external_data\" field" << base::logwarn;
         return nullptr;
     }
 
@@ -80,7 +81,10 @@ shared_ptr<NodeComponent> NodeComponent::fromJson(const Json::Value &root)
         return nullptr;
     }
 
-    return serializer->fromJson(dataJson);
+    if (dataJson.empty())
+        return serializer->fromJson(utils::jsonLoadFromFile(externalDataJson.asCString()));
+    else
+        return serializer->fromJson(dataJson);
 }
 
 Json::Value NodeComponent::toJson(shared_ptr<const NodeComponent> component)
