@@ -143,8 +143,6 @@ MeshComponent::MeshComponent(const char *meshFilePath)
 {
     auto meshData = g_resourceManager->getResource<render::MeshData>(meshFilePath, resources::ResourceManager::LoadMode::ASYNC);
     setGeometry(meshData);
-
-    m_meshFilePath = meshFilePath;
 }
 
 MeshComponent::~MeshComponent()
@@ -243,6 +241,11 @@ scene::OBB MeshComponent::getOBB()
     }
 
     return m_obb;
+}
+
+std::string MeshComponent::getMeshFilePath() const
+{
+    return m_geometry->getGUID();
 }
 
 //shared_ptr<DebugDrawNode> MeshNode::getDebugDraw()

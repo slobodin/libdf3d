@@ -17,7 +17,6 @@ protected:
     void onDraw(render::RenderQueue *ops) override;
 
     shared_ptr<render::MeshData> m_geometry;
-    std::string m_meshFilePath;
 
     // AABB in model space.
     scene::AABB m_aabb;
@@ -56,7 +55,7 @@ public:
     scene::BoundingSphere getBoundingSphere();
     scene::OBB getOBB();
 
-    const std::string &getMeshFilePath() const { return m_meshFilePath; }
+    std::string getMeshFilePath() const;
 
     shared_ptr<NodeComponent> clone() const override;
 };
