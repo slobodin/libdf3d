@@ -12,6 +12,7 @@
 #include <gui/GuiManager.h>
 #include <gui/DebugOverlayWindow.h>
 #include <scripting/ScriptManager.h>
+#include <scripting/lua/LuaScriptManager.h>
 #include <physics/PhysicsManager.h>
 #include <audio/AudioManager.h>
 #include <render/RenderStats.h>
@@ -165,7 +166,7 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
         particlesys::initSparkEngine();
 
         // Init scripting subsystem.
-        m_scriptManager = new scripting::ScriptManager();
+        m_scriptManager = new scripting::LuaScriptManager();
 
         // Init GUI.
         m_guiManager = new gui::GuiManager(params.windowWidth, params.windowHeight);

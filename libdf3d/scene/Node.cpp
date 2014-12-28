@@ -7,6 +7,7 @@
 #include <components/ParticleSystemComponent.h>
 #include <components/AudioComponent.h>
 #include <components/PhysicsComponent.h>
+#include <components/ScriptComponent.h>
 #include <utils/Utils.h>
 #include <utils/JsonHelpers.h>
 
@@ -221,6 +222,11 @@ shared_ptr<components::ParticleSystemComponent> Node::vfx()
 shared_ptr<components::PhysicsComponent> Node::physics()
 {
     return static_pointer_cast<components::PhysicsComponent>(getComponent(components::ComponentType::PHYSICS));
+}
+
+shared_ptr<components::ScriptComponent> Node::script()
+{
+    return static_pointer_cast<components::ScriptComponent>(getComponent(components::ComponentType::SCRIPT));
 }
 
 size_t Node::attachedComponentsCount() const

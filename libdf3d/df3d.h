@@ -22,6 +22,7 @@
 #include <components/PhysicsComponent.h>
 #include <components/TransformComponent.h>
 #include <components/TextMeshComponent.h>
+#include <components/ScriptComponent.h>
 
 #include <scene/Node.h>
 #include <scene/Camera.h>

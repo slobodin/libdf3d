@@ -1,17 +1,16 @@
 #pragma once
 
-FWD_MODULE_CLASS(base, Controller)
-
 namespace df3d { namespace scripting {
 
 class DF3D_DLL ScriptManager : public boost::noncopyable
 {
-    friend class base::Controller;
-
 public:
-    bool doFile(const char *fileName) { return false; }
-    bool doString(const char *str) { return false; }
-    void printError() { }
+    ScriptManager() = default;
+    virtual ~ScriptManager() = default;
+
+    virtual bool doFile(const char *fileName) = 0;
+    virtual bool doString(const char *str) = 0;
+    virtual void printError() = 0;
 };
 
 } }
