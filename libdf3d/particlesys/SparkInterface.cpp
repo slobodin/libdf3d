@@ -278,8 +278,10 @@ void QuadParticleSystemRenderer::render(const SPK::Group& group)
     }
 
     const auto &pos = g_sceneManager->getCamera()->transform()->getPosition();
+    const auto &dir = g_sceneManager->getCamera()->getDir();
+    const auto &up = g_sceneManager->getCamera()->getUp();
 
-    bool globalOrientation = precomputeOrientation3D(group, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }, glmToSpk(pos));
+    bool globalOrientation = precomputeOrientation3D(group, glmToSpk(-dir), glmToSpk(up), glmToSpk(pos));
     auto totalParticles = group.getNbParticles();
 
     if (globalOrientation)
