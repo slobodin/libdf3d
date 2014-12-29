@@ -31,7 +31,7 @@ protected:
     std::string m_nodeName;
     bool m_visible = true;
 
-    shared_ptr<components::NodeComponent> m_components[static_cast<size_t>(components::ComponentType::COUNT)];
+    shared_ptr<components::NodeComponent> m_components[components::COUNT];
 
     weak_ptr<Node> m_parent;
     NodeChildren m_children;
@@ -43,7 +43,7 @@ protected:
 
 public:
     Node(const char *name = "");
-    ~Node();
+    virtual ~Node();
 
     void setName(const char *newName);
     const std::string &getName() const { return m_nodeName; }
@@ -72,7 +72,7 @@ public:
 
     shared_ptr<Node> clone() const;
 
-    shared_ptr<components::NodeComponent> getComponent(components::ComponentType type) const { return m_components[(size_t)type]; }
+    shared_ptr<components::NodeComponent> getComponent(components::ComponentType type) const { return m_components[type]; }
     shared_ptr<components::TransformComponent> transform();
     shared_ptr<components::MeshComponent> mesh();
     shared_ptr<components::LightComponent> light();

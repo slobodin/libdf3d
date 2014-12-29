@@ -47,8 +47,9 @@ Node::Node(const char *name)
     if (m_nodeName.empty())
         m_nodeName = std::string("unnamed_node_") + std::to_string(nodesCount++);
 
+    // NOTE: does node have to have transform by default?
     // Has transform by default.
-    attachComponent(make_shared<components::TransformComponent>());
+    //attachComponent(make_shared<components::TransformComponent>());
 }
 
 Node::~Node()
@@ -78,8 +79,7 @@ void Node::setName(const char *newName)
 void Node::update(float dt)
 {
     // Update all components.
-    auto count = static_cast<size_t>(components::ComponentType::COUNT);
-    for (size_t i = 0; i < count; i++)
+    for (size_t i = 0; i < components::COUNT; i++)
     {
         auto c = m_components[i];
         if (c)
@@ -95,8 +95,7 @@ void Node::draw(render::RenderQueue *ops)
     if (!isVisible())
         return;
 
-    auto count = static_cast<size_t>(components::ComponentType::COUNT);
-    for (size_t i = 0; i < count; i++)
+    for (size_t i = 0; i < components::COUNT; i++)
     {
         auto c = m_components[i];
         if (c)
@@ -196,37 +195,37 @@ shared_ptr<Node> Node::clone() const
 
 shared_ptr<components::TransformComponent> Node::transform()
 { 
-    return static_pointer_cast<components::TransformComponent>(getComponent(components::ComponentType::TRANSFORM));
+    return static_pointer_cast<components::TransformComponent>(getComponent(components::TRANSFORM));
 }
 
 shared_ptr<components::MeshComponent> Node::mesh()
 { 
-    return static_pointer_cast<components::MeshComponent>(getComponent(components::ComponentType::MESH));
+    return static_pointer_cast<components::MeshComponent>(getComponent(components::MESH));
 }
 
 shared_ptr<components::LightComponent> Node::light()
 {
-    return static_pointer_cast<components::LightComponent>(getComponent(components::ComponentType::LIGHT));
+    return static_pointer_cast<components::LightComponent>(getComponent(components::LIGHT));
 }
 
 shared_ptr<components::AudioComponent> Node::audio()
 {
-    return static_pointer_cast<components::AudioComponent>(getComponent(components::ComponentType::AUDIO));
+    return static_pointer_cast<components::AudioComponent>(getComponent(components::AUDIO));
 }
 
 shared_ptr<components::ParticleSystemComponent> Node::vfx()
 {
-    return static_pointer_cast<components::ParticleSystemComponent>(getComponent(components::ComponentType::PARTICLE_EFFECT));
+    return static_pointer_cast<components::ParticleSystemComponent>(getComponent(components::PARTICLE_EFFECT));
 }
 
 shared_ptr<components::PhysicsComponent> Node::physics()
 {
-    return static_pointer_cast<components::PhysicsComponent>(getComponent(components::ComponentType::PHYSICS));
+    return static_pointer_cast<components::PhysicsComponent>(getComponent(components::PHYSICS));
 }
 
 shared_ptr<components::ScriptComponent> Node::script()
 {
-    return static_pointer_cast<components::ScriptComponent>(getComponent(components::ComponentType::SCRIPT));
+    return static_pointer_cast<components::ScriptComponent>(getComponent(components::SCRIPT));
 }
 
 size_t Node::attachedComponentsCount() const
@@ -243,7 +242,7 @@ size_t Node::attachedComponentsCount() const
 
 void Node::attachComponent(shared_ptr<components::NodeComponent> component)
 {
-    auto idx = static_cast<size_t>(component->type);
+    auto idx = component->type;
 
     auto currentComponent = m_components[idx];
     if (currentComponent)
@@ -260,9 +259,7 @@ void Node::attachComponent(shared_ptr<components::NodeComponent> component)
 
 void Node::detachComponent(components::ComponentType type)
 {
-    auto idx = static_cast<size_t>(type);
-
-    auto component = m_components[idx];
+    auto component = m_components[type];
     if (!component)
     {
         base::glog << "Trying to detach non existing node component" << base::logwarn;
@@ -270,7 +267,7 @@ void Node::detachComponent(components::ComponentType type)
     }
 
     component->onDetached();
-    m_components[idx].reset();
+    m_components[type].reset();
 }
 
 shared_ptr<Node> Node::fromFile(const char *jsonDefinition)
@@ -313,10 +310,9 @@ Json::Value Node::toJson(shared_ptr<const Node> node)
 
     result["name"] = node->getName();
 
-    auto count = (size_t)df3d::components::ComponentType::COUNT;
-    for (size_t i = 0; i < count; i++)
+    for (size_t i = 0; i < components::COUNT; i++)
     {
-        auto comp = node->getComponent((df3d::components::ComponentType)i);
+        auto comp = node->getComponent(static_cast<components::ComponentType>(i));
         if (!comp)
             continue;
 

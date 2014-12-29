@@ -14,7 +14,7 @@ void DebugDrawComponent::onDraw(render::RenderQueue *ops)
 }
 
 DebugDrawComponent::DebugDrawComponent()
-    : NodeComponent(ComponentType::DEBUG_DRAW)
+    : NodeComponent(DEBUG_DRAW)
 {
 }
 

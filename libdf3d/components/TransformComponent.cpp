@@ -17,7 +17,7 @@ void TransformComponent::updateTransformation()
 
     // tr = parent * me
     auto parent = m_holder->getParent();
-    if (parent)
+    if (parent && parent->transform())
         m_transformation = parent->transform()->getTransformation() * tr;
     else
         m_transformation = tr;
@@ -42,7 +42,7 @@ void TransformComponent::markDirty(bool dirty)
 }
 
 TransformComponent::TransformComponent()
-    : NodeComponent(ComponentType::TRANSFORM)
+    : NodeComponent(TRANSFORM)
 {
 
 }

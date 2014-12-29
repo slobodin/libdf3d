@@ -13,7 +13,7 @@ void ScriptComponent::onAttached()
 }
 
 ScriptComponent::ScriptComponent(const char *scriptFilePath)
-    : NodeComponent(ComponentType::SCRIPT),
+    : NodeComponent(SCRIPT),
     m_scriptFilePath(scriptFilePath)
 {
 

@@ -133,7 +133,7 @@ void MeshComponent::constructOBB()
 }
 
 MeshComponent::MeshComponent()
-    : NodeComponent(ComponentType::MESH)
+    : NodeComponent(MESH)
 {
 
 }

@@ -15,21 +15,21 @@ unique_ptr<ComponentSerializer> create(ComponentType type)
 {
     switch (type)
     {
-    case ComponentType::TRANSFORM:
+    case TRANSFORM:
         return make_unique<TransformComponentSerializer>();
-    case ComponentType::MESH:
+    case MESH:
         return make_unique<MeshComponentSerializer>();
-    case ComponentType::PARTICLE_EFFECT:
+    case PARTICLE_EFFECT:
         return make_unique<ParticleSystemComponentSerializer>();
-    case ComponentType::AUDIO:
+    case AUDIO:
         return make_unique<AudioComponentSerializer>();
-    case ComponentType::PHYSICS:
+    case PHYSICS:
         return make_unique<PhysicsComponentSerializer>();
-    case ComponentType::LIGHT:
+    case LIGHT:
         return make_unique<LightComponentSerializer>();
-    case  ComponentType::SCRIPT:
+    case SCRIPT:
         return make_unique<ScriptComponentSerializer>();
-    case ComponentType::DEBUG_DRAW:
+    case DEBUG_DRAW:
         break;
     default:
         break;

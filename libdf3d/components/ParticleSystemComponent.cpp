@@ -29,7 +29,7 @@ void ParticleSystemComponent::onUpdate(float dt)
         m_systemAge += dt;
         if (m_systemAge > m_systemLifeTime)
         {
-            m_holder->detachComponent(ComponentType::PARTICLE_EFFECT);
+            m_holder->detachComponent(PARTICLE_EFFECT);
         }
     }
 }
@@ -86,7 +86,7 @@ void ParticleSystemComponent::onDraw(render::RenderQueue *ops)
 }
 
 ParticleSystemComponent::ParticleSystemComponent()
-    : NodeComponent(ComponentType::PARTICLE_EFFECT)
+    : NodeComponent(PARTICLE_EFFECT)
 {
 
 }

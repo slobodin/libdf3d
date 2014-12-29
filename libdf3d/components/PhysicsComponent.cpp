@@ -129,7 +129,7 @@ void PhysicsComponent::onAttached()
 }
 
 PhysicsComponent::PhysicsComponent(const CreationParams &params, short group, short mask)
-    : NodeComponent(ComponentType::PHYSICS),
+    : NodeComponent(PHYSICS),
     m_group(group),
     m_mask(mask),
     m_creationParams(params)

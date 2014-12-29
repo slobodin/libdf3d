@@ -52,6 +52,7 @@ Camera::Camera(const glm::vec3 &position, float fov, float nearZ, float farZ)
     m_nearZ(nearZ),
     m_farZ(farZ)
 {
+    attachComponent(make_shared<components::TransformComponent>());
     transform()->setPosition(position);
 }
 

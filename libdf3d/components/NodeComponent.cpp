@@ -9,26 +9,26 @@ namespace df3d { namespace components {
 
 static const std::map<std::string, ComponentType> NameType = 
 {
-    { "transform", ComponentType::TRANSFORM },
-    { "mesh", ComponentType::MESH },
-    { "vfx", ComponentType::PARTICLE_EFFECT },
-    { "audio", ComponentType::AUDIO },
-    { "physics", ComponentType::PHYSICS },
-    { "script", ComponentType::SCRIPT },
-    { "light", ComponentType::LIGHT },
-    { "debug_draw", ComponentType::DEBUG_DRAW }
+    { "transform", TRANSFORM },
+    { "mesh", MESH },
+    { "vfx", PARTICLE_EFFECT },
+    { "audio", AUDIO },
+    { "physics", PHYSICS },
+    { "script", SCRIPT },
+    { "light", LIGHT },
+    { "debug_draw", DEBUG_DRAW }
 };
 
 static const std::map<ComponentType, std::string> TypeName =
 {
-    { ComponentType::TRANSFORM, "transform"},
-    { ComponentType::MESH, "mesh" },
-    { ComponentType::PARTICLE_EFFECT, "vfx" },
-    { ComponentType::AUDIO, "audio" },
-    { ComponentType::PHYSICS, "physics" },
-    { ComponentType::SCRIPT, "script" },
-    { ComponentType::LIGHT, "light" },
-    { ComponentType::DEBUG_DRAW, "debug_draw" }
+    { TRANSFORM, "transform"},
+    { MESH, "mesh" },
+    { PARTICLE_EFFECT, "vfx" },
+    { AUDIO, "audio" },
+    { PHYSICS, "physics" },
+    { SCRIPT, "script" },
+    { LIGHT, "light" },
+    { DEBUG_DRAW, "debug_draw" }
 };
 
 NodeComponent::NodeComponent(ComponentType t)

@@ -26,6 +26,8 @@ bool LuaScriptManager::doFile(const char *fileName)
 {
     auto fullp = g_fileSystem->fullPath(fileName);
 
+    base::glog << "Executing" << fullp << base::logdebug;
+
     if (luaL_dofile(m_luaState, fullp.c_str()))
     {
         base::glog << "Lua script execution failed due to" << lua_tostring(m_luaState, -1) << base::logwarn;

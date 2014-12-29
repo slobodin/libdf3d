@@ -19,7 +19,7 @@ void LightComponent::onDraw(render::RenderQueue *ops)
 }
 
 LightComponent::LightComponent(Type type)
-    : NodeComponent(ComponentType::LIGHT)
+    : NodeComponent(LIGHT)
 {
     if (NumLights >= MAX_LIGHTS)
     {

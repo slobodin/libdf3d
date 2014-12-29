@@ -27,6 +27,12 @@ inline bool contains(const C &container, const T &val)
     return std::find(std::begin(container), std::end(container), val) != std::end(container);
 }
 
+template<typename C, typename T>
+inline bool contains_key(const C &container, const T &key)
+{
+    return container.find(key) != container.end();
+}
+
 namespace math {
 
 extern const DF3D_DLL glm::vec4 XAxis;

@@ -5,7 +5,7 @@ FWD_MODULE_CLASS(render, RenderQueue)
 
 namespace df3d { namespace components {
 
-enum class ComponentType
+enum ComponentType
 {
     TRANSFORM,
     MESH,

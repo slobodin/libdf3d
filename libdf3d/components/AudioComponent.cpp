@@ -16,18 +16,21 @@ void AudioComponent::onUpdate(float dt)
     if (!m_audioSourceId)
         return;
 
-    auto pos = m_holder->transform()->getPosition();
-    alSourcefv(m_audioSourceId, AL_POSITION, glm::value_ptr(pos));
+    if (m_holder->transform())
+    {
+        auto pos = m_holder->transform()->getPosition();
+        alSourcefv(m_audioSourceId, AL_POSITION, glm::value_ptr(pos));
+    }
 
     // If it has stopped, then remove from the holder.
     if (getState() == State::STOPPED)
     {
-        m_holder->detachComponent(ComponentType::AUDIO);
+        m_holder->detachComponent(AUDIO);
     }
 }
 
 AudioComponent::AudioComponent(const char *audioFilePath)
-    : NodeComponent(ComponentType::AUDIO)
+    : NodeComponent(AUDIO)
 {
     m_buffer = g_resourceManager->getResource<audio::AudioBuffer>(audioFilePath);
     if (!m_buffer)
