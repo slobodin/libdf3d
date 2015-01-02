@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,43 +19,56 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef H_SPK_STATICEMITTER
 #define H_SPK_STATICEMITTER
-
-#include "Core/SPK_Emitter.h"
-
 
 namespace SPK
 {
 	/**
 	* @class StaticEmitter
 	* @brief An Emitter that emits particles with no initial velocity
-	* @since 1.05.00
 	*/
 	class StaticEmitter : public Emitter
 	{
-		SPK_IMPLEMENT_REGISTERABLE(StaticEmitter)
-
 	public :
 
 		/**
-		* @brief Creates and registers a new StaticEmitter
-		* @return A new registered StaticEmitter
+		* @brief Creates a new StaticEmitter
+		* @return A new StaticEmitter
 		*/
-		static StaticEmitter* create();
+		static  Ref<StaticEmitter> create(
+			const Ref<Zone>& zone = SPK_NULL_REF,
+			bool full = true,
+			int tank = -1,
+			float flow = 1.0f);
+
+	public :
+		spark_description(StaticEmitter, Emitter)
+		(
+		);
 
 	private :
 
-		virtual void generateVelocity(Particle& particle,float speed) const;
+		StaticEmitter(
+			const Ref<Zone>& zone = SPK_NULL_REF,
+			bool full = true,
+			int tank = -1,
+			float flow = 1.0f);
+
+		StaticEmitter(const StaticEmitter& emitter);
+
+		virtual  void generateVelocity(Particle& particle,float speed) const;
 	};
 
+	inline StaticEmitter::StaticEmitter(const Ref<Zone>& zone,bool full,int tank,float flow) :
+		Emitter(zone,full,tank,flow)
+	{}
 
-	inline StaticEmitter* StaticEmitter::create()
+	inline StaticEmitter::StaticEmitter(const StaticEmitter& emitter) : Emitter(emitter) {}
+
+	inline Ref<StaticEmitter> StaticEmitter::create(const Ref<Zone>& zone,bool full,int tank,float flow)
 	{
-		StaticEmitter* obj = new StaticEmitter;
-		registerObject(obj);
-		return obj;
+		return SPK_NEW(StaticEmitter,zone,full,tank,flow);
 	}
 
 	inline void StaticEmitter::generateVelocity(Particle& particle,float speed) const
@@ -65,5 +78,3 @@ namespace SPK
 }
 
 #endif
-
-

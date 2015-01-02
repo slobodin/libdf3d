@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,13 +19,8 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef H_SPK_STRAIGHEMITTER
 #define H_SPK_STRAIGHEMITTER
-
-#include "Core/SPK_Emitter.h"
-#include "Core/SPK_Particle.h"
-
 
 namespace SPK
 {
@@ -35,30 +30,20 @@ namespace SPK
 	*/
 	class SPK_PREFIX StraightEmitter : public Emitter
 	{
-		SPK_IMPLEMENT_REGISTERABLE(StraightEmitter)
-
 	public :
-
-		/////////////////
-		// Constructor //
-		/////////////////
-
-		/**
-		* @brief The constructor of StraightEmitter
-		* @param direction : the direction of the StraighEmitter
-		*/
-		StraightEmitter(const Vector3D& direction = Vector3D(0.0f,0.0f,-1.0f));
 
 		/**
 		* @brief Creates and registers a new StraightEmitter
 		* @param direction : the direction of the StraighEmitter
-		* @since 1.04.00
 		*/
-		static StraightEmitter* create(const Vector3D& direction = Vector3D(0.0f,0.0f,-1.0f));
-
-		/////////////
-		// Setters //
-		/////////////
+		static  Ref<StraightEmitter> create(
+			const Vector3D& direction = Vector3D(0.0f,0.0f,-1.0f),
+			const Ref<Zone>& zone = SPK_NULL_REF,
+			bool full = true,
+			int tank = -1,
+			float flow = 1.0f,
+			float forceMin = 1.0f,
+			float forceMax = 1.0f);
 
 		/**
 		* @brief Sets the direction of this StraightEmitter
@@ -66,13 +51,9 @@ namespace SPK
 		* Note that it is not necessary to provide a normalized Vector3D.
 		* This Vector3D only indicates a direction, its norm does not matter.
 		*
-		* @param direction : the direction of this StraightEmitter
+		* @param dir : the direction of this StraightEmitter
 		*/
-		void setDirection(const Vector3D& direction);
-
-		/////////////
-		// Getters //
-		/////////////
+		void setDirection(const Vector3D& dir);
 
 		/**
 		* @brief Gets the direction of this StraightEmitter
@@ -86,6 +67,12 @@ namespace SPK
 		*/
 		const Vector3D& getTransformedDirection() const;
 
+	public :
+		spark_description(StraightEmitter, Emitter)
+		(
+			spk_attribute(Vector3D, direction, setDirection, getDirection);
+		);
+
 	protected :
 
 		virtual void innerUpdateTransform();
@@ -95,15 +82,34 @@ namespace SPK
 		Vector3D direction;
 		Vector3D tDirection;
 
+		/**
+		* @brief The constructor of StraightEmitter
+		* @param direction : the direction of the StraighEmitter
+		*/
+		StraightEmitter(
+			const Vector3D& direction = Vector3D(0.0f,0.0f,-1.0f),
+			const Ref<Zone>& zone = SPK_NULL_REF,
+			bool full = true,
+			int tank = -1,
+			float flow = 1.0f,
+			float forceMin = 1.0f,
+			float forceMax = 1.0f);
+
+		StraightEmitter(const StraightEmitter& emitter);
+
 		virtual void generateVelocity(Particle& particle,float speed) const;
 	};
 
-
-	inline StraightEmitter* StraightEmitter::create(const Vector3D& direction)
+	inline Ref<StraightEmitter> StraightEmitter::create(
+			const Vector3D& direction,
+			const Ref<Zone>& zone,
+			bool full,
+			int tank,
+			float flow,
+			float forceMin,
+			float forceMax)
 	{
-		StraightEmitter* obj = new StraightEmitter(direction);
-		registerObject(obj);
-		return obj;
+		return SPK_NEW(StraightEmitter,direction,zone,full,tank,flow,forceMin,forceMax);
 	}
 
 	inline const Vector3D& StraightEmitter::getDirection() const
@@ -114,12 +120,6 @@ namespace SPK
 	inline const Vector3D& StraightEmitter::getTransformedDirection() const
 	{
 		return tDirection;
-	}
-
-	inline void StraightEmitter::generateVelocity(Particle& particle,float speed) const
-	{
-		particle.velocity() = tDirection;
-		particle.velocity() *= speed;
 	}
 }
 

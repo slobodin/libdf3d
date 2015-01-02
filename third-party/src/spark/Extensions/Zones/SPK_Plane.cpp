@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,60 +19,45 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
+#include <SPARK_Core.h>
 #include "Extensions/Zones/SPK_Plane.h"
 
 namespace SPK
 {
-	Plane::Plane(const Vector3D& position,const Vector3D& normal) :
-		Zone(position)
+	void Plane::setNormal(const Vector3D& n)
 	{
-		setNormal(normal);
+		normal = n;
+		normal.normalize();
+		transformDir(tNormal,normal);
+		tNormal.normalize();
 	}
 
-	bool Plane::intersects(const Vector3D& v0,const Vector3D& v1,Vector3D* intersection,Vector3D* normal) const
+	bool Plane::intersects(const Vector3D& v0,const Vector3D& v1,float radius,Vector3D* normal) const
 	{
 		float dist0 = dotProduct(tNormal,v0 - getTransformedPosition());
-		float dist1 = dotProduct(tNormal,v1 - getTransformedPosition());
+		
+		if (std::abs(dist0) < radius)
+			return false; // the particle is already intersecting the plane, the intersection is ignored
 
-		if ((dist0 <= 0.0f) == (dist1 <= 0.0f)) // both points are on the same side
+		float dist1 = dotProduct(tNormal,v1 - getTransformedPosition());
+		if (std::abs(dist1) < radius)
+		{
+			if (normal != NULL)
+				*normal = (dist0 < 0.0f ? -tNormal : tNormal);
+			return true;
+		}
+		
+		if (dist1 > 0.0f)
+			dist1 -= radius;
+		else
+			dist1 += radius;
+
+		if ((dist0 < 0.0f) == (dist1 < 0.0f)) // both particles are on the same side
 			return false;
 
-		if (intersection != NULL)
-		{
-			if (dist0 <= 0.0f)
-				dist0 = -dist0;
-			else
-				dist1 = -dist1;
-
-			if (normal != NULL)
-				*normal = tNormal;
-
-			float ti = dist0 / (dist0 + dist1);
-
-			Vector3D vDir = v1 - v0;
-			float norm = vDir.getNorm();
-
-			norm *= ti;
-			ti = norm < APPROXIMATION_VALUE ? 0.0f : ti * (norm - APPROXIMATION_VALUE) / norm;
-
-			vDir *= ti;
-			*intersection = v0 + vDir;
-		}
-
+		if (normal != NULL)
+			*normal = (dist0 < 0.0f ? -tNormal : tNormal);
 		return true;
-	}
-
-	void Plane::moveAtBorder(Vector3D& v,bool inside) const
-	{
-		float dist = dotProduct(tNormal,v - getTransformedPosition());
-
-		if ((dist <= 0.0f) == inside)
-			inside ? dist += APPROXIMATION_VALUE : dist -= APPROXIMATION_VALUE;
-		else
-			inside ? dist -= APPROXIMATION_VALUE : dist += APPROXIMATION_VALUE;
-
-		v += tNormal * -dist;
 	}
 
 	void Plane::innerUpdateTransform()

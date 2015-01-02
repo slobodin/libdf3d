@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,12 +19,8 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef H_SPK_ROTATOR
 #define H_SPK_ROTATOR
-
-#include "Core/SPK_Modifier.h"
-
 
 namespace SPK
 {
@@ -37,47 +33,42 @@ namespace SPK
 	* <br>
 	* For this modifier to work, the PARAM_ANGLE must be enabled (and can be random in addition but not mutable or interpolated)
 	* and the PARAM_ROTATION_SPEED must be at least enabled in the model of the group of particles that are modified.
-	*
-	* @since 1.05.00
 	*/
-	class Rotator : public Modifier
+	class SPK_PREFIX Rotator : public Modifier
 	{
-		SPK_IMPLEMENT_REGISTERABLE(Rotator)
-
 	public :
-
-		/////////////////
-		// Constructor //
-		/////////////////
-
-		/** @brief Constructor of Rotator */
-		Rotator();
 
 		/**
 		* @brief Creates and registers a new Rotator
 		* @return A new registered Rotator
 		*/
-		static Rotator* create();
+		static  Ref<Rotator> create();
+
+	public :
+		spark_description(Rotator, Modifier)
+		(
+		);
 
 	private :
 
-		virtual void modify(Particle& particle,float deltaTime) const;
+		/** @brief Constructor of Rotator */
+		Rotator();
+		Rotator(const Rotator& rotator);
+
+		virtual void modify(Group& group,DataSet* dataSet,float deltaTime) const;
 	};
 
+	inline Rotator::Rotator() :
+		Modifier(MODIFIER_PRIORITY_POSITION,false,false,false)
+	{}
 
-	inline Rotator::Rotator() : Modifier(ALWAYS | INSIDE_ZONE | OUTSIDE_ZONE) {}
+	inline Rotator::Rotator(const Rotator& rotator) :
+		Modifier(rotator)
+	{}
 
-	inline Rotator* Rotator::create()
+	inline Ref<Rotator> Rotator::create()
 	{
-		Rotator* obj = new Rotator;
-		registerObject(obj);
-		return obj;
-	}
-
-	inline void Rotator::modify(Particle& particle,float deltaTime) const
-	{
-		float angle = particle.getParamCurrentValue(PARAM_ANGLE) + deltaTime * particle.getParamCurrentValue(PARAM_ROTATION_SPEED);
-		particle.setParamCurrentValue(PARAM_ANGLE,angle);
+		return SPK_NEW(Rotator);
 	}
 }
 

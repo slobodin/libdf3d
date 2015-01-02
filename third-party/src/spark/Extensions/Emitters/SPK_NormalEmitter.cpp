@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,58 +19,63 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
+#include <SPARK_Core.h>
 #include "Extensions/Emitters/SPK_NormalEmitter.h"
-#include "Core/SPK_Particle.h"
 
 namespace SPK
 {
-	NormalEmitter::NormalEmitter(Zone* normalZone,bool inverted) :
-		Emitter(),
-		normalZone(normalZone),
+	NormalEmitter::NormalEmitter(
+		const Ref<Zone>& zone,
+		bool full,
+		int tank,
+		float flow,
+		float forceMin,
+		float forceMax,
+		const Ref<Zone>& normalZone,
+		bool inverted) :
+		Emitter(zone,full,tank,flow,forceMin,forceMax),
+		normalZone(),
 		inverted(inverted)
-	{}
-
-	void NormalEmitter::registerChildren(bool registerAll)
 	{
-		Emitter::registerChildren(registerAll);
-		registerChild(normalZone,registerAll);
+		setNormalZone(normalZone);
 	}
 
-	void NormalEmitter::copyChildren(const Registerable& object,bool createBase)
+	NormalEmitter::NormalEmitter(const NormalEmitter& emitter) :
+		Emitter(emitter),
+		inverted(emitter.inverted)
 	{
-		const NormalEmitter& emitter = dynamic_cast<const NormalEmitter&>(object);
-		Emitter::copyChildren(emitter,createBase);
-		normalZone = dynamic_cast<Zone*>(copyChild(emitter.normalZone,createBase));	
-	}
-	
-	void NormalEmitter::destroyChildren(bool keepChildren)
-	{
-		destroyChild(normalZone,keepChildren);
-		Emitter::destroyChildren(keepChildren);
+		normalZone = emitter.copyChild(emitter.normalZone);
 	}
 
-	Registerable* NormalEmitter::findByName(const std::string& name)
+	NormalEmitter::~NormalEmitter() {}
+
+	void NormalEmitter::setNormalZone(const Ref<Zone>& zone)
 	{
-		Registerable* object = Emitter::findByName(name);
-		if ((object != NULL)||(normalZone == NULL))
-			return object;
-
-		return normalZone->findByName(name);
-	}
-
-	void NormalEmitter::setNormalZone(Zone* zone)
-	{
-		decrementChildReference(normalZone);
-		incrementChildReference(zone);
-
 		normalZone = zone;
+	}
+
+	Ref<SPKObject> NormalEmitter::findByName(const std::string& name)
+	{
+		Ref<SPKObject> object = Emitter::findByName(name);
+		if (object) return object;
+
+		if (normalZone)
+			object = normalZone->findByName(name);
+
+		return SPK_NULL_REF;
+	}
+
+	void NormalEmitter::propagateUpdateTransform()
+	{
+		Emitter::propagateUpdateTransform();
+		if (normalZone && !normalZone->isShared())
+			normalZone->updateTransform(this);
 	}
 
 	void NormalEmitter::generateVelocity(Particle& particle,float speed) const
 	{
 		if (inverted) speed = -speed;
-		const Zone* zone = (normalZone == NULL ? getZone() : normalZone);
+		const Ref<Zone>& zone = (!normalZone ? getZone() : normalZone);
 		particle.velocity() = zone->computeNormal(particle.position()) * speed;
 	}
 }

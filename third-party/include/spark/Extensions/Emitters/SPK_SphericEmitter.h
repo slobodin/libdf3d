@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,12 +19,8 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef H_SPK_SPHERICEMITTER
 #define H_SPK_SPHERICEMITTER
-
-#include "Core/SPK_Emitter.h"
-
 
 namespace SPK
 {
@@ -49,34 +45,24 @@ namespace SPK
 	*/
 	class SPK_PREFIX SphericEmitter : public Emitter
 	{
-		SPK_IMPLEMENT_REGISTERABLE(SphericEmitter)
-
 	public :
-
-		/////////////////
-		// Constructor //
-		/////////////////
-
-		/**
-		* @brief Constructor of SphericEmitter
-		* @param direction : the direction of the SphericEmitter
-		* @param angleA : the first angle in radians of the SphericEmitter
-		* @param angleB : the second angle in radians of the SphericEmitter
-		*/
-		SphericEmitter(const Vector3D& direction = Vector3D(0.0f,0.0f,-1.0f),float angleA = 0.0f,float angleB = 0.0f);
 
 		/**
 		* @brief Creates and registers a new SphericEmitter
 		* @param direction : the direction of the SphericEmitter
 		* @param angleA : the first angle in radians of the SphericEmitter
 		* @param angleB : the second angle in radians of the SphericEmitter
-		* @since 1.04.00
 		*/
-		static SphericEmitter* create(const Vector3D& direction = Vector3D(0.0f,0.0f,-1.0f),float angleA = 0.0f,float angleB = 0.0f);
-
-		/////////////
-		// Setters //
-		/////////////
+		static  Ref<SphericEmitter> create(
+			const Vector3D& direction = Vector3D(0.0f,0.0f,-1.0f),
+			float angleA = 0.0f,
+			float angleB = 0.0f,
+			const Ref<Zone>& zone = SPK_NULL_REF,
+			bool full = true,
+			int tank = -1,
+			float flow = 1.0f,
+			float forceMin = 1.0f,
+			float forceMax = 1.0f);
 
 		/**
 		* @brief Sets the direction of this SphericEmitter
@@ -87,21 +73,6 @@ namespace SPK
 		* @param direction : the direction of this SphericEmitter
 		*/
 		void setDirection(const Vector3D& direction);
-
-		/**
-		* @brief Sets the angles of this SphericEmitter
-		*
-		* Note that angles are clamped between 0 and 2 * PI
-		* AngleA does not have to be inferior to angleB, it has no importance as angles are sorted within the method.
-		*
-		* @param angleA : the first angle in radians of this SphericEmitter
-		* @param angleB : the second angle in radians of this SphericEmitter
-		*/
-		void setAngles(float angleA,float angleB);
-
-		/////////////
-		// Getters //
-		/////////////
 
 		/**
 		* @brief Gets the direction of this SphericEmitter
@@ -116,6 +87,16 @@ namespace SPK
 		const Vector3D& getTransformedDirection() const;
 
 		/**
+		* @brief Sets the angles of this SphericEmitter
+		*
+		* Note that angles are clamped between 0 and 2 * PI
+		*
+		* @param angleMin : the first angle in radians of this SphericEmitter
+		* @param angleMax : the second angle in radians of this SphericEmitter
+		*/
+		void setAngles(float angleMin,float angleMax);
+
+		/**
 		* @brief Gets the minimum angle of this SphericEmitter
 		* @return the minimum angle of this SphericEmitter
 		*/
@@ -126,6 +107,13 @@ namespace SPK
 		* @return the maximum angle of this SphericEmitter
 		*/
 		float getAngleMax() const;
+
+	public :
+		spark_description(SphericEmitter, Emitter)
+		(
+			spk_attribute(Vector3D, direction, setDirection, getDirection);
+			spk_attribute(Pair<float>, angles, setAngles, getAngleMin, getAngleMax);
+		);
 
 	protected :
 
@@ -146,17 +134,46 @@ namespace SPK
 
 		float matrix[9];
 
-		void computeMatrix();
+		/////////////////
+		// Constructor //
+		/////////////////
+
+		/**
+		* @brief Constructor of SphericEmitter
+		* @param direction : the direction of the SphericEmitter
+		* @param angleA : the first angle in radians of the SphericEmitter
+		* @param angleB : the second angle in radians of the SphericEmitter
+		*/
+		SphericEmitter(
+			const Vector3D& direction = Vector3D(0.0f,0.0f,-1.0f),
+			float angleA = 0.0f,
+			float angleB = 0.0f,
+			const Ref<Zone>& zone = SPK_NULL_REF,
+			bool full = true,
+			int tank = -1,
+			float flow = 1.0f,
+			float forceMin = 1.0f,
+			float forceMax = 1.0f);
+
+		SphericEmitter(const SphericEmitter& emitter);
 
 		virtual void generateVelocity(Particle& particle,float speed) const;
+
+		void computeMatrix();
 	};
 
-
-	inline SphericEmitter* SphericEmitter::create(const Vector3D& direction,float angleA,float angleB)
+	inline Ref<SphericEmitter> SphericEmitter::create(
+		const Vector3D& direction,
+		float angleMin,
+		float angleMax,
+		const Ref<Zone>& zone,
+		bool full,
+		int tank,
+		float flow,
+		float forceMin,
+		float forceMax)
 	{
-		SphericEmitter* obj = new SphericEmitter(direction,angleA,angleB);
-		registerObject(obj);
-		return obj;
+		return SPK_NEW(SphericEmitter,direction,angleMin,angleMax,zone,full,tank,flow,forceMin,forceMax);
 	}
 
 	inline const Vector3D& SphericEmitter::getDirection() const

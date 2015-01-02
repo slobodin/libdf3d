@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,39 +19,56 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
+#include <SPARK_Core.h>
 #include "Extensions/Modifiers/SPK_Obstacle.h"
-
 
 namespace SPK
 {
-	Obstacle::Obstacle(Zone* zone,ModifierTrigger trigger,float bouncingRatio,float friction) :
-		Modifier(INTERSECT_ZONE | ENTER_ZONE | EXIT_ZONE,INTERSECT_ZONE,true,true,zone),
+	Obstacle::Obstacle(const Ref<Zone>& zone,float bouncingRatio,float friction,ZoneTest zoneTest) :
+		ZonedModifier(MODIFIER_PRIORITY_COLLISION,false,true,false,ZONE_TEST_FLAG_ALL & ~ZONE_TEST_FLAG_ALWAYS/*ZONE_TEST_FLAG_INTERSECT | ZONE_TEST_FLAG_ENTER | ZONE_TEST_FLAG_LEAVE*/,zoneTest,zone),
 		bouncingRatio(bouncingRatio),
 		friction(friction)
+	{}
+
+	Obstacle::Obstacle(const Obstacle& obstacle) :
+		ZonedModifier(obstacle),
+		bouncingRatio(obstacle.bouncingRatio),
+		friction(obstacle.friction)
+	{}
+
+	void Obstacle::init(Particle& particle,DataSet* dataSet) const
 	{
-		setTrigger(trigger);
+		switch(getZoneTest()) 
+		{
+		case ZONE_TEST_INSIDE :
+		case ZONE_TEST_OUTSIDE :
+			if (checkZone(particle))
+				particle.kill(); // If the particle spawns inside a plain obstacle, it is killed
+			break;
+		}
 	}
 
-	void Obstacle::modify(Particle& particle,float deltaTime) const
+	void Obstacle::modify(Group& group,DataSet* dataSet,float deltaTime) const
 	{
-		Vector3D& velocity = particle.velocity();
-		velocity = particle.position();
-		velocity -= particle.oldPosition();
+		Vector3D normal;
+		for (GroupIterator particleIt(group); !particleIt.end(); ++particleIt)
+		{
+			if (checkZone(*particleIt,&normal))
+			{ 
+				particleIt->position() = particleIt->oldPosition();
 
-		if (deltaTime != 0.0f)
-			velocity *= 1.0f / deltaTime;
-		else 
-			velocity.set(0.0f,0.0f,0.0f);
+				Vector3D& velocity = particleIt->velocity();
 
-		float dist = dotProduct(velocity,normal);
+				float dist = dotProduct(velocity,normal);
 
-		normal *= dist;
-		velocity -= normal;			// tangent component
-		velocity *= friction;
-		normal *= bouncingRatio;	// normal component
-		velocity -= normal;
-
-		particle.position() = intersection;
+				normal *= dist - 0.001f;
+				velocity -= normal;			// tangent component
+				velocity *= friction;
+				normal *= bouncingRatio;	// normal component
+				if (dist > 0.0f)
+					normal.revert();
+				velocity -= normal;
+			}
+		}
 	}
 }

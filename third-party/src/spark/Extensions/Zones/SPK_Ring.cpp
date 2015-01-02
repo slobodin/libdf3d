@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,8 +19,10 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
+#include <algorithm> // for std::swap
+
+#include <SPARK_Core.h>
 #include "Extensions/Zones/SPK_Ring.h"
-#include "Core/SPK_Particle.h"
 
 namespace SPK
 {
@@ -31,89 +33,106 @@ namespace SPK
 		setRadius(minRadius,maxRadius);
 	}
 
+	Ring::Ring(const Ring& ring) :
+		Zone(ring),
+		minRadius(ring.minRadius),
+		maxRadius(ring.maxRadius)
+	{
+		setNormal(ring.normal);
+	}
+
+	void Ring::setNormal(const Vector3D& n)
+	{
+		normal = n;
+		normal.normalize();
+		transformDir(tNormal,normal);
+		tNormal.normalize();
+	}
+
 	void Ring::setRadius(float minRadius,float maxRadius)
 	{
-		if (minRadius < 0.0f) minRadius = -minRadius;
-		if (maxRadius < 0.0f) maxRadius = -maxRadius;
-		if (minRadius > maxRadius) std::swap(minRadius,maxRadius);
+		if (minRadius < 0.0f || maxRadius < 0.0f)
+		{
+			SPK_LOG_WARNING("Ring::setRadius(float,float) - Radius cannot be negative - Values are inverted");
+			minRadius = std::abs(minRadius);
+			maxRadius = std::abs(maxRadius);
+		}
+		if (minRadius > maxRadius)
+		{
+			SPK_LOG_WARNING("Ring::setRadius(float,float) - minRadius is greater than maxRadius - Values are swapped");
+			std::swap(minRadius,maxRadius);
+		}
 		this->minRadius = minRadius;
 		this->maxRadius = maxRadius;
-		sqrMinRadius = minRadius * minRadius;
-		sqrMaxRadius = maxRadius * maxRadius;
 	}
 
-	void Ring::generatePosition(Particle& particle,bool full) const
+	void Ring::generatePosition(Vector3D& v,bool full,float radius) const
 	{
+		float relMinRadius = minRadius + radius; 
+		float relMaxRadius = maxRadius - radius;
+
+		if (relMinRadius > relMaxRadius)
+		{
+			float relRadius = (relMinRadius + relMaxRadius) * 0.5f;
+			relMinRadius = relMaxRadius = relRadius;
+		}
+
+		relMinRadius *= relMinRadius;
+		relMaxRadius *= relMaxRadius;
+
 		Vector3D tmp;
-		do tmp = Vector3D(random(-1.0f,1.0f),random(-1.0f,1.0f),random(-1.0f,1.0f));
+		do tmp = SPK_RANDOM(Vector3D(-1.0f,-1.0f,-1.0f),Vector3D(1.0f,1.0f,1.0f));
 		while (tmp.getSqrNorm() > 1.0f);
 		
-		crossProduct(tNormal,tmp,particle.position());
-		normalizeOrRandomize(particle.position());
+		crossProduct(tNormal,tmp,v);
+		normalizeOrRandomize(v);
 
-		particle.position() *= std::sqrt(random(sqrMinRadius,sqrMaxRadius)); // to have a uniform distribution
-		particle.position() += getTransformedPosition();
+		v *= std::sqrt(SPK_RANDOM(relMinRadius,relMaxRadius)); // to have a uniform distribution
+		v += getTransformedPosition();
 	}
 
-	bool Ring::intersects(const Vector3D& v0,const Vector3D& v1,Vector3D* intersection,Vector3D* normal) const
+	bool Ring::intersects(const Vector3D& v0,const Vector3D& v1,float radius,Vector3D* normal) const
 	{
-		float dist0 = dotProduct(tNormal,v0 - getTransformedPosition());
-		float dist1 = dotProduct(tNormal,v1 - getTransformedPosition());
+		Vector3D r0 = v0 - getTransformedPosition();
+		float dist0 = dotProduct(tNormal,r0);
+		
+		if (std::abs(dist0) < radius)
+			return false; // the particle is already intersecting the plane, the intersection is ignored
 
-		if ((dist0 <= 0.0f) == (dist1 <= 0.0f)) // both points are on the same side
-			return false;
+		Vector3D r1 = v1 - getTransformedPosition();
+		float dist1 = dotProduct(tNormal,r1);
 
-		if (dist0 <= 0.0f)
-			dist0 = -dist0;
-		else
-			dist1 = -dist1;
-
-		float ti = dist0 / (dist0 + dist1);
-
-		Vector3D vDir(v1 - v0);
-		float norm = vDir.getNorm();
-
-		norm *= ti;
-		ti = norm < APPROXIMATION_VALUE ? 0.0f : ti * (norm - APPROXIMATION_VALUE) / norm;
-
-		vDir *= ti;
-		Vector3D inter(v0 + vDir);
-
-		float distFromCenter = getSqrDist(inter,getTransformedPosition());
-		if (distFromCenter > sqrMaxRadius || distFromCenter < sqrMinRadius) // intersection is not in the ring
-			return false;
-
-		if (intersection != NULL)
+		if (std::abs(dist1) >= radius)
 		{
-			*intersection = inter;
-			if (normal != NULL)
-				*normal = tNormal;
+			float dist1Bis = dist1;
+			if (dist1Bis > 0.0f)
+				dist1Bis -= radius;
+			else
+				dist1Bis += radius;
+
+			if ((dist0 < 0.0f) == (dist1Bis < 0.0f)) // both particles are on the same side
+				return false;
 		}
 
-		return true;
-	}
-	
-	void Ring::moveAtBorder(Vector3D& v,bool inside) const
-	{
-		float dist = dotProduct(tNormal,v - getTransformedPosition());	
-		v += tNormal * -dist;
+		// The particle is intersecting the plane but is it within the ring ?
+		// Projects on the ring's plane
+		r0 -= dist0 * tNormal;
+		r1 -= dist1 * tNormal;
 
-		float distFromCenter = getSqrDist(v,getTransformedPosition());
+		float minSqrRadius = minRadius - radius;
+		float maxSqrRadius = maxRadius + radius;
+		
+		if (minSqrRadius > 0.0f)
+			minSqrRadius *= minSqrRadius;
+		maxSqrRadius *= maxSqrRadius;
 
-		if (distFromCenter > sqrMaxRadius)
-		{
-			distFromCenter = std::sqrt(distFromCenter);
-			Vector3D vDir(v - getTransformedPosition());
-			vDir *= maxRadius / distFromCenter;
-			v = getTransformedPosition() + vDir;
-		}
-		else if (distFromCenter < sqrMinRadius)
-		{
-			distFromCenter = std::sqrt(distFromCenter);
-			Vector3D vDir(v - getTransformedPosition());
-			vDir *= minRadius / distFromCenter;
-			v = getTransformedPosition() + vDir;
-		}
+		float r0SqrNorm = r0.getSqrNorm();
+		float r1SqrNorm = r1.getSqrNorm();
+
+		bool hasIntersection = ((r0SqrNorm >= minSqrRadius && r0SqrNorm <= maxSqrRadius) || (r1SqrNorm >= minSqrRadius && r1SqrNorm <= maxSqrRadius));
+		if (hasIntersection && normal != NULL)
+			*normal = (dist0 < 0.0f ? -tNormal : tNormal);
+		return hasIntersection;
 	}
 
 	void Ring::innerUpdateTransform()

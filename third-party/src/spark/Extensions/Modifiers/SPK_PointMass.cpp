@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,31 +19,49 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
+#include <SPARK_Core.h>
 #include "Extensions/Modifiers/SPK_PointMass.h"
-#include "Core/SPK_Particle.h"
-#include "Core/SPK_Zone.h"
 
 namespace SPK
 {
-	PointMass::PointMass(Zone* zone,ModifierTrigger trigger,float mass,float minDistance) :
-		Modifier(ALWAYS | INSIDE_ZONE | OUTSIDE_ZONE,ALWAYS,false,false,zone),
-		position(),
-		tPosition(),
+	PointMass::PointMass(const Vector3D& pos,float mass,float offset) :
+		Modifier(MODIFIER_PRIORITY_FORCE,false,false,false),
 		mass(mass)
 	{
-		setTrigger(trigger);
-		setMinDistance(minDistance);
+		setPosition(pos);
+		setOffset(offset);
 	}
 
-	void PointMass::modify(Particle& particle,float deltaTime) const
+	PointMass::PointMass(const PointMass& pointMass) :
+		Modifier(pointMass),
+		mass(pointMass.mass),
+		offset(pointMass.offset)
 	{
-		Vector3D force = tPosition;
-		if (getZone() != NULL)
-			force += getZone()->getTransformedPosition();
+		setPosition(pointMass.position);
+	}
 
-		force -= particle.position();
-		force *= mass * deltaTime / std::max(sqrMinDistance,force.getSqrNorm());
-		particle.velocity() += force;
+	void PointMass::setOffset(float offset)
+	{
+		if (offset <= 0.0f)
+		{
+			SPK_LOG_WARNING("PointMass::setOffset(float) - Offset must be superior to 0. Offset is set to 0.01f");
+			offset = 0.01f;
+		}
+
+		this->offset = offset;
+	}
+
+	void PointMass::modify(Group& group,DataSet* dataSet,float deltaTime) const
+	{
+		float sqrOffset = offset * offset;
+		float massSecond = mass * deltaTime;
+
+		for (GroupIterator particleIt(group); !particleIt.end(); ++particleIt)
+		{
+			Particle& particle = *particleIt;
+			Vector3D force = tPosition - particle.position();
+			force *= massSecond / (force.getSqrNorm() + sqrOffset);
+			particle.velocity() += force;
+		}
 	}
 }

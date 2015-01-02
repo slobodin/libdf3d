@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,19 +19,20 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
-#include "Core/SPK_Renderer.h"
-#include "Core/SPK_Particle.h"
+#include <SPARK_Core.h>
 
 namespace SPK
 {
-	Renderer::Renderer() :
-		Registerable(),
-		BufferHandler(),
-		active(true),
-		renderingHintsMask(DEPTH_TEST | DEPTH_WRITE),
-		alphaThreshold(1.0f)
-	{}
+	ShaderHint Renderer::shaderHint = SHADER_HINT_NONE;
+	bool Renderer::vboHint = false;
 
-	Renderer::~Renderer(){}
+	void Renderer::useShaderHint(ShaderHint hint)
+	{
+		SPK_LOG_INFO("Shader hint is not yet considered");
+	}
+
+	void Renderer::useVBOHint(bool hint)
+	{
+		SPK_LOG_INFO("VBO hint is not yet considered");
+	}
 }

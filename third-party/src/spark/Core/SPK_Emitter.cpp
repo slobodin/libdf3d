@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,114 +19,98 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
-#include "Core/SPK_Emitter.h"
-#include "Extensions/Zones/SPK_Point.h"
-
+#include <SPARK_Core.h>
 
 namespace SPK
 {
-	Emitter::Emitter() :
-		Registerable(),
+	Emitter::Emitter(const Ref<Zone>& zone,bool full,int tank,float flow,float forceMin,float forceMax) :
 		Transformable(),
-		zone(&getDefaultZone()),
-		full(true),
-		tank(-1),
-		flow(0.0f),
-		forceMin(0.0f),
-		forceMax(0.0f),
-		fraction(random(0.0f,1.0f)),
-		active(true)
-	{}
-
-	void Emitter::registerChildren(bool registerAll)
+		active(true),
+		full(full),
+		zone(!zone ? SPK_DEFAULT_ZONE : zone),
+		flow(1.0f),
+		fraction(SPK_RANDOM(0.0f,1.0f))
 	{
-		Registerable::registerChildren(registerAll);
-		registerChild(zone,registerAll);
+		setTank(tank);
+		setFlow(flow);
+		setForce(forceMin,forceMax);
 	}
 
-	void Emitter::copyChildren(const Registerable& object,bool createBase)
+	Emitter::Emitter(const Emitter& emitter) :
+		Transformable(emitter),
+		active(emitter.active),
+		full(emitter.full),
+		flow(emitter.flow),
+		minTank(emitter.minTank),
+		maxTank(emitter.maxTank),
+		forceMin(emitter.forceMin),
+		forceMax(emitter.forceMax),
+		fraction(SPK_RANDOM(0.0f,1.0f))
 	{
-		const Emitter& emitter = dynamic_cast<const Emitter&>(object);
-		Registerable::copyChildren(emitter,createBase);
-		zone = dynamic_cast<Zone*>(copyChild(emitter.zone,createBase));	
-	}
-	
-	void Emitter::destroyChildren(bool keepChildren)
-	{
-		destroyChild(zone,keepChildren);
-		Registerable::destroyChildren(keepChildren);
-	}
-
-	Registerable* Emitter::findByName(const std::string& name)
-	{
-		Registerable* object = Registerable::findByName(name);
-		if (object != NULL)
-			return object;
-
-		return zone->findByName(name);
+		zone = emitter.copyChild(emitter.zone);
+		resetTank();
 	}
 
-	void Emitter::changeTank(int deltaTank)
+	Emitter::~Emitter() {}
+
+	void Emitter::setTank(int minTank,int maxTank)
 	{
-		if (tank >= 0)
+		SPK_ASSERT(minTank >= 0 == maxTank >= 0,"Emitter::setTank(int,int) : min and max tank values must be of the same sign");
+		if (minTank < 0 || maxTank < 0) minTank = maxTank = -1;
+		if (minTank > maxTank)
 		{
-			tank += deltaTank;
-			if (tank < 0)
-				tank = 0;
+			SPK_LOG_WARNING("Emitter::setTank(int,int) : min tank is greater than max tank. Values are swapped");
+			std::swap(minTank,maxTank);
 		}
+		this->minTank = minTank;
+		this->maxTank = maxTank;
+		resetTank();
+		SPK_ASSERT(flow >= 0.0f || currentTank >= 0,"Emitter::setTank(int,int) : the flow and tank of an emitter cannot be both negative");
 	}
 
-	void Emitter::changeFlow(float deltaFlow)
+	void Emitter::setFlow(float flow)
 	{
-		if (flow >= 0.0f)
+		SPK_ASSERT(flow >= 0.0f || currentTank >= 0,"Emitter::setFlow(float) : the flow and tank of an emitter cannot be both negative");
+		this->flow = flow;
+	}
+
+	void Emitter::setForce(float min,float max)
+	{
+		if (min <= max)
 		{
-			flow += deltaFlow;
-			if (flow < 0.0f)
-				flow = 0.0f;
-		}
-	}
-
-	void Emitter::setZone(Zone* zone,bool full)
-	{
-		decrementChildReference(this->zone);
-		incrementChildReference(zone);
-
-		if (zone == NULL)
-			zone = &getDefaultZone();
-
-		this->zone = zone;
-		this->full = full;
-	}
-
-	Zone& Emitter::getDefaultZone()
-	{
-		static Point defaultZone;
-		return defaultZone;
-	}
-
-	unsigned int Emitter::updateNumber(float deltaTime)
-	{
-		int nbBorn;
-		if (flow < 0.0f)
-		{
-			nbBorn = std::max(0,tank);
-			tank = 0;
-		}
-		else if (tank != 0)
-		{
-			fraction += flow * deltaTime;
-			nbBorn = static_cast<int>(fraction);
-			if (tank >= 0)
-			{
-				nbBorn = std::min(tank,nbBorn);
-				tank -= nbBorn;
-			}
-			fraction -= nbBorn;
+			forceMin = min;
+			forceMax = max;
 		}
 		else
-			nbBorn = 0;
+		{
+			SPK_LOG_WARNING("Emitter::setForce(float,float) - min is higher than max - Values are swapped");
+			forceMin = max;
+			forceMax = min;
+		}
+	}
 
-		return static_cast<unsigned int>(nbBorn);
+	void Emitter::setZone(const Ref<Zone>& zone)
+	{
+		this->zone = (!zone ? SPK_DEFAULT_ZONE : zone);
+	}
+
+	void Emitter::propagateUpdateTransform()
+	{
+		if (!zone->isShared())
+			zone->updateTransform(this);
+	}
+
+	void Emitter::emit(Particle& particle) const
+	{
+		zone->generatePosition(particle.position(),full,particle.getRadius());
+		generateVelocity(particle,SPK_RANDOM(forceMin,forceMax) / particle.getParam(PARAM_MASS));
+	}
+
+	Ref<SPKObject> Emitter::findByName(const std::string& name)
+	{
+		const Ref<SPKObject>& object = SPKObject::findByName(name);
+		if (object) return object;
+
+		return zone->findByName(name);
 	}
 }

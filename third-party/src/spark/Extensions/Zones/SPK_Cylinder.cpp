@@ -1,8 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2010                                                      //
-//  - Julien Fryer - julienfryer@gmail.com				                        //
-//  - Thibault Lescoat -  info-tibo <at> orange <dot> fr						//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -21,152 +19,130 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
+#include <SPARK_Core.h>
 #include "Extensions/Zones/SPK_Cylinder.h"
-#include "Core/SPK_Particle.h"
 
 namespace SPK
 {
-	Cylinder::Cylinder(const Vector3D& position,const Vector3D& direction,float radius,float length) :
+	Cylinder::Cylinder(
+		const Vector3D& position,
+		float height,
+		float radius,
+		const Vector3D& axis) :
 		Zone(position)
 	{
-		setDirection(direction);
+		setHeight(height);
 		setRadius(radius);
-		setLength(length);
+		setAxis(axis);
 	}
+	
+	Cylinder::Cylinder(const Cylinder& cylinder) :
+		Zone(cylinder),
+		height(cylinder.height),
+		radius(cylinder.radius),
+		axis(cylinder.axis),
+		tAxis(cylinder.tAxis),
+		tNormal(cylinder.tNormal),
+		tCoNormal(cylinder.tCoNormal)
+	{}
 
-    bool Cylinder::contains(const Vector3D& v) const
-    {
-        float dist = dotProduct(tDirection,v - getTransformedPosition());
-
-		Vector3D ext = v - (tDirection*dist + getTransformedPosition());
-		float r = ext.getNorm();
-
-		return dist <= length*0.5f && dist >= -length*0.5f && r <= radius;
-    }
-    Vector3D Cylinder::computeNormal(const Vector3D& point) const
-    {
-        float dist = dotProduct(tDirection,point - getTransformedPosition());
-        if(dist >= length*0.5f) return tDirection;
-		if(dist <= -length*0.5f) return -tDirection;
-
-		Vector3D ext = point - (tDirection*dist + getTransformedPosition());
-		float r = ext.getNorm(); ext = ext / r;
-
-		return ext;
-    }
-
-	void Cylinder::generatePosition(Particle& particle,bool full) const
+	void Cylinder::setAxis(const Vector3D& axis)
 	{
-	    float cRadius = full ? random(0.0f,radius) : radius,
-            cLength = full ? random(0.0f,length)-length*0.5f : length,
-            cAngle = random(0.0f,3.15f); // 3.15 > PI, but it has no importance here...
-
-	    // We need at least two points to compute a base
-	    Vector3D rPoint = getTransformedPosition() + Vector3D(10.0f,10.0f,10.0f);
-	    float dist = dotProduct(tDirection,rPoint);
-	    while(dist == 0.0f || tDirection*dist +getTransformedPosition() == rPoint)
-	    {
-	        // avoid dist == 0, which leads to a div by zero.
-	        rPoint += Vector3D(10.0f,10.0f,random(-10.0f,10.0f));
-	        dist = dotProduct(tDirection,rPoint);
-	    }
-
-	    Vector3D p1 = tDirection*dist +getTransformedPosition();
-	    dist = getDist(p1,rPoint);
-
-	    Vector3D a = (rPoint - p1) / dist;
-		Vector3D tmp1 = tDirection, tmp2 = a; tmp2.crossProduct(tmp1*(-1));
-        Vector3D b = tmp2;
-
-        particle.position() = getTransformedPosition() + cLength * tDirection + a * cRadius * std::cos(cAngle) + b * cRadius * std::sin(cAngle);
-	}
-
-	bool Cylinder::intersects(const Vector3D& v0,const Vector3D& v1,Vector3D* intersection,Vector3D* normal) const
-	{
-	    if(!intersection) return false;
-
-	    // mindist between line directed by tDir and line(v0 v1).
-	    Vector3D u = v1 - v0; u.normalize();
-	    if(tDirection == u || tDirection == -u) // colinear
-	    {
-	        float dist = dotProduct(tDirection,v0 - getTransformedPosition());
-
-            Vector3D ext = v0 - (tDirection*dist + getTransformedPosition());
-            float r = ext.getNorm(); ext = ext / r;
-
-            if(r == radius) //intersection
-            {
-                *intersection = getTransformedPosition() + ext * radius;
-                if(normal)
-                    *normal = computeNormal(*intersection);
-                return true;
-            }
-            else if(r < radius)
-            {
-                *intersection = getTransformedPosition() + tDirection * length*0.5f + ext * r;
-                if(normal)
-                    *normal = computeNormal(*intersection);
-                return true;
-            }
-            return false;
-	    }
-	    else
-	    {
-	        Vector3D pp = getTransformedPosition() - v0, uv = u;
-	        uv.crossProduct(tDirection);
-			float dist = std::abs(dotProduct(pp,uv))/uv.getNorm();
-
-	        float d = dotProduct(tDirection,v0 - getTransformedPosition());
-            Vector3D ext = v0 - (tDirection*d + getTransformedPosition());
-            float r = ext.getNorm();
-
-	        float ah = std::cos(std::asin(dist/r))*r;
-	        Vector3D h = v0 + u*ah;
-
-	        if(contains(h)) // intersection
-	        {
-	            float offset = 3.1415926535897932384626433832795f*0.5f*dist/radius;
-	            *intersection = h - offset * u;
-	            if(normal)
-                    *normal = computeNormal(*intersection);
-	            return true;
-	        }
-	        return false;
-	    }
-	}
-
-	void Cylinder::moveAtBorder(Vector3D& v,bool inside) const
-	{
-	    float approx = inside ? -APPROXIMATION_VALUE : APPROXIMATION_VALUE;
-        float dist = dotProduct(tDirection,v - getTransformedPosition());
-
-		Vector3D ext = v - (tDirection*dist + getTransformedPosition());
-		float r = ext.getNorm(); ext = ext / r;
-		if(dist > length*0.5f)
+		if (axis.isNull())
 		{
-		    v -= tDirection * (dist - length*0.5f - approx);
-		    if(r > radius)
-                v -= ext*(r-radius-approx);
-            return;
+			SPK_LOG_WARNING("Cylinder::setAxis(const Vector3D&) - The axis cannot be null. Default value is used");
+			this->axis.set(0.0f,1.0f,0.0f);
 		}
-		else if(dist < -length * 0.5f)
-		{
-            v += tDirection * (length*0.5f - dist - approx);
-            if(r > radius)
-                v -= ext*(r-radius-approx);
-            return;
-        }
+		else
+			this->axis = axis;
 
-        if(r > radius)
-            v -= ext*(r-radius-approx);
-        else
-            v += ext*(radius-r+approx);
+		this->axis.normalize();
+		computeTransformedBase();
+	}
+
+	void Cylinder::computeTransformedBase()
+	{
+		transformDir(tAxis,axis);
+		tAxis.normalize();
+
+		// We dont really care about the base as soon as it is orthonormal
+		Vector3D tmp(1.0f,0.0f,0.0f);
+		if (tAxis == tmp) tmp.set(0.0f,1.0f,0.0f);
+
+		tNormal = crossProduct(tAxis,tmp);
+		tNormal.normalize();
+		tCoNormal = crossProduct(tNormal,tAxis);
+	}
+
+	void Cylinder::computePointOnDisk(Vector3D& v,float radius) const
+	{
+		do v = SPK_RANDOM(-radius,radius) * tNormal + SPK_RANDOM(-radius,radius) * tCoNormal;
+		while (v.getSqrNorm() > radius * radius);
+	}
+
+	void Cylinder::generatePosition(Vector3D& v,bool full,float radius) const
+	{
+		if (full)
+		{
+			float relRadius = this->radius - radius;
+			if (relRadius <= 0.0f)
+				v.set(0.0f);
+			else
+				computePointOnDisk(v,relRadius);	
+		}
+		else
+		{
+			do computePointOnDisk(v,1.0f);
+			while (v.isNull());
+			v *= this->radius / v.getNorm();
+		}
+		
+		float relHeight = height * 0.5f - radius;
+		v += SPK_RANDOM(-relHeight,relHeight) * tAxis;
+		v += getTransformedPosition();
+	}
+	
+	bool Cylinder::contains(const Vector3D& v,float radius) const
+	{
+		Vector3D d = v - getTransformedPosition();
+		float tangentDist = dotProduct(d,tAxis);
+		if (std::abs(tangentDist) - radius > height * 0.5f)
+			return false;
+
+		float normalSqrDist = (d - tangentDist * tAxis).getSqrNorm();
+		float relRadius = this->radius - radius;
+		return normalSqrDist <= relRadius * relRadius;   
+	}
+
+	bool Cylinder::intersects(const Vector3D& v0,const Vector3D& v1,float radius,Vector3D* normal) const
+	{
+		SPK_LOG_INFO("The intersection is not implemented yet with the Cylinder Zone");
+		return false;
+	}
+
+	Vector3D Cylinder::computeNormal(const Vector3D& v) const
+	{
+		Vector3D normal = v - getTransformedPosition();
+		float dist = dotProduct(normal,tAxis);
+		if (dist > height * 0.5f) return tAxis;
+		if (dist < -height * 0.5f) return -tAxis;
+
+		normal -= dist * tAxis;
+		if (normal.getSqrNorm() > radius * radius)
+		{
+			normal.normalize();
+			return normal;
+		}
+		else
+		{
+			normalizeOrRandomize(normal);
+			return -normal;
+		}
 	}
 
 	void Cylinder::innerUpdateTransform()
 	{
 		Zone::innerUpdateTransform();
-		transformDir(tDirection,direction);
-		tDirection.normalize();
+		computeTransformedBase();
 	}
 }

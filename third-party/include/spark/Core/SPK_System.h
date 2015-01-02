@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,102 +19,230 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef H_SPK_SYSTEM
 #define H_SPK_SYSTEM
 
-#include "Core/SPK_DEF.h"
-#include "Core/SPK_Registerable.h"
-#include "Core/SPK_Transformable.h"
-#include "Core/SPK_Vector3D.h"
+#include <vector>
 
+// This define helps implement a wrapper for SPK::System by redirecting the methods
+#define SPK_IMPLEMENT_SYSTEM_WRAPPER \
+\
+private : \
+SPK::Ref<SPK::System> SPKSystem; \
+public : \
+const SPK::Ref<SPK::System>& getSPKSystem() { return SPKSystem; } \
+SPK::Ref<SPK::Group> createSPKGroup(size_t capacity) { return SPKSystem->createGroup(capacity); } \
+SPK::Ref<SPK::Group> createSPKGroup(SPK::Ref<SPK::Group>& group) { return SPKSystem->createGroup(group); } \
+void addSPKGroup(SPK::Ref<SPK::Group>& group) { SPKSystem->addGroup(group); } \
+void removeSPKGroup(SPK::Ref<SPK::Group> group) { SPKSystem->removeGroup(group); } \
+SPK::Ref<SPK::Group> getSPKGroup(size_t index) const { return SPKSystem->getGroup(index); } \
+size_t getNbSPKGroups() const { return SPKSystem->getNbGroups(); } \
+size_t getNbParticles() const { return SPKSystem->getNbParticles(); } \
+void initializeSPK() { SPKSystem->initialize(); } \
+bool isInitializedSPK() const { return SPKSystem->isInitialized(); }
 
 namespace SPK
 {
-	class Group;
-	class Vector3D;
-
-
 	/**
 	* @enum StepMode
 	* @brief Enumeration defining how to handle the step time of particle systems
-	* @since 1.05.00
 	*/
 	enum StepMode
 	{
-		STEP_REAL,			/**< The step time is the deltatime passed by the user */
-		STEP_CONSTANT,		/**< The step time is a constant time therefore 0 to many updates may occur in a call */
-		STEP_ADAPTIVE,		/**< The step time is a range between 2 values therefore 0 to many updates may occur in a call */
+		STEP_MODE_REAL,			/**< The step time is the deltatime passed by the user */
+		STEP_MODE_CONSTANT,		/**< The step time is a constant time therefore 0 to many updates may occur in a call */
+		STEP_MODE_ADAPTIVE,		/**< The step time is a range between 2 values therefore 0 to many updates may occur in a call */
 	};
 
 	/**
-	* @class System
-	* @brief A whole system of particles
-	*
-	* This class defines a whole system of particles. It contains particle groups.<br>
-	* It offers a way to handle a system very easily.<br>
-	* Basically a particle system is updated by calling update(unsigned int) and renderered with render() at each frame.<br>
-	* <br>
-	* Note that a System is only a helper class to manage many Groups. However it can be omitted and groups can be updated and rendered alone.<br>
-	* <br>
-	* A System is transformable. If the system is transformed, all its sub emitters will be transformed as well. However, its modifiers will not
-	* (modifiers can be described in the world coordinates already). If you wish to transform some of its modifiers as well, you will have to do it aside.
+	* @brief A class defining a complete system of particles
 	*/
-	class SPK_PREFIX System : public Registerable, public Transformable
+	class SPK_PREFIX System : public Transformable
 	{
-		SPK_IMPLEMENT_REGISTERABLE(System)
 
 	public :
 
-		/////////////////
-		// Constructor //
-		/////////////////
+		/////////////////////////////
+		// Constructor/Desctructor //
+		/////////////////////////////
 
-		/** @brief Constructor of System */
-		System();
+		static Ref<System> create(bool initialize = true);
+		~System();
+
+		////////////////////////////
+		// Controllers management //
+		////////////////////////////
 
 		/**
-		* @brief Creates and registers a new System
-		* @return A new registered System
-		* @since 1.04.00
+		* @brief Adds a controller to the system
 		*/
-		static System* create();
+		void addController(const Ref<Controller>& ctrl);
 
-		////////////////
-		// Destructor //
-		////////////////
+		/**
+		* @brief Removes a controller from the system
+		*/
+		void removeController(const Ref<Controller>& ctrl);
 
-		virtual ~System() {}
+		/**
+		* @brief Removes all controllers in the system
+		*/
+		void removeAllControllers();
 
-		/////////////
-		// Setters //
-		/////////////
+		/**
+		* @brief Returns the i-th controller
+		*/
+		const Ref<Controller>& getController(size_t i) const;
+
+		/**
+		* @brief Returns the number of controllers in the system
+		*/
+		size_t getNbControllers() const;
+
+		///////////////////////
+		// Groups management //
+		///////////////////////
+
+		/**
+		* @brief Adds a group to the system
+		* @param group : a pointer on the group to add to the system
+		*/
+		Ref<Group> createGroup(size_t capacity);
+
+		/**
+		* @brief Adds a group to the system which is a copy of an existing group
+		*
+		*/
+		Ref<Group> createGroup(const Ref<Group>& group);
+
+		void addGroup(const Ref<Group>& group);
+
+		/**
+		* @brief Removes a group from the system
+		*
+		* If the group cannot be found, nothing happens.
+		*
+		* @param group : a pointer on the group to remove from the system
+		*/
+		void removeGroup(const Ref<Group>& group);
+
+		/**
+		* @brief Removes all groups in this system
+		*/
+		void removeAllGroups();
+
+		/**
+		* @brief Gets the group at index
+		* @param index : the index of the group to get
+		* @return the group at index
+		*/
+		const Ref<Group>& getGroup(size_t index) const;
+
+		/**
+		* @brief Gets the number of groups in the system
+		* @return the number of groups in the system
+		*/
+		size_t getNbGroups() const;
+
+		/**
+		* @brief Gets the number of particles in the system
+		* @return the number of particles in the system
+		*/
+		size_t getNbParticles() const;
+
+		/////////////////////////////
+		// Operations on particles //
+		/////////////////////////////
+
+		/**
+		* @brief Updates the particles in the system of the current time step
+		*
+		* Note that this method updates all groups in the system from first to last.<br>
+		* A call to updateTransform(const Ref<Transformable>&) of the system is also performed prior to the groups update.
+		*
+		* @param deltaTime : the time step
+		* @return true if the System is still active (has active groups)
+		*/
+		virtual bool updateParticles(float deltaTime);
+
+		/**
+		* @brief Renders particles in the System
+		*
+		* Note that this method renders all groups in the System from first to last.
+		*/
+		virtual void renderParticles() const;
+
+		//////////////////
+		// Bounding Box //
+		//////////////////
+
+		/**
+		* @brief Enables or disables the computation of the axis aligned bounding box for this System
+		* @param AABB : true to enable the computing of the AABB of this System, false to disable it
+		*/
+		void enableAABBComputation(bool AABB);
+
+		/**
+		* @brief Tells whether the computation of the axis aligned bouding box is enabled
+		* @return true if the computation of the AABB is enabled, false if it is disabled
+		*/
+		bool isAABBComputationEnabled() const;
+
+		/**
+		* @brief Gets a Vector3D holding the minimum coordinates of the AABB of this System.
+		*
+		* Note that this method is only useful when the AABB computation is enabled (see enableAABBComputation(bool)).
+		*
+		* @return a Vector3D holding the minimum coordinates of the AABB of this System
+		*/
+		const Vector3D& getAABBMin() const;
+
+		/**
+		* @brief Gets a Vector3D holding the maximum coordinates of the AABB of this System.
+		*
+		* Note that this method is only useful when the AABB computation is enabled (see enableAABBComputation(bool)).
+		*
+		* @return a Vector3D holding the maximum coordinates of the AABB of this System
+		*/
+		const Vector3D& getAABBMax() const;
+
+		/////////////////////
+		// Camera position //
+		/////////////////////
 
 		/**
 		* @brief Sets the camera position
 		*
-		* Note that the camera position is only useful if a group has to be sorted.<br>
+		* Note that the camera position is only useful if the distance computation of a group is enabled (when the group must be sorted for instance).<br>
 		* In that case this vector will be used as the camera position to derive the distance between the particle and the camera position.<br>
-		* The camera position has to be updated before an update of the sorted group.
+		* The camera position has to be updated before an update of the sorted group and must be in the local space of the system.
 		*
 		* @param cameraPosition the camera position
 		*/
-		static void setCameraPosition(const Vector3D& cameraPosition);
+		void setCameraPosition(const Vector3D& cameraPosition);
+
+		/**
+		* @brief Gets the camera position
+		* @return the camera position
+		*/
+		const Vector3D& getCameraPosition();
+
+		///////////////
+		// Step Mode //
+		///////////////
 
 		/**
 		* @brief Enables or not the clamping on the deltaTime when updating systems
 		*
-		* This allows to limit too big deltaTime which may spoil your particle systems.<br>
-		* Basically if the deltaTime is higher than the clamp value, the clamp calue is used as the deltaTime.<br>
+		* This allows to limit too big delta times which may spoil your particle systems.<br>
+		* Basically if the deltaTime is higher than the clamp value, the clamp value is used as the deltaTime.<br>
 		* <br>
-		* It allows in real step mode to avoid having too big deltaTimes and in the other 2 modes to avoid having too
+		* It allows in real step mode to avoid having too big delta times and in the other 2 modes to avoid having too
 		* many updates that may slow down the application.<br>
 		* <br>
 		* Note that setting the clamp value too low may slow down your systems
 		*
 		* @param useClampStep : true to use a clamp value on the step, false not to
 		* @param clamp : the clamp value
-		* @since 1.05.00
 		*/
 		static void setClampStep(bool useClampStep,float clamp = 1.0f);
 
@@ -128,7 +256,6 @@ namespace SPK
 		* This mode is useful when the update must be constant (accurate collisions...) but be aware it can be very computationnaly intensive.
 		* 
 		* @param constantStep : the value of the step
-		* @since 1.05.00
 		*/
 		static void useConstantStep(float constantStep);
 
@@ -145,7 +272,6 @@ namespace SPK
 		*
 		* @param minStep : the minimal time step
 		* @param maxStep : the maximal time step
-		* @since 1.05.00
 		*/
 		static void useAdaptiveStep(float minStep,float maxStep);
 
@@ -157,33 +283,8 @@ namespace SPK
 		* <br>
 		* This mode is the simpler and the one that allows best performance on low end systems.<br>
 		* However the update may be inaccurate (due to too big deltaTime) and it performs badly with frame rate variation.
-		*
-		* @since 1.05.00
 		*/
 		static void useRealStep();
-
-		/**
-		* @brief Enables or disables the computation of the axis aligned Vector for this System
-		*
-		* Enabling the computation of the AABB for the System only takes the AABB of all AABB of the Groups within the System where AABB computation is enabled.<br>
-		* see Group::enableAABBComputing(bool) for more details.
-		*
-		* @param AABB : true to enable the computing of the AABB of this System, false to disable it
-		*/
-		void enableAABBComputing(bool AABB);
-
-		/////////////
-		// Getters //
-		/////////////
-
-		/**
-		* @brief Gets the camera position
-		*
-		* Note that the camera position vector is only read by SPARK. Only the user modifies it.
-		*
-		* @return the camera position
-		*/
-		static const Vector3D& getCameraPosition();
 
 		/**
 		* @brief Gets the current step mode
@@ -191,201 +292,46 @@ namespace SPK
 		*/
 		static StepMode getStepMode();
 
-		/**
-		* @brief Gets the number of active particles in this system
-		*
-		* The number of active particles in the system is the addition of the number of active particles in each group of the system.<br>
-		* Note that the number of active particle of the system is updated after each update of the system.<br>
-		* This means if the user changes manually the number of particles in a group and call this method before an update, the number returned will not be up to date.<br>
-		* To compute and get the real number of active particles in the System, see computeNbParticles().
-		*
-		* @return the number of active particle in the system
-		*/
-		size_t getNbParticles() const;
+		//////////
+		// Misc //
+		//////////
 
 		/**
-		* @brief Computes the number of active particles in this System and returns it
-		*
-		* Unlike getNbParticles() which returns the last number of particles computed (after a call to update(float) or empty()),
-		* this method recomputes the current number of active particles by parsing all the groups of this System.<br>
-		* In that way, this method must not be used as an accessor but call once when necesseray between 2 updates.<br>
-		* <br>
-		* Note that this method updates the inner number of particles of this System, which means a call to getNbParticles() will
-		* then return the computed number.
-		*
-		* @return the number of active particle in the system
-		* @since 1.02.01
+		* @brief Returns whether the system is active or not
+		* 
+		* A system is active if at least one of its inner groups is active
+		* A group is active if it has at least one particle or one active emitter
 		*/
-		size_t computeNbParticles();
+		bool isActive() const;
 
-		/**
-		* @brief Gets the number of groups in the System
-		* @return the number of groups in the System
-		*/
-		size_t getNbGroups() const;
+		void initialize();
+		bool isInitialized() const;
 
-		/**
-		* @brief Gets the vector of the groups (pointers) in this System
-		*
-		* This method allows to modify Group parameters within the System.<br>
-		* Note that for addition and removal, methods <i>addGroup(Group*)</i> and <i>removeGroup(Group*)</i> must exist.<br>
-		*
-		* @return a STL vector containing the groups in the System
-		*/
-		const std::vector<Group*>& getGroups() const;
-
-		/**
-		* @brief Gets the Group at index
-		*
-		* Note that no bound check is performed.
-		*
-		* @param index : the index of the Group to get
-		* @return the Group at index
-		* @since 1.03.00
-		*/
-		Group* getGroup(size_t index);
-
-		/**
-		* @brief Tells whether the computation of the axis aligned bouding box is enabled
-		*
-		* For a description of the computation of the AABB, see enableAABBComputing(bool).
-		*
-		* @return true if the computation of the AABB is enabled, false if it is disabled
-		*/
-		bool isAABBComputingEnabled() const;
-
-		/**
-		* @brief Gets a Vector3D holding the minimum coordinates of the AABB of this System.
-		*
-		* Note that this method is only useful when the AABB computation is enabled (see enableAABBComputing(bool)).
-		*
-		* @return a Vector3D holding the minimum coordinates of the AABB of this System
-		* @since 1.01.00
-		*/
-		const Vector3D& getAABBMin() const;
-
-		/**
-		* @brief Gets a Vector3D holding the maximum coordinates of the AABB of this System.
-		*
-		* Note that this method is only useful when the AABB computation is enabled (see enableAABBComputing(bool)).
-		*
-		* @return a Vector3D holding the maximum coordinates of the AABB of this System
-		* @since 1.01.00
-		*/
-		const Vector3D& getAABBMax() const;
-
-		///////////////
-		// Interface //
-		///////////////
-
-		/**
-		* @brief Adds a Group to the System
-		* @param group : a pointer on the Group to add to the System
-		*/
-		void addGroup(Group* group);
-
-		/**
-		* @brief Removes a Group from the System
-		*
-		* If the Group cannot be found, nothing happens.
-		*
-		* @param group : a pointer on the Group to remove from the System
-		*/
-		void removeGroup(Group* group);
-
-		/**
-		* @brief Updates the System of the current time step
-		*
-		* Note that this method updates all groups in the System from first to last.
-		*
-		* @param deltaTime : the time step
-		* @return true if the System is still active (has active groups)
-		*/
-		virtual bool update(float deltaTime);
-
-		/**
-		* @brief Renders particles in the System
-		*
-		* Note that this method renders all groups in the System from first to last.
-		*/
-		virtual void render() const;
-
-		/**
-		* @brief Makes this System grow to the given time
-		*
-		* This method is useful to get a newwly created System to a mature state.<br>
-		* This method only calls update(float) with the step until the total update time reaches the time.
-		*
-		* @param time : the total time of which to update this System
-		* @param step : the time the System is updated at each call to update(float)
-		*
-		* @since 1.01.00
-		*/
-		void grow(float time,float step);
-
-		/**
-		* @brief Empties the System
-		*
-		* This method will make all particles in the System inactive.<br>
-		* However all connections are kept which means groups are still in theSystem.
-		*/
-		void empty();
-
-		/**
-		* @brief Sorts the particles in all the group of this System where the sorting is enabled
-		*
-		* Note that the sorting is also performed during the update.<br>
-		* This method is therefore only useful when the camera position changes several times between 2 updates.<br>
-		* <br>
-		* This methods calls the Group::sortParticles() of each Group in this System.
-		*
-		* @since 1.01.00
-		*/
-		void sortParticles();
-
-		/**
-		* @brief Computes the distances between each Particle in each Group of this System
-		*
-		* Note that the distances computation is also performed during the update.<br>
-		* This method is therefore only useful when the camera position changes several times between 2 updates.<br>
-		* <br>
-		* This methods calls the Group::computeDistances() of each Group in this System.
-		*
-		* @since 1.01.00
-		*/
-		void computeDistances();
-
-		/**
-		* @brief Computes the bounding box of this System and of all groups in the System
-		*
-		* The bounding box of the System is only computed if the System has its bounding box computing enabled.<br>
-		* In the same way, the bounding box of a Group within the System is only computed if the Group has its bounding box computing enabled.<br>
-		* <br>
-		* Note that the computation of bounding boxes is also performed during the update.<br>
-		* This method is therefore only useful when the bounding boxes have to be recomputed between 2 updates.<br>
-		* <br>
-		* This methods calls the Group::computeAABB() of each Group in this System.
-		*
-		* @since 1.01.00
-		*/
-		void computeAABB();
-
-		virtual Registerable* findByName(const std::string& name);
+		virtual Ref<SPKObject> findByName(const std::string& name);
+		
+	public :
+		spark_description(System, Transformable)
+		(
+			spk_attribute(bool, computeAABB, enableAABBComputation, isAABBComputationEnabled);
+			spk_array(Ref<Group>, groups, addGroup, removeGroup, removeAllGroups, getGroup, getNbGroups);
+			spk_array(Ref<Controller>, controllers, addController, removeController, removeAllControllers, getController, getNbControllers);
+		);
 
 	protected :
 
-		std::vector<Group*> groups;
+		std::vector<Ref<Group> > groups; // vector containing all the groups of the system
+		std::vector<Ref<Controller> > controllers;
 
-		virtual void registerChildren(bool registerAll);
-		virtual void copyChildren(const Registerable& object,bool keepChildren);
-		virtual void destroyChildren(bool createBase);
+		System(bool initialize = true);
+		System(const System& system);
 
 		virtual void propagateUpdateTransform();
 
 	private :
 
-		static Vector3D cameraPosition;
+		Vector3D cameraPosition;
 
+		// Step mode
 		static StepMode stepMode;
 		static float constantStep;
 		static float minStep;
@@ -396,31 +342,33 @@ namespace SPK
 
 		float deltaStep;
 
-		size_t nbParticles;
+		bool initialized;
+		bool active;
 
-		bool boundingBoxEnabled;
+		// AABB
+		bool AABBComputationEnabled;
 		Vector3D AABBMin;
 		Vector3D AABBMax;
 
 		bool innerUpdate(float deltaTime);
+
+		static void setGroupSystem(const Ref<Group>& group,System* system,bool remove = true);
 	};
 
-
-	inline System* System::create()
-	{
-		System* obj = new System;
-		registerObject(obj);
-		return obj;
-	}
-	
-	inline void System::enableAABBComputing(bool AABB)
-	{
-		boundingBoxEnabled = AABB;
+	inline Ref<System> System::create(bool initialize) 
+	{ 
+		return SPK_NEW(System,initialize); 
 	}
 
-	inline size_t System::getNbParticles() const
+	inline const Ref<Group>& System::getGroup(size_t index) const
 	{
-		return nbParticles;
+		SPK_ASSERT(index < getNbGroups(),"System::getGroup(size_t) - Index of group is out of bounds : " << index);
+		return groups[index];
+	}
+
+	inline void System::removeAllGroups()
+	{
+		groups.clear();
 	}
 
 	inline size_t System::getNbGroups() const
@@ -428,19 +376,36 @@ namespace SPK
 		return groups.size();
 	}
 
-	inline const std::vector<Group*>& System::getGroups() const
+	inline void System::addController(const Ref<Controller>& ctrl)
 	{
-		return groups;
+		if(ctrl)
+			controllers.push_back(ctrl);
 	}
 
-	inline Group* System::getGroup(size_t index)
+	inline void System::removeAllControllers()
 	{
-		return groups[index];
+		controllers.clear();
 	}
 
-	inline bool System::isAABBComputingEnabled() const
+	inline const Ref<Controller>& System::getController(size_t i) const
 	{
-		return boundingBoxEnabled;
+		SPK_ASSERT(i < getNbControllers(),"System::getController(size_t) - Index of controller is out of bounds : " << i);
+		return controllers[i];
+	}
+
+	inline size_t System::getNbControllers() const
+	{
+		return controllers.size();
+	}
+
+	inline void System::enableAABBComputation(bool AABB)
+	{
+		AABBComputationEnabled = AABB;
+	}
+
+	inline bool System::isAABBComputationEnabled() const
+	{
+		return AABBComputationEnabled;
 	}
 
 	inline const Vector3D& System::getAABBMin() const
@@ -451,6 +416,55 @@ namespace SPK
 	inline const Vector3D& System::getAABBMax() const
 	{
 		return AABBMax;
+	}
+
+	inline void System::setCameraPosition(const Vector3D& cameraPosition)
+	{
+		this->cameraPosition = cameraPosition;
+	}
+
+	inline const Vector3D& System::getCameraPosition()
+	{
+		return cameraPosition;
+	}
+
+	inline void System::setClampStep(bool enableClampStep,float clamp)
+	{
+		clampStepEnabled = enableClampStep;
+		clampStep = clamp;
+	}
+
+	inline void System::useConstantStep(float constantStep)
+	{
+		stepMode = STEP_MODE_CONSTANT;
+		System::constantStep = constantStep;
+	}
+
+	inline void System::useAdaptiveStep(float minStep,float maxStep)
+	{
+		stepMode = STEP_MODE_ADAPTIVE;
+		System::minStep = minStep;
+		System::maxStep = maxStep;
+	}
+
+	inline void System::useRealStep()
+	{
+		stepMode = STEP_MODE_REAL;
+	}
+
+	inline StepMode System::getStepMode()
+	{
+		return stepMode;
+	}
+
+	inline bool System::isInitialized() const
+	{
+		return initialized;
+	}
+
+	inline bool System::isActive() const
+	{
+		return active;
 	}
 }
 

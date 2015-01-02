@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,57 +19,62 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef H_SPK_DESTROYER
 #define H_SPK_DESTROYER
 
-#include "Core/SPK_Modifier.h"
-
-
 namespace SPK
 {
-	/**
-	* @class Destroyer
-	* @brief A Modifier that destroy particles
-	*/
-	class SPK_PREFIX Destroyer : public Modifier
+	/** @brief A Modifier that destroy particles */
+	class Destroyer : public ZonedModifier
 	{
-		SPK_IMPLEMENT_REGISTERABLE(Destroyer)
-
 	public :
 
-		/////////////////
-		// Constructor //
-		/////////////////
-
 		/**
-		* @brief Constructor of Destroyer
-		* @param zone : the Zone of the Destroyer
-		* @param trigger : the trigger of the Destroyer
+		* @brief Creates a new destroyer
+		* @param zone : the zone
+		* @param zoneTest : the zone test
+		* @return A new destroyer
 		*/
-		Destroyer(Zone* zone = NULL,ModifierTrigger trigger = INSIDE_ZONE);
+		static  Ref<Destroyer> create(const Ref<Zone>& zone = SPK_NULL_REF,ZoneTest zoneTest = ZONE_TEST_INSIDE);
 
-		/**
-		* @brief Creates and registers a new Destroyer
-		* @param zone : the Zone of the Destroyer
-		* @param trigger : the trigger of the Destroyer
-		* @return A new registered Destroyer
-		* @since 1.04.00
-		*/
-		static Destroyer* create(Zone* zone = NULL,ModifierTrigger trigger = INSIDE_ZONE);
+	public :
+		spark_description(Destroyer, ZonedModifier)
+		(
+		);
 
 	private :
 
-		virtual void modify(Particle& particle,float deltaTime) const;
-		virtual void modifyWrongSide(Particle& particle,bool inside) const;
+		Destroyer(const Ref<Zone>& zone = SPK_NULL_REF,ZoneTest zoneTest = ZONE_TEST_INSIDE);
+		Destroyer(const Destroyer& destroyer);
+
+		virtual void init(Particle& particle,DataSet* dataSet) const;
+		virtual  void modify(Group& group,DataSet* dataSet,float deltaTime) const;
 	};
 
-
-	inline Destroyer* Destroyer::create(Zone* zone,ModifierTrigger trigger)
+	inline Ref<Destroyer> Destroyer::create(const Ref<Zone>& zone,ZoneTest zoneTest)
 	{
-		Destroyer* obj = new Destroyer(zone,trigger);
-		registerObject(obj);
-		return obj;
+		return SPK_NEW(Destroyer,zone,zoneTest);
+	}
+
+	inline Destroyer::Destroyer(const Ref<Zone>& zone,ZoneTest zoneTest) :
+		ZonedModifier(MODIFIER_PRIORITY_COLLISION,false,true,false,ZONE_TEST_FLAG_ALL & ~ZONE_TEST_FLAG_ALWAYS,zoneTest,zone)
+	{}
+
+	inline Destroyer::Destroyer(const Destroyer& destroyer) :
+		ZonedModifier(destroyer)
+	{}
+
+	inline void Destroyer::init(Particle& particle,DataSet* dataSet) const
+	{
+		if (checkZone(particle))
+			particle.kill();
+	}
+
+	inline void Destroyer::modify(Group& group,DataSet* dataSet,float deltaTime) const
+	{
+		for (GroupIterator particleIt(group); !particleIt.end(); ++particleIt)
+			if (checkZone(*particleIt))
+				particleIt->kill();
 	}
 }
 

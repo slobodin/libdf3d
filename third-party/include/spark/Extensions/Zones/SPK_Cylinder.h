@@ -1,8 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2010                                                      //
-//  - Julien Fryer - julienfryer@gmail.com				                        //
-//  - Thibault Lescoat -  info-tibo <at> orange <dot> fr						//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -24,121 +22,39 @@
 #ifndef H_SPK_CYLINDER
 #define H_SPK_CYLINDER
 
-#include "Core/SPK_Zone.h"
-
 namespace SPK
 {
-	/**
-	* @brief A Zone defining a cylinder in the universe
-	*
-	* A cylinder is defined by :
-	* <ul>
-	* <li>The position of its center</li>
-	* <li>A direction</li>
-	* <li>The radius of the cylinder</li>
-	* <li>A dimension (length) along the direction</li>
-	* </ul>
-	* Note that the direction does not have to be normalized as it is normalized internally when set.
-	*
-	* @since 1.05.03
-	*/
 	class SPK_PREFIX Cylinder : public Zone
 	{
-		SPK_IMPLEMENT_REGISTERABLE(Cylinder)
+	public :
+	
+		static Ref<Cylinder> create(
+			const Vector3D& position = Vector3D(),
+			float height = 1.0f,
+			float radius = 1.0f,
+			const Vector3D& axis = Vector3D(0.0f,1.0f,0.0f));
+
+		void setHeight(float h);
+		void setRadius(float r);
+		float getHeight() const	{ return height; }
+		float getRadius() const	{ return radius; }
+
+		void setAxis(const Vector3D& axis);
+		const Vector3D& getAxis() const				{ return axis; }
+		const Vector3D& getTransformedAxis() const	{ return tAxis; }
+
+		virtual void generatePosition(Vector3D& v,bool full,float radius = 0.0f) const;
+		virtual bool contains(const Vector3D& v,float radius = 0.0f) const;
+		virtual bool intersects(const Vector3D& v0,const Vector3D& v1,float radius = 0.0f,Vector3D* normal = NULL) const;
+		virtual Vector3D computeNormal(const Vector3D& v) const;
 
 	public :
-
-		//////////////////
-		// Constructors //
-		//////////////////
-
-		/**
-		* @brief Constructor of cylinder
-		* @param position : the position of the cylinder
-		* @param direction : the direction of the cylinder
-		* @param radius : the  radius of the cylinder
-		*/
-		Cylinder(const Vector3D& position = Vector3D(0.0f,0.0f,0.0f),const Vector3D& direction = Vector3D(0.0f,1.0f,0.0f),float radius = 1.0f,float length = 1.0f);
-
-		/**
-		* @brief Creates and registers a new cylinder
-		* @param position : the position of the cylinder
-		* @param direction : the direction of the cylinder
-		* @param radius : the  radius of the cylinder
-		* @return a new registered cylinder
-		*/
-		static Cylinder* create(const Vector3D& position = Vector3D(0.0f,0.0f,0.0f),const Vector3D& direction = Vector3D(0.0f,1.0f,0.0f),float radius = 1.0f,float length = 1.0f);
-
-		/////////////
-		// Setters //
-		/////////////
-
-		/**
-		* @brief Sets the direction of the cylinder
-		*
-		* Note that the direction is normalized internally
-		*
-		* @param direction : the direction of the cylinder
-		*/
-		void setDirection(const Vector3D& direction);
-
-		/**
-		* @brief Sets the radius of this cylinder
-		*
-		* A radius cannot be negative.<br>
-		* Note that negative radius are inverted internally
-		*
-		* @param radius : the radius of this cylinder
-		*/
-		void setRadius(float radius);
-
-		/**
-		* @brief Sets the length of this cylinder
-		*
-		* A length cannot be negative.<br>
-		* Note that negative length are inverted internally
-		*
-		* @param length : the length of this cylinder
-		*/
-		void setLength(float length);
-
-		/////////////
-		// Getters //
-		/////////////
-
-		/**
-		* @brief Gets the direction of this cylinder
-		* @return the direction of this cylinder
-		*/
-		const Vector3D& getDirection() const;
-
-		/**
-		* @brief Gets the transformed direction of this cylinder
-		* @return the transformed direction of this cylinder
-		*/
-		const Vector3D& getTransformedDirection() const;
-
-		/**
-		* @brief Gets the radius of this cylinder
-		* @return the radius of this cylinder
-		*/
-		float getRadius() const;
-
-		/**
-		* @brief Gets the length of this cylinder
-		* @return the length of this cylinder
-		*/
-		float getLength() const;
-
-		///////////////
-		// Interface //
-		///////////////
-
-		virtual void generatePosition(Particle& particle,bool full) const;
-		virtual bool contains(const Vector3D& v) const;
-		virtual bool intersects(const Vector3D& v0,const Vector3D& v1,Vector3D* intersection,Vector3D* normal) const;
-		virtual void moveAtBorder(Vector3D& v,bool inside) const;
-		virtual Vector3D computeNormal(const Vector3D& point) const;
+		spark_description(Cylinder, Zone)
+		(
+			spk_attribute(Vector3D, axis, setAxis, getAxis);
+			spk_attribute(float, height, setHeight, getHeight);
+			spk_attribute(float, radius, setRadius, getRadius);
+		);
 
 	protected :
 
@@ -146,56 +62,38 @@ namespace SPK
 
 	private :
 
-		Vector3D direction;
-		Vector3D tDirection;
+		float height;
+		float radius;
 
-		float radius,length;
+		Vector3D axis;
+		Vector3D tAxis;
+		Vector3D tNormal;
+		Vector3D tCoNormal;
+
+		Cylinder(
+			const Vector3D& position = Vector3D(),
+			float height = 1.0f,
+			float radius = 1.0f,
+			const Vector3D& axis = Vector3D(0.0f,1.0f,0.0f));
+		Cylinder(const Cylinder& cylinder);
+
+		void computeTransformedBase();
+		void computePointOnDisk(Vector3D& v,float radius) const;
 	};
 
-
-	inline Cylinder* Cylinder::create(const Vector3D& position,const Vector3D& direction,float radius,float length)
+	inline Ref<Cylinder> Cylinder::create(const Vector3D& position,float height,float radius,const Vector3D& axis)
 	{
-		Cylinder* obj = new Cylinder(position,direction,radius,length);
-		registerObject(obj);
-		return obj;
+		return SPK_NEW(Cylinder,position,height,radius,axis);
 	}
 
-	inline void Cylinder::setDirection(const Vector3D& direction)
+	inline void Cylinder::setHeight(float h)
 	{
-		this->direction = direction;
-		this->direction.normalize();
-		tDirection = this->direction;
-		notifyForUpdate();
+		height = h >= 0 ? h : 0;
 	}
 
-	inline void Cylinder::setRadius(float radius)
+	inline void Cylinder::setRadius(float r)
 	{
-	    this->radius = (radius < 0 ? -radius : radius);
-	}
-
-	inline void Cylinder::setLength(float length)
-	{
-	    this->length = (length < 0 ? -length : length);
-	}
-
-	inline const Vector3D& Cylinder::getDirection() const
-	{
-		return direction;
-	}
-
-	inline const Vector3D& Cylinder::getTransformedDirection() const
-	{
-		return tDirection;
-	}
-
-	inline float Cylinder::getRadius() const
-	{
-		return radius;
-	}
-
-	inline float Cylinder::getLength() const
-	{
-	    return length;
+		radius = r >= 0 ? r : 0;
 	}
 }
 

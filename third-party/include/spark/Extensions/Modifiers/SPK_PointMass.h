@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,114 +19,103 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef H_SPK_POINTMASS
 #define H_SPK_POINTMASS
-
-#include "Core/SPK_Modifier.h"
 
 namespace SPK
 {
 	/**
-	* @class PointMass
-	* @brief A Modifier defining a point with a mass that attracts or repulses particles
+	* @brief A Modifier defining a point with a mass that attracts or repels particles
 	*
-	* A PointMass triggered on a Particle will affect its velocity as followed :<br>
-	* <i>dist = pointMassPosition - particlePosition<br>
-	* particleVelocity += dist * mass * step / max(minDistance,|dist|)</i>
+	* The power of the force is function of the square of the distance of the particle to the point mass.<br>
+	* An offset is added to the distance to prevent from having a force reaching the infinity.<br>
+	* <br>
+	* A positive mass will attract particles while a negative mass whill repel them.
 	*/
 	class SPK_PREFIX PointMass : public Modifier
 	{
-		SPK_IMPLEMENT_REGISTERABLE(PointMass)
-
 	public :
 
-		////////////////
-		// Construtor //
-		////////////////
-
 		/**
-		* @brief Constructor of PointMass
-		* @param zone : the Zone of the PointMass
-		* @param trigger : the trigger of the PointMass
-		* @param mass : the mass of the PointMass
-		* @param minDistance : the minimum distance of the PointMass
+		* @brief Creates a new point mass
+		* @param pos : the position
+		* @param mass : the mass
+		* @param offset : the offset
 		*/
-		PointMass(Zone* zone = NULL,ModifierTrigger trigger = INSIDE_ZONE,float mass = 1.0f,float minDistance = 0.05f);
+		static  Ref<PointMass> create(const Vector3D& pos = Vector3D(),float mass = 1.0f,float offset = 0.01f);
+		
+		//////////////
+		// Position //
+		//////////////
 
 		/**
-		* @brief Creates and registers a new PointMass
-		* @param zone : the Zone of the PointMass
-		* @param trigger : the trigger of the PointMass
-		* @param mass : the mass of the PointMass
-		* @param minDistance : the minimum distance of the PointMass
-		* @return A new registered PointMass
-		* @since 1.04.00
-		*/
-		static PointMass* create(Zone* zone = NULL,ModifierTrigger trigger = INSIDE_ZONE,float mass = 1.0f,float minDistance = 0.05f);
-
-		/////////////
-		// Setters //
-		/////////////
-
-		/**
-		* @brief Sets the delta position from the position of the zone (or origin if no zone set)
-		* @param pos : the delta position
-		* @since 1.03.02
+		* @brief Sets the position of the point mass
+		* @param pos : the position
 		*/
 		void setPosition(const Vector3D& pos);
 
 		/**
-		* @brief Sets the mass of this PointMass
-		*
-		* The mass defines the strenght of the attraction. The more the mass, the stronger the attraction.<br>
-		* A position mass will result into an attraction while a negative mass will result into a repulsion.
-		* Moreover a mass equal to 0 make the PointMass have no effect.
-		*
-		* @param mass : the mass of this PointMass
-		*/
-		void setMass(float mass);
-
-		/**
-		* @brief Sets the minimum distance of this PointMass
-		*
-		* The minimum distance of the PointMass is the minimum distance that can be considered to compute the force implied by the PointMass.
-		* If a distance between a Particle and a PointMass is inferior to the minimum distance of the PointMass, the distance is clamped to the minimum distance.<br>
-		* This avoids forces that approaching the infinity with Particle getting very close to the PointMass.
-		*
-		* @param minDistance : the minimum distance of this PointMass
-		*/
-		void setMinDistance(float minDistance);
-
-		/////////////
-		// Getters //
-		/////////////
-
-		/**
-		* @brief Gets the delta position
-		* @return the delta position
-		* @since 1.03.02
+		* @brief Gets the position of the point mass
+		* @return the position
 		*/
 		const Vector3D& getPosition() const;
 
 		/**
-		* @brief Gets the transformed delta position
-		* @return the transformed delta position
-		* @since 1.03.02
+		* @brief Gets the transformed position of the point mass
+		* @return the transformed position
 		*/
 		const Vector3D& getTransformedPosition() const;
 
+		//////////
+		// Mass //
+		//////////
+
 		/**
-		* @brief Gets the mass of this PointMass
-		* @return the mass of this PointMass
+		* @brief Sets the mass of the point mass
+		*
+		* The mass defines the strenght of the attraction. The more the mass, the stronger the attraction.<br>
+		* A position mass will result into an attraction while a negative mass will result into a repulsion.<br>
+		* Moreover a mass equal to 0 make the PointMass have no effect.
+		*
+		* @param mass : the mass
+		*/
+		void setMass(float mass);
+
+		/**
+		* @brief Gets the mass of the point mass
+		* @return the mass
 		*/
 		float getMass() const;
 
+		////////////
+		// Offset //
+		////////////
+
 		/**
-		* @brief Gets the minimum distance of this PointMass
-		* @return the minimum distance of this PointMass
+		* @brief Sets the offset of the point mass
+		*
+		* The offset if added to the distance of the particle to the point mass during force computation.<br>
+		* It prevent the force from approaching infinity as the particle gets closer to the point mass.<br>
+		* <br>
+		* Note that the offset must be strictly positive.
+		*
+		* @param offset : the offset
 		*/
-		float getMinDistance() const;
+		void setOffset(float offset);
+
+		/**
+		* @brief Gets the offset of the point mass
+		* @return the offset
+		*/
+		float getOffset() const;
+
+	public :
+		spark_description(PointMass, Modifier)
+		(
+			spk_attribute(Vector3D, position, setPosition, getPosition);
+			spk_attribute(float, mass, setMass, getMass);
+			spk_attribute(float, offset, setOffset, getOffset);
+		);
 
 	protected :
 
@@ -138,35 +127,23 @@ namespace SPK
 		Vector3D tPosition;
 
 		float mass;
-		float minDistance;
-		float sqrMinDistance;
+		float offset;
 
-		virtual void modify(Particle& particle,float deltaTime) const;
+		PointMass(const Vector3D& pos = Vector3D(),float mass = 1.0f,float offset = 0.01f);
+		PointMass(const PointMass& pointMass);
+
+		virtual void modify(Group& group,DataSet* dataSet,float deltaTime) const;
 	};
 
-
-	inline PointMass* PointMass::create(Zone* zone,ModifierTrigger trigger,float mass,float minDistance)
+	inline Ref<PointMass> PointMass::create(const Vector3D& pos,float mass,float offset)
 	{
-		PointMass* obj = new PointMass(zone,trigger,mass,minDistance);
-		registerObject(obj);
-		return obj;
+		return SPK_NEW(PointMass,pos,mass,offset);
 	}
-		
+
 	inline void PointMass::setPosition(const Vector3D& pos)
 	{
-		position = tPosition = pos;
-		notifyForUpdate();
-	}
-
-	inline void PointMass::setMass(float mass)
-	{
-		this->mass = mass;
-	}
-
-	inline void PointMass::setMinDistance(float minDistance)
-	{
-		this->minDistance = minDistance;
-		sqrMinDistance = minDistance * minDistance;
+		position = pos;
+		transformPos(tPosition,pos);
 	}
 
 	inline const Vector3D& PointMass::getPosition() const
@@ -179,20 +156,24 @@ namespace SPK
 		return tPosition;
 	}
 
+	inline void PointMass::setMass(float mass)
+	{
+		this->mass = mass;
+	}
+
 	inline float PointMass::getMass() const
 	{
 		return mass;
 	}
 
-	inline float PointMass::getMinDistance() const
+	inline float PointMass::getOffset() const
 	{
-		return minDistance;
+		return offset;
 	}
 
 	inline void PointMass::innerUpdateTransform()
 	{
-		Modifier::innerUpdateTransform();
-		transformDir(tPosition,position); // the delta position is actually a direction not a position
+		transformPos(tPosition,position);
 	}
 }
 

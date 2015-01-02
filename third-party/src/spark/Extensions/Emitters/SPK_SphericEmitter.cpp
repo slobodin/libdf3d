@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,39 +19,57 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
+#include <SPARK_Core.h>
 #include "Extensions/Emitters/SPK_SphericEmitter.h"
-#include "Core/SPK_Particle.h"
 
 namespace SPK
 {
 	const float SphericEmitter::PI = 3.1415926535897932384626433832795f;
 
-	SphericEmitter::SphericEmitter(const Vector3D& direction,float angleA,float angleB) :
-		Emitter()
+	SphericEmitter::SphericEmitter(
+		const Vector3D& direction,
+		float angleMin,
+		float angleMax,
+		const Ref<Zone>& zone,
+		bool full,
+		int tank,
+		float flow,
+		float forceMin,
+		float forceMax) :
+		Emitter(zone,full,tank,flow,forceMin,forceMax)
 	{
 		setDirection(direction);
-		setAngles(angleA,angleB);
+		setAngles(angleMin,angleMax);
 	}
 
-	void SphericEmitter::setDirection(const Vector3D& direction)
+	SphericEmitter::SphericEmitter(const SphericEmitter& emitter) :
+		Emitter(emitter)
 	{
-		tDirection = direction;
+		setDirection(emitter.direction);
+		setAngles(emitter.angleMin,emitter.angleMax);
+	}
+
+	void SphericEmitter::setDirection(const Vector3D& dir)
+	{
+		direction = dir;
+		direction.normalize();
+		transformDir(tDirection,direction);
 		computeMatrix();
-		this->direction = tDirection; // as tDirection was normalized in computeMatrix()
-		notifyForUpdate();
 	}
 
-	void SphericEmitter::setAngles(float angleA,float angleB)
+	void SphericEmitter::setAngles(float angleMin,float angleMax)
 	{
-		if (angleB < angleA)
-			std::swap(angleA,angleB);
+		if (angleMax < angleMin)
+		{
+			SPK_LOG_WARNING("SphericEmitter::setAngles(float,float) - angleMin is higher than angleMax - Values are swapped");
+			std::swap(angleMin,angleMax);
+		}
 
-		angleA = std::min(2.0f * PI,std::max(0.0f,angleA));
-		angleB = std::min(2.0f * PI,std::max(0.0f,angleB));
+		angleMin = std::min(2.0f * PI,std::max(0.0f,angleMin));
+		angleMax = std::min(2.0f * PI,std::max(0.0f,angleMax));
 
-		angleMin = angleA;
-		angleMax = angleB;
+		this->angleMin = angleMin;
+		this->angleMax = angleMax;
 
 		cosAngleMin = std::cos(angleMin * 0.5f);
 		cosAngleMax = std::cos(angleMax * 0.5f);
@@ -59,10 +77,10 @@ namespace SPK
 
 	void SphericEmitter::computeMatrix()
 	{
-		tDirection.normalize();
+		if (!tDirection.normalize())
+			SPK_LOG_WARNING("SphericEmitter::computeMatrix() - The direction is a null vector");
 		if ((tDirection.x == 0.0f)&&(tDirection.y == 0.0f))
-		{
-			
+		{			
 			matrix[0] = tDirection.z;
 			matrix[1] = 0.0f;
 			matrix[2] = 0.0f;
@@ -100,9 +118,9 @@ namespace SPK
 
 	void SphericEmitter::generateVelocity(Particle& particle,float speed) const
 	{
-		float a = random(cosAngleMax,cosAngleMin);
+		float a = SPK_RANDOM(cosAngleMax,cosAngleMin);
 		float theta = std::acos(a);
-		float phi = random(0.0f,2.0f * PI);
+		float phi = SPK_RANDOM(0.0f,2.0f * PI);
 
 		float sinTheta = std::sin(theta);
 		float x = sinTheta * std::cos(phi);

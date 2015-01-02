@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,299 +19,281 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef H_SPK_EMITTER
 #define H_SPK_EMITTER
 
-#include "Core/SPK_DEF.h"
-#include "Core/SPK_Registerable.h"
-#include "Core/SPK_Transformable.h"
-#include "Core/SPK_Zone.h"
-#include "Core/SPK_Particle.h"
-
-
 namespace SPK
 {
-	class Group;
 	class Particle;
-
+	class Group;
 
 	/**
-	* @class Emitter
 	* @brief An abstract class that defines an emitter of particles
 	*
-	*
-	* An Emitter is an object that will launch particles by giving them a velocity and a position.<br>
-	* the position is derived from the Zone of the Emitter.<br>
-	* the velocity is derived from the Emitter itself.<br>
+	* An emitter is an object that launches particles by giving them an initial velocity and position.<br>
+	* The position is derived from the zone of the emitter.<br>
+	* The velocity is derived from the emitter itself.<br>
 	* <br>
 	* An Emitter has a flow and a tank of particles.
-	* The flow defines the rate at which particles are launched and the tank defines the total number of Particles the Emitter can launched.<br>
-	* Note that the flow and the tank of an Emitter are only used when the Emitter emits automatically from a Group
-	* but the user can also emit manually outside a Group.
+	* The flow defines the rate at which particles are launched and the tank defines the total number of Particles the Emitter can launch.<br>
+	* An emitter is also defined by a range of forces (force min and force max) which defines the force at which particles are emitted <i>(initial velocity = force / mass)</i>.<br>
 	*/
-	class SPK_PREFIX Emitter : public Registerable, public Transformable
+	class SPK_PREFIX Emitter :	public Transformable
 	{
 	friend class Group;
 
 	public :
 
-		/////////////////
-		// Constructor //
-		/////////////////
+		virtual ~Emitter();
 
-		/** @brief Constructor of Emitter */
-		Emitter();
-
-		////////////////
-		// Destructor //
-		////////////////
-
-		/** @brief Destructor of Emitter */
-		virtual ~Emitter() {}
-
-		/////////////
-		// Setters //
-		/////////////
+		////////////
+		// Active //
+		////////////
 
 		/**
-		* @brief Sets this Emitter active or not.
+		* @brief Sets this emitter active or not.
 		*
-		* An inactive Emitter will not emit in its parent Group during update.<br>
-		* However it can still be used manually by the user.
+		* An inactive emitter will not emit in its parent Group during update.<br>
 		*
-		* @param active : true to activate this Emitter, false to deactivate it
-		* @since 1.05.00
+		* @param active : true to activate this emitter, false to deactivate it
 		*/
 		void setActive(bool active);
 
 		/**
-		* @brief Sets the number of particles in this Emitter's tank
+		* @brief Tells whether this emitter is active or not
+		* @return true if this emitter is active, false if is is inactive
+		*/
+		bool isActive() const;
+
+		//////////
+		// Tank //
+		//////////
+
+		/**
+		* @brief Sets the initial number of particles in this emitter's tank
 		*
-		* Each time the Emitter is updated, the number of particles emitted is deduced from the Emitter tank.
-		* When the tank reaches 0, the Emitter will not emit any longer until it is refilled.<br>
+		* Each time the emitter is updated, the number of particles emitted is deduced from the emitter tank.
+		* When the tank reaches 0, the emitter will not emit any longer until it is refilled.<br>
 		* <br>
-		* A number of -1 (or any negative number) means the Emitter has an infinite tank which will never be empty.
+		* A number of -1 (or any negative number) means the emitter has an infinite tank which will never be empty.<br>
+		/ <br>
+		* Note that having both negative tank and flow is illegal.
+		* The current tank can be reset to its initial value with a call to resetTank()
 		*
-		* @param tank : the number of particles in this Emitters's tank
+		* @param tank : the initial number of particles in this emitters's tank
 		*/
 		void setTank(int tank);
 
 		/**
-		* @brief Changes the number of particles in this Emitters's tank
+		* @brief Sets the min and max number of particles in this emitter's tank
+		* 
+		* min and max value must be of the same sign (negative numbers meaning the tank is infinite).<br>
+		* The current tank is drawn between min and max.<br>
+		* The current tank can be redrawn with a call to resetTank().
 		*
-		* The new number of particles in the tank is equal to : <i>number of particles in the tank + n</i>.<br>
-		* This method has no effect for Emitters with infinite tank (a negative number of particles) and an Emitter cannot become infinite with this method (the new number is clamped to 0).
-		*
-		* @param deltaTank : the number to add to the current tank
+		* @param minTank : the minimum initial number of particles in this emitters's tank
+		* @param maxTank : the maximum initial number of particles in this emitters's tank
 		*/
-		void changeTank(int deltaTank);
+		void setTank(int minTank,int maxTank);
 
 		/**
-		* @brief Sets the flow of this Emitter
+		* @brief Gets the current number of particles in this emitter's tank
+		* @return the current number of particles in this emitters's tank
+		*/
+		int getCurrentTank() const;
+
+		/**
+		* @brief Gets the minimum initial number of particles in this emitter's tank
+		* @return the minimum initial number of particles in this emitters's tank
+		*/
+		int getMinTank() const;
+
+		/**
+		* @brief Gets the maximum initial number of particles in this emitter's tank
+		* @return the maximum initial number of particles in this emitters's tank
+		*/
+		int getMaxTank() const;
+
+		/**
+		* @brief Resets the current tank
+		* The current tank is reevaluated between the min and max tank
+		*/
+		void resetTank();
+
+		//////////
+		// Flow //
+		//////////
+
+		/**
+		* @brief Sets the flow of this emitter
 		*
-		* The flow is in the unit : nb of particle per step.
-		* A flow of -1 (or any negative number) indicates an infinite flow which means all particles in the Emitters(s tank are generated instantly.<br>
-		* Note that if both the flow and the tank are infinite, nothing will happen.
+		* The flow is in the unit : nb of particle per unit step.
+		* A flow of -1 (or any negative number) indicates an infinite flow which means all particles in the emitters's tank are generated instantly.<br>
+		* <br>
+		* Note that having both negative tank and flow is illegal.
 		*
-		* @param flow : the flow of this Emitter
+		* @param flow : the flow of this emitter
 		*/
 		void setFlow(float flow);
 
 		/**
-		* @brief Changes the flow of particles of this Emitter
-		*
-		* The new flow is equal to : <i>flow of the Emitter + deltaFlow</i>.<br>
-		* This method has no effect for Emitters with infinite flow (a negative flow of particles) and an Emitter's flow cannot become infinite with this method (the new flow is clamped to 0).
-		*
-		* @param deltaFlow : the number to add to the current flow
+		* @brief Gets the flow of this emitter
+		* @return the flow of this emitter
 		*/
-		void changeFlow(float deltaFlow);
+		float getFlow() const;
+
+		///////////
+		// Force //
+		///////////
 
 		/**
-		* @brief Sets the force of this Emitter
+		* @brief Sets the force of this emitter
 		*
-		* The force of the Emitter vary for each launch of a Particle between a minimum and a maximum.
+		* The force of the emitter varies for each launch of a Particle between a minimum and a maximum.
 		* To have a fixed force for the Emitter, just have <i>min = max</i>.<br>
 		* <br>
-		* the speed at which a Particle will be launched is equal to : <i>force / weight of the Particle</i>.
+		* the speed at which a Particle will be launched is equal to : <i>force / mass of the Particle</i>.
 		*
-		* @param min : the minimum force of the Emitter
-		* @param max : the maximum force of the Emitter
+		* @param min : the minimum force of the emitter
+		* @param max : the maximum force of the emitter
 		*/
 		void setForce(float min,float max);
 
 		/**
-		* @brief Sets the Zone of this Emitter
-		*
-		* If the Zone is NULL, the default Zone will be used (A Point centered at the origin)
-		*
-		* @param zone : the Zone of this Emitter
-		* @param full : true to generate particles in the whole Zone, false to generate particles only at the Zone borders.
-		*/
-		void setZone(Zone* zone,bool full = true);
-
-		/////////////
-		// Getters //
-		/////////////
-
-		/**
-		* @brief Tells whether this Emitter is active or not
-		* @return true if this Emitter is active, false if is is inactive
-		* @since 1.05.00
-		*/
-		bool isActive() const;
-
-		/**
-		* @brief Gets the number of particles in this Emitter's tank
-		* @return the number of particles in this Emitters's tanl
-		*/
-		int getTank() const;
-
-		/**
-		* @brief Gets the flow of this Emitter
-		* @return the flow of this Emitter
-		*/
-		float getFlow() const;
-
-		/**
-		* @brief Gets the minimum force of this Emitter
-		* @return the minimum force of this Emitter
+		* @brief Gets the minimum force of this emitter
+		* @return the minimum force of this emitter
 		*/
 		float getForceMin() const;
 
 		/**
-		* @brief Gets the maximum force of this Emitter
-		* @return the maximum force of this Emitter
+		* @brief Gets the maximum force of this emitter
+		* @return the maximum force of this emitter
 		*/
 		float getForceMax() const;
+		
+		//////////
+		// Zone //
+		//////////
 
 		/**
-		* @brief Gets the Zone of this Emitter
-		* @return the Zone of this Emitter
+		* @brief Sets the zone of this emitter
+		*
+		* If the zone is NULL, the default Zone will be used (A Point centered at the origin)
+		*
+		* @param zone : the zone of this emitter
+		* @param full : true to generate particles in the whole Zone, false to generate particles only at the zone's borders.
 		*/
-		Zone* getZone() const;
+		void setZone(const Ref<Zone>& zone, bool full);
+		
+		void setZone(const Ref<Zone>& zone);
+		void setUseFullZone(bool f);
 
 		/**
-		* @brief Tells whether this Emitter emits in the whole Zone or only at its borders
-		* @return true if this EMitter emits in the whole Zone, false if it is only at its borders
+		* @brief Gets the zone of this emitter
+		* @return the zone of this emitter
+		*/
+		const Ref<Zone>& getZone() const;
+
+		/**
+		* @brief Tells whether this emitter emits in the whole Zone or only at its borders
+		* @return true if this emitter emits in the whole Zone, false if it is only at its borders
 		*/
 		bool isFullZone() const;
 
-		/**
-		* @brief Tells whether this Emitter is sleeping or not
-		*
-		* An Emitter is considered as sleeping if his flow or his tank is equal to 0.
-		*
-		* @return true if this Emitter is sleeping, false if it is active
-		* @since 1.03.00
-		*/
-		bool isSleeping() const;
+		virtual Ref<SPKObject> findByName(const std::string& name);
 
-		///////////////
-		// Interface //
-		///////////////
-
-		/**
-		* @brief Emits a Particle from this Emitter
-		*
-		* The Particle's velocity is updated with a call to generateVelocity(Particle&).<br>
-		* The Particle's position is updated with a call to Zone::generatePosition(Particle&) of the Emitter's Zone.<br>
-		*
-		* Note that this will not decrease the number of particles in the Emitter's tank.
-		* To do it, the user has to manually make a call to changeNumber(-1) after this call.
-		*
-		* @param particle : the Particle to emit from this Emitter
-		*/
-		void emit(Particle& particle) const;
-
-		/**
-		* @brief Generates the velocity of the Particle
-		*
-		* The velocity of the Particle is updated in function of the Emitter's nature and parameters.<br>
-		* Unlike emit() the position of the Particle remains unchanged.
-		*
-		* @param particle : the Particle whose velocity has to be updated
-		*/
-		void generateVelocity(Particle& particle) const;
-
-		virtual Registerable* findByName(const std::string& name);
+	public :
+		spark_description(Emitter, Transformable)
+		(
+			spk_attribute(bool, active, setActive, isActive);
+			spk_attribute(Pair<int>, tank, setTank, getMinTank, getMaxTank);
+			spk_attribute(float, flow, setFlow, getFlow);
+			spk_attribute(Pair<float>, force, setForce, getForceMin, getForceMax);
+			spk_attribute(Ref<Zone>, zone, setZone, getZone);
+			spk_attribute(bool, fullzone, setUseFullZone, isFullZone);
+		);
 
 	protected :
 
-		virtual void registerChildren(bool registerAll);
-		virtual void copyChildren(const Registerable& object,bool createBase);
-		virtual void destroyChildren(bool keepChildren);
+		Emitter(const Ref<Zone>& zone = SPK_NULL_REF,
+			bool full = true,
+			int tank = -1,
+			float flow = 1.0f,
+			float forceMin = 1.0f,
+			float forceMax = 1.0f);
+
+		Emitter(const Emitter& emitter);
 
 		virtual void propagateUpdateTransform();
 
 	private :
 
-		Zone* zone;
-		bool full;
-
 		bool active;
 
-		int tank;
+		int minTank;
+		int maxTank;
+		int currentTank;
 		float flow;
 
 		float forceMin;
 		float forceMax;
 
+		Ref<Zone> zone;
+		bool full;
+
 		mutable float fraction;
+		
+		void emit(Particle& particle) const;
 
-		static Zone& getDefaultZone();
-
-		unsigned int updateNumber(float deltaTime);
-
-		/////////////////////////
-		// pure virtual method //
-		/////////////////////////
+		size_t updateTankFromTime(float deltaTime);
+		size_t updateTankFromNb(size_t nb);
 
 		/**
-		* @brief A pure virtual method that generates the velocity of the Particle in function of a speed
+		* @brief Gives the particle an initial velocity
 		*
-		* This is a pure virtual method to be implemented by children.<br>
-		* <br>
-		* the Particle velocity has to be set by this method.<br>
-		* the generated velocity of the Particle must have a norm equal to speed.
+		* This method is called internally and must be overriden in inherited emitters.<br>
+		* The speed is derived from the force of the emitter and the mass of the particle.<br>
+		* The initial velocity of the particle has to be consistent with the given speed.
 		*
-		* @param particle : the Particle whose velocity has to be generated
-		* @param speed : the speed that the velocity must have
+		* @param particle : the particle whose velocity has to be set
+		* @param speed : the desired speed of the particle
 		*/
 		virtual void generateVelocity(Particle& particle,float speed) const = 0;
 	};
-
 
 	inline void Emitter::setActive(bool active)
 	{
 		this->active = active;
 	}
 	
-	inline void Emitter::setTank(int tank)
-	{
-		this->tank = tank;
-	}
-
-	inline void Emitter::setFlow(float flow)
-	{
-		this->flow = flow;
-	}
-
-	inline void Emitter::setForce(float min,float max)
-	{
-		forceMin = min;
-		forceMax = max;
-	}
-
 	inline bool Emitter::isActive() const
 	{
 		return active;
 	}
 
-	inline int Emitter::getTank() const
+	inline void Emitter::setTank(int tank)
 	{
-		return tank;
+		setTank(tank,tank);
+	}
+
+	inline int Emitter::getCurrentTank() const
+	{
+		return currentTank;
+	}
+
+	inline int Emitter::getMinTank() const
+	{
+		return minTank;
+	}
+
+	inline int Emitter::getMaxTank() const
+	{
+		return maxTank;
+	}
+
+	inline void Emitter::resetTank()
+	{
+		currentTank = SPK_RANDOM(minTank,maxTank);
 	}
 
 	inline float Emitter::getFlow() const
@@ -329,7 +311,7 @@ namespace SPK
 		return forceMax;
 	}
 
-	inline Zone* Emitter::getZone() const
+	inline const Ref<Zone>& Emitter::getZone() const
 	{
 		return zone;
 	}
@@ -339,25 +321,54 @@ namespace SPK
 		return full;
 	}
 
-	inline bool Emitter::isSleeping() const
+	inline void Emitter::setZone(const Ref<Zone>& zone, bool full)
 	{
-		return ((tank == 0)||(flow == 0.0f));
+		setZone(zone);
+		setUseFullZone(full);
 	}
 
-	inline void Emitter::emit(Particle& particle) const
+	inline void Emitter::setUseFullZone(bool f)
 	{
-		zone->generatePosition(particle,full);
-		generateVelocity(particle);
+		full = f;
 	}
 
-	inline void Emitter::generateVelocity(Particle& particle) const
+	inline size_t Emitter::updateTankFromTime(float deltaTime)
 	{
-		generateVelocity(particle,random(forceMin,forceMax) / particle.getParamCurrentValue(PARAM_MASS));
+		if (deltaTime < 0.0f)
+			return 0;
+
+		size_t nbBorn;
+		if (flow < 0.0f)
+		{
+			nbBorn = currentTank > 0 ? currentTank : 0;
+			currentTank = 0;
+		}
+		else if (currentTank != 0)
+		{
+			fraction += flow * deltaTime;
+			nbBorn = static_cast<size_t>(fraction);
+			if (currentTank >= 0)
+			{
+				if (nbBorn > static_cast<size_t>(currentTank))
+					nbBorn = currentTank;
+				currentTank -= nbBorn;
+			}
+			fraction -= nbBorn;
+		}
+		else 
+			nbBorn = 0;
+		return nbBorn;
 	}
 
-	inline void Emitter::propagateUpdateTransform()
+	inline size_t  Emitter::updateTankFromNb(size_t nb)
 	{
-		zone->updateTransform(this);
+		if (currentTank < 0)
+			return nb;
+
+		if (nb > static_cast<size_t>(currentTank))
+			nb = currentTank;
+		currentTank -= nb;
+		return nb;
 	}
 }
 

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,17 +19,53 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
-#include "Core/SPK_Zone.h"
+#include <SPARK_Core.h>
 
 namespace SPK
 {
-	const float Zone::APPROXIMATION_VALUE = 0.01f;
+	SPK_DEFINE_ENUM(ZoneTest, SPK_ENUM_ZONE_TEST)
 
-	Zone::Zone(const Vector3D& position) :
-		Registerable(),
-		Transformable()
+	Zone::checkFn Zone::TEST_FN[Zone::NB_TEST_TYPES] =
 	{
-		setPosition(position);
+		&Zone::checkInside,
+		&Zone::checkOutside,
+		&Zone::checkIntersect,
+		&Zone::checkEnter,
+		&Zone::checkLeave,
+		&Zone::checkAlways,
+	};
+
+	bool Zone::checkInside(const Particle& particle,Vector3D* normal) const
+	{
+		return contains(particle.position(),particle.getRadius());
+	}
+
+	bool Zone::checkOutside(const Particle& particle,Vector3D* normal) const
+	{
+		return !contains(particle.position(),-particle.getRadius());
+	}
+
+	bool Zone::checkIntersect(const Particle& particle,Vector3D* normal) const
+	{
+		return intersects(particle.oldPosition(),particle.position(),particle.getRadius(),normal);
+	}
+
+	bool Zone::checkEnter(const Particle& particle,Vector3D* normal) const
+	{
+		if (!contains(particle.oldPosition()))
+			return intersects(particle.oldPosition(),particle.position(),particle.getRadius(),normal);
+		return false;
+	}
+
+	bool Zone::checkLeave(const Particle& particle,Vector3D* normal) const
+	{
+		if (contains(particle.oldPosition()))
+			return intersects(particle.oldPosition(),particle.position(),particle.getRadius(),normal);
+		return false;
+	}
+
+	bool Zone::checkAlways(const Particle& particle,Vector3D* normal) const
+	{
+		return true;
 	}
 }

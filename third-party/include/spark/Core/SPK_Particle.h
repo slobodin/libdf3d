@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,257 +19,189 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef H_SPK_PARTICLE
 #define H_SPK_PARTICLE
 
-#include "Core/SPK_DEF.h"
-#include "Core/SPK_Vector3D.h"
-#include "Core/SPK_Pool.h"
-#include "Core/SPK_Model.h"
-
+#include <cmath> // for sqrt
 
 namespace SPK
 {
-	class Group;
-
 	/**
-	* @class Particle
-	* @brief A single particle (a point in space with a velocity and different parameters)
+	* @brief A single particle
 	*
-	* A Particle is the primitive on which all the SPARK engine relies.<br>
-	* Particles are designed to be handled in large amounts (called Group).
-	* This is why the user cannot update or render directly a single Particle.<br>
+	* This class is a handler to access the particle's data within its group.<br>
+	* For optimisation purpose, particles' data are not stored in an AoS (array of structures) way, 
+	* therefore the set of data of a single particle is not contiguous in memory and cannot be stored within a class.<br>
 	* <br>
-	* Note that the Particle class is only a class that presents an interface to the user (since 1.02.00), particles data are stored in the groups.
-	* This is why copying a Particle will not copy its data.<br>
+	* Knowing that, particles are just helper objects that must be used locally and not stored in any way.
 	*/
-	class SPK_PREFIX Particle
+	class Particle
 	{
-	friend bool isFurtherToCamera(const Particle&,const Particle&);
-	friend void swapParticles(Particle& a,Particle& b);
 	friend class Group;
-	friend class Pool<Particle>;
 
+	template<typename T>
+	friend class Iterator;
+	template<typename T>
+	friend class ConstIterator;
 
 	public :
 
+		/////////////
+		// Setters //
+		/////////////
+
 		/**
-		* @brief Sets the current value for the given parameter
-		*
-		* Note that the method will have no effect if the parameter is not enabled in the Particle's Model.
-		* In this case, the method returns false.
-		*
-		* @param type : the parameter to set
+		* @brief Accesses the current position of the particle
+		* @return a reference to the current position of the particle
+		*/
+		Vector3D& position();
+
+		/**
+		* @brief Accesses the current velocity of the particle
+		* @return a reference to the current velocity of the particle
+		*/
+		Vector3D& velocity();
+
+		/**
+		* @brief Accesses the position at previous update of the particle
+		* Note that the old position must be modified with care in order to keep the displacement integrity of the particles for the physics engine.
+		* @return a reference to the position at previous update of the particle
+		*/
+		Vector3D& oldPosition();
+
+		/**
+		* @brief Sets the color of the particle
+		* @param color : the color of the particle
+		*/
+		void setColor(Color color);
+
+		/**
+		* @brief Sets a given parameter of the particle
+		* If the parameter is not enabled, nothing happens
+		* @param parameter : the parameter to set
 		* @param value : the value of the parameter
-		* @return true if the parameter can be set, false otherwise (if the parameter is not enabled)
 		*/
-		bool setParamCurrentValue(ModelParam type,float value);
+		void setParam(Param parameter,float value);
 
 		/**
-		* @brief Sets the final value for the given parameter
-		*
-		* The final value is the value the parameter will have at the end of the Particle's life.<br>
-		* Note that the method will have no effect if the parameter is not mutable in the Particle's Model.
-		* In this case, the method returns false and setParamCurrentValue(ModelParam,float) should be used.
-		*
-		* @param type : the parameter to set
+		* @brief Sets a given parameter of the particle with no check on the existence of the parameter
+		* This method is useful to set a parameter if it is sure that it exists.<br>
+		* It allows to skip the test of existence and gain some precious cpu cycles.<br>
+		* Calling this method on a parameter that does exist is unsafe.
+		* @param parameter : the parameter to set
 		* @param value : the value of the parameter
-		* @return true if the parameter can be set, false otherwise (if the parameter is not mutable)
 		*/
-		bool setParamFinalValue(ModelParam type,float value);
-
-		/**
-		* @brief Changes the current value for the given parameter
-		*
-		* The delta is added to the current value of the parameter.<br>
-		* For more information see setParamCurrentValue(ModelParam,float).
-		*
-		* @param type : the parameter to set
-		* @param delta : the delta
-		* @return true if the parameter can be changed, false otherwise (if the parameter is not enabled)
-		* @since 1.02.00
-		*/
-		bool changeParamCurrentValue(ModelParam type,float delta);
-
-		/**
-		* @brief Changes the final value for the given parameter
-		*
-		* The delta is added to the final value of the parameter.<br>
-		* For more information see setParamFinalValue(ModelParam,float).
-		*
-		* @param type : the parameter to set
-		* @param delta : the delta
-		* @return true if the parameter can be changed, false otherwise (if the parameter is not mutable)
-		* @since 1.02.00
-		*/
-		bool changeParamFinalValue(ModelParam type,float delta);
-
-		/**
-		* @brief Sets the life left of the Particle.
-		*
-		* When the Particle's life reaches 0, the Particle is inactivated.
-		*
-		* @param life : the amount of life left of the Particle
-		*/
-		void setLifeLeft(float life);
-
+		void setParamNC(Param parameter,float value);
 
 		/////////////
 		// Getters //
 		/////////////
 
 		/**
-		* @brief Gets the position of the Particle
-		* @return the position of this Particle
-		* @since 1.02.00
+		* @brief Gets the group to which belongs the particle
+		* @return the group to which belongs the particle
 		*/
-		Vector3D& position();
+		Group& getGroup();
 
 		/**
-		* @brief Gets the velocity of the Particle
-		* @return the velocity of this Particle
-		* @since 1.02.00
+		* @brief Gets the group to which belongs the particle in a constant way
+		* @return the group to which belongs the particle
 		*/
-		Vector3D& velocity();
+		const Group& getGroup() const;
 
 		/**
-		* @brief Gets the old position of the Particle
-		* @return the old position of this Particle
-		* @since 1.02.00
-		*/
-		Vector3D& oldPosition();
-
-		/**
-		* @brief Gets the position of the Particle
-		*
-		* This is the constant version of position()
-		*
-		* @return the position of this Particle
-		* @since 1.02.00
-		*/
-		const Vector3D& position() const;
-
-		/**
-		* @brief Gets the velocity of the Particle
-		*
-		* This is the constant version of velocity()
-		*
-		* @return the velocity of this Particle
-		* @since 1.02.00
-		*/
-		const Vector3D& velocity() const;
-
-		/**
-		* @brief Gets the old position of the Particle
-		*
-		* This is the constant version of oldPosition()
-		*
-		* @return the old position of this Particle
-		* @since 1.02.00
-		*/
-		const Vector3D& oldPosition() const;
-
-		/**
-		* @brief Gets the current value for the given parameter
-		*
-		* Note that if the the parameter is not enabled in the Particle's Model, the default value for the parameter is returned.
-		*
-		* @param type : the parameter to get the value
-		* @return the current value of the parameter
-		*/
-		float getParamCurrentValue(ModelParam type) const;
-
-		/**
-		* @brief Gets the final value for the given parameter
-		*
-		* Note that if the the parameter is not enabled in the Particle's Model, the default value for the parameter is returned.<br>
-		* If the parameter is enabled but not mutable, the current value is returned.
-		*
-		* @param type : the parameter to get the value
-		* @return the current value of the parameter
-		*/
-		float getParamFinalValue(ModelParam type) const;
-
-		/**
-		* @brief Gets the Model of this Particle
-		* @return A pointer on the Model of this Particle
-		*/
-		Model* getModel() const;
-
-		/**
-		* @brief Gets the group of this Particle
-		* @return A pointer on the Group of this Particle
-		* @since 1.02.00
-		*/
-		Group* getGroup() const;
-
-		/**
-		* @brief Gets the index of this Particle in its Group
-		* @return the index of thi Particle in its Group
-		* @since 1.03.00
+		* @brief Gets the index of the particle within its group
+		* @return the index of the particle
 		*/
 		size_t getIndex() const;
 
 		/**
-		* @brief Gets the amount of life left of the Particle
-		*
-		* The life left of the Particle is the time left before the Particle dies.<br>
-		* Note that in case of immortal particles, this value does not evolve.
-		*
-		* @return the amount of life left
+		* @brief Gets the current position of the particle
+		* @return the current position of the particle
 		*/
-		float getLifeLeft() const;
+		const Vector3D& position() const;
 
 		/**
-		* @brief Gets the age of the Particle
-		*
-		* The age of a Particle starts at zero when it is initialized and evolve at each update.<br>
-		* Note that even immortal particles gets older.
-		*
-		* @return the age of the particle
-		* @since 1.03.00
+		* @brief Gets the current velocity of the particle
+		* @return the current velocity of the particle
+		*/
+		const Vector3D& velocity() const;
+
+		/**
+		* @brief Gets the old position of the particle
+		* @return the old position of the particle
+		*/
+		const Vector3D& oldPosition() const;
+
+		/**
+		* @brief Gets the age of the particle in units of time
+		* @return the age of the particle 
 		*/
 		float getAge() const;
 
 		/**
-		* @brief Gets the distance of this Particle from the camera.
-		*
-		* Note that the correct distance is only returned if the Group of this Particles has its distance computation enabled.
-		*
-		* @return the distance of this Particle from the camera
-		* @since 1.01.00
+		* @brief Gets the energy of the particle
+		* The energy is a float number going from 1.0 to 0.0 as the particle gets older.<br>
+		* It is computed as follow : <i>1.0 - age / lifeTime</i>
+		* @return the energy of the particle
+		*/
+		float getEnergy() const;
+
+		/**
+		* @brief Gets the life time of the particle in units of time
+		* The life time is the total amount of time the particle can live.
+		* @return the life time of the particle
+		*/
+		float getLifeTime() const;
+
+		/**
+		* @brief Gets the physical radius of the particle in units
+		* The physical radius is defined as : <i>particleScale * groupPhysicalRadius</i>
+		* @return the physical radius of the particle
+		*/
+		float getRadius() const;
+
+		/**
+		* @brief Gets the distance of the particle from the camera
+		* This value is relevant only if the group had the distance computation enabled.
+		* @return the distance of the particle from the camera
 		*/
 		float getDistanceFromCamera() const;
 
 		/**
-		* @brief Gets the square distance of this Particle from the camera.
-		*
-		* Note that the correct distance is only returned if the Group of this Particles has its distance computation enabled.<br>
-		* This method is faster than getDistanceFromCamera() and should be used instead when possible.
-		*
-		* @return the square distance of this Particle from the camera
-		* @since 1.01.00
+		* @brief Gets the square of the distance of the particle from the camera
+		* This value is relevant only if the group had the distance computation enabled.<br>
+		* The square distance is faster to compute that the real distance and should be used instead when possible.
+		* @return the square of the distance of the particle from the camera
 		*/
 		float getSqrDistanceFromCamera() const;
 
 		/**
-		* @brief Tells whether this Particle was initialized at its latest update or not
-		*
-		* A call to this method is equivalent to <i>getAge() == 0.0f</i>
-		*
-		* @return true if this Particle was initialized at its latest update, false if not
-		* @since 1.03.00
+		* @brief Gets the color of the particle
+		* @return the color of the particle
 		*/
-		bool isNewBorn() const;
+		Color getColor() const;
 
 		/**
-		* @brief Tells whether this Particle is alive or not
-		*
-		* A call to this method is equivalent to <i>getLifeLeft > 0.0f</i>
-		*
-		* @return true if this Particle is alive, false if it is dead
-		* @since 1.04.00
+		* @brief Gets the value of the given parameter of the particle
+		* If the parameter does not exist, its default value is returned
+		* @return the value of the given parameter of the particle
+		*/
+		float getParam(Param parameter) const;
+
+		/**
+		* @brief Gets the value of the given parameter of the particle with no check on the existence of the parameter
+		* This method is useful to set a parameter if it is sure that it exists.<br>
+		* It allows to skip the test of existence and gain some precious cpu cycles.<br>
+		* Calling this method on a parameter that does exist is unsafe.
+		* @return the value of the given parameter of the particle
+		*/
+		float getParamNC(Param parameter) const;
+
+		/**
+		* @brief Tells whether the particle is alive or not
+		* Typically returns <i>energy > 0.0</i>
+		* @return true if the particle is alive, false if not
 		*/
 		bool isAlive() const;
 
@@ -278,55 +210,61 @@ namespace SPK
 		///////////////
 
 		/**
-		* @brief Initializes the Particle
-		*
-		* When a Particle is initialized, all its parameters are reinitialized as well as its life.
-		*/
-		void init();
-
-		/**
-		* @brief Kills this Particle
-		*
-		* This method is equivalent to a call to setLifeLeft(float) with life being 0.<br>
-		*
-		* @since 1.01.00
+		* @brief Kills the particle
+		* This sets the energy of the particle to 0 and its age at its lifetime
 		*/
 		void kill();
 
-		// As we know the color component are always enabled, we optimizes it a bit for access
-		float getR() const { return currentParams[PARAM_RED]; }
-		float getG() const { return currentParams[PARAM_GREEN]; }
-		float getB() const { return currentParams[PARAM_BLUE]; }
-
 	private :
 
-		struct ParticleData
-		{
-			Vector3D oldPosition;
-			Vector3D position;
-			Vector3D velocity;
-			float age;
-			float life;
-			float sqrDist;
-		};
+		Particle(Group& group,size_t index);
 
-		Group* group;
-		size_t index;
-
-		ParticleData* data;
-		float* currentParams;
-		float* extendedParams;
-
-		Particle(Group* group,size_t index);
-
-		bool update(float timeDelta);
-		void computeSqrDist();
-
-		void interpolateParameters();
+		Group& group;
+		mutable size_t index;
 	};
 
+	inline Particle::Particle(Group& group,size_t index) :
+		group(group),
+		index(index)
+	{}
 
-	inline Group* Particle::getGroup() const
+	inline Vector3D& Particle::position()
+	{
+		return group.particleData.positions[index];
+	}
+
+	inline Vector3D& Particle::velocity()
+	{
+		return group.particleData.velocities[index];
+	}
+
+	inline Vector3D& Particle::oldPosition()
+	{
+		return group.particleData.oldPositions[index];
+	}
+
+	inline void Particle::setColor(Color color)
+	{
+		group.particleData.colors[index] = color;
+	}
+
+	inline void Particle::setParam(Param parameter,float value)
+	{
+		if (group.isEnabled(parameter))
+			group.particleData.parameters[parameter][index] = value;
+	}
+
+	inline void Particle::setParamNC(Param parameter,float value)
+	{
+		group.particleData.parameters[parameter][index] = value;
+	}
+
+	inline const Group& Particle::getGroup() const
+	{
+		return group;
+	}
+
+	inline Group& Particle::getGroup()
 	{
 		return group;
 	}
@@ -336,95 +274,79 @@ namespace SPK
 		return index;
 	}
 
-	inline void Particle::setLifeLeft(float life)
-	{
-		data->life = life;
-	}
-
-	inline Vector3D& Particle::position()
-	{
-		return data->position;
-	}
-
-	inline Vector3D& Particle::velocity()
-	{
-		return data->velocity;
-	}
-
-	inline Vector3D& Particle::oldPosition()
-	{
-		return data->oldPosition;
-	}
-
 	inline const Vector3D& Particle::position() const
 	{
-		return data->position;
+		return group.particleData.positions[index];
 	}
 
 	inline const Vector3D& Particle::velocity() const
 	{
-		return data->velocity;
+		return group.particleData.velocities[index];
 	}
 
 	inline const Vector3D& Particle::oldPosition() const
 	{
-		return data->oldPosition;
-	}
-
-	inline float Particle::getLifeLeft() const
-	{
-		return data->life;
+		return group.particleData.oldPositions[index];
 	}
 
 	inline float Particle::getAge() const
 	{
-		return data->age;
+		return group.particleData.ages[index];
+	}
+
+	inline float Particle::getEnergy() const
+	{
+		return group.particleData.energies[index];
+	}
+
+	inline float Particle::getLifeTime() const
+	{
+		return group.particleData.lifeTimes[index];
+	}
+
+	inline float Particle::getRadius() const
+	{
+		return group.physicalRadius * getParam(PARAM_SCALE);
 	}
 
 	inline float Particle::getDistanceFromCamera() const
 	{
-		return std::sqrt(data->sqrDist);
+		return std::sqrt(group.particleData.sqrDists[index]);
 	}
 
 	inline float Particle::getSqrDistanceFromCamera() const
 	{
-		return data->sqrDist;
+		return group.particleData.sqrDists[index];
 	}
 
-	inline bool Particle::isNewBorn() const
+	inline Color Particle::getColor() const
 	{
-		return data->age == 0.0f;
+		return group.particleData.colors[index];
+	}
+
+	inline float Particle::getParam(Param parameter) const
+	{
+		if (group.isEnabled(parameter))
+			return group.particleData.parameters[parameter][index];
+		else
+			return Group::DEFAULT_VALUES[parameter];
+	}
+
+	inline float Particle::getParamNC(Param parameter) const
+	{
+		return group.particleData.parameters[parameter][index];
 	}
 
 	inline bool Particle::isAlive() const
 	{
-		return data->life > 0.0f;
+		return group.particleData.energies[index] > 0.0f;
 	}
 
 	inline void Particle::kill()
 	{
-		data->life = 0.0f;
+		group.particleData.energies[index] = 0.0f;
+		group.particleData.ages[index] = group.particleData.lifeTimes[index];
 	}
-
-	// specialization of the swap for particle
-	template<>
-	inline void Pool<Particle>::swapElements(Particle& a,Particle& b)
-	{
-		swapParticles(a,b);
-	}
-
-
-	//////////////////////////////////
-	// Global functions definitions //
-	//////////////////////////////////
-
-	inline bool isFurtherToCamera(const Particle& a, const Particle& b)
-	{
-		return a.getSqrDistanceFromCamera() > b.getSqrDistanceFromCamera();
-	}
-
-	// Swaps particle data. Used internally. Do not use with particles that are not from the same group !
-	extern void swapParticles(Particle& a,Particle& b);
 }
 
 #endif

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,380 +19,123 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef H_SPK_GROUP
 #define H_SPK_GROUP
 
-#include "Core/SPK_DEF.h"
-#include "Core/SPK_Registerable.h"
-#include "Core/SPK_Transformable.h"
-#include "Core/SPK_Vector3D.h"
-#include "Core/SPK_Pool.h"
-#include "Core/SPK_Particle.h"
-
+#include <cstring> // for memcpy
+#include <vector>
+#include <list>
+#include <deque>
 
 namespace SPK
 {
-	class Renderer;
-	class Emitter;
-	class Modifier;
-	class Zone;
-	class Model;
-	class Buffer;
-	class BufferCreator;
+	class Particle;
+	class System;
+	class Octree;
 
 	/**
-	* @class Group
-	* @brief A group of many particles
+	* @brief Group of particles
 	*
-	* A Group is the structure the user will interact with the most to build up a full Particle System.<br>
-	* More than only storing many particles, a Group also defines and entire environment for Particle generation and Evolution.<br>
+	* The group is the core class of SPARK.<br>
+	* It is responsible for holding particle data, emitting and updating particles.<br>
 	* <br>
-	* This class is the spine of the SPARK engine.
+	* A group has some objects attached to it that will define the general behaviour of particles.
+	* The objects are :
+	* <ul>
+	* <li>0..n Emitter : How many particles to emit in which directions and with which frequency ?</li>
+	* <li>0..n Interpolator : How particles parameters (size,color,mass,angle...) will evolve during their lifetime ?</li>
+ 	* <li>0..n Modifier : How will behave particles over time and what will interact with them ?</li>
+	* <li>0..1 Renderer : How particles will be represented graphically ?</li>
+	* <li>0..2 Action : What will happen at precise moments in the life of a particle (birth,death...) ?</li>
+	* </ul>
+	* Groups are contained within a System which commands their update and rendering.
 	*/
-	class SPK_PREFIX Group : public Registerable, public Transformable
+	class SPK_PREFIX Group : public Transformable
 	{
-		friend class Renderer;
-		friend class Particle;
-		friend void swapParticles(Particle& a,Particle& b);
-
-		SPK_IMPLEMENT_REGISTERABLE(Group)
+	friend class Particle;
+	friend class System;
+	friend class DataSet;
 
 	public :
 
-		//////////////////
-		// Constructors //
-		//////////////////
-
-		/**
-		* @brief Constructor for a Group
-		*
-		* A Group is constructed with a Model (if NULL, the default Model will be used to generate particles).
-		* This Model will be used to handle Particle's generation and evolution within the Group.<br>
-		* <br>
-		* A Group also needs a maximum capacity which is the maximum number of particles the Group can handle. This is necessary to reserve some memory space.
-		* Note that the capacity can be changed by calling reallocate(unsigned int).
-		* By default, the capacity is set to Pool::DEFAULT_CAPACITY.
-		*
-		* @param model : the Model of this Group
-		* @param capacity : The maximum number of particles of this Group
-		*/
-		Group(Model* model = NULL,size_t capacity = Pool<Particle>::DEFAULT_CAPACITY);
-
-		/**
-		* @brief Copy Constructor of Group
-		* @param group : the Group to construct the new Group from
-		*/
-		Group(const Group& group);
-
-		/**
-		* @brief Creates and registers a new Group
-		* @param model : the Model of this Group
-		* @param capacity : The maximum number of particles of this Group
-		* @return A new registered Group
-		* @since 1.04.00
-		*/
-		static Group* create(Model* model = NULL,size_t capacity = Pool<Particle>::DEFAULT_CAPACITY);
-
-		////////////////
-		// Destructor //
-		////////////////
-
-		/** @brief The destructor of Group */
+		static Ref<Group> create(size_t capacity = 100);
 		~Group();
 
-		/////////////
-		// Setters //
-		/////////////
+		bool isInitialized() const;
 
-		/**
-		* @brief change the Model of this Group
-		*
-		* If the model parameter is set to NULL, the default model will be used. No changes are done if the model parameter is equal
-		* to the Model of this Group. Changing the Model of this Group will empty it.
-		*
-		* @param model : the Model of this Group
-		*/
-		void setModel(Model* model);
+		void setLifeTime(float minLife,float maxLife);
+		void setImmortal(bool immortal);
+		void setStill(bool still);
 
-		/**
-		* @brief Sets the Renderer of this Group
-		*
-		* If the Renderer is set to NULL, the particles of the Group will not be renderered with a call to render().<br>
-		* <br>
-		* Note that if the bufferManagement is on (see enableBuffersManagement(bool)), setting the Renderer will first
-		* destroys the buffers needed for the previous Renderer held by this Group and create buffers needed for the new Renderer.
-		*
-		* @param renderer : the Renderer of this Group
-		*/
-		void setRenderer(Renderer* renderer);
+		void setColorInterpolator(const Ref<ColorInterpolator>& interpolator);
+		const Ref<ColorInterpolator>& getColorInterpolator() const;
 
-		/**
-		* @brief Sets the friction of this Group
-		*
-		* The friction defines the way particles are accelerated or decelerated in their environment.<br>
-		* <ul>
-		* <li>If the friction is 0.0f, particles in the Group are neither accelerated nor decelerated (it is the default setting).</li>
-		* <li>If the friction is positive, particles will be decelerated function of their speed.</li>
-		* <li>If the friction is negative, particles will be accelerated function of their speed.</li>
-		* </ul>
-		* The friction is applied on each Particle as followed :<br>
-		* <i>velocity *= 1 - min(1,friction * deltaTime / weight)</i><br>
-		* <br>
-		* Note that the lighter the Particle, the more effect has the friction on it.
-		*
-		* @param friction the friction of the Group
-		*/
-		void setFriction(float friction);
+		void setParamInterpolator(Param param,const Ref<FloatInterpolator>& interpolator);
+		const Ref<FloatInterpolator>& getParamInterpolator(Param param) const;
 
-		/**
-		* @brief Sets the gravity of this Group
-		*
-		* The gravity is a vector which defines an attractive force that will be applied to each Particle in the Group during the update.<br>
-		* By default the gravity is the null vector (i.e. a Vector3D equal to (0,0,0)) which means no gravity is applied.<br>
-		* <br>
-		* The gravity is applied on each Particle as followed :<br>
-		* <i>velocity += gravity * deltaTime</i><br>
-		*
-		* @param gravity : the Vector3D that will be used as the gravity for this Group
-		*/
-		void setGravity(const Vector3D& gravity);
+		void setScaleInterpolator(const Ref<FloatInterpolator>& interpolator);
+		void setMassInterpolator(const Ref<FloatInterpolator>& interpolator);
+		void setAngleInterpolator(const Ref<FloatInterpolator>& interpolator);
+		void setTextureIndexInterpolator(const Ref<FloatInterpolator>& interpolator);
+		void setRotationSpeedInterpolator(const Ref<FloatInterpolator>& interpolator);
+		const Ref<FloatInterpolator>& getScaleInterpolator() const;
+		const Ref<FloatInterpolator>& getMassInterpolator() const;
+		const Ref<FloatInterpolator>& getAngleInterpolator() const;
+		const Ref<FloatInterpolator>& getTextureIndexInterpolator() const;
+		const Ref<FloatInterpolator>& getRotationSpeedInterpolator() const;
 
-		/**
-		* @brief Assigns a callback for the custom update
-		*
-		* The user has the possibility to assign a callback function for update that will be called for each Particle right after the standard update.<br>
-		* The signature of the function must be of the form :<br>
-		* <i>bool customUpdate(Particle&,unsigned int)</i><br>
-		* with :
-		* <ul>
-		* <li>Particle& being the Particle which is currently updated</li>
-		* <li>float being the time step</li>
-		* <li> the return bool being true if the Particle has to die at the end of the update, false otherwise</li>
-		* </ul>
-		*
-		* @param fupdate : A pointer to the callback function that will perform custom update for this Group
-		*/
-		void setCustomUpdate(bool (*fupdate)(Particle&,float));
+		float getMinLifeTime() const;
+		float getMaxLifeTime() const;
+		bool isImmortal() const;
+		bool isStill() const;
 
-		/**
-		* @brief Assigns a callback for custom birth
-		*
-		* This method allows to assign a callback function that will be called each time a Particle borns.<br>
-		* The signature of the function must be of the form :<br>
-		* <i>void customUpdate(Particle&)</i><br>
-		* with Particle& being the Particle which is just born.
-		*
-		* @param fbirth : A pointer to the callback function that will perform custom birth for this Group
-		*/
-		void setCustomBirth(void (*fbirth)(Particle&));
+		bool isEnabled(Param param) const;
 
-		/**
-		* @brief Assigns a callback for custom death
-		*
-		* This method allows to assign a callback function that will be called each time a Particle dies.<br>
-		* The signature of the function must be of the form :<br>
-		* <i>void customUpdate(Particle&)</i><br>
-		* with Particle& being the Particle which has just died.
-		*
-		* @param fdeath : A pointer to the callback function that will perform custom death for this Group
-		*/
-		void setCustomDeath(void (*fdeath)(Particle&));
-
-		/**
-		* @brief Enables or disables the sorting of particles
-		*
-		* The sorting is performed from particles further to the camera to particles closer to the camera.<br>
-		* Sorting particles allows to well draw particles with alpha.<br>
-		* <br>
-		* If the sorting is enabled/disabled, the distance computation is enabled/disabled as well.<br>
-		* <br>
-		* Note that sorting a Group is a computationnaly expensive operation that should be avoided when possible.
-		*
-		* @param sort : true to enable the sorting of particles, false otherwise
-		*/
-		void enableSorting(bool sort);
-
-		/**
-		* @brief Enables or disables the computation of the distance of a Particle from the camera
-		*
-		* The distance computation happens at each call to update(unsigned int).<br>
-		* The distance of a Particle from the camera can be gotten with a call to Particle::getDistanceFromCamera() or Particle::getSqrDistanceFromCamera()<br>
-		* <br>
-		* Note that the distance is defined by the difference vector between the Particle and the the camera set with System::setCameraPosition(Vector3D&).<br>
-		* <br>
-		* If the distance computation is disabled, then the sorting of particles is disabled as well.
-		*
-		* @param distanceComputation : true to enable the computation of the camera distance, false not to
-		* @since 1.01.00
-		*/
-		void enableDistanceComputation(bool distanceComputation);
-
-		/**
-		* @brief Enables or disables the computation of the axis aligned bouding box of the Group
-		*
-		* if the computing of the AABB is enabled, after each call to update(unsigned int), 2 Vector3D are updated with the coordinates information of the AABB.
-		* Those Vector3D can be gotten with getAABBMin() and getAABBMax() which give respectively the minimum and maximum coordinates of the bounding box in each axis.<br>
-		* <br>
-		* Knowing the AABB of a Group of particles can be useful in some case like frustum culling for instance.<br>
-		* <br>
-		* Note that the bounding box does not use the size information of the particles which means when computing the bounding box, particles are considered to be points in the space.
-		*
-		* @param AABB : true to enable the computing of the AABB of the Group, false to disable it
-		*/
-		void enableAABBComputing(bool AABB);
-
-		/**
-		* @brief Enables or not Renderer buffers management in a statix way
-		*
-		* If the buffer management is enabled, then a call to setRenderer(Renderer*) will destroy the existing buffers of the previous Renderer
-		* held by this Group, and create the needed buffer for the new Renderer.<br>
-		* <br>
-		* By default, the renderer buffers management is enabled.
-		*
-		* @param manage : true to enable buffers management, false to disable it
-		* @since 1.03.00
-		*/
-		static void enableBuffersManagement(bool manage);
-
-		/////////////
-		// Getters //
-		/////////////
-
-		/**
-		* @brief Gets the Pool of particles of the Group
-		*
-		* Note that the Pool returned is constant as the user is not allowed to modify the internal structure of particles.
-		*
-		* @return the Pool of the Group
-		*/
-		const Pool<Particle>& getParticles() const;
-
-		/**
-		* @brief Gets a single Particle in the Group by its index
-		*
-		* Note that a given Particle in a Group is not ensured to keep the same index all over its life.
-		* Particle index can be changed when inactivating particles.
-		*
-		* @param index : the position in the Group's Pool of the Particle to get
-		* @return : the Particle at index
-		*/
-		Particle& getParticle(size_t index);
-
-		/**
-		* @brief Gets a single Particle in the Group by its index
-		*
-		* This is the constant version of getParticle(size_t).
-		*
-		* @param index : the index of the Particle to get
-		* @return the Particle at index
-		* @since 1.02.00
-		*/
-		const Particle& getParticle(size_t index) const;
-
-		/**
-		* @brief Gets the number of particles in the Group
-		* @return the number of particles in the Group
-		*/
 		size_t getNbParticles() const;
+		size_t getCapacity() const;
 
-		/**
-		* @brief Gets the emitters of the Group
-		* @return the vector of emitters of the Group
-		*/
-		const std::vector<Emitter*>& getEmitters() const;
+		Particle getParticle(size_t index);
+		const Particle getParticle(size_t index) const;
 
-		/**
-		* @brief Gets an Emitter of the Group by its index
-		* @param index : the position in the vector of emitters of the Emitter to get
-		* @return : the Emitter at index
-		*/
-		Emitter* getEmitter(size_t index) const;
+		void reallocate(size_t capacity);
+		void empty();
 
-		/**
-		* @brief Gets the number of emitters in this Group
-		* @return the number of emitters in this Group
-		*/
+		void addEmitter(const Ref<Emitter>& emitter);
+		void removeEmitter(const Ref<Emitter>& emitter);
+		void removeAllEmitters();
+		const Ref<Emitter>& getEmitter(size_t index) const;
 		size_t getNbEmitters() const;
 
-		/**
-		* @brief Gets the modifiers of the Group
-		* @return the vector of modifiers of the Group
-		*/
-		const std::vector<Modifier*>& getModifiers() const;
-
-		/**
-		* @brief Gets an Modifier of the Group by its index
-		* @param index : the position in the vector of modifiers of the Modifier to get
-		* @return : the Modifier at index
-		*/
-		Modifier* getModifier(size_t index) const;
-
-		/**
-		* @brief Gets the number of modifiers in this Group
-		* @return the number of modifiers in this Group
-		*/
+		void addModifier(const Ref<Modifier>& modifier);
+		void removeModifier(const Ref<Modifier>& modifier);
+		void removeAllModifiers();
+		const Ref<Modifier>& getModifier(size_t index) const;
 		size_t getNbModifiers() const;
 
-		/**
-		* @brief Gets the Model of this Group
-		* @return the Model of this Group
-		*/
-		Model* getModel() const;
+		void setRenderer(const Ref<Renderer>& renderer);
+		const Ref<Renderer>& getRenderer() const;
 
-		/**
-		* @brief Gets the Renderer of this Group
-		* @return the Renderer of this Group
-		*/
-		Renderer* getRenderer() const;
-
-		/**
-		* @brief Gets the friction coefficient of this Group
-		*
-		* For a description of the friction see setFriction(float).
-		*
-		* @return the friction coefficient of this Group
-		*/
-		float getFriction() const;
-
-		/**
-		* @brief Gets the gravity Vector3D of this Group
-		*
-		* For a description of the gravity see setGravity(Vector3D&).
-		*
-		* @return the gravity Vector3D of this Group
-		*/
-		const Vector3D& getGravity() const;
-
-		/**
-		* @brief Tells whether the sorting of particles from back to front is enabled
-		*
-		* For a description of the sorting of particles, see enableSorting(bool).
-		*
-		* @return true if the sorting is enabled, false otherwise
-		*/
-		bool isSortingEnabled() const;
-
-		/**
-		* @brief Tells whether the distance computation between particles and camera is enabled
-		* @return true is the distance computation is enabled, false if not
-		* @since 1.01.00
-		*/
+		void enableDistanceComputation(bool distanceComputation);
 		bool isDistanceComputationEnabled() const;
 
-		/**
-		* @brief Tells whether the computation of the axis aligned bouding box is enabled
-		*
-		* For a description of the computation of the AABB, see enableAABBComputing(bool).
-		*
-		* @return true if the computation of the AABB is enabled, false if it is disabled
-		*/
-		bool isAABBComputingEnabled() const;
+		void enableSorting(bool sorting);
+		bool isSortingEnabled() const;
+
+		const void* getColorAddress() const;
+		const void* getPositionAddress() const;
+		const void* getVelocityAddress() const;
+		const void* getParamAddress(Param param) const;
+
+		void setRadius(float radius);
+		void setGraphicalRadius(float radius);
+		void setPhysicalRadius(float radius);
+		float getGraphicalRadius() const;
+		float getPhysicalRadius() const;
 
 		/**
 		* @brief Gets a Vector3D holding the minimum coordinates of the AABB of the Group.
 		*
-		* Note that this method is only useful when the AABB computation is enabled (see enableAABBComputing(bool)).
+		* Note that this method is only useful when the AABB computation of the system holding the Group is enabled.
 		*
 		* @return a Vector3D holding the minimum coordinates of the AABB of the Group
 		*/
@@ -401,78 +144,23 @@ namespace SPK
 		/**
 		* @brief Gets a Vector3D holding the maximum coordinates of the AABB of the Group.
 		*
-		* Note that this method is only useful when the AABB computation is enabled (see enableAABBComputing(bool)).
+		* Note that this method is only useful when the AABB computation of the system holding the Group is enabled.
 		*
 		* @return a Vector3D holding the maximum coordinates of the AABB of the Group
 		*/
 		const Vector3D& getAABBMax() const;
 
-		/**
-		* @brief Gets the start address of the given param
-		*
-		* This method is used by a Renderer to define the start position of an array to pass to the GPU.<br>
-		* You will not generally need it unless you re designing your own Renderer.<br>
-		* <br>
-		* Note that if the parameter is not enabled, the return value will point to an enabled parameter starting address.
-		*
-		* @param param : the parameter whose start address is gotten
-		* @since 1.03.00
-		*/
-		const void* getParamAddress(ModelParam param) const;
-
-		/**
-		* @brief Gets the start address of the position
-		*
-		* This method is used by a Renderer to define the start position of an array to pass to the GPU.<br>
-		* You will not generally need it unless you re designing your own Renderer.
-		*
-		* @since 1.03.00
-		*/
-		const void* getPositionAddress() const;
-
-		/**
-		* @brief Gets the stride for parameters
-		*
-		* This method is used by a Renderer to know the stride of an array to pass to the GPU.<br>
-		* You will not generally need it unless you re designing your own Renderer.
-		*
-		* @since 1.03.00
-		*/
-		size_t getParamStride() const;
-
-		/**
-		* @brief Gets the stride for positions
-		*
-		* This method is used by a Renderer to know the stride of an array to pass to the GPU.<br>
-		* You will not generally need it unless you re designing your own Renderer.
-		*
-		* @since 1.03.00
-		*/
-		size_t getPositionStride() const;
-
-		/**
-		* @brief Tells whether renderers buffer management is enabled or not
-		*
-		* see enableBuffersManagement(bool) for more information.
-		*
-		* @return true if renderers buffer management is enabled, false if it is disable
-		* @since 1.03.00
-		*/
-		static bool isBuffersManagementEnabled();
-
-		///////////////
-		// Interface //
-		///////////////
+		///////////////////
+		// Add Particles //
+		///////////////////
 
 		/**
 		* @brief Adds some Particles to this Group
 		*
 		* This method and all the methods of type addParticles will add a given number of Particles at the given position with the given velocity.<br>
-		* Note that even if a Zone and an Emitter is passed, the position and the velocity will be the same for all Particles.<br>
 		* <br>
 		* In case a Zone is passed, Zone::generatePosition(Particle,bool) is used to generate the position.<br>
 		* In case an Emitter is passed, Emitter::generateVelocity(Particle) with a mass of 1 is used to generate the velocity.
-		* The velocity will then be updated with the Particle's mass when the Particle will be generated.<br>
 		* In case a delta time is passed instead of a fixed number, the number will be computed thanks to the flow of the Emitter passed.<br>
 		* <br>
 		* Particles will be added to the Group at the next call to update(unsigned int) or flushAddedParticles().<br>
@@ -500,7 +188,7 @@ namespace SPK
 		* @param emitter : the Emitter that will be used to generate the velocity
 		* @param full : true to generate a position within the whole Zonz, false only at its borders
 		*/
-		void addParticles(unsigned int nb,const Zone* zone,Emitter* emitter,bool full = true);
+		void addParticles(unsigned int nb,const Ref<Zone>& zone,const Ref<Emitter>& emitter,bool full = true);
 
 		/**
 		* @brief Adds some Particles to this Group
@@ -512,7 +200,7 @@ namespace SPK
 		* @param velocity : the velocity of the Particles
 		* @param full : true to generate a position within the whole Zonz, false only at its borders
 		*/
-		void addParticles(unsigned int nb,const Zone* zone,const Vector3D& velocity,bool full = true);
+		void addParticles(unsigned int nb,const Ref<Zone>& zone,const Vector3D& velocity,bool full = true);
 
 		/**
 		* @brief Adds some Particles to this Group
@@ -523,7 +211,7 @@ namespace SPK
 		* @param position : the position where the Particles will be added
 		* @param emitter : the Emitter that will be used to generate the velocity
 		*/
-		void addParticles(unsigned int nb,const Vector3D& position,Emitter* emitter);
+		void addParticles(unsigned int nb,const Vector3D& position,const Ref<Emitter>& emitter);
 
 		/**
 		* @brief Adds some Particles to this Group
@@ -533,7 +221,7 @@ namespace SPK
 		* @param nb : the number of Particles to add
 		* @param emitter : the Emitter that will be used to generate the velocity and whose Zone will be used to generate the position
 		*/
-		void addParticles(unsigned int nb,Emitter* emitter);
+		void addParticles(unsigned int nb,const Ref<Emitter>& emitter);
 
 		/**
 		* @brief Adds some Particles to this Group
@@ -545,7 +233,7 @@ namespace SPK
 		* @param deltaTime : the step time that will be used to determine how many particles to generate
 		* @param full : true to generate a position within the whole Zonz, false only at its borders
 		*/
-		void addParticles(const Zone* zone,Emitter* emitter,float deltaTime,bool full = true);
+		void addParticles(const Ref<Zone>& zone,const Ref<Emitter>& emitter,float deltaTime,bool full = true);
 
 		/**
 		* @brief Adds some Particles to this Group
@@ -556,7 +244,7 @@ namespace SPK
 		* @param emitter : the Emitter that will be used to generate the velocity
 		* @param deltaTime : the step time that will be used to determine how many particles to generate
 		*/
-		void addParticles(const Vector3D& position,Emitter* emitter,float deltaTime);
+		void addParticles(const Vector3D& position,const Ref<Emitter>& emitter,float deltaTime);
 
 		/**
 		* @brief Adds some Particles to this Group
@@ -566,7 +254,7 @@ namespace SPK
 		* @param emitter : the Emitter that will be used to generate the velocity and whose Zone will be used to generate the position
 		* @param deltaTime : the step time that will be used to determine how many particles to generate
 		*/
-		void addParticles(Emitter* emitter,float deltaTime);
+		void addParticles(const Ref<Emitter>& emitter,float deltaTime);
 
 		/**
 		* @brief Adds some Particles to this Group
@@ -586,7 +274,7 @@ namespace SPK
 		* @param offset : the starting distance of the beginning of the line
 		* @return the new offset at the end of the line
 		*/
-		float addParticles(const Vector3D& start,const Vector3D& end,Emitter* emitter,float step,float offset = 0.0f);
+		float addParticles(const Vector3D& start,const Vector3D& end,const Ref<Emitter>& emitter,float step,float offset = 0.0f);
 
 		/**
 		* @brief Adds some Particles to this Group
@@ -602,358 +290,468 @@ namespace SPK
 		*/
 		float addParticles(const Vector3D& start,const Vector3D& end,const Vector3D& velocity,float step,float offset = 0.0f);
 
-		/**
-		* @brief Removes a Particle from this Group
-		*
-		* Note that the Particle object is not destroyed but only inactivated in the Pool.
-		*
-		* @param index : the position of the Particle in this Group
-		*/
-		void removeParticle(size_t index);
+		void flushBufferedParticles();
+
+		Ref<System> getSystem() const;
+
+		/////////////
+		// Actions //
+		/////////////
 
 		/**
-		* @brief Adds an Emitter in this Group
+		* 
 		*
-		* Note that if the emitter is already in the group, it will not be inserted again.
-		*
-		* @param emitter : the Emitter to add
 		*/
-		void addEmitter(Emitter* emitter);
+		void setBirthAction(const Ref<Action>& action);
+		const Ref<Action>& getBirthAction() const;
+
+		void setDeathAction(const Ref<Action>& action);
+		const Ref<Action>& getDeathAction() const;
+
+		//////////////////////
+		// Advanced methods //
+		//////////////////////
 
 		/**
-		* @brief Removes an Emitter from this Group
-		* @param emitter : the Emitter to remove
+		* @brief Destroys the render buffer of the group
+		* A new render buffer will be created by the renderer of the group whenever it is needed.
 		*/
-		void removeEmitter(Emitter* emitter);
+		void destroyRenderBuffer();
 
 		/**
-		* @brief Adds an Modifier in this Group
-		* @param modifier : the Modifier to add
+		* @brief Destroys all additionnal data held by the group
+		* This includes the render buffer and all the data sets
 		*/
-		void addModifier(Modifier* modifier);
+		void destroyAllAdditionnalData();
 
 		/**
-		* @brief Removes an Modifier from this Group
-		* @param modifier : the Modifier to remove
+		* @brief Gets the data set used by the given modifier
+		* @return the data set or NULL if the modifier does not use data set or is not part of the group
 		*/
-		void removeModifier(Modifier* modifier);
+		DataSet* getModifierDataSet(const Ref<Modifier>& modifier);
 
 		/**
-		* @brief Updates this Group by a step time
-		*
-		* The update process performs those operations :
-		* <ul>
-		* <li>Updates the mutable parameters of each Particle.</li>
-		* <li>Updates the velocity of each Particle function of the friction and the gravity of the Group.</li>
-		* <li>Applies each Modifier of the Group to each Particle.</li>
-		* <li>Removes all dead particles</li>
-		* <li>Adds particles generated by the emitters of the Group.</li>
-		* <li>Adds particles added manually by the user (with calls to addParticles).</li>
-		* </ul>
-		* Those operations are optimized to limit the swaps and shifts of particles in the Pool to its minimum.<br>
-		* This method tells whether the Group still has some Particles, or if some Particles will still be generated by the Emitters at the next updates by returning a boolean.
-		*
-		* @param deltaTime : the time step used to update the Group
-		* @return true if the Group has still some current or future Particles to update, false otherwise
+		* @brief Gets the data set used by the interpolator of the given parameter
+		* @return the data set or NULL if the interpolator does not use data set or does not exist
 		*/
-		bool update(float deltaTime);
+		DataSet* getParamInterpolatorDataSet(Param param);
 
 		/**
-		* @brief Renders this Group
-		*
-		* Note that if no Renderer is attached to the Group, nothing will happen.
+		* @brief Gets the data set used by the color interpolator
+		* @return the data set or NULL if the color interpolator does not use data set or does not exist
 		*/
-		void render();
+		DataSet* getColorInterpolatorDataSet();
 
 		/**
-		* @brief Empties this Group
-		*
-		* Not that this method does not release resource of this Group.
-		* Particles are only inactivated, not destroyed.
+		* @brief Gets the data set used by the renderer
+		* @return the data set or NULL if the renderer does not use data set or does not exist
 		*/
-		void empty();
+		DataSet* getRendererDataSet();
 
 		/**
-		* @brief Adds all manually added particles to the Group
-		*
-		* This method adds all particles added with the addParticles methods immediatly to the Group without waiting the next call to update(unsigned int).
-		* The Particles are added in FIFO order until there is no more or the capacity limit of the Group is reached.
+		* @brief Gets the render buffer
+		* @return the render buffer or NULL if the group does not use a render buffer
 		*/
-		void flushAddedParticles();
+		RenderBuffer* getRenderBuffer();
 
 		/**
-		* @brief Sorts the particles within this Group
-		*
-		* The particles are sorted only if the sorting of this Group is enabled. See enableSorting(bool).<br>
-		* Note that update(unsigned int) also sorts the particles.<br>
-		* This method is therefore only useful when the camera position changes several times between 2 updates.<br>
-		* <br>
-		* This method also makes a call to computeDistances().
-		*
-		* @since 1.01.00
+		* @brief Gets the octree
+		* A group will have an octree only if at least one of its modifiers has requested it.
+		* @return the octree if some or NULL otherwise
 		*/
-		void sortParticles();
+		Octree* getOctree();
 
-		/**
-		* @brief Computes the distance between each Particle within this Group and the camera
-		*
-		* The distances are computed only if the computation of distances of this Group is enabled. See enableDistanceComputation(bool).<br>
-		* Note that update(unsigned int) also computes the distances between particles and camera.<br>
-		* This method is therefore only useful when the camera position changes several times between 2 updates.
-		*
-		* @since 1.01.00
-		*/
-		void computeDistances();
+		///////////////////////
+		// Virtual interface //
+		///////////////////////
 
-		/**
-		* @brief Computes the bounding box of this Group
-		*
-		* The bounding box is computed only if the computation of the bounding box of this Group is enabled. See enableAABBComputing(bool).<br>
-		* Note that update(unsigned int) also computes the bounding box.<br>
-		* This method is therefore only useful when the bounding boxe has to be recomputed between 2 updates.
-		*
-		* @since 1.01.00
-		*/
-		void computeAABB();
-
-		/**
-		* @brief Increases the maximum number of particles this Group can hold
-		*
-		* Note that decreasing the capacity will have no effect.<br>
-		* A reallocation of the group capacity will destroy all its current buffers.
-		*
-		* @param capacity The maximum number of particles of this Group
-		* @since 1.02.00
-		*/
-		void reallocate(size_t capacity);
-
-		/**
-		* @brief Creates a new additional buffer attached to the Group.
-		*
-		* Additional buffers are used to attach data to a particles. They are mainly used by renderers to store data to transfer to the GPU
-		* but can be used by the user in any other way.<br>
-		* <br>
-		* A buffer is defined by a ID which is a std::string.<br>
-		* A buffer also has a flag, which can give information about the way it is configured.<br>
-		* <br>
-		* Note that ID starting with <i>SPK_</i> are reserved by the engine.
-		* Note also that creating a buffer with an already existing ID will destroy the previous buffer.
-		* <br>
-		* A buffer needs a BufferCreator to allow the group to create it.
-		*
-		* @param ID : the ID of the additinal buffer
-		* @param creator : the buffer creator object
-		* @param flag : the flag of the buffer
-		* @param swapData : true to swap data when particle are swapped, false not to (faster but dont keep right order)
-		* @since 1.03.00
-		*/
-		Buffer* createBuffer(const std::string& ID,const BufferCreator& creator,unsigned int flag = 0,bool swapData = true) const;
-
-		/**
-		* @brief Destroys the buffer with the given ID
-		*
-		* If no buffer with this ID exists, nothing happens.<br>
-		* Note that destroying a buffer must never freeze the engine. Checks must be performed.
-		*
-		* @param ID : the ID of the buffer to destroyed
-		* @since 1.03.00
-		*/
-		void destroyBuffer(const std::string& ID) const;
-
-		/**
-		* @brief Destroys all the buffers held by this Group
-		* @since 1.03.00
-		*/
-		void destroyAllBuffers() const;
-
-		/**
-		* @brief Gets the buffer with the given ID and checks its flag
-		*
-		* The flag is used as a check. the passed flag must be the same as the stored flag.<br>
-		* If not or if no buffer with the given ID exists, NULL is returned.<br>
-		* <br>
-		* The method returns a pointer on the buffer.
-		*
-		* @param ID : the ID of the buffer to get
-		* @param flag : the flag used for the flag check
-		* @return a pointer to the buffer, or NULL if not found or with an incorrect flag
-		* @since 1.03.00
-		*/
-		Buffer* getBuffer(const std::string& ID,unsigned int flag) const;
-
-		/**
-		* @brief Gets the buffer with the given ID
-		*
-		* NULL is returned if the buffer does not exist
-		*
-		* @param ID : the ID of the buffer
-		* @return a pointer to the buffer, or NULL if not found
-		* @since 1.03.02
-		*/
-		Buffer* getBuffer(const std::string& ID) const;
-
-		virtual Registerable* findByName(const std::string& name);
-
-	protected :
-
-		virtual void registerChildren(bool registerAll);
-		virtual void copyChildren(const Registerable& object,bool createBase);
-		virtual void destroyChildren(bool keepChildren);
-
-		virtual void propagateUpdateTransform();
+		virtual Ref<SPKObject> findByName(const std::string& name);
+	
+	public :
+		spark_description(Group, Transformable)
+		(
+			spk_attribute(unsigned int, capacity, reallocate, getCapacity);
+			spk_attribute(Pair<float>, lifeTime, setLifeTime, getMinLifeTime, getMaxLifeTime);
+			spk_attribute(bool, immortal, setImmortal, isImmortal);
+			spk_attribute(bool, still, setStill, isStill);
+			spk_attribute(bool, computeDistances, enableDistanceComputation, isDistanceComputationEnabled);
+			spk_attribute(bool, sortParticles, enableSorting, isSortingEnabled);
+			spk_attribute(float, physicalRadius, setPhysicalRadius, getPhysicalRadius);
+			spk_attribute(float, graphicalRadius, setGraphicalRadius, getGraphicalRadius);
+			spk_attribute(Ref<ColorInterpolator>, colorInterpolator, setColorInterpolator, getColorInterpolator);
+			spk_attribute(Ref<FloatInterpolator>, scaleInterpolator, setScaleInterpolator, getScaleInterpolator);
+			spk_attribute(Ref<FloatInterpolator>, massInterpolator, setMassInterpolator, getMassInterpolator);
+			spk_attribute(Ref<FloatInterpolator>, angleInterpolator, setAngleInterpolator, getAngleInterpolator);
+			spk_attribute(Ref<FloatInterpolator>, textureIndexInterpolator, setTextureIndexInterpolator, getTextureIndexInterpolator);
+			spk_attribute(Ref<FloatInterpolator>, rotationSpeedInterpolator, setRotationSpeedInterpolator, getRotationSpeedInterpolator);
+			spk_array(Ref<Emitter>, emitters, addEmitter, removeEmitter, removeAllEmitters, getEmitter, getNbEmitters);
+			spk_array(Ref<Modifier>, modifiers, addModifier, removeModifier, removeAllModifiers, getModifier, getNbModifiers);
+			spk_attribute(Ref<Action>, birthAction, setBirthAction, getBirthAction);
+			spk_attribute(Ref<Action>, deathAction, setDeathAction, getDeathAction);
+			spk_attribute(Ref<Renderer>, renderer, setRenderer, getRenderer);
+		);
 
 	private :
+
+		static const size_t NB_PARAMETERS = 5;
+		static const float DEFAULT_VALUES[NB_PARAMETERS];
+
+		// This holds the structure of arrays (SOA) containing data of particles
+		struct ParticleData
+		{
+			bool initialized;
+
+			size_t nbParticles;
+			size_t maxParticles;
+
+			// Particles attributes
+			Vector3D* positions;
+			Vector3D* velocities;
+			Vector3D* oldPositions;
+
+			float* ages;
+			float* energies;
+			float* lifeTimes;
+			float* sqrDists;
+
+			// Particles parameters
+			Color* colors;
+			float* parameters[NB_PARAMETERS];
+
+			ParticleData() :
+				initialized(false),
+				nbParticles(0),
+				maxParticles(0),
+				positions(NULL),
+				velocities(NULL),
+				oldPositions(NULL),
+				ages(NULL),
+				energies(NULL),
+				lifeTimes(NULL),
+				sqrDists(NULL),
+				colors(NULL)
+			{
+				for (size_t i = 0; i < NB_PARAMETERS; ++i)
+					parameters[i] = NULL;
+			}
+		};
+
+		struct WeakEmitterPair
+		{
+			Emitter* obj;
+			size_t nbBorn;
+
+			WeakEmitterPair(const Ref<Emitter>& obj,size_t nbBorn) :
+				obj(obj.get()),
+				nbBorn(nbBorn)
+			{}
+		};
+
+		template<class T>
+		struct DataHandlerDef
+		{
+			T obj;
+			DataSet* dataSet;
+
+			DataHandlerDef() :
+				obj(),
+				dataSet(NULL)
+			{}
+
+			DataHandlerDef(const T& obj,DataSet* dataSet) :
+				obj(obj),
+				dataSet(dataSet)
+			{}
+		};
+
+		template<class T>
+		struct WeakDataHandlerDef
+		{
+			T* obj;
+			DataSet* dataSet;
+
+			WeakDataHandlerDef() :
+				obj(NULL),
+				dataSet(NULL)
+			{}
+
+			WeakDataHandlerDef(T* obj,DataSet* dataSet) :
+				obj(obj),
+				dataSet(dataSet)
+			{}
+
+			WeakDataHandlerDef(const DataHandlerDef<Ref<T> >& def) :
+				obj(def.obj.get()),
+				dataSet(def.dataSet)
+			{}
+
+			WeakDataHandlerDef& operator=(const DataHandlerDef<Ref<T> >& def)	
+			{
+				obj = def.obj.get();
+				dataSet = def.dataSet;
+				return *this;
+			}
+		};
+
+		struct RendererDef
+		{
+			Ref<Renderer> obj;
+			DataSet* dataSet;
+			RenderBuffer* renderBuffer;
+
+			RendererDef() :
+				obj(),
+				dataSet(NULL),
+				renderBuffer(NULL)
+			{}
+		};
+
+		typedef DataHandlerDef<Ref<Modifier> > ModifierDef;
+		typedef WeakDataHandlerDef<Modifier> WeakModifierDef;
+
+		typedef DataHandlerDef<Ref<ColorInterpolator> > ColorInterpolatorDef;
+		typedef DataHandlerDef<Ref<FloatInterpolator> > FloatInterpolatorDef;
+
+		// Functor used to sort modifiers by priority
+		struct CompareModifierPriority
+		{
+			bool operator()(const WeakModifierDef& modifier0, const WeakModifierDef& modifier1) const
+			{
+				return modifier0.obj->getPriority() < modifier1.obj->getPriority();
+			}
+		};
 
 		struct CreationData
 		{
 			unsigned int nb;
 			Vector3D position;
 			Vector3D velocity;
-			const Zone* zone;
-			Emitter* emitter;
+			Ref<Zone> zone;
+			Ref<Emitter> emitter;
 			bool full;
 		};
 
-		struct EmitterData
-		{
-			Emitter* emitter;
-			unsigned int nbParticles;
-		};
+		System* system;
 
-		// statics
-		static bool bufferManagement;
-		static Model& getDefaultModel();
+		ParticleData particleData;
+		size_t enabledParamIndices[NB_PARAMETERS];
+		size_t nbEnabledParameters;
 
-		// registerables
-		Model* model;
-		Renderer* renderer;
-		std::vector<Emitter*> emitters;
-		std::vector<Modifier*> modifiers;
+		ColorInterpolatorDef colorInterpolator;
+		FloatInterpolatorDef paramInterpolators[NB_PARAMETERS];
 
-		mutable std::vector<EmitterData> activeEmitters;
-		mutable std::vector<Modifier*> activeModifiers; // Vector of active modifiers to optimise the parsing when updating
+		std::vector<Ref<Emitter> > emitters;
+		mutable std::vector<WeakEmitterPair> activeEmitters;
 
-		// physics parameters
-		float friction;
-		Vector3D gravity;
+		std::vector<ModifierDef> modifiers;
+		std::vector<WeakModifierDef> sortedModifiers;
+		mutable std::vector<WeakModifierDef> activeModifiers;
+		mutable std::vector<WeakModifierDef> initModifiers;
 
-		// particles data
-		Pool<Particle> pool;
-		Particle::ParticleData* particleData;
-		float* particleCurrentParams; // Stores the current parameters values of the particles
-		float* particleExtendedParams; // Stores the extended parameters values of the particles (final values and interpolated data)
+		RendererDef renderer;
 
-		// sorting
-		bool sortingEnabled;
+		Ref<Action> birthAction;
+		Ref<Action> deathAction;
+
+		std::list<DataSet> dataSets;
+
+		float minLifeTime;
+		float maxLifeTime;
+		bool immortal;
+		bool still;
+
 		bool distanceComputationEnabled;
+		bool sortingEnabled;
+
+		Vector3D AABBMin;
+		Vector3D AABBMax;
+
+		float physicalRadius;
+		float graphicalRadius;
+
+		Octree* octree;
+
+		Group(const Ref<System>& system = SPK_NULL_REF,size_t capacity = 100);
+		Group(const Group& group);
+
+		bool updateParticles(float deltaTime);
+		void renderParticles();
+
+		bool initParticle(size_t index,size_t& emitterIndex,size_t& nbManualBorn);
+		void swapParticles(size_t index0,size_t index1);
+
+		void recomputeEnabledParamIndices();
+
+		template<typename T>
+		void reallocateArray(T*& t,size_t newSize,size_t copySize);
+
+		DataSet* attachDataSet(DataHandler* dataHandler);
+		void detachDataSet(DataSet* dataHandler);
+
+		void sortParticles(int start,int end);
+		virtual void propagateUpdateTransform();
+
+		void sortParticles();
+		void computeAABB();
+
+		void addParticles(
+			unsigned int nb,
+			const Vector3D& position,
+			const Vector3D& velocity,
+			const Ref<Zone>& zone,
+			const Ref<Emitter>& emitter,
+			bool full = false);
+
+		void emptyBufferedParticles();
 
 		// creation data
 		std::deque<CreationData> creationBuffer;
 		unsigned int nbBufferedParticles;
 
-		// callbacks
-		bool (*fupdate)(Particle&,float);
-		void (*fbirth)(Particle&);
-		void (*fdeath)(Particle&);
+		void prepareAdditionnalData();
+		void manageOctreeInstance(bool needsOctree);
 
-		// bounding box
-		bool boundingBoxEnabled;
-		Vector3D AABBMin;
-		Vector3D AABBMax;
-
-		// additional buffers
-		mutable std::map<std::string,Buffer*> additionalBuffers;
-		mutable std::set<Buffer*> swappableBuffers;
-
-		void pushParticle(std::vector<EmitterData>::iterator& emitterIt,unsigned int& nbManualBorn);
-		void launchParticle(Particle& p,std::vector<EmitterData>::iterator& emitterIt,unsigned int& nbManualBorn);
-
-		void addParticles(unsigned int nb,const Vector3D& position,const Vector3D& velocity,const Zone* zone,Emitter* emitter,bool full = false);
-
-		void popNextManualAdding(unsigned int& nbManualBorn);
-
-		void updateAABB(const Particle& particle);
-
-		void sortParticles(int start,int end);
+		void initData();
 	};
 
-
-	inline Group* Group::create(Model* model,size_t capacity)
+	inline Ref<Group> Group::create(size_t capacity)
 	{
-		Group* obj = new Group(model,capacity);
-		registerObject(obj);
-		return obj;
+		return SPK_NEW(Group,SPK_NULL_REF,capacity);
 	}
 
-	inline void Group::setFriction(float friction)
+	template<typename T>
+	void Group::reallocateArray(T*& t,size_t newSize,size_t copySize)
 	{
-		this->friction = friction;
+		T* oldT = t;
+		t = SPK_NEW_ARRAY(T,newSize);
+		if (oldT != NULL && copySize != 0)
+			std::memcpy(oldT,t,copySize * sizeof(T));
+		SPK_DELETE_ARRAY(oldT);
 	}
 
-	inline void Group::setGravity(const Vector3D& gravity)
+	inline bool Group::isInitialized() const
 	{
-		this->gravity = gravity;
+		return system != NULL && system->isInitialized();
 	}
 
-	inline void Group::setCustomUpdate(bool (*fupdate)(Particle&,float))
+	inline void Group::setImmortal(bool immortal)
 	{
-		this->fupdate = fupdate;
+		this->immortal = immortal;
 	}
 
-	inline void Group::setCustomBirth(void (*fbirth)(Particle&))
+	inline void Group::setStill(bool still)
 	{
-		this->fbirth = fbirth;
+		this->still = still;
 	}
 
-	inline void Group::setCustomDeath(void (*fdeath)(Particle&))
+	inline void Group::removeAllEmitters()
 	{
-		this->fdeath = fdeath;
+		emitters.clear();
 	}
 
-	inline void Group::enableSorting(bool sort)
+	inline void Group::setScaleInterpolator(const Ref<FloatInterpolator>& interpolator)
 	{
-		sortingEnabled = sort;
-		distanceComputationEnabled = sort;
+		setParamInterpolator(PARAM_SCALE, interpolator);
 	}
 
-	inline void Group::enableDistanceComputation(bool distanceComputation)
+	inline void Group::setMassInterpolator(const Ref<FloatInterpolator>& interpolator)
 	{
-		distanceComputationEnabled = distanceComputation;
-		if (!distanceComputation) enableSorting(false);
+		setParamInterpolator(PARAM_MASS, interpolator);
 	}
 
-	inline void Group::enableAABBComputing(bool AABB)
+	inline void Group::setAngleInterpolator(const Ref<FloatInterpolator>& interpolator)
 	{
-		boundingBoxEnabled = AABB;
+		setParamInterpolator(PARAM_ANGLE, interpolator);
 	}
 
-	inline const Pool<Particle>& Group::getParticles() const
+	inline void Group::setTextureIndexInterpolator(const Ref<FloatInterpolator>& interpolator)
 	{
-		return pool;
+		setParamInterpolator(PARAM_TEXTURE_INDEX, interpolator);
 	}
 
-	inline Particle& Group::getParticle(size_t index)
+	inline void Group::setRotationSpeedInterpolator(const Ref<FloatInterpolator>& interpolator)
 	{
-		return pool[index];
+		setParamInterpolator(PARAM_ROTATION_SPEED, interpolator);
 	}
 
-	inline const Particle& Group::getParticle(size_t index) const
+	inline const Ref<FloatInterpolator>& Group::getScaleInterpolator() const
 	{
-		return pool[index];
+		return getParamInterpolator(PARAM_SCALE);
+	}
+
+	inline const Ref<FloatInterpolator>& Group::getMassInterpolator() const
+	{
+		return getParamInterpolator(PARAM_MASS);
+	}
+
+	inline const Ref<FloatInterpolator>& Group::getAngleInterpolator() const
+	{
+		return getParamInterpolator(PARAM_ANGLE);
+	}
+
+	inline const Ref<FloatInterpolator>& Group::getTextureIndexInterpolator() const
+	{
+		return getParamInterpolator(PARAM_TEXTURE_INDEX);
+	}
+
+	inline const Ref<FloatInterpolator>& Group::getRotationSpeedInterpolator() const
+	{
+		return getParamInterpolator(PARAM_ROTATION_SPEED);
+	}
+
+	inline const Ref<FloatInterpolator>& Group::getParamInterpolator(Param param) const
+	{
+		return paramInterpolators[param].obj;
+	}
+
+	inline const Ref<ColorInterpolator>& Group::getColorInterpolator() const
+	{
+		return colorInterpolator.obj;
+	}
+
+	inline float Group::getMinLifeTime() const
+	{
+		return minLifeTime;
+	}
+
+	inline float Group::getMaxLifeTime() const
+	{
+		return maxLifeTime;
+	}
+
+	inline bool Group::isImmortal() const
+	{
+		return immortal;
+	}
+
+	inline bool Group::isStill() const
+	{
+		return still;
+	}
+
+	inline bool Group::isEnabled(Param param) const
+	{
+		return particleData.parameters[param] != NULL;
 	}
 
 	inline size_t Group::getNbParticles() const
 	{
-		return pool.getNbActive();
+		return particleData.nbParticles;
 	}
 
-	inline const std::vector<Emitter*>& Group::getEmitters() const
+	inline size_t Group::getCapacity() const
 	{
-		return emitters;
+		return particleData.maxParticles;
 	}
 
-	inline Emitter* Group::getEmitter(size_t index) const
+	inline void Group::empty()
 	{
+		particleData.nbParticles = 0;
+	}
+
+	inline const Ref<Emitter>& Group::getEmitter(size_t index) const
+	{
+		SPK_ASSERT(index < getNbEmitters(),"Group::getEmitter(size_t) - Index of emitter is out of bounds : " << index);
 		return emitters[index];
 	}
 
@@ -962,14 +760,10 @@ namespace SPK
 		return emitters.size();
 	}
 
-	inline const std::vector<Modifier*>& Group::getModifiers() const
+	inline const Ref<Modifier>& Group::getModifier(size_t index) const
 	{
-		return modifiers;
-	}
-
-	inline Modifier* Group::getModifier(size_t index) const
-	{
-		return modifiers[index];
+		SPK_ASSERT(index < getNbModifiers(),"Group::geModifier(size_t) - Index of modifier is out of bounds : " << index);
+		return modifiers[index].obj;
 	}
 
 	inline size_t Group::getNbModifiers() const
@@ -977,29 +771,14 @@ namespace SPK
 		return modifiers.size();
 	}
 
-	inline Model* Group::getModel() const
+	inline const Ref<Renderer>& Group::getRenderer() const
 	{
-		return model;
+		return renderer.obj;
 	}
 
-	inline Renderer* Group::getRenderer() const
+	inline void Group::enableDistanceComputation(bool distanceComputation)
 	{
-		return renderer;
-	}
-
-	inline float Group::getFriction() const
-	{
-		return friction;
-	}
-
-	inline const Vector3D& Group::getGravity() const
-	{
-		return gravity;
-	}
-
-	inline bool Group::isSortingEnabled() const
-	{
-		return sortingEnabled;
+		distanceComputationEnabled = distanceComputation;
 	}
 
 	inline bool Group::isDistanceComputationEnabled() const
@@ -1007,9 +786,34 @@ namespace SPK
 		return distanceComputationEnabled;
 	}
 
-	inline bool Group::isAABBComputingEnabled() const
+	inline void Group::enableSorting(bool sorting)
 	{
-		return boundingBoxEnabled;
+		sortingEnabled = distanceComputationEnabled = sorting;
+	}
+
+	inline bool Group::isSortingEnabled() const
+	{
+		return sortingEnabled;
+	}
+
+	inline const void* Group::getColorAddress() const
+	{
+		return particleData.colors;
+	}
+
+	inline const void* Group::getPositionAddress() const
+	{
+		return particleData.positions;
+	}
+
+	inline const void* Group::getVelocityAddress() const
+	{
+		return particleData.velocities;
+	}
+
+	inline const void* Group::getParamAddress(Param param) const
+	{
+		return particleData.parameters[param];
 	}
 
 	inline const Vector3D& Group::getAABBMin() const
@@ -1022,39 +826,60 @@ namespace SPK
 		return AABBMax;
 	}
 
+	inline void Group::setRadius(float radius)
+	{
+		setGraphicalRadius(radius);
+		setPhysicalRadius(radius);
+	}
+
+	inline float Group::getGraphicalRadius() const
+	{
+		return graphicalRadius;
+	}
+
+	inline float Group::getPhysicalRadius() const
+	{
+		return physicalRadius;
+	}
+
 	inline void Group::addParticles(unsigned int nb,const Vector3D& position,const Vector3D& velocity)
 	{
-		addParticles(nb,position,velocity,NULL,NULL);
+		addParticles(nb,position,velocity,SPK_NULL_REF,SPK_NULL_REF);
 	}
 
-	inline void Group::addParticles(unsigned int nb,const Zone* zone,Emitter* emitter,bool full)
+	inline Ref<System> Group::getSystem() const
 	{
-		addParticles(nb,Vector3D(),Vector3D(),zone,emitter,full);
+		return system;
 	}
 
-	inline void Group::addParticles(unsigned int nb,const Zone* zone,const Vector3D& velocity,bool full)
+	inline const Ref<Action>& Group::getBirthAction() const
 	{
-		addParticles(nb,Vector3D(),velocity,zone,NULL,full);
+		return birthAction;
 	}
 
-	inline void Group::addParticles(unsigned int nb,const Vector3D& position,Emitter* emitter)
+	inline const Ref<Action>& Group::getDeathAction() const
 	{
-		addParticles(nb,position,Vector3D(),NULL,emitter);
+		return deathAction;
 	}
 
-	inline void Group::removeParticle(size_t index)
+	inline DataSet* Group::getParamInterpolatorDataSet(Param param)
 	{
-		pool.makeInactive(index);
+		return paramInterpolators[param].dataSet;
 	}
 
-	inline const void* Group::getPositionAddress() const
+	inline DataSet* Group::getColorInterpolatorDataSet()
 	{
-		return &(particleData[0].position);
+		return colorInterpolator.dataSet;
 	}
 
-	inline size_t Group::getPositionStride() const
+	inline DataSet* Group::getRendererDataSet()
 	{
-		return sizeof(Particle::ParticleData);
+		return renderer.dataSet;
+	}
+
+	inline RenderBuffer* Group::getRenderBuffer()
+	{
+		return renderer.renderBuffer;
 	}
 }
 

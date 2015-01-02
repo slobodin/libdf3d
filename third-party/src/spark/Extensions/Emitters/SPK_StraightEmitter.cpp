@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,24 +19,43 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
+#include <SPARK_Core.h>
 #include "Extensions/Emitters/SPK_StraightEmitter.h"
-
 
 namespace SPK
 {
-	StraightEmitter::StraightEmitter(const Vector3D& direction) :
-		Emitter()
+	StraightEmitter::StraightEmitter(
+			const Vector3D& direction,
+			const Ref<Zone>& zone,
+			bool full,
+			int tank,
+			float flow,
+			float forceMin,
+			float forceMax) :
+		Emitter(zone,full,tank,flow,forceMin,forceMax)
 	{
 		setDirection(direction);
 	}
 
-	void StraightEmitter::setDirection(const Vector3D& direction)
+	StraightEmitter::StraightEmitter(const StraightEmitter& emitter) :
+		Emitter(emitter)
 	{
-		this->direction = direction;
-		this->direction.normalize();
-		tDirection = this->direction;
-		notifyForUpdate();
+		setDirection(emitter.direction);
+	}
+
+	void StraightEmitter::setDirection(const Vector3D& dir)
+	{
+		this->direction = dir;
+		if (!this->direction.normalize())
+			SPK_LOG_WARNING("StraightEmitter::setDirection(const Vector3D&) - The direction is a null vector");
+		transformDir(tDirection,direction);
+		tDirection.normalize();
+	}
+
+	void StraightEmitter::generateVelocity(Particle& particle,float speed) const
+	{
+		particle.velocity() = tDirection;
+		particle.velocity() *= speed;
 	}
 
 	void StraightEmitter::innerUpdateTransform()

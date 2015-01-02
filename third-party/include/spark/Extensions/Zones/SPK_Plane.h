@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,12 +19,8 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef H_SPK_PLANE
 #define H_SPK_PLANE
-
-#include "Core/SPK_Zone.h"
-#include "Core/SPK_Particle.h"
 
 namespace SPK
 {
@@ -44,8 +40,6 @@ namespace SPK
 	*/
 	class SPK_PREFIX Plane : public Zone
 	{
-		SPK_IMPLEMENT_REGISTERABLE(Plane)
-
 	public :
 
 		//////////////////
@@ -53,37 +47,25 @@ namespace SPK
 		//////////////////
 
 		/**
-		* @brief Constructor of Plane
+		* @brief Creates a new Plane
 		* @param position : the position of the Plane
 		* @param normal : the normal of the Plane
+		* @return a new plane
 		*/
-		Plane(const Vector3D& position = Vector3D(0.0f,0.0f,0.0f),const Vector3D& normal = Vector3D(0.0f,1.0f,0.0f));
+		static  Ref<Plane> create(const Vector3D& position = Vector3D(0.0f,0.0f,0.0f),const Vector3D& normal = Vector3D(0.0f,1.0f,0.0f));	
 
-		/**
-		* @brief Creates and registers a new Plane
-		* @param position : the position of the Plane
-		* @param normal : the normal of the Plane
-		* @return a new registered plane
-		* @since 1.04.00
-		*/
-		static Plane* create(const Vector3D& position = Vector3D(0.0f,0.0f,0.0f),const Vector3D& normal = Vector3D(0.0f,1.0f,0.0f));
-
-		/////////////
-		// Setters //
-		/////////////
+		////////////
+		// Normal //
+		////////////
 
 		/**
 		* @brief Sets the normal of this Plane
 		*
 		* Note that the normal is normalized internally.
 		*
-		* @param normal :  the normal of this Plane
+		* @param n : the normal of this Plane
 		*/
-		void setNormal(const Vector3D& normal);
-
-		/////////////
-		// Getters //
-		/////////////
+		void setNormal(const Vector3D& n);
 
 		/**
 		* @brief Gets the normal of this Plane
@@ -94,7 +76,6 @@ namespace SPK
 		/**
 		* @brief Gets the transformed normal of this Plane
 		* @return the transformed normal of this Plane
-		* @since 1.05.00
 		*/
 		const Vector3D& getTransformedNormal() const;
 
@@ -102,11 +83,16 @@ namespace SPK
 		// Interface //
 		///////////////
 
-		virtual void generatePosition(Particle& particle,bool full) const;
-		virtual bool contains(const Vector3D& v) const;
-		virtual bool intersects(const Vector3D& v0,const Vector3D& v1,Vector3D* intersection,Vector3D* normal) const;
-		virtual void moveAtBorder(Vector3D& v,bool inside) const;
-		virtual Vector3D computeNormal(const Vector3D& point) const;
+		virtual void generatePosition(Vector3D& v,bool full,float radius = 0.0f) const;
+		virtual bool contains(const Vector3D& v,float radius = 0.0f) const;
+		virtual bool intersects(const Vector3D& v0,const Vector3D& v1,float radius = 0.0f,Vector3D* normal = NULL) const;
+		virtual Vector3D computeNormal(const Vector3D& v) const;
+
+	public :
+		spark_description(Plane, Zone)
+		(
+			spk_attribute(Vector3D, normal, setNormal, getNormal);
+		);
 
 	protected :
 
@@ -114,24 +100,28 @@ namespace SPK
 
 	private :
 
-		Vector3D normal;
-		Vector3D tNormal;
+		Vector3D normal;	// normal
+		Vector3D tNormal;	// transformed normal
+
+		Plane(const Vector3D& position = Vector3D(0.0f,0.0f,0.0f),const Vector3D& normal = Vector3D(0.0f,1.0f,0.0f));
+		Plane(const Plane& plane);
 	};
 
-
-	inline Plane* Plane::create(const Vector3D& position,const Vector3D& normal)
+	inline Plane::Plane(const Vector3D& position,const Vector3D& normal) :
+		Zone(position)
 	{
-		Plane* obj = new Plane(position,normal);
-		registerObject(obj);
-		return obj;
+		setNormal(normal);
 	}
-		
-	inline void Plane::setNormal(const Vector3D& normal)
+
+	inline Plane::Plane(const Plane& plane) :
+		Zone(plane)
 	{
-		this->normal = normal;
-		this->normal.normalize();
-		tNormal = this->normal;
-		notifyForUpdate();
+		setNormal(plane.normal);
+	}
+
+	inline Ref<Plane> Plane::create(const Vector3D& position,const Vector3D& normal)
+	{
+		return SPK_NEW(Plane,position,normal);
 	}
 
 	inline const Vector3D& Plane::getNormal() const
@@ -144,19 +134,19 @@ namespace SPK
 		return tNormal;
 	}
 
-	inline void Plane::generatePosition(Particle& particle,bool full) const
+	inline void Plane::generatePosition(Vector3D& v,bool full,float radius) const
 	{
-		particle.position() = getTransformedPosition();
+		v = getTransformedPosition();
 	}
 
-	inline bool Plane::contains(const Vector3D& v) const
+	inline bool Plane::contains(const Vector3D& v,float radius) const
 	{
-		return dotProduct(normal,v - getTransformedPosition()) <= 0.0f;
+		return dotProduct(tNormal,v - getTransformedPosition()) <= radius;
 	}
 
 	inline Vector3D Plane::computeNormal(const Vector3D& point) const
 	{
-		return tNormal;
+		return contains(point) ? -tNormal : tNormal;
 	}
 }
 

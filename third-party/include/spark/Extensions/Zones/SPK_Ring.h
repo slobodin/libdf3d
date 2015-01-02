@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -22,12 +22,11 @@
 #ifndef H_SPK_RING
 #define H_SPK_RING
 
-#include "Core/SPK_Zone.h"
-
 namespace SPK
 {
 	/**
-	* @brief A ZOne defining a flat ring in the universe
+	* @class Ring
+	* @brief A Zone defining a flat ring in the universe
 	*
 	* A ring is defined by :
 	* <ul>
@@ -37,13 +36,9 @@ namespace SPK
 	* </ul>
 	* Note that by having the minimum radius equal to 0, the ring becomes a disk in the universe.<br>
 	* Note that the normal does not have to be normalized as it is normalized internally when set.
-	*
-	* @since 1.05.00
 	*/
 	class SPK_PREFIX Ring : public Zone
 	{
-		SPK_IMPLEMENT_REGISTERABLE(Ring)
-
 	public :
 
 		//////////////////
@@ -51,51 +46,31 @@ namespace SPK
 		//////////////////
 
 		/**
-		* @brief Constructor of ring
-		* @param position : the position of the ring
+		* @brief Creates a new ring
+		* @param position : the position of the center of the ring
 		* @param normal : the normal of the plane on which lies the ring
 		* @param minRadius : the minimum radius of the ring
 		* @param maxRadius : the maximum radius of the ring
+		* @return a new ring
 		*/
-		Ring(const Vector3D& position = Vector3D(0.0f,0.0f,0.0f),const Vector3D& normal = Vector3D(0.0f,1.0f,0.0f),float minRadius = 0.0f,float maxRadius = 1.0f);
+		static  Ref<Ring> create(
+			const Vector3D& position = Vector3D(0.0f,0.0f,0.0f),
+			const Vector3D& normal = Vector3D(0.0f,1.0f,0.0f),
+			float minRadius = 0.0f,
+			float maxRadius = 1.0f);
 
-		/**
-		* @brief Creates and registers a new Ring
-		* @param position : the position of the ring
-		* @param normal : the normal of the plane on which lies the ring
-		* @param minRadius : the minimum radius of the ring
-		* @param maxRadius : the maximum radius of the ring
-		* @return a new registered ring
-		*/
-		static Ring* create(const Vector3D& position = Vector3D(0.0f,0.0f,0.0f),const Vector3D& normal = Vector3D(0.0f,1.0f,0.0f),float minRadius = 0.0f,float maxRadius = 1.0f);
-
-		/////////////
-		// Setters //
-		/////////////
+		////////////
+		// Normal //
+		////////////
 
 		/**
 		* @brief Sets the normal of the plane on which lies this ring
 		*
 		* Note that the normal is normalized internally
 		*
-		* @param normal : the normal of the plane on which lies the ring
+		* @param n : the normal of the plane on which lies the ring
 		*/
-		void setNormal(const Vector3D& normal);
-
-		/**
-		* @brief Sets the min and max radius of this ring
-		* 
-		* A radius cannot be negative.<br>
-		* Note that negative radius are inverted internally
-		*
-		* @param minRadius : the minimum radius of this ring
-		* @param maxRadius : the maximum radius of this ring
-		*/
-		void setRadius(float minRadius,float maxRadius);
-
-		/////////////
-		// Getters //
-		/////////////
+		void setNormal(const Vector3D& n);
 
 		/**
 		* @brief Gets the normal of this ring
@@ -108,6 +83,20 @@ namespace SPK
 		* @return the transformed normal of this ring
 		*/
 		const Vector3D& getTransformedNormal() const;
+
+		////////////
+		// Radius //
+		////////////
+
+		/**
+		* @brief Sets the min and max radius of this ring
+		* 
+		* A radius cannot be negative.<br>
+		*
+		* @param minRadius : the minimum radius of this ring
+		* @param maxRadius : the maximum radius of this ring
+		*/
+		void setRadius(float minRadius,float maxRadius);
 
 		/**
 		* @brief Gets the minimum radius of this ring
@@ -125,11 +114,17 @@ namespace SPK
 		// Interface //
 		///////////////
 
-		virtual void generatePosition(Particle& particle,bool full) const;
-		virtual bool contains(const Vector3D& v) const;
-		virtual bool intersects(const Vector3D& v0,const Vector3D& v1,Vector3D* intersection,Vector3D* normal) const;
-		virtual void moveAtBorder(Vector3D& v,bool inside) const;
-		virtual Vector3D computeNormal(const Vector3D& point) const;
+		virtual void generatePosition(Vector3D& v,bool full,float radius = 0.0f) const;
+		virtual bool contains(const Vector3D& v,float radius = 0.0f) const;
+		virtual bool intersects(const Vector3D& v0,const Vector3D& v1,float radius = 0.0f,Vector3D* normal = NULL) const;
+		virtual Vector3D computeNormal(const Vector3D& v) const;
+
+	public :
+		spark_description(Ring, Zone)
+		(
+			spk_attribute(Vector3D, normal, setNormal, getNormal);
+			spk_attribute(Pair<float>, radius, setRadius, getMinRadius, getMaxRadius);
+		);
 
 	protected :
 
@@ -137,31 +132,28 @@ namespace SPK
 
 	private :
 
-		Vector3D normal;
-		Vector3D tNormal;
+		Vector3D normal;	// normal
+		Vector3D tNormal;	// transformed normal
 
 		float minRadius;
 		float maxRadius;
 
-		// Square of the radius (for optimization purpose)
-		float sqrMinRadius;
-		float sqrMaxRadius;
+		Ring(
+			const Vector3D& position = Vector3D(0.0f,0.0f,0.0f),
+			const Vector3D& normal = Vector3D(0.0f,1.0f,0.0f),
+			float minRadius = 0.0f,
+			float maxRadius = 1.0f);
+
+		Ring(const Ring& ring);
 	};
 
-	
-	inline Ring* Ring::create(const Vector3D& position,const Vector3D& normal,float minRadius,float maxRadius)
+	inline Ref<Ring> Ring::create(
+		const Vector3D& position,
+		const Vector3D& normal,
+		float minRadius,
+		float maxRadius)
 	{
-		Ring* obj = new Ring(position,normal,minRadius,maxRadius);
-		registerObject(obj);
-		return obj;
-	}
-		
-	inline void Ring::setNormal(const Vector3D& normal)
-	{
-		this->normal = normal;
-		this->normal.normalize();
-		tNormal = this->normal;
-		notifyForUpdate();
+		return SPK_NEW(Ring,position,normal,minRadius,maxRadius);
 	}
 
 	inline const Vector3D& Ring::getNormal() const
@@ -184,14 +176,14 @@ namespace SPK
 		return maxRadius;
 	}
 
-	inline bool Ring::contains(const Vector3D& v) const
+	inline bool Ring::contains(const Vector3D& v,float radius) const
 	{
 		return false;
 	}
 
 	inline Vector3D Ring::computeNormal(const Vector3D& point) const
 	{
-		return tNormal;
+		return dotProduct(tNormal,point - getTransformedPosition()) < 0.0f ? -tNormal : tNormal;
 	}
 }
 

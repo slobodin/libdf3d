@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,11 +19,8 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef H_SPK_VORTEX
 #define H_SPK_VORTEX
-
-#include "Core/SPK_Modifier.h"
 
 namespace SPK
 {
@@ -48,41 +45,24 @@ namespace SPK
 	* <br>
 	* Note that this modifier does not update particle's velocity. Therefore particles modified by a vortex does not have any inertia.<br>
 	* This is because defining an accurate vortex in a discrete environment cannot be performed by using the derivatives of the position and velocity.
-	*
-	* @since 1.05.00
 	*/
 	class SPK_PREFIX Vortex : public Modifier
 	{
-		SPK_IMPLEMENT_REGISTERABLE(Vortex)
-
 	public :
 
-		//////////////////
-		// Constructors //
-		//////////////////
-
 		/**
-		* @brief Constructor of vortex
+		* @brief Creates a new vortex
 		* @param position : the position of the eye
 		* @param direction : the direction of the eye
 		* @param rotationSpeed : the speed of rotation
 		* @param attractionSpeed : the speed of attraction
+		* @return a new vortex
 		*/
-		Vortex(const Vector3D& position = Vector3D(),const Vector3D& direction = Vector3D(0.0f,1.0f,0.0f),float rotationSpeed = 1.0f,float attractionSpeed = 0.0f);
-		
-		/**
-		* @brief Creates and registers a new Vortex
-		* @param position : the position of the eye
-		* @param direction : the direction of the eye
-		* @param rotationSpeed : the speed of rotation
-		* @param attractionSpeed : the speed of attraction
-		* @return a new registered vortex
-		*/
-		static Vortex* create(const Vector3D& position = Vector3D(),const Vector3D& direction = Vector3D(0.0f,1.0f,0.0f),float rotationSpeed = 1.0f,float attractionSpeed = 0.0f);
+		static  Ref<Vortex> create(const Vector3D& position = Vector3D(),const Vector3D& direction = Vector3D(0.0f,1.0f,0.0f),float rotationSpeed = 1.0f,float attractionSpeed = 0.0f);
 
-		/////////////
-		// Setters //
-		/////////////
+		////////////////////
+		// Eue definition //
+		////////////////////
 
 		/**
 		* @brief Sets the position of the eye of the vortex
@@ -94,21 +74,64 @@ namespace SPK
 		void setPosition(const Vector3D& position);
 
 		/**
+		* @brief Gets the position of the eye
+		* @return the position of the eye
+		*/
+		const Vector3D& getPosition() const;
+
+		/**
+		* @brief Gets the transformed position of the eye
+		* @return the transformed position of the eye
+		*/
+		const Vector3D& getTransformedPosition() const;
+
+		/**
 		* @brief Sets the direction of the eye of the vortex
 		*
 		* The eye of the vortex is an infinite line defined by a position and a direction.<br>
 		* Note that the direction is normalized internally.
 		*
-		* @param direction : the direction of the eye of the vortex
+		* @param dir : the direction of the eye of the vortex
 		*/
-		void setDirection(const Vector3D& direction);
+		void setDirection(const Vector3D& dir);
+
+		/**
+		* @brief Gets the direction of the eye
+		* @return the direction of the eye (normalized)
+		*/
+		const Vector3D& getDirection() const;
+
+		/**
+		* @brief Gets the transformed direction of the eye
+		* @return the transformed direction of the eye (normalized)
+		*/
+		const Vector3D& getTransformedDirection() const;
+
+		/**
+		* @brief Sets the eye radius
+		*
+		* Note that an negative radius is inverted internally
+		*
+		* @param eyeRadius : the eye radius
+		*/
+		void setEyeRadius(float eyeRadius);
+
+		/**
+		* @brief Returns the eye radius
+		* @return the eye radius
+		*/
+		float getEyeRadius() const;
+
+		////////////
+		// Speeds //
+		////////////
 
 		/**
 		* @brief Sets the rotation speed of the vortex
 		*
 		* The rotation speed can either be in units per second or in radians per second (angular).<br>
 		* In the case the rotation speed is angular, all particles are rotated around the eye at the same speed.<br>
-		* In the other case, the more particles are close to the eye, the faster they rotate.<br>
+		* In the other case, the closer particles are to the eye, the faster they rotate.<br>
 		* <br>
 		* The sens of rotation is defined by the sens of the speed (and depends also on whether we are in a right or left handed system).<br>
 		* A speed of 0 means no rotation.
@@ -116,7 +139,21 @@ namespace SPK
 		* @param rotationSpeed : the speed of rotation (either in units per unit of time or in radians per unit of time dependent on the second parameter)
 		* @param angular :  true to have the rotation in radians per unit of time, false to have it in unit per unit of time.
 		*/
-		void setRotationSpeed(float rotationSpeed,bool angular);
+		void setRotationSpeed(float rotationSpeed, bool angular);
+		void setRotationSpeed(float rotationSpeed);
+		void setRotationSpeedAngular(bool a);
+
+		/**
+		* @brief Gets the rotation speed
+		* @return the rotation speed
+		*/
+		float getRotationSpeed() const;
+
+		/**
+		* @brief Tells whether rotation speed is angular
+		* @return true if rotation speed is angular, false if not
+		*/
+		bool isRotationSpeedAngular() const;
 
 		/**
 		* @brief Sets the attraction speed of the vortex
@@ -133,56 +170,9 @@ namespace SPK
 		* @param attractionSpeed : the attraction speed of the vortex in units per unit of time
 		* @param linear : true to set the speed function of the distance from the eye, false to set it constant
 		*/
-		void setAttractionSpeed(float attractionSpeed,bool linear);
-
-		/**
-		* @brief Sets the eye radius
-		*
-		* Note that an negative radius is inverted internally
-		*
-		* @param eyeRadius : the eye radius
-		*/
-		void setEyeRadius(float eyeRadius);
-
-		/**
-		* @brief Tells whether particles is the eye must be killed or not
-		* @param kill : true to kill particles in the eye, false not to
-		*/
-		void enableParticleKilling(bool kill);
-
-		/////////////
-		// Getters //
-		/////////////
-
-		/**
-		* @brief Gets the position of the eye
-		* @return the position of the eye
-		*/
-		const Vector3D& getPosition() const;
-
-		/**
-		* @brief Gets the direction of the eye
-		* @return the direction of the eye (normalized)
-		*/
-		const Vector3D& getDirection() const;
-
-		/**
-		* @brief Gets the transformed position of the eye
-		* @return the transformed position of the eye
-		*/
-		const Vector3D& getTransformedPosition() const;
-
-		/**
-		* @brief Gets the transformed direction of the eye
-		* @return the transformed direction of the eye (normalized)
-		*/
-		const Vector3D& getTransformedDirection() const;
-
-		/**
-		* @brief Gets the rotation speed
-		* @return the rotation speed
-		*/
-		float getRotationSpeed() const;
+		void setAttractionSpeed(float attractionSpeed, bool linear);
+		void setAttractionSpeed(float attractionSpeed);
+		void setAttractionSpeedLinear(bool l);
 
 		/**
 		* @brief Gets the attraction speed
@@ -191,28 +181,39 @@ namespace SPK
 		float getAttractionSpeed() const;
 
 		/**
-		* @brief Tells whether rotation speed is angular
-		* @return true if rotation speed is angular, false if not
-		*/
-		bool isRotationSpeedAngular() const;
-
-		/**
 		* @brief Tells whether attraction speed is function of the distance from the eye
 		* @return true if attraction speed is linear, false if it is constant
 		*/
 		bool isAttractionSpeedLinear() const;
 
+		///////////////////////
+		// Killing particles //
+		///////////////////////
+
 		/**
-		* @brief Returns the eye radius
-		* @return the eye radius
+		* @brief Tells whether particles is the eye must be killed or not
+		* @param kill : true to kill particles in the eye, false not to
 		*/
-		float getEyeRadius() const;
+		void enableParticleKilling(bool kill);
 
 		/**
 		* @brief Tells whether particles are killed when in the eye
 		* @return true if particles are killed in the eye, false if not
 		*/
 		bool isParticleKillingEnabled() const;
+
+	public :
+		spark_description(Vortex, Modifier)
+		(
+			spk_attribute(Vector3D, position, setPosition, getPosition);
+			spk_attribute(Vector3D, direction, setDirection, getDirection);
+			spk_attribute(float, rotationSpeed, setRotationSpeed, getRotationSpeed);
+			spk_attribute(float, attractionSpeed, setAttractionSpeed, getAttractionSpeed);
+			spk_attribute(bool, angularRotationSpeed, setRotationSpeedAngular, isRotationSpeedAngular);
+			spk_attribute(bool, linearAttractionSpeed, setAttractionSpeedLinear, isAttractionSpeedLinear);
+			spk_attribute(float, eyeRadius, setEyeRadius, getEyeRadius);
+			spk_attribute(bool, killParticles, enableParticleKilling, isParticleKillingEnabled);
+		);
 
 	protected :
 
@@ -235,36 +236,85 @@ namespace SPK
 		float eyeRadius;
 		bool killingParticleEnabled;
 
-		virtual void modify(Particle& particle,float deltaTime) const;
+		Vortex(const Vector3D& position = Vector3D(),const Vector3D& direction = Vector3D(0.0f,1.0f,0.0f),float rotationSpeed = 1.0f,float attractionSpeed = 0.0f);
+		Vortex(const Vortex& vortex);
+
+		virtual void modify(Group& group,DataSet* dataSet,float deltaTime) const;
 	};
 
-
-	inline Vortex* Vortex::create(const Vector3D& position,const Vector3D& direction,float rotationSpeed,float attractionSpeed)
+	inline Ref<Vortex> Vortex::create(const Vector3D& position,const Vector3D& direction,float rotationSpeed,float attractionSpeed)
 	{
-		Vortex* obj = new Vortex(position,direction,rotationSpeed,attractionSpeed);
-		registerObject(obj);
-		return obj;
+		return SPK_NEW(Vortex,position,direction,rotationSpeed,attractionSpeed);
 	}
 
 	inline void Vortex::setPosition(const Vector3D& position)
 	{
 		this->position = position;
-		tPosition = this->position;
-		notifyForUpdate();
+		transformPos(tPosition,position);
 	}
 
-	inline void Vortex::setDirection(const Vector3D& direction)
+	inline const Vector3D& Vortex::getPosition() const
 	{
-		this->direction = direction;
-		this->direction.normalize();
-		tDirection = this->direction;
-		notifyForUpdate();
+		return position;
 	}
 
-	inline void Vortex::setRotationSpeed(float rotationSpeed,bool angular)
+	inline const Vector3D& Vortex::getTransformedPosition() const
 	{
-		this->rotationSpeed = rotationSpeed;
+		return tPosition;
+	}
+
+	inline void Vortex::setDirection(const Vector3D& dir)
+	{
+		direction = dir;
+		direction.normalize();
+		transformDir(tDirection,direction);
+		tDirection.normalize();
+	}
+
+	inline const Vector3D& Vortex::getDirection() const
+	{
+		return direction;
+	}
+
+	inline const Vector3D& Vortex::getTransformedDirection() const
+	{
+		return tDirection;
+	}
+
+	inline float Vortex::getEyeRadius() const
+	{
+		return eyeRadius;
+	}
+
+	inline void Vortex::setRotationSpeedAngular(bool a)
+	{
+		angularSpeedEnabled = a;
+	}
+
+	inline void Vortex::setRotationSpeed(float r, bool angular)
+	{
+		rotationSpeed = r;
 		angularSpeedEnabled = angular;
+	}
+
+	inline void Vortex::setRotationSpeed(float r)
+	{
+		rotationSpeed = r;
+	}
+
+	inline float Vortex::getRotationSpeed() const
+	{
+		return rotationSpeed;
+	}
+
+	inline bool Vortex::isRotationSpeedAngular() const
+	{
+		return angularSpeedEnabled;
+	}
+
+	inline void Vortex::setAttractionSpeedLinear(bool l)
+	{
+		linearSpeedEnabled = l;
 	}
 
 	inline void Vortex::setAttractionSpeed(float attractionSpeed,bool linear)
@@ -273,50 +323,14 @@ namespace SPK
 		linearSpeedEnabled = linear;
 	}
 
-	inline void Vortex::setEyeRadius(float eyeRadius)
-	{		
-		if (eyeRadius < 0.0f) eyeRadius = -eyeRadius;
-		this->eyeRadius = eyeRadius;
+	inline void Vortex::setAttractionSpeed(float a)
+	{
+		attractionSpeed = a;
 	}
 
-	inline void Vortex::enableParticleKilling(bool kill)
-	{
-		killingParticleEnabled = kill;
-	}
-
-	inline const Vector3D& Vortex::getPosition() const
-	{
-		return position;
-	}
-
-	inline const Vector3D& Vortex::getDirection() const
-	{
-		return direction;
-	}
-
-	inline const Vector3D& Vortex::getTransformedPosition() const
-	{
-		return tPosition;
-	}
-
-	inline const Vector3D& Vortex::getTransformedDirection() const
-	{
-		return tDirection;
-	}
-
-	inline float Vortex::getRotationSpeed() const
-	{
-		return rotationSpeed;
-	}
-		
 	inline float Vortex::getAttractionSpeed() const
 	{
 		return attractionSpeed;
-	}
-
-	inline bool Vortex::isRotationSpeedAngular() const
-	{
-		return angularSpeedEnabled;
 	}
 
 	inline bool Vortex::isAttractionSpeedLinear() const
@@ -324,9 +338,9 @@ namespace SPK
 		return linearSpeedEnabled;
 	}
 
-	inline float Vortex::getEyeRadius() const
+	inline void Vortex::enableParticleKilling(bool kill)
 	{
-		return eyeRadius;
+		killingParticleEnabled = kill;
 	}
 
 	inline bool Vortex::isParticleKillingEnabled() const

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,44 +19,60 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef H_SPK_RANDOMEMITTER
 #define H_SPK_RANDOMEMITTER
-
-#include "Core/SPK_Emitter.h"
-
 
 namespace SPK
 {
 	/**
 	* @class RandomEmitter
-	* @brief An Emitter that emits in a random direction
-	* @since 1.02.00
+	* @brief An emitter that emits in a random direction
 	*/
 	class SPK_PREFIX RandomEmitter : public Emitter
 	{
-		SPK_IMPLEMENT_REGISTERABLE(RandomEmitter)
-
 	public :
 
 		/**
-		* @brief Creates and registers a new RandomEmitter
-		* @return A new registered RandomEmitter
-		* @since 1.04.00
+		* @brief Creates a new RandomEmitter
+		* @return A new RandomEmitter
 		*/
-		static RandomEmitter* create();
+		static  Ref<RandomEmitter> create(
+			const Ref<Zone>& = SPK_NULL_REF,
+			bool full = true,
+			int tank = -1,
+			float flow = 1.0f,
+			float forceMin = 1.0f,
+			float forceMax = 1.0f);
+
+	public :
+		spark_description(RandomEmitter, Emitter)
+		(
+		);
 
 	private :
+
+		RandomEmitter(
+			const Ref<Zone>& = SPK_NULL_REF,
+			bool full = true,
+			int tank = -1,
+			float flow = 1.0f,
+			float forceMin = 1.0f,
+			float forceMax = 1.0f);
+
+		RandomEmitter(const RandomEmitter& emitter);
 
 		virtual void generateVelocity(Particle& particle,float speed) const;
 	};
 
+	inline RandomEmitter::RandomEmitter(const Ref<Zone>& zone,bool full,int tank,float flow,float forceMin,float forceMax) :
+		Emitter(zone,full,tank,flow,forceMin,forceMax)
+	{}
 
-	inline RandomEmitter* RandomEmitter::create()
+	inline RandomEmitter::RandomEmitter(const RandomEmitter& emitter) : Emitter(emitter) {}
+
+	inline Ref<RandomEmitter> RandomEmitter::create(const Ref<Zone>& zone,bool full,int tank,float flow,float forceMin,float forceMax)
 	{
-		RandomEmitter* obj = new RandomEmitter;
-		registerObject(obj);
-		return obj;
+		return SPK_NEW(RandomEmitter,zone,full,tank,flow,forceMin,forceMax);
 	}
 }
 

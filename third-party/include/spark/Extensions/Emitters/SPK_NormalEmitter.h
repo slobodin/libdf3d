@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // SPARK particle engine														//
-// Copyright (C) 2008-2009 - Julien Fryer - julienfryer@gmail.com				//
+// Copyright (C) 2008-2013 - Julien Fryer - julienfryer@gmail.com				//
 //																				//
 // This software is provided 'as-is', without any express or implied			//
 // warranty.  In no event will the authors be held liable for any damages		//
@@ -19,54 +19,54 @@
 // 3. This notice may not be removed or altered from any source distribution.	//
 //////////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef H_SPK_NORMALEMITTER
 #define H_SPK_NORMALEMITTER
-
-#include "Core/SPK_Emitter.h"
-
 
 namespace SPK
 {
 	/**
 	* @class NormalEmitter
-	* @brief An Emitter that emits particles following a Zone normals
+	* @brief An emitter that emits particles following a Zone normals
 	*
-	* The Zone used to derive the direction of emission can either be the Emitter Zone
-	* or another Zone that can be set with setNormalZone(Zone*).<br>
-	* If the normal zone is NULL the emitter Zone is used.
-	*
-	* @since 1.02.00
+	* The Zone used to derive the direction of emission can either be the emitter's zone
+	* or another zone that can be set with setNormalZone(Zone*).<br>
+	* If the normal zone is NULL the emitter's zone is used.
 	*/
 	class SPK_PREFIX NormalEmitter : public Emitter
 	{
-		SPK_IMPLEMENT_REGISTERABLE(NormalEmitter)
-
 	public :
 
-		//////////////////
-		// Constructors //
-		//////////////////
+		/** @brief Creates a new normalEmitter */
+		static  Ref<NormalEmitter> create(
+			const Ref<Zone>& zone = SPK_NULL_REF,
+			bool full = true,
+			int tank = -1,
+			float flow = 1.0f,
+			float forceMin = 1.0f,
+			float forceMax = 1.0f,
+			const Ref<Zone>& normalZone = Ref<Zone>(),
+			bool inverted = false);
+
+		virtual ~NormalEmitter();
+
+		/////////////////
+		// Normal Zone //
+		/////////////////
 
 		/**
-		* @brief Constructor of NormalEmitter
-		* @param normalZone : the Zone used to compute normals (NULL to used the Emitter Zone)
-		* @param inverted : true to invert the normals, false otherwise
+		* @brief the zone used to compute normals
+		*
+		* Note that if the normal zone is NULL, the emitter's zone is used.
+		*
+		* @param zone : the zone used to compute normals (SPK_NULL_REF to used the emitter's zone)
 		*/
-		NormalEmitter(Zone* normalZone = NULL,bool inverted = false);
+		void setNormalZone(const Ref<Zone>& zone);
 
 		/**
-		* @brief Creates and registers a new NormalEmitter
-		* @param normalZone : the Zone used to compute normals (NULL to used the Emitter Zone)
-		* @param inverted : true to invert the normals, false otherwise
-		* @return A new registered NormalEmitter
-		* @since 1.04.00
+		* @brief Gets the normal zone of this normalEmitter
+		* @return the normal zone of this normalEmitter
 		*/
-		static NormalEmitter* create(Zone* normalZone = NULL,bool inverted = false);
-		
-		/////////////
-		// Setters //
-		/////////////
+		const Ref<Zone>& getNormalZone() const;
 
 		/**
 		* @brief Sets whether normals are inverted or not
@@ -75,56 +75,72 @@ namespace SPK
 		void setInverted(bool inverted);
 
 		/**
-		* @brief the Zone used to compute normals
-		*
-		* Note that if the normal zone is NULL, the Emitter Zone is used.
-		*
-		* @param zone : the Zone used to compute normals (NULL to used the Emitter Zone)
-		*/
-		void setNormalZone(Zone* zone);
-
-		/////////////
-		// Getters //
-		/////////////
-
-		/**
-		* @brief Tells whether normals are inverted for this NormalEmitter
+		* @brief Tells whether normals are inverted for this normalEmitter
 		* @return true if normals are inverted, false if not
 		*/
 		bool isInverted() const;
-		
-		/**
-		* @brief Gets the normal Zone of this NormalEmitter
-		* @return the normal Zone of this NormalEmitter
-		*/
-		Zone* getNormalZone() const;
 
-		///////////////
-		// Interface //
-		///////////////
+		/////////////
+		// Herited //
+		/////////////
 
-		virtual Registerable* findByName(const std::string& name);
+		virtual Ref<SPKObject> findByName(const std::string& name);
+
+	public :
+		spark_description(NormalEmitter, Emitter)
+		(
+			spk_attribute(Ref<Zone>, normalZone, setNormalZone, getNormalZone);
+			spk_attribute(bool, inverted, setInverted, isInverted);
+		);
 
 	protected :
 
-		virtual void registerChildren(bool registerAll);
-		virtual void copyChildren(const Registerable& object,bool createBase);
-		virtual void destroyChildren(bool keepChildren);
+		virtual void propagateUpdateTransform();
 
 	private :
-
+	
 		bool inverted;
-		Zone* normalZone;
+		Ref<Zone> normalZone;
+
+		NormalEmitter(
+			const Ref<Zone>& zone = SPK_NULL_REF,
+			bool full = true,
+			int tank = -1,
+			float flow = 1.0f,
+			float forceMin = 1.0f,
+			float forceMax = 1.0f,
+			const Ref<Zone>& normalZone = SPK_NULL_REF,
+			bool inverted = false);
+
+		NormalEmitter(const NormalEmitter& emitter);
 
 		virtual void generateVelocity(Particle& particle,float speed) const;
 	};
 
-
-	inline NormalEmitter* NormalEmitter::create(Zone* normalZone,bool inverted)
+	inline Ref<NormalEmitter> NormalEmitter::create(
+		const Ref<Zone>& zone,
+		bool full,
+		int tank,
+		float flow,
+		float forceMin,
+		float forceMax,
+		const Ref<Zone>& normalZone,
+		bool inverted)
 	{
-		NormalEmitter* obj = new NormalEmitter(normalZone,inverted);
-		registerObject(obj);
-		return obj;
+		return SPK_NEW(NormalEmitter,
+			zone,
+			full,
+			tank,
+			flow,
+			forceMin,
+			forceMax,
+			normalZone,
+			inverted);
+	}
+
+	inline const Ref<Zone>& NormalEmitter::getNormalZone() const
+	{
+		return normalZone;
 	}
 
 	inline void NormalEmitter::setInverted(bool inverted)
@@ -136,11 +152,6 @@ namespace SPK
 	{
 		return inverted;
 	}
-
-	inline Zone* NormalEmitter::getNormalZone() const
-	{
-		return normalZone;
-	}	
 }
 
 #endif
