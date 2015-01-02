@@ -1,55 +1,62 @@
 #pragma once
 
-#include <spark/SPK.h>
+#include <spark/SPARK.h>
 
 FWD_MODULE_CLASS(render, RenderPass)
-FWD_MODULE_CLASS(render, VertexBuffer)
-FWD_MODULE_CLASS(render, IndexBuffer)
+FWD_MODULE_CLASS(render, RenderQueue)
 FWD_MODULE_CLASS(render, Texture)
 
 namespace df3d { namespace particlesys {
 
-class MyBuffer;
+class MyRenderBuffer;
 
 class ParticleSystemRenderer : public SPK::Renderer
 {
+    spark_description(ParticleSystemRenderer, SPK::Renderer)();
 public:
     shared_ptr<render::RenderPass> m_pass;
-    mutable MyBuffer *m_currentBuffer = nullptr;
 
-    ParticleSystemRenderer();
+    // This is a workaround. 
+    // We need to pass RenderQueue and transformation matrix when render via this renderer.
+    render::RenderQueue *m_currentRenderQueue;
+    glm::mat4 *m_currentTransform;
+
+    ParticleSystemRenderer(bool NEEDS_DATASET);
     ~ParticleSystemRenderer();
 
-    void setBlending(SPK::BlendingMode blendMode);
-    void setDiffuseMap(shared_ptr<render::Texture> texture);
+    SPK::RenderBuffer* attachRenderBuffer(const SPK::Group &group) const override;
 
-    shared_ptr<render::VertexBuffer> getVertexBuffer() const;
-    shared_ptr<render::IndexBuffer> getIndexBuffer() const;
+    void setBlendMode(SPK::BlendMode blendMode) override;
+    void setDiffuseMap(shared_ptr<render::Texture> texture);
 };
 
-class QuadParticleSystemRenderer : public ParticleSystemRenderer, public SPK::QuadRendererInterface, public SPK::Oriented3DRendererInterface
+// A Renderer drawing particles as quads.
+class QuadParticleSystemRenderer : public ParticleSystemRenderer, public SPK::QuadRenderBehavior, public SPK::Oriented3DRenderBehavior
 {
-    SPK_IMPLEMENT_REGISTERABLE(QuadParticleSystemRenderer)
-
-    bool checkBuffers(const SPK::Group& group);
-
-    void (QuadParticleSystemRenderer::*m_renderParticle)(const SPK::Particle&) const = nullptr;
+    spark_description(QuadParticleSystemRenderer, ParticleSystemRenderer)();
+private:
+    mutable void (QuadParticleSystemRenderer::*m_renderParticle)(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const = nullptr;
 
     // Rendering for particles with texture 2D or no texture.
-    void render2D(const SPK::Particle& particle) const;
+    void render2D(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const;
     // Rendering for particles with texture 2D or no texture and rotation.
-    void render2DRot(const SPK::Particle& particle) const;
+    void render2DRot(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const;
+
+    void fillBufferColorAndVertex(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const;
+
+    QuadParticleSystemRenderer(float scaleX = 1.0f, float scaleY = 1.0f);
 
 public:
-    QuadParticleSystemRenderer(float scaleX = 1.0f, float scaleY = 1.0f);
     ~QuadParticleSystemRenderer();
 
-    void createBuffers(const SPK::Group& group);
-    void destroyBuffers(const SPK::Group& group);
+    void render(const SPK::Group &group, const SPK::DataSet *dataSet, SPK::RenderBuffer *renderBuffer) const override;
+    void computeAABB(SPK::Vector3D &AABBMin, SPK::Vector3D &AABBMax, const SPK::Group &group, const SPK::DataSet *dataSet) const override;
 
-    void render(const SPK::Group& group);
-
-    static QuadParticleSystemRenderer* create(float scaleX = 1.0f, float scaleY = 1.0f);
+    // Creates and registers a new QuadParticleSystemRenderer
+    static SPK::Ref<QuadParticleSystemRenderer> create(float scaleX = 1.0f, float scaleY = 1.0f)
+    {
+        return SPK_NEW(QuadParticleSystemRenderer, scaleX, scaleY);
+    }
 };
 
 inline SPK::Vector3D glmToSpk(const glm::vec3 &v)

@@ -18,11 +18,11 @@ void ParticleSystemComponent::onUpdate(float dt)
     if (glm::epsilonEqual(dt, 0.0f, glm::epsilon<float>()))
         return;
 
-    if (!m_system || m_paused)
+    if (!SPKSystem || m_paused)
         return;
 
-    m_system->setCameraPosition(particlesys::glmToSpk(g_sceneManager->getCamera()->transform()->getPosition()));
-    m_system->update(dt);
+    SPKSystem->setCameraPosition(particlesys::glmToSpk(g_sceneManager->getCamera()->transform()->getPosition()));
+    SPKSystem->updateParticles(dt);
 
     if (m_systemLifeTime > 0.0f)
     {
@@ -34,97 +34,64 @@ void ParticleSystemComponent::onUpdate(float dt)
     }
 }
 
-size_t ParticleSystemComponent::getGroupCount()
-{
-    if (!m_system || getParticlesCount() == 0)
-        return 0;
-
-    return m_renderOps.size();
-}
-
-void ParticleSystemComponent::prepareRenderOperations()
-{
-    if (!m_system)
-        return;
-
-    m_system->render();
-
-    glm::mat4 tr = m_holder->transform()->getTransformation();
-    for (auto op : m_renderOps)
-        op->worldTransform = tr;
-}
-
-const render::RenderOperation &ParticleSystemComponent::getRenderOperation(size_t groupIdx)
-{
-    render::RenderOperation *op = m_renderOps[groupIdx];
-
-    particlesys::ParticleSystemRenderer *rend = static_cast<particlesys::ParticleSystemRenderer *>(m_system->getGroup(groupIdx)->getRenderer());
-    op->vertexData = rend->getVertexBuffer();
-    op->indexData = rend->getIndexBuffer();
-    op->passProps = rend->m_pass;
-
-    return *op;
-}
-
 void ParticleSystemComponent::onDraw(render::RenderQueue *ops)
 {
-    prepareRenderOperations();
+    glm::mat4 tr = m_holder->transform()->getTransformation();
 
-    size_t renderOpsCount = getGroupCount();
-    for (size_t i = 0; i < renderOpsCount; ++i)
+    // Prepare drawing of spark system.
+    for (size_t i = 0; i < getNbSPKGroups(); i++)
     {
-        const render::RenderOperation &op = getRenderOperation(i);
+        auto renderer = static_cast<particlesys::ParticleSystemRenderer*>(SPKSystem->getGroup(i)->getRenderer().get());
+        renderer->m_currentRenderQueue = ops;
+        renderer->m_currentTransform = &tr;
+    }
 
-        if (op.passProps && op.vertexData)
-        {
-            if (op.passProps->isTransparent())
-                ops->transparentOperations.push_back(op);
-            else
-                ops->notLitOpaqueOperations.push_back(op);
-        }
+    SPKSystem->renderParticles();
+
+    // FIXME: do we need this?
+    for (size_t i = 0; i < getNbSPKGroups(); i++)
+    {
+        auto renderer = static_cast<particlesys::ParticleSystemRenderer*>(SPKSystem->getGroup(i)->getRenderer().get());
+        renderer->m_currentRenderQueue = nullptr;
+        renderer->m_currentTransform = nullptr;
     }
 }
 
 ParticleSystemComponent::ParticleSystemComponent()
-    : NodeComponent(PARTICLE_EFFECT)
+    : NodeComponent(PARTICLE_EFFECT),
+    SPKSystem(SPK::System::create(false))
 {
 
 }
 
 ParticleSystemComponent::~ParticleSystemComponent()
 {
-    for (auto op : m_renderOps)
-        delete op;
-
-    if (m_system)
-        SPK_Destroy(m_system);
 }
 
 size_t ParticleSystemComponent::getParticlesCount() const
 {
-    return m_system->getNbParticles();
+    return SPKSystem->getNbParticles();
 }
 
 void ParticleSystemComponent::stop()
 {
-    if (!m_system)
+    if (!SPKSystem)
         return;
-    m_system->empty();
+    // TODO:
+    assert(false);
+    //m_system->empty();
 }
 
 shared_ptr<NodeComponent> ParticleSystemComponent::clone() const
 {
     auto retRes = shared_ptr<ParticleSystemComponent>(new ParticleSystemComponent());
 
-    if (m_system)
-        retRes->m_system = SPK_Copy(SPK::System, m_system);
+    if (SPKSystem)
+        retRes->SPKSystem = SPK::SPKObject::copy(SPKSystem);
 
     retRes->m_paused = m_paused;
     retRes->m_systemLifeTime = m_systemLifeTime;
     retRes->m_systemAge = m_systemAge;
-
-    for (size_t i = 0; i < m_renderOps.size(); i++)
-        retRes->m_renderOps.push_back(new render::RenderOperation());
 
     return retRes;
 }

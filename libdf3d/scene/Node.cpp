@@ -242,6 +242,12 @@ size_t Node::attachedComponentsCount() const
 
 void Node::attachComponent(shared_ptr<components::NodeComponent> component)
 {
+    if (!component)
+    {
+        base::glog << "Failed to attach a null component to a node" << base::logwarn;
+        return;
+    }
+
     auto idx = component->type;
 
     auto currentComponent = m_components[idx];

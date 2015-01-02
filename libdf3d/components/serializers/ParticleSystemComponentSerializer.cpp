@@ -3,129 +3,53 @@
 
 #include <components/ParticleSystemComponent.h>
 #include <utils/JsonHelpers.h>
+#include <utils/Utils.h>
 #include <particlesys/SparkInterface.h>
 #include <base/Controller.h>
 #include <resources/ResourceManager.h>
 #include <render/Texture.h>
 #include <render/RenderOperation.h>
 #include <render/Image.h>
+#include <render/RenderPass.h>
 
 namespace df3d { namespace components { namespace serializers {
 
-enum class ModelParamType
+std::map<std::string, SPK::Param> StringToSparkParam = 
 {
-    ENABLED,
-    MUTABLE,
-    RANDOM,
-
-    INVALID
+    { "angle", SPK::PARAM_ANGLE },
+    { "mass", SPK::PARAM_MASS },
+    { "rotation_speed", SPK::PARAM_ROTATION_SPEED },
+    { "scale", SPK::PARAM_SCALE },
+    { "texture_index", SPK::PARAM_TEXTURE_INDEX }
 };
 
-struct SparkModelParam
+SPK::Ref<SPK::ColorInterpolator> parseSparkColorInterpolator(const Json::Value &interpolatorJson)
 {
-    std::string name;
-    ModelParamType type = ModelParamType::INVALID;
-    float value = 0.0f;
-    float birthValue = 0.0f;
-    float deathValue = 0.0f;
-    float minValue = 0.0f;
-    float maxValue = 0.0f;
+    if (interpolatorJson.empty())
+        return SPK_NULL_REF;
 
-    SPK::ModelParam sparkType;
-    SPK::ModelParamFlag sparkFlag;
+    auto birthColor = utils::jsonGetValueWithDefault(interpolatorJson["birth"], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    auto deathColor = utils::jsonGetValueWithDefault(interpolatorJson["death"], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    birthColor *= 255.0f;
+    deathColor *= 255.0f;
 
-    SparkModelParam(const Json::Value &v, SPK::ModelParam spkType, SPK::ModelParamFlag spkFlag)
-        : sparkType(spkType), sparkFlag(spkFlag)
-    {
-        using namespace utils;
-
-        if (v.empty() || !v.isObject())
-            return;
-
-        auto typeStr = v["type"].asString();
-        if (typeStr == "enabled")
-        {
-            type = ModelParamType::ENABLED;
-            value = jsonGetValueWithDefault(v["value"], 0.0f);
-        }
-        else if (typeStr == "mutable")
-        {
-            type = ModelParamType::MUTABLE;
-            birthValue = jsonGetValueWithDefault(v["birth"], 0.0f);
-            deathValue = jsonGetValueWithDefault(v["death"], 0.0f);
-        }
-        else if (typeStr == "random")
-        {
-            type = ModelParamType::RANDOM;
-            minValue = jsonGetValueWithDefault(v["min"], 0.0f);
-            maxValue = jsonGetValueWithDefault(v["max"], 0.0f);
-        }
-        else
-            base::glog << "Invalid model parameter type" << static_cast<size_t>(type) << base::logwarn;
-    }
-};
-
-SPK::Model *parseSparkModel(const Json::Value &modelJson)
-{
-    using namespace utils;
-
-    if (modelJson.empty())
-        return nullptr;
-
-    float minLifeTime = jsonGetValueWithDefault(modelJson["minLifeTime"], 1.0f);
-    float maxLifeTime = jsonGetValueWithDefault(modelJson["maxLifeTime"], 1.0f);
-    bool immortal = jsonGetValueWithDefault(modelJson["immortal"], false);
-
-    std::vector<SparkModelParam> params;
-    params.push_back(SparkModelParam(modelJson["red"], SPK::PARAM_RED, SPK::FLAG_RED));
-    params.push_back(SparkModelParam(modelJson["green"], SPK::PARAM_GREEN, SPK::FLAG_GREEN));
-    params.push_back(SparkModelParam(modelJson["blue"], SPK::PARAM_BLUE, SPK::FLAG_BLUE));
-    params.push_back(SparkModelParam(modelJson["alpha"], SPK::PARAM_ALPHA, SPK::FLAG_ALPHA));
-    params.push_back(SparkModelParam(modelJson["size"], SPK::PARAM_SIZE, SPK::FLAG_SIZE));
-    params.push_back(SparkModelParam(modelJson["mass"], SPK::PARAM_MASS, SPK::FLAG_MASS));
-
-    int enabledFlags = SPK::FLAG_RED | SPK::FLAG_GREEN | SPK::FLAG_BLUE;
-    int mutableFlags = 0;
-    int randomFlags = 0;
-    for (auto &p : params)
-    {
-        if (p.type == ModelParamType::INVALID)
-            continue;
-
-        enabledFlags |= p.sparkFlag;
-        if (p.type == ModelParamType::MUTABLE)
-            mutableFlags |= p.sparkFlag;
-        else if (p.type == ModelParamType::RANDOM)
-            randomFlags |= p.sparkFlag;
-    }
-
-    SPK::Model *model = SPK::Model::create(enabledFlags, mutableFlags, randomFlags);
-    model->setLifeTime(minLifeTime, maxLifeTime);
-    model->setImmortal(immortal);
-
-    for (auto &p : params)
-    {
-        if (p.type == ModelParamType::INVALID)
-            continue;
-
-        if (p.type == ModelParamType::ENABLED)
-        {
-            model->setParam(p.sparkType, p.value);
-        }
-        else if (p.type == ModelParamType::MUTABLE)
-        {
-            model->setParam(p.sparkType, p.birthValue, p.deathValue);
-        }
-        else if (p.type == ModelParamType::RANDOM)
-        {
-            model->setParam(p.sparkType, p.minValue, p.maxValue);
-        }
-    }
-
-    return model;
+    auto c1 = SPK::Color((int)birthColor.r, (int)birthColor.g, (int)birthColor.b, (int)birthColor.a);
+    auto c2 = SPK::Color((int)birthColor.r, (int)birthColor.g, (int)birthColor.b, (int)birthColor.a);
+    return SPK::ColorSimpleInterpolator::create(c1, c2);
 }
 
-SPK::Emitter *parseSparkEmitter(const Json::Value &emitterJson)
+SPK::Ref<SPK::FloatSimpleInterpolator> parseSparkParamInterpolator(const Json::Value &interpolatorJson)
+{
+    if (interpolatorJson.empty())
+        return SPK_NULL_REF;
+
+    auto birthValue = utils::jsonGetValueWithDefault(interpolatorJson["birth"], 0.0f);
+    auto deathValue = utils::jsonGetValueWithDefault(interpolatorJson["death"], 0.0f);
+
+    return SPK::FloatSimpleInterpolator::create(birthValue, deathValue);
+}
+
+SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
 {
     using namespace utils;
 
@@ -133,11 +57,11 @@ SPK::Emitter *parseSparkEmitter(const Json::Value &emitterJson)
     if (zoneJson.empty())
     {
         base::glog << "Emitter has no zone" << base::logwarn;
-        return nullptr;
+        return SPK_NULL_REF;
     }
 
     std::string zoneType = zoneJson["type"].asString();
-    SPK::Zone *zone = nullptr;
+    SPK::Ref<SPK::Zone> zone = SPK_NULL_REF;
 
     // Determine zone type.
     if (zoneType == "Point")
@@ -145,25 +69,21 @@ SPK::Emitter *parseSparkEmitter(const Json::Value &emitterJson)
         auto position = jsonGetValueWithDefault(zoneJson["position"], glm::vec3());
         zone = SPK::Point::create(particlesys::glmToSpk(position));
     }
-    else if (zoneType == "AABox")
+    else if (zoneType == "Box")
     {
         auto position = jsonGetValueWithDefault(zoneJson["position"], glm::vec3());
-        auto dimension = jsonGetValueWithDefault(zoneJson["dimension"], glm::vec3());
-        zone = SPK::AABox::create(particlesys::glmToSpk(position), particlesys::glmToSpk(dimension));
+        auto dimension = jsonGetValueWithDefault(zoneJson["dimension"], glm::vec3(1.0f, 1.0f, 1.0f));
+        auto front = jsonGetValueWithDefault(zoneJson["front"], glm::vec3(0.0f, 0.0f, 1.0f));
+        auto up = jsonGetValueWithDefault(zoneJson["up"], glm::vec3(0.0f, 1.0f, 0.0f));
+        zone = SPK::Box::create(particlesys::glmToSpk(position), particlesys::glmToSpk(dimension), particlesys::glmToSpk(front), particlesys::glmToSpk(up));
     }
     else if (zoneType == "Cylinder")
     {
         auto position = jsonGetValueWithDefault(zoneJson["position"], glm::vec3());
-        auto direction = jsonGetValueWithDefault(zoneJson["direction"], glm::vec3(0.0f, 1.0f, 0.0f));
+        auto axis = jsonGetValueWithDefault(zoneJson["axis"], glm::vec3(0.0f, 1.0f, 0.0f));
         auto radius = jsonGetValueWithDefault(zoneJson["radius"], 1.0f);
-        auto length = jsonGetValueWithDefault(zoneJson["length"], 1.0f);
-        zone = SPK::Cylinder::create(particlesys::glmToSpk(position), particlesys::glmToSpk(direction), radius, length);
-    }
-    else if (zoneType == "Line")
-    {
-        auto p0 = jsonGetValueWithDefault(zoneJson["p0"], glm::vec3());
-        auto p1 = jsonGetValueWithDefault(zoneJson["p1"], glm::vec3());
-        zone = SPK::Line::create(particlesys::glmToSpk(p0), particlesys::glmToSpk(p1));
+        auto height = jsonGetValueWithDefault(zoneJson["height"], 1.0f);
+        zone = SPK::Cylinder::create(particlesys::glmToSpk(position), height, radius, particlesys::glmToSpk(axis));
     }
     else if (zoneType == "Plane")
     {
@@ -183,17 +103,17 @@ SPK::Emitter *parseSparkEmitter(const Json::Value &emitterJson)
     else if (zoneType == "Sphere")
     {
         auto position = jsonGetValueWithDefault(zoneJson["position"], glm::vec3());
-        auto radius = jsonGetValueWithDefault(zoneJson["radius"], 0.0f);
+        auto radius = jsonGetValueWithDefault(zoneJson["radius"], 1.0f);
         zone = SPK::Sphere::create(particlesys::glmToSpk(position), radius);
     }
     else
     {
         base::glog << "Unknown zone type" << zoneType << base::logwarn;
-        return nullptr;
+        return SPK_NULL_REF;
     }
 
     std::string emitterType = emitterJson["type"].asString();
-    SPK::Emitter *emitter = nullptr;
+    SPK::Ref<SPK::Emitter> emitter = SPK_NULL_REF;
 
     // Determine emitter type.
     if (emitterType == "Random")
@@ -228,10 +148,7 @@ SPK::Emitter *parseSparkEmitter(const Json::Value &emitterJson)
 
     // Check for valid emitter.
     if (!emitter)
-    {
-        SPK_Destroy(zone);
-        return nullptr;
-    }
+        return SPK_NULL_REF;
 
     // Init emitter.
     float flow = jsonGetValueWithDefault(emitterJson["flow"], 0.0f);
@@ -240,10 +157,10 @@ SPK::Emitter *parseSparkEmitter(const Json::Value &emitterJson)
     int tank = jsonGetValueWithDefault(emitterJson["tank"], -1);
     bool fullGen = !jsonGetValueWithDefault(emitterJson["generateOnZoneBorders"], false);
 
+    emitter->setTank(tank);
     emitter->setFlow(flow);
     emitter->setForce(minForce, maxForce);
     emitter->setZone(zone, fullGen);
-    emitter->setTank(tank);
 
     return emitter;
 }
@@ -259,24 +176,15 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
         return nullptr;
     }
 
-    std::vector<SPK::Group *> systemGroups;
+    std::vector<SPK::Ref<SPK::Group>> systemGroups;
 
     // Parse all particle system groups.
     for (const auto &groupJson : groupsJson)
     {
         std::string groupName = groupJson["name"].asString();
 
-        // Parse group model.
-        const auto &modelJson = groupJson["Model"];
-        SPK::Model *model = parseSparkModel(groupJson["Model"]);
-        if (!model)
-        {
-            base::glog << "Model for particle system group" << groupName << "wasn't found" << base::logwarn;
-            continue;
-        }
-
         // Parse group emitters.
-        std::vector<SPK::Emitter *> emitters;
+        std::vector<SPK::Ref<SPK::Emitter>> emitters;
         const auto &emittersJson = groupJson["Emitters"];
         for (const auto &emitterJson : emittersJson)
         {
@@ -290,7 +198,6 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
         if (emitters.empty())
         {
             base::glog << "Particle system group has no emitters" << base::logwarn;
-            SPK_Destroy(model);
             continue;
         }
 
@@ -299,6 +206,10 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
         auto friction = jsonGetValueWithDefault(groupJson["friction"], 0.0f);
         bool enableSorting = jsonGetValueWithDefault(groupJson["enableSorting"], false);
         auto maxParticles = jsonGetValueWithDefault(groupJson["maxParticles"], 1000);
+        float minLifeTime = jsonGetValueWithDefault(groupJson["minLifeTime"], 1.0f);
+        float maxLifeTime = jsonGetValueWithDefault(groupJson["maxLifeTime"], 1.0f);
+        bool immortal = jsonGetValueWithDefault(groupJson["immortal"], false);
+        float radius = jsonGetValueWithDefault(groupJson["radius"], 1.0f);
 
         // Get renderer params.
         float scaleX = jsonGetValueWithDefault(groupJson["quadScaleX"], 1.0f);
@@ -307,24 +218,27 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
         bool depthWrite = jsonGetValueWithDefault(groupJson["depthWrite"], true);
         std::string blending = jsonGetValueWithDefault(groupJson["blending"], std::string("none"));
 
-        auto spkBlending = SPK::BLENDING_NONE;
+        auto spkBlending = SPK::BLEND_MODE_NONE;
         if (blending == "none")
-            spkBlending = SPK::BLENDING_NONE;
+            spkBlending = SPK::BLEND_MODE_NONE;
         else if (blending == "add")
-            spkBlending = SPK::BLENDING_ADD;
+            spkBlending = SPK::BLEND_MODE_ADD;
         else if (blending == "alpha")
-            spkBlending = SPK::BLENDING_ALPHA;
+            spkBlending = SPK::BLEND_MODE_ALPHA;
         else
             base::glog << "Unknown blending mode" << blending << base::logwarn;
 
         // Create particle system renderer.
-        particlesys::QuadParticleSystemRenderer *renderer = particlesys::QuadParticleSystemRenderer::create(scaleX, scaleY);
-        renderer->enableRenderingHint(SPK::DEPTH_TEST, depthTest);
-        renderer->enableRenderingHint(SPK::DEPTH_WRITE, depthWrite);
-        renderer->setBlending(spkBlending);
+        // TODO:
+        // Can be more types of renderers.
+        // FIXME: can share renderer.
+        auto renderer = particlesys::QuadParticleSystemRenderer::create(scaleX, scaleY);
+        renderer->enableRenderingOption(SPK::RENDERING_OPTION_DEPTH_WRITE, depthWrite);
+        renderer->m_pass->enableDepthTest(depthTest);
+        renderer->setBlendMode(spkBlending);
 
         std::string pathToTexture = jsonGetValueWithDefault(groupJson["texture"], std::string());
-        SPK::TexturingMode textureMode = SPK::TEXTURE_NONE;
+        SPK::TextureMode textureMode = SPK::TEXTURE_MODE_NONE;
         if (!pathToTexture.empty())
         {
             auto textureImage = g_resourceManager->getResource<render::Image>(pathToTexture.c_str());
@@ -333,22 +247,44 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
                 auto texture = make_shared<render::Texture>();
                 texture->setImage(textureImage);
                 renderer->setDiffuseMap(texture);
-                textureMode = SPK::TEXTURE_2D;
+                textureMode = SPK::TEXTURE_MODE_2D;
             }
         }
 
         renderer->setTexturingMode(textureMode);
 
         // Create a group.
-        SPK::Group *particlesGroup = SPK::Group::create(model, maxParticles);
-        particlesGroup->setGravity(SPK::Vector3D(gravity.x, gravity.y, gravity.z));
-        particlesGroup->setFriction(friction);
+        auto particlesGroup = SPK::Group::create(maxParticles);
+        particlesGroup->addModifier(SPK::Gravity::create({ gravity.x, gravity.y, gravity.z }));
+        particlesGroup->addModifier(SPK::Friction::create(friction));
         particlesGroup->enableSorting(enableSorting);
         particlesGroup->setRenderer(renderer);
+        particlesGroup->setLifeTime(minLifeTime, maxLifeTime);
+        particlesGroup->setImmortal(immortal);
+        particlesGroup->setRadius(radius);
 
         // Add emitters.
         for (auto emitter : emitters)
             particlesGroup->addEmitter(emitter);
+
+        // Add color interpolator if any.
+        auto colorInterpolatorJson = parseSparkColorInterpolator(groupJson["ColorInterpolator"]);
+        if (colorInterpolatorJson)
+            particlesGroup->setColorInterpolator(colorInterpolatorJson);
+
+        // Add param interpolators.
+        auto paramInterpolatorsJson = groupJson["ParamInterpolators"];
+        for (auto it = paramInterpolatorsJson.begin(); it != paramInterpolatorsJson.end(); it++)
+        {
+            auto key = it.key().asString();
+            if (!utils::contains_key(StringToSparkParam, key))
+            {
+                base::glog << "Unknown spark param interpolator" << key << base::logwarn;
+                continue;
+            }
+
+            particlesGroup->setParamInterpolator(StringToSparkParam[key], parseSparkParamInterpolator(*it));
+        }
 
         // Store group.
         systemGroups.push_back(particlesGroup);
@@ -362,16 +298,12 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
 
     auto result = make_shared<ParticleSystemComponent>();
 
-    result->m_systemLifeTime = jsonGetValueWithDefault(root["systemLifeTime"], -1.0f);
-
-    // Finally, create a particle system.
-    result->m_system = SPK::System::create();
+    result->setSystemLifeTime(jsonGetValueWithDefault(root["systemLifeTime"], -1.0f));
 
     for (auto group : systemGroups)
-    {
-        result->m_renderOps.push_back(new render::RenderOperation());
-        result->m_system->addGroup(group);
-    }
+        result->addSPKGroup(group);
+
+    result->initializeSPK();
 
     return result;
 }
