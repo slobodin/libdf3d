@@ -20,6 +20,7 @@ private:
     float m_systemAge = 0.0f;
 
     void onUpdate(float dt) override;
+    void onEvent(ComponentEvent ev) override;
     void onDraw(render::RenderQueue *ops) override;
 
 public:

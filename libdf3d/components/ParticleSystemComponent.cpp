@@ -34,16 +34,20 @@ void ParticleSystemComponent::onUpdate(float dt)
     }
 }
 
+void ParticleSystemComponent::onEvent(ComponentEvent ev)
+{
+    auto tr = m_holder->transform()->getTransformation();
+
+    SPKSystem->getTransform().set(glm::value_ptr(tr));
+}
+
 void ParticleSystemComponent::onDraw(render::RenderQueue *ops)
 {
-    glm::mat4 tr = m_holder->transform()->getTransformation();
-
     // Prepare drawing of spark system.
     for (size_t i = 0; i < getNbSPKGroups(); i++)
     {
         auto renderer = static_cast<particlesys::ParticleSystemRenderer*>(SPKSystem->getGroup(i)->getRenderer().get());
         renderer->m_currentRenderQueue = ops;
-        renderer->m_currentTransform = &tr;
     }
 
     SPKSystem->renderParticles();
@@ -53,7 +57,6 @@ void ParticleSystemComponent::onDraw(render::RenderQueue *ops)
     {
         auto renderer = static_cast<particlesys::ParticleSystemRenderer*>(SPKSystem->getGroup(i)->getRenderer().get());
         renderer->m_currentRenderQueue = nullptr;
-        renderer->m_currentTransform = nullptr;
     }
 }
 

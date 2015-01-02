@@ -17,9 +17,8 @@ public:
     shared_ptr<render::RenderPass> m_pass;
 
     // This is a workaround. 
-    // We need to pass RenderQueue and transformation matrix when render via this renderer.
+    // We need to pass RenderQueue in order to populate it when renderParticles called.
     render::RenderQueue *m_currentRenderQueue;
-    glm::mat4 *m_currentTransform;
 
     ParticleSystemRenderer(bool NEEDS_DATASET);
     ~ParticleSystemRenderer();
