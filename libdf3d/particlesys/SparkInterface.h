@@ -19,6 +19,7 @@ public:
     // This is a workaround. 
     // We need to pass RenderQueue in order to populate it when renderParticles called.
     render::RenderQueue *m_currentRenderQueue;
+    glm::mat4 *m_currentTransformation;
 
     ParticleSystemRenderer(bool NEEDS_DATASET);
     ~ParticleSystemRenderer();

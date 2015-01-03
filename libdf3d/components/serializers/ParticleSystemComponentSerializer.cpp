@@ -296,8 +296,11 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
         return nullptr;
     }
 
+    auto worldTransformed = jsonGetValueWithDefault(root["worldTransformed"], true);
+
     auto result = make_shared<ParticleSystemComponent>();
 
+    result->setWorldTransformed(worldTransformed);
     result->setSystemLifeTime(jsonGetValueWithDefault(root["systemLifeTime"], -1.0f));
 
     for (auto group : systemGroups)

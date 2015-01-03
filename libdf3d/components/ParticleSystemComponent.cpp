@@ -68,11 +68,16 @@ void ParticleSystemComponent::onEvent(ComponentEvent ev)
 
 void ParticleSystemComponent::onDraw(render::RenderQueue *ops)
 {
+    glm::mat4 transf;
+    if (!m_worldTransformed)
+        transf = m_holder->transform()->getTransformation();
+
     // Prepare drawing of spark system.
     for (size_t i = 0; i < getNbSPKGroups(); i++)
     {
         auto renderer = static_cast<particlesys::ParticleSystemRenderer*>(SPKSystem->getGroup(i)->getRenderer().get());
         renderer->m_currentRenderQueue = ops;
+        renderer->m_currentTransformation = &transf;
     }
 
     SPKSystem->renderParticles();
@@ -89,7 +94,7 @@ ParticleSystemComponent::ParticleSystemComponent()
     : NodeComponent(PARTICLE_EFFECT),
     SPKSystem(SPK::System::create(false))
 {
-
+    //m_worldTransformed = false;
 }
 
 ParticleSystemComponent::~ParticleSystemComponent()

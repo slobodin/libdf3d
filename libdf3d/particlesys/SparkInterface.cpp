@@ -260,6 +260,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
     op.indexData = buffer.m_ib;
     op.vertexData = buffer.m_vb;
     op.passProps = m_pass;
+    op.worldTransform = *m_currentTransformation;
 
     if (op.passProps->isTransparent())
         m_currentRenderQueue->transparentOperations.push_back(op);
