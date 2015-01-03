@@ -4,6 +4,8 @@
 
 namespace df3d { namespace components {
 
+class DebugDrawAABBNode;
+
 class DF3D_DLL DebugDrawComponent : public NodeComponent
 {
 public:
@@ -13,7 +15,9 @@ public:
         OBB
     };
 
-protected:
+private:
+    unique_ptr<DebugDrawAABBNode> m_debugDraw;
+
     void onEvent(components::ComponentEvent ev) override;
     void onDraw(render::RenderQueue *ops) override;
 

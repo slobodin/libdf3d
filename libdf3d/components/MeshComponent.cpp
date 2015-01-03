@@ -68,14 +68,6 @@ void MeshComponent::onDraw(render::RenderQueue *ops)
             }
         }
     }
-
-    // Include debug draw.
-    //if (g_renderManager->isDebugDrawEnabled())
-    //{
-    //    auto debugDrawNode = getDebugDraw();
-    //    if (debugDrawNode)
-    //        ops.debugDrawOperations.push_back(debugDrawNode->getRenderOperation());
-    //}
 }
 
 void MeshComponent::constructAABB()
@@ -97,10 +89,10 @@ void MeshComponent::constructTransformedAABB()
     m_aabb.getCorners(aabbCorners);
 
     // Create new AABB from the corners of the original also applying world transformation.
+    auto tr = getHolder()->transform()->getTransformation();
     for (auto &p : aabbCorners)
     {
-        auto tr = getHolder()->transform()->getTransformation();
-        m_transformedAABB.updateBounds(glm::vec3(tr * glm::vec4(p, 1.0f)));
+        m_transformedAABB.updateBounds((tr * glm::vec4(p, 1.0f)).xyz);
     }
 
     m_transformedAabbDirty = false;
@@ -206,12 +198,14 @@ shared_ptr<render::Material> MeshComponent::getMaterial(size_t submeshIdx)
 
 scene::AABB MeshComponent::getAABB()
 {
+    if (!m_geometry->valid())
+        return scene::AABB();       // No valid AABB for non valid geometry.
+
     if (m_aabbDirty)
         constructAABB();
 
     if (m_transformedAabbDirty)
     {
-        //updateTransformation();
         constructTransformedAABB();
     }
 
@@ -248,21 +242,6 @@ std::string MeshComponent::getMeshFilePath() const
     return m_geometry->getGUID();
 }
 
-//shared_ptr<DebugDrawNode> MeshNode::getDebugDraw()
-//{
-//    if (!m_debugDraw)
-//        m_debugDraw = make_shared<DebugDrawOBBNode>();
-//
-//    if (m_obbDirty)
-//    {
-//        boost::dynamic_pointer_cast<DebugDrawOBBNode>(m_debugDraw)->recreate(getOBB());
-//    }
-//    
-//    m_debugDraw->setTransformation(m_transformation);
-//
-//    return m_debugDraw;
-//}
-
 shared_ptr<NodeComponent> MeshComponent::clone() const
 {
     auto retRes = shared_ptr<MeshComponent>(new MeshComponent());
@@ -278,8 +257,6 @@ shared_ptr<NodeComponent> MeshComponent::clone() const
     retRes->m_obb = m_obb;
     retRes->m_obbDirty = m_obbDirty;
     retRes->m_obbTransformationDirty = m_obbTransformationDirty;
-    //if (m_debugDraw)
-    //    retRes->m_debugDraw = boost::dynamic_pointer_cast<DebugDrawNode>(m_debugDraw->clone());
 
     return retRes;
 }

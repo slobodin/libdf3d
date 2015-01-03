@@ -74,7 +74,7 @@ void RenderManager::debugDrawPass()
         drawOperation(op);
 
     // Draw bullet physics debug.
-    g_engineController->getPhysicsManager()->drawDebug();
+    //g_engineController->getPhysicsManager()->drawDebug();
 }
 
 void RenderManager::postProcessPass(shared_ptr<Material> material)
@@ -255,7 +255,7 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
         drawOperation(op);
 
     // Debug draw pass.
-    if (m_debugDrawEnabled)
+    //if (m_debugDrawEnabled)
         debugDrawPass();
 
     // Do post process if enabled.
