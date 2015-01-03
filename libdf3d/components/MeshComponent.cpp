@@ -216,7 +216,6 @@ scene::BoundingSphere MeshComponent::getBoundingSphere()
 {
     if (m_boundingSphereDirty)
     {
-        //updateTransformation();
         constructBoundingSphere();
     }
 
@@ -230,7 +229,6 @@ scene::OBB MeshComponent::getOBB()
 
     if (m_obbTransformationDirty)
     {
-        //updateTransformation();
         m_obbTransformationDirty = false;
     }
 
