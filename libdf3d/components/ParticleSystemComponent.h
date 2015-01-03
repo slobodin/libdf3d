@@ -16,12 +16,15 @@ class DF3D_DLL ParticleSystemComponent : public NodeComponent
 
 private:
     bool m_paused = false;
+    bool m_worldTransformed = true;
     float m_systemLifeTime = -1.0f;
     float m_systemAge = 0.0f;
 
+    void updateCameraPosition();
+
     void onUpdate(float dt) override;
-    void onEvent(ComponentEvent ev) override;
     void onDraw(render::RenderQueue *ops) override;
+    void onEvent(ComponentEvent ev) override;
 
 public:
     ParticleSystemComponent();
@@ -32,6 +35,7 @@ public:
     void stop();
     void pause(bool paused) { m_paused = paused; }
     void setSystemLifeTime(float lifeTime) { m_systemLifeTime = lifeTime; }
+    void setWorldTransformed(bool worldTransformed) { m_worldTransformed = worldTransformed; }
 
     shared_ptr<NodeComponent> clone() const override;
 };

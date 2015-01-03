@@ -13,6 +13,28 @@
 
 namespace df3d { namespace components {
 
+void ParticleSystemComponent::updateCameraPosition()
+{
+    for (size_t i = 0; i < SPKSystem->getNbGroups(); ++i)
+    {
+        if (SPKSystem->getGroup(i)->isDistanceComputationEnabled())
+        {
+            auto pos = g_sceneManager->getCamera()->transform()->getPosition();
+            if (!m_worldTransformed)
+            {
+                // Transform camera position into this node space.
+                auto invWorldTransform = m_holder->transform()->getTransformation();
+                invWorldTransform = glm::inverse(invWorldTransform);
+
+                pos = (invWorldTransform * glm::vec4(pos, 1.0f)).xyz;
+            }
+
+            SPKSystem->setCameraPosition(particlesys::glmToSpk(pos));
+            break;
+        }
+    }
+}
+
 void ParticleSystemComponent::onUpdate(float dt)
 {
     if (glm::epsilonEqual(dt, 0.0f, glm::epsilon<float>()))
@@ -21,7 +43,7 @@ void ParticleSystemComponent::onUpdate(float dt)
     if (!SPKSystem || m_paused)
         return;
 
-    SPKSystem->setCameraPosition(particlesys::glmToSpk(g_sceneManager->getCamera()->transform()->getPosition()));
+    updateCameraPosition();
     SPKSystem->updateParticles(dt);
 
     if (m_systemLifeTime > 0.0f)
@@ -36,9 +58,12 @@ void ParticleSystemComponent::onUpdate(float dt)
 
 void ParticleSystemComponent::onEvent(ComponentEvent ev)
 {
-    auto tr = m_holder->transform()->getTransformation();
+    if (m_worldTransformed)
+    {
+        auto tr = m_holder->transform()->getTransformation();
 
-    SPKSystem->getTransform().set(glm::value_ptr(tr));
+        SPKSystem->getTransform().set(glm::value_ptr(tr));
+    }
 }
 
 void ParticleSystemComponent::onDraw(render::RenderQueue *ops)
