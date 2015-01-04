@@ -37,6 +37,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TransformComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/AudioComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/DebugDrawComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/LightComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/MeshComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/TransformComponentSerializer.h
@@ -95,8 +96,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTerrain.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderWAV.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/DebugDrawAABBNode.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/DebugDrawOBBNode.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.h
@@ -134,6 +133,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TextMeshComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TransformComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/AudioComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/DebugDrawComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/LightComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/MeshComponentSerializer.cpp
@@ -190,8 +190,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTerrain.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderWAV.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/DebugDrawAABBNode.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/DebugDrawOBBNode.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.cpp

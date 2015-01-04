@@ -74,7 +74,7 @@ void RenderManager::debugDrawPass()
         drawOperation(op);
 
     // Draw bullet physics debug.
-    g_engineController->getPhysicsManager()->drawDebug();
+    //g_engineController->getPhysicsManager()->drawDebug();
 }
 
 void RenderManager::postProcessPass(shared_ptr<Material> material)
@@ -167,10 +167,7 @@ void RenderManager::update(shared_ptr<scene::Scene> renderableScene)
 void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
 {
     if (!sc)
-    {
-        base::glog << "Can not draw scene. Scene is invalid." << base::logwarn;
         return;
-    }
 
     auto camera = sc->getCamera();
     if (!camera)
@@ -255,7 +252,7 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
         drawOperation(op);
 
     // Debug draw pass.
-    if (m_debugDrawEnabled)
+    //if (m_debugDrawEnabled)
         debugDrawPass();
 
     // Do post process if enabled.

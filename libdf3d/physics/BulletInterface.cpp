@@ -68,11 +68,14 @@ int BulletDebugDraw::getDebugMode() const
 
 void BulletDebugDraw::flushRenderOperations()
 {
-    m_linesOp.vertexData->setDirty();
+    // TODO:
+    assert(false);
 
-    g_renderManager->drawOperation(m_linesOp);
+    //m_linesOp.vertexData->setDirty();
 
-    m_linesOp.vertexData->clear();
+    //g_renderManager->drawOperation(m_linesOp);
+
+    //m_linesOp.vertexData->clear();
 }
 
 } }
