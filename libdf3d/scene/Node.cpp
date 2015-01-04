@@ -291,6 +291,10 @@ shared_ptr<Node> Node::fromJson(const Json::Value &root)
         return nullptr;
     }
 
+    auto externalDataJson = root["external_data"];
+    if (!externalDataJson.empty())
+        return fromJson(utils::jsonLoadFromFile(externalDataJson.asCString()));
+
     auto objName = root["name"].asString();
     const auto &componentsJson = root["components"];
 
