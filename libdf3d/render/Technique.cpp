@@ -39,7 +39,7 @@ Technique::~Technique()
 {
 }
 
-shared_ptr<RenderPass> Technique::getPass(size_t idx)
+shared_ptr<RenderPass> Technique::getPass(int idx)
 {
     try
     {

@@ -8,23 +8,12 @@ class IndexBuffer;
 
 class SubMesh : boost::noncopyable
 {
-public:
-    //enum Type
-    //{
-    //    UNDEFINED,
-    //    INDEXED_TRIANGLE_LIST,
-    //    TRIANGLE_LIST
-    //};
-
-private:
-    //Type m_type = UNDEFINED;
-
     shared_ptr<Material> m_material;
     shared_ptr<VertexBuffer> m_vb;
     shared_ptr<IndexBuffer> m_ib;
 
 public:
-    SubMesh(/*Type type*/);
+    SubMesh();
 
     //! Computes normals for vertices.
     void computeNormals();

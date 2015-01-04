@@ -2,6 +2,8 @@
 #include "MeshData.h"
 
 #include "SubMesh.h"
+#include <base/Controller.h>
+#include <resources/ResourceManager.h>
 
 namespace df3d { namespace render {
 
@@ -95,12 +97,10 @@ shared_ptr<MeshData> MeshData::clone() const
         if (sm->getMaterial())
             newSubMesh->setMaterial(sm->getMaterial());
 
-        // TODO: !!!
-        // Do not share material.
-        //newSubMesh->setMaterial(sm->getMaterial()->clone());
-        
         result->attachSubMesh(newSubMesh);
     }
+
+    g_resourceManager->appendResource(result);
 
     return result;
 }

@@ -5,8 +5,7 @@
 
 namespace df3d { namespace render {
 
-SubMesh::SubMesh(/*Type type*/)
-    //: m_type(type)
+SubMesh::SubMesh()
 {
 
 }

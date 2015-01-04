@@ -29,7 +29,7 @@ class DF3D_DLL Technique : boost::noncopyable
 public:
     ~Technique();
 
-    shared_ptr<RenderPass> getPass(size_t idx);
+    shared_ptr<RenderPass> getPass(int idx);
     //! Returns first pass with given name.
     shared_ptr<RenderPass> getPass(const char *name);
     size_t getPassCount() const;
