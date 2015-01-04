@@ -34,7 +34,7 @@ SPK::Ref<SPK::ColorInterpolator> parseSparkColorInterpolator(const Json::Value &
     deathColor *= 255.0f;
 
     auto c1 = SPK::Color((int)birthColor.r, (int)birthColor.g, (int)birthColor.b, (int)birthColor.a);
-    auto c2 = SPK::Color((int)birthColor.r, (int)birthColor.g, (int)birthColor.b, (int)birthColor.a);
+    auto c2 = SPK::Color((int)deathColor.r, (int)deathColor.g, (int)deathColor.b, (int)deathColor.a);
     return SPK::ColorSimpleInterpolator::create(c1, c2);
 }
 

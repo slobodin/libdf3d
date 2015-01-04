@@ -98,7 +98,9 @@ glm::vec3 Camera::getUp()
 
 glm::vec3 Camera::getDir()
 {
-    return glm::normalize(glm::vec3(glm::column(transform()->getTransformation(), 2)));
+    // Could be this:
+    //auto dir = glm::normalize(transform()->getTransformation() * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f));
+    return -glm::normalize(glm::vec3(glm::column(transform()->getTransformation(), 2)));
 }
 
 glm::vec3 Camera::screenToViewPoint(float x, float y, float z)
