@@ -226,11 +226,13 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
         m_renderParticle = &QuadParticleSystemRenderer::render2D;
     }
 
-    const auto &pos = g_sceneManager->getCamera()->transform()->getPosition();
-    const auto &dir = g_sceneManager->getCamera()->getDir();
-    const auto &up = g_sceneManager->getCamera()->getUp();
+    auto camMatr = g_sceneManager->getCamera()->getViewMatrix() * *m_currentTransformation;
+    camMatr = glm::inverse(camMatr);
 
-    bool globalOrientation = precomputeOrientation3D(group, glmToSpk(-dir), glmToSpk(up), glmToSpk(pos));
+    bool globalOrientation = precomputeOrientation3D(group, 
+    { -camMatr[2][0], -camMatr[2][1], -camMatr[2][2] },
+    { camMatr[1][0], camMatr[1][1], camMatr[1][2] },
+    { camMatr[3][0], camMatr[3][1], camMatr[3][2] });
 
     if (globalOrientation)
     {
