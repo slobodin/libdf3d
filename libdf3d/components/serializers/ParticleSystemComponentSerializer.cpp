@@ -181,8 +181,6 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
     // Parse all particle system groups.
     for (const auto &groupJson : groupsJson)
     {
-        std::string groupName = groupJson["name"].asString();
-
         // Parse group emitters.
         std::vector<SPK::Ref<SPK::Emitter>> emitters;
         const auto &emittersJson = groupJson["Emitters"];
@@ -201,7 +199,8 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
             continue;
         }
 
-        // Get group additional params.
+        // Get group params.
+        auto groupName = groupJson["name"].asString();
         auto gravity = jsonGetValueWithDefault(groupJson["gravity"], glm::vec3());
         auto friction = jsonGetValueWithDefault(groupJson["friction"], 0.0f);
         bool enableSorting = jsonGetValueWithDefault(groupJson["enableSorting"], false);
@@ -255,6 +254,7 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
 
         // Create a group.
         auto particlesGroup = SPK::Group::create(maxParticles);
+        particlesGroup->setName(groupName);
         particlesGroup->addModifier(SPK::Gravity::create({ gravity.x, gravity.y, gravity.z }));
         particlesGroup->addModifier(SPK::Friction::create(friction));
         particlesGroup->enableSorting(enableSorting);
