@@ -28,7 +28,6 @@ public:
     size_t getTrianglesCount() const { return m_trianglesCount; }
     const std::vector<shared_ptr<SubMesh>> &getSubMeshes() const { return m_submeshes; }
 
-    //! Doesn't clone vertices.
     shared_ptr<MeshData> clone() const;
 };
 
