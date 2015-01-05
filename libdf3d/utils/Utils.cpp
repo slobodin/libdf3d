@@ -22,4 +22,9 @@ glm::quat fromToRotation(const glm::vec3 &v1, const glm::vec3 &v2)
     return glm::normalize(q);
 }
 
+glm::vec2 toPolar(const glm::vec2 &cartesian)
+{
+    return { std::hypot(cartesian.x, cartesian.y), std::atan2(cartesian.y, cartesian.x) };
+}
+
 } } }

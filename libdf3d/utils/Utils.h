@@ -41,6 +41,7 @@ extern const DF3D_DLL glm::vec4 ZAxis;
 
 // Creates rotation which rotates from v1 to v2.
 DF3D_DLL glm::quat fromToRotation(const glm::vec3 &v1, const glm::vec3 &v2);
+DF3D_DLL glm::vec2 toPolar(const glm::vec2 &cartesian);
 
 }
 
