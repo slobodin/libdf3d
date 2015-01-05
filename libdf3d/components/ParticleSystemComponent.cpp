@@ -26,7 +26,7 @@ void ParticleSystemComponent::updateCameraPosition()
                 auto invWorldTransform = m_holder->transform()->getTransformation();
                 invWorldTransform = glm::inverse(invWorldTransform);
 
-                pos = (invWorldTransform * glm::vec4(pos, 1.0f)).xyz;
+                pos = glm::vec3((invWorldTransform * glm::vec4(pos, 1.0f)));
             }
 
             SPKSystem->setCameraPosition(particlesys::glmToSpk(pos));

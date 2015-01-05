@@ -92,7 +92,8 @@ void MeshComponent::constructTransformedAABB()
     auto tr = getHolder()->transform()->getTransformation();
     for (auto &p : aabbCorners)
     {
-        m_transformedAABB.updateBounds((tr * glm::vec4(p, 1.0f)).xyz);
+        auto trp = tr * glm::vec4(p, 1.0f);
+        m_transformedAABB.updateBounds(glm::vec3(trp));
     }
 
     m_transformedAabbDirty = false;

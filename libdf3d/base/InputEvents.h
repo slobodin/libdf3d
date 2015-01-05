@@ -53,6 +53,7 @@ public:
         DOWN,
         LEFT,
         RIGHT,
+        SPACE,
 
         UNDEFINED
     };
