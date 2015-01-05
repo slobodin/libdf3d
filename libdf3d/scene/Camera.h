@@ -52,7 +52,7 @@ public:
     float getFarZ() const { return m_farZ; }
 
     glm::vec3 screenToViewPoint(float x, float y, float z = 0.0f);
-    glm::vec2 worldToScreenPoint(const glm::vec3 &world);
+    glm::vec3 worldToScreenPoint(const glm::vec3 &world);
 };
 
 } }

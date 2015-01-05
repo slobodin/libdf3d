@@ -117,7 +117,7 @@ glm::vec3 Camera::screenToViewPoint(float x, float y, float z)
     return viewPos;
 }
 
-glm::vec2 Camera::worldToScreenPoint(const glm::vec3 &world)
+glm::vec3 Camera::worldToScreenPoint(const glm::vec3 &world)
 {
     const auto &vp = g_renderManager->getScreenRenderTarget()->getViewport();
 
@@ -127,7 +127,7 @@ glm::vec2 Camera::worldToScreenPoint(const glm::vec3 &world)
     glm::vec4 viewport = glm::vec4(0.0f, 0.0f, w, h);
     auto screenPt = glm::project(world, getViewMatrix(), getProjectionMatrix(), viewport);
 
-    return glm::vec2(screenPt);
+    return screenPt;
 }
 
 } }
