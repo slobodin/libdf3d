@@ -95,6 +95,21 @@ SPK::Ref<SPK::FloatRandomInterpolator> parseSparkRandomInterpolator(const Json::
     return SPK::FloatRandomInterpolator::create(minBirth, maxBirth, minDeath, maxDeath);
 }
 
+SPK::Ref<SPK::FloatGraphInterpolator> parseSparkGraphInterpolator(const Json::Value &dataJson)
+{
+    auto result = SPK::FloatGraphInterpolator::create();
+
+    for (const auto &entryJson : dataJson)
+    {
+        auto x = utils::jsonGetValueWithDefault(entryJson["x"], 0.0f);
+        auto y = utils::jsonGetValueWithDefault(entryJson["y"], 0.0f);
+
+        result->addEntry(x, y);
+    }
+
+    return result;
+}
+
 SPK::Ref<SPK::FloatInterpolator> parseSparkParamInterpolator(const Json::Value &interpolatorJson)
 {
     if (interpolatorJson.empty())
@@ -112,6 +127,8 @@ SPK::Ref<SPK::FloatInterpolator> parseSparkParamInterpolator(const Json::Value &
         return parseSparkSimpleInterpolator(dataJson);
     else if (typeStr == "random")
         return parseSparkRandomInterpolator(dataJson);
+    else if (typeStr == "graph")
+        return parseSparkGraphInterpolator(dataJson);
 
     base::glog << "Unknown spark float interpolator type" << typeStr << base::logwarn;
     return SPK_NULL_REF;
