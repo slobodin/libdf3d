@@ -23,6 +23,16 @@ std::map<std::string, SPK::Param> StringToSparkParam =
     { "texture_index", SPK::PARAM_TEXTURE_INDEX }
 };
 
+std::map<std::string, SPK::OrientationPreset> StringToSparkDirection =
+{
+    { "direction_aligned", SPK::DIRECTION_ALIGNED },
+    { "camera_plane_aligned", SPK::CAMERA_PLANE_ALIGNED },
+    { "camera_point_aligned", SPK::CAMERA_POINT_ALIGNED },
+    { "around_axis", SPK::AROUND_AXIS },
+    { "towards_point", SPK::TOWARDS_POINT },
+    { "fixed_orientation", SPK::FIXED_ORIENTATION },
+};
+
 SPK::Color toSpkColor(glm::vec4 color)
 {
     color *= 255.0f;
@@ -225,6 +235,9 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
     else if (emitterType == "Normal")
     {
         emitter = SPK::NormalEmitter::create();
+
+        bool inverted = jsonGetValueWithDefault(emitterJson["inverted"], false);
+        ((SPK::NormalEmitter*)emitter.get())->setInverted(inverted);
     }
     else
     {
@@ -320,6 +333,16 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
         renderer->enableRenderingOption(SPK::RENDERING_OPTION_DEPTH_WRITE, depthWrite);
         renderer->m_pass->enableDepthTest(depthTest);
         renderer->setBlendMode(spkBlending);
+        
+        if (!groupJson["orientation"].empty())
+        {
+            auto orientationStr = groupJson["orientation"].asString();
+            auto found = StringToSparkDirection.find(orientationStr);
+            if (found != StringToSparkDirection.end())
+                renderer->setOrientation(found->second);
+            else
+                base::glog << "Unknown spark particle system orientation" << base::logwarn;
+        }
 
         std::string pathToTexture = jsonGetValueWithDefault(groupJson["texture"], std::string());
         SPK::TextureMode textureMode = SPK::TEXTURE_MODE_NONE;
