@@ -23,19 +23,67 @@ std::map<std::string, SPK::Param> StringToSparkParam =
     { "texture_index", SPK::PARAM_TEXTURE_INDEX }
 };
 
+SPK::Color toSpkColor(glm::vec4 color)
+{
+    color *= 255.0f;
+    return SPK::Color((int)color.r, (int)color.g, (int)color.b, (int)color.a);
+}
+
+SPK::Ref<SPK::ColorInterpolator> parseSparkSimpleColorInterpolator(const Json::Value &dataJson)
+{
+    auto birthColor = utils::jsonGetValueWithDefault(dataJson["birth"], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    auto deathColor = utils::jsonGetValueWithDefault(dataJson["death"], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+    return SPK::ColorSimpleInterpolator::create(toSpkColor(birthColor), toSpkColor(deathColor));
+}
+
+SPK::Ref<SPK::ColorInterpolator> parseSparkGraphColorInterpolator(const Json::Value &dataJson)
+{
+    auto result = SPK::ColorGraphInterpolator::create();
+
+    for (const auto &entryJson : dataJson)
+    {
+        auto x = utils::jsonGetValueWithDefault(entryJson["x"], 0.0f);
+        auto y = utils::jsonGetValueWithDefault(entryJson["y"], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+        result->addEntry(x, toSpkColor(y));
+    }
+
+    return result;
+}
+
 SPK::Ref<SPK::ColorInterpolator> parseSparkColorInterpolator(const Json::Value &interpolatorJson)
 {
     if (interpolatorJson.empty())
         return SPK_NULL_REF;
 
-    auto birthColor = utils::jsonGetValueWithDefault(interpolatorJson["birth"], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    auto deathColor = utils::jsonGetValueWithDefault(interpolatorJson["death"], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    birthColor *= 255.0f;
-    deathColor *= 255.0f;
+    const auto &dataJson = interpolatorJson["data"];
+    if (dataJson.empty())
+    {
+        base::glog << "Failed to parse spark color interpolator. Empty data field" << base::logwarn;
+        return SPK_NULL_REF;
+    }
 
-    auto c1 = SPK::Color((int)birthColor.r, (int)birthColor.g, (int)birthColor.b, (int)birthColor.a);
-    auto c2 = SPK::Color((int)deathColor.r, (int)deathColor.g, (int)deathColor.b, (int)deathColor.a);
-    return SPK::ColorSimpleInterpolator::create(c1, c2);
+    auto typeStr = interpolatorJson["type"].asString();
+    if (typeStr == "simple")
+    {
+        return parseSparkSimpleColorInterpolator(dataJson);
+    }
+    else if (typeStr == "graph")
+    {
+        return parseSparkGraphColorInterpolator(dataJson);
+    }
+
+    base::glog << "Unknown spark color interpolator type" << typeStr << base::logwarn;
+    return SPK_NULL_REF;
+}
+
+SPK::Ref<SPK::FloatSimpleInterpolator> parseSparkSimpleInterpolator(const Json::Value &dataJson)
+{
+    auto birthValue = utils::jsonGetValueWithDefault(dataJson["birth"], 0.0f);
+    auto deathValue = utils::jsonGetValueWithDefault(dataJson["death"], 0.0f);
+
+    return SPK::FloatSimpleInterpolator::create(birthValue, deathValue);
 }
 
 SPK::Ref<SPK::FloatSimpleInterpolator> parseSparkParamInterpolator(const Json::Value &interpolatorJson)
@@ -43,10 +91,21 @@ SPK::Ref<SPK::FloatSimpleInterpolator> parseSparkParamInterpolator(const Json::V
     if (interpolatorJson.empty())
         return SPK_NULL_REF;
 
-    auto birthValue = utils::jsonGetValueWithDefault(interpolatorJson["birth"], 0.0f);
-    auto deathValue = utils::jsonGetValueWithDefault(interpolatorJson["death"], 0.0f);
+    const auto &dataJson = interpolatorJson["data"];
+    if (dataJson.empty())
+    {
+        base::glog << "Failed to parse spark float interpolator. Empty data field" << base::logwarn;
+        return SPK_NULL_REF;
+    }
 
-    return SPK::FloatSimpleInterpolator::create(birthValue, deathValue);
+    auto typeStr = interpolatorJson["type"].asString();
+    if (typeStr == "simple")
+    {
+        return parseSparkSimpleInterpolator(dataJson);
+    }
+
+    base::glog << "Unknown spark float interpolator type" << typeStr << base::logwarn;
+    return SPK_NULL_REF;
 }
 
 SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
