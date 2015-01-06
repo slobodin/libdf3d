@@ -38,6 +38,8 @@ protected:
     bool m_obbTransformationDirty = true;
     void constructOBB();
 
+    bool m_visible = true;
+
     MeshComponent();
 
 public:
@@ -56,6 +58,7 @@ public:
     scene::OBB getOBB();
 
     std::string getMeshFilePath() const;
+    void setVisible(bool visible) { m_visible = visible; }
 
     shared_ptr<NodeComponent> clone() const override;
 };

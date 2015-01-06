@@ -25,11 +25,11 @@ public:
         float restitution = 0.0f;
         float linearDamping = 0.0f;
         float angularDamping = 0.0f;
+        short group = -1;
+        short mask = -1;
     };
 
 private:
-    short m_group = -1;
-    short m_mask = -1;
     CreationParams m_creationParams;
 
     void initFromCreationParams();
@@ -43,7 +43,7 @@ public:
     // Holder needs to have a valid (loaded) mesh.
     // TODO:
     // Patch for async, do not demand valid mesh.
-    PhysicsComponent(const CreationParams &params, short group = -1, short mask = -1);
+    PhysicsComponent(const CreationParams &params);
     ~PhysicsComponent();
 
     shared_ptr<NodeComponent> clone() const override;

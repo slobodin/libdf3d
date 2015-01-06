@@ -122,16 +122,14 @@ void PhysicsComponent::onAttached()
 {
     initFromCreationParams();
 
-    if (m_group != -1 && m_mask != -1)
-        g_physicsWorld->addRigidBody(body, m_group, m_mask);
+    if (m_creationParams.group != -1 && m_creationParams.mask != -1)
+        g_physicsWorld->addRigidBody(body, m_creationParams.group, m_creationParams.mask);
     else 
         g_physicsWorld->addRigidBody(body);
 }
 
-PhysicsComponent::PhysicsComponent(const CreationParams &params, short group, short mask)
+PhysicsComponent::PhysicsComponent(const CreationParams &params)
     : NodeComponent(PHYSICS),
-    m_group(group),
-    m_mask(mask),
     m_creationParams(params)
 {
 

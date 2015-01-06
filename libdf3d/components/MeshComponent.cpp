@@ -36,6 +36,9 @@ void MeshComponent::onDraw(render::RenderQueue *ops)
     if (!m_geometry || !m_geometry->valid())
         return;
 
+    if (!m_visible)
+        return;
+
     // Include all the submeshes.
     const auto &submeshes = m_geometry->getSubMeshes();
     for (auto &sm : submeshes)

@@ -37,7 +37,9 @@ shared_ptr<NodeComponent> PhysicsComponentSerializer::fromJson(const Json::Value
     params.restitution = utils::jsonGetValueWithDefault(root["restitution"], params.restitution);
     params.linearDamping = utils::jsonGetValueWithDefault(root["linearDamping"], params.linearDamping);
     params.angularDamping = utils::jsonGetValueWithDefault(root["angularDamping"], params.angularDamping);
-
+    params.group = utils::jsonGetValueWithDefault(root["group"], params.group);
+    params.mask = utils::jsonGetValueWithDefault(root["mask"], params.mask);
+    
     return make_shared<PhysicsComponent>(params);
 }
 
