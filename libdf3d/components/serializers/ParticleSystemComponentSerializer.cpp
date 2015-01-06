@@ -29,7 +29,7 @@ SPK::Color toSpkColor(glm::vec4 color)
     return SPK::Color((int)color.r, (int)color.g, (int)color.b, (int)color.a);
 }
 
-SPK::Ref<SPK::ColorInterpolator> parseSparkSimpleColorInterpolator(const Json::Value &dataJson)
+SPK::Ref<SPK::ColorSimpleInterpolator> parseSparkSimpleColorInterpolator(const Json::Value &dataJson)
 {
     auto birthColor = utils::jsonGetValueWithDefault(dataJson["birth"], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     auto deathColor = utils::jsonGetValueWithDefault(dataJson["death"], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -37,7 +37,7 @@ SPK::Ref<SPK::ColorInterpolator> parseSparkSimpleColorInterpolator(const Json::V
     return SPK::ColorSimpleInterpolator::create(toSpkColor(birthColor), toSpkColor(deathColor));
 }
 
-SPK::Ref<SPK::ColorInterpolator> parseSparkGraphColorInterpolator(const Json::Value &dataJson)
+SPK::Ref<SPK::ColorGraphInterpolator> parseSparkGraphColorInterpolator(const Json::Value &dataJson)
 {
     auto result = SPK::ColorGraphInterpolator::create();
 
@@ -66,13 +66,9 @@ SPK::Ref<SPK::ColorInterpolator> parseSparkColorInterpolator(const Json::Value &
 
     auto typeStr = interpolatorJson["type"].asString();
     if (typeStr == "simple")
-    {
         return parseSparkSimpleColorInterpolator(dataJson);
-    }
     else if (typeStr == "graph")
-    {
         return parseSparkGraphColorInterpolator(dataJson);
-    }
 
     base::glog << "Unknown spark color interpolator type" << typeStr << base::logwarn;
     return SPK_NULL_REF;
@@ -86,7 +82,20 @@ SPK::Ref<SPK::FloatSimpleInterpolator> parseSparkSimpleInterpolator(const Json::
     return SPK::FloatSimpleInterpolator::create(birthValue, deathValue);
 }
 
-SPK::Ref<SPK::FloatSimpleInterpolator> parseSparkParamInterpolator(const Json::Value &interpolatorJson)
+SPK::Ref<SPK::FloatRandomInterpolator> parseSparkRandomInterpolator(const Json::Value &dataJson)
+{
+    const auto &birthRange = dataJson["birth"];
+    const auto &deathRange = dataJson["death"];
+
+    float minBirth = birthRange[0].asFloat();
+    float maxBirth = birthRange[1].asFloat();
+    float minDeath = deathRange[0].asFloat();
+    float maxDeath = deathRange[1].asFloat();
+
+    return SPK::FloatRandomInterpolator::create(minBirth, maxBirth, minDeath, maxDeath);
+}
+
+SPK::Ref<SPK::FloatInterpolator> parseSparkParamInterpolator(const Json::Value &interpolatorJson)
 {
     if (interpolatorJson.empty())
         return SPK_NULL_REF;
@@ -100,9 +109,9 @@ SPK::Ref<SPK::FloatSimpleInterpolator> parseSparkParamInterpolator(const Json::V
 
     auto typeStr = interpolatorJson["type"].asString();
     if (typeStr == "simple")
-    {
         return parseSparkSimpleInterpolator(dataJson);
-    }
+    else if (typeStr == "random")
+        return parseSparkRandomInterpolator(dataJson);
 
     base::glog << "Unknown spark float interpolator type" << typeStr << base::logwarn;
     return SPK_NULL_REF;
