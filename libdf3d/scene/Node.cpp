@@ -304,6 +304,7 @@ shared_ptr<Node> Node::fromJson(const Json::Value &root)
     const auto &componentsJson = root["components"];
 
     auto result = make_shared<scene::Node>(objName.c_str());
+    // FIXME: first attach transform, then other componets!
     for (const auto &component : componentsJson)
         result->attachComponent(components::NodeComponent::fromJson(component));
 
