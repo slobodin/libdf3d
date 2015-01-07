@@ -36,8 +36,8 @@ void TransformComponent::markDirty(bool dirty)
 
     if (dirty)
     {
-        for (auto it = m_holder->begin(); it != m_holder->end(); it++)
-            it->second->transform()->markDirty(dirty);
+        for (auto it : *m_holder)
+            it->transform()->markDirty(dirty);
     }
 }
 

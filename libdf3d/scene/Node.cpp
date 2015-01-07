@@ -15,6 +15,11 @@ namespace df3d { namespace scene {
 
 static long nodesCount = 0;
 
+bool findNodeByName(const std::string &name, shared_ptr<Node> node)
+{
+    return node->getName() == name;
+}
+
 void Node::broadcastNodeEvent(components::ComponentEvent ev)
 {
     for (auto c : m_components)
@@ -23,8 +28,8 @@ void Node::broadcastNodeEvent(components::ComponentEvent ev)
             c->onEvent(ev);
     }
 
-    for (auto c : m_children)
-        c.second->broadcastNodeEvent(ev);
+    for (auto &c : m_children)
+        c->broadcastNodeEvent(ev);
 }
 
 void Node::broadcastComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev)
@@ -37,8 +42,8 @@ void Node::broadcastComponentEvent(const components::NodeComponent *who, compone
 
     onComponentEvent(who, ev);
 
-    for (auto c : m_children)
-        c.second->broadcastComponentEvent(who, ev);
+    for (auto &c : m_children)
+        c->broadcastComponentEvent(who, ev);
 }
 
 Node::Node(const char *name)
@@ -87,7 +92,7 @@ void Node::update(float dt)
     }
 
     for (auto &child : m_children)
-        child.second->update(dt);
+        child->update(dt);
 }
 
 void Node::draw(render::RenderQueue *ops)
@@ -103,7 +108,7 @@ void Node::draw(render::RenderQueue *ops)
     }
 
     for (auto &child : m_children)
-        child.second->draw(ops);
+        child->draw(ops);
 }
 
 void Node::traverse(std::function<void (shared_ptr<Node>)> fn)
@@ -111,7 +116,7 @@ void Node::traverse(std::function<void (shared_ptr<Node>)> fn)
     fn(shared_from_this());
 
     for (auto &child : m_children)
-        child.second->traverse(fn);
+        child->traverse(fn);
 }
 
 void Node::addChild(shared_ptr<Node> child)
@@ -128,14 +133,14 @@ void Node::addChild(shared_ptr<Node> child)
         return;
     }
 
-    if (m_children.find(child->m_nodeName) != m_children.end())
+    if (getChildByName(child->m_nodeName.c_str()))
     {
         base::glog << "Node" << m_nodeName << "already has child with name" << child->m_nodeName << base::logwarn;
         return;
     }
 
     child->m_parent = shared_from_this();
-    m_children[child->m_nodeName] = child;
+    m_children.push_back(child);
 
     broadcastNodeEvent(components::ComponentEvent::CHILD_ATTACHED);
 }
@@ -147,10 +152,11 @@ void Node::removeChild(shared_ptr<Node> child)
 
 void Node::removeChild(const char *name)
 {
-    if (m_children.count(name) <= 0)
+    auto found = std::find_if(m_children.begin(), m_children.end(), std::bind(findNodeByName, name, std::placeholders::_1));
+    if (found == m_children.end())
         return;
 
-    m_children.erase(name);
+    m_children.erase(found);
 
     broadcastNodeEvent(components::ComponentEvent::CHILD_REMOVED);
 }
@@ -164,12 +170,11 @@ void Node::removeAllChildren()
 
 shared_ptr<Node> Node::getChildByName(const char *name) const
 {
-    auto found = m_children.find(name);
-
+    auto found = std::find_if(m_children.begin(), m_children.end(), std::bind(findNodeByName, name, std::placeholders::_1));
     if (found == m_children.end())
         return nullptr;
 
-    return found->second;
+    return *found;
 }
 
 shared_ptr<Node> Node::clone() const
@@ -186,7 +191,7 @@ shared_ptr<Node> Node::clone() const
 
     for (auto child : m_children)
     {
-        auto clonedChild = child.second->clone();
+        auto clonedChild = child->clone();
         result->addChild(clonedChild);
     }
 
@@ -330,7 +335,7 @@ Json::Value Node::toJson(shared_ptr<const Node> node)
     }
 
     for (auto it = node->cbegin(); it != node->cend(); it++)
-        childrenJson.append(toJson(it->second));
+        childrenJson.append(toJson(*it));
 
     result["components"] = componentsJson;
     result["children"] = childrenJson;

@@ -43,7 +43,7 @@ Json::Value saveObjects(shared_ptr<const scene::Scene> scene)
 {
     Json::Value res(Json::arrayValue);
     for (auto ch : *scene->getRoot())
-        res.append(scene::Node::toJson(ch.second));
+        res.append(scene::Node::toJson(ch));
 
     return res;
 }

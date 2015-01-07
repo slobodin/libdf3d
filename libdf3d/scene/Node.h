@@ -24,8 +24,7 @@ class DF3D_DLL Node : public std::enable_shared_from_this<Node>, private boost::
     friend class components::NodeComponent;
 
 public:
-    // Map instead of unordered_map because of Python.
-    using NodeChildren = std::map<std::string, shared_ptr<Node>>;
+    using NodeChildren = std::vector<shared_ptr<Node>>;
 
 protected:
     std::string m_nodeName;
