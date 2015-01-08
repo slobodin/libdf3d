@@ -40,7 +40,7 @@ void ParticleSystemComponent::onUpdate(float dt)
     if (glm::epsilonEqual(dt, 0.0f, glm::epsilon<float>()))
         return;
 
-    if (!SPKSystem || m_paused)
+    if (!SPKSystem || m_paused || !m_holder->isVisible())
         return;
 
     updateCameraPosition();
