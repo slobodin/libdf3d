@@ -11,6 +11,7 @@
 #include <base/Controller.h>
 #include <render/RenderManager.h>
 #include <render/Renderer.h>
+#include <render/Texture2D.h>
 
 namespace df3d { namespace gui { namespace cegui_impl {
 
@@ -166,7 +167,7 @@ CEGUI::Texture& CeguiRendererImpl::createTexture(const CEGUI::String &name, cons
     return *texture;
 }
 
-CEGUI::Texture& CeguiRendererImpl::createTexture(const CEGUI::String &name, shared_ptr<render::Texture> texture)
+CEGUI::Texture& CeguiRendererImpl::createTexture(const CEGUI::String &name, shared_ptr<render::Texture2D> texture)
 {
     if (m_textures.find(name) != m_textures.end())
         CEGUI_THROW(AlreadyExistsException("A texture named '" + name + "' already exists."));

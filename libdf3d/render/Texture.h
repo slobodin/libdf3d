@@ -1,10 +1,10 @@
 #pragma once
 
+#include "OpenGLCommon.h"
+
 namespace df3d { namespace render {
 
 extern const DF3D_DLL int ANISOTROPY_LEVEL_MAX;
-
-class Image;
 
 class Texture
 {
@@ -16,66 +16,43 @@ public:
         TRILINEAR
     };
 
-    enum class Type
-    {
-        NONE,
-        TEXTURE_1D,
-        TEXTURE_2D,
-        TEXTURE_3D,
-        TEXTURE_CUBE
-    };
-
     enum class WrapMode
     {
         WRAP,
         CLAMP
     };
 
-private:
+protected:
     Filtering m_filteringMode = Filtering::TRILINEAR;
-    Type m_textureType = Type::TEXTURE_2D;
     WrapMode m_wrapMode = WrapMode::CLAMP;
     bool m_mipmapped = true;
     int m_maxAnisotropy = 1;
 
-    shared_ptr<Image> m_image;
-    bool m_imageDirty = true;
-    size_t m_actualWidth = 0, m_actualHeight = 0;
-
     // GL data.
-    unsigned int m_glid = 0;
-    unsigned int m_glType;
+    GLuint m_glid = 0;
 
-    bool createGLTexture();
-    void deleteGLTexture();
+    bool isPot(size_t v);
+    size_t getNextPot(size_t v);
+    static GLint getGlFilteringMode(Filtering filtering, bool mipmapped);
+    static GLint getGlWrapMode(WrapMode mode);
 
 public:
     Texture();
-    ~Texture();
+    virtual ~Texture();
 
     Filtering filtering() const { return m_filteringMode; }
-    Type type() const { return m_textureType; }
     bool isMipmapped() const { return m_mipmapped; }
     WrapMode wrapMode() const { return m_wrapMode; }
 
     unsigned getGLId() const { return m_glid; }
 
-    void setType(Type newType);
     void setFilteringMode(Filtering newFiltering);
     void setMipmapped(bool hasMipmaps);
     void setWrapMode(WrapMode mode);
     void setMaxAnisotropy(int aniso);
 
-    void setImage(shared_ptr<Image> image);
-    shared_ptr<const Image> getImage() const;
-
-    size_t getOriginalWidth() const;
-    size_t getOriginalHeight() const;
-    size_t getActualWidth() const;
-    size_t getActualHeight() const;
-
-    bool bind(size_t unit);
-    void unbind();
+    virtual bool bind(size_t unit) = 0;
+    virtual void unbind() = 0;
 };
 
 } }

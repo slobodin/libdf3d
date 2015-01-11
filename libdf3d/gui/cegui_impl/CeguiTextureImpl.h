@@ -2,6 +2,7 @@
 
 #include <CEGUI/Texture.h>
 
+FWD_MODULE_CLASS(render, Texture2D)
 FWD_MODULE_CLASS(render, Texture)
 
 namespace df3d { namespace gui { namespace cegui_impl {
@@ -13,7 +14,7 @@ class CeguiTextureImpl : public CEGUI::Texture
     CEGUI::Sizef m_dataSize = { 0.0f, 0.0f };
     CEGUI::Vector2f m_texelScaling = { 0.0f, 0.0f };
 
-    shared_ptr<render::Texture> m_texture;
+    shared_ptr<render::Texture2D> m_texture;
     void updateSizes();
     void updateCachedScaleValues();
 
@@ -21,7 +22,7 @@ public:
     CeguiTextureImpl(const CEGUI::String &name);
     CeguiTextureImpl(const CEGUI::String &name, const CEGUI::String &filename, const CEGUI::String &resourceGroup);
     CeguiTextureImpl(const CEGUI::String &name, const CEGUI::Sizef &size);
-    CeguiTextureImpl(const CEGUI::String &name, shared_ptr<render::Texture> texture);
+    CeguiTextureImpl(const CEGUI::String &name, shared_ptr<render::Texture2D> texture);
 
     const CEGUI::String& getName() const;
     const CEGUI::Sizef& getSize() const;

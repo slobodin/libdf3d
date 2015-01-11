@@ -4,7 +4,7 @@
 #include "CeguiResourceProviderImpl.h"
 #include <CEGUI/CEGUI.h>
 #include <render/Image.h>
-#include <render/Texture.h>
+#include <render/Texture2D.h>
 #include <base/Controller.h>
 #include <resources/ResourceManager.h>
 
@@ -96,9 +96,8 @@ void CeguiTextureImpl::updateCachedScaleValues()
 
 CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name)
     : m_name(name),
-    m_texture(new render::Texture())
+    m_texture(new render::Texture2D())
 {
-    m_texture->setType(render::Texture::Type::TEXTURE_2D);
     m_texture->setFilteringMode(render::Texture::Filtering::BILINEAR);
     m_texture->setMipmapped(false);
 
@@ -125,7 +124,7 @@ CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name, const CEGUI::Sizef
     updateSizes();
 }
 
-CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name, shared_ptr<render::Texture> texture)
+CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name, shared_ptr<render::Texture2D> texture)
     : m_name(name),
     m_texture(texture)
 {

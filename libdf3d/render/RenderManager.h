@@ -13,7 +13,6 @@ FWD_MODULE_CLASS(base, Controller)
 namespace df3d { namespace render {
 
 class Renderer;
-class Texture;
 class VertexBuffer;
 class GpuProgram;
 class RenderTarget;

@@ -11,7 +11,7 @@
 #include "VertexIndexBuffer.h"
 #include "RenderOperation.h"
 #include "MeshData.h"
-#include "Texture.h"
+#include "Texture2D.h"
 #include "Material.h"
 #include "Technique.h"
 #include "RenderPass.h"

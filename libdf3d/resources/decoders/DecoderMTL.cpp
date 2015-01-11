@@ -11,6 +11,7 @@
 #include <render/RenderPass.h>
 #include <render/GpuProgram.h>
 #include <render/Texture.h>
+#include <render/Texture2D.h>
 #include <render/Image.h>
 #include <utils/Utils.h>
 
@@ -42,14 +43,6 @@ std::map<std::string, render::RenderPass::FaceCullMode> faceCullModeValues =
     { "BACK", render::RenderPass::FaceCullMode::BACK },
     { "FRONT", render::RenderPass::FaceCullMode::FRONT },
     { "FRONT_AND_BACK", render::RenderPass::FaceCullMode::FRONT_AND_BACK }
-};
-
-std::map<std::string, render::Texture::Type> textureTypeValues = 
-{
-    { "TEXTURE_1D", render::Texture::Type::TEXTURE_1D },
-    { "TEXTURE_2D", render::Texture::Type::TEXTURE_2D },
-    { "TEXTURE_3D", render::Texture::Type::TEXTURE_3D },
-    { "TEXTURE_CUBE", render::Texture::Type::TEXTURE_CUBE }
 };
 
 std::map<std::string, render::Texture::Filtering> textureFilteringValues =
@@ -118,6 +111,21 @@ const std::string NodesTypes[] = {
     SAMPLER_TYPE,
     SHADER_PARAMS_TYPE
 };
+
+template<typename ...Args>
+shared_ptr<render::Texture> createTextureOfType(const std::string &type, Args&&... args)
+{
+    if (type == "TEXTURE_2D")
+    {
+        return make_shared<render::Texture2D>(std::forward<Args>(args)...);
+    }
+
+    base::glog << "Unknown texture type" << type << base::logwarn;
+    return nullptr;
+    
+    // TODO: other types are:
+    // TEXTURE_1D TEXTURE_2D TEXTURE_3D TEXTURE_CUBE
+}
 
 struct MaterialLibNode
 {
@@ -439,28 +447,22 @@ void DecoderMTL::parseShaderParamsNode(MaterialLibNode &node, shared_ptr<render:
 
 shared_ptr<render::Texture> DecoderMTL::parseSamplerNode(MaterialLibNode &node)
 {
-    // WORKAROUND for cubemaps:
-    for (auto &keyval : node.keyValues)
-    {
-        if (keyval.first == "type" && keyval.second == "TEXTURE_CUBE")
-            return parseCubemapSamplerNode(node);
-    }
-
     std::string path = node.keyValues["path"];
 
     auto textureImage = g_resourceManager->getResource<render::Image>(path.c_str(), ResourceManager::LoadMode::ASYNC);
     if (!textureImage)
         return nullptr;
 
-    auto texture = make_shared<render::Texture>();
-    texture->setImage(textureImage);
+    // FIXME:
+    // Only 2D textures for now.
+    auto texture = createTextureOfType("TEXTURE_2D", textureImage);
 
+    std::string textureType;
     for (auto &keyval : node.keyValues)
     {
         if (keyval.first == "type")
         {
-            std::function<void(render::Texture::Type)> fn = std::bind(&render::Texture::setType, texture.get(), std::placeholders::_1);
-            setPassParam(keyval.first, keyval.second, textureTypeValues, fn, m_libName);
+            textureType = keyval.second;
         }
         else if (keyval.first == "filtering")
         {

@@ -5,13 +5,14 @@
 namespace df3d { namespace render {
 
 class Texture;
+class Texture2D;
 
 class RenderTargetTexture : public RenderTarget
 {
     unsigned m_fbo = 0;
     unsigned m_renderBufferId = 0;
 
-    shared_ptr<Texture> m_texture;
+    shared_ptr<Texture2D> m_texture;
     void createGLFramebuffer();
 
 public:
@@ -24,7 +25,7 @@ public:
 
     void setViewport(const Viewport &vp) override;
 
-    shared_ptr<Texture> getTexture();
+    shared_ptr<Texture2D> getTexture();
 };
 
 } }

@@ -43,7 +43,8 @@
 #include <boost/function.hpp>
 #include <boost/functional/hash.hpp>
 
+#include <base/MacroDefs.h>
 #include <base/Common.h>
 #include <base/Log.h>
-#include <base/MacroDefs.h>
+
 

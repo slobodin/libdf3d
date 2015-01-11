@@ -7,7 +7,7 @@
 #include <particlesys/SparkInterface.h>
 #include <base/Controller.h>
 #include <resources/ResourceManager.h>
-#include <render/Texture.h>
+#include <render/Texture2D.h>
 #include <render/RenderOperation.h>
 #include <render/Image.h>
 #include <render/RenderPass.h>
@@ -351,9 +351,7 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
             auto textureImage = g_resourceManager->getResource<render::Image>(pathToTexture.c_str());
             if (textureImage && textureImage->valid())
             {
-                auto texture = make_shared<render::Texture>();
-                texture->setImage(textureImage);
-                renderer->setDiffuseMap(texture);
+                renderer->setDiffuseMap(make_shared<render::Texture2D>(textureImage));
                 textureMode = SPK::TEXTURE_MODE_2D;
             }
         }

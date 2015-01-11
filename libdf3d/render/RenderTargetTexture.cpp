@@ -2,7 +2,7 @@
 #include "RenderTargetTexture.h"
 
 #include "OpenGLCommon.h"
-#include "Texture.h"
+#include "Texture2D.h"
 #include "Image.h"
 #include "RenderManager.h"
 #include <base/Controller.h>
@@ -47,10 +47,9 @@ RenderTargetTexture::RenderTargetTexture(const Viewport &vp)
 {
     m_viewport = vp;
 
-    m_texture = make_shared<Texture>();
+    m_texture = make_shared<Texture2D>();
     m_texture->setMipmapped(false);
     m_texture->setFilteringMode(Texture::Filtering::NEAREST);
-    m_texture->setType(Texture::Type::TEXTURE_2D);
 
     setViewport(vp);
 }
@@ -98,7 +97,7 @@ void RenderTargetTexture::setViewport(const Viewport &vp)
     m_texture->setImage(image);
 }
 
-shared_ptr<Texture> RenderTargetTexture::getTexture()
+shared_ptr<Texture2D> RenderTargetTexture::getTexture()
 {
     return m_texture;
 }

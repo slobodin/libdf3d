@@ -11,7 +11,7 @@
 #include "GpuProgram.h"
 #include "VertexIndexBuffer.h"
 #include "GpuProgramUniform.h"
-#include "Texture.h"
+#include "Texture2D.h"
 #include "Image.h"
 #include "Viewport.h"
 
@@ -79,7 +79,6 @@ void Renderer::loadEmbedGPUPrograms() const
 
 void Renderer::createWhiteTexture()
 {
-    m_whiteTexture = make_shared<Texture>();
     auto image = make_shared<Image>();
 
     auto w = 32;
@@ -92,6 +91,7 @@ void Renderer::createWhiteTexture()
     image->setWithData(data, w, h, pf);
     image->setInitialized(image->init());
 
+    m_whiteTexture = make_shared<Texture2D>(image);
     m_whiteTexture->setFilteringMode(Texture::Filtering::NEAREST);
     m_whiteTexture->setMipmapped(false);
     m_whiteTexture->setWrapMode(Texture::WrapMode::WRAP);
@@ -271,6 +271,9 @@ Renderer::Renderer()
     createWhiteTexture();
 
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_maxTextureSize);
+    // TODO:
+    // Check extension supported.
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &m_maxAnisotropyLevel);
 
     printOpenGLError();
 
@@ -563,6 +566,17 @@ int Renderer::getMaxTextureSize()
     }
 
     return m_maxTextureSize;
+}
+
+float Renderer::getMaxAnisotropy()
+{
+    if (!m_initialized)
+    {
+        base::glog << "Failed to get max anisotropy level. Renderer is not initialized" << base::logwarn;
+        return 1.0f;
+    }
+
+    return m_maxAnisotropyLevel;
 }
 
 } }

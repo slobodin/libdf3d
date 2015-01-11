@@ -12,15 +12,17 @@ class VertexBuffer;
 class IndexBuffer;
 class GpuProgramState;
 class Viewport;
+class Texture2D;
 
 class Renderer
 {
     RenderStats *m_renderStats = nullptr;
 
     unique_ptr<GpuProgramState> m_programState;
-    shared_ptr<Texture> m_whiteTexture;
+    shared_ptr<Texture2D> m_whiteTexture;
 
     int m_maxTextureSize = -1;
+    float m_maxAnisotropyLevel = 1.0f;
 
     void loadEmbedGPUPrograms() const;
     void createWhiteTexture();
@@ -103,6 +105,7 @@ public:
     // Draw Line etc
 
     int getMaxTextureSize();
+    float getMaxAnisotropy();
 };
 
 } }
