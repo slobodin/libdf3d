@@ -31,10 +31,10 @@ bool TextureCube::createGLTexture()
 
     glGenTextures(1, &m_glid);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_glid);
-    //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    setupGlWrapMode(GL_TEXTURE_CUBE_MAP, WrapMode::CLAMP);
-    //setupGlTextureFiltering(GL_TEXTURE_CUBE_MAP, m_filteringMode, m_mipmapped);
+    setupGlWrapMode(GL_TEXTURE_CUBE_MAP, m_wrapMode);
+    setupGlTextureFiltering(GL_TEXTURE_CUBE_MAP, m_filteringMode, m_mipmapped);
 
     for (int i = 0; i < 6; i++)
     {
@@ -57,9 +57,10 @@ bool TextureCube::createGLTexture()
         auto width = m_images[i]->width();
         auto height = m_images[i]->height();
         glTexImage2D(MapSidesToGl[i], 0, glPixelFormat, width, height, 0, glPixelFormat, GL_UNSIGNED_BYTE, data);
-
-        printOpenGLError();
     }
+
+    if (m_mipmapped)
+        glGenerateMipmap(GL_TEXTURE_2D);
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
