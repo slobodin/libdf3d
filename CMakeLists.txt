@@ -82,6 +82,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Technique.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture2D.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/TextureCube.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Vertex.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/VertexIndexBuffer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Viewport.h
@@ -177,6 +178,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Technique.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture2D.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/TextureCube.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Vertex.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/VertexIndexBuffer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Viewport.cpp

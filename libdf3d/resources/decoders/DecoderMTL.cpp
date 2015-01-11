@@ -10,18 +10,10 @@
 #include <render/Technique.h>
 #include <render/RenderPass.h>
 #include <render/GpuProgram.h>
-#include <render/Texture.h>
 #include <render/Texture2D.h>
+#include <render/TextureCube.h>
 #include <render/Image.h>
 #include <utils/Utils.h>
-
-// Boost.spirit didn't satisfy me. Reason: code bloat, compile time.
-//#define FUSION_MAX_VECTOR_SIZE 20
-//#define SPIRIT_ARGUMENTS_LIMIT 20
-//
-//#include <boost/fusion/adapted.hpp>
-//#include <boost/spirit/home/phoenix.hpp>
-//#include <boost/spirit/home/qi.hpp>
 
 namespace df3d { namespace resources {
 
@@ -96,6 +88,78 @@ void setPassParam(const std::string &param, const std::string &valueStr, const s
     }
 }
 
+shared_ptr<render::Texture> createTextureOfType(const std::string &type, const std::map<std::string, std::string> &keyValues)
+{
+    if (type == "TEXTURE_2D")
+    {
+        std::string path = keyValues.find("path")->second;
+
+        auto textureImage = g_resourceManager->getResource<render::Image>(path.c_str(), ResourceManager::LoadMode::ASYNC);
+        if (!textureImage)
+            return nullptr;
+
+        return make_shared<render::Texture2D>(textureImage);
+    }
+    else if (type == "TEXTURE_CUBE")
+    {
+        std::string negativex = keyValues.find("negative_x")->second;
+        std::string positivex = keyValues.find("positive_x")->second;
+        std::string negativey = keyValues.find("negative_y")->second;
+        std::string positivey = keyValues.find("positive_y")->second;
+        std::string negativez = keyValues.find("negative_z")->second;
+        std::string positivez = keyValues.find("positive_z")->second;
+
+        auto negativeXImage = g_resourceManager->getResource<render::Image>(negativex.c_str(), ResourceManager::LoadMode::ASYNC);
+        auto positiveXImage = g_resourceManager->getResource<render::Image>(positivex.c_str(), ResourceManager::LoadMode::ASYNC);
+        auto negativeYImage = g_resourceManager->getResource<render::Image>(negativey.c_str(), ResourceManager::LoadMode::ASYNC);
+        auto positiveYImage = g_resourceManager->getResource<render::Image>(positivey.c_str(), ResourceManager::LoadMode::ASYNC);
+        auto negativeZImage = g_resourceManager->getResource<render::Image>(negativez.c_str(), ResourceManager::LoadMode::ASYNC);
+        auto positiveZImage = g_resourceManager->getResource<render::Image>(positivez.c_str(), ResourceManager::LoadMode::ASYNC);
+
+        return make_shared<render::TextureCube>(positiveXImage, negativeXImage, positiveYImage, negativeYImage, positiveZImage, negativeZImage);
+    }
+
+    base::glog << "Unknown texture type" << type << base::logwarn;
+    return nullptr;
+
+    // TODO: other types are:
+    // TEXTURE_1D TEXTURE_2D TEXTURE_3D 
+}
+
+void setTextureBaseParams(shared_ptr<render::Texture> texture, const std::map<std::string, std::string> keyValues, const std::string &libName)
+{
+    for (const auto &keyval : keyValues)
+    {
+        if (keyval.first == "filtering")
+        {
+            std::function<void(render::Texture::Filtering)> fn = std::bind(&render::Texture::setFilteringMode, texture.get(), std::placeholders::_1);
+            setPassParam(keyval.first, keyval.second, textureFilteringValues, fn, libName);
+        }
+        else if (keyval.first == "wrap_mode")
+        {
+            std::function<void(render::Texture::WrapMode)> fn = std::bind(&render::Texture::setWrapMode, texture.get(), std::placeholders::_1);
+            setPassParam(keyval.first, keyval.second, textureWrapValues, fn, libName);
+        }
+        else if (keyval.first == "mipmaps")
+        {
+            std::function<void(bool)> fn = std::bind(&render::Texture::setMipmapped, texture.get(), std::placeholders::_1);
+            setPassParam(keyval.first, keyval.second, boolValues, fn, libName);
+        }
+        else if (keyval.first == "anisotropy")
+        {
+            if (keyval.second == "max")
+            {
+                texture->setMaxAnisotropy(render::ANISOTROPY_LEVEL_MAX);
+            }
+            else
+            {
+                auto anisotropyLevel = boost::lexical_cast<int>(keyval.second);
+                texture->setMaxAnisotropy(anisotropyLevel);
+            }
+        }
+    }
+}
+
 const std::string MATERIAL_TYPE = "material";
 const std::string TECHNIQUE_TYPE = "technique";
 const std::string PASS_TYPE = "pass";
@@ -111,21 +175,6 @@ const std::string NodesTypes[] = {
     SAMPLER_TYPE,
     SHADER_PARAMS_TYPE
 };
-
-template<typename ...Args>
-shared_ptr<render::Texture> createTextureOfType(const std::string &type, Args&&... args)
-{
-    if (type == "TEXTURE_2D")
-    {
-        return make_shared<render::Texture2D>(std::forward<Args>(args)...);
-    }
-
-    base::glog << "Unknown texture type" << type << base::logwarn;
-    return nullptr;
-    
-    // TODO: other types are:
-    // TEXTURE_1D TEXTURE_2D TEXTURE_3D TEXTURE_CUBE
-}
 
 struct MaterialLibNode
 {
@@ -447,51 +496,14 @@ void DecoderMTL::parseShaderParamsNode(MaterialLibNode &node, shared_ptr<render:
 
 shared_ptr<render::Texture> DecoderMTL::parseSamplerNode(MaterialLibNode &node)
 {
-    std::string path = node.keyValues["path"];
-
-    auto textureImage = g_resourceManager->getResource<render::Image>(path.c_str(), ResourceManager::LoadMode::ASYNC);
-    if (!textureImage)
-        return nullptr;
-
-    // FIXME:
-    // Only 2D textures for now.
-    auto texture = createTextureOfType("TEXTURE_2D", textureImage);
-
-    std::string textureType;
-    for (auto &keyval : node.keyValues)
+    if (!utils::contains_key(node.keyValues, "type"))
     {
-        if (keyval.first == "type")
-        {
-            textureType = keyval.second;
-        }
-        else if (keyval.first == "filtering")
-        {
-            std::function<void(render::Texture::Filtering)> fn = std::bind(&render::Texture::setFilteringMode, texture.get(), std::placeholders::_1);
-            setPassParam(keyval.first, keyval.second, textureFilteringValues, fn, m_libName);
-        }
-        else if (keyval.first == "wrap_mode")
-        {
-            std::function<void(render::Texture::WrapMode)> fn = std::bind(&render::Texture::setWrapMode, texture.get(), std::placeholders::_1);
-            setPassParam(keyval.first, keyval.second, textureWrapValues, fn, m_libName);
-        }
-        else if (keyval.first == "mipmaps")
-        {
-            std::function<void(bool)> fn = std::bind(&render::Texture::setMipmapped, texture.get(), std::placeholders::_1);
-            setPassParam(keyval.first, keyval.second, boolValues, fn, m_libName);
-        }
-        else if (keyval.first == "anisotropy")
-        {
-            if (keyval.second == "max")
-            {
-                texture->setMaxAnisotropy(render::ANISOTROPY_LEVEL_MAX);
-            }
-            else
-            {
-                auto anisotropyLevel = boost::lexical_cast<int>(keyval.second);
-                texture->setMaxAnisotropy(anisotropyLevel);
-            }
-        }
+        base::glog << "Can not parse sampler. Missing texture type." << base::logwarn;
+        return nullptr;
     }
+
+    auto texture = createTextureOfType(node.keyValues["type"], node.keyValues);
+    setTextureBaseParams(texture, node.keyValues, m_libName);
 
     return texture;
 }

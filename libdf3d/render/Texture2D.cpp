@@ -38,14 +38,8 @@ bool Texture2D::createGLTexture()
     glBindTexture(GL_TEXTURE_2D, m_glid);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    auto wrapMode = getGlWrapMode(m_wrapMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
-#if defined(__WINDOWS__) || defined(__linux__)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, wrapMode);
-#endif
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_filteringMode == Filtering::NEAREST ? GL_NEAREST : GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, getGlFilteringMode(m_filteringMode, m_mipmapped));
+    setupGlWrapMode(GL_TEXTURE_2D, m_wrapMode);
+    setupGlTextureFiltering(GL_TEXTURE_2D, m_filteringMode, m_mipmapped);
 
     GLint glPixelFormat = 0;
     switch (m_image->pixelFormat())

@@ -55,6 +55,22 @@ GLint Texture::getGlWrapMode(Texture::WrapMode mode)
     return -1;
 }
 
+void Texture::setupGlTextureFiltering(GLenum glType, Filtering filtering, bool mipmapped)
+{
+    glTexParameteri(glType, GL_TEXTURE_MAG_FILTER, filtering == Filtering::NEAREST ? GL_NEAREST : GL_LINEAR);
+    glTexParameteri(glType, GL_TEXTURE_MIN_FILTER, getGlFilteringMode(filtering, mipmapped));
+}
+
+void Texture::setupGlWrapMode(GLenum glType, WrapMode wrapMode)
+{
+    auto wmGl = getGlWrapMode(wrapMode);
+    glTexParameteri(glType, GL_TEXTURE_WRAP_S, wmGl);
+    glTexParameteri(glType, GL_TEXTURE_WRAP_T, wmGl);
+#if defined(__WINDOWS__) || defined(__linux__)
+    glTexParameteri(glType, GL_TEXTURE_WRAP_R, wmGl);
+#endif
+}
+
 Texture::Texture()
 {
 

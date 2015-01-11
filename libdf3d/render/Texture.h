@@ -31,10 +31,14 @@ protected:
     // GL data.
     GLuint m_glid = 0;
 
-    bool isPot(size_t v);
-    size_t getNextPot(size_t v);
+    // Helpers.
+    static bool isPot(size_t v);
+    static size_t getNextPot(size_t v);
     static GLint getGlFilteringMode(Filtering filtering, bool mipmapped);
     static GLint getGlWrapMode(WrapMode mode);
+
+    static void setupGlTextureFiltering(GLenum glType, Filtering filtering, bool mipmapped);
+    static void setupGlWrapMode(GLenum glType, WrapMode wrapMode);
 
 public:
     Texture();
