@@ -29,6 +29,7 @@ public:
 protected:
     std::string m_nodeName;
     bool m_visible = true;
+    void *m_userPointer = nullptr;
 
     shared_ptr<components::NodeComponent> m_components[components::COUNT];
 
@@ -49,6 +50,9 @@ public:
 
     void setVisible(bool visible) { m_visible = visible; }
     bool isVisible() const { return m_visible; }
+
+    void setUserPointer(void *userPointer) { m_userPointer = userPointer; }
+    void *getUserPointer() const { return m_userPointer; }
 
     void update(float dt);
     void draw(render::RenderQueue *ops);

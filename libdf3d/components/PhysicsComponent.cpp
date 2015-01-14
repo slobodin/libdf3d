@@ -126,6 +126,8 @@ void PhysicsComponent::onAttached()
         g_physicsWorld->addRigidBody(body, m_creationParams.group, m_creationParams.mask);
     else 
         g_physicsWorld->addRigidBody(body);
+
+    body->setUserPointer(m_holder);
 }
 
 PhysicsComponent::PhysicsComponent(const CreationParams &params)
