@@ -364,6 +364,35 @@ AL_API ALvoid AL_APIENTRY alProcessUpdatesSOFT(void);
 #endif
 #endif
 
+#ifndef AL_SOFT_block_alignment
+#define AL_SOFT_block_alignment 1
+#define AL_UNPACK_BLOCK_ALIGNMENT_SOFT           0x200C
+#define AL_PACK_BLOCK_ALIGNMENT_SOFT             0x200D
+#endif
+
+#ifndef AL_SOFT_MSADPCM
+#define AL_SOFT_MSADPCM 1
+#define AL_FORMAT_MONO_MSADPCM_SOFT              0x1302
+#define AL_FORMAT_STEREO_MSADPCM_SOFT            0x1303
+#endif
+
+#ifndef AL_SOFT_source_length
+#define AL_SOFT_source_length 1
+/*#define AL_BYTE_LENGTH_SOFT                      0x2009*/
+/*#define AL_SAMPLE_LENGTH_SOFT                    0x200A*/
+/*#define AL_SEC_LENGTH_SOFT                       0x200B*/
+#endif
+
+#ifndef ALC_SOFT_pause_device
+#define ALC_SOFT_pause_device 1
+typedef void (ALC_APIENTRY*LPALCDEVICEPAUSESOFT)(ALCdevice *device);
+typedef void (ALC_APIENTRY*LPALCDEVICERESUMESOFT)(ALCdevice *device);
+#ifdef AL_ALEXT_PROTOTYPES
+ALC_API void ALC_APIENTRY alcDevicePauseSOFT(ALCdevice *device);
+ALC_API void ALC_APIENTRY alcDeviceResumeSOFT(ALCdevice *device);
+#endif
+#endif
+
 #ifdef __cplusplus
 }
 #endif

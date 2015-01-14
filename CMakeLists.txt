@@ -236,10 +236,8 @@ set(third_party_SRC_FILES
 )
 
 find_package(OpenGL REQUIRED)
-find_package(OpenAL REQUIRED)
 find_package(Boost REQUIRED)
 find_package(CEGUI REQUIRED)
-find_package(GLEW REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/include
@@ -247,6 +245,7 @@ include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${CEGUI_INCLUDE_DIRS})
 
 if (WIN32)
+    find_package(GLEW REQUIRED)
     include_directories(${GLEW_INCLUDE_DIRS})
 endif(WIN32)
 
@@ -264,9 +263,9 @@ target_link_libraries(libdf3d
     libvorbis
     lua
     ${OPENGL_LIBRARIES}
-    ${OPENAL_LIBRARY}
     ${CEGUI_LIBRARY})
 
 if (WIN32)
     target_link_libraries(libdf3d ${GLEW_LIBRARIES})
+    target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/OpenAL32.lib)
 endif(WIN32)
