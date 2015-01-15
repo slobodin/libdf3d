@@ -10,16 +10,16 @@ LuaScriptManager::LuaScriptManager()
 {
     base::glog << "Initializing Lua" << base::logmess;
 
-    m_luaState = luaL_newstate();
-    if (!m_luaState)
-        throw std::runtime_error("Failed to create lua state.");
+    //m_luaState = luaL_newstate();
+    //if (!m_luaState)
+    //    throw std::runtime_error("Failed to create lua state.");
 
-    luaL_openlibs(m_luaState);
+    //luaL_openlibs(m_luaState);
 }
 
 LuaScriptManager::~LuaScriptManager()
 {
-    lua_close(m_luaState);
+    //lua_close(m_luaState);
 }
 
 bool LuaScriptManager::doFile(const char *fileName)
@@ -28,11 +28,11 @@ bool LuaScriptManager::doFile(const char *fileName)
 
     base::glog << "Executing" << fullp << base::logdebug;
 
-    if (luaL_dofile(m_luaState, fullp.c_str()))
-    {
-        base::glog << "Lua script execution failed due to" << lua_tostring(m_luaState, -1) << base::logwarn;
-        return false;
-    }
+    //if (luaL_dofile(m_luaState, fullp.c_str()))
+    //{
+    //    base::glog << "Lua script execution failed due to" << lua_tostring(m_luaState, -1) << base::logwarn;
+    //    return false;
+    //}
 
     return true;
 }
