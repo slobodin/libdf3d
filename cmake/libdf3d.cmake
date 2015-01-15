@@ -1,0 +1,13 @@
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    if (${CMAKE_SYSTEM_NAME} STREQUAL "WindowsPhone")
+        set(WINDOWS_PHONE true)
+        message(STATUS "Platform - WindowsPhone")
+    else()
+        set(WINDOWS true)
+        message(STATUS "Platform - Windows")
+    endif()
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
+else()
+    message(FATAL_ERROR "Unknown system.")
+endif()
