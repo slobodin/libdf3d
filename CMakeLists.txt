@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(libdf3d)
 
+include(${PROJECT_SOURCE_DIR}/cmake/libdf3d.cmake)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/bullet)
@@ -58,8 +60,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/Application.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsApplication.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsKeyCodes.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.h
@@ -156,8 +156,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/Application.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsApplication.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsKeyCodes.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.cpp
@@ -211,14 +209,14 @@ set(libdf3d_SRC_LIST
 
 add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD)
 
-if (WIN32 AND NOT CMAKE_PREFIX_PATH)
+if (NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party" CACHE PATH "third-party")
 endif()
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200 /wd\"4251\" /wd\"4457\" /wd\"4458\"")
 
-    add_definitions(-DWIN32 -D_WINDOWS -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS)
 
     set(PRECOMPILED_H ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.h)
     set(PRECOMPILED_CPP ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.cpp)
@@ -235,7 +233,30 @@ set(third_party_SRC_FILES
     ${PROJECT_SOURCE_DIR}/third-party/src/lib_json/jsoncpp.cpp
 )
 
-find_package(OpenGL REQUIRED)
+if (WINDOWS)
+    add_definitions(-DWIN32 -D_WINDOWS -DDF3D_WINDOWS)
+
+    list(APPEND libdf3d_HEADER_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsApplication.h
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsKeyCodes.h
+    )
+    list(APPEND libdf3d_SRC_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsApplication.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsKeyCodes.cpp
+    )
+endif()
+
+if (WINDOWS_PHONE)
+    add_definitions(-DDF3D_WINDOWS_PHONE)
+
+    list(APPEND libdf3d_HEADER_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneApplication.h
+    )
+    list(APPEND libdf3d_SRC_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneApplication.cpp
+    )
+endif()
+
 find_package(Boost REQUIRED)
 find_package(CEGUI REQUIRED)
 
@@ -244,16 +265,17 @@ include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${Boost_INCLUDE_DIRS}
                     ${CEGUI_INCLUDE_DIRS})
 
-if (WIN32)
+if (WINDOWS)
+    find_package(OpenGL REQUIRED)
     find_package(GLEW REQUIRED)
     include_directories(${GLEW_INCLUDE_DIRS})
-endif(WIN32)
+endif(WINDOWS)
 
 add_library(libdf3d SHARED
+    ${libdf3d_HEADER_LIST}
     ${libdf3d_SRC_LIST}
     ${third_party_SRC_FILES}
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.cpp
-    ${libdf3d_HEADER_LIST}
 )
 
 target_link_libraries(libdf3d
@@ -262,10 +284,10 @@ target_link_libraries(libdf3d
     libspark
     libvorbis
     lua
-    ${OPENGL_LIBRARIES}
     ${CEGUI_LIBRARY})
 
-if (WIN32)
+if (WINDOWS)
+    target_link_libraries(libdf3d ${OPENGL_LIBRARIES})
     target_link_libraries(libdf3d ${GLEW_LIBRARIES})
     target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/OpenAL32.lib)
-endif(WIN32)
+endif(WINDOWS)
