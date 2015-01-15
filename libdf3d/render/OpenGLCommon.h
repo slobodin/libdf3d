@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(__WINDOWS__)
+#if defined(DF3D_WINDOWS)
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GL/GL.h>
@@ -9,6 +9,10 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <EGL/egl.h>
+elif defined(DF3D_WINDOWS_PHONE)
+#error "Unsupported"
+#else
+#error "Unsupported platform"
 #endif
 
 namespace df3d { namespace render {

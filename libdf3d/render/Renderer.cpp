@@ -177,7 +177,7 @@ void Renderer::setPolygonDrawMode(RenderPass::PolygonMode pm)
         return;
 
     // Doesn't work in OpenGL ES 2.x
-#if defined(__WINDOWS__)
+#if defined(DF3D_WINDOWS)
     switch (pm)
     {
     case RenderPass::PolygonMode::FILL:
@@ -236,7 +236,7 @@ void Renderer::updateTextureSamplers()
 Renderer::Renderer()
     : m_programState(new GpuProgramState())
 {
-#if defined(__WINDOWS__)
+#if defined(DF3D_WINDOWS)
     glewExperimental = GL_TRUE;
 
     auto glewerr = glewInit();

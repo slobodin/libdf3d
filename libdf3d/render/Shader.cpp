@@ -74,7 +74,7 @@ bool Shader::compile()
     std::string shaderData = precisionPrefix;
     shaderData += m_shaderData;
 
-#ifdef __WINDOWS__
+#ifdef DF3D_WINDOWS
     const char *src[2] = { "#version 110\n", shaderData.c_str() };
     glShaderSource(m_shaderDescriptor, 2, src, nullptr);
 #else

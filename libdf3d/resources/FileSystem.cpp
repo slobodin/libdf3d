@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "FileSystem.h"
 
-#if defined(__WINDOWS__)
+#if defined(DF3D_WINDOWS)
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
@@ -12,7 +12,7 @@ namespace df3d { namespace resources {
 
 bool isPathAbsolute(const std::string &path)
 {
-#if defined(__WINDOWS__)
+#if defined(DF3D_WINDOWS)
     if (path.size() < 2)
         return false;
 
@@ -41,7 +41,7 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
     if (rawPath.empty())
         return "";
 
-#if defined(__WINDOWS__)
+#if defined(DF3D_WINDOWS)
     if (!pathExists(rawPath))
         return "";
 #endif
@@ -92,7 +92,7 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
 
 bool FileSystem::pathExists(const std::string &path)
 {
-#if defined(__WINDOWS__)
+#if defined(DF3D_WINDOWS)
     DWORD attrs = GetFileAttributesA(path.c_str());
 
     return (attrs != INVALID_FILE_ATTRIBUTES && !(attrs & FILE_ATTRIBUTE_DIRECTORY));

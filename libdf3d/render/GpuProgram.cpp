@@ -26,7 +26,7 @@ void gpuProgramLog(unsigned int program)
 
 bool isSampler(GLenum type)
 {
-#if defined(__WINDOWS__)
+#if defined(DF3D_WINDOWS)
     return type == GL_SAMPLER_1D || type == GL_SAMPLER_2D || type == GL_SAMPLER_3D || type == GL_SAMPLER_CUBE;
 #elif defined(__ANDROID__)
     return type == GL_SAMPLER_2D || type == GL_SAMPLER_CUBE;

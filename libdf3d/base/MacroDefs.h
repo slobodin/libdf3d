@@ -16,10 +16,3 @@ static const int DEFAULT_WINDOW_HEIGHT = 480;
 #if defined(min)
 #undef min
 #endif
-
-#ifdef _WIN32
-#define __WINDOWS__
-#endif
-
-// TODO:
-// other platforms

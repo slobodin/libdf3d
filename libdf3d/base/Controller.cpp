@@ -20,7 +20,7 @@
 #include <utils/JsonHelpers.h>
 #include <particlesys/SparkInterface.h>
 
-#if defined(__WINDOWS__)
+#if defined(DF3D_WINDOWS)
 #define ENABLE_DEBUG_WINDOW
 #endif
 
@@ -72,7 +72,7 @@ void Controller::consoleCommandInvoked(const std::string &name, std::string &res
 
 void Controller::parseConfig(EngineInitParams &config)
 {
-#if defined(__WINDOWS__)
+#if defined(DF3D_WINDOWS)
     if (!config.configFile)
         return;
 

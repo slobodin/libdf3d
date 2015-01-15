@@ -126,7 +126,7 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
 RenderManager::RenderManager(RenderManagerInitParams params)
     : m_renderQueue(make_unique<RenderQueue>())
 {
-#if defined(__WINDOWS__) || defined(__ANDROID__)
+#if defined(DF3D_WINDOWS) || defined(__ANDROID__)
     m_renderer = make_unique<Renderer>();
 #else
 #error "Unsupported platform"

@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(WIN32)
+#if defined(DF3D_WINDOWS) || defined(DF3D_WINDOWS_PHONE)
 #if defined(LIBDF3D_EXPORTS)
 #define DF3D_DLL __declspec(dllexport)
 #else

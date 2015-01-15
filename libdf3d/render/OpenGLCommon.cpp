@@ -5,7 +5,7 @@ namespace df3d { namespace render {
 
 std::string checkGLError()
 {
-#if defined(__WINDOWS__)
+#if defined(DF3D_WINDOWS)
     std::string errString;
 
     GLenum errCode = glGetError();
@@ -22,7 +22,7 @@ std::string checkGLError()
 
 void checkAndPrintGLError(const char *file, int line)
 {
-#if defined(__WINDOWS__) && defined(_DEBUG)
+#if defined(DF3D_WINDOWS) && defined(_DEBUG)
     auto err = checkGLError();
     if (!err.empty())
         base::glog << "OpenGL error:" << err << ". File:" << file << ". Line:" << line << base::logwarn;
