@@ -234,7 +234,7 @@ set(third_party_SRC_FILES
 )
 
 if (WINDOWS)
-    add_definitions(-DWIN32 -D_WINDOWS -DDF3D_WINDOWS)
+    add_definitions(-DWIN32 -D_WINDOWS -DDF3D_WINDOWS -DBULLET_FORCE_NO_ALIGNMENT)
 
     list(APPEND libdf3d_HEADER_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsApplication.h
@@ -247,7 +247,7 @@ if (WINDOWS)
 endif()
 
 if (WINDOWS_PHONE)
-    add_definitions(-DDF3D_WINDOWS_PHONE)
+    add_definitions(-DDF3D_WINDOWS_PHONE -DBULLET_FORCE_NO_ALIGNMENT)
 
     list(APPEND libdf3d_HEADER_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneApplication.h
