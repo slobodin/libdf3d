@@ -3,6 +3,11 @@
 
 namespace df3d { namespace platform {
 
+struct WindowsPhoneApplication::Impl
+{
+
+};
+
 WindowsPhoneApplication::WindowsPhoneApplication(const AppInitParams &params)
 {
 
@@ -15,7 +20,7 @@ WindowsPhoneApplication::~WindowsPhoneApplication()
 
 bool WindowsPhoneApplication::pollEvents()
 {
-
+    return false;
 }
 
 void WindowsPhoneApplication::swapBuffers()

@@ -140,7 +140,7 @@ void TextMeshComponent::drawText(const char *text, const glm::vec4 &color)
 
 glm::vec2 TextMeshComponent::getTextLength(const char *text)
 {
-    int w, h;
+    int w = 0, h = 0;
     //TTF_SizeUTF8(m_font, text, &w, &h);
     
     return glm::vec2((float)w, (float)h);
