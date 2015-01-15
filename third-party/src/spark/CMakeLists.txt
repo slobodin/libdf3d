@@ -141,9 +141,16 @@ set(libspark_SRC_LIST
 include_directories(${PROJECT_SOURCE_DIR}/../../include/spark)
 
 if(MSVC)
-    add_definitions(-DWIN32)
-
     set_source_files_properties(${libspark_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4456\" /wd\"4838\" /wd\"4457\" /wd\"4458\"")
 endif(MSVC)
+
+if (WINDOWS)
+    add_definitions(-DWIN32 -DDF3D_WINDOWS)
+endif()
+
+if (WINDOWS_PHONE)
+    add_definitions(-DDF3D_WINDOWS_PHONE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+endif()
 
 add_library(libspark STATIC ${libspark_SRC_LIST} ${libspark_HEADER_LIST})

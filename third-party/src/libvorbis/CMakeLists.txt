@@ -39,9 +39,17 @@ include_directories(${PROJECT_SOURCE_DIR}/../../include)
 include_directories(${PROJECT_SOURCE_DIR}/../../src/libvorbis)
 
 if(MSVC)
-    add_definitions(-DWIN32 -D_CRT_SECURE_NO_WARNINGS)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
     set_source_files_properties(${libvorbis_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4456\" /wd\"4457\" /wd\"4458\" /wd\"4244\" /wd\"4305\"")
 endif(MSVC)
+
+if (WINDOWS)
+    add_definitions(-DWIN32 -DDF3D_WINDOWS)
+endif()
+
+if (WINDOWS_PHONE)
+    add_definitions(-DDF3D_WINDOWS_PHONE)
+endif()
 
 add_library(libvorbis STATIC ${libvorbis_SRC_LIST} ${libvorbis_HEADER_LIST})
