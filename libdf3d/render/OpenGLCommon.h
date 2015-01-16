@@ -9,8 +9,8 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <EGL/egl.h>
-elif defined(DF3D_WINDOWS_PHONE)
-#error "Unsupported"
+#elif defined(DF3D_WINDOWS_PHONE)
+#include <angle/angle_gl.h>
 #else
 #error "Unsupported platform"
 #endif

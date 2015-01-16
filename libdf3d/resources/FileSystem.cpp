@@ -4,6 +4,8 @@
 #if defined(DF3D_WINDOWS)
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#elif defined(DF3D_WINDOWS_PHONE)
+#include <wrl.h>
 #endif
 
 #include "FileDataSource.h"
@@ -12,7 +14,7 @@ namespace df3d { namespace resources {
 
 bool isPathAbsolute(const std::string &path)
 {
-#if defined(DF3D_WINDOWS)
+#if defined(DF3D_WINDOWS) || defined(DF3D_WINDOWS_PHONE)
     if (path.size() < 2)
         return false;
 
@@ -41,7 +43,7 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
     if (rawPath.empty())
         return "";
 
-#if defined(DF3D_WINDOWS)
+#if defined(DF3D_WINDOWS) || defined(DF3D_WINDOWS_PHONE)
     if (!pathExists(rawPath))
         return "";
 #endif
@@ -93,7 +95,7 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
 bool FileSystem::pathExists(const std::string &path)
 {
 #if defined(DF3D_WINDOWS)
-    DWORD attrs = GetFileAttributesA(path.c_str());
+    DWORD attrs = GetFileAttributes(path.c_str());
 
     return (attrs != INVALID_FILE_ATTRIBUTES && !(attrs & FILE_ATTRIBUTE_DIRECTORY));
 #elif defined(__ANDROID__)
@@ -103,6 +105,8 @@ bool FileSystem::pathExists(const std::string &path)
     // TODO:
     // Search in assets folder first.
     return FileDataSource(path.c_str()).valid();
+#elif defined(DF3D_WINDOWS_PHONE)
+    return false;
 #else
 #error Not implemented.
 #endif
