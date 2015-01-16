@@ -246,6 +246,8 @@ if (WINDOWS)
 endif()
 
 if (WINDOWS_PHONE)
+    include_directories(${PROJECT_SOURCE_DIR}/third-party/include/angle)
+
     add_definitions(-DDF3D_WINDOWS_PHONE -DBULLET_FORCE_NO_ALIGNMENT)
 
     list(APPEND libdf3d_HEADER_LIST
