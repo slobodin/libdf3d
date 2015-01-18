@@ -4,8 +4,6 @@ project(libdf3d)
 
 include(${PROJECT_SOURCE_DIR}/cmake/libdf3d.cmake)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
-
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/bullet)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libogg)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libvorbis)
@@ -259,12 +257,10 @@ if (WINDOWS_PHONE)
 endif()
 
 find_package(Boost REQUIRED)
-find_package(CEGUI REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/include
-                    ${Boost_INCLUDE_DIRS}
-                    ${CEGUI_INCLUDE_DIRS})
+                    ${Boost_INCLUDE_DIRS})
 
 if (WINDOWS)
     find_package(OpenGL REQUIRED)
@@ -283,11 +279,25 @@ target_link_libraries(libdf3d
     BulletPhysics
     libogg
     libspark
-    libvorbis
-    ${CEGUI_LIBRARY})
+    libvorbis)
 
 if (WINDOWS)
     target_link_libraries(libdf3d ${OPENGL_LIBRARIES})
     target_link_libraries(libdf3d ${GLEW_LIBRARIES})
     target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/OpenAL32.lib)
+
+    if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
+        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUIBase-0_d.lib)
+        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUICommonDialogs-0_d.lib)
+        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUICoreWindowRendererSet_d.lib)
+        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUIExpatParser_d.lib)
+        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUISTBImageCodec_d.lib)
+    else()
+        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUIBase-0.lib)
+        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUICommonDialogs-0.lib)
+        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUICoreWindowRendererSet.lib)
+        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUIExpatParser.lib)
+        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUISTBImageCodec.lib)
+    endif()
+
 endif(WINDOWS)
