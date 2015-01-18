@@ -11,6 +11,8 @@
 #include <EGL/egl.h>
 #elif defined(DF3D_WINDOWS_PHONE)
 #include <angle/angle_gl.h>
+#include <angle/EGL/egl.h>
+#include <angle/EGL/eglext.h>
 #else
 #error "Unsupported platform"
 #endif
