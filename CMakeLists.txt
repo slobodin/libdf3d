@@ -286,7 +286,7 @@ if (WINDOWS)
     target_link_libraries(libdf3d ${GLEW_LIBRARIES})
     target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/OpenAL32.lib)
 
-    if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUIBase-0_d.lib)
         target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUICommonDialogs-0_d.lib)
         target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUICoreWindowRendererSet_d.lib)
