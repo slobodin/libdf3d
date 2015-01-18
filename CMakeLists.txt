@@ -210,6 +210,12 @@ if (NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party" CACHE PATH "third-party")
 endif()
 
+if (WINDOWS)
+    set(PREBUILT_LIBRARIES_PATH ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32)
+elseif (WINDOWS_PHONE)
+    set(PREBUILT_LIBRARIES_PATH ${PROJECT_SOURCE_DIR}/third-party/prebuilt/wp_81)
+endif()
+
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200 /wd\"4251\" /wd\"4457\" /wd\"4458\"")
 
@@ -247,13 +253,6 @@ if (WINDOWS_PHONE)
     include_directories(${PROJECT_SOURCE_DIR}/third-party/include/angle)
 
     add_definitions(-DDF3D_WINDOWS_PHONE -DBULLET_FORCE_NO_ALIGNMENT)
-
-    list(APPEND libdf3d_HEADER_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneApplication.h
-    )
-    list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneApplication.cpp
-    )
 endif()
 
 find_package(Boost REQUIRED)
@@ -284,20 +283,25 @@ target_link_libraries(libdf3d
 if (WINDOWS)
     target_link_libraries(libdf3d ${OPENGL_LIBRARIES})
     target_link_libraries(libdf3d ${GLEW_LIBRARIES})
-    target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/OpenAL32.lib)
-
-    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUIBase-0_d.lib)
-        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUICommonDialogs-0_d.lib)
-        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUICoreWindowRendererSet_d.lib)
-        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUIExpatParser_d.lib)
-        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUISTBImageCodec_d.lib)
-    else()
-        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUIBase-0.lib)
-        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUICommonDialogs-0.lib)
-        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUICoreWindowRendererSet.lib)
-        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUIExpatParser.lib)
-        target_link_libraries(libdf3d ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32/CEGUISTBImageCodec.lib)
-    endif()
-
+    target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/OpenAL32.lib)
 endif(WINDOWS)
+
+if (WINDOWS OR WINDOWS_PHONE)
+    function(link_with_cegui library_name)
+        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+            target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/${library_name}_d.lib)
+        else()
+            target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/${library_name}.lib)
+        endif()
+    endfunction()
+
+    link_with_cegui(CEGUIBase-0)
+    link_with_cegui(CEGUICommonDialogs-0)
+    link_with_cegui(CEGUICoreWindowRendererSet)
+    link_with_cegui(CEGUIExpatParser)
+    link_with_cegui(CEGUISTBImageCodec)
+endif()
+
+if (WINDOWS_PHONE)
+    target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/libGLESv2.lib)
+endif()
