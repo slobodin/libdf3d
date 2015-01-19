@@ -4,9 +4,6 @@ FWD_MODULE_CLASS(base, Controller)
 
 namespace df3d { namespace resources {
 
-// TODO:
-// Work on Android
-
 class FileDataSource;
 
 class DF3D_DLL FileSystem : boost::noncopyable
@@ -22,7 +19,6 @@ class DF3D_DLL FileSystem : boost::noncopyable
     mutable std::unordered_map<std::string, std::string> m_fullPathsCache;
 
     static std::string canonicalPath(const std::string &rawPath);
-    static bool pathExists(const std::string &path);
 
 public:
     shared_ptr<FileDataSource> openFile(const char *filePath);

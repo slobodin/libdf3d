@@ -1,33 +1,17 @@
 #include "df3d_pch.h"
 #include "FileSystem.h"
 
-#if defined(DF3D_WINDOWS)
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#elif defined(DF3D_WINDOWS_PHONE)
-#include <wrl.h>
-#endif
-
 #include "FileDataSource.h"
 
-namespace df3d { namespace resources {
-
-bool isPathAbsolute(const std::string &path)
-{
-#if defined(DF3D_WINDOWS) || defined(DF3D_WINDOWS_PHONE)
-    if (path.size() < 2)
-        return false;
-
-    return path[1] == ':' && ((path[0] >= 'a' && path[0] <= 'z') || (path[0] >= 'A' || path[0] <= 'Z'));
-#elif defined(__ANDROID__)
-    if (path.empty())
-        return false;
-
-    return path[0] == '/';
+#if defined(DF3D_WINDOWS)
+#include <platform/windows/WindowsFileSystemHelpers.h>
+#elif defined(DF3D_WINDOWS_PHONE)
+#include <platform/windows_phone/WindowsPhoneFileSystemHelpers.h>
 #else
-#error Not implemented.
+#error "Not implemented"
 #endif
-}
+
+namespace df3d { namespace resources {
 
 FileSystem::FileSystem()
 {
@@ -36,6 +20,7 @@ FileSystem::FileSystem()
 
 FileSystem::~FileSystem()
 {
+
 }
 
 std::string FileSystem::canonicalPath(const std::string &rawPath)
@@ -43,10 +28,8 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
     if (rawPath.empty())
         return "";
 
-#if defined(DF3D_WINDOWS) || defined(DF3D_WINDOWS_PHONE)
-    if (!pathExists(rawPath))
+    if (!platform::FileSystemHelpers::pathExists(rawPath))
         return "";
-#endif
 
     auto result = rawPath;
 
@@ -84,32 +67,7 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
     if (result.size() >= 2 && result[0] == '/' && result[1] != '/')
         result.erase(0, 1);
 
-#if defined(__ANDROID__)
-    if (!pathExists(result))
-        return "";
-#endif
-
     return result;
-}
-
-bool FileSystem::pathExists(const std::string &path)
-{
-#if defined(DF3D_WINDOWS)
-    DWORD attrs = GetFileAttributes(path.c_str());
-
-    return (attrs != INVALID_FILE_ATTRIBUTES && !(attrs & FILE_ATTRIBUTE_DIRECTORY));
-#elif defined(__ANDROID__)
-    if (path.empty())
-        return false;
-
-    // TODO:
-    // Search in assets folder first.
-    return FileDataSource(path.c_str()).valid();
-#elif defined(DF3D_WINDOWS_PHONE)
-    return false;
-#else
-#error Not implemented.
-#endif
 }
 
 shared_ptr<FileDataSource> FileSystem::openFile(const char *filePath)
@@ -192,7 +150,7 @@ std::string FileSystem::pathConcatenate(const std::string &fp1, const std::strin
     if (fp2.empty())
         return fp1;
 
-    if (isPathAbsolute(fp2))
+    if (platform::FileSystemHelpers::isPathAbsolute(fp2))
         return "";
 
     if (fp2[0] == '\\' || fp2[0] == '/')

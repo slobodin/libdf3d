@@ -242,10 +242,12 @@ if (WINDOWS)
     list(APPEND libdf3d_HEADER_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsApplication.h
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsKeyCodes.h
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsFileSystemHelpers.h
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsApplication.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsKeyCodes.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsFileSystemHelpers.cpp
     )
 endif()
 
@@ -253,6 +255,13 @@ if (WINDOWS_PHONE)
     include_directories(${PROJECT_SOURCE_DIR}/third-party/include/angle)
 
     add_definitions(-DDF3D_WINDOWS_PHONE -DBULLET_FORCE_NO_ALIGNMENT)
+
+    list(APPEND libdf3d_HEADER_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneFileSystemHelpers.h
+    )
+    list(APPEND libdf3d_SRC_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneFileSystemHelpers.cpp
+    )
 endif()
 
 find_package(Boost REQUIRED)
