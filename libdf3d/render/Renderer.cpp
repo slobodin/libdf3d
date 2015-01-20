@@ -236,21 +236,6 @@ void Renderer::updateTextureSamplers()
 Renderer::Renderer()
     : m_programState(new GpuProgramState())
 {
-#if defined(DF3D_WINDOWS)
-    glewExperimental = GL_TRUE;
-
-    auto glewerr = glewInit();
-    if (glewerr != GLEW_OK)
-    {
-        std::string errStr = "GLEW initialization failed: ";
-        errStr += (const char *)glewGetErrorString(glewerr);
-        throw std::runtime_error(errStr);
-    }
-
-    if (!glewIsSupported("GL_VERSION_2_1"))
-        throw std::runtime_error("GL 2.1 unsupported");
-#endif
-
     const char *ver = (const char *)glGetString(GL_VERSION);
     base::glog << "OpenGL version" << ver << base::logmess;
 

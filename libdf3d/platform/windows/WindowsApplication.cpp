@@ -4,6 +4,9 @@
 #include <base/Controller.h>
 #include "WindowsKeyCodes.h"
 
+#define GLEW_STATIC
+#include <GL/glew.h>
+
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
@@ -300,6 +303,20 @@ WindowsApplication::WindowsApplication(const AppInitParams &params)
     : m_pImpl(make_unique<Impl>())
 {
     m_pImpl->window = make_unique<AppWindow>(params);
+
+    // Init glew.
+    glewExperimental = GL_TRUE;
+
+    auto glewerr = glewInit();
+    if (glewerr != GLEW_OK)
+    {
+        std::string errStr = "GLEW initialization failed: ";
+        errStr += (const char *)glewGetErrorString(glewerr);
+        throw std::runtime_error(errStr);
+    }
+
+    if (!glewIsSupported("GL_VERSION_2_1"))
+        throw std::runtime_error("GL 2.1 unsupported");
 }
 
 WindowsApplication::~WindowsApplication()
