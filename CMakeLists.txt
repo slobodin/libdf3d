@@ -313,4 +313,5 @@ endif()
 
 if (WINDOWS_PHONE)
     target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/libGLESv2.lib)
+    target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/OpenAL.wp8.lib)
 endif()
