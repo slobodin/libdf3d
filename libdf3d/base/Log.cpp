@@ -5,6 +5,11 @@
 #include <android/log.h>
 #endif // __ANDROID__
 
+#if defined(DF3D_WINDOWS_PHONE)
+#include <wrl.h>
+#include <wrl/client.h>
+#endif
+
 namespace df3d { namespace base {
 
 const size_t MAX_LOG_SIZE = 2 << 18;
@@ -171,8 +176,11 @@ Log &Log::operator<< (const LoggerManipulator &man)
         break;
     }
 
-#ifdef __ANDROID__
+#if defined(__ANDROID__)
     __android_log_print(androidPriority, "libdf3d", "%s", m_buffer.str().c_str());
+#elif defined(DF3D_WINDOWS_PHONE)
+    OutputDebugStringA(m_buffer.str().c_str());
+    OutputDebugStringA("\n");
 #else
     std::cerr << m_buffer.str() << std::endl;
 #endif
