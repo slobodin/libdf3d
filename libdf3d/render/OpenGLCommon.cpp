@@ -15,6 +15,12 @@ std::string checkGLError()
     }
 
     return errString;
+#elif defined(DF3D_WINDOWS_PHONE)
+    GLenum errCode = glGetError();
+    if (errCode != GL_NO_ERROR)
+        return "Unknown";
+
+    return "";
 #else
     return "";
 #endif
@@ -22,7 +28,7 @@ std::string checkGLError()
 
 void checkAndPrintGLError(const char *file, int line)
 {
-#if defined(DF3D_WINDOWS) && defined(_DEBUG)
+#if defined(DF3D_WINDOWS) || defined(DF3D_WINDOWS_PHONE) && defined(_DEBUG)
     auto err = checkGLError();
     if (!err.empty())
         base::glog << "OpenGL error:" << err << ". File:" << file << ". Line:" << line << base::logwarn;
