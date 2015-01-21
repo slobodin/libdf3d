@@ -92,9 +92,9 @@ void Controller::parseConfig(EngineInitParams &config)
 
 void Controller::shutdown()
 {
-    if (m_appDelegate)
-        m_appDelegate->onAppEnded();
-    
+    m_appDelegate->onAppEnded();
+
+    SAFE_DELETE(m_appDelegate);
     SAFE_DELETE(m_physics);
     SAFE_DELETE(m_scriptManager);
     SAFE_DELETE(m_sceneManager);
@@ -136,18 +136,14 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
         parseConfig(params);
 
         // Init application.
-        if (appDelegate)
-        {
-            platform::AppInitParams appParams;
-            appParams.windowWidth = params.windowWidth;
-            appParams.windowHeight = params.windowHeight;
-            appParams.fullscreen = params.fullscreen;
+        platform::AppInitParams appParams;
+        appParams.windowWidth = params.windowWidth;
+        appParams.windowHeight = params.windowHeight;
+        appParams.fullscreen = params.fullscreen;
 
-            m_application = platform::Application::create(appParams);
-
-            // Set up delegate.
-            m_appDelegate = appDelegate;
-        }
+        m_application = platform::Application::create(appParams);
+        // Set up delegate.
+        m_appDelegate = appDelegate;
 
         // Init resource manager.
         m_resourceManager = new resources::ResourceManager();
@@ -187,8 +183,7 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
         m_initialized = true;
 
         // Send app started to the client.
-        if (m_appDelegate)
-            m_appDelegate->onAppStarted();
+        m_appDelegate->onAppStarted();
     }
     catch (std::exception &e)
     {
@@ -207,7 +202,7 @@ void Controller::run()
     TimePoint currtime, prevtime;
     currtime = prevtime = system_clock::now();
 
-    static float lastFpsCheck = 0.0f;
+    float lastFpsCheck = 0.0f;
 
     while (!m_quitRequested)
     {
@@ -241,10 +236,7 @@ void Controller::run()
 
 void Controller::requestShutdown()
 {
-    if (m_appDelegate)
-        m_quitRequested = true;
-    else
-        shutdown();
+    m_quitRequested = true;
 }
 
 void Controller::update(float dt)
@@ -259,8 +251,7 @@ void Controller::update(float dt)
     m_renderManager->update(m_sceneManager->getCurrentScene());
 
     // Update user code.
-    if (m_appDelegate)
-        m_appDelegate->onAppUpdate(dt);
+    m_appDelegate->onAppUpdate(dt);
 
     // Clean up.
     m_sceneManager->cleanStep();

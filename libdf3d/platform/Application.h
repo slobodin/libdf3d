@@ -36,9 +36,7 @@ struct AppInitParams
 
 class Application
 {
-    friend class base::Controller;
-
-protected:
+public:
     Application();
     virtual ~Application();
 

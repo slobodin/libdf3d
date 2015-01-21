@@ -257,9 +257,13 @@ if (WINDOWS_PHONE)
     add_definitions(-DDF3D_WINDOWS_PHONE -DBULLET_FORCE_NO_ALIGNMENT)
 
     list(APPEND libdf3d_HEADER_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/OpenGLESBridge.h
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneApplication.h
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneFileSystemHelpers.h
     )
     list(APPEND libdf3d_SRC_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/OpenGLESBridge.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneApplication.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneFileSystemHelpers.cpp
     )
 endif()
@@ -312,6 +316,7 @@ if (WINDOWS OR WINDOWS_PHONE)
 endif()
 
 if (WINDOWS_PHONE)
+    target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/libEGL.lib)
     target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/libGLESv2.lib)
     target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/OpenAL.wp8.lib)
 endif()
