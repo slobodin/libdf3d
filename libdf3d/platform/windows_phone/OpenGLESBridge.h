@@ -1,5 +1,7 @@
 #pragma once
 
+#include <wrl.h>
+#include <wrl/client.h>
 #include <angle_gl.h>
 #include <angle_windowsstore.h>
 #include <EGL/egl.h>
@@ -21,6 +23,9 @@ class OpenGLESBridge
 public:
     OpenGLESBridge();
     ~OpenGLESBridge();
+
+    int getWidth() { return m_windowWidth; }
+    int getHeight() { return m_windowHeight; }
 
     void initEGL(Windows::UI::Core::CoreWindow ^window);
     void cleanupEGL();

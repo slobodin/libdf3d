@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "df3d_pch.h"
 #include "OpenGLESBridge.h"
 
 using namespace Windows::Foundation::Collections;
@@ -218,12 +218,6 @@ void OpenGLESBridge::updateWindowSize(Windows::Foundation::Size size)
 
     m_windowWidth = static_cast<GLsizei>(pixelSize.Width);
     m_windowHeight = static_cast<GLsizei>(pixelSize.Height);
-
-    // mTriangleRenderer might not have been initialized yet.
-    //if (mTriangleRenderer)
-    //{
-    //    mTriangleRenderer->UpdateWindowSize(mWindowWidth, mWindowHeight);
-    //}
 }
 
 void OpenGLESBridge::swapBuffers()
