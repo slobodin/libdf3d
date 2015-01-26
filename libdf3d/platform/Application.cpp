@@ -4,7 +4,7 @@
 #if defined(DF3D_WINDOWS)
 #include <platform/windows/WindowsApplication.h>
 #elif defined(DF3D_WINDOWS_PHONE)
-
+#include <platform/windows_phone/WindowsPhoneApplication.h>
 #else
 #error "Unsupported platform"
 #endif
@@ -27,8 +27,7 @@ unique_ptr<Application> Application::create(const AppInitParams &params, AppDele
 #if defined(DF3D_WINDOWS)
     return make_unique<WindowsApplication>(params, appDelegate);
 #elif defined(DF3D_WINDOWS_PHONE)
-    assert(false);
-    return nullptr;
+    return make_unique<WindowsPhoneApplication>(params, appDelegate);
 #else
     return nullptr;
 #endif

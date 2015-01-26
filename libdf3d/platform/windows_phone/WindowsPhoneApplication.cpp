@@ -3,6 +3,10 @@
 
 #include "OpenGLESBridge.h"
 
+#include <wrl.h>
+#include <wrl/client.h>
+#include <ppltasks.h>
+
 namespace df3d { namespace platform {
 
 using namespace concurrency;
@@ -86,7 +90,44 @@ public:
 
     virtual void Run()
     {
+        using namespace std::chrono;
 
+        TimePoint currtime = system_clock::now();
+        TimePoint prevtime = system_clock::now();
+
+        while (!m_windowClosed)
+        {
+            if (m_windowVisible)
+            {
+                CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+
+                currtime = system_clock::now();
+
+                //m_appDelegate->onAppUpdate(IntervalBetween(currtime, prevtime));
+
+                m_openglesBridge->swapBuffers();
+
+                prevtime = currtime;
+
+                // The call to eglSwapBuffers might not be successful (e.g. due to Device Lost)
+                // If the call fails, then we must reinitialize EGL and the GL resources.
+                //if (eglSwapBuffers(mEglDisplay, mEglSurface) != GL_TRUE)
+                //{
+                //    mTriangleRenderer.reset(nullptr);
+                //    CleanupEGL();
+
+                //    InitializeEGL(CoreWindow::GetForCurrentThread());
+                //    RecreateRenderer();
+                //}
+            }
+            else
+            {
+                CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
+            }
+        }
+
+        //m_appDelegate->onAppEnded();
+        m_openglesBridge.reset();
     }
 
     virtual void Uninitialize()
@@ -173,13 +214,8 @@ public:
     }
 };
 
-
-struct WindowsPhoneApplication::Impl
-{
-};
-
-WindowsPhoneApplication::WindowsPhoneApplication(const AppInitParams &params)
-    : m_pImpl(make_unique<Impl>())
+WindowsPhoneApplication::WindowsPhoneApplication(const AppInitParams &params, AppDelegate *appDelegate)
+    : Application(params, appDelegate)
 {
 
 }
@@ -189,19 +225,10 @@ WindowsPhoneApplication::~WindowsPhoneApplication()
 
 }
 
-bool WindowsPhoneApplication::pollEvents()
+void WindowsPhoneApplication::run()
 {
-    return false;
-}
-
-void WindowsPhoneApplication::swapBuffers()
-{
-
-}
-
-void WindowsPhoneApplication::setTitle(const char *title)
-{
-
+    auto appSource = ref new ApplicationSource();
+    CoreApplication::Run(appSource);
 }
 
 } }
