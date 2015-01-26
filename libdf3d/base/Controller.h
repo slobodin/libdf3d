@@ -6,8 +6,6 @@ FWD_MODULE_CLASS(render, Viewport)
 FWD_MODULE_CLASS(scene, SceneManager)
 FWD_MODULE_CLASS(resources, ResourceManager)
 FWD_MODULE_CLASS(resources, FileSystem)
-FWD_MODULE_CLASS(base, AppDelegate)
-FWD_MODULE_CLASS(platform, Application)
 FWD_MODULE_CLASS(platform, AppEvent)
 FWD_MODULE_CLASS(gui, GuiManager)
 FWD_MODULE_CLASS(gui, DebugOverlayWindow)
@@ -23,19 +21,15 @@ using ConsoleCommandHandler = std::function<std::string(const std::string &)>;
 
 class DF3D_DLL Controller : boost::noncopyable
 {
-    friend class gui::DebugOverlayWindow;
-
     Controller();
     ~Controller();
 
-    platform::Application *m_application = nullptr;
     render::RenderManager *m_renderManager = nullptr;
     scene::SceneManager *m_sceneManager = nullptr;
     resources::ResourceManager *m_resourceManager = nullptr;
     resources::FileSystem *m_fileSystem = nullptr;
     gui::GuiManager *m_guiManager = nullptr;
     scripting::ScriptManager *m_scriptManager = nullptr;
-    base::AppDelegate *m_appDelegate = nullptr;
     physics::PhysicsManager *m_physics = nullptr;
     audio::AudioManager *m_audioManager = nullptr;
 
@@ -45,29 +39,22 @@ class DF3D_DLL Controller : boost::noncopyable
     void consoleCommandInvoked(const std::string &name, std::string &result);
 
     bool m_initialized = false;
-    bool m_quitRequested = false;
 
-    float m_currentFPS = 0;
     TimePoint m_timeStarted;
     float m_timeElapsed = 0;
-
-    void parseConfig(EngineInitParams &config);
-    void shutdown();
 
 public:
     static Controller *getInstance();
 
-    bool init(EngineInitParams params, base::AppDelegate *appDelegate = nullptr);
-    void run();
-    void requestShutdown();
+    bool init(EngineInitParams params);
+    void shutdown();
 
     void update(float dt);
+    void postUpdate();
     void runFrame();
 
     float getElapsedTime() const { return m_timeElapsed; }
-
     const render::RenderStats &getLastRenderStats() const;
-    float getCurrentFPS() const { return m_currentFPS; }
 
     void toggleDebugWindow();
 
@@ -78,7 +65,6 @@ public:
 
     void dispatchAppEvent(const platform::AppEvent &event);
     
-    base::AppDelegate *getAppDelegate() { return m_appDelegate; }
     const render::Viewport &getViewport() const;
     void setViewport(const render::Viewport &newvp);
 

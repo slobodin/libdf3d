@@ -10,13 +10,10 @@ class WindowsApplication : public Application
     unique_ptr<Impl> m_pImpl;
 
 public:
-    WindowsApplication(const AppInitParams &params);
+    WindowsApplication(const AppInitParams &params, AppDelegate *appDelegate);
     virtual ~WindowsApplication();
 
-    bool pollEvents() override;
-    void swapBuffers() override;
-
-    void setTitle(const char *title) override;
+    void run() override;
 };
 
 } }

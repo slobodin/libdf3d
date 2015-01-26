@@ -17,9 +17,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioBuffer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/OpenALCommon.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/AppDelegate.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Common.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Controller.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/MacroDefs.h
@@ -56,6 +56,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/Application.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h

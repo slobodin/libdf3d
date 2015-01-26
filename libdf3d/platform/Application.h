@@ -1,12 +1,10 @@
 #pragma once
 
-#include <base/InputEvents.h>
-
-FWD_MODULE_CLASS(base, Controller)
+#include "AppDelegate.h"
 
 namespace df3d { namespace platform {
 
-class AppEvent
+class DF3D_DLL AppEvent
 {
 public:
     enum class Type
@@ -27,26 +25,28 @@ public:
     base::KeyboardEvent keyboard;
 };
 
-struct AppInitParams
+struct DF3D_DLL AppInitParams
 {
     int windowWidth = DEFAULT_WINDOW_WIDTH;
     int windowHeight = DEFAULT_WINDOW_HEIGHT;
     bool fullscreen = false;
 };
 
-class Application
+class DF3D_DLL Application
 {
+protected:
+    AppDelegate *m_appDelegate;
+    AppInitParams m_appInitParams;
+
+    Application(const AppInitParams &params, AppDelegate *appDelegate);
+
 public:
-    Application();
     virtual ~Application();
 
-    virtual bool pollEvents() = 0;
-    virtual void swapBuffers() = 0;
-
-    virtual void setTitle(const char *title) = 0;
+    virtual void run() = 0;
 
     // Creates application instance depending on platform.
-    static Application *create(const AppInitParams &params);
+    static unique_ptr<Application> create(const AppInitParams &params, AppDelegate *appDelegate);
 };
 
 } }

@@ -1,7 +1,6 @@
 #include "df3d_pch.h"
 #include "Controller.h"
 
-#include "AppDelegate.h"
 #include "InputEvents.h"
 #include <render/RenderManager.h>
 #include <platform/Application.h>
@@ -70,38 +69,14 @@ void Controller::consoleCommandInvoked(const std::string &name, std::string &res
     result = found->second(params);
 }
 
-void Controller::parseConfig(EngineInitParams &config)
-{
-#if defined(DF3D_WINDOWS)
-    if (!config.configFile)
-        return;
-
-    auto data = utils::jsonLoadFromFile(config.configFile);
-    if (data.empty())
-        return;
-
-    if (!data["width"].empty())
-        config.windowWidth = data["width"].asUInt();
-    if (!data["height"].empty())
-        config.windowHeight = data["height"].asUInt();
-
-    config.fullscreen = data["fullscreen"].asBool();
-    config.debugDraw = data["debugdraw"].asBool();
-#endif
-}
-
 void Controller::shutdown()
 {
-    m_appDelegate->onAppEnded();
-
-    SAFE_DELETE(m_appDelegate);
     SAFE_DELETE(m_physics);
     SAFE_DELETE(m_scriptManager);
     SAFE_DELETE(m_sceneManager);
     SAFE_DELETE(m_guiManager);
     SAFE_DELETE(m_renderManager);
     SAFE_DELETE(m_resourceManager);
-    SAFE_DELETE(m_application);
     SAFE_DELETE(m_fileSystem);
     SAFE_DELETE(m_audioManager);
     SAFE_DELETE(m_debugWindow);
@@ -122,7 +97,7 @@ Controller *Controller::getInstance()
     return controller;
 }
 
-bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
+bool Controller::init(EngineInitParams params)
 {
     base::glog << "Initializing engine" << base::logmess;
 
@@ -133,17 +108,6 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
         // Init filesystem.
         m_fileSystem = new resources::FileSystem();
         m_fileSystem->addSearchPath("data/");
-        parseConfig(params);
-
-        // Init application.
-        platform::AppInitParams appParams;
-        appParams.windowWidth = params.windowWidth;
-        appParams.windowHeight = params.windowHeight;
-        appParams.fullscreen = params.fullscreen;
-
-        m_application = platform::Application::create(appParams);
-        // Set up delegate.
-        m_appDelegate = appDelegate;
 
         // Init resource manager.
         m_resourceManager = new resources::ResourceManager();
@@ -181,9 +145,6 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
         base::glog << "Engine initialized" << base::logmess;
 
         m_initialized = true;
-
-        // Send app started to the client.
-        m_appDelegate->onAppStarted();
     }
     catch (std::exception &e)
     {
@@ -193,51 +154,44 @@ bool Controller::init(EngineInitParams params, base::AppDelegate *appDelegate)
     return m_initialized;
 }
 
-void Controller::run()
-{
-    using namespace std::chrono;
-    if (!m_initialized)
-        return;
-
-    TimePoint currtime, prevtime;
-    currtime = prevtime = system_clock::now();
-
-    float lastFpsCheck = 0.0f;
-
-    while (!m_quitRequested)
-    {
-        if (!m_application->pollEvents())
-        {
-            currtime = system_clock::now();
-
-            auto dt = IntervalBetween(currtime, prevtime);
-
-            update(dt);
-            runFrame();
-
-            prevtime = currtime;
-
-            m_currentFPS = 1.f / dt;
-            lastFpsCheck += dt;
-
-            if (lastFpsCheck > 1.0f)        // every second
-            {
-                std::ostringstream os;
-                os << "Frame time: " << dt << ", fps: " << m_currentFPS << ", draw calls: " << m_renderManager->getLastRenderStats().drawCalls;
-
-                m_application->setTitle(os.str().c_str());
-                lastFpsCheck = 0.0f;
-            }
-        }
-    }
-
-    shutdown();
-}
-
-void Controller::requestShutdown()
-{
-    m_quitRequested = true;
-}
+//void Controller::run()
+//{
+//    using namespace std::chrono;
+//
+//    TimePoint currtime, prevtime;
+//    currtime = prevtime = system_clock::now();
+//
+//    float lastFpsCheck = 0.0f;
+//
+//    while (!m_quitRequested)
+//    {
+//        if (!m_application->pollEvents())
+//        {
+//            currtime = system_clock::now();
+//
+//            auto dt = IntervalBetween(currtime, prevtime);
+//
+//            update(dt);
+//            runFrame();
+//
+//            prevtime = currtime;
+//
+//            m_currentFPS = 1.f / dt;
+//            lastFpsCheck += dt;
+//
+//            if (lastFpsCheck > 1.0f)        // every second
+//            {
+//                std::ostringstream os;
+//                os << "Frame time: " << dt << ", fps: " << m_currentFPS << ", draw calls: " << m_renderManager->getLastRenderStats().drawCalls;
+//
+//                m_application->setTitle(os.str().c_str());
+//                lastFpsCheck = 0.0f;
+//            }
+//        }
+//    }
+//
+//    shutdown();
+//}
 
 void Controller::update(float dt)
 {
@@ -249,10 +203,10 @@ void Controller::update(float dt)
     m_sceneManager->update(dt);
     m_guiManager->update(dt);
     m_renderManager->update(m_sceneManager->getCurrentScene());
+}
 
-    // Update user code.
-    m_appDelegate->onAppUpdate(dt);
-
+void Controller::postUpdate()
+{
     // Clean up.
     m_sceneManager->cleanStep();
 }
@@ -265,9 +219,6 @@ void Controller::runFrame()
     m_renderManager->drawGUI();
 
     m_renderManager->onFrameEnd();
-
-    if (m_application)
-        m_application->swapBuffers();
 }
 
 const render::RenderStats &Controller::getLastRenderStats() const
@@ -303,32 +254,20 @@ void Controller::dispatchAppEvent(const platform::AppEvent &event)
 {
     switch (event.type)
     {
-    case platform::AppEvent::Type::QUIT:
-        m_quitRequested = true;
-        break;
     case platform::AppEvent::Type::MOUSE_MOTION:
         m_guiManager->processMouseMotionEvent(event.mouseMotion);
-        m_appDelegate->onMouseMotionEvent(event.mouseMotion);
         break;
     case platform::AppEvent::Type::MOUSE_BUTTON:
         m_guiManager->processMouseButtonEvent(event.mouseButton);
-        m_appDelegate->onMouseButtonEvent(event.mouseButton);
         break;
     case platform::AppEvent::Type::MOUSE_WHEEL:
         m_guiManager->processMouseWheelEvent(event.mouseWheel);
         break;
     case platform::AppEvent::Type::KEYBOARD:
         if (event.keyboard.state == KeyboardEvent::State::PRESSED)
-        {
             m_guiManager->processKeyDownEvent(event.keyboard.keycode);
-            m_appDelegate->onKeyDown(event.keyboard.keycode);
-        }
         else if (event.keyboard.state == KeyboardEvent::State::RELEASED)
-        {
             m_guiManager->processKeyUpEvent(event.keyboard.keycode);
-            m_appDelegate->onKeyUp(event.keyboard.keycode);
-        }
-
         break;
     default:
         break;

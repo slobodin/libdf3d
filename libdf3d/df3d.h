@@ -11,9 +11,10 @@
 #include <utils/SceneSerializer.h>
 
 #include <base/Controller.h>
-#include <base/AppDelegate.h>
 #include <base/Log.h>
 #include <base/InputEvents.h>
+
+#include <platform/Application.h>
 
 #include <components/AudioComponent.h>
 #include <components/LightComponent.h>

@@ -11,7 +11,9 @@
 
 namespace df3d { namespace platform {
 
-Application::Application()
+Application::Application(const AppInitParams &params, AppDelegate *appDelegate)
+    : m_appDelegate(appDelegate),
+    m_appInitParams(params)
 {
 }
 
@@ -20,10 +22,10 @@ Application::~Application()
 
 }
 
-Application *Application::create(const AppInitParams &params)
+unique_ptr<Application> Application::create(const AppInitParams &params, AppDelegate *appDelegate)
 {
 #if defined(DF3D_WINDOWS)
-    return new WindowsApplication(params);
+    return make_unique<WindowsApplication>(params, appDelegate);
 #elif defined(DF3D_WINDOWS_PHONE)
     assert(false);
     return nullptr;

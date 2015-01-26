@@ -22,16 +22,22 @@ class AppWindow
     HGLRC m_hglRC = nullptr;
     bool m_isActive = false;
 
+    bool m_quitRequested = false;
+
+    AppDelegate *m_appDelegate = nullptr;
+
     DWORD getStyle(const AppInitParams &params);
     DWORD getExStyle(const AppInitParams &params);
 
 public:
-    AppWindow(AppInitParams params);
+    AppWindow(const AppInitParams &params, AppDelegate *appDelegate);
     ~AppWindow();
 
     LRESULT handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
     void swapBuffers();
     void setTitle(const char *title);
+
+    bool quitRequested() const { return m_quitRequested; }
 };
 
 struct WindowSetupParam
@@ -73,7 +79,8 @@ DWORD AppWindow::getExStyle(const AppInitParams &params)
         return WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 }
 
-AppWindow::AppWindow(AppInitParams params)
+AppWindow::AppWindow(const AppInitParams &params, AppDelegate *appDelegate)
+    : m_appDelegate(appDelegate)
 {
     HINSTANCE hInstance = GetModuleHandle(NULL);
 
@@ -193,6 +200,7 @@ LRESULT AppWindow::handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         ev.keyboard.keycode = convertKeyCode(wp);
         ev.keyboard.state = base::KeyboardEvent::State::PRESSED;
         g_engineController->dispatchAppEvent(ev);
+        m_appDelegate->onKeyDown(ev.keyboard.keycode);
         break;
 
     case WM_KEYUP:
@@ -200,6 +208,7 @@ LRESULT AppWindow::handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         ev.keyboard.keycode = convertKeyCode(wp);
         ev.keyboard.state = base::KeyboardEvent::State::RELEASED;
         g_engineController->dispatchAppEvent(ev);
+        m_appDelegate->onKeyUp(ev.keyboard.keycode);
         break;
 
     case WM_MOUSEMOVE:
@@ -209,6 +218,7 @@ LRESULT AppWindow::handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         ev.mouseMotion.leftPressed = (wp & MK_LBUTTON) == MK_LBUTTON;
         ev.mouseMotion.rightPressed = (wp & MK_RBUTTON) == MK_RBUTTON;
         g_engineController->dispatchAppEvent(ev);
+        m_appDelegate->onMouseMotionEvent(ev.mouseMotion);
         break;
 
     case WM_MOUSEWHEEL:
@@ -223,6 +233,7 @@ LRESULT AppWindow::handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         ev.mouseButton.state = base::MouseButtonEvent::State::PRESSED;
         ev.mouseButton.button = base::MouseButtonEvent::Button::LEFT;
         g_engineController->dispatchAppEvent(ev);
+        m_appDelegate->onMouseButtonEvent(ev.mouseButton);
         break;
 
     case WM_LBUTTONUP:
@@ -232,6 +243,7 @@ LRESULT AppWindow::handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         ev.mouseButton.state = base::MouseButtonEvent::State::RELEASED;
         ev.mouseButton.button = base::MouseButtonEvent::Button::LEFT;
         g_engineController->dispatchAppEvent(ev);
+        m_appDelegate->onMouseButtonEvent(ev.mouseButton);
         break;
 
     case WM_RBUTTONDOWN:
@@ -241,6 +253,7 @@ LRESULT AppWindow::handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         ev.mouseButton.state = base::MouseButtonEvent::State::PRESSED;
         ev.mouseButton.button = base::MouseButtonEvent::Button::RIGHT;
         g_engineController->dispatchAppEvent(ev);
+        m_appDelegate->onMouseButtonEvent(ev.mouseButton);
         break;
 
     case WM_RBUTTONUP:
@@ -250,6 +263,7 @@ LRESULT AppWindow::handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         ev.mouseButton.state = base::MouseButtonEvent::State::RELEASED;
         ev.mouseButton.button = base::MouseButtonEvent::Button::RIGHT;
         g_engineController->dispatchAppEvent(ev);
+        m_appDelegate->onMouseButtonEvent(ev.mouseButton);
         break;
 
     case WM_MBUTTONDOWN:
@@ -259,6 +273,7 @@ LRESULT AppWindow::handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         ev.mouseButton.state = base::MouseButtonEvent::State::PRESSED;
         ev.mouseButton.button = base::MouseButtonEvent::Button::MIDDLE;
         g_engineController->dispatchAppEvent(ev);
+        m_appDelegate->onMouseButtonEvent(ev.mouseButton);
         break;
 
     case WM_MBUTTONUP:
@@ -268,6 +283,7 @@ LRESULT AppWindow::handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         ev.mouseButton.state = base::MouseButtonEvent::State::RELEASED;
         ev.mouseButton.button = base::MouseButtonEvent::Button::MIDDLE;
         g_engineController->dispatchAppEvent(ev);
+        m_appDelegate->onMouseButtonEvent(ev.mouseButton);
         break;
 
     case WM_ACTIVATE:
@@ -275,7 +291,7 @@ LRESULT AppWindow::handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         break;
 
     case WM_DESTROY:
-        g_engineController->requestShutdown();
+        m_quitRequested = true;
         return 0;
 
     case WM_SIZE:
@@ -299,12 +315,13 @@ struct WindowsApplication::Impl
     unique_ptr<AppWindow> window;
 };
 
-WindowsApplication::WindowsApplication(const AppInitParams &params)
-    : m_pImpl(make_unique<Impl>())
+WindowsApplication::WindowsApplication(const AppInitParams &params, AppDelegate *appDelegate)
+    : Application(params, appDelegate),
+    m_pImpl(make_unique<Impl>())
 {
-    m_pImpl->window = make_unique<AppWindow>(params);
+    m_pImpl->window = make_unique<AppWindow>(m_appInitParams, appDelegate);
 
-    // Init glew.
+    // Init GLEW.
     glewExperimental = GL_TRUE;
 
     auto glewerr = glewInit();
@@ -317,34 +334,48 @@ WindowsApplication::WindowsApplication(const AppInitParams &params)
 
     if (!glewIsSupported("GL_VERSION_2_1"))
         throw std::runtime_error("GL 2.1 unsupported");
+
+    if (!m_appDelegate->onAppStarted(params.windowWidth, params.windowHeight))
+        throw std::runtime_error("Game code initialization failed.");
 }
 
 WindowsApplication::~WindowsApplication()
 {
+
 }
 
-bool WindowsApplication::pollEvents()
+void WindowsApplication::run()
 {
-    static MSG msg;
+    using namespace std::chrono;
+    MSG msg;
 
-    if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    TimePoint currtime, prevtime;
+    currtime = prevtime = system_clock::now();
+
+    while (!m_pImpl->window->quitRequested())
     {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-        return true;
+        // FIXME:
+        // Maybe queue messages?
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+        else
+        {
+            currtime = system_clock::now();
+
+            m_appDelegate->onAppUpdate(IntervalBetween(currtime, prevtime));
+
+            m_pImpl->window->swapBuffers();
+
+            prevtime = currtime;
+        }
     }
 
-    return false;
-}
+    m_appDelegate->onAppEnded();
 
-void WindowsApplication::swapBuffers()
-{
-    m_pImpl->window->swapBuffers();
-}
-
-void WindowsApplication::setTitle(const char *title)
-{
-    m_pImpl->window->setTitle(title);
+    m_pImpl.reset();
 }
 
 } }
