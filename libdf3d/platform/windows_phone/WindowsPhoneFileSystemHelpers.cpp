@@ -13,7 +13,13 @@ bool FileSystemHelpers::isPathAbsolute(const std::string &path)
 
 bool FileSystemHelpers::pathExists(const std::string &path)
 {
-    return false;
+    FILE *f = fopen(path.c_str(), "rb");
+    if (!f)
+        return false;
+
+    fclose(f);
+
+    return true;
 }
 
 } }
