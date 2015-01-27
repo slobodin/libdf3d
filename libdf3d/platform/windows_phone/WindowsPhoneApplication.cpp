@@ -22,17 +22,21 @@ using namespace Windows::Graphics::Display;
 // Main entry point for our app. Connects the app with the Windows shell and handles application lifecycle events.
 ref class App sealed : public Windows::ApplicationModel::Core::IFrameworkView
 {
+    friend ref class ApplicationSource;
+
     bool m_windowClosed = false;
     bool m_windowVisible = true;
 
     std::unique_ptr<df3d::platform::OpenGLESBridge> m_openglesBridge;
+    AppDelegate *m_appDelegate;
 
-public:
-    App()
+    App(AppDelegate *appDelegate)
+        : m_appDelegate(appDelegate)
     {
 
     }
 
+public:
     // IFrameworkView Methods.
     virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView)
     {
@@ -78,7 +82,7 @@ public:
         m_openglesBridge->initEGL(window);
         m_openglesBridge->updateWindowSize(Size(window->Bounds.Width, window->Bounds.Height));
 
-        //initS
+        m_appDelegate->onAppStarted((int)window->Bounds.Width, (int)window->Bounds.Height);
 
         CRUTCH = true;
     }
@@ -103,7 +107,7 @@ public:
 
                 currtime = system_clock::now();
 
-                //m_appDelegate->onAppUpdate(IntervalBetween(currtime, prevtime));
+                m_appDelegate->onAppUpdate(IntervalBetween(currtime, prevtime));
 
                 m_openglesBridge->swapBuffers();
 
@@ -207,10 +211,20 @@ protected:
 
 ref class ApplicationSource sealed : Windows::ApplicationModel::Core::IFrameworkViewSource
 {
+    friend class WindowsPhoneApplication;
+
+    AppDelegate *m_appDelegate;
+
+    ApplicationSource(AppDelegate *appDelegate)
+        : m_appDelegate(appDelegate)
+    {
+
+    }
+
 public:
     virtual Windows::ApplicationModel::Core::IFrameworkView^ CreateView()
     {
-        return ref new App();
+        return ref new App(m_appDelegate);
     }
 };
 
@@ -227,7 +241,7 @@ WindowsPhoneApplication::~WindowsPhoneApplication()
 
 void WindowsPhoneApplication::run()
 {
-    auto appSource = ref new ApplicationSource();
+    auto appSource = ref new ApplicationSource(m_appDelegate);
     CoreApplication::Run(appSource);
 }
 
