@@ -126,6 +126,8 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
 RenderManager::RenderManager(RenderManagerInitParams params)
     : m_renderQueue(make_unique<RenderQueue>())
 {
+    m_renderingCaps = params.renderingCaps;
+
 #if defined(DF3D_WINDOWS) || defined(DF3D_WINDOWS_PHONE)
     m_renderer = make_unique<Renderer>();
 #else
@@ -298,6 +300,11 @@ const RenderStats &RenderManager::getLastRenderStats() const
 shared_ptr<RenderTargetScreen> RenderManager::getScreenRenderTarget() const
 {
     return m_screenRt;
+}
+
+const RenderingCapabilities &RenderManager::getRenderingCapabilities() const
+{
+    return m_renderingCaps;
 }
 
 Renderer *RenderManager::getRenderer() const

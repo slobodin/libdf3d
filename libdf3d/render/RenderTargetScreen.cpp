@@ -4,6 +4,7 @@
 #include <base/Controller.h>
 #include "RenderManager.h"
 #include "OpenGLCommon.h"
+#include "Renderer.h"
 
 namespace df3d { namespace render {
 

@@ -37,11 +37,11 @@ std::map<std::string, render::RenderPass::FaceCullMode> faceCullModeValues =
     { "FRONT_AND_BACK", render::RenderPass::FaceCullMode::FRONT_AND_BACK }
 };
 
-std::map<std::string, render::Texture::Filtering> textureFilteringValues =
+std::map<std::string, render::TextureFiltering> textureFilteringValues =
 {
-    { "NEAREST", render::Texture::Filtering::NEAREST },
-    { "BILINEAR", render::Texture::Filtering::BILINEAR },
-    { "TRILINEAR", render::Texture::Filtering::TRILINEAR }
+    { "NEAREST", render::TextureFiltering::NEAREST },
+    { "BILINEAR", render::TextureFiltering::BILINEAR },
+    { "TRILINEAR", render::TextureFiltering::TRILINEAR }
 };
 
 std::map<std::string, render::Texture::WrapMode> textureWrapValues =
@@ -128,11 +128,13 @@ shared_ptr<render::Texture> createTextureOfType(const std::string &type, const s
 
 void setTextureBaseParams(shared_ptr<render::Texture> texture, const std::map<std::string, std::string> keyValues, const std::string &libName)
 {
+    if (!texture)
+        return;
     for (const auto &keyval : keyValues)
     {
         if (keyval.first == "filtering")
         {
-            std::function<void(render::Texture::Filtering)> fn = std::bind(&render::Texture::setFilteringMode, texture.get(), std::placeholders::_1);
+            std::function<void(render::TextureFiltering)> fn = std::bind(&render::Texture::setFilteringMode, texture.get(), std::placeholders::_1);
             setPassParam(keyval.first, keyval.second, textureFilteringValues, fn, libName);
         }
         else if (keyval.first == "wrap_mode")
@@ -508,53 +510,14 @@ shared_ptr<render::Texture> DecoderMTL::parseSamplerNode(MaterialLibNode &node)
     return texture;
 }
 
-shared_ptr<render::Texture> DecoderMTL::parseCubemapSamplerNode(MaterialLibNode &node)
-{
-    //std::string pathPostfix[] = { "left", "right", "up", "down", "front", "back" };
-
-    //std::vector<shared_ptr<resources::Resource>> cubemapParts;
-
-    //std::vector<unsigned char> cubemapData;
-    //for (auto &postfix : pathPostfix)
-    //{
-    //    auto path = node.keyValues["path_" + postfix];
-    //    auto texture = g_resourceManager->getResource<render::Texture>(path, ResourceManager::LOAD_MODE_IMMEDIATE);
-    //    if (!texture || !texture->valid())
-    //    {
-    //        base::glog << "Cubemap texture part" << postfix << "not found or invalid" << base::logwarn;
-    //        // FIXME:
-    //        // Cleanup resource manager.
-    //        return nullptr;
-    //    }
-
-    //    cubemapData.insert(cubemapData.end(), texture->data(), texture->data() + texture->width() * texture->height() * texture->depth());
-
-    //    cubemapParts.push_back(texture);
-    //}
-
-    //auto cubemap = make_shared<render::Texture>();
-    //cubemap->setWithData(&cubemapData[0], source_dimensions.x, source_dimensions.y, 4 * source_dimensions.x, render::Texture::PF_RGBA);
-
-    //cubemap->setInitialized();
-
-    //cubemap->setType(render::Texture::TEXTURE_CUBE);
-    //cubemap->setFilteringMode(render::Texture::BILINEAR);
-    //cubemap->setMipmapped(false);
-
-    //for (auto part : cubemapParts)
-    //{
-    //    g_resourceManager->unloadResource(part);
-    //}
-
-    return nullptr;
-}
-
 DecoderMTL::DecoderMTL()
 {
+
 }
 
 DecoderMTL::~DecoderMTL()
 {
+
 }
 
 shared_ptr<Resource> DecoderMTL::createResource()

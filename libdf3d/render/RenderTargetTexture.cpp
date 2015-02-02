@@ -5,6 +5,7 @@
 #include "Texture2D.h"
 #include "Image.h"
 #include "RenderManager.h"
+#include "Renderer.h"
 #include <base/Controller.h>
 
 namespace df3d { namespace render {
@@ -49,7 +50,7 @@ RenderTargetTexture::RenderTargetTexture(const Viewport &vp)
 
     m_texture = make_shared<Texture2D>();
     m_texture->setMipmapped(false);
-    m_texture->setFilteringMode(Texture::Filtering::NEAREST);
+    m_texture->setFilteringMode(TextureFiltering::NEAREST);
 
     setViewport(vp);
 }

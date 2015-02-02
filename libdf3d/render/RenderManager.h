@@ -2,8 +2,7 @@
 
 #include "RenderOperation.h"
 #include "RenderStats.h"
-
-#include "Renderer.h"
+#include "RenderingCapabilities.h"
 
 FWD_MODULE_CLASS(scene, Scene)
 FWD_MODULE_CLASS(scene, Node)
@@ -28,8 +27,7 @@ struct RenderManagerInitParams
     int viewportHeight = DEFAULT_WINDOW_HEIGHT;
     bool debugDraw = false;
 
-    // fullscreen, etc
-    // rendering API
+    RenderingCapabilities renderingCaps = RenderingCapabilities::getDefaults();
 };
 
 // Forward renderer.
@@ -40,6 +38,7 @@ class RenderManager
     friend class base::Controller;
 
     unique_ptr<Renderer> m_renderer;
+    RenderingCapabilities m_renderingCaps;
 
     // Ambient pass support.
     shared_ptr<RenderPass> m_ambientPassProps;
@@ -83,6 +82,8 @@ public:
 
     const RenderStats &getLastRenderStats() const;
     shared_ptr<RenderTargetScreen> getScreenRenderTarget() const;
+
+    const RenderingCapabilities &getRenderingCapabilities() const;
 
     Renderer *getRenderer() const;
 };

@@ -1,21 +1,13 @@
 #pragma once
 
 #include "OpenGLCommon.h"
+#include "RenderingCapabilities.h"
 
 namespace df3d { namespace render {
-
-extern const DF3D_DLL int ANISOTROPY_LEVEL_MAX;
 
 class Texture
 {
 public:
-    enum class Filtering
-    {
-        NEAREST,
-        BILINEAR,
-        TRILINEAR
-    };
-
     enum class WrapMode
     {
         WRAP,
@@ -23,34 +15,34 @@ public:
     };
 
 protected:
-    Filtering m_filteringMode = Filtering::TRILINEAR;
     WrapMode m_wrapMode = WrapMode::CLAMP;
-    bool m_mipmapped = true;
-    int m_maxAnisotropy = 1;
-
-    // GL data.
     GLuint m_glid = 0;
+
+    boost::optional<TextureFiltering> m_filtering;
+    boost::optional<bool> m_mipmapped;
+    boost::optional<int> m_anisotropyLevel;
 
     // Helpers.
     static bool isPot(size_t v);
     static size_t getNextPot(size_t v);
-    static GLint getGlFilteringMode(Filtering filtering, bool mipmapped);
+    static GLint getGlFilteringMode(TextureFiltering filtering, bool mipmapped);
     static GLint getGlWrapMode(WrapMode mode);
 
-    static void setupGlTextureFiltering(GLenum glType, Filtering filtering, bool mipmapped);
+    static void setupGlTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped);
     static void setupGlWrapMode(GLenum glType, WrapMode wrapMode);
 
 public:
     Texture();
     virtual ~Texture();
 
-    Filtering filtering() const { return m_filteringMode; }
-    bool isMipmapped() const { return m_mipmapped; }
     WrapMode wrapMode() const { return m_wrapMode; }
-
     unsigned getGLId() const { return m_glid; }
 
-    void setFilteringMode(Filtering newFiltering);
+    TextureFiltering filtering() const;
+    bool isMipmapped() const;
+    int anisotropyLevel() const;
+
+    void setFilteringMode(TextureFiltering newFiltering);
     void setMipmapped(bool hasMipmaps);
     void setWrapMode(WrapMode mode);
     void setMaxAnisotropy(int aniso);

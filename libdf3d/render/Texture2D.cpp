@@ -38,8 +38,14 @@ bool Texture2D::createGLTexture()
     glBindTexture(GL_TEXTURE_2D, m_glid);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
+    const auto &defaultCaps = g_renderManager->getRenderingCapabilities();
+    if (!m_filtering)
+        m_filtering = defaultCaps.textureFiltering;
+    if (!m_mipmapped)
+        m_mipmapped = defaultCaps.mipmaps;
+
     setupGlWrapMode(GL_TEXTURE_2D, m_wrapMode);
-    setupGlTextureFiltering(GL_TEXTURE_2D, m_filteringMode, m_mipmapped);
+    setupGlTextureFiltering(GL_TEXTURE_2D, filtering(), isMipmapped());
 
     GLint glPixelFormat = 0;
     switch (m_image->pixelFormat())
@@ -66,23 +72,18 @@ bool Texture2D::createGLTexture()
     if (m_image->data())
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_image->width(), m_image->height(), glPixelFormat, GL_UNSIGNED_BYTE, m_image->data());
 
-    if (m_mipmapped)
+    if (isMipmapped())
         glGenerateMipmap(GL_TEXTURE_2D);
 
-    if (m_maxAnisotropy != 1)
+    if (!m_anisotropyLevel)
+        m_anisotropyLevel = defaultCaps.anisotropyMax;
+
+    if (*m_anisotropyLevel != 1)
     {
         float aniso = g_renderManager->getRenderer()->getMaxAnisotropy();
-        if (m_maxAnisotropy == -1)
-        {
-            // Use max value.
-        }
-        else if (m_maxAnisotropy > aniso)
-        {
-            base::glog << "Anisotropy level is bigger than supported. Setting maximum." << base::logwarn;
-        }
-        else
+        if (*m_anisotropyLevel != ANISOTROPY_LEVEL_MAX)
         { 
-            aniso = m_maxAnisotropy;
+            aniso = *m_anisotropyLevel;
         }
 
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);

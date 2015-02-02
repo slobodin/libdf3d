@@ -92,7 +92,7 @@ void Renderer::createWhiteTexture()
     image->setInitialized(image->init());
 
     m_whiteTexture = make_shared<Texture2D>(image);
-    m_whiteTexture->setFilteringMode(Texture::Filtering::NEAREST);
+    m_whiteTexture->setFilteringMode(TextureFiltering::NEAREST);
     m_whiteTexture->setMipmapped(false);
     m_whiteTexture->setWrapMode(Texture::WrapMode::WRAP);
     m_whiteTexture->setImage(image);

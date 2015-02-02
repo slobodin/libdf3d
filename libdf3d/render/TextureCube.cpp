@@ -2,6 +2,9 @@
 #include "TextureCube.h"
 
 #include "Image.h"
+#include <base/Controller.h>
+#include "RenderManager.h"
+#include "Renderer.h"
 
 namespace df3d { namespace render {
 
@@ -33,8 +36,14 @@ bool TextureCube::createGLTexture()
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_glid);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
+    const auto &defaultCaps = g_renderManager->getRenderingCapabilities();
+    if (!m_filtering)
+        m_filtering = defaultCaps.textureFiltering;
+    if (!m_mipmapped)
+        m_mipmapped = defaultCaps.mipmaps;
+
     setupGlWrapMode(GL_TEXTURE_CUBE_MAP, m_wrapMode);
-    setupGlTextureFiltering(GL_TEXTURE_CUBE_MAP, m_filteringMode, m_mipmapped);
+    setupGlTextureFiltering(GL_TEXTURE_CUBE_MAP, filtering(), isMipmapped());
 
     for (int i = 0; i < 6; i++)
     {
@@ -59,7 +68,7 @@ bool TextureCube::createGLTexture()
         glTexImage2D(MapSidesToGl[i], 0, glPixelFormat, width, height, 0, glPixelFormat, GL_UNSIGNED_BYTE, data);
     }
 
-    if (m_mipmapped)
+    if (isMipmapped())
         glGenerateMipmap(GL_TEXTURE_2D);
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);

@@ -98,7 +98,7 @@ CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name)
     : m_name(name),
     m_texture(new render::Texture2D())
 {
-    m_texture->setFilteringMode(render::Texture::Filtering::BILINEAR);
+    m_texture->setFilteringMode(render::TextureFiltering::BILINEAR);
     m_texture->setMipmapped(false);
 
     updateSizes();

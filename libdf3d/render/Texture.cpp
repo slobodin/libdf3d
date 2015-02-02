@@ -1,9 +1,11 @@
 #include "df3d_pch.h"
 #include "Texture.h"
 
-namespace df3d { namespace render {
+#include <base/Controller.h>
+#include "RenderManager.h"
+#include "Renderer.h"
 
-const int ANISOTROPY_LEVEL_MAX = -1;
+namespace df3d { namespace render {
 
 bool Texture::isPot(size_t v)
 {
@@ -23,15 +25,15 @@ size_t Texture::getNextPot(size_t v)
     return v;
 }
 
-GLint Texture::getGlFilteringMode(Texture::Filtering filtering, bool mipmapped)
+GLint Texture::getGlFilteringMode(TextureFiltering filtering, bool mipmapped)
 {
     switch (filtering)
     {
-    case Texture::Filtering::NEAREST:
+    case TextureFiltering::NEAREST:
         return !mipmapped ? GL_NEAREST : GL_NEAREST_MIPMAP_NEAREST;
-    case Texture::Filtering::BILINEAR:
+    case TextureFiltering::BILINEAR:
         return !mipmapped ? GL_LINEAR : GL_LINEAR_MIPMAP_NEAREST;
-    case Texture::Filtering::TRILINEAR:
+    case TextureFiltering::TRILINEAR:
         return !mipmapped ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR;
     default:
         break;
@@ -55,9 +57,9 @@ GLint Texture::getGlWrapMode(Texture::WrapMode mode)
     return -1;
 }
 
-void Texture::setupGlTextureFiltering(GLenum glType, Filtering filtering, bool mipmapped)
+void Texture::setupGlTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped)
 {
-    glTexParameteri(glType, GL_TEXTURE_MAG_FILTER, filtering == Filtering::NEAREST ? GL_NEAREST : GL_LINEAR);
+    glTexParameteri(glType, GL_TEXTURE_MAG_FILTER, filtering == TextureFiltering::NEAREST ? GL_NEAREST : GL_LINEAR);
     glTexParameteri(glType, GL_TEXTURE_MIN_FILTER, getGlFilteringMode(filtering, mipmapped));
 }
 
@@ -66,7 +68,7 @@ void Texture::setupGlWrapMode(GLenum glType, WrapMode wrapMode)
     auto wmGl = getGlWrapMode(wrapMode);
     glTexParameteri(glType, GL_TEXTURE_WRAP_S, wmGl);
     glTexParameteri(glType, GL_TEXTURE_WRAP_T, wmGl);
-#if defined(DF3D_WINDOWS) || defined(DF3D_WINDOWS_PHONE)
+#if defined(DF3D_WINDOWS) //|| defined(DF3D_WINDOWS_PHONE)
     glTexParameteri(glType, GL_TEXTURE_WRAP_R, wmGl);
 #endif
 }
@@ -81,30 +83,60 @@ Texture::~Texture()
 
 }
 
-void Texture::setFilteringMode(Texture::Filtering newFiltering)
+TextureFiltering Texture::filtering() const
 {
-    m_filteringMode = newFiltering;
+    return m_filtering.get();
+}
 
-    // TODO:
-    // Should recreate texture!!!
+bool Texture::isMipmapped() const
+{
+    return m_mipmapped.get();
+}
+
+int Texture::anisotropyLevel() const
+{
+    return m_anisotropyLevel.get();
+}
+
+void Texture::setFilteringMode(TextureFiltering newFiltering)
+{
+    if (m_glid)
+        throw std::runtime_error("Failed to set filtering mode. GL texture already created.");
+
+    m_filtering = newFiltering;
 }
 
 void Texture::setMipmapped(bool hasMipmaps)
 {
-    m_mipmapped = hasMipmaps;
+    if (m_glid)
+        throw std::runtime_error("Failed to set mipmaps. GL texture already created.");
 
-    // TODO:
-    // Should recreate texture!!!
+    m_mipmapped = hasMipmaps;
 }
 
 void Texture::setWrapMode(WrapMode mode)
 {
+    if (m_glid)
+        throw std::runtime_error("Failed to set wrap mode. GL texture already created.");
+
     m_wrapMode = mode;
 }
 
 void Texture::setMaxAnisotropy(int aniso)
 {
-    m_maxAnisotropy = aniso;
+    if (m_glid)
+        throw std::runtime_error("Failed to set anisotropy level. GL texture already created.");
+
+    float maxSupportedAniso = g_renderManager->getRenderer()->getMaxAnisotropy();
+    if (aniso > maxSupportedAniso)
+    {
+        base::glog << "Anisotropy level is bigger than supported. Setting maximum." << base::logwarn;
+        m_anisotropyLevel = (int)maxSupportedAniso;
+    }
+    else
+    {
+        m_anisotropyLevel = aniso;
+    }
 }
 
 } }

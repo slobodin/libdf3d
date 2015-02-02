@@ -20,7 +20,6 @@ class DecoderMTL : public ResourceDecoder
     shared_ptr<render::GpuProgram> parseShaderNode(MaterialLibNode &node);
     void parseShaderParamsNode(MaterialLibNode &node, shared_ptr<render::RenderPass> pass);
     shared_ptr<render::Texture> parseSamplerNode(MaterialLibNode &node);
-    shared_ptr<render::Texture> parseCubemapSamplerNode(MaterialLibNode &node);
 
     // For logging.
     std::string m_libName;

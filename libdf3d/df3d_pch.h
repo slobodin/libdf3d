@@ -42,6 +42,7 @@
 #include <boost/tokenizer.hpp>
 #include <boost/function.hpp>
 #include <boost/functional/hash.hpp>
+#include <boost/optional.hpp>
 
 #include <base/MacroDefs.h>
 #include <base/Common.h>
