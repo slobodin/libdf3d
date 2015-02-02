@@ -17,10 +17,22 @@ std::string checkGLError()
     return errString;
 #elif defined(DF3D_WINDOWS_PHONE)
     GLenum errCode = glGetError();
-    if (errCode != GL_NO_ERROR)
-        return "Unknown";
+    if (errCode == GL_NO_ERROR)
+        return "";
 
-    return "";
+    switch (errCode)
+    {
+    case GL_INVALID_ENUM:
+        return "Invalid enum";
+    case GL_INVALID_VALUE:
+        return "Invalid value";
+    case GL_INVALID_OPERATION:
+        return "Invalid operation";
+    case GL_OUT_OF_MEMORY:
+        return "Out of memory";
+    default:
+        return "Unknown";
+    }
 #else
     return "";
 #endif
