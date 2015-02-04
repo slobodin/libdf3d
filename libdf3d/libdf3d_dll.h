@@ -6,6 +6,8 @@
 #else
 #define DF3D_DLL __declspec(dllimport)
 #endif
-#else
+#elif defined(DF3D_ANDROID)
 #define DF3D_DLL __attribute__((visibility("default")))
+#else
+#define DF3D_DLL
 #endif
