@@ -30,6 +30,8 @@ protected:
     std::string m_nodeName;
     bool m_visible = true;
     void *m_userPointer = nullptr;
+    double m_lifeTime = 0.0;
+    double m_maxLifeTime = -1.0;
 
     shared_ptr<components::NodeComponent> m_components[components::COUNT];
 
@@ -53,6 +55,10 @@ public:
 
     void setUserPointer(void *userPointer) { m_userPointer = userPointer; }
     void *getUserPointer() const { return m_userPointer; }
+
+    void setMaxLifeTime(double lifeTime) { m_maxLifeTime = lifeTime; }
+    double getMaxLifeTime() const { return m_maxLifeTime; }
+    double getLifeTime() const { return m_lifeTime; }
 
     void update(float dt);
     void draw(render::RenderQueue *ops);

@@ -37,6 +37,8 @@ public:
     void setSystemLifeTime(float lifeTime) { m_systemLifeTime = lifeTime; }
     void setWorldTransformed(bool worldTransformed) { m_worldTransformed = worldTransformed; }
 
+    float getSystemLifeTime() const { return m_systemLifeTime; }
+
     shared_ptr<NodeComponent> clone() const override;
 };
 

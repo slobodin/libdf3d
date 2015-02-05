@@ -59,6 +59,7 @@ Node::Node(const char *name)
 
 Node::~Node()
 {
+
 }
 
 void Node::setName(const char *newName)
@@ -83,6 +84,8 @@ void Node::setName(const char *newName)
 
 void Node::update(float dt)
 {
+    m_lifeTime += dt;
+
     // Update all components.
     for (size_t i = 0; i < components::COUNT; i++)
     {
@@ -113,10 +116,10 @@ void Node::draw(render::RenderQueue *ops)
 
 void Node::traverse(std::function<void (shared_ptr<Node>)> fn)
 {
-    fn(shared_from_this());
-
     for (auto &child : m_children)
         child->traverse(fn);
+
+    fn(shared_from_this());
 }
 
 void Node::addChild(shared_ptr<Node> child)
@@ -181,6 +184,9 @@ shared_ptr<Node> Node::clone() const
 {
     auto result = shared_ptr<Node>(new Node());
     result->m_visible = m_visible;
+    result->m_userPointer = m_userPointer;
+    result->m_maxLifeTime = m_maxLifeTime;
+    result->m_lifeTime = m_lifeTime;
 
     // Clone components.
     for (auto c : m_components)
