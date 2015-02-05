@@ -14,6 +14,9 @@ public:
     virtual void onAppEnded() = 0;
     virtual void onAppUpdate(float dt) = 0;
 
+    virtual void onAppPaused() = 0;
+    virtual void onAppResumed() = 0;
+
     virtual void onMouseButtonEvent(const base::MouseButtonEvent &mouseButtonEvent) = 0;
     virtual void onMouseMotionEvent(const base::MouseMotionEvent &mouseMotionEvent) = 0;
     virtual void onKeyUp(const base::KeyboardEvent::KeyCode &code) = 0;

@@ -1,7 +1,8 @@
 ﻿#include "pch.h"
 #include "OpenGLESPage.xaml.h"
 
-#include "Ships3dAppDelegate.h"
+#include "OpenGLES.h"
+#include <Ships3dAppDelegate.h>
 #include <libdf3d_dll.h>
 #include <base/Common.h>
 #include <base/Controller.h>
@@ -26,26 +27,14 @@ using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::Xaml::Navigation;
 using namespace concurrency;
 
-#include <chrono>
-using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
-float IntervalBetween(const TimePoint &t1, const TimePoint &t2)
-{
-    return std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t2).count() / 1000.f;
-}
-
-OpenGLESPage::OpenGLESPage() 
-    : OpenGLESPage(nullptr, nullptr)
-{
-
-}
-
-OpenGLESPage::OpenGLESPage(OpenGLES* openGLES, df3d::platform::AppDelegate *appDelegate)
-    : mOpenGLES(openGLES),
-    m_appDelegate(appDelegate),
+OpenGLESPage::OpenGLESPage(df3d::platform::AppDelegate *appDelegate)
+    : m_appDelegate(appDelegate),
     mRenderSurface(EGL_NO_SURFACE),
     mCustomRenderSurfaceSize(0, 0),
     mUseCustomRenderSurfaceSize(false)
 {
+    mOpenGLES = make_unique<OpenGLES>();
+
     InitializeComponent();
 
     Windows::UI::Core::CoreWindow^ window = Windows::UI::Xaml::Window::Current->CoreWindow;
@@ -58,14 +47,6 @@ OpenGLESPage::OpenGLESPage(OpenGLES* openGLES, df3d::platform::AppDelegate *appD
 
     this->Loaded +=
         ref new Windows::UI::Xaml::RoutedEventHandler(this, &OpenGLESPage::OnPageLoaded);
-
-#if !(WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
-    // Disable all pointer visual feedback for better performance when touching.
-    // This is not supported on Windows Phone applications.
-    auto pointerVisualizationSettings = Windows::UI::Input::PointerVisualizationSettings::GetForCurrentView();
-    pointerVisualizationSettings->IsContactFeedbackEnabled = false;
-    pointerVisualizationSettings->IsBarrelButtonFeedbackEnabled = false;
-#endif
 
     // Register our SwapChainPanel to get independent input pointer events
     auto workItemHandler = ref new WorkItemHandler([this](IAsyncAction ^)
@@ -83,11 +64,17 @@ OpenGLESPage::OpenGLESPage(OpenGLES* openGLES, df3d::platform::AppDelegate *appD
         // Begin processing input messages as they're delivered.
         m_coreInput->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessUntilQuit);
     });
-    // Run task on a dedicated high priority background thread.
 
     m_inputLoopWorker = ThreadPool::RunAsync(workItemHandler, WorkItemPriority::High, WorkItemOptions::TimeSliced);
 
     mSwapChainPanelSize = { swapChainPanel->RenderSize.Width, swapChainPanel->RenderSize.Height };
+}
+
+OpenGLESPage::OpenGLESPage()
+    : m_appDelegate(nullptr),
+    m_appInitialized(false)
+{
+
 }
 
 OpenGLESPage::~OpenGLESPage()
@@ -123,20 +110,20 @@ void OpenGLESPage::OnSwapChainPanelSizeChanged(Object^ sender, Windows::UI::Xaml
     mSwapChainPanelSize = { e->NewSize.Width, e->NewSize.Height };
 }
 
-void OpenGLESPage::GetSwapChainPanelSize(GLsizei* width, GLsizei* height)
+void OpenGLESPage::GetSwapChainPanelSize(int *width, int *height)
 {
     critical_section::scoped_lock lock(mSwapChainPanelSizeCriticalSection);
     // If a custom render surface size is specified, return its size instead of
     // the swapchain panel size.
     if (mUseCustomRenderSurfaceSize)
     {
-        *width = static_cast<GLsizei>(mCustomRenderSurfaceSize.Width);
-        *height = static_cast<GLsizei>(mCustomRenderSurfaceSize.Height);
+        *width = static_cast<int>(mCustomRenderSurfaceSize.Width);
+        *height = static_cast<int>(mCustomRenderSurfaceSize.Height);
     }
     else
     {
-        *width = static_cast<GLsizei>(mSwapChainPanelSize.Width);
-        *height = static_cast<GLsizei>(mSwapChainPanelSize.Height);
+        *width = static_cast<int>(mSwapChainPanelSize.Width);
+        *height = static_cast<int>(mSwapChainPanelSize.Height);
     }
 }
 
@@ -159,9 +146,8 @@ void OpenGLESPage::CreateRenderSurface()
 void OpenGLESPage::DestroyRenderSurface()
 {
     if (mOpenGLES)
-    {
         mOpenGLES->DestroySurface(mRenderSurface);
-    }
+
     mRenderSurface = EGL_NO_SURFACE;
 }
 
@@ -169,7 +155,6 @@ void OpenGLESPage::RecoverFromLostDevice()
 {
     // Stop the render loop, reset OpenGLES, recreate the render surface
     // and start the render loop again to recover from a lost device.
-
     StopRenderLoop();
 
     {
@@ -186,27 +171,26 @@ void OpenGLESPage::RecoverFromLostDevice()
 void OpenGLESPage::StartRenderLoop()
 {
     using namespace std::chrono;
-    static bool CRUTCH;
 
     // If the render loop is already running then do not start another thread.
     if (mRenderLoopWorker != nullptr && mRenderLoopWorker->Status == Windows::Foundation::AsyncStatus::Started)
-    {
         return;
-    }
-
-    if (CRUTCH)
-        throw int();
 
     // Create a task for rendering that will be run on a background thread.
-    auto workItemHandler = ref new Windows::System::Threading::WorkItemHandler([this](Windows::Foundation::IAsyncAction ^ action)
+    auto workItemHandler = ref new WorkItemHandler([this](Windows::Foundation::IAsyncAction ^ action)
     {
         critical_section::scoped_lock lock(mRenderSurfaceCriticalSection);
 
         mOpenGLES->MakeCurrent(mRenderSurface);
 
-        GLsizei width, height;
-        GetSwapChainPanelSize(&width, &height);
-        m_appDelegate->onAppStarted(width, height);
+        if (!m_appInitialized)
+        {
+            GLsizei width, height;
+            GetSwapChainPanelSize(&width, &height);
+            m_appDelegate->onAppStarted(width, height);
+
+            m_appInitialized = true;
+        }
 
         TimePoint currtime, prevtime;
         currtime = prevtime = system_clock::now();
@@ -216,14 +200,14 @@ void OpenGLESPage::StartRenderLoop()
             currtime = system_clock::now();
 
             ProcessPointers();
-            m_appDelegate->onAppUpdate(::IntervalBetween(currtime, prevtime));
+            m_appDelegate->onAppUpdate(df3d::IntervalBetween(currtime, prevtime));
 
             // The call to eglSwapBuffers might not be successful (i.e. due to Device Lost)
             // If the call fails, then we must reinitialize EGL and the GL resources.
             if (mOpenGLES->SwapBuffers(mRenderSurface) != GL_TRUE)
             {
                 // XAML objects like the SwapChainPanel must only be manipulated on the UI thread.
-                swapChainPanel->Dispatcher->RunAsync(Windows::UI::Core::CoreDispatcherPriority::High, ref new Windows::UI::Core::DispatchedHandler([=]()
+                swapChainPanel->Dispatcher->RunAsync(CoreDispatcherPriority::High, ref new DispatchedHandler([=]()
                 {
                     RecoverFromLostDevice();
                 }, CallbackContext::Any));
@@ -236,9 +220,7 @@ void OpenGLESPage::StartRenderLoop()
     });
 
     // Run task on a dedicated high priority background thread.
-    mRenderLoopWorker = Windows::System::Threading::ThreadPool::RunAsync(workItemHandler, Windows::System::Threading::WorkItemPriority::High, Windows::System::Threading::WorkItemOptions::TimeSliced);
-
-    CRUTCH = true;
+    mRenderLoopWorker = ThreadPool::RunAsync(workItemHandler, WorkItemPriority::High, WorkItemOptions::TimeSliced);
 }
 
 void OpenGLESPage::StopRenderLoop()
@@ -252,26 +234,22 @@ void OpenGLESPage::StopRenderLoop()
 
 void OpenGLESPage::ProcessPointers()
 {
-    if (!g_engineController->initialized())
+    // FIXME:
+    if (!m_appInitialized)
         return;
-
-    GLsizei width, height;
-    GetSwapChainPanelSize(&width, &height);
 
     std::shared_ptr<TouchEvent> touch;
     while (pointers.try_pop(touch))
     {
-        float x = touch->x;
-        float y = touch->y;
+        df3d::platform::AppEvent ev;
 
         switch (touch->type)
         {
         case TouchType::TOUCH_DOWN:
         {
-            df3d::platform::AppEvent ev;
             ev.type = df3d::platform::AppEvent::Type::MOUSE_BUTTON;
-            ev.mouseButton.x = x;
-            ev.mouseButton.y = y;
+            ev.mouseButton.x = touch->x;
+            ev.mouseButton.y = touch->y;
             ev.mouseButton.state = df3d::base::MouseButtonEvent::State::PRESSED;
             ev.mouseButton.button = df3d::base::MouseButtonEvent::Button::LEFT;
             g_engineController->dispatchAppEvent(ev);
@@ -280,10 +258,9 @@ void OpenGLESPage::ProcessPointers()
             break;
         case TouchType::TOUCH_MOVED:
         {
-            df3d::platform::AppEvent ev;
             ev.type = df3d::platform::AppEvent::Type::MOUSE_MOTION;
-            ev.mouseMotion.x = x;
-            ev.mouseMotion.y = y;
+            ev.mouseMotion.x = touch->x;
+            ev.mouseMotion.y = touch->y;
             ev.mouseMotion.leftPressed = true;
             g_engineController->dispatchAppEvent(ev);
             m_appDelegate->onMouseMotionEvent(ev.mouseMotion);
@@ -291,10 +268,9 @@ void OpenGLESPage::ProcessPointers()
             break;
         case TouchType::TOUCH_UP:
         {
-            df3d::platform::AppEvent ev;
             ev.type = df3d::platform::AppEvent::Type::MOUSE_BUTTON;
-            ev.mouseButton.x = x;
-            ev.mouseButton.y = y;
+            ev.mouseButton.x = touch->x;
+            ev.mouseButton.y = touch->y;
             ev.mouseButton.state = df3d::base::MouseButtonEvent::State::RELEASED;
             ev.mouseButton.button = df3d::base::MouseButtonEvent::Button::LEFT;
             g_engineController->dispatchAppEvent(ev);

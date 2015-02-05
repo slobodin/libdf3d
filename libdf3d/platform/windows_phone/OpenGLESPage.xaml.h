@@ -1,12 +1,17 @@
 ﻿#pragma once
 
 #include <platform/windows_phone/OpenGLESPage.g.h>
-#include "OpenGLES.h"
 #include <concurrent_queue.h>
+#include <angle_gl.h>
+#include <angle_windowsstore.h>
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
 
 #include <base/MacroDefs.h>
 
 FWD_MODULE_CLASS(platform, AppDelegate)
+
+class OpenGLES;
 
 namespace df3d_winrt
 {
@@ -38,21 +43,22 @@ namespace df3d_winrt
         virtual ~OpenGLESPage();
 
     internal:
-        OpenGLESPage(OpenGLES* openGLES, df3d::platform::AppDelegate *appDelegate);
+        OpenGLESPage(df3d::platform::AppDelegate *appDelegate);
 
     private:
         void OnPageLoaded(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
         void OnVisibilityChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::VisibilityChangedEventArgs^ args);
         void OnSwapChainPanelSizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e);
-        void GetSwapChainPanelSize(GLsizei* width, GLsizei* height);
+        void GetSwapChainPanelSize(int *width, int *height);
         void CreateRenderSurface();
         void DestroyRenderSurface();
         void RecoverFromLostDevice();
         void StartRenderLoop();
         void StopRenderLoop();
 
-        OpenGLES* mOpenGLES;
+        std::unique_ptr<OpenGLES> mOpenGLES;
         df3d::platform::AppDelegate* m_appDelegate;
+        bool m_appInitialized;
 
         Windows::Foundation::Size mSwapChainPanelSize;
         Concurrency::critical_section mSwapChainPanelSizeCriticalSection;
@@ -74,4 +80,3 @@ namespace df3d_winrt
         void OnPointerReleased(Platform::Object^ sender, Windows::UI::Core::PointerEventArgs^ e);
     };
 }
-
