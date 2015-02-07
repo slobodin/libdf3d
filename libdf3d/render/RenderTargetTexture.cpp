@@ -6,7 +6,7 @@
 #include "Image.h"
 #include "RenderManager.h"
 #include "Renderer.h"
-#include <base/Controller.h>
+#include <base/EngineController.h>
 
 namespace df3d { namespace render {
 

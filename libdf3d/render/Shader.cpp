@@ -2,7 +2,7 @@
 #include "Shader.h"
 
 #include "OpenGLCommon.h"
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <resources/FileDataSource.h>
 #include <resources/FileSystem.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-FWD_MODULE_CLASS(base, Controller)
+FWD_MODULE_CLASS(base, EngineController)
 FWD_MODULE_CLASS(render, RenderManager)
 FWD_MODULE_CLASS(scene, Node)
 
@@ -11,7 +11,7 @@ namespace df3d { namespace physics {
 
 class DF3D_DLL PhysicsManager
 {
-    friend class base::Controller;
+    friend class base::EngineController;
     friend class render::RenderManager;
 
     struct Impl;

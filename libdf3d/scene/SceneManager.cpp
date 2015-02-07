@@ -5,7 +5,7 @@
 #include "Node.h"
 #include "Camera.h"
 #include "SceneManagerListener.h"
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
@@ -49,16 +49,12 @@ void SceneManager::cleanStep()
     {
         auto maxLifeTime = node->getMaxLifeTime();
         if (maxLifeTime > 0 && node->getLifeTime() > maxLifeTime)
-        {
             expiredNodes.push_back(node);
-        }
     });
 
     // Post order traversal. Can remove.
     for (auto node : expiredNodes)
-    {
         node->getParent()->removeChild(node);
-    }
 }
 
 void SceneManager::clearCurrentScene()

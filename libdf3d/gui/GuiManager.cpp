@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "GuiManager.h"
 
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <base/InputEvents.h>
 #include <scripting/ScriptManager.h>
 

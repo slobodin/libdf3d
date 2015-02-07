@@ -8,7 +8,7 @@
 #include "CeguiTextureTargetImpl.h"
 #include "CeguiTextureImpl.h"
 
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <render/RenderManager.h>
 #include <render/Renderer.h>
 #include <render/Texture2D.h>

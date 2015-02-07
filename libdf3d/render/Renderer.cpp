@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "Renderer.h"
 
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include <components/LightComponent.h>
 #include "OpenGLCommon.h"

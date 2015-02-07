@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "DecoderOBJ.h"
 
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <resources/FileDataSource.h>
 #include <resources/FileSystem.h>
 #include <resources/ResourceManager.h>

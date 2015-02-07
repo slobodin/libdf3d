@@ -1,13 +1,13 @@
 #pragma once
 
 #include <scripting/ScriptManager.h>
-//#include "lua/lua.hpp"
+#include <lua/lua.hpp>
 
 namespace df3d { namespace scripting {
 
 class LuaScriptManager : public ScriptManager
 {
-    //lua_State *m_luaState;
+    lua_State *m_luaState;
 
 public:
     LuaScriptManager();

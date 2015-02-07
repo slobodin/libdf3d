@@ -7,7 +7,7 @@
 FWD_MODULE_CLASS(scene, Scene)
 FWD_MODULE_CLASS(scene, Node)
 FWD_MODULE_CLASS(scene, Camera)
-FWD_MODULE_CLASS(base, Controller)
+FWD_MODULE_CLASS(base, EngineController)
 
 namespace df3d { namespace render {
 
@@ -35,7 +35,7 @@ class RenderManager
 {
     static const size_t MAX_POSPROCESS_PASSES = 4;
 
-    friend class base::Controller;
+    friend class base::EngineController;
 
     unique_ptr<Renderer> m_renderer;
     RenderingCapabilities m_renderingCaps;

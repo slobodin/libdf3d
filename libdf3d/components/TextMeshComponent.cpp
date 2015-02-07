@@ -7,7 +7,7 @@
 #include <render/VertexIndexBuffer.h>
 #include <render/RenderQueue.h>
 #include <render/Image.h>
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include <resources/FileSystem.h>
 #include <components/TransformComponent.h>

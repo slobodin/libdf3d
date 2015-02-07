@@ -1,5 +1,5 @@
 #include "df3d_pch.h"
-#include "Controller.h"
+#include "EngineController.h"
 
 #include "InputEvents.h"
 #include <render/RenderManager.h>
@@ -25,18 +25,18 @@
 
 namespace df3d { namespace base {
 
-Controller::Controller()
+EngineController::EngineController()
 {
     base::glog << "Engine controller created" << base::logmess;
 
     m_timeStarted = std::chrono::system_clock::now();
 }
 
-Controller::~Controller()
+EngineController::~EngineController()
 {
 }
 
-void Controller::consoleCommandInvoked(const std::string &name, std::string &result)
+void EngineController::consoleCommandInvoked(const std::string &name, std::string &result)
 {
     if (name.empty())
         return;
@@ -69,7 +69,7 @@ void Controller::consoleCommandInvoked(const std::string &name, std::string &res
     result = found->second(params);
 }
 
-void Controller::shutdown()
+void EngineController::shutdown()
 {
     SAFE_DELETE(m_physics);
     SAFE_DELETE(m_scriptManager);
@@ -88,16 +88,16 @@ void Controller::shutdown()
     //delete this;
 }
 
-Controller *Controller::getInstance()
+EngineController *EngineController::getInstance()
 {
-    static Controller *controller = nullptr;
+    static EngineController *controller = nullptr;
     if (!controller)
-        controller = new Controller();
+        controller = new EngineController();
 
     return controller;
 }
 
-bool Controller::init(EngineInitParams params)
+bool EngineController::init(EngineInitParams params)
 {
     base::glog << "Initializing engine" << base::logmess;
 
@@ -154,46 +154,7 @@ bool Controller::init(EngineInitParams params)
     return m_initialized;
 }
 
-//void Controller::run()
-//{
-//    using namespace std::chrono;
-//
-//    TimePoint currtime, prevtime;
-//    currtime = prevtime = system_clock::now();
-//
-//    float lastFpsCheck = 0.0f;
-//
-//    while (!m_quitRequested)
-//    {
-//        if (!m_application->pollEvents())
-//        {
-//            currtime = system_clock::now();
-//
-//            auto dt = IntervalBetween(currtime, prevtime);
-//
-//            update(dt);
-//            runFrame();
-//
-//            prevtime = currtime;
-//
-//            m_currentFPS = 1.f / dt;
-//            lastFpsCheck += dt;
-//
-//            if (lastFpsCheck > 1.0f)        // every second
-//            {
-//                std::ostringstream os;
-//                os << "Frame time: " << dt << ", fps: " << m_currentFPS << ", draw calls: " << m_renderManager->getLastRenderStats().drawCalls;
-//
-//                m_application->setTitle(os.str().c_str());
-//                lastFpsCheck = 0.0f;
-//            }
-//        }
-//    }
-//
-//    shutdown();
-//}
-
-void Controller::update(float dt)
+void EngineController::update(float dt)
 {
     // Update engine.
     m_timeElapsed = IntervalBetweenNowAnd(m_timeStarted);
@@ -205,13 +166,13 @@ void Controller::update(float dt)
     m_renderManager->update(m_sceneManager->getCurrentScene());
 }
 
-void Controller::postUpdate()
+void EngineController::postUpdate()
 {
     // Clean up.
     m_sceneManager->cleanStep();
 }
 
-void Controller::runFrame()
+void EngineController::runFrame()
 {
     m_renderManager->onFrameBegin();
 
@@ -221,19 +182,19 @@ void Controller::runFrame()
     m_renderManager->onFrameEnd();
 }
 
-const render::RenderStats &Controller::getLastRenderStats() const
+const render::RenderStats &EngineController::getLastRenderStats() const
 {
     return m_renderManager->getLastRenderStats();
 }
 
-void Controller::toggleDebugWindow()
+void EngineController::toggleDebugWindow()
 {
 #ifdef ENABLE_DEBUG_WINDOW
     m_debugWindow->toggle();
 #endif
 }
 
-void Controller::registerConsoleCommandHandler(const char *commandName, ConsoleCommandHandler handler)
+void EngineController::registerConsoleCommandHandler(const char *commandName, ConsoleCommandHandler handler)
 {
     auto found = m_consoleCommandsHandlers.find(commandName);
     if (found != m_consoleCommandsHandlers.end())
@@ -245,12 +206,12 @@ void Controller::registerConsoleCommandHandler(const char *commandName, ConsoleC
     m_consoleCommandsHandlers[commandName] = handler;
 }
 
-void Controller::unregisterConsoleCommandHandler(const char *commandName)
+void EngineController::unregisterConsoleCommandHandler(const char *commandName)
 {
     m_consoleCommandsHandlers.erase(commandName);
 }
 
-void Controller::dispatchAppEvent(const platform::AppEvent &event)
+void EngineController::dispatchAppEvent(const platform::AppEvent &event)
 {
     switch (event.type)
     {
@@ -274,12 +235,12 @@ void Controller::dispatchAppEvent(const platform::AppEvent &event)
     }
 }
 
-const render::Viewport &Controller::getViewport() const
+const render::Viewport &EngineController::getViewport() const
 {
     return m_renderManager->getScreenRenderTarget()->getViewport();
 }
 
-void Controller::setViewport(const render::Viewport &newvp)
+void EngineController::setViewport(const render::Viewport &newvp)
 {
     m_renderManager->getScreenRenderTarget()->setViewport(newvp);
 }

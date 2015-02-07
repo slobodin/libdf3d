@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "ScriptComponent.h"
 
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <scripting/ScriptManager.h>
 
 namespace df3d { namespace components {

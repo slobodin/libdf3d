@@ -2,7 +2,7 @@
 #include "AudioComponent.h"
 
 #include <utils/JsonHelpers.h>
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include <scene/Node.h>
 #include <components/TransformComponent.h>

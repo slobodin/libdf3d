@@ -71,10 +71,12 @@ set(lua_SRC_LIST
 
 include_directories(${PROJECT_SOURCE_DIR}/../../include/lua)
 
-# if(MSVC)
-#     add_definitions(-DWIN32 -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_WARNINGS)
+if (WINDOWS)
+    add_definitions(-DWIN32 -DDF3D_WINDOWS)
+endif()
 
-#     set_source_files_properties(${lua_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4456\" /wd\"4838\" /wd\"4244\" /wd\"4305\" /wd\"4457\" /wd\"4458\"")
-# endif(MSVC)
+if (WINDOWS_PHONE)
+    add_definitions(-DDF3D_WINDOWS_PHONE)
+endif()
 
 add_library(lua STATIC ${lua_SRC_LIST} ${lua_HEADER_LIST})

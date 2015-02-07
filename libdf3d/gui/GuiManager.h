@@ -2,15 +2,15 @@
 
 #include <base/InputEvents.h>
 
-FWD_MODULE_CLASS(base, Controller)
+FWD_MODULE_CLASS(base, EngineController)
 FWD_MODULE_CLASS(render, RenderManager)
 
 namespace df3d { namespace gui {
 
 class DF3D_DLL GuiManager
 {
-    // Update, render, init and shutdown should be called only by Controller and RenderManager.
-    friend class base::Controller;
+    // Update, render, init and shutdown should be called only by EngineController and RenderManager.
+    friend class base::EngineController;
     friend class render::RenderManager;
 
     GuiManager(int contextWidth, int contextHeight);

@@ -1,6 +1,6 @@
 #pragma once
 
-FWD_MODULE_CLASS(base, Controller)
+FWD_MODULE_CLASS(base, EngineController)
 
 namespace df3d { namespace resources {
 
@@ -8,7 +8,7 @@ class FileDataSource;
 
 class DF3D_DLL FileSystem : boost::noncopyable
 {
-    friend class base::Controller;
+    friend class base::EngineController;
 
     FileSystem();
     ~FileSystem();

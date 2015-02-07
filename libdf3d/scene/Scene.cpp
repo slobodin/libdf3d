@@ -11,13 +11,14 @@ namespace df3d { namespace scene {
 
 void statsCollector(render::RenderStats *stats, shared_ptr<Node> n)
 {
-    if (n->mesh())
-        stats->totalNodes++;
-    if (n->vfx())
-    {
-        stats->totalParticleSystems++;
-        stats->totalParticles += n->vfx()->getParticlesCount();
-    }
+    stats->totalNodes++;
+    //if (n->mesh())
+    //    stats->totalNodes++;
+    //if (n->vfx())
+    //{
+    //    stats->totalParticleSystems++;
+    //    stats->totalParticles += n->vfx()->getParticlesCount();
+    //}
 }
 
 Scene::Scene()

@@ -2,7 +2,7 @@
 #include "MeshData.h"
 
 #include "SubMesh.h"
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 
 namespace df3d { namespace render {

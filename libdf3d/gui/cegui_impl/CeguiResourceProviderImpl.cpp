@@ -3,7 +3,7 @@
 
 #include <CEGUI/CEGUI.h>
 
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
 

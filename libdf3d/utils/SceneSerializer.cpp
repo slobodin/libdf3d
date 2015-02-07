@@ -7,7 +7,7 @@
 #include <scene/Camera.h>
 #include <scene/SceneManager.h>
 #include <components/TransformComponent.h>
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include <render/MaterialLib.h>
 

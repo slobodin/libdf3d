@@ -3,7 +3,7 @@
 
 #include <components/TransformComponent.h>
 #include <particlesys/SparkInterface.h>
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
 #include <scene/Node.h>

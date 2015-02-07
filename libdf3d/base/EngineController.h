@@ -19,10 +19,10 @@ namespace df3d { namespace base {
 
 using ConsoleCommandHandler = std::function<std::string(const std::string &)>;
 
-class DF3D_DLL Controller : boost::noncopyable
+class DF3D_DLL EngineController : boost::noncopyable
 {
-    Controller();
-    ~Controller();
+    EngineController();
+    ~EngineController();
 
     render::RenderManager *m_renderManager = nullptr;
     scene::SceneManager *m_sceneManager = nullptr;
@@ -44,7 +44,7 @@ class DF3D_DLL Controller : boost::noncopyable
     float m_timeElapsed = 0;
 
 public:
-    static Controller *getInstance();
+    static EngineController *getInstance();
 
     bool init(EngineInitParams params);
     void shutdown();
@@ -80,13 +80,13 @@ public:
 
 } }
 
-#define g_engineController df3d::base::Controller::getInstance()
+#define g_engineController df3d::base::EngineController::getInstance()
 
-#define g_sceneManager df3d::base::Controller::getInstance()->getSceneManager()
-#define g_resourceManager df3d::base::Controller::getInstance()->getResourceManager()
-#define g_fileSystem df3d::base::Controller::getInstance()->getFileSystem()
-#define g_renderManager df3d::base::Controller::getInstance()->getRenderManager()
-#define g_guiManager df3d::base::Controller::getInstance()->getGuiManager()
-#define g_scriptManager df3d::base::Controller::getInstance()->getScriptManager()
-#define g_physicsWorld df3d::base::Controller::getInstance()->getPhysicsManager()->getWorld()
-#define g_audioManager df3d::base::Controller::getInstance()->getAudioManager()
+#define g_sceneManager df3d::base::EngineController::getInstance()->getSceneManager()
+#define g_resourceManager df3d::base::EngineController::getInstance()->getResourceManager()
+#define g_fileSystem df3d::base::EngineController::getInstance()->getFileSystem()
+#define g_renderManager df3d::base::EngineController::getInstance()->getRenderManager()
+#define g_guiManager df3d::base::EngineController::getInstance()->getGuiManager()
+#define g_scriptManager df3d::base::EngineController::getInstance()->getScriptManager()
+#define g_physicsWorld df3d::base::EngineController::getInstance()->getPhysicsManager()->getWorld()
+#define g_audioManager df3d::base::EngineController::getInstance()->getAudioManager()

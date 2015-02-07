@@ -5,7 +5,7 @@
 #include <utils/JsonHelpers.h>
 #include <utils/Utils.h>
 #include <particlesys/SparkInterface.h>
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include <render/Texture2D.h>
 #include <render/RenderOperation.h>

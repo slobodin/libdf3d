@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "WindowsApplication.h"
 
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include "WindowsKeyCodes.h"
 
 #define GLEW_STATIC

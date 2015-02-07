@@ -10,7 +10,7 @@
 #include <utils/JsonHelpers.h>
 #include <utils/SceneSerializer.h>
 
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <base/Log.h>
 #include <base/InputEvents.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-FWD_MODULE_CLASS(base, Controller)
+FWD_MODULE_CLASS(base, EngineController)
 
 namespace df3d { namespace audio {
 
@@ -8,7 +8,7 @@ class AudioNode;
 
 class DF3D_DLL AudioManager
 {
-    friend class base::Controller;
+    friend class base::EngineController;
     friend class AudioNode;
 
     struct Impl;

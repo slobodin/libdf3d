@@ -2,7 +2,7 @@
 #include "DebugOverlayWindow.h"
 
 #include "GuiManager.h"
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <render/RenderStats.h>
 #include <scene/SceneManager.h>
 #include <scene/Node.h>

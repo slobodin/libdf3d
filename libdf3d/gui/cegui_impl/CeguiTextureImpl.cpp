@@ -5,7 +5,7 @@
 #include <CEGUI/CEGUI.h>
 #include <render/Image.h>
 #include <render/Texture2D.h>
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 
 namespace df3d { namespace gui { namespace cegui_impl {

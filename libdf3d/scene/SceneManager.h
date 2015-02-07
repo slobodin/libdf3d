@@ -1,6 +1,6 @@
 #pragma once
 
-FWD_MODULE_CLASS(base, Controller)
+FWD_MODULE_CLASS(base, EngineController)
 
 namespace df3d { namespace scene {
 
@@ -11,7 +11,7 @@ class SceneManagerListener;
 
 class DF3D_DLL SceneManager : boost::noncopyable
 {
-    friend class base::Controller;
+    friend class base::EngineController;
 
     SceneManager();
     ~SceneManager();

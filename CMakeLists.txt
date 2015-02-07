@@ -8,6 +8,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/bullet)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libogg)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libvorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/spark)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/lua)
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
@@ -18,7 +19,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/OpenALCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Common.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/Controller.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
@@ -119,7 +120,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/OpenALCommon.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Common.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/Controller.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/ThreadPool.cpp
@@ -292,7 +293,8 @@ target_link_libraries(libdf3d
     BulletPhysics
     libogg
     libspark
-    libvorbis)
+    libvorbis
+    lua)
 
 if (WINDOWS)
     target_link_libraries(libdf3d ${OPENGL_LIBRARIES})

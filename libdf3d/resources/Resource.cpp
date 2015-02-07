@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "Resource.h"
 
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <resources/FileSystem.h>
 
 namespace df3d { namespace resources {

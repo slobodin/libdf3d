@@ -2,7 +2,7 @@
 #include "SparkInterface.h"
 
 #include <render/RenderPass.h>
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
 #include <components/TransformComponent.h>
