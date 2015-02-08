@@ -671,6 +671,7 @@ static int noenv (lua_State *L) {
 
 static void setpath (lua_State *L, const char *fieldname, const char *envname1,
                                    const char *envname2, const char *def) {
+#if !defined(DF3D_WINDOWS_PHONE)
   const char *path = getenv(envname1);
   if (path == NULL)  /* no environment variable? */
     path = getenv(envname2);  /* try alternative name */
@@ -685,6 +686,11 @@ static void setpath (lua_State *L, const char *fieldname, const char *envname1,
   }
   setprogdir(L);
   lua_setfield(L, -2, fieldname);
+#else
+  lua_pushstring(L, def);
+  setprogdir(L);
+  lua_setfield(L, -2, fieldname);
+#endif
 }
 
 
