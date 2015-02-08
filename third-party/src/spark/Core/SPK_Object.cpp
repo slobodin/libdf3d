@@ -40,7 +40,7 @@ namespace SPK
 		shared(obj.shared),
 		copyBuffer(NULL)
 	{
-		SPK_LOG_DEBUG("Creation of SPKObject " << this << " from " << &obj);
+		//SPK_LOG_DEBUG("Creation of SPKObject " << this << " from " << &obj);
 	}
 
 	SPKObject::~SPKObject()
