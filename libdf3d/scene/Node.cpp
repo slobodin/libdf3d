@@ -51,10 +51,6 @@ Node::Node(const char *name)
     m_nodeName = name;
     if (m_nodeName.empty())
         m_nodeName = std::string("unnamed_node_") + std::to_string(nodesCount++);
-
-    // NOTE: does node have to have transform by default?
-    // Has transform by default.
-    //attachComponent(make_shared<components::TransformComponent>());
 }
 
 Node::~Node()

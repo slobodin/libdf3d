@@ -1,16 +1,22 @@
 #pragma once
 
+struct lua_State;
+
 namespace df3d { namespace scripting {
 
 class DF3D_DLL ScriptManager : public boost::noncopyable
 {
-public:
-    ScriptManager() = default;
-    virtual ~ScriptManager() = default;
+    lua_State *m_luaState;
 
-    virtual bool doFile(const char *fileName) = 0;
-    virtual bool doString(const char *str) = 0;
-    virtual void printError() = 0;
+public:
+    ScriptManager();
+    ~ScriptManager();
+
+    bool doFile(const char *fileName);
+    bool doString(const char *str);
+    void printError();
+
+    void performBinding(std::function<void(lua_State *)> binder);
 };
 
 } }
