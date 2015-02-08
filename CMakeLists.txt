@@ -208,7 +208,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.cpp
 )
 
-add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD)
+add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD -DLUA_BUILD_AS_DLL)
 
 if (NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party" CACHE PATH "third-party")

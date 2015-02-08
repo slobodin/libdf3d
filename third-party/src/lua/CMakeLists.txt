@@ -71,6 +71,8 @@ set(lua_SRC_LIST
 
 include_directories(${PROJECT_SOURCE_DIR}/../../include/lua)
 
+add_definitions(-DLUA_BUILD_AS_DLL)
+
 if (WINDOWS)
     add_definitions(-DWIN32 -DDF3D_WINDOWS)
 endif()
@@ -79,4 +81,4 @@ if (WINDOWS_PHONE)
     add_definitions(-DDF3D_WINDOWS_PHONE)
 endif()
 
-add_library(lua STATIC ${lua_SRC_LIST} ${lua_HEADER_LIST})
+add_library(lua SHARED ${lua_SRC_LIST} ${lua_HEADER_LIST})

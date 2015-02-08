@@ -52,9 +52,4 @@ void ScriptManager::printError()
 
 }
 
-void ScriptManager::performBinding(std::function<void(lua_State *)> binder)
-{
-    binder(m_luaState);
-}
-
 } }

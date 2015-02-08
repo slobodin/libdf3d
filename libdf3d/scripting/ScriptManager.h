@@ -16,7 +16,7 @@ public:
     bool doString(const char *str);
     void printError();
 
-    void performBinding(std::function<void(lua_State *)> binder);
+    lua_State *getLuaState() { return m_luaState; }
 };
 
 } }
