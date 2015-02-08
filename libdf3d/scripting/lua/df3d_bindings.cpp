@@ -11,11 +11,18 @@ float vecDot(const glm::vec3 &a, const glm::vec3 &b)
     return glm::dot(a, b);
 }
 
+void df3dLog(const char *msg)
+{
+    base::glog << msg << base::loglua;
+}
+
 void bindGlm(lua_State *L)
 {
     using namespace luabridge;
 
     getGlobalNamespace(L)
+        .addFunction("LOG", df3dLog)
+
         .beginNamespace("glm")
             .beginClass <glm::vec3>("vec3")
                 .addConstructor<void(*)()>()

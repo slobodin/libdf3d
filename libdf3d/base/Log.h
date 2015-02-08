@@ -56,5 +56,6 @@ extern const DF3D_DLL LoggerManipulator logmess;
 extern const DF3D_DLL LoggerManipulator logwarn;
 extern const DF3D_DLL LoggerManipulator logcritical;
 extern const DF3D_DLL LoggerManipulator loggame;
+extern const DF3D_DLL LoggerManipulator loglua;
 
 } }

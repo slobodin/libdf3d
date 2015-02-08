@@ -20,7 +20,8 @@ enum class MessageType
     MESSAGE,
     WARNING,
     CRITICAL,
-    GAME
+    GAME,
+    LUA
 };
 
 Log::Log()
@@ -174,6 +175,13 @@ Log &Log::operator<< (const LoggerManipulator &man)
         androidPriority = ANDROID_LOG_INFO;
 #endif
         break;
+
+    case MessageType::LUA:
+        std::cerr << "[lua]: ";
+#if defined(__ANDROID__)
+        androidPriority = ANDROID_LOG_INFO;
+#endif
+        break;
     }
 
 #if defined(__ANDROID__)
@@ -210,5 +218,6 @@ const LoggerManipulator logmess(MessageType::MESSAGE);
 const LoggerManipulator logwarn(MessageType::WARNING);
 const LoggerManipulator logcritical(MessageType::CRITICAL);
 const LoggerManipulator loggame(MessageType::GAME);
+const LoggerManipulator loglua(MessageType::LUA);
 
 } }

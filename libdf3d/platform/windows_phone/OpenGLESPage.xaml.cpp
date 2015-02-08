@@ -5,7 +5,7 @@
 #include <Ships3dAppDelegate.h>
 #include <libdf3d_dll.h>
 #include <base/Common.h>
-#include <base/Controller.h>
+#include <base/EngineController.h>
 #include <platform/Application.h>
 #include <platform/AppDelegate.h>
 
