@@ -9,6 +9,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libogg)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libvorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/spark)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/lua)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/luabind)
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
@@ -208,7 +209,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.cpp
 )
 
-add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD -DLUA_BUILD_AS_DLL)
+add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD -DLUA_BUILD_AS_DLL -DLUA_COMPAT_5_1)
 
 if (NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party" CACHE PATH "third-party")
@@ -294,7 +295,8 @@ target_link_libraries(libdf3d
     libogg
     libspark
     libvorbis
-    lua)
+    lua
+    luabind)
 
 if (WINDOWS)
     target_link_libraries(libdf3d ${OPENGL_LIBRARIES})
