@@ -1,5 +1,5 @@
 /*
-** $Id: luaconf.h,v 1.236 2014/12/19 13:31:12 roberto Exp $
+** $Id: luaconf.h,v 1.238 2014/12/29 13:27:55 roberto Exp $
 ** Configuration file for Lua
 ** See Copyright Notice in lua.h
 */
@@ -47,7 +47,7 @@
 /*
 ** By default, Lua on Windows use (some) specific Windows features
 */
-#if !defined(LUA_USE_C89) && defined(_WIN32) && !defined(_WIN32_WCE) && !defined(DF3D_WINDOWS_PHONE)
+#if !defined(LUA_USE_C89) && defined(_WIN32) && !defined(_WIN32_WCE)
 #define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
 #endif
 
@@ -476,7 +476,7 @@
 #include <math.h>
 
 /* floor division (defined as 'floor(a/b)') */
-#define luai_numidiv(L,a,b)	((void)L, l_mathop(floor)((a)/(b)))
+#define luai_numidiv(L,a,b)	((void)L, l_mathop(floor)(luai_numdiv(L,a,b)))
 
 /*
 ** module: defined as 'a - floor(a/b)*b'; the previous definition gives
@@ -505,14 +505,6 @@
 #define luai_numle(a,b)		((a)<=(b))
 #define luai_numisnan(a)	(!luai_numeq((a), (a)))
 #endif
-
-
-/*
-** The following macro checks whether an operation is not safe to be
-** performed by the constant folder. It should result in zero only if
-** the operation is safe.
-*/
-#define luai_numinvalidop(op,a,b)	0
 
 
 /*

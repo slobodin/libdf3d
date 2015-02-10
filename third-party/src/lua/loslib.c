@@ -1,5 +1,5 @@
 /*
-** $Id: loslib.c,v 1.53 2014/12/10 15:42:42 roberto Exp $
+** $Id: loslib.c,v 1.54 2014/12/26 14:46:07 roberto Exp $
 ** Standard Operating System library
 ** See Copyright Notice in lua.h
 */
@@ -100,8 +100,8 @@
 #else				/* }{ */
 
 /* ISO C definitions */
-#define l_gmtime(t,r)		((void)r, gmtime(t))
-#define l_localtime(t,r)  	((void)r, localtime(t))
+#define l_gmtime(t,r)		((void)(r)->tm_sec, gmtime(t))
+#define l_localtime(t,r)  	((void)(r)->tm_sec, localtime(t))
 
 #endif				/* } */
 
@@ -110,10 +110,6 @@
 
 
 static int os_execute (lua_State *L) {
-#if defined(DF3D_WINDOWS_PHONE)
-  luaL_error(L, "os_execute is not supported");
-  return 1;
-#else
   const char *cmd = luaL_optstring(L, 1, NULL);
   int stat = system(cmd);
   if (cmd != NULL)
@@ -122,7 +118,6 @@ static int os_execute (lua_State *L) {
     lua_pushboolean(L, stat);  /* true if there is a shell */
     return 1;
   }
-#endif
 }
 
 
@@ -151,11 +146,7 @@ static int os_tmpname (lua_State *L) {
 
 
 static int os_getenv (lua_State *L) {
-#if defined(DF3D_WINDOWS_PHONE)
-  luaL_error(L, "os_getenv is not supported");
-#else
   lua_pushstring(L, getenv(luaL_checkstring(L, 1)));  /* if NULL push nil */
-#endif
   return 1;
 }
 
