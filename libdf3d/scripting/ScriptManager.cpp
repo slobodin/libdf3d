@@ -2,6 +2,7 @@
 #include "ScriptManager.h"
 
 #include <lua/lua.hpp>
+#include <luabind/luabind.hpp>
 
 #include <base/EngineController.h>
 #include <resources/FileSystem.h>
@@ -18,6 +19,8 @@ ScriptManager::ScriptManager()
         throw std::runtime_error("Failed to create lua state.");
 
     luaL_openlibs(m_luaState);
+
+    luabind::open(m_luaState);
 
     bindGlm(m_luaState);
 }

@@ -1,15 +1,10 @@
 #include "df3d_pch.h"
 #include "df3d_bindings.h"
 
-#include <lua/lua.hpp>
-#include <LuaBridge/LuaBridge.h>
+#include <luabind/luabind.hpp>
+#include <luabind/operator.hpp>
 
 namespace df3d { namespace scripting {
-
-float vecDot(const glm::vec3 &a, const glm::vec3 &b)
-{
-    return glm::dot(a, b);
-}
 
 void df3dLog(const char *msg)
 {
@@ -18,22 +13,55 @@ void df3dLog(const char *msg)
 
 void bindGlm(lua_State *L)
 {
-    using namespace luabridge;
+    using namespace luabind;
+    using value_type = glm::vec3::value_type;
 
-    getGlobalNamespace(L)
-        .addFunction("LOG", df3dLog)
+    module(L, "glm")
+    [
+        class_<glm::vec4>("vec4")
+            .def(constructor<>())
+            .def(constructor<value_type, value_type, value_type, value_type>())
 
-        .beginNamespace("glm")
-            .beginClass <glm::vec3>("vec3")
-                .addConstructor<void(*)()>()
-                .addData("x", &glm::vec3::x)
-                .addData("y", &glm::vec3::y)
-                .addData("z", &glm::vec3::z)
-            .endClass()
+            .def_readonly("x", &glm::vec4::x)
+            .def_readonly("y", &glm::vec4::y)
+            .def_readonly("z", &glm::vec4::z)
+            .def_readonly("w", &glm::vec4::w)
 
-            .addFunction("dot", vecDot)
+            .def(self + glm::vec4())
+            .def(self - glm::vec4())
+            .def(value_type() * self)
+            .def(self * value_type())
+            .def(self / value_type())
+        ,
 
-        .endNamespace();
+        class_<glm::vec3>("vec3")
+            .def(constructor<>())
+            .def(constructor<value_type, value_type, value_type>())
+
+            .def_readonly("x", &glm::vec3::x)
+            .def_readonly("y", &glm::vec3::y)
+            .def_readonly("z", &glm::vec3::z)
+
+            .def(self + glm::vec3())
+            .def(self - glm::vec3())
+            .def(value_type() * self)
+            .def(self * value_type())
+            .def(self / value_type())
+        ,
+
+        class_<glm::vec2>("vec2")
+            .def(constructor<>())
+            .def(constructor<value_type, value_type>())
+
+            .def_readonly("x", &glm::vec2::x)
+            .def_readonly("y", &glm::vec2::y)
+
+            .def(self + glm::vec2())
+            .def(self - glm::vec2())
+            .def(value_type() * self)
+            .def(self * value_type())
+            .def(self / value_type())
+    ];
 }
 
 } }
