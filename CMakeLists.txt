@@ -9,7 +9,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libogg)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libvorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/spark)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/lua)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/luabind)
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
@@ -295,8 +294,7 @@ target_link_libraries(libdf3d
     libogg
     libspark
     libvorbis
-    lua
-    luabind)
+    lua)
 
 if (WINDOWS)
     target_link_libraries(libdf3d ${OPENGL_LIBRARIES})
