@@ -1,12 +1,12 @@
 #pragma once
 
-struct lua_State;
+namespace sel { class State; }
 
 namespace df3d { namespace scripting {
 
 class DF3D_DLL ScriptManager : public boost::noncopyable
 {
-    lua_State *m_luaState;
+    unique_ptr<sel::State> m_state;
 
 public:
     ScriptManager();
@@ -15,8 +15,6 @@ public:
     bool doFile(const char *fileName);
     bool doString(const char *str);
     void printError();
-
-    lua_State *getLuaState() { return m_luaState; }
 };
 
 } }

@@ -2,7 +2,7 @@
 #include "ScriptManager.h"
 
 #include <lua/lua.hpp>
-#include <luabind/luabind.hpp>
+#include <selene/selene.h>
 
 #include <base/SystemsMacro.h>
 #include "lua/df3d_bindings.h"
@@ -13,20 +13,14 @@ ScriptManager::ScriptManager()
 {
     base::glog << "Initializing Lua" << base::logmess;
 
-    m_luaState = luaL_newstate();
-    if (!m_luaState)
-        throw std::runtime_error("Failed to create lua state.");
+    m_state = make_unique<sel::State>(true);
 
-    luaL_openlibs(m_luaState);
-
-    luabind::open(m_luaState);
-
-    bindGlm(m_luaState);
+    bindGlm(m_state.get());
 }
 
 ScriptManager::~ScriptManager()
 {
-    lua_close(m_luaState);
+
 }
 
 bool ScriptManager::doFile(const char *fileName)
@@ -35,9 +29,9 @@ bool ScriptManager::doFile(const char *fileName)
 
     base::glog << "Executing" << fullp << base::logdebug;
 
-    if (luaL_dofile(m_luaState, fullp.c_str()))
+    if (!m_state->Load(fullp))
     {
-        base::glog << "Lua script execution failed due to" << lua_tostring(m_luaState, -1) << base::logwarn;
+        base::glog << "Lua script execution failed." << base::logwarn;
         return false;
     }
 
