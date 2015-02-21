@@ -58,7 +58,8 @@ set(luabind_SRC_LIST
     ${PROJECT_SOURCE_DIR}/wrapper_base.cpp
 )
 
-include_directories(${PROJECT_SOURCE_DIR}/../../include/)
+include_directories(${PROJECT_SOURCE_DIR}/../../include/
+                    ${Boost_INCLUDE_DIRS})
 
 add_definitions(-DLUA_COMPAT_5_1)
 
@@ -69,6 +70,10 @@ endif()
 if (WINDOWS_PHONE)
     add_definitions(-DDF3D_WINDOWS_PHONE)
 endif()
+
+if (CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+endif(CMAKE_COMPILER_IS_GNUCXX)
 
 if(MSVC)
     set_source_files_properties(${luabind_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4459\" /wd\"4456\"")
