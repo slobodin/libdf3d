@@ -24,7 +24,6 @@ class Renderer
     int m_maxTextureSize = -1;
     float m_maxAnisotropyLevel = 1.0f;
 
-    void loadEmbedGPUPrograms() const;
     void createWhiteTexture();
 
     // Helpers.

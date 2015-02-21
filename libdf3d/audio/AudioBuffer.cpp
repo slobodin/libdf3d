@@ -16,9 +16,4 @@ AudioBuffer::~AudioBuffer()
         alDeleteBuffers(1, &m_alBufferId);
 }
 
-bool AudioBuffer::init()
-{
-    return true;
-}
-
 } }

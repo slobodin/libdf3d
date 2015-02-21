@@ -3,6 +3,7 @@
 #include "libdf3d_dll.h"
 #include "df3d_config.h"
 
+#include <base/TypeDefs.h>
 #include <base/MacroDefs.h>
 #include <base/Common.h>
 
@@ -10,7 +11,7 @@
 #include <utils/JsonHelpers.h>
 #include <utils/SceneSerializer.h>
 
-#include <base/EngineController.h>
+#include <base/SystemsMacro.h>
 #include <base/Log.h>
 #include <base/InputEvents.h>
 
@@ -41,17 +42,12 @@
 #include <render/RenderStats.h>
 #include <render/Viewport.h>
 
-#include <resources/ResourceManager.h>
 #include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
 
 #include <gui/GuiManager.h>
 
 #include <scripting/ScriptManager.h>
-#if defined(DF3D_USES_PYTHON)
-#include <scripting/PythonUpdateProxy.h>
-#include <scripting/PythonInputProxy.h>
-#endif
 
 #include <physics/PhysicsManager.h>
 #include <bullet/btBulletCollisionCommon.h>

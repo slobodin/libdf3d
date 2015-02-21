@@ -12,7 +12,6 @@ public:
     AudioBuffer(unsigned bufferId);
     ~AudioBuffer();
 
-    bool init();
     unsigned getALId() const { return m_alBufferId; }
 };
 

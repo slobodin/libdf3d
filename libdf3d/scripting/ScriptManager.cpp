@@ -4,8 +4,7 @@
 #include <lua/lua.hpp>
 #include <luabind/luabind.hpp>
 
-#include <base/EngineController.h>
-#include <resources/FileSystem.h>
+#include <base/SystemsMacro.h>
 #include "lua/df3d_bindings.h"
 
 namespace df3d { namespace scripting {

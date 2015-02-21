@@ -2,8 +2,7 @@
 #include "MeshData.h"
 
 #include "SubMesh.h"
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
+#include <base/SystemsMacro.h>
 
 namespace df3d { namespace render {
 
@@ -62,16 +61,6 @@ void MeshData::computeNormals()
 {
     for (auto sm : m_submeshes)
         sm->computeNormals();
-}
-
-bool MeshData::init()
-{
-    // TODO:
-    // Compute normals?
-    
-    //assert(false);
-
-    return true;
 }
 
 shared_ptr<MeshData> MeshData::clone() const

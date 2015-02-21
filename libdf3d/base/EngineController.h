@@ -79,14 +79,3 @@ public:
 };
 
 } }
-
-#define g_engineController df3d::base::EngineController::getInstance()
-
-#define g_sceneManager df3d::base::EngineController::getInstance()->getSceneManager()
-#define g_resourceManager df3d::base::EngineController::getInstance()->getResourceManager()
-#define g_fileSystem df3d::base::EngineController::getInstance()->getFileSystem()
-#define g_renderManager df3d::base::EngineController::getInstance()->getRenderManager()
-#define g_guiManager df3d::base::EngineController::getInstance()->getGuiManager()
-#define g_scriptManager df3d::base::EngineController::getInstance()->getScriptManager()
-#define g_physicsWorld df3d::base::EngineController::getInstance()->getPhysicsManager()->getWorld()
-#define g_audioManager df3d::base::EngineController::getInstance()->getAudioManager()

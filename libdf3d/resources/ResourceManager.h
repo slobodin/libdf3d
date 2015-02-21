@@ -1,35 +1,34 @@
 #pragma once
 
-#include <resources/Resource.h>
+#include <base/TypeDefs.h>
 
 FWD_MODULE_CLASS(base, ThreadPool)
 FWD_MODULE_CLASS(base, EngineController)
+FWD_MODULE_CLASS(audio, AudioBuffer)
+FWD_MODULE_CLASS(render, Texture2D)
+FWD_MODULE_CLASS(render, TextureCube)
+FWD_MODULE_CLASS(render, GpuProgram)
+FWD_MODULE_CLASS(render, MeshData)
+FWD_MODULE_CLASS(render, MaterialLib)
 
 namespace df3d { namespace resources {
 
+class Resource;
 class ResourceDecoder;
 class FileDataSource;
 
-/**
- * Manages simple resources, like images, shaders, meshes, etc.
- */
 class DF3D_DLL ResourceManager : boost::noncopyable
 {
     friend class base::EngineController;
-public:
-    enum class LoadMode
-    {
-        IMMEDIATE,    /**< Load resource in current thread. */
-        ASYNC         /**< Load in separate thread. */
-    };
 
-private:
     struct DecodeRequest
     {
         shared_ptr<ResourceDecoder> decoder;
         std::string filePath;
         shared_ptr<Resource> resource;
     };
+
+    void loadEmbedResources();
     void doRequest(DecodeRequest req);
 
     unique_ptr<base::ThreadPool> m_threadPool;
@@ -40,15 +39,29 @@ private:
     ResourceManager();
     ~ResourceManager();
 
-    shared_ptr<Resource> findResource(const std::string &fullPath) const;
+    shared_ptr<Resource> findResource(const std::string &guid) const;
     shared_ptr<ResourceDecoder> getDecoder(const std::string &extension) const;
 
-public:
-    template<typename T>
-    shared_ptr<T> getResource(const char *path, LoadMode lm = LoadMode::IMMEDIATE);
+    shared_ptr<Resource> loadResourceFromFileSystem(const char *path, ResourceLoadingMode lm);
 
-    shared_ptr<Resource> loadResource(const char *path, LoadMode lm = LoadMode::IMMEDIATE);
-    void loadResources(const std::vector<std::string> &resourcesList, LoadMode lm = LoadMode::IMMEDIATE);
+public:
+    shared_ptr<audio::AudioBuffer> createAudioBuffer(const char *audioPath);
+    shared_ptr<render::GpuProgram> createGpuProgram(const char *vertexShader, const char *fragmentShader);
+    shared_ptr<render::GpuProgram> createSimpleLightingGpuProgram();
+    shared_ptr<render::GpuProgram> createFFP2DGpuProgram();
+    shared_ptr<render::GpuProgram> createColoredGpuProgram();
+    shared_ptr<render::GpuProgram> createRttQuadProgram();
+    shared_ptr<render::GpuProgram> createAmbientPassProgram();
+    shared_ptr<render::MeshData> createMeshData(const char *meshDataPath, ResourceLoadingMode lm);
+    shared_ptr<render::Texture2D> createTexture(const char *imagePath, ResourceLoadingMode lm);
+    shared_ptr<render::Texture2D> createEmptyTexture(const char *id = nullptr);
+    shared_ptr<render::TextureCube> createCubeTexture(const char *positiveXImage, const char *negativeXImage, 
+                                                      const char *positiveYImage, const char *negativeYImage, 
+                                                      const char *positiveZImage, const char *negativeZImage, 
+                                                      ResourceLoadingMode lm);
+    shared_ptr<render::MaterialLib> createMaterialLib(const char *mtlLibPath);
+
+    void loadResources(const std::vector<std::string> &resourcesList, ResourceLoadingMode lm);
 
     void appendResource(shared_ptr<Resource> resource);
 
@@ -56,18 +69,7 @@ public:
     void unloadResource(shared_ptr<Resource> resource);
     void unloadUnused();
 
-    bool isResourceExists(const char *path) const;
+    bool resourceExists(const char *path) const;
 };
-
-template<typename T>
-shared_ptr<T> ResourceManager::getResource(const char *path, LoadMode lm)
-{
-    auto resFound = loadResource(path, lm);
-
-    if (resFound && std::dynamic_pointer_cast<T>(resFound))
-        return std::dynamic_pointer_cast<T>(resFound);
-    else
-        return nullptr;
-}
 
 } }

@@ -15,8 +15,6 @@ public:
     MaterialLib();
     ~MaterialLib();
 
-    bool init();
-
     shared_ptr<Material> getMaterial(const char *name);
     void appendMaterial(shared_ptr<Material> material);
 

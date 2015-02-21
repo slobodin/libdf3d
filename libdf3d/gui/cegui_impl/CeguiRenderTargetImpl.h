@@ -4,8 +4,7 @@
 #include <CEGUI/GeometryBuffer.h>
 #include <cegui/Exceptions.h>
 #include "CeguiRendererImpl.h"
-#include <base/EngineController.h>
-#include <render/RenderManager.h>
+#include <base/SystemsMacro.h>
 #include <render/Renderer.h>
 #include <render/RenderTarget.h>
 

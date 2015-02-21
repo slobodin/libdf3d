@@ -23,8 +23,6 @@ public:
     void setMaterial(shared_ptr<render::Material> newMaterial);
     void computeNormals();
 
-    bool init();
-
     size_t getTrianglesCount() const { return m_trianglesCount; }
     const std::vector<shared_ptr<SubMesh>> &getSubMeshes() const { return m_submeshes; }
 

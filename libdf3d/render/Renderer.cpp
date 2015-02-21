@@ -1,8 +1,7 @@
 #include "df3d_pch.h"
 #include "Renderer.h"
 
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
+#include <base/SystemsMacro.h>
 #include <components/LightComponent.h>
 #include "OpenGLCommon.h"
 #include "GpuProgramState.h"
@@ -12,90 +11,25 @@
 #include "VertexIndexBuffer.h"
 #include "GpuProgramUniform.h"
 #include "Texture2D.h"
-#include "Image.h"
 #include "Viewport.h"
 
 namespace df3d { namespace render {
 
-void Renderer::loadEmbedGPUPrograms() const
-{
-    auto loadInternal = [&](const char *name, const std::string &dataVert, const std::string &dataFrag)
-    {
-        auto program = make_shared<GpuProgram>();
-        auto vertexShader = make_shared<Shader>(Shader::Type::VERTEX);
-        vertexShader->setShaderData(dataVert);
-        auto fragmentShader = make_shared<Shader>(Shader::Type::FRAGMENT);
-        fragmentShader->setShaderData(dataFrag);
-
-        program->attachShader(vertexShader);
-        program->attachShader(fragmentShader);
-
-        program->setGUID(name);
-        // Pin forever.
-        program->setResident();
-
-        program->setInitialized(program->init());
-        // Store in resource manager.
-        g_resourceManager->appendResource(program);
-    };
-
-    const std::string simple_lighting_vert =
-#include "embed_glsl/simple_lighting_vert.h"
-    ;
-    const std::string simple_lighting_frag =
-#include "embed_glsl/simple_lighting_frag.h"
-    ;
-    const std::string ffp2d_vert =
-#include "embed_glsl/ffp2d_vert.h"
-    ;
-    const std::string ffp2d_frag =
-#include "embed_glsl/ffp2d_frag.h"
-    ;
-    const std::string rtt_quad_vert =
-#include "embed_glsl/rtt_quad_vert.h"
-    ;
-    const std::string rtt_quad_frag =
-#include "embed_glsl/rtt_quad_frag.h"
-    ;
-    const std::string colored_vert =
-#include "embed_glsl/colored_vert.h"
-    ;
-    const std::string colored_frag =
-#include "embed_glsl/colored_frag.h"
-    ;
-    const std::string ambient_vert =
-#include "embed_glsl/ambient_vert.h"
-    ;
-    const std::string ambient_frag =
-#include "embed_glsl/ambient_frag.h"
-    ;
-
-    loadInternal(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH, simple_lighting_vert, simple_lighting_frag);
-    loadInternal(FFP2D_PROGRAM_EMBED_PATH, ffp2d_vert, ffp2d_frag);
-    loadInternal(RTT_QUAD_PROGRAM_EMBED_PATH, rtt_quad_vert, rtt_quad_frag);
-    loadInternal(COLORED_PROGRAM_EMBED_PATH, colored_vert, colored_frag);
-    loadInternal(AMBIENT_PASS_PROGRAM_EMBED_PATH, ambient_vert, ambient_frag);
-}
-
 void Renderer::createWhiteTexture()
 {
-    auto image = make_shared<Image>();
-
     auto w = 32;
     auto h = 32;
-    auto pf = Image::Format::RGBA;
+    auto pf = PixelFormat::RGBA;
 
     auto data = new unsigned char[w * h * 4];
     memset(data, 255, w * h * 4);
 
-    image->setWithData(data, w, h, pf);
-    image->setInitialized(image->init());
-
-    m_whiteTexture = make_shared<Texture2D>(image);
+    m_whiteTexture = g_resourceManager->createEmptyTexture("__white_texture");
     m_whiteTexture->setFilteringMode(TextureFiltering::NEAREST);
     m_whiteTexture->setMipmapped(false);
     m_whiteTexture->setWrapMode(Texture::WrapMode::WRAP);
-    m_whiteTexture->setImage(image);
+    m_whiteTexture->setWithData(w, h, pf, data);
+    m_whiteTexture->setResident();
 
     delete [] data;
 }
@@ -252,7 +186,6 @@ Renderer::Renderer()
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    loadEmbedGPUPrograms();
     createWhiteTexture();
 
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_maxTextureSize);

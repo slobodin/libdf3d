@@ -3,13 +3,12 @@
 
 #include <components/TransformComponent.h>
 #include <particlesys/SparkInterface.h>
-#include <base/EngineController.h>
-#include <scene/SceneManager.h>
 #include <scene/Camera.h>
 #include <scene/Node.h>
 #include <render/RenderOperation.h>
 #include <render/RenderPass.h>
 #include <render/RenderQueue.h>
+#include <base/SystemsMacro.h>
 
 namespace df3d { namespace components {
 

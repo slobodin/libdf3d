@@ -1,9 +1,9 @@
 #include "df3d_pch.h"
-#include "DecoderImage.h"
+#include "DecoderTexture.h"
 
+#include <render/Texture2D.h>
 #include <resources/FileDataSource.h>
 #include <resources/FileSystem.h>
-#include <render/Image.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #ifndef STB_DO_ERROR_PRINT
@@ -44,25 +44,25 @@ namespace
     }
 }
 
-DecoderImage::DecoderImage()
+DecoderTexture::DecoderTexture()
 {
 }
 
-DecoderImage::~DecoderImage()
+DecoderTexture::~DecoderTexture()
 {
 }
 
-shared_ptr<Resource> DecoderImage::createResource()
+shared_ptr<Resource> DecoderTexture::createResource()
 {
-    return make_shared<render::Image>();
+    return make_shared<render::Texture2D>();
 }
 
-bool DecoderImage::decodeResource(const shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
+bool DecoderTexture::decodeResource(const shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
 {
     if (!file || !file->valid())
         return false;
 
-    auto texture = dynamic_pointer_cast<render::Image>(resource);
+    auto texture = static_pointer_cast<render::Texture2D>(resource);
     if (!texture)
         return false;
 
@@ -83,18 +83,18 @@ bool DecoderImage::decodeResource(const shared_ptr<FileDataSource> file, shared_
         return false;
     }
 
-    auto fmt = render::Image::Format::INVALID;
+    auto fmt = PixelFormat::INVALID;
 
     if (bpp == STBI_rgb)
-        fmt = render::Image::Format::RGB;
+        fmt = PixelFormat::RGB;
     else if (bpp == STBI_rgb_alpha)
-        fmt = render::Image::Format::RGBA;
+        fmt = PixelFormat::RGBA;
     else if (bpp == STBI_grey)
-        fmt = render::Image::Format::GRAYSCALE;
+        fmt = PixelFormat::GRAYSCALE;
     else
         base::glog << "Parsed image with an invalid bpp" << base::logwarn;
 
-    texture->setWithData(pixels, x, y, fmt);
+    texture->setWithData(x, y, fmt, pixels);
 
     stbi_image_free(pixels);
 

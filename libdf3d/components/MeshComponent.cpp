@@ -3,10 +3,7 @@
 
 #include <scene/Node.h>
 #include <components/TransformComponent.h>
-#include <base/EngineController.h>
 #include <render/MeshData.h>
-#include <resources/ResourceManager.h>
-#include <render/RenderManager.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/SubMesh.h>
 #include <scene/DebugDrawOBBNode.h>
@@ -14,6 +11,7 @@
 #include <render/Material.h>
 #include <render/RenderPass.h>
 #include <render/Technique.h>
+#include <base/SystemsMacro.h>
 
 namespace df3d { namespace components {
 
@@ -137,12 +135,12 @@ MeshComponent::MeshComponent()
 MeshComponent::MeshComponent(const char *meshFilePath)
     : MeshComponent()
 {
-    auto meshData = g_resourceManager->getResource<render::MeshData>(meshFilePath, resources::ResourceManager::LoadMode::ASYNC);
-    setGeometry(meshData);
+    setGeometry(g_resourceManager->createMeshData(meshFilePath, ResourceLoadingMode::ASYNC));
 }
 
 MeshComponent::~MeshComponent()
 {
+
 }
 
 void MeshComponent::setGeometry(shared_ptr<render::MeshData> geometry)

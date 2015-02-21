@@ -25,7 +25,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/MacroDefs.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/SystemsMacro.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/ThreadPool.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/TypeDefs.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/AudioComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/DebugDrawComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/LightComponent.h
@@ -63,7 +65,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Image.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.h
@@ -92,7 +93,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceDecoder.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderImage.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTexture.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderMTL.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOBJ.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOGG.h
@@ -160,7 +161,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Image.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.cpp
@@ -187,7 +187,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceDecoder.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderImage.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTexture.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderMTL.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOBJ.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOGG.cpp

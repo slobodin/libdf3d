@@ -4,12 +4,11 @@
 #include <scene/Node.h>
 #include <components/MeshComponent.h>
 #include <components/TransformComponent.h>
-#include <base/EngineController.h>
-#include <physics/PhysicsManager.h>
 #include <components/serializers/PhysicsComponentSerializer.h>
 #include <render/SubMesh.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/MeshData.h>
+#include <base/SystemsMacro.h>
 
 namespace df3d { namespace components {
 

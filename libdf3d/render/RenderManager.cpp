@@ -1,12 +1,9 @@
 #include "df3d_pch.h"
 #include "RenderManager.h"
 
-#include <base/EngineController.h>
+#include <base/SystemsMacro.h>
 #include <scene/Scene.h>
 #include <scene/Camera.h>
-#include <gui/GuiManager.h>
-#include <resources/ResourceManager.h>
-#include <physics/PhysicsManager.h>
 #include "Renderer.h"
 #include "VertexIndexBuffer.h"
 #include "RenderOperation.h"
@@ -20,7 +17,6 @@
 #include "GpuProgram.h"
 #include "Viewport.h"
 #include "SubMesh.h"
-#include "Image.h"
 #include "RenderQueue.h"
 
 namespace df3d { namespace render {
@@ -30,8 +26,7 @@ void RenderManager::createQuadRenderOperation()
     auto passThrough = make_shared<RenderPass>();
     passThrough->setFrontFaceWinding(RenderPass::WindingOrder::CCW);
     passThrough->setFaceCullMode(RenderPass::FaceCullMode::BACK);
-    auto program = g_resourceManager->getResource<GpuProgram>(RTT_QUAD_PROGRAM_EMBED_PATH);
-    passThrough->setGpuProgram(program);
+    passThrough->setGpuProgram(g_resourceManager->createRttQuadProgram());
     passThrough->setBlendMode(RenderPass::BlendingMode::NONE);
     passThrough->enableDepthTest(false);
     passThrough->enableDepthWrite(false);
@@ -63,8 +58,7 @@ void RenderManager::createAmbientPassProps()
 {
     m_ambientPassProps = make_shared<RenderPass>();
 
-    auto program = g_resourceManager->getResource<render::GpuProgram>(AMBIENT_PASS_PROGRAM_EMBED_PATH);
-    m_ambientPassProps->setGpuProgram(program);
+    m_ambientPassProps->setGpuProgram(g_resourceManager->createAmbientPassProgram());
 }
 
 void RenderManager::debugDrawPass()

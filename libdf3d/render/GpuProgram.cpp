@@ -180,11 +180,6 @@ void GpuProgram::unbind()
     glUseProgram(0);
 }
 
-bool GpuProgram::init()
-{
-    return true;
-}
-
 GpuProgramUniform *GpuProgram::getCustomUniform(const std::string &name)
 {
     for (size_t i = 0; i < m_customUniforms.size(); i++)
@@ -194,45 +189,6 @@ GpuProgramUniform *GpuProgram::getCustomUniform(const std::string &name)
     }
 
     return nullptr;
-}
-
-shared_ptr<GpuProgram> GpuProgram::create(const char *vshader, const char *fshader)
-{
-    // FIXME:
-    // Use full path.
-    std::string gpuProgramId = std::string(vshader) + ";" + fshader;
-    if (g_resourceManager->isResourceExists(gpuProgramId.c_str()))
-        return g_resourceManager->getResource<GpuProgram>(gpuProgramId.c_str());
-
-    auto program = make_shared<GpuProgram>();
-    auto vertexShader = Shader::createFromFile(vshader);
-    auto fragmentShader = Shader::createFromFile(fshader);
-
-    if (!vertexShader || !fragmentShader)
-    {
-        base::glog << "Can not create gpu program. Either vertex or fragment shader is invalid" << base::logwarn;
-        return nullptr;
-    }
-
-    program->attachShader(vertexShader);
-    program->attachShader(fragmentShader);
-
-    program->setGUID(gpuProgramId);
-    program->setInitialized(program->init());
-    // Store in resource manager.
-    g_resourceManager->appendResource(program);
-
-    return program;
-}
-
-shared_ptr<GpuProgram> GpuProgram::createSimpleLightingGpuProgram()
-{
-    return g_resourceManager->getResource<GpuProgram>(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH);
-}
-
-shared_ptr<GpuProgram> GpuProgram::createFFP2DGpuProgram()
-{
-    return g_resourceManager->getResource<GpuProgram>(FFP2D_PROGRAM_EMBED_PATH);
 }
 
 } }

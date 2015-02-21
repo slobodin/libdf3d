@@ -3,8 +3,7 @@
 
 #include "CeguiTextureImpl.h"
 #include "CeguiRendererImpl.h"
-#include <base/EngineController.h>
-#include <render/RenderManager.h>
+#include <base/SystemsMacro.h>
 #include <render/Renderer.h>
 #include <render/RenderOperation.h>
 #include <render/VertexIndexBuffer.h>
@@ -162,7 +161,7 @@ void CeguiGeometryBufferImpl::appendGeometry(const Vertex *const vbuff, uint ver
 
         auto renderPass = make_shared<render::RenderPass>();
         renderPass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
-        renderPass->setGpuProgram(render::GpuProgram::createFFP2DGpuProgram());
+        renderPass->setGpuProgram(g_resourceManager->createFFP2DGpuProgram());
         renderPass->enableDepthTest(false);
         renderPass->enableDepthWrite(false);
         renderPass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);

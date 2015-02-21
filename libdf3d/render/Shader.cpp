@@ -2,9 +2,8 @@
 #include "Shader.h"
 
 #include "OpenGLCommon.h"
-#include <base/EngineController.h>
+#include <base/SystemsMacro.h>
 #include <resources/FileDataSource.h>
-#include <resources/FileSystem.h>
 
 namespace df3d { namespace render {
 

@@ -8,8 +8,7 @@
 #include "CeguiTextureTargetImpl.h"
 #include "CeguiTextureImpl.h"
 
-#include <base/EngineController.h>
-#include <render/RenderManager.h>
+#include <base/SystemsMacro.h>
 #include <render/Renderer.h>
 #include <render/Texture2D.h>
 
@@ -220,6 +219,7 @@ bool CeguiRendererImpl::isTextureDefined(const CEGUI::String &name) const
 
 void CeguiRendererImpl::beginRendering()
 {
+
 }
 
 void CeguiRendererImpl::endRendering()

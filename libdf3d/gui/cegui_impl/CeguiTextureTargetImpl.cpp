@@ -2,8 +2,8 @@
 #include "CeguiTextureTargetImpl.h"
 
 #include "CeguiTextureImpl.h"
+#include <base/SystemsMacro.h>
 #include <render/Texture.h>
-#include <render/Image.h>
 #include <render/RenderTargetTexture.h>
 
 namespace df3d { namespace gui { namespace cegui_impl {

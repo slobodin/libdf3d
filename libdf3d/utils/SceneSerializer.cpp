@@ -5,10 +5,8 @@
 #include <scene/Scene.h>
 #include <scene/Node.h>
 #include <scene/Camera.h>
-#include <scene/SceneManager.h>
 #include <components/TransformComponent.h>
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
+#include <base/SystemsMacro.h>
 #include <render/MaterialLib.h>
 
 namespace df3d { namespace utils { namespace serializers {
@@ -73,7 +71,7 @@ void parsePostProcessOption(const Json::Value &postFxNode, shared_ptr<scene::Sce
         return;
     }
 
-    auto materialLibrary = g_resourceManager->getResource<render::MaterialLib>(mtlLib);
+    auto materialLibrary = g_resourceManager->createMaterialLib(mtlLib);
     auto material = materialLibrary->getMaterial(mtlName);
     if (!material)
         return;

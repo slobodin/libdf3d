@@ -1,10 +1,10 @@
 #include "df3d_pch.h"
 #include "TextureCube.h"
 
-#include "Image.h"
-#include <base/EngineController.h>
+#include <base/SystemsMacro.h>
 #include "RenderManager.h"
 #include "Renderer.h"
+#include "Texture2D.h"
 
 namespace df3d { namespace render {
 
@@ -48,13 +48,13 @@ bool TextureCube::createGLTexture()
     for (int i = 0; i < 6; i++)
     {
         GLint glPixelFormat = 0;
-        switch (m_images[i]->pixelFormat())
+        switch (m_images[i]->getPixelFormat())
         {
-        case Image::Format::RGB:
-        case Image::Format::BGR:
+        case PixelFormat::RGB:
+        case PixelFormat::BGR:
             glPixelFormat = GL_RGB;
             break;
-        case Image::Format::RGBA:
+        case PixelFormat::RGBA:
             glPixelFormat = GL_RGBA;
             break;
         default:
@@ -62,9 +62,9 @@ bool TextureCube::createGLTexture()
             return false;
         }
 
-        auto data = m_images[i]->data();
-        auto width = m_images[i]->width();
-        auto height = m_images[i]->height();
+        auto data = m_images[i]->getPixelBufferData();
+        auto width = m_images[i]->getOriginalWidth();
+        auto height = m_images[i]->getOriginalHeight();
         glTexImage2D(MapSidesToGl[i], 0, glPixelFormat, width, height, 0, glPixelFormat, GL_UNSIGNED_BYTE, data);
     }
 
@@ -72,6 +72,12 @@ bool TextureCube::createGLTexture()
         glGenerateMipmap(GL_TEXTURE_2D);
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+    for (auto i = 0; i < 6; i++)
+    {
+        g_resourceManager->unloadResource(m_images[i]);
+        m_images[i].reset();
+    }
 
     printOpenGLError();
 
@@ -89,9 +95,9 @@ void TextureCube::deleteGLTexture()
     }
 }
 
-TextureCube::TextureCube(shared_ptr<Image> positiveX, shared_ptr<Image> negativeX,
-    shared_ptr<Image> positiveY, shared_ptr<Image> negativeY,
-    shared_ptr<Image> positiveZ, shared_ptr<Image> negativeZ)
+TextureCube::TextureCube(shared_ptr<Texture2D> positiveX, shared_ptr<Texture2D> negativeX,
+                         shared_ptr<Texture2D> positiveY, shared_ptr<Texture2D> negativeY,
+                         shared_ptr<Texture2D> positiveZ, shared_ptr<Texture2D> negativeZ)
 {
     m_images[0] = positiveX;
     m_images[1] = negativeX;

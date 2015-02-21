@@ -6,12 +6,10 @@
 #include <render/GpuProgram.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/RenderQueue.h>
-#include <render/Image.h>
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
 #include <resources/FileSystem.h>
 #include <components/TransformComponent.h>
 #include <scene/Node.h>
+#include <base/SystemsMacro.h>
 
 // TODO:
 
@@ -26,8 +24,7 @@ shared_ptr<render::RenderPass> TextMeshComponent::createRenderPass()
     pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
     pass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 
-    auto program = g_resourceManager->getResource<render::GpuProgram>(render::COLORED_PROGRAM_EMBED_PATH);
-    pass->setGpuProgram(program);
+    pass->setGpuProgram(g_resourceManager->createColoredGpuProgram());
 
     return pass;
 }

@@ -30,7 +30,7 @@ bool CeguiViewportTargetImpl::isImageryCache() const
 
 void CeguiViewportTargetImpl::setArea(const CEGUI::Rectf &area)
 {
-    render::Viewport newvp(area.left(), area.top(), area.right(), area.bottom());
+    render::Viewport newvp((int)area.left(), (int)area.top(), (int)area.right(), (int)area.bottom());
     m_rt->setViewport(newvp);
 
     CeguiRenderTargetImpl<CEGUI::RenderTarget>::setArea(area);

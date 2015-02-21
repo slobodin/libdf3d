@@ -2,11 +2,9 @@
 #include "SparkInterface.h"
 
 #include <render/RenderPass.h>
-#include <base/EngineController.h>
-#include <scene/SceneManager.h>
+#include <base/SystemsMacro.h>
 #include <scene/Camera.h>
 #include <components/TransformComponent.h>
-#include <resources/ResourceManager.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/GpuProgram.h>
 #include <render/RenderOperation.h>
@@ -98,8 +96,7 @@ ParticleSystemRenderer::ParticleSystemRenderer(bool NEEDS_DATASET)
     m_pass->setFrontFaceWinding(render::RenderPass::WindingOrder::CCW);
     m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f);
 
-    auto program = g_resourceManager->getResource<render::GpuProgram>(render::COLORED_PROGRAM_EMBED_PATH);
-    m_pass->setGpuProgram(program);
+    m_pass->setGpuProgram(g_resourceManager->createColoredGpuProgram());
 }
 
 ParticleSystemRenderer::~ParticleSystemRenderer()

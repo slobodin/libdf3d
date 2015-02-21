@@ -5,10 +5,9 @@
 #include "Node.h"
 #include "Camera.h"
 #include "SceneManagerListener.h"
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
-#include <resources/FileSystem.h>
+#include <base/SystemsMacro.h>
 #include <resources/FileDataSource.h>
+#include <resources/Resource.h>
 #include <utils/Utils.h>
 
 namespace df3d { namespace scene {

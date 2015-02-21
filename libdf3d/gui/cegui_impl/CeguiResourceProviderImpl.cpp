@@ -3,8 +3,7 @@
 
 #include <CEGUI/CEGUI.h>
 
-#include <base/EngineController.h>
-#include <resources/FileSystem.h>
+#include <base/SystemsMacro.h>
 #include <resources/FileDataSource.h>
 
 namespace df3d  { namespace gui { namespace cegui_impl {

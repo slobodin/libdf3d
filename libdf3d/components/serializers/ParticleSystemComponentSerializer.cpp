@@ -5,12 +5,10 @@
 #include <utils/JsonHelpers.h>
 #include <utils/Utils.h>
 #include <particlesys/SparkInterface.h>
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
 #include <render/Texture2D.h>
 #include <render/RenderOperation.h>
-#include <render/Image.h>
 #include <render/RenderPass.h>
+#include <base/SystemsMacro.h>
 
 namespace df3d { namespace components { namespace serializers {
 
@@ -348,10 +346,10 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
         SPK::TextureMode textureMode = SPK::TEXTURE_MODE_NONE;
         if (!pathToTexture.empty())
         {
-            auto textureImage = g_resourceManager->getResource<render::Image>(pathToTexture.c_str());
-            if (textureImage && textureImage->valid())
+            auto texture = g_resourceManager->createTexture(pathToTexture.c_str(), ResourceLoadingMode::IMMEDIATE);
+            if (texture)
             {
-                renderer->setDiffuseMap(make_shared<render::Texture2D>(textureImage));
+                renderer->setDiffuseMap(texture);
                 textureMode = SPK::TEXTURE_MODE_2D;
             }
         }

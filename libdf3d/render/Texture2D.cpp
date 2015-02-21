@@ -1,26 +1,27 @@
 #include "df3d_pch.h"
 #include "Texture2D.h"
 
-#include "Image.h"
-#include <base/EngineController.h>
-#include "RenderManager.h"
+#include <base/SystemsMacro.h>
 #include "Renderer.h"
 
 namespace df3d { namespace render {
 
 bool Texture2D::createGLTexture()
 {
-    if (m_imageDirty)
+    if (!m_pixelBuffer)
+        return false;
+
+    if (m_pixelBufferDirty)
     {
         deleteGLTexture();
-        m_imageDirty = false;
+        m_pixelBufferDirty = false;
     }
 
     if (m_glid)
         return true;
 
-    auto actWidth = /*getNextPot(*/m_image->width();
-    auto actHeight = /*getNextPot(*/m_image->height();
+    auto actWidth = /*getNextPot(*/m_pixelBuffer->w;
+    auto actHeight = /*getNextPot(*/m_pixelBuffer->h;
     auto maxSize = g_renderManager->getRenderer()->getMaxTextureSize();
     if (actWidth > maxSize || actHeight > maxSize)
     {
@@ -31,8 +32,8 @@ bool Texture2D::createGLTexture()
     m_actualWidth = actWidth;
     m_actualHeight = actHeight;
 
-    if (!(m_actualWidth == m_image->width() && m_actualHeight == m_image->height()))
-        base::glog << "Texture with name" << m_image->getGUID() << "is not pot" << base::logdebug;
+    if (!(m_actualWidth == m_pixelBuffer->w && m_actualHeight == m_pixelBuffer->h))
+        base::glog << "Texture with name" << getGUID() << "is not pot" << base::logdebug;
 
     glGenTextures(1, &m_glid);
     glBindTexture(GL_TEXTURE_2D, m_glid);
@@ -48,16 +49,16 @@ bool Texture2D::createGLTexture()
     setupGlTextureFiltering(GL_TEXTURE_2D, filtering(), isMipmapped());
 
     GLint glPixelFormat = 0;
-    switch (m_image->pixelFormat())
+    switch (m_pixelBuffer->format)
     {
-    case Image::Format::RGB:
-    case Image::Format::BGR:
+    case PixelFormat::RGB:
+    case PixelFormat::BGR:
         glPixelFormat = GL_RGB;
         break;
-    case Image::Format::RGBA:
+    case PixelFormat::RGBA:
         glPixelFormat = GL_RGBA;
         break;
-    case Image::Format::GRAYSCALE:
+    case PixelFormat::GRAYSCALE:
         glPixelFormat = GL_LUMINANCE;   // FIXME: is it valid on ES?
         break;
     default:
@@ -69,8 +70,13 @@ bool Texture2D::createGLTexture()
     // Init empty texture.
     glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, m_actualWidth, m_actualHeight, 0, glPixelFormat, GL_UNSIGNED_BYTE, nullptr);
 
-    if (m_image->data())
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_image->width(), m_image->height(), glPixelFormat, GL_UNSIGNED_BYTE, m_image->data());
+    if (m_pixelBuffer->data) 
+    {
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_pixelBuffer->w, m_pixelBuffer->h, glPixelFormat, GL_UNSIGNED_BYTE, m_pixelBuffer->data);
+
+        delete [] m_pixelBuffer->data;
+        m_pixelBuffer->data = nullptr;
+    }
 
     if (isMipmapped())
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -83,7 +89,7 @@ bool Texture2D::createGLTexture()
         float aniso = g_renderManager->getRenderer()->getMaxAnisotropy();
         if (*m_anisotropyLevel != ANISOTROPY_LEVEL_MAX)
         { 
-            aniso = *m_anisotropyLevel;
+            aniso = (float)*m_anisotropyLevel;
         }
 
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
@@ -112,41 +118,55 @@ Texture2D::Texture2D()
 
 }
 
-Texture2D::Texture2D(shared_ptr<Image> image)
-{
-    setImage(image);
-}
-
 Texture2D::~Texture2D()
 {
     deleteGLTexture();
 }
 
-void Texture2D::setImage(shared_ptr<Image> image)
+void Texture2D::setEmpty(size_t width, size_t height, PixelFormat format)
 {
-    if (!image)
-    {
-        base::glog << "Trying to set null image to a texture" << base::logwarn;
-        return;
-    }
+    m_pixelBuffer = make_unique<PixelBuffer>();
+    m_pixelBuffer->w = width;
+    m_pixelBuffer->h = height;
+    m_pixelBuffer->format = format;
+    m_pixelBufferDirty = true;
 
-    m_image = image;
-    m_imageDirty = true;
+    setInitialized();
 }
 
-shared_ptr<const Image> Texture2D::getImage() const
+void Texture2D::setWithData(size_t width, size_t height, PixelFormat format, const unsigned char *data)
 {
-    return m_image;
+    auto dataSize = width * height * GetPixelSizeForFormat(format);
+
+    m_pixelBuffer = make_unique<PixelBuffer>();
+    m_pixelBuffer->w = width;
+    m_pixelBuffer->h = height;
+    m_pixelBuffer->format = format;
+    m_pixelBuffer->data = new unsigned char[dataSize];
+    memcpy(m_pixelBuffer->data, data, dataSize);
+    m_pixelBufferDirty = true;
+
+    setInitialized();
+}
+
+const unsigned char *Texture2D::getPixelBufferData() const
+{
+    return m_pixelBuffer->data;
+}
+
+PixelFormat Texture2D::getPixelFormat() const
+{
+    return m_pixelBuffer->format;
 }
 
 size_t Texture2D::getOriginalWidth() const
 {
-    return m_image ? m_image->width() : 0;
+    return m_pixelBuffer->w;
 }
 
 size_t Texture2D::getOriginalHeight() const
 {
-    return m_image ? m_image->height() : 0;
+    return m_pixelBuffer->h;
 }
 
 size_t Texture2D::getActualWidth() const
@@ -161,7 +181,7 @@ size_t Texture2D::getActualHeight() const
 
 bool Texture2D::bind(size_t unit)
 {
-    if (!m_image || !m_image->valid())
+    if (!valid())
         return false;
 
     if (createGLTexture())

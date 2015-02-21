@@ -1,9 +1,8 @@
 #include "df3d_pch.h"
 #include "Camera.h"
 
-#include <base/EngineController.h>
+#include <base/SystemsMacro.h>
 #include <components/TransformComponent.h>
-#include <render/RenderManager.h>
 #include <render/Renderer.h>
 #include <render/Viewport.h>
 #include <render/RenderTargetScreen.h>

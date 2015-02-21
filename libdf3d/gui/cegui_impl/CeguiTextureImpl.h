@@ -2,8 +2,8 @@
 
 #include <CEGUI/Texture.h>
 
-FWD_MODULE_CLASS(render, Texture2D)
 FWD_MODULE_CLASS(render, Texture)
+FWD_MODULE_CLASS(render, Texture2D)
 
 namespace df3d { namespace gui { namespace cegui_impl {
 

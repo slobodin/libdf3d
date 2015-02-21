@@ -1,10 +1,9 @@
 #include "df3d_pch.h"
 #include "DecoderOBJ.h"
 
-#include <base/EngineController.h>
+#include <base/SystemsMacro.h>
 #include <resources/FileDataSource.h>
 #include <resources/FileSystem.h>
-#include <resources/ResourceManager.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/Material.h>
 #include <render/Technique.h>
@@ -53,7 +52,7 @@ void DecoderOBJ::createMaterials(const char *dirPath, const char *filePath)
 {
     // Try to open material library.
     auto fullp = FileSystem::pathConcatenate(dirPath, filePath);
-    m_materials = g_resourceManager->getResource<render::MaterialLib>(fullp.c_str());
+    m_materials = g_resourceManager->createMaterialLib(fullp.c_str());
 }
 
 void DecoderOBJ::processLine_v(std::istream &is)

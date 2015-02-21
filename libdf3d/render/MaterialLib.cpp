@@ -2,8 +2,7 @@
 #include "MaterialLib.h"
 
 #include "Material.h"
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
+#include <base/SystemsMacro.h>
 
 namespace df3d { namespace render {
 
@@ -17,11 +16,6 @@ MaterialLib::MaterialLib()
 MaterialLib::~MaterialLib()
 {
 
-}
-
-bool MaterialLib::init()
-{
-    return m_materials.size() != 0;
 }
 
 shared_ptr<Material> MaterialLib::getMaterial(const char *name)
@@ -65,7 +59,7 @@ size_t MaterialLib::materialCount() const
 
 shared_ptr<Material> MaterialLib::getMaterial(const char *mtlLibName, const char *mtlName)
 {
-    auto mtlLib = g_resourceManager->getResource<MaterialLib>(mtlLibName);
+    auto mtlLib = g_resourceManager->createMaterialLib(mtlLibName);
     if (!mtlLib)
         return nullptr;
     return mtlLib->getMaterial(mtlName);

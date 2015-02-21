@@ -1,10 +1,8 @@
 #include "df3d_pch.h"
 #include "DecoderMTL.h"
 
-#include <base/EngineController.h>
-#include <resources/FileSystem.h>
+#include <base/SystemsMacro.h>
 #include <resources/FileDataSource.h>
-#include <resources/ResourceManager.h>
 #include <render/MaterialLib.h>
 #include <render/Material.h>
 #include <render/Technique.h>
@@ -12,7 +10,6 @@
 #include <render/GpuProgram.h>
 #include <render/Texture2D.h>
 #include <render/TextureCube.h>
-#include <render/Image.h>
 #include <utils/Utils.h>
 
 namespace df3d { namespace resources {
@@ -94,11 +91,7 @@ shared_ptr<render::Texture> createTextureOfType(const std::string &type, const s
     {
         std::string path = keyValues.find("path")->second;
 
-        auto textureImage = g_resourceManager->getResource<render::Image>(path.c_str(), ResourceManager::LoadMode::ASYNC);
-        if (!textureImage)
-            return nullptr;
-
-        return make_shared<render::Texture2D>(textureImage);
+        return g_resourceManager->createTexture(path.c_str(), ResourceLoadingMode::ASYNC);
     }
     else if (type == "TEXTURE_CUBE")
     {
@@ -109,14 +102,7 @@ shared_ptr<render::Texture> createTextureOfType(const std::string &type, const s
         std::string negativez = keyValues.find("negative_z")->second;
         std::string positivez = keyValues.find("positive_z")->second;
 
-        auto negativeXImage = g_resourceManager->getResource<render::Image>(negativex.c_str(), ResourceManager::LoadMode::ASYNC);
-        auto positiveXImage = g_resourceManager->getResource<render::Image>(positivex.c_str(), ResourceManager::LoadMode::ASYNC);
-        auto negativeYImage = g_resourceManager->getResource<render::Image>(negativey.c_str(), ResourceManager::LoadMode::ASYNC);
-        auto positiveYImage = g_resourceManager->getResource<render::Image>(positivey.c_str(), ResourceManager::LoadMode::ASYNC);
-        auto negativeZImage = g_resourceManager->getResource<render::Image>(negativez.c_str(), ResourceManager::LoadMode::ASYNC);
-        auto positiveZImage = g_resourceManager->getResource<render::Image>(positivez.c_str(), ResourceManager::LoadMode::ASYNC);
-
-        return make_shared<render::TextureCube>(positiveXImage, negativeXImage, positiveYImage, negativeYImage, positiveZImage, negativeZImage);
+        return g_resourceManager->createCubeTexture(positivex.c_str(), negativex.c_str(), positivey.c_str(), negativey.c_str(), positivez.c_str(), negativez.c_str(), ResourceLoadingMode::ASYNC);
     }
 
     base::glog << "Unknown texture type" << type << base::logwarn;
@@ -458,16 +444,14 @@ shared_ptr<render::GpuProgram> DecoderMTL::parseShaderNode(MaterialLibNode &node
     {
         std::string embedProgramName;
         if (embedProgram == "colored")
-            embedProgramName = render::COLORED_PROGRAM_EMBED_PATH;
+            return g_resourceManager->createColoredGpuProgram();
         else if (embedProgram == "quad_render")
-            embedProgramName = render::RTT_QUAD_PROGRAM_EMBED_PATH;
+            return g_resourceManager->createRttQuadProgram();
         else
         {
             base::glog << "Invalid embed program name" << embedProgram << base::logwarn;
             return nullptr;
         }
-
-        return g_resourceManager->getResource<render::GpuProgram>(embedProgramName.c_str());
     }
 
     // Otherwise, create program from passed paths.
@@ -481,7 +465,7 @@ shared_ptr<render::GpuProgram> DecoderMTL::parseShaderNode(MaterialLibNode &node
         return nullptr;
     }
 
-    return render::GpuProgram::create(vshader.c_str(), fshader.c_str());
+    return g_resourceManager->createGpuProgram(vshader.c_str(), fshader.c_str());
 }
 
 void DecoderMTL::parseShaderParamsNode(MaterialLibNode &node, shared_ptr<render::RenderPass> pass)

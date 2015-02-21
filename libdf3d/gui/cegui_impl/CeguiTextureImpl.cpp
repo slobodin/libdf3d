@@ -3,41 +3,22 @@
 
 #include "CeguiResourceProviderImpl.h"
 #include <CEGUI/CEGUI.h>
-#include <render/Image.h>
+#include <base/TypeDefs.h>
+#include <base/SystemsMacro.h>
 #include <render/Texture2D.h>
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
 
 namespace df3d { namespace gui { namespace cegui_impl {
 
 using namespace CEGUI;
 
-bool isPot(size_t v)
-{
-    return v && !(v & (v - 1));
-}
-
-size_t getNextPot(size_t v)
-{
-    if (!isPot(v))
-    {
-        int n = 0;
-        while (v >>= 1)
-            ++n;
-
-        v = 1 << (n + 1);
-    }
-    return v;
-}
-
-render::Image::Format convertPixelFormat(const Texture::PixelFormat fmt)
+PixelFormat convertPixelFormat(const Texture::PixelFormat fmt)
 {
     switch (fmt)
     {
     case Texture::PF_RGBA:
-        return render::Image::Format::RGBA;
+        return PixelFormat::RGBA;
     case Texture::PF_RGB:
-        return render::Image::Format::RGB;
+        return PixelFormat::RGB;
     case Texture::PF_RGB_565:
     case Texture::PF_RGBA_4444:
     case Texture::PF_PVRTC2:
@@ -49,13 +30,13 @@ render::Image::Format convertPixelFormat(const Texture::PixelFormat fmt)
         break;
     }
 
-    return render::Image::Format::INVALID;
+    return PixelFormat::INVALID;
 }
 
 void CeguiTextureImpl::updateSizes()
 {
-    m_originalDataSize.d_width = m_texture->getOriginalWidth();
-    m_originalDataSize.d_height = m_texture->getOriginalHeight();
+    m_originalDataSize.d_width = (float)m_texture->getOriginalWidth();
+    m_originalDataSize.d_height = (float)m_texture->getOriginalHeight();
 
     // TODO:
     // Get actual size!
@@ -95,9 +76,9 @@ void CeguiTextureImpl::updateCachedScaleValues()
 }
 
 CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name)
-    : m_name(name),
-    m_texture(new render::Texture2D())
+    : m_name(name)
 {
+    m_texture = g_resourceManager->createEmptyTexture(m_name.c_str());
     m_texture->setFilteringMode(render::TextureFiltering::BILINEAR);
     m_texture->setMipmapped(false);
 
@@ -105,21 +86,18 @@ CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name)
 }
 
 CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name, const CEGUI::String &filename, const CEGUI::String &resourceGroup)
-    : CeguiTextureImpl(name)
+    : m_name(name)
 {
     loadFromFile(filename, resourceGroup);
 }
 
 CeguiTextureImpl::CeguiTextureImpl(const CEGUI::String &name, const CEGUI::Sizef &size)
-    : CeguiTextureImpl(name)
+    : m_name(name)
 {
-    auto textureImage = make_shared<render::Image>();
-    textureImage->setWidth(size.d_width);
-    textureImage->setHeight(size.d_height);
-    textureImage->setPixelFormat(render::Image::Format::RGBA);
-    textureImage->setInitialized();
-
-    m_texture->setImage(textureImage);
+    m_texture = g_resourceManager->createEmptyTexture(m_name.c_str());
+    m_texture->setEmpty((size_t)size.d_width, (size_t)size.d_height, df3d::PixelFormat::RGBA);
+    m_texture->setFilteringMode(render::TextureFiltering::BILINEAR);
+    m_texture->setMipmapped(false);
     
     updateSizes();
 }
@@ -154,11 +132,11 @@ const CEGUI::Vector2f& CeguiTextureImpl::getTexelScaling() const
 void CeguiTextureImpl::loadFromFile(const CEGUI::String &filename, const CEGUI::String &resourceGroup)
 {
     auto rp = static_cast<CeguiResourceProviderImpl*>(CEGUI::System::getSingleton().getResourceProvider());
-    auto textureImage = g_resourceManager->getResource<render::Image>(rp->getFinalFilename(filename, resourceGroup).c_str());
-    if (!textureImage)
-        CEGUI_THROW(RendererException("Failed to load GUI texture from file " + filename + "."));
-
-    m_texture->setImage(textureImage);
+    auto path = rp->getFinalFilename(filename, resourceGroup);
+        
+    m_texture = g_resourceManager->createTexture(path.c_str(), ResourceLoadingMode::IMMEDIATE);
+    m_texture->setFilteringMode(render::TextureFiltering::BILINEAR);
+    m_texture->setMipmapped(false);
 
     updateSizes();
 }
@@ -168,11 +146,8 @@ void CeguiTextureImpl::loadFromMemory(const void *buffer, const CEGUI::Sizef &bu
     if (!isPixelFormatSupported(pixel_format))
         CEGUI_THROW(InvalidRequestException("Data was supplied in an unsupported pixel format."));
 
-    auto textureImage = make_shared<render::Image>();
-    textureImage->setWithData((const unsigned char *)buffer, buffer_size.d_width, buffer_size.d_height, convertPixelFormat(pixel_format));
-    textureImage->setInitialized();
-
-    m_texture->setImage(textureImage);
+    m_texture = g_resourceManager->createEmptyTexture(m_name.c_str());
+    m_texture->setWithData((size_t)buffer_size.d_width, (size_t)buffer_size.d_height, convertPixelFormat(pixel_format), (const unsigned char *)buffer);
 
     updateSizes();
 }

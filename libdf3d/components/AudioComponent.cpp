@@ -2,8 +2,7 @@
 #include "AudioComponent.h"
 
 #include <utils/JsonHelpers.h>
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
+#include <base/SystemsMacro.h>
 #include <scene/Node.h>
 #include <components/TransformComponent.h>
 #include <audio/AudioBuffer.h>
@@ -32,7 +31,7 @@ void AudioComponent::onUpdate(float dt)
 AudioComponent::AudioComponent(const char *audioFilePath)
     : NodeComponent(AUDIO)
 {
-    m_buffer = g_resourceManager->getResource<audio::AudioBuffer>(audioFilePath);
+    m_buffer = g_resourceManager->createAudioBuffer(audioFilePath);
     if (!m_buffer)
     {
         base::glog << "Can not initialize audio component from" << audioFilePath << base::logwarn;

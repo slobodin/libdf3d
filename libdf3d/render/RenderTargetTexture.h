@@ -4,7 +4,6 @@
 
 namespace df3d { namespace render {
 
-class Texture;
 class Texture2D;
 
 class RenderTargetTexture : public RenderTarget

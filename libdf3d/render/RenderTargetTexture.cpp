@@ -1,12 +1,10 @@
 #include "df3d_pch.h"
 #include "RenderTargetTexture.h"
 
+#include <base/SystemsMacro.h>
 #include "OpenGLCommon.h"
 #include "Texture2D.h"
-#include "Image.h"
-#include "RenderManager.h"
 #include "Renderer.h"
-#include <base/EngineController.h>
 
 namespace df3d { namespace render {
 
@@ -46,12 +44,6 @@ void RenderTargetTexture::createGLFramebuffer()
 
 RenderTargetTexture::RenderTargetTexture(const Viewport &vp)
 {
-    m_viewport = vp;
-
-    m_texture = make_shared<Texture2D>();
-    m_texture->setMipmapped(false);
-    m_texture->setFilteringMode(TextureFiltering::NEAREST);
-
     setViewport(vp);
 }
 
@@ -89,13 +81,14 @@ void RenderTargetTexture::unbind()
 
 void RenderTargetTexture::setViewport(const Viewport &vp)
 {
-    auto image = make_shared<Image>();
-    image->setWidth(m_viewport.width());
-    image->setHeight(m_viewport.height());
-    image->setPixelFormat(Image::Format::RGBA);
-    image->setInitialized();
+    if (m_texture)
+        g_resourceManager->unloadResource(m_texture);
 
-    m_texture->setImage(image);
+    m_viewport = vp;
+    m_texture = g_resourceManager->createEmptyTexture();
+    m_texture->setMipmapped(false);
+    m_texture->setFilteringMode(TextureFiltering::NEAREST);
+    m_texture->setEmpty(m_viewport.width(), m_viewport.height(), PixelFormat::RGBA);
 }
 
 shared_ptr<Texture2D> RenderTargetTexture::getTexture()

@@ -1,11 +1,28 @@
 #pragma once
 
+#include <base/TypeDefs.h>
+#include <resources/Resource.h>
 #include "OpenGLCommon.h"
 #include "RenderingCapabilities.h"
 
 namespace df3d { namespace render {
 
-class Texture
+struct PixelBuffer
+{
+    PixelFormat format = PixelFormat::INVALID;
+    int w = 0;
+    int h = 0;
+    unsigned char *data = nullptr;
+
+    ~PixelBuffer()
+    {
+        delete [] data;
+    }
+};
+
+int GetPixelSizeForFormat(PixelFormat format);
+
+class Texture : public resources::Resource
 {
 public:
     enum class WrapMode
@@ -31,10 +48,9 @@ protected:
     static void setupGlTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped);
     static void setupGlWrapMode(GLenum glType, WrapMode wrapMode);
 
-public:
-    Texture();
-    virtual ~Texture();
+    Texture() = default;
 
+public:
     WrapMode wrapMode() const { return m_wrapMode; }
     unsigned getGLId() const { return m_glid; }
 

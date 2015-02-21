@@ -1,11 +1,29 @@
 #include "df3d_pch.h"
 #include "Texture.h"
 
-#include <base/EngineController.h>
-#include "RenderManager.h"
+#include <base/SystemsMacro.h>
 #include "Renderer.h"
 
 namespace df3d { namespace render {
+
+int GetPixelSizeForFormat(PixelFormat format)
+{
+    switch (format)
+    {
+    case PixelFormat::RGB:
+    case PixelFormat::BGR:
+        return 3;
+    case PixelFormat::RGBA:
+        return 4;
+    case PixelFormat::GRAYSCALE:
+        return 1;
+    case PixelFormat::INVALID:
+    default:
+        base::glog << "Invalid pixel format. Can't get size." << base::logwarn;
+    }
+
+    return 0;
+}
 
 bool Texture::isPot(size_t v)
 {
@@ -75,16 +93,6 @@ void Texture::setupGlWrapMode(GLenum glType, WrapMode wrapMode)
 #endif
 
     printOpenGLError();
-}
-
-Texture::Texture()
-{
-
-}
-
-Texture::~Texture()
-{
-
 }
 
 TextureFiltering Texture::filtering() const
