@@ -5,7 +5,6 @@
 #include <selene/selene.h>
 
 #include <base/SystemsMacro.h>
-#include "lua/df3d_bindings.h"
 
 namespace df3d { namespace scripting {
 
@@ -14,8 +13,6 @@ ScriptManager::ScriptManager()
     base::glog << "Initializing Lua" << base::logmess;
 
     m_state = make_unique<sel::State>(true);
-
-    bindGlm(m_state.get());
 }
 
 ScriptManager::~ScriptManager()
@@ -46,6 +43,11 @@ bool ScriptManager::doString(const char *str)
 void ScriptManager::printError()
 {
 
+}
+
+sel::State &ScriptManager::getState()
+{
+    return *m_state;
 }
 
 } }

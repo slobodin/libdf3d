@@ -15,6 +15,8 @@ public:
     bool doFile(const char *fileName);
     bool doString(const char *str);
     void printError();
+
+    sel::State &getState();
 };
 
 } }

@@ -109,7 +109,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingVolume.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/OBB.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scripting/ScriptManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scripting/lua/df3d_bindings.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshIndexer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneSerializer.h
@@ -201,7 +200,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingVolume.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/OBB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scripting/ScriptManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scripting/lua/df3d_bindings.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonHelpers.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshIndexer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneSerializer.cpp
