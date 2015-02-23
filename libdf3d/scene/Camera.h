@@ -35,7 +35,7 @@ public:
     Camera(const glm::vec3 &position = glm::vec3(),
         float fov = 60.f,
         float nearZ = 0.1f,
-        float farZ = 1000.f);
+        float farZ = 5000.f);
     ~Camera();
 
     void setFov(float fov);
