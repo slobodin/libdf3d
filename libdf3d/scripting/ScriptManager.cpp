@@ -24,7 +24,7 @@ bool ScriptManager::doFile(const char *fileName)
 {
     auto fullp = g_fileSystem->fullPath(fileName);
 
-    base::glog << "Executing" << fullp << base::logdebug;
+    base::glog << "Executing" << fullp << base::logmess;
 
     if (!m_state->Load(fullp))
     {
