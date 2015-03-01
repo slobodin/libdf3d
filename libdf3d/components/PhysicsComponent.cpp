@@ -160,4 +160,12 @@ shared_ptr<NodeComponent> PhysicsComponent::clone() const
     return nullptr;
 }
 
+void PhysicsComponent::setPosition(const glm::vec3 &pos)
+{
+    auto tr = body->getWorldTransform();
+    tr.setOrigin(physics::glmTobt(pos));
+
+    body->setWorldTransform(tr);
+}
+
 } }

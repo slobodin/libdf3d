@@ -47,6 +47,8 @@ public:
     ~PhysicsComponent();
 
     shared_ptr<NodeComponent> clone() const override;
+
+    void setPosition(const glm::vec3 &pos);
 };
 
 } }
