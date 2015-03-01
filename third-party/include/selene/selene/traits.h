@@ -10,17 +10,17 @@ namespace detail {
 
 template <typename T>
 struct _arity {
-    static constexpr int value = 1;
+    static const int value = 1;
 };
 
 template <typename... Vs>
 struct _arity<std::tuple<Vs...>> {
-    static constexpr int value = sizeof...(Vs);
+    static const int value = sizeof...(Vs);
 };
 
 template <>
 struct _arity<void> {
-    static constexpr int value = 0;
+    static const int value = 0;
 };
 
 template <std::size_t... Is>

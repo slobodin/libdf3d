@@ -108,7 +108,7 @@ public:
     template <typename... Args>
     const Selector operator()(Args... args) const {
         auto tuple_args = std::make_tuple(std::forward<Args>(args)...);
-        constexpr int num_args = sizeof...(Args);
+        const int num_args = sizeof...(Args);
         Selector copy{*this};
         copy._functor = [this, tuple_args, num_args](int num_ret) {
             // install handler, and swap(handler, function) on lua stack
@@ -350,7 +350,7 @@ public:
 
     // Chaining operators. If the selector is an rvalue, modify in
     // place. Otherwise, create a new Selector and return it.
-    Selector&& operator[](const char *name) && {
+    Selector&& operator[](const char *name) {
         _name += std::string(".") + name;
         _check_create_table();
         _traversal.push_back(_get);
@@ -364,7 +364,7 @@ public:
         };
         return std::move(*this);
     }
-    Selector&& operator[](const int index) && {
+    Selector&& operator[](const int index) {
         _name += std::string(".") + std::to_string(index);
         _check_create_table();
         _traversal.push_back(_get);
@@ -380,7 +380,7 @@ public:
         };
         return std::move(*this);
     }
-    Selector operator[](const char *name) const & {
+    Selector operator[](const char *name) const {
         auto n = _name + "." + name;
         _check_create_table();
         auto traversal = _traversal;
@@ -395,7 +395,7 @@ public:
         };
         return Selector{_state, _registry, n, traversal, get, put};
     }
-    Selector operator[](const int index) const & {
+    Selector operator[](const int index) const {
         auto name = _name + "." + std::to_string(index);
         _check_create_table();
         auto traversal = _traversal;

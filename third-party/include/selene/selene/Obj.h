@@ -81,7 +81,7 @@ private:
         std::function<Ret(Args...)> lambda = [t, fun](Args... args) {
             return (t->*fun)(args...);
         };
-        constexpr int arity = detail::_arity<Ret>::value;
+        const int arity = detail::_arity<Ret>::value;
         _funs.emplace_back(
             new ObjFun<arity, Ret, Args...>
             {state, std::string(fun_name), lambda});
