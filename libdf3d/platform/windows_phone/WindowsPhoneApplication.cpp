@@ -19,4 +19,9 @@ void WindowsPhoneApplication::run()
 
 }
 
+void WindowsPhoneApplication::setTitle(const char *title)
+{
+
+}
+
 } }

@@ -378,4 +378,9 @@ void WindowsApplication::run()
     m_pImpl.reset();
 }
 
+void WindowsApplication::setTitle(const char *title)
+{
+    m_pImpl->window->setTitle(title);
+}
+
 } }

@@ -41,12 +41,15 @@ protected:
     Application(const AppInitParams &params, AppDelegate *appDelegate);
 
 public:
+    static Application *instance;
+
     virtual ~Application();
 
     virtual void run() = 0;
+    virtual void setTitle(const char *title) = 0;
 
     // Creates application instance depending on platform.
-    static unique_ptr<Application> create(const AppInitParams &params, AppDelegate *appDelegate);
+    static Application *create(const AppInitParams &params, AppDelegate *appDelegate);
 };
 
 } }

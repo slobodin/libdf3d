@@ -11,6 +11,7 @@ public:
     virtual ~WindowsPhoneApplication();
 
     void run() override;
+    void setTitle(const char *title) override;
 };
 
 } }
