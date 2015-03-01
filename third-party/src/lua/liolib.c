@@ -52,7 +52,7 @@
 #define l_popen(L,c,m)		(fflush(NULL), popen(c,m))
 #define l_pclose(L,file)	(pclose(file))
 
-#elif defined(LUA_USE_WINDOWS)	/* }{ */
+#elif defined(LUA_USE_WINDOWS) && !defined(DF3D_WINDOWS_PHONE)	/* }{ */
 
 #define l_popen(L,c,m)		(_popen(c,m))
 #define l_pclose(L,file)	(_pclose(file))

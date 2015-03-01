@@ -189,6 +189,7 @@ static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym) {
 
 
 static void setprogdir (lua_State *L) {
+#if !defined(DF3D_WINDOWS_PHONE)
   char buff[MAX_PATH + 1];
   char *lb;
   DWORD nsize = sizeof(buff)/sizeof(char);
@@ -200,6 +201,8 @@ static void setprogdir (lua_State *L) {
     luaL_gsub(L, lua_tostring(L, -1), LUA_EXEC_DIR, buff);
     lua_remove(L, -2);  /* remove original string */
   }
+#else
+#endif
 }
 
 
@@ -219,10 +222,14 @@ static void lsys_unloadlib (void *lib) {
 
 
 static void *lsys_load (lua_State *L, const char *path, int seeglb) {
+#if !defined(DF3D_WINDOWS_PHONE)
   HMODULE lib = LoadLibraryExA(path, NULL, LUA_LLE_FLAGS);
   (void)(seeglb);  /* not used: symbols are 'global' by default */
   if (lib == NULL) pusherror(L);
   return lib;
+#else
+  return 0;
+#endif
 }
 
 
@@ -683,6 +690,7 @@ static int noenv (lua_State *L) {
 
 static void setpath (lua_State *L, const char *fieldname, const char *envname1,
                                    const char *envname2, const char *def) {
+#if !defined(DF3D_WINDOWS_PHONE)
   const char *path = getenv(envname1);
   if (path == NULL)  /* no environment variable? */
     path = getenv(envname2);  /* try alternative name */
@@ -697,6 +705,8 @@ static void setpath (lua_State *L, const char *fieldname, const char *envname1,
   }
   setprogdir(L);
   lua_setfield(L, -2, fieldname);
+#else
+#endif
 }
 
 

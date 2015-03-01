@@ -110,6 +110,7 @@
 
 
 static int os_execute (lua_State *L) {
+#if !defined(DF3D_WINDOWS_PHONE)
   const char *cmd = luaL_optstring(L, 1, NULL);
   int stat = system(cmd);
   if (cmd != NULL)
@@ -118,6 +119,9 @@ static int os_execute (lua_State *L) {
     lua_pushboolean(L, stat);  /* true if there is a shell */
     return 1;
   }
+#else
+  return 1;
+#endif
 }
 
 
@@ -146,8 +150,12 @@ static int os_tmpname (lua_State *L) {
 
 
 static int os_getenv (lua_State *L) {
+#if !defined(DF3D_WINDOWS_PHONE)
   lua_pushstring(L, getenv(luaL_checkstring(L, 1)));  /* if NULL push nil */
   return 1;
+#else
+  return 1;
+#endif
 }
 
 
