@@ -15,17 +15,27 @@
 
 namespace df3d { namespace components {
 
+bool MeshComponent::isInFov()
+{
+    //auto bsphere = getBoundingSphere();
+
+    return true;
+}
+
 void MeshComponent::onEvent(components::ComponentEvent ev)
 {
-    if (ev != components::ComponentEvent::TRANFORM_CHANGED)
-        return;
+    if (ev == components::ComponentEvent::POSITION_CHANGED ||
+        ev == components::ComponentEvent::ORIENTATION_CHANGED ||
+        ev == components::ComponentEvent::SCALE_CHANGED)
+    {
+        m_transformedAabbDirty = true;
+        m_obbTransformationDirty = true;
+    }
 
-    m_transformedAabbDirty = true;
-    m_obbTransformationDirty = true;
-
-    // FIXME:
-    // Reconstruct only when scaling model.
-    m_boundingSphereDirty = true;
+    if (ev == components::ComponentEvent::SCALE_CHANGED)
+    {
+        m_boundingSphereDirty = true;
+    }
 }
 
 void MeshComponent::onDraw(render::RenderQueue *ops)
@@ -35,6 +45,9 @@ void MeshComponent::onDraw(render::RenderQueue *ops)
         return;
 
     if (!m_visible)
+        return;
+
+    if (!isInFov())
         return;
 
     // Include all the submeshes.

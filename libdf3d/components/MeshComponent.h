@@ -12,6 +12,8 @@ namespace df3d { namespace components {
 
 class DF3D_DLL MeshComponent : public NodeComponent
 {
+    bool isInFov();
+
 protected:
     void onEvent(components::ComponentEvent ev) override;
     void onDraw(render::RenderQueue *ops) override;

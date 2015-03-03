@@ -9,7 +9,7 @@ namespace df3d { namespace components {
 
 void TransformComponent::updateTransformation()
 {
-    if (!m_dirty)
+    if (!m_dirtyBits)
         return;
 
     // Scale -> Rotation -> Translation
@@ -22,22 +22,31 @@ void TransformComponent::updateTransformation()
     else
         m_transformation = tr;
 
-    markDirty(false);
+    bool positionChanged = m_dirtyBits & POSITION_DIRTY;
+    bool orientationChanged = m_dirtyBits & ORIENTATION_DIRTY;
+    bool scaleChanged = m_dirtyBits & SCALE_DIRTY;
 
-    sendEvent(ComponentEvent::TRANFORM_CHANGED);
+    markDirty(0);
+
+    if (positionChanged)
+        sendEvent(ComponentEvent::POSITION_CHANGED);
+    if (orientationChanged)
+        sendEvent(ComponentEvent::ORIENTATION_CHANGED);
+    if (scaleChanged)
+        sendEvent(ComponentEvent::SCALE_CHANGED);
 }
 
-void TransformComponent::markDirty(bool dirty)
+void TransformComponent::markDirty(int dirtyBits)
 {
-    m_dirty = dirty;
+    m_dirtyBits = dirtyBits;
 
     if (!m_holder)
         return;
 
-    if (dirty)
+    if (m_dirtyBits)
     {
         for (auto it : *m_holder)
-            it->transform()->markDirty(dirty);
+            it->transform()->markDirty(m_dirtyBits);
     }
 }
 
@@ -50,7 +59,7 @@ TransformComponent::TransformComponent()
 void TransformComponent::setPosition(const glm::vec3 &newPosition)
 {
     m_position = newPosition;
-    markDirty(true);
+    markDirty(m_dirtyBits | POSITION_DIRTY);
 }
 
 void TransformComponent::setPosition(float x, float y, float z)
@@ -61,7 +70,7 @@ void TransformComponent::setPosition(float x, float y, float z)
 void TransformComponent::setScale(const glm::vec3 &newScale)
 {
     m_scale = newScale;
-    markDirty(true);
+    markDirty(m_dirtyBits | SCALE_DIRTY);
 }
 
 void TransformComponent::setScale(float x, float y, float z)
@@ -77,7 +86,7 @@ void TransformComponent::setScale(float uniform)
 void TransformComponent::setOrientation(const glm::quat &newOrientation)
 {
     m_orientation = newOrientation;
-    markDirty(true);
+    markDirty(m_dirtyBits | ORIENTATION_DIRTY);
 }
 
 void TransformComponent::setOrientation(const glm::vec3 &eulerAngles, bool rads)
@@ -101,15 +110,17 @@ void TransformComponent::setTransformation(const glm::mat4 &tr)
     //    m_transformation = tr;
 
     m_transformation = tr;
-    markDirty(false);
+    markDirty(0);
 
-    sendEvent(ComponentEvent::TRANFORM_CHANGED);
+    sendEvent(ComponentEvent::POSITION_CHANGED);
+    sendEvent(ComponentEvent::SCALE_CHANGED);
+    sendEvent(ComponentEvent::ORIENTATION_CHANGED);
 }
 
 void TransformComponent::translate(const glm::vec3 &v)
 {
     m_position += v;
-    markDirty(true);
+    markDirty(m_dirtyBits | POSITION_DIRTY);
 }
 
 void TransformComponent::translate(float x, float y, float z)
@@ -127,7 +138,7 @@ void TransformComponent::scale(float x, float y, float z)
     m_scale.x *= x;
     m_scale.y *= y;
     m_scale.z *= z;
-    markDirty(true);
+    markDirty(m_dirtyBits | SCALE_DIRTY);
 }
 
 void TransformComponent::scale(float uniform)
@@ -159,7 +170,7 @@ void TransformComponent::rotateAxis(float angle, const glm::vec3 &axis, bool rad
     q = glm::normalize(q);
 
     m_orientation = q * m_orientation;
-    markDirty(true);
+    markDirty(m_dirtyBits | ORIENTATION_DIRTY);
 }
 
 glm::vec3 TransformComponent::getPosition()
@@ -208,7 +219,7 @@ shared_ptr<NodeComponent> TransformComponent::clone() const
     result->m_position = m_position;
     result->m_orientation = m_orientation;
     result->m_scale = m_scale;
-    result->m_dirty = m_dirty;
+    result->m_dirtyBits = m_dirtyBits;
 
     return result;
 }

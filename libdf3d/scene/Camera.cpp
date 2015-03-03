@@ -41,8 +41,12 @@ void Camera::buildProjectionMatrix()
 
 void Camera::onComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev)
 {
-    if (ev == components::ComponentEvent::TRANFORM_CHANGED)
+    if (ev == components::ComponentEvent::POSITION_CHANGED ||
+        ev == components::ComponentEvent::ORIENTATION_CHANGED ||
+        ev == components::ComponentEvent::SCALE_CHANGED)
+    {
         m_viewMatrixDirty = true;
+    }
 }
 
 Camera::Camera(const glm::vec3 &position, float fov, float nearZ, float farZ)

@@ -10,10 +10,18 @@ class DF3D_DLL TransformComponent : public NodeComponent
     glm::vec3 m_position;
     glm::quat m_orientation;
     glm::vec3 m_scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    bool m_dirty = true;
+
+    enum
+    {
+        POSITION_DIRTY = 1 << 0,
+        ORIENTATION_DIRTY = 1 << 1,
+        SCALE_DIRTY = 1 << 2
+    };
+
+    int m_dirtyBits = POSITION_DIRTY | ORIENTATION_DIRTY | SCALE_DIRTY;
 
     void updateTransformation();
-    void markDirty(bool dirty);
+    void markDirty(int dirtyBits);
 
 public:
     TransformComponent();

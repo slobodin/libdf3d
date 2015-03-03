@@ -21,7 +21,9 @@ enum ComponentType
 
 enum class ComponentEvent
 {
-    TRANFORM_CHANGED,
+    POSITION_CHANGED,
+    ORIENTATION_CHANGED,
+    SCALE_CHANGED,
     CHILD_ATTACHED,
     CHILD_REMOVED,
     ALL_CHILDREN_REMOVED
