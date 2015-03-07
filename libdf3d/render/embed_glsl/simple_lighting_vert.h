@@ -43,7 +43,8 @@ void illuminate()                                           \n\
     vec3 L = normalize( current_light.position.xyz );       \n\
 \
     // Compute diffuse component.                           \n\
-    float lambertDiffuse = max(dot(N, L), 0.0);             \n\
+    // FIXME: L is inverted because only dir lights.        \n\
+    float lambertDiffuse = max(dot(N, -L), 0.0);            \n\
     vec3 diffuse = material.diffuse.rgb * current_light.diffuse * lambertDiffuse;\n\
 \
     // Compute specular light. NOTE: Phong model.           \n\
