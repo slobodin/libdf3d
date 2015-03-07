@@ -18,8 +18,6 @@ class DF3D_DLL Frustum
 
     glm::vec4 m_planes[6];
 
-    void normalizePlane(glm::vec4 &plane);
-
 public:
     Frustum();
     Frustum(glm::mat4 vp);

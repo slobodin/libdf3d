@@ -21,9 +21,7 @@ bool MeshComponent::isInFov()
     if (m_frustumCullingDisabled)
         return true;
 
-    const auto &frustum = g_sceneManager->getCamera()->getFrustum();
-
-    return frustum.sphereInFrustum(getBoundingSphere());
+    return g_sceneManager->getCamera()->getFrustum().sphereInFrustum(getBoundingSphere());
 }
 
 void MeshComponent::onEvent(components::ComponentEvent ev)
@@ -129,8 +127,11 @@ void MeshComponent::constructBoundingSphere()
     m_sphere.setRadius(glm::length(dir));
 
     m_boundingSphereDirty = false;
+}
 
-    base::glog << "CBS" << base::logdebug;
+void MeshComponent::updateBoundingSpherePosition()
+{
+    m_sphere.setPosition(m_holder->transform()->getPosition());
 }
 
 void MeshComponent::constructOBB()
@@ -236,6 +237,8 @@ scene::BoundingSphere MeshComponent::getBoundingSphere()
     {
         constructBoundingSphere();
     }
+
+    updateBoundingSpherePosition();
 
     return m_sphere;
 }

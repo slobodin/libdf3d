@@ -32,6 +32,7 @@ class DF3D_DLL MeshComponent : public NodeComponent
     scene::BoundingSphere m_sphere;
     bool m_boundingSphereDirty = true;
     void constructBoundingSphere();
+    void updateBoundingSpherePosition();
 
     // Oriented bb.
     scene::OBB m_obb;
