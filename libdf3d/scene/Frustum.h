@@ -8,12 +8,12 @@ class DF3D_DLL Frustum
 {
     enum
     {
-        LEFT,
-        RIGHT,
-        TOP,
-        BOTTOM,
-        FAR,
-        NEAR
+        PLANE_LEFT,
+        PLANE_RIGHT,
+        PLANE_TOP,
+        PLANE_BOTTOM,
+        PLANE_FAR,
+        PLANE_NEAR
     };
 
     glm::vec4 m_planes[6];
