@@ -2,11 +2,12 @@
 #include "MeshComponent.h"
 
 #include <scene/Node.h>
+#include <scene/Frustum.h>
+#include <scene/Camera.h>
 #include <components/TransformComponent.h>
 #include <render/MeshData.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/SubMesh.h>
-#include <scene/DebugDrawOBBNode.h>
 #include <render/RenderQueue.h>
 #include <render/Material.h>
 #include <render/RenderPass.h>
@@ -20,9 +21,9 @@ bool MeshComponent::isInFov()
     if (m_frustumCullingDisabled)
         return true;
 
-    auto bsphere = getBoundingSphere();
+    const auto &frustum = g_sceneManager->getCamera()->getFrustum();
 
-    return true;
+    return frustum.sphereInFrustum(getBoundingSphere());
 }
 
 void MeshComponent::onEvent(components::ComponentEvent ev)

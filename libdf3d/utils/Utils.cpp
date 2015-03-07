@@ -27,4 +27,9 @@ glm::vec2 toPolar(const glm::vec2 &cartesian)
     return { std::hypot(cartesian.x, cartesian.y), std::atan2(cartesian.y, cartesian.x) };
 }
 
+float distanceToPlane(const glm::vec4 &plane, const glm::vec3 &point)
+{
+    return glm::dot(glm::vec3(plane), point) + plane.w;
+}
+
 } } }

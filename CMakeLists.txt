@@ -99,6 +99,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTerrain.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderWAV.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.h
@@ -192,6 +193,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTerrain.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderWAV.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.cpp

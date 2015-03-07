@@ -27,6 +27,7 @@
 #include <components/ScriptComponent.h>
 
 #include <scene/Node.h>
+#include <scene/Frustum.h>
 #include <scene/Camera.h>
 #include <scene/Scene.h>
 #include <scene/SceneManager.h>

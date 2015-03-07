@@ -26,7 +26,10 @@ void Camera::buildProjectionMatrix()
     const auto &vp = g_renderManager->getScreenRenderTarget()->getViewport();
 
     if (m_currentViewport != vp)
+    {
         m_projectionMatrixDirty = true;
+        m_frustumDirty = true;
+    }
 
     if (!m_projectionMatrixDirty)
         return;
@@ -39,6 +42,13 @@ void Camera::buildProjectionMatrix()
     m_currentViewport = vp;
 }
 
+void Camera::buildFrustum()
+{
+    m_frustum = Frustum(getProjectionMatrix() * getViewMatrix());
+
+    m_frustumDirty = false;
+}
+
 void Camera::onComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev)
 {
     if (ev == components::ComponentEvent::POSITION_CHANGED ||
@@ -46,6 +56,7 @@ void Camera::onComponentEvent(const components::NodeComponent *who, components::
         ev == components::ComponentEvent::SCALE_CHANGED)
     {
         m_viewMatrixDirty = true;
+        m_frustumDirty = true;
     }
 }
 
@@ -61,18 +72,21 @@ Camera::Camera(const glm::vec3 &position, float fov, float nearZ, float farZ)
 
 Camera::~Camera()
 {
+
 }
 
 void Camera::setFov(float fov)
 {
     m_fov = fov;
     m_projectionMatrixDirty = true;
+    m_frustumDirty = true;
 }
 
 void Camera::setViewMatrix(const glm::mat4 &viewm)
 {
     m_worldToCamera = viewm;
     m_viewMatrixDirty = false;
+    m_frustumDirty = true;
 }
 
 const glm::mat4 &Camera::getViewMatrix()
@@ -104,6 +118,14 @@ glm::vec3 Camera::getDir()
     // Could be this:
     //auto dir = glm::normalize(transform()->getTransformation() * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f));
     return -glm::normalize(glm::vec3(glm::column(transform()->getTransformation(), 2)));
+}
+
+const Frustum &Camera::getFrustum()
+{
+    if (m_frustumDirty)
+        buildFrustum();
+
+    return m_frustum;
 }
 
 glm::vec3 Camera::screenToViewPoint(float x, float y, float z)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Node.h"
+#include "Frustum.h"
 #include <render/Viewport.h>
 
 namespace df3d { namespace scene {
@@ -20,10 +21,15 @@ class DF3D_DLL Camera : public Node
     //! Cached copy of the current screen viewport.
     render::Viewport m_currentViewport;
 
+    //! View frustum.
+    Frustum m_frustum;
+
     bool m_viewMatrixDirty = true;
     bool m_projectionMatrixDirty = true;
+    bool m_frustumDirty = true;
     void buildViewMatrix();
     void buildProjectionMatrix();
+    void buildFrustum();
 
     void onComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev) override;
 
@@ -33,9 +39,9 @@ public:
       * field of view, near and far clipping planes
       */
     Camera(const glm::vec3 &position = glm::vec3(),
-        float fov = 60.f,
-        float nearZ = 0.1f,
-        float farZ = 5000.f);
+           float fov = 60.f,
+           float nearZ = 0.1f,
+           float farZ = 5000.f);
     ~Camera();
 
     void setFov(float fov);
@@ -50,6 +56,8 @@ public:
     float getFov() const { return m_fov; }
     float getNearZ() const { return m_nearZ; }
     float getFarZ() const { return m_farZ; }
+
+    const Frustum &getFrustum();
 
     glm::vec3 screenToViewPoint(float x, float y, float z = 0.0f);
     glm::vec3 worldToScreenPoint(const glm::vec3 &world);
