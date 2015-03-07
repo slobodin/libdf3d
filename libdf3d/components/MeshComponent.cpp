@@ -17,7 +17,10 @@ namespace df3d { namespace components {
 
 bool MeshComponent::isInFov()
 {
-    //auto bsphere = getBoundingSphere();
+    if (m_frustumCullingDisabled)
+        return true;
+
+    auto bsphere = getBoundingSphere();
 
     return true;
 }
@@ -44,10 +47,7 @@ void MeshComponent::onDraw(render::RenderQueue *ops)
     if (!m_geometry || !m_geometry->valid())
         return;
 
-    if (!m_visible)
-        return;
-
-    if (!isInFov())
+    if (!m_visible || !isInFov())
         return;
 
     // Include all the submeshes.
@@ -128,6 +128,8 @@ void MeshComponent::constructBoundingSphere()
     m_sphere.setRadius(glm::length(dir));
 
     m_boundingSphereDirty = false;
+
+    base::glog << "CBS" << base::logdebug;
 }
 
 void MeshComponent::constructOBB()
@@ -270,6 +272,8 @@ shared_ptr<NodeComponent> MeshComponent::clone() const
     retRes->m_obb = m_obb;
     retRes->m_obbDirty = m_obbDirty;
     retRes->m_obbTransformationDirty = m_obbTransformationDirty;
+    retRes->m_visible = m_visible;
+    retRes->m_frustumCullingDisabled = m_frustumCullingDisabled;
 
     return retRes;
 }

@@ -14,7 +14,6 @@ class DF3D_DLL MeshComponent : public NodeComponent
 {
     bool isInFov();
 
-protected:
     void onEvent(components::ComponentEvent ev) override;
     void onDraw(render::RenderQueue *ops) override;
 
@@ -41,7 +40,9 @@ protected:
     void constructOBB();
 
     bool m_visible = true;
+    bool m_frustumCullingDisabled = false;
 
+protected:
     MeshComponent();
 
 public:
@@ -61,6 +62,7 @@ public:
 
     std::string getMeshFilePath() const;
     void setVisible(bool visible) { m_visible = visible; }
+    void disableFrustumCulling(bool disable) { m_frustumCullingDisabled = disable; }
 
     shared_ptr<NodeComponent> clone() const override;
 };
