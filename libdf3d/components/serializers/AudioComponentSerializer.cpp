@@ -14,6 +14,10 @@ shared_ptr<NodeComponent> AudioComponentSerializer::fromJson(const Json::Value &
     result->setPitch(utils::jsonGetValueWithDefault(root["pitch"], result->getPitch()));
     result->setGain(utils::jsonGetValueWithDefault(root["gain"], result->getGain()));
     result->setLooped(utils::jsonGetValueWithDefault(root["looped"], result->isLooped()));
+    
+    auto startPlay = utils::jsonGetValueWithDefault(root["autoplay"], false);
+    if (startPlay)
+        result->play();
 
     return result;
 }
