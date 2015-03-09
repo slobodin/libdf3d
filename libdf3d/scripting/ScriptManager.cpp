@@ -2,7 +2,6 @@
 #include "ScriptManager.h"
 
 #include <lua/lua.hpp>
-#include <selene/selene.h>
 
 #include <base/SystemsMacro.h>
 
@@ -12,23 +11,27 @@ ScriptManager::ScriptManager()
 {
     base::glog << "Initializing Lua" << base::logmess;
 
-    m_state = make_unique<sel::State>(true);
+    m_luaState = luaL_newstate();
+    if (!m_luaState)
+        throw std::runtime_error("Failed to create lua state.");
+
+    luaL_openlibs(m_luaState);
 }
 
 ScriptManager::~ScriptManager()
 {
-
+    lua_close(m_luaState);
 }
 
 bool ScriptManager::doFile(const char *fileName)
 {
     auto fullp = g_fileSystem->fullPath(fileName);
 
-    base::glog << "Executing" << fullp << base::logmess;
+    base::glog << "Executing" << fullp << base::logdebug;
 
-    if (!m_state->Load(fullp))
+    if (luaL_dofile(m_luaState, fullp.c_str()))
     {
-        base::glog << "Lua script execution failed." << base::logwarn;
+        base::glog << "Lua script execution failed due to" << lua_tostring(m_luaState, -1) << base::logwarn;
         return false;
     }
 
@@ -38,16 +41,6 @@ bool ScriptManager::doFile(const char *fileName)
 bool ScriptManager::doString(const char *str)
 {
     return false;
-}
-
-void ScriptManager::printError()
-{
-
-}
-
-sel::State &ScriptManager::getState()
-{
-    return *m_state;
 }
 
 } }
