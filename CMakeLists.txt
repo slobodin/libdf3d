@@ -9,6 +9,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libogg)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libvorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/spark)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/lua)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/oolua)
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
@@ -34,7 +35,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/NodeComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/ParticleSystemComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/PhysicsComponent.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/ScriptComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TextMeshComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TransformComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/AudioComponentSerializer.h
@@ -45,7 +45,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/TransformComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ParticleSystemComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/PhysicsComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ScriptComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/DebugOverlayWindow.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiGeometryBufferImpl.h
@@ -109,8 +108,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingSphere.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingVolume.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/OBB.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scripting/ScriptManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scripting/lua/df3d_lua_bindings.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshIndexer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneSerializer.h
@@ -133,7 +130,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/NodeComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/ParticleSystemComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/PhysicsComponent.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/ScriptComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TextMeshComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TransformComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/AudioComponentSerializer.cpp
@@ -144,7 +140,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/TransformComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ParticleSystemComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/PhysicsComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ScriptComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/DebugOverlayWindow.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiGeometryBufferImpl.cpp
@@ -202,8 +197,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingSphere.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingVolume.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/OBB.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scripting/ScriptManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scripting/lua/df3d_lua_bindings.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonHelpers.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshIndexer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneSerializer.cpp
@@ -295,8 +288,7 @@ target_link_libraries(libdf3d
     BulletPhysics
     libogg
     libspark
-    libvorbis
-    lua)
+    libvorbis)
 
 if (WINDOWS)
     target_link_libraries(libdf3d ${OPENGL_LIBRARIES})

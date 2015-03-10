@@ -14,7 +14,6 @@ static const std::map<std::string, ComponentType> NameType =
     { "vfx", PARTICLE_EFFECT },
     { "audio", AUDIO },
     { "physics", PHYSICS },
-    { "script", SCRIPT },
     { "light", LIGHT },
     { "debug_draw", DEBUG_DRAW }
 };
@@ -26,7 +25,6 @@ static const std::map<ComponentType, std::string> TypeName =
     { PARTICLE_EFFECT, "vfx" },
     { AUDIO, "audio" },
     { PHYSICS, "physics" },
-    { SCRIPT, "script" },
     { LIGHT, "light" },
     { DEBUG_DRAW, "debug_draw" }
 };

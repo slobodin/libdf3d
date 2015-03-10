@@ -13,7 +13,6 @@ enum ComponentType
     AUDIO,
     PHYSICS,
     LIGHT,
-    SCRIPT,
     DEBUG_DRAW,
 
     COUNT

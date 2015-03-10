@@ -3,7 +3,6 @@
 
 #include <base/EngineController.h>
 #include <base/InputEvents.h>
-#include <scripting/ScriptManager.h>
 
 #include <CEGUI/CEGUI.h>
 #include "cegui_impl/CeguiRendererImpl.h"

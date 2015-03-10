@@ -7,7 +7,6 @@
 #include "AudioComponentSerializer.h"
 #include "PhysicsComponentSerializer.h"
 #include "LightComponentSerializer.h"
-#include "ScriptComponentSerializer.h"
 #include "DebugDrawComponentSerializer.h"
 
 namespace df3d { namespace components { namespace serializers {
@@ -28,8 +27,6 @@ unique_ptr<ComponentSerializer> create(ComponentType type)
         return make_unique<PhysicsComponentSerializer>();
     case LIGHT:
         return make_unique<LightComponentSerializer>();
-    case SCRIPT:
-        return make_unique<ScriptComponentSerializer>();
     case DEBUG_DRAW:
         return make_unique<DebugDrawComponentSerializer>();
     default:

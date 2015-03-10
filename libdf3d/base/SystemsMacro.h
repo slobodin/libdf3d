@@ -6,7 +6,6 @@
 #include <resources/ResourceManager.h>
 #include <resources/FileSystem.h>
 #include <gui/GuiManager.h>
-#include <scripting/ScriptManager.h>
 #include <physics/PhysicsManager.h>
 #include <audio/AudioManager.h>
 
@@ -17,6 +16,5 @@
 #define g_fileSystem df3d::base::EngineController::getInstance()->getFileSystem()
 #define g_renderManager df3d::base::EngineController::getInstance()->getRenderManager()
 #define g_guiManager df3d::base::EngineController::getInstance()->getGuiManager()
-#define g_scriptManager df3d::base::EngineController::getInstance()->getScriptManager()
 #define g_physicsWorld df3d::base::EngineController::getInstance()->getPhysicsManager()->getWorld()
 #define g_audioManager df3d::base::EngineController::getInstance()->getAudioManager()

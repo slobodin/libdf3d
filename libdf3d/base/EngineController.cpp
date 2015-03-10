@@ -10,7 +10,6 @@
 #include <resources/FileSystem.h>
 #include <gui/GuiManager.h>
 #include <gui/DebugOverlayWindow.h>
-#include <scripting/ScriptManager.h>
 #include <physics/PhysicsManager.h>
 #include <audio/AudioManager.h>
 #include <render/RenderStats.h>
@@ -71,7 +70,6 @@ void EngineController::consoleCommandInvoked(const std::string &name, std::strin
 void EngineController::shutdown()
 {
     SAFE_DELETE(m_physics);
-    SAFE_DELETE(m_scriptManager);
     SAFE_DELETE(m_sceneManager);
     SAFE_DELETE(m_guiManager);
     SAFE_DELETE(m_renderManager);
@@ -123,9 +121,6 @@ bool EngineController::init(EngineInitParams params)
 
         // Spark particle engine init.
         particlesys::initSparkEngine();
-
-        // Init scripting subsystem.
-        m_scriptManager = new scripting::ScriptManager();
 
         // Init GUI.
         m_guiManager = new gui::GuiManager(params.windowWidth, params.windowHeight);

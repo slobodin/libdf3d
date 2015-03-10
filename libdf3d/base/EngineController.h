@@ -9,7 +9,6 @@ FWD_MODULE_CLASS(resources, FileSystem)
 FWD_MODULE_CLASS(platform, AppEvent)
 FWD_MODULE_CLASS(gui, GuiManager)
 FWD_MODULE_CLASS(gui, DebugOverlayWindow)
-FWD_MODULE_CLASS(scripting, ScriptManager)
 FWD_MODULE_CLASS(physics, PhysicsManager)
 FWD_MODULE_CLASS(audio, AudioManager)
 
@@ -29,7 +28,6 @@ class DF3D_DLL EngineController : boost::noncopyable
     resources::ResourceManager *m_resourceManager = nullptr;
     resources::FileSystem *m_fileSystem = nullptr;
     gui::GuiManager *m_guiManager = nullptr;
-    scripting::ScriptManager *m_scriptManager = nullptr;
     physics::PhysicsManager *m_physics = nullptr;
     audio::AudioManager *m_audioManager = nullptr;
 
@@ -73,7 +71,6 @@ public:
     resources::FileSystem *getFileSystem() { return m_fileSystem; }
     render::RenderManager *getRenderManager() { return m_renderManager; }
     gui::GuiManager *getGuiManager() { return m_guiManager; }
-    scripting::ScriptManager *getScriptManager() { return m_scriptManager; }
     physics::PhysicsManager *getPhysicsManager() { return m_physics; }
     audio::AudioManager *getAudioManager() { return m_audioManager; }
 };

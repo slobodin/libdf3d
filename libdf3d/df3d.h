@@ -24,7 +24,6 @@
 #include <components/PhysicsComponent.h>
 #include <components/TransformComponent.h>
 #include <components/TextMeshComponent.h>
-#include <components/ScriptComponent.h>
 
 #include <scene/Node.h>
 #include <scene/Frustum.h>
@@ -47,8 +46,6 @@
 #include <resources/FileDataSource.h>
 
 #include <gui/GuiManager.h>
-
-#include <scripting/ScriptManager.h>
 
 #include <physics/PhysicsManager.h>
 #include <bullet/btBulletCollisionCommon.h>
