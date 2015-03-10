@@ -32,4 +32,12 @@ float signedDistanceToPlane(const glm::vec4 &plane, const glm::vec3 &point)
     return glm::dot(glm::vec3(plane), point) + plane.w;
 }
 
+glm::vec3 safeNormalize(const glm::vec3 &v)
+{
+    glm::vec3 res = v;
+    if (glm::fastLength(res) > 0.00001f)
+        res = glm::normalize(res);
+    return res;
+}
+
 } } }

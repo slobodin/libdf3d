@@ -2,6 +2,7 @@
 #include "SubMesh.h"
 
 #include "VertexIndexBuffer.h"
+#include <utils/Utils.h>
 
 namespace df3d { namespace render {
 
@@ -85,7 +86,7 @@ void SubMesh::computeNormals()
 
                 n /= polysTouchVertex[vertex];
 
-                SafeNormalize(n);
+                n = utils::math::safeNormalize(n);
 
                 memcpy(normalBase, glm::value_ptr(n), sizeof(float) * 3);
             }
@@ -225,7 +226,7 @@ void SubMesh::computeTangentBasis()
             glm::vec3 normal(normalPt[0], normalPt[1], normalPt[2]);
 
             tangent = tangent - normal * glm::dot(normal, tangent);
-            SafeNormalize(tangent);
+            tangent = utils::math::safeNormalize(tangent);
 
             if (glm::dot(glm::cross(normal, tangent), bitangent) < 0.0f)
             {

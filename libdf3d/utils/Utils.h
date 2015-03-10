@@ -43,6 +43,7 @@ extern const DF3D_DLL glm::vec4 ZAxis;
 DF3D_DLL glm::quat fromToRotation(const glm::vec3 &v1, const glm::vec3 &v2);
 DF3D_DLL glm::vec2 toPolar(const glm::vec2 &cartesian);
 DF3D_DLL float signedDistanceToPlane(const glm::vec4 &plane, const glm::vec3 &point);
+DF3D_DLL glm::vec3 safeNormalize(const glm::vec3 &v);
 
 }
 
