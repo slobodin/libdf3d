@@ -28,6 +28,7 @@ public:
 
     void setBlendMode(SPK::BlendMode blendMode) override;
     void setDiffuseMap(shared_ptr<render::Texture> texture);
+    void enableFaceCulling(bool enable);
 };
 
 // A Renderer drawing particles as quads.

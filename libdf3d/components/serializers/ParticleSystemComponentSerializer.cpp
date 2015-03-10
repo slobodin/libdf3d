@@ -342,6 +342,9 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
                 base::glog << "Unknown spark particle system orientation" << base::logwarn;
         }
 
+        bool faceCullEnabled = jsonGetValueWithDefault(groupJson["face_cull_enabled"], true);
+        renderer->enableFaceCulling(faceCullEnabled);
+
         std::string pathToTexture = jsonGetValueWithDefault(groupJson["texture"], std::string());
         SPK::TextureMode textureMode = SPK::TEXTURE_MODE_NONE;
         if (!pathToTexture.empty())

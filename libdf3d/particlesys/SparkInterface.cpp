@@ -155,6 +155,19 @@ void ParticleSystemRenderer::setDiffuseMap(shared_ptr<render::Texture> texture)
     m_pass->setSampler("diffuseMap", texture);
 }
 
+void ParticleSystemRenderer::enableFaceCulling(bool enable)
+{
+    if (enable)
+    {
+        m_pass->setFaceCullMode(render::RenderPass::FaceCullMode::BACK);
+        m_pass->setFrontFaceWinding(render::RenderPass::WindingOrder::CCW);
+    }
+    else
+    {
+        m_pass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
+    }
+}
+
 void QuadParticleSystemRenderer::render2D(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const
 {
     scaleQuadVectors(particle, scaleX, scaleY);
