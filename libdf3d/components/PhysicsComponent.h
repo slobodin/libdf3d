@@ -36,6 +36,7 @@ private:
 
     //void onUpdate(float dt);
     void onAttached() override;
+    void onDetached() override;
 
 public:
     btRigidBody *body = nullptr;

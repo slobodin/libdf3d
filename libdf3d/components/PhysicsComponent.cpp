@@ -129,14 +129,7 @@ void PhysicsComponent::onAttached()
     body->setUserPointer(m_holder);
 }
 
-PhysicsComponent::PhysicsComponent(const CreationParams &params)
-    : NodeComponent(PHYSICS),
-    m_creationParams(params)
-{
-
-}
-
-PhysicsComponent::~PhysicsComponent()
+void PhysicsComponent::onDetached()
 {
     if (body)
     {
@@ -151,6 +144,18 @@ PhysicsComponent::~PhysicsComponent()
 
         body = nullptr;
     }
+}
+
+PhysicsComponent::PhysicsComponent(const CreationParams &params)
+    : NodeComponent(PHYSICS),
+    m_creationParams(params)
+{
+
+}
+
+PhysicsComponent::~PhysicsComponent()
+{
+    onDetached();
 }
 
 shared_ptr<NodeComponent> PhysicsComponent::clone() const

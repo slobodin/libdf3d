@@ -122,6 +122,7 @@ shared_ptr<NodeComponent> ParticleSystemComponent::clone() const
         retRes->SPKSystem = SPK::SPKObject::copy(SPKSystem);
 
     retRes->m_paused = m_paused;
+    retRes->m_worldTransformed = m_worldTransformed;
     retRes->m_systemLifeTime = m_systemLifeTime;
     retRes->m_systemAge = m_systemAge;
 
