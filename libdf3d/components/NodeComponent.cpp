@@ -7,7 +7,7 @@
 
 namespace df3d { namespace components {
 
-static const std::map<std::string, ComponentType> NameType = 
+static const std::map<std::string, ComponentType> NameType =
 {
     { "transform", TRANSFORM },
     { "mesh", MESH },
@@ -97,7 +97,7 @@ Json::Value NodeComponent::toJson(shared_ptr<const NodeComponent> component)
     }
 
     result["type"] = component->getName();
-    
+
     auto serializer = serializers::create(component->type);
     if (!serializer)
     {

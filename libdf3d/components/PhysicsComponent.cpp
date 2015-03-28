@@ -19,7 +19,7 @@ namespace df3d { namespace components {
 //    // Because async.
 //    if (!body && m_meshLoaded)
 //    {
-//        
+//
 //    }
 //}
 
@@ -123,7 +123,7 @@ void PhysicsComponent::onAttached()
 
     if (m_creationParams.group != -1 && m_creationParams.mask != -1)
         g_physicsWorld->addRigidBody(body, m_creationParams.group, m_creationParams.mask);
-    else 
+    else
         g_physicsWorld->addRigidBody(body);
 
     body->setUserPointer(m_holder);

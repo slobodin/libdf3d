@@ -42,7 +42,7 @@ public:
     float getPitch() const { return m_pitch; }
     float getGain() const { return m_gain; }
     bool isLooped() const { return m_looped; }
-    
+
     shared_ptr<audio::AudioBuffer> getBuffer() const { return m_buffer; }
 
     State getState();

@@ -139,7 +139,7 @@ glm::vec2 TextMeshComponent::getTextLength(const char *text)
 {
     int w = 0, h = 0;
     //TTF_SizeUTF8(m_font, text, &w, &h);
-    
+
     return glm::vec2((float)w, (float)h);
 }
 
