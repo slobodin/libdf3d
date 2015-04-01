@@ -205,30 +205,6 @@ void EngineController::unregisterConsoleCommandHandler(const char *commandName)
     m_consoleCommandsHandlers.erase(commandName);
 }
 
-void EngineController::dispatchAppEvent(const platform::AppEvent &event)
-{
-    switch (event.type)
-    {
-    case platform::AppEvent::Type::MOUSE_MOTION:
-        m_guiManager->processMouseMotionEvent(event.mouseMotion);
-        break;
-    case platform::AppEvent::Type::MOUSE_BUTTON:
-        m_guiManager->processMouseButtonEvent(event.mouseButton);
-        break;
-    case platform::AppEvent::Type::MOUSE_WHEEL:
-        m_guiManager->processMouseWheelEvent(event.mouseWheel);
-        break;
-    case platform::AppEvent::Type::KEYBOARD:
-        if (event.keyboard.state == KeyboardEvent::State::PRESSED)
-            m_guiManager->processKeyDownEvent(event.keyboard.keycode);
-        else if (event.keyboard.state == KeyboardEvent::State::RELEASED)
-            m_guiManager->processKeyUpEvent(event.keyboard.keycode);
-        break;
-    default:
-        break;
-    }
-}
-
 const render::Viewport &EngineController::getViewport() const
 {
     return m_renderManager->getScreenRenderTarget()->getViewport();

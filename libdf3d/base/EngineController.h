@@ -6,7 +6,6 @@ FWD_MODULE_CLASS(render, Viewport)
 FWD_MODULE_CLASS(scene, SceneManager)
 FWD_MODULE_CLASS(resources, ResourceManager)
 FWD_MODULE_CLASS(resources, FileSystem)
-FWD_MODULE_CLASS(platform, AppEvent)
 FWD_MODULE_CLASS(gui, GuiManager)
 FWD_MODULE_CLASS(gui, DebugOverlayWindow)
 FWD_MODULE_CLASS(physics, PhysicsManager)
@@ -61,8 +60,6 @@ public:
 
     bool initialized() const { return m_initialized; }
 
-    void dispatchAppEvent(const platform::AppEvent &event);
-    
     const render::Viewport &getViewport() const;
     void setViewport(const render::Viewport &newvp);
 

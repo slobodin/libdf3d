@@ -39,7 +39,13 @@ void GuiManager::render()
     CEGUI::System::getSingleton().renderAllGUIContexts();
 }
 
-void GuiManager::processMouseButtonEvent(const base::MouseButtonEvent &ev)
+void GuiManager::setResourceGroupDirectory(const char *resourceGroup, const char *directory)
+{
+    auto rp = static_cast<cegui_impl::CeguiResourceProviderImpl*>(CEGUI::System::getSingleton().getResourceProvider());
+    rp->setResourceGroupDirectory(resourceGroup, directory);
+}
+
+bool GuiManager::processMouseButtonEvent(const base::MouseButtonEvent &ev)
 {
     CEGUI::MouseButton mb;
     switch (ev.button)
@@ -53,37 +59,35 @@ void GuiManager::processMouseButtonEvent(const base::MouseButtonEvent &ev)
     case base::MouseButtonEvent::Button::MIDDLE:
         mb = CEGUI::MiddleButton;
     default:
-        return;
+        return false;
     }
 
     if (ev.state == base::MouseButtonEvent::State::PRESSED)
-        CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(mb);
+        return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(mb);
     else if (ev.state == base::MouseButtonEvent::State::RELEASED)
-        CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(mb);
+        return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(mb);
+
+    return false;
 }
 
-void GuiManager::processMouseMotionEvent(const base::MouseMotionEvent &ev)
+bool GuiManager::processMouseMotionEvent(const base::MouseMotionEvent &ev)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)ev.x, (float)ev.y);
+    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)ev.x, (float)ev.y);
 }
 
-void GuiManager::processMouseWheelEvent(const base::MouseWheelEvent &ev)
+bool GuiManager::processMouseWheelEvent(const base::MouseWheelEvent &ev)
 {
-    //CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseWheelChange((float)ev.y);
+    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseWheelChange(ev.delta);
 }
 
-void GuiManager::processKeyDownEvent(const base::KeyboardEvent::KeyCode &code)
+bool GuiManager::processKeyDownEvent(const base::KeyboardEvent::KeyCode &code)
 {
+    return false;
 }
 
-void GuiManager::processKeyUpEvent(const base::KeyboardEvent::KeyCode &code)
+bool GuiManager::processKeyUpEvent(const base::KeyboardEvent::KeyCode &code)
 {
-}
-
-void GuiManager::setResourceGroupDirectory(const char *resourceGroup, const char *directory)
-{
-    auto rp = static_cast<cegui_impl::CeguiResourceProviderImpl*>(CEGUI::System::getSingleton().getResourceProvider());
-    rp->setResourceGroupDirectory(resourceGroup, directory);
+    return false;
 }
 
 } }

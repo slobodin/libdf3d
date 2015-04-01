@@ -4,27 +4,6 @@
 
 namespace df3d { namespace platform {
 
-class DF3D_DLL AppEvent
-{
-public:
-    enum class Type
-    {
-        QUIT,
-        KEYBOARD,
-        MOUSE_BUTTON,
-        MOUSE_MOTION,
-        MOUSE_WHEEL,
-        FINGER
-    };
-
-    Type type;
-
-    base::MouseMotionEvent mouseMotion;
-    base::MouseButtonEvent mouseButton;
-    base::MouseWheelEvent mouseWheel;
-    base::KeyboardEvent keyboard;
-};
-
 struct DF3D_DLL AppInitParams
 {
     int windowWidth = DEFAULT_WINDOW_WIDTH;

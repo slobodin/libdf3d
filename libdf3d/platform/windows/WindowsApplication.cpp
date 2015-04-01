@@ -191,99 +191,109 @@ AppWindow::~AppWindow()
 
 LRESULT AppWindow::handleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-    static AppEvent ev;
-
     switch (msg)
     {
     case WM_KEYDOWN:
-        ev.type = AppEvent::Type::KEYBOARD;
-        ev.keyboard.keycode = convertKeyCode(wp);
-        ev.keyboard.state = base::KeyboardEvent::State::PRESSED;
-        g_engineController->dispatchAppEvent(ev);
-        m_appDelegate->onKeyDown(ev.keyboard.keycode);
+    {
+        base::KeyboardEvent ev;
+        ev.keycode = convertKeyCode(wp);
+        ev.state = base::KeyboardEvent::State::PRESSED;
+        m_appDelegate->onKeyDown(ev.keycode);
+    }
         break;
 
     case WM_KEYUP:
-        ev.type = AppEvent::Type::KEYBOARD;
-        ev.keyboard.keycode = convertKeyCode(wp);
-        ev.keyboard.state = base::KeyboardEvent::State::RELEASED;
-        g_engineController->dispatchAppEvent(ev);
-        m_appDelegate->onKeyUp(ev.keyboard.keycode);
+    {
+        base::KeyboardEvent ev;
+        ev.keycode = convertKeyCode(wp);
+        ev.state = base::KeyboardEvent::State::RELEASED;
+        m_appDelegate->onKeyUp(ev.keycode);
+    }
         break;
 
     case WM_MOUSEMOVE:
-        ev.type = AppEvent::Type::MOUSE_MOTION;
-        ev.mouseMotion.x = (short)LOWORD(lp);
-        ev.mouseMotion.y = (short)HIWORD(lp);
-        ev.mouseMotion.leftPressed = (wp & MK_LBUTTON) == MK_LBUTTON;
-        ev.mouseMotion.rightPressed = (wp & MK_RBUTTON) == MK_RBUTTON;
-        g_engineController->dispatchAppEvent(ev);
-        m_appDelegate->onMouseMotionEvent(ev.mouseMotion);
+    {
+        base::MouseMotionEvent ev;
+        ev.x = (short)LOWORD(lp);
+        ev.y = (short)HIWORD(lp);
+        ev.leftPressed = (wp & MK_LBUTTON) == MK_LBUTTON;
+        ev.rightPressed = (wp & MK_RBUTTON) == MK_RBUTTON;
+        m_appDelegate->onMouseMotionEvent(ev);
+    }
         break;
 
     case WM_MOUSEWHEEL:
-        ev.type = AppEvent::Type::MOUSE_WHEEL;
-        g_engineController->dispatchAppEvent(ev);
+    {
+        base::MouseWheelEvent ev;
+        ev.delta = GET_WHEEL_DELTA_WPARAM(wp) / WHEEL_DELTA;
+        m_appDelegate->onMouseWheelEvent(ev);
+    }
         break;
 
     case WM_LBUTTONDOWN:
-        ev.type = AppEvent::Type::MOUSE_BUTTON;
-        ev.mouseButton.x = (short)LOWORD(lp);
-        ev.mouseButton.y = (short)HIWORD(lp);
-        ev.mouseButton.state = base::MouseButtonEvent::State::PRESSED;
-        ev.mouseButton.button = base::MouseButtonEvent::Button::LEFT;
-        g_engineController->dispatchAppEvent(ev);
-        m_appDelegate->onMouseButtonEvent(ev.mouseButton);
+    {
+        base::MouseButtonEvent ev;
+        ev.x = (short)LOWORD(lp);
+        ev.y = (short)HIWORD(lp);
+        ev.state = base::MouseButtonEvent::State::PRESSED;
+        ev.button = base::MouseButtonEvent::Button::LEFT;
+        m_appDelegate->onMouseButtonEvent(ev);
+    }
         break;
 
     case WM_LBUTTONUP:
-        ev.type = AppEvent::Type::MOUSE_BUTTON;
-        ev.mouseButton.x = (short)LOWORD(lp);
-        ev.mouseButton.y = (short)HIWORD(lp);
-        ev.mouseButton.state = base::MouseButtonEvent::State::RELEASED;
-        ev.mouseButton.button = base::MouseButtonEvent::Button::LEFT;
-        g_engineController->dispatchAppEvent(ev);
-        m_appDelegate->onMouseButtonEvent(ev.mouseButton);
+    {
+        base::MouseButtonEvent ev;
+        ev.x = (short)LOWORD(lp);
+        ev.y = (short)HIWORD(lp);
+        ev.state = base::MouseButtonEvent::State::RELEASED;
+        ev.button = base::MouseButtonEvent::Button::LEFT;
+        m_appDelegate->onMouseButtonEvent(ev);
+    }
         break;
 
     case WM_RBUTTONDOWN:
-        ev.type = AppEvent::Type::MOUSE_BUTTON;
-        ev.mouseButton.x = (short)LOWORD(lp);
-        ev.mouseButton.y = (short)HIWORD(lp);
-        ev.mouseButton.state = base::MouseButtonEvent::State::PRESSED;
-        ev.mouseButton.button = base::MouseButtonEvent::Button::RIGHT;
-        g_engineController->dispatchAppEvent(ev);
-        m_appDelegate->onMouseButtonEvent(ev.mouseButton);
+    {
+        base::MouseButtonEvent ev;
+        ev.x = (short)LOWORD(lp);
+        ev.y = (short)HIWORD(lp);
+        ev.state = base::MouseButtonEvent::State::PRESSED;
+        ev.button = base::MouseButtonEvent::Button::RIGHT;
+        m_appDelegate->onMouseButtonEvent(ev);
+    }
         break;
 
     case WM_RBUTTONUP:
-        ev.type = AppEvent::Type::MOUSE_BUTTON;
-        ev.mouseButton.x = (short)LOWORD(lp);
-        ev.mouseButton.y = (short)HIWORD(lp);
-        ev.mouseButton.state = base::MouseButtonEvent::State::RELEASED;
-        ev.mouseButton.button = base::MouseButtonEvent::Button::RIGHT;
-        g_engineController->dispatchAppEvent(ev);
-        m_appDelegate->onMouseButtonEvent(ev.mouseButton);
+    {
+        base::MouseButtonEvent ev;
+        ev.x = (short)LOWORD(lp);
+        ev.y = (short)HIWORD(lp);
+        ev.state = base::MouseButtonEvent::State::RELEASED;
+        ev.button = base::MouseButtonEvent::Button::RIGHT;
+        m_appDelegate->onMouseButtonEvent(ev);
+    }
         break;
 
     case WM_MBUTTONDOWN:
-        ev.type = AppEvent::Type::MOUSE_BUTTON;
-        ev.mouseButton.x = (short)LOWORD(lp);
-        ev.mouseButton.y = (short)HIWORD(lp);
-        ev.mouseButton.state = base::MouseButtonEvent::State::PRESSED;
-        ev.mouseButton.button = base::MouseButtonEvent::Button::MIDDLE;
-        g_engineController->dispatchAppEvent(ev);
-        m_appDelegate->onMouseButtonEvent(ev.mouseButton);
+    {
+        base::MouseButtonEvent ev;
+        ev.x = (short)LOWORD(lp);
+        ev.y = (short)HIWORD(lp);
+        ev.state = base::MouseButtonEvent::State::PRESSED;
+        ev.button = base::MouseButtonEvent::Button::MIDDLE;
+        m_appDelegate->onMouseButtonEvent(ev);
+    }
         break;
 
     case WM_MBUTTONUP:
-        ev.type = AppEvent::Type::MOUSE_BUTTON;
-        ev.mouseButton.x = (short)LOWORD(lp);
-        ev.mouseButton.y = (short)HIWORD(lp);
-        ev.mouseButton.state = base::MouseButtonEvent::State::RELEASED;
-        ev.mouseButton.button = base::MouseButtonEvent::Button::MIDDLE;
-        g_engineController->dispatchAppEvent(ev);
-        m_appDelegate->onMouseButtonEvent(ev.mouseButton);
+    {
+        base::MouseButtonEvent ev;
+        ev.x = (short)LOWORD(lp);
+        ev.y = (short)HIWORD(lp);
+        ev.state = base::MouseButtonEvent::State::RELEASED;
+        ev.button = base::MouseButtonEvent::Button::MIDDLE;
+        m_appDelegate->onMouseButtonEvent(ev);
+    }
         break;
 
     case WM_ACTIVATE:

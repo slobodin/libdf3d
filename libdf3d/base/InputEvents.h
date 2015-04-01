@@ -36,6 +36,7 @@ public:
 class DF3D_DLL MouseWheelEvent
 {
 public:
+    float delta = 0;
 };
 
 class DF3D_DLL KeyboardEvent

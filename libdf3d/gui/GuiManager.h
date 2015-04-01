@@ -19,15 +19,15 @@ class DF3D_DLL GuiManager
     void update(float dt);
     void render();
 
-    void processMouseButtonEvent(const base::MouseButtonEvent &ev);
-    void processMouseMotionEvent(const base::MouseMotionEvent &ev);
-    void processMouseWheelEvent(const base::MouseWheelEvent &ev);
-    void processKeyDownEvent(const base::KeyboardEvent::KeyCode &code);
-    void processKeyUpEvent(const base::KeyboardEvent::KeyCode &code);
-
 public:
     // CEGUI related stuff.
     void setResourceGroupDirectory(const char *resourceGroup, const char *directory);
+
+    bool processMouseButtonEvent(const base::MouseButtonEvent &ev);
+    bool processMouseMotionEvent(const base::MouseMotionEvent &ev);
+    bool processMouseWheelEvent(const base::MouseWheelEvent &ev);
+    bool processKeyDownEvent(const base::KeyboardEvent::KeyCode &code);
+    bool processKeyUpEvent(const base::KeyboardEvent::KeyCode &code);
 };
 
 } }

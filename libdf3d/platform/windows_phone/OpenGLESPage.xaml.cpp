@@ -37,30 +37,20 @@ OpenGLESPage::OpenGLESPage(df3d::platform::AppDelegate *appDelegate)
 
     InitializeComponent();
 
-    Windows::UI::Core::CoreWindow^ window = Windows::UI::Xaml::Window::Current->CoreWindow;
-
-    window->VisibilityChanged +=
-        ref new Windows::Foundation::TypedEventHandler<Windows::UI::Core::CoreWindow^, Windows::UI::Core::VisibilityChangedEventArgs^>(this, &OpenGLESPage::OnVisibilityChanged);
-
-    swapChainPanel->SizeChanged +=
-        ref new Windows::UI::Xaml::SizeChangedEventHandler(this, &OpenGLESPage::OnSwapChainPanelSizeChanged);
-
-    this->Loaded +=
-        ref new Windows::UI::Xaml::RoutedEventHandler(this, &OpenGLESPage::OnPageLoaded);
+    Window::Current->CoreWindow->VisibilityChanged += ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &OpenGLESPage::OnVisibilityChanged);
+    swapChainPanel->SizeChanged += ref new SizeChangedEventHandler(this, &OpenGLESPage::OnSwapChainPanelSizeChanged);
+    this->Loaded += ref new RoutedEventHandler(this, &OpenGLESPage::OnPageLoaded);
 
     // Register our SwapChainPanel to get independent input pointer events
     auto workItemHandler = ref new WorkItemHandler([this](IAsyncAction ^)
     {
         // The CoreIndependentInputSource will raise pointer events for the specified device types on whichever thread it's created on.
-        m_coreInput = swapChainPanel->CreateCoreIndependentInputSource(
-            Windows::UI::Core::CoreInputDeviceTypes::Mouse |
-            Windows::UI::Core::CoreInputDeviceTypes::Touch |
-            Windows::UI::Core::CoreInputDeviceTypes::Pen
-            );
+        m_coreInput = swapChainPanel->CreateCoreIndependentInputSource(CoreInputDeviceTypes::Mouse |CoreInputDeviceTypes::Touch |CoreInputDeviceTypes::Pen);
         // Register for pointer events, which will be raised on the background thread.
         m_coreInput->PointerPressed += ref new TypedEventHandler<Object^, PointerEventArgs^>(this, &OpenGLESPage::OnPointerPressed);
         m_coreInput->PointerMoved += ref new TypedEventHandler<Object^, PointerEventArgs^>(this, &OpenGLESPage::OnPointerMoved);
         m_coreInput->PointerReleased += ref new TypedEventHandler<Object^, PointerEventArgs^>(this, &OpenGLESPage::OnPointerReleased);
+
         // Begin processing input messages as they're delivered.
         m_coreInput->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessUntilQuit);
     });
@@ -173,11 +163,11 @@ void OpenGLESPage::StartRenderLoop()
     using namespace std::chrono;
 
     // If the render loop is already running then do not start another thread.
-    if (mRenderLoopWorker != nullptr && mRenderLoopWorker->Status == Windows::Foundation::AsyncStatus::Started)
+    if (mRenderLoopWorker != nullptr && mRenderLoopWorker->Status == AsyncStatus::Started)
         return;
 
     // Create a task for rendering that will be run on a background thread.
-    auto workItemHandler = ref new WorkItemHandler([this](Windows::Foundation::IAsyncAction ^ action)
+    auto workItemHandler = ref new WorkItemHandler([this](IAsyncAction ^ action)
     {
         critical_section::scoped_lock lock(mRenderSurfaceCriticalSection);
 
@@ -195,7 +185,7 @@ void OpenGLESPage::StartRenderLoop()
         TimePoint currtime, prevtime;
         currtime = prevtime = system_clock::now();
 
-        while (action->Status == Windows::Foundation::AsyncStatus::Started)
+        while (action->Status == AsyncStatus::Started)
         {
             currtime = system_clock::now();
 
@@ -241,40 +231,35 @@ void OpenGLESPage::ProcessPointers()
     std::shared_ptr<TouchEvent> touch;
     while (pointers.try_pop(touch))
     {
-        df3d::platform::AppEvent ev;
-
         switch (touch->type)
         {
         case TouchType::TOUCH_DOWN:
         {
-            ev.type = df3d::platform::AppEvent::Type::MOUSE_BUTTON;
-            ev.mouseButton.x = touch->x;
-            ev.mouseButton.y = touch->y;
-            ev.mouseButton.state = df3d::base::MouseButtonEvent::State::PRESSED;
-            ev.mouseButton.button = df3d::base::MouseButtonEvent::Button::LEFT;
-            g_engineController->dispatchAppEvent(ev);
-            m_appDelegate->onMouseButtonEvent(ev.mouseButton);
+            df3d::base::MouseButtonEvent ev;
+            ev.x = touch->x;
+            ev.y = touch->y;
+            ev.state = df3d::base::MouseButtonEvent::State::PRESSED;
+            ev.button = df3d::base::MouseButtonEvent::Button::LEFT;
+            m_appDelegate->onMouseButtonEvent(ev);
         }
             break;
         case TouchType::TOUCH_MOVED:
         {
-            ev.type = df3d::platform::AppEvent::Type::MOUSE_MOTION;
-            ev.mouseMotion.x = touch->x;
-            ev.mouseMotion.y = touch->y;
-            ev.mouseMotion.leftPressed = true;
-            g_engineController->dispatchAppEvent(ev);
-            m_appDelegate->onMouseMotionEvent(ev.mouseMotion);
+            df3d::base::MouseMotionEvent ev;
+            ev.x = touch->x;
+            ev.y = touch->y;
+            ev.leftPressed = true;
+            m_appDelegate->onMouseMotionEvent(ev);
         }
             break;
         case TouchType::TOUCH_UP:
         {
-            ev.type = df3d::platform::AppEvent::Type::MOUSE_BUTTON;
-            ev.mouseButton.x = touch->x;
-            ev.mouseButton.y = touch->y;
-            ev.mouseButton.state = df3d::base::MouseButtonEvent::State::RELEASED;
-            ev.mouseButton.button = df3d::base::MouseButtonEvent::Button::LEFT;
-            g_engineController->dispatchAppEvent(ev);
-            m_appDelegate->onMouseButtonEvent(ev.mouseButton);
+            df3d::base::MouseButtonEvent ev;
+            ev.x = touch->x;
+            ev.y = touch->y;
+            ev.state = df3d::base::MouseButtonEvent::State::RELEASED;
+            ev.button = df3d::base::MouseButtonEvent::Button::LEFT;
+            m_appDelegate->onMouseButtonEvent(ev);
         }
             break;
         }
