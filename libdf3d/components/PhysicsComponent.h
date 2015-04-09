@@ -49,7 +49,10 @@ public:
 
     shared_ptr<NodeComponent> clone() const override;
 
+    // FIXME:
+    // Call this from transformcomponent.
     void setPosition(const glm::vec3 &pos);
+    void setOrientation(glm::vec3 rot, bool rads = false);
 };
 
 } }

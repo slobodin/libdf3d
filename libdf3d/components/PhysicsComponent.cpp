@@ -173,4 +173,15 @@ void PhysicsComponent::setPosition(const glm::vec3 &pos)
     body->setWorldTransform(tr);
 }
 
+void PhysicsComponent::setOrientation(glm::vec3 rot, bool rads)
+{
+    if (!rads)
+        rot = glm::degrees(rot);
+
+    auto tr = body->getWorldTransform();
+    tr.setRotation(btQuaternion(rot.y, rot.x, rot.z));
+
+    body->setWorldTransform(tr);
+}
+
 } }
