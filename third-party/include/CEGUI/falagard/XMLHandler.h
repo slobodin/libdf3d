@@ -32,11 +32,6 @@
 #include "../Window.h"
 #include <vector>
 
-#if defined(_MSC_VER)
-#   pragma warning(push)
-#   pragma warning(disable : 4251)
-#endif
-
 // Start of CEGUI namespace section
 namespace CEGUI
 {
@@ -61,7 +56,7 @@ namespace CEGUI
     \brief
         Handler class used to parse look & feel XML files used by the Falagard system.
     */
-    class CEGUIEXPORT Falagard_xmlHandler : public ChainedXMLHandler
+    class Falagard_xmlHandler : public ChainedXMLHandler
     {
     public:
         /*!
@@ -613,10 +608,6 @@ namespace CEGUI
 
 } // End of  CEGUI namespace section
 
-
-#if defined(_MSC_VER)
-#   pragma warning(pop)
-#endif
 
 #endif  // end of guard _CEGUIFalagard_xmlHandler_h_
 

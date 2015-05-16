@@ -188,7 +188,7 @@ setting CMake options and regenerating, rather than editing directly.
 // Define the default place where cegui will look for loadable modules
 // this can be changed at runtime via the CEGUI_MODULE_DIR environment var.
 #if defined(_WIN32) || defined(__WIN32__)
-#   define CEGUI_MODULE_DIR "C:/dev/cegui-bitbucket/cegui/build_wp/bin/"
+#   define CEGUI_MODULE_DIR "c:/dev/cegui-0.8.4/build/bin/"
 #else
 #   define CEGUI_MODULE_DIR "C:/Program Files (x86)/cegui/lib/cegui-0.8/"
 #endif

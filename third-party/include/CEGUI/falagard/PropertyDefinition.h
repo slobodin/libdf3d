@@ -57,7 +57,7 @@ public:
     //------------------------------------------------------------------------//
     void initialisePropertyReceiver(PropertyReceiver* receiver) const
     {
-        setWindowUserString(static_cast<Window*>(receiver), FalagardPropertyBase<T>::d_initialValue);
+        setWindowUserString(static_cast<Window*>(receiver), this->d_default);
     }
 
     //------------------------------------------------------------------------//
@@ -95,9 +95,9 @@ protected:
             // to just return d_default, and while technically correct, it
             // would be very slow.
             const_cast<Window*>(wnd)->
-                setUserString(d_userStringName, FalagardPropertyBase<T>::d_initialValue);
+                setUserString(d_userStringName, TypedProperty<T>::d_default);
 
-            return Helper::fromString(FalagardPropertyBase<T>::d_initialValue);
+            return Helper::fromString(TypedProperty<T>::d_default);
         }
     }
 
@@ -126,8 +126,8 @@ protected:
         if(FalagardPropertyBase<T>::d_dataType.compare(Falagard_xmlHandler::GenericDataType) != 0)
             xml_stream.attribute(Falagard_xmlHandler::TypeAttribute, FalagardPropertyBase<T>::d_dataType);
 
-        if (!FalagardPropertyBase<T>::d_helpString.empty() && FalagardPropertyBase<T>::d_helpString.compare(CEGUI::Falagard_xmlHandler::PropertyDefinitionHelpDefaultValue) != 0)
-            xml_stream.attribute(Falagard_xmlHandler::HelpStringAttribute, FalagardPropertyBase<T>::d_helpString);
+        if (!PropertyDefinitionBase::d_helpString.empty() && PropertyDefinitionBase::d_helpString.compare(CEGUI::Falagard_xmlHandler::PropertyDefinitionHelpDefaultValue) != 0)
+            xml_stream.attribute(Falagard_xmlHandler::HelpStringAttribute, PropertyDefinitionBase::d_helpString);
     }
 
 

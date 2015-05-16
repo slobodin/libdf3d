@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  *  License along with this library; if not, write to the
- *  Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *  Boston, MA  02111-1307, USA.
+ *  Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
@@ -391,6 +391,22 @@ typedef void (ALC_APIENTRY*LPALCDEVICERESUMESOFT)(ALCdevice *device);
 ALC_API void ALC_APIENTRY alcDevicePauseSOFT(ALCdevice *device);
 ALC_API void ALC_APIENTRY alcDeviceResumeSOFT(ALCdevice *device);
 #endif
+#endif
+
+#ifndef AL_EXT_BFORMAT
+#define AL_EXT_BFORMAT 1
+#define AL_FORMAT_BFORMAT2D_8                    0x20021
+#define AL_FORMAT_BFORMAT2D_16                   0x20022
+#define AL_FORMAT_BFORMAT2D_FLOAT32              0x20023
+#define AL_FORMAT_BFORMAT3D_8                    0x20031
+#define AL_FORMAT_BFORMAT3D_16                   0x20032
+#define AL_FORMAT_BFORMAT3D_FLOAT32              0x20033
+#endif
+
+#ifndef AL_EXT_MULAW_BFORMAT
+#define AL_EXT_MULAW_BFORMAT 1
+#define AL_FORMAT_BFORMAT2D_MULAW                0x10031
+#define AL_FORMAT_BFORMAT3D_MULAW                0x10032
 #endif
 
 #ifdef __cplusplus

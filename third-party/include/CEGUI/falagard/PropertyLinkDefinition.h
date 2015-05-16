@@ -39,8 +39,6 @@
 
 namespace CEGUI
 {
-//! \deprecated This will be removed in the next version as it has been replaced by Falagard_xmlHandler::ParentIdentifier
-extern const String S_parentIdentifier;
 
 /*!
 \brief
@@ -106,7 +104,7 @@ public:
     //------------------------------------------------------------------------//
     void initialisePropertyReceiver(PropertyReceiver* receiver) const
     {
-        updateLinkTargets(receiver, Helper::fromString(FalagardPropertyBase<T>::d_initialValue));
+        updateLinkTargets(receiver, Helper::fromString(this->d_default));
     }
 
     //------------------------------------------------------------------------//
@@ -128,7 +126,7 @@ protected:
 
         // if no target, or target (currently) invalid, return the default value
         if (d_targets.empty() || !target_wnd)
-            return Helper::fromString(FalagardPropertyBase<T>::d_initialValue);
+            return Helper::fromString(TypedProperty<T>::d_default);
 
         // otherwise return the value of the property for first target, since
         // this is considered the 'master' target for get operations.
@@ -176,8 +174,8 @@ protected:
         if(FalagardPropertyBase<T>::d_dataType.compare(Falagard_xmlHandler::GenericDataType) != 0)
             xml_stream.attribute(Falagard_xmlHandler::TypeAttribute, FalagardPropertyBase<T>::d_dataType);
 
-        if (!FalagardPropertyBase<T>::d_helpString.empty() && FalagardPropertyBase<T>::d_helpString.compare(CEGUI::Falagard_xmlHandler::PropertyLinkDefinitionHelpDefaultValue) != 0)
-            xml_stream.attribute(Falagard_xmlHandler::HelpStringAttribute, FalagardPropertyBase<T>::d_helpString);
+        if (!PropertyDefinitionBase::d_helpString.empty() && PropertyDefinitionBase::d_helpString.compare(CEGUI::Falagard_xmlHandler::PropertyLinkDefinitionHelpDefaultValue) != 0)
+            xml_stream.attribute(Falagard_xmlHandler::HelpStringAttribute, PropertyDefinitionBase::d_helpString);
     }
 
     //------------------------------------------------------------------------//

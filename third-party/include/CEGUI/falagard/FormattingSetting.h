@@ -77,12 +77,6 @@ public:
     }
 
     //------------------------------------------------------------------------//
-    const String& getPropertySource() const
-    {
-        return d_propertySource;
-    }
-
-    //------------------------------------------------------------------------//
     void setPropertySource(const String& property_name)
     {
         d_propertySource = property_name;

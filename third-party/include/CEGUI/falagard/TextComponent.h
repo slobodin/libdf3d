@@ -161,15 +161,6 @@ namespace CEGUI
 
         /*!
         \brief
-            Directly returns the vertical formatting which was set for the ImageryComponent.
-
-        \return
-            The VerticalTextFormatting enum.
-        */
-        VerticalTextFormatting getVerticalFormattingFromComponent() const;
-
-        /*!
-        \brief
             Set the vertical formatting setting for this TextComponent.
 
         \param fmt
@@ -191,15 +182,6 @@ namespace CEGUI
 
         /*!
         \brief
-            Directly returns the horizontal formatting which was set for the ImageryComponent.
-
-        \return
-            The HorizontalTextFormatting enum.
-        */
-        HorizontalTextFormatting getHorizontalFormattingFromComponent() const;
-
-        /*!
-        \brief
             Set the horizontal formatting setting for this TextComponent.
 
         \param fmt
@@ -212,30 +194,10 @@ namespace CEGUI
 
         /*!
         \brief
-            Returns the name of the property that will be used to obtain the horizontal
-            formatting to use for this ImageryComponent or an empty string if none is set.
-
-        \return
-            A String containing the name of the property
-        */
-        const String& getHorizontalFormattingPropertySource() const;
-
-        /*!
-        \brief
             Set the name of a property that will be used to obtain the horizontal
             formatting to use for this ImageryComponent.
         */
         void setHorizontalFormattingPropertySource(const String& property_name);
-
-        /*!
-        \brief
-            Returns the name of the property that will be used to obtain the vertical
-            formatting to use for this ImageryComponent or an empty string if none is set.
-
-        \return
-            A String containing the name of the property
-        */
-        const String& getVerticalFormattingPropertySource() const;
 
         /*!
         \brief

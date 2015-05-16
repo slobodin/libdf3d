@@ -84,10 +84,8 @@ namespace CEGUI
 
 
         /** Typedef for a set of WidgetLookFeel names. */
-        typedef std::set<String, StringFastLessCompare CEGUI_SET_ALLOC(String)> WidgetLookNameSet;
-
-        //! Typedef for a map of Strings to WidgetLookFeel objects
-        typedef std::map<String, WidgetLookFeel*, StringFastLessCompare CEGUI_MAP_ALLOC(String, WidgetLookFeel*)> WidgetLookPointerMap;
+        typedef std::set<String, StringFastLessCompare
+          CEGUI_SET_ALLOC(String)> WidgetLookNameSet;
 
         /*!
         \brief
@@ -283,36 +281,18 @@ namespace CEGUI
         static void setDefaultResourceGroup(const String& resourceGroup)
             { d_defaultResourceGroup = resourceGroup; }
 
-        /*!
-        \brief
-            Returns a map containing Strings to WidgetLookFeel pointers. The map contains pointers to the WidgetLookFeels
-            that were added to this Manager.
-
-        \return
-            A map of Strings to WidgetLookFeel pointers.
-        */
-        WidgetLookPointerMap getWidgetLookPointerMap();
 
     private:
-        //! Name of schema file used for XML validation.
-        static const String FalagardSchemaName; 
-        //! holds default resource group
-        static String d_defaultResourceGroup;
+        static const String FalagardSchemaName;     //!< Name of schema file used for XML validation.
 
-
-        //! Typedef for a map of Strings to WidgetLookFeel objects
-        // \deprecated  Will use the correct allocator in the next version and will
-        // be renamed to "WidgetLookMap"
         typedef std::map<String, WidgetLookFeel, StringFastLessCompare> WidgetLookList;
+        WidgetLookList  d_widgetLooks;
 
-        //! List of WidgetLookFeels added to this Manager
-        WidgetLookList  d_widgetLooks;  
-
+        static String d_defaultResourceGroup;   //!< holds default resource group
     public:
-        //! \deprecated Use WidgetLookPointerMap instead, which provides direct access to the added elements.
         typedef ConstMapIterator<WidgetLookList> WidgetLookIterator;
-        //! \deprecated Use getWidgetLookPointerMap instead, which provides direct access to the added elements. In the next version getWidgetLookMap will be added to replace the const-ness.
         WidgetLookIterator getWidgetLookIterator() const;
+
     };
 
 } // End of  CEGUI namespace section

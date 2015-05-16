@@ -119,16 +119,7 @@ public:
 
     /*!
     \brief
-        Returns the name of the property from which the colour values will be obtained, if set.
-
-    \return
-        String object holding the name of the property.
-    */
-    const String& getColoursPropertySource() const;
-
-    /*!
-    \brief
-        Set the name of the property where colour values will be obtained, if set.
+        Set the name of the property where colour values can be obtained.
 
     \param property
         String containing the name of the property.
