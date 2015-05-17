@@ -239,8 +239,8 @@ bool GuiRenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle
     m_textures[++m_textureId] = texture;
     texture_handle = m_textureId;
 
-    texture_dimensions.x = texture->getActualWidth();
-    texture_dimensions.y = texture->getActualHeight();
+    texture_dimensions.x = texture->getOriginalWidth();
+    texture_dimensions.y = texture->getOriginalHeight();
 
     return true;
 }
