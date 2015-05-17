@@ -9,6 +9,10 @@
 #include <Rocket/Controls.h>
 #include <Rocket/Debugger.h>
 
+#if defined(DF3D_WINDOWS)
+#define ENABLE_ROCKET_DEBUGGER
+#endif
+
 namespace df3d { namespace gui {
 
 GuiManager::GuiManager(int contextWidth, int contextHeight)
