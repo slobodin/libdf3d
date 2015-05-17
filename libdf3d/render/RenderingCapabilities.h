@@ -10,13 +10,14 @@ enum class TextureFiltering
 };
 
 extern const DF3D_DLL int ANISOTROPY_LEVEL_MAX;
+extern const DF3D_DLL int NO_ANISOTROPY;
 
 class DF3D_DLL RenderingCapabilities
 {
 public:
     TextureFiltering textureFiltering = TextureFiltering::BILINEAR;
     bool mipmaps = false;
-    int anisotropyMax = 1;
+    int anisotropyMax = NO_ANISOTROPY;
 
     static RenderingCapabilities getDefaults();
 };

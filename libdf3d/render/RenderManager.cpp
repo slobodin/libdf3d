@@ -270,6 +270,11 @@ void RenderManager::drawOperation(const RenderOperation &op)
 
 void RenderManager::drawGUI()
 {
+    m_screenRt->bind();
+
+    m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)m_screenRt->getViewport().width(), (float)m_screenRt->getViewport().height(), 0.0f));
+    m_renderer->setCameraMatrix(glm::mat4(1.0f));
+
     g_guiManager->render();
 }
 

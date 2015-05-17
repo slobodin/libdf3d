@@ -18,6 +18,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/function.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 #define GLM_FORCE_RADIANS
 //#define GLM_MESSAGES
@@ -34,6 +35,11 @@
 #include <json/json.h>
 
 using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
+
+namespace Rocket { namespace Core { class Element; class ElementDocument; } }
+
+using RocketDocument = boost::intrusive_ptr<Rocket::Core::ElementDocument>;
+using RocketElement = boost::intrusive_ptr<Rocket::Core::Element>;
 
 using std::shared_ptr;
 using std::make_shared;

@@ -1,83 +1,97 @@
 #include "df3d_pch.h"
 #include "GuiManager.h"
 
+#include "RocketInterface.h"
 #include <base/EngineController.h>
 #include <base/InputEvents.h>
 
-#include <CEGUI/CEGUI.h>
-#include "cegui_impl/CeguiRendererImpl.h"
-#include "cegui_impl/CeguiResourceProviderImpl.h"
+#include <Rocket/Core.h>
+#include <Rocket/Controls.h>
+#include <Rocket/Debugger.h>
 
 namespace df3d { namespace gui {
 
 GuiManager::GuiManager(int contextWidth, int contextHeight)
 {
-    base::glog << "Initializing CEGUI" << base::logmess;
+    base::glog << "Initializing libRocket" << base::logmess;
 
-    cegui_impl::CeguiRendererImpl::bootstrapSystem(contextWidth, contextHeight);
+    using namespace Rocket;
+
+    m_renderInterface.reset(new GuiRenderInterface());
+    m_systemInterface.reset(new GuiSystemInterface());
+    m_fileInterface.reset(new GuiFileInterface());
+
+    SetRenderInterface(m_renderInterface.get());
+    SetSystemInterface(m_systemInterface.get());
+    SetFileInterface(m_fileInterface.get());
+
+    // Initialize core.
+    if (!Core::Initialise())
+        throw std::runtime_error("Can not initialize Rocket GUI library");
+
+    // Initialize controls library.
+    Controls::Initialise();
+
+    // Create GUI context.
+    m_rocketContext = Core::CreateContext("main", Core::Vector2i(contextWidth, contextHeight));
+
+    // Initialize debugger.
+#ifdef ENABLE_ROCKET_DEBUGGER
+    if (!Rocket::Debugger::Initialise(m_rocketContext))
+        base::glog << "Failed to initialize Rocket GUI debugger" << base::logwarn;
+#endif
 }
 
 GuiManager::~GuiManager()
 {
-    try
-    {
-        cegui_impl::CeguiRendererImpl::destroySystem();
-    }
-    catch (const CEGUI::Exception &e)
-    {
-        base::glog << "Failed to destroy CEGUI. Reason:" << e.what() << base::logcritical;
-    }
+    m_rocketContext->RemoveReference();
+    Rocket::Core::Shutdown();
 }
 
 void GuiManager::update(float dt)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(dt);
+    m_rocketContext->Update();
 }
 
 void GuiManager::render()
 {
-    CEGUI::System::getSingleton().renderAllGUIContexts();
-}
-
-void GuiManager::setResourceGroupDirectory(const char *resourceGroup, const char *directory)
-{
-    auto rp = static_cast<cegui_impl::CeguiResourceProviderImpl*>(CEGUI::System::getSingleton().getResourceProvider());
-    rp->setResourceGroupDirectory(resourceGroup, directory);
+    m_rocketContext->Render();
 }
 
 bool GuiManager::processMouseButtonEvent(const base::MouseButtonEvent &ev)
 {
-    CEGUI::MouseButton mb;
+    int buttonIdx;
     switch (ev.button)
     {
     case base::MouseButtonEvent::Button::LEFT:
-        mb = CEGUI::LeftButton;
+        buttonIdx = 0;
         break;
     case base::MouseButtonEvent::Button::RIGHT:
-        mb = CEGUI::RightButton;
+        buttonIdx = 1;
         break;
     case base::MouseButtonEvent::Button::MIDDLE:
-        mb = CEGUI::MiddleButton;
     default:
         return false;
     }
 
     if (ev.state == base::MouseButtonEvent::State::PRESSED)
-        return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(mb);
+        m_rocketContext->ProcessMouseButtonDown(buttonIdx, 0);
     else if (ev.state == base::MouseButtonEvent::State::RELEASED)
-        return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(mb);
+        m_rocketContext->ProcessMouseButtonUp(buttonIdx, 0);
 
-    return false;
+    return true;
 }
 
 bool GuiManager::processMouseMotionEvent(const base::MouseMotionEvent &ev)
 {
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)ev.x, (float)ev.y);
+    m_rocketContext->ProcessMouseMove(ev.x, ev.y, 0);
+    return true;
 }
 
 bool GuiManager::processMouseWheelEvent(const base::MouseWheelEvent &ev)
 {
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseWheelChange(ev.delta);
+    m_rocketContext->ProcessMouseWheel(ev.delta, 0);
+    return true;
 }
 
 bool GuiManager::processKeyDownEvent(const base::KeyboardEvent::KeyCode &code)
@@ -88,6 +102,16 @@ bool GuiManager::processKeyDownEvent(const base::KeyboardEvent::KeyCode &code)
 bool GuiManager::processKeyUpEvent(const base::KeyboardEvent::KeyCode &code)
 {
     return false;
+}
+
+RocketDocument GuiManager::loadDocument(const char *name)
+{
+    auto doc = m_rocketContext->LoadDocument(name);
+    if (!doc)
+        return nullptr;
+
+    doc->RemoveReference();
+    return doc;
 }
 
 } }

@@ -47,14 +47,8 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/PhysicsComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/DebugOverlayWindow.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiGeometryBufferImpl.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiImageCodecImpl.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiRendererImpl.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiRenderTargetImpl.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiResourceProviderImpl.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiTextureImpl.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiTextureTargetImpl.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiViewportTargetImpl.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketIntrusivePtr.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
@@ -142,13 +136,8 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/PhysicsComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/DebugOverlayWindow.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiGeometryBufferImpl.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiImageCodecImpl.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiRendererImpl.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiResourceProviderImpl.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiTextureImpl.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiTextureTargetImpl.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/cegui_impl/CeguiViewportTargetImpl.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketIntrusivePtr.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.cpp
@@ -297,7 +286,7 @@ if (WINDOWS)
 endif(WINDOWS)
 
 if (WINDOWS OR WINDOWS_PHONE)
-    function(link_with_cegui library_name)
+    function(link_with_rocket library_name)
         if (CMAKE_BUILD_TYPE STREQUAL "Debug")
             target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/${library_name}_d.lib)
         else()
@@ -305,11 +294,9 @@ if (WINDOWS OR WINDOWS_PHONE)
         endif()
     endfunction()
 
-    link_with_cegui(CEGUIBase-0)
-    link_with_cegui(CEGUICommonDialogs-0)
-    link_with_cegui(CEGUICoreWindowRendererSet)
-    link_with_cegui(CEGUIExpatParser)
-    link_with_cegui(CEGUISTBImageCodec)
+    link_with_rocket(RocketControls)
+    link_with_rocket(RocketCore)
+    link_with_rocket(RocketDebugger)
 endif()
 
 if (WINDOWS_PHONE)
