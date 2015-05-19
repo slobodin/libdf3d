@@ -98,6 +98,9 @@ void ResourceManager::doRequest(DecodeRequest req)
     bool decodeResult = req.decoder->decodeResource(fileSource, req.resource);
     req.resource->setInitialized(true);
 
+    if (m_listener)
+        m_listener->onLoadFromFileSystemRequestComplete(req.resource->getGUID());
+
     //base::glog << "Done load" << req.fileSource->getPath() << "with result" << decodeResult << base::logmess;
 }
 
@@ -177,6 +180,9 @@ shared_ptr<Resource> ResourceManager::loadResourceFromFileSystem(const char *pat
     m_loadedResources[fullPath] = resource;
 
     resource->setGUID(fullPath);
+
+    if (m_listener)
+        m_listener->onLoadFromFileSystemRequest(resource->getGUID());
 
     DecodeRequest request;
     request.decoder = decoder;

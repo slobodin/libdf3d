@@ -19,6 +19,17 @@ class FileDataSource;
 
 class DF3D_DLL ResourceManager : boost::noncopyable
 {
+public:
+    class Listener
+    {
+    public:
+        virtual ~Listener() { }
+
+        virtual void onLoadFromFileSystemRequest(ResourceGUID resourceId) = 0;
+        virtual void onLoadFromFileSystemRequestComplete(ResourceGUID resourceId) = 0;
+    };
+
+private:
     friend class base::EngineController;
 
     struct DecodeRequest
@@ -35,6 +46,8 @@ class DF3D_DLL ResourceManager : boost::noncopyable
     mutable std::recursive_mutex m_lock;
 
     std::unordered_map<ResourceGUID, shared_ptr<Resource>> m_loadedResources;
+
+    Listener *m_listener = nullptr;
 
     ResourceManager();
     ~ResourceManager();
@@ -70,6 +83,8 @@ public:
     void unloadUnused();
 
     bool resourceExists(const char *path) const;
+
+    void setListener(Listener *listener) { m_listener = listener; }
 };
 
 } }
