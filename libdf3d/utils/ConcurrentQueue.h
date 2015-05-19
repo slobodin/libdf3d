@@ -16,6 +16,13 @@ public:
         m_queue.push(item);
     }
 
+    void push(T &&item)
+    {
+        std::lock_guard<decltype(m_lock)> lock(m_lock);
+
+        m_queue.push(std::forward<T>(item));
+    }
+
     bool tryPop(T &dest)
     {
         std::lock_guard<decltype(m_lock)> lock(m_lock);
