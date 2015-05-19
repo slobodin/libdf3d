@@ -7,6 +7,7 @@
 #include <base/MacroDefs.h>
 #include <base/Common.h>
 
+#include <utils/ConcurrentQueue.h>
 #include <utils/Utils.h>
 #include <utils/JsonHelpers.h>
 #include <utils/SceneSerializer.h>

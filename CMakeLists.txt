@@ -102,6 +102,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingSphere.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingVolume.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/OBB.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshIndexer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneSerializer.h
