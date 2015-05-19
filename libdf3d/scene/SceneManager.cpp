@@ -42,18 +42,21 @@ void SceneManager::cleanStep()
 
     m_nodesMarkedForRemoval.clear();
 
-    std::list<shared_ptr<Node>> expiredNodes;
-
-    m_currentScene->getRoot()->traverse([&expiredNodes](shared_ptr<Node> node)
+    if (m_currentScene)
     {
-        auto maxLifeTime = node->getMaxLifeTime();
-        if (maxLifeTime > 0 && node->getLifeTime() > maxLifeTime)
-            expiredNodes.push_back(node);
-    });
+        std::list<shared_ptr<Node>> expiredNodes;
 
-    // Post order traversal. Can remove.
-    for (auto node : expiredNodes)
-        node->getParent()->removeChild(node);
+        m_currentScene->getRoot()->traverse([&expiredNodes](shared_ptr<Node> node)
+        {
+            auto maxLifeTime = node->getMaxLifeTime();
+            if (maxLifeTime > 0 && node->getLifeTime() > maxLifeTime)
+                expiredNodes.push_back(node);
+        });
+
+        // Post order traversal. Can remove.
+        for (auto node : expiredNodes)
+            node->getParent()->removeChild(node);
+    }
 }
 
 void SceneManager::clearCurrentScene()
