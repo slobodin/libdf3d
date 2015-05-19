@@ -17,6 +17,8 @@ base::KeyboardEvent::KeyCode convertKeyCode(WPARAM keycode)
         return base::KeyboardEvent::KeyCode::RIGHT;
     case VK_SPACE:
         return base::KeyboardEvent::KeyCode::SPACE;
+    case VK_F1:
+        return base::KeyboardEvent::KeyCode::F1;
     default:
         break;
     }

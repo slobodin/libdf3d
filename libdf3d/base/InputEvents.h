@@ -56,6 +56,8 @@ public:
         RIGHT,
         SPACE,
 
+        F1,
+
         UNDEFINED
     };
 
