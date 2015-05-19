@@ -40,6 +40,9 @@ public:
     bool processKeyUpEvent(const base::KeyboardEvent::KeyCode &code);
 
     RocketDocument loadDocument(const char *name);
+
+    void showDebugger(bool show);
+    bool isDebuggerVisible() const;
 };
 
 } }

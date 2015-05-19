@@ -118,4 +118,14 @@ RocketDocument GuiManager::loadDocument(const char *name)
     return doc;
 }
 
+void GuiManager::showDebugger(bool show)
+{
+    Rocket::Debugger::SetVisible(show);
+}
+
+bool GuiManager::isDebuggerVisible() const
+{
+    return Rocket::Debugger::IsVisible();
+}
+
 } }
