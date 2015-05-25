@@ -260,4 +260,45 @@ shared_ptr<VertexBuffer> createQuad(const VertexFormat &vf, float x, float y, fl
     return result;
 }
 
+shared_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, float w, float h)
+{
+    float w2 = w / 2.0f;
+    float h2 = h / 2.0f;
+
+    float quad_pos[][2] =
+    {
+        { x - w2, y - h2 },
+        { x + w2, y - h2 },
+        { x + w2, y + h2 },
+        { x + w2, y + h2 },
+        { x - w2, y + h2 },
+        { x - w2, y - h2 }
+    };
+    float quad_uv[][2] =
+    {
+        { 0.0, 0.0 },
+        { 1.0, 0.0 },
+        { 1.0, 1.0 },
+        { 1.0, 1.0 },
+        { 0.0, 1.0 },
+        { 0.0, 0.0 }
+    };
+
+    auto result = make_shared<VertexBuffer>(vf);
+
+    for (int i = 0; i < 6; i++)
+    {
+        render::Vertex_2p2tx4c v;
+        v.p.x = quad_pos[i][0];
+        v.p.y = quad_pos[i][1];
+        v.tx.x = quad_uv[i][0];
+        v.tx.y = quad_uv[i][1];
+        v.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+        result->appendVertexData((const float *)&v, 1);
+    }
+
+    return result;
+}
+
 } }

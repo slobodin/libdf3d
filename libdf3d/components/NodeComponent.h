@@ -14,6 +14,7 @@ enum ComponentType
     PHYSICS,
     LIGHT,
     DEBUG_DRAW,
+    SPRITE_2D,
 
     COUNT
 };

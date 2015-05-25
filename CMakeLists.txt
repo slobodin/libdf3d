@@ -35,6 +35,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/NodeComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/ParticleSystemComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/PhysicsComponent.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/components/Sprite2DComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TextMeshComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TransformComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/AudioComponentSerializer.h
@@ -42,9 +43,10 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/DebugDrawComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/LightComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/MeshComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/TransformComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ParticleSystemComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/PhysicsComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/Sprite2DComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/TransformComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/DebugOverlayWindow.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.h
@@ -125,6 +127,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/NodeComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/ParticleSystemComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/PhysicsComponent.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/components/Sprite2DComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TextMeshComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TransformComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/AudioComponentSerializer.cpp
@@ -132,9 +135,10 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/LightComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/MeshComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/TransformComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ParticleSystemComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/PhysicsComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/Sprite2DComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/TransformComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/DebugOverlayWindow.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.cpp

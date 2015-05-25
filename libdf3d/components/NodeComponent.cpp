@@ -15,7 +15,8 @@ static const std::map<std::string, ComponentType> NameType =
     { "audio", AUDIO },
     { "physics", PHYSICS },
     { "light", LIGHT },
-    { "debug_draw", DEBUG_DRAW }
+    { "debug_draw", DEBUG_DRAW },
+    { "sprite_2d", SPRITE_2D }
 };
 
 static const std::map<ComponentType, std::string> TypeName =
@@ -26,7 +27,8 @@ static const std::map<ComponentType, std::string> TypeName =
     { AUDIO, "audio" },
     { PHYSICS, "physics" },
     { LIGHT, "light" },
-    { DEBUG_DRAW, "debug_draw" }
+    { DEBUG_DRAW, "debug_draw" },
+    { SPRITE_2D, "sprite_2d" }
 };
 
 NodeComponent::NodeComponent(ComponentType t)

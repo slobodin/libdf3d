@@ -251,6 +251,13 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
     //if (m_debugDrawEnabled)
         debugDrawPass();
 
+    m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)rt->getViewport().width(), (float)rt->getViewport().height(), 0.0f));
+    m_renderer->setCameraMatrix(glm::mat4(1.0f));
+
+    // 2D ops pass.
+    for (const auto &op : m_renderQueue->sprite2DOperations)
+        drawOperation(op);
+
     // Do post process if enabled.
     if (postProcessingEnabled)
     {

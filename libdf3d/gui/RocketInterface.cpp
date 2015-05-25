@@ -117,11 +117,9 @@ GuiRenderInterface::GuiRenderInterface()
     : m_textureId(0),
     m_renderOperation(new render::RenderOperation())
 {
-    m_ffp2d = g_resourceManager->createFFP2DGpuProgram();
-
     m_guipass = make_shared<render::RenderPass>();
     m_guipass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
-    m_guipass->setGpuProgram(m_ffp2d);
+    m_guipass->setGpuProgram(g_resourceManager->createFFP2DGpuProgram());
     m_guipass->enableDepthTest(false);
     m_guipass->enableDepthWrite(false);
     m_guipass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);

@@ -55,8 +55,6 @@ public:
 
 class GuiRenderInterface : public Rocket::Core::RenderInterface
 {
-    //! Shader for 2d rendering.
-    shared_ptr<render::GpuProgram> m_ffp2d;
     //! Gui rendering pass properties.
     shared_ptr<render::RenderPass> m_guipass;
     //! Gui render operation holder.
