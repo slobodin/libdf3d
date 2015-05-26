@@ -15,7 +15,7 @@ public:
     std::vector<RenderOperation> litOpaqueOperations;
     std::vector<RenderOperation> notLitOpaqueOperations;
     std::vector<RenderOperation> transparentOperations;
-    std::vector<RenderOperation> sprite2DOperations;
+    std::vector<RenderOperation2D> sprite2DOperations;
     std::vector<RenderOperation> debugDrawOperations;
     std::vector<components::LightComponent *> lights;
 

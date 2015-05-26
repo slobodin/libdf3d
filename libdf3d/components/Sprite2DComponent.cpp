@@ -12,14 +12,19 @@
 namespace df3d { namespace components {
 
 // TODO:
-// Transform component attached - set width & height
+// Camera transform.
 
 void Sprite2DComponent::onDraw(render::RenderQueue *ops)
 {
-    assert(getHolder()->transform());
-
     m_op.worldTransform = getHolder()->transform()->getTransformation();
+    m_op.z = m_op.worldTransform[3][2];
+    m_op.worldTransform[3][2] = 0.0f;
     ops->sprite2DOperations.push_back(m_op);
+}
+
+void Sprite2DComponent::onAttached()
+{
+    setSize({ getTextureWidth(), getTextureHeight() });
 }
 
 Sprite2DComponent::Sprite2DComponent(const char *pathToTexture)
@@ -30,7 +35,7 @@ Sprite2DComponent::Sprite2DComponent(const char *pathToTexture)
     sprite2dPass->setGpuProgram(g_resourceManager->createFFP2DGpuProgram());
     sprite2dPass->enableDepthTest(false);
     sprite2dPass->enableDepthWrite(false);
-    sprite2dPass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
+    sprite2dPass->setBlendMode(render::RenderPass::BlendingMode::NONE);
 
     auto texture = g_resourceManager->createTexture(pathToTexture, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->valid())
@@ -42,7 +47,7 @@ Sprite2DComponent::Sprite2DComponent(const char *pathToTexture)
 
     sprite2dPass->setSampler("diffuseMap", texture);
 
-    auto quadVb = render::createQuad2(render::VertexFormat::create("p:2, tx:2, c:4"), 0.0f, 0.0f, 2.0, 2.0f);
+    auto quadVb = render::createQuad2(render::VertexFormat::create("p:2, tx:2, c:4"), 0.0f, 0.0f, 1.0, 1.0f);
     quadVb->setUsageType(render::GpuBufferUsageType::STATIC);
 
     m_op.passProps = sprite2dPass;
@@ -52,6 +57,53 @@ Sprite2DComponent::Sprite2DComponent(const char *pathToTexture)
 Sprite2DComponent::~Sprite2DComponent()
 {
 
+}
+
+void Sprite2DComponent::setSize(const glm::vec2 &v)
+{
+    getHolder()->transform()->setScale(v.x, v.y, 1.0f);
+}
+
+void Sprite2DComponent::setWidth(float w)
+{
+    auto sz = getSize();
+    getHolder()->transform()->setScale(w, sz.y, 1.0f);
+}
+
+void Sprite2DComponent::setHeight(float h)
+{
+    auto sz = getSize();
+    getHolder()->transform()->setScale(sz.x, h, 1.0f);
+}
+
+glm::vec2 Sprite2DComponent::getSize()
+{
+    return glm::vec2(getHolder()->transform()->getScale());
+}
+
+float Sprite2DComponent::getWidth()
+{
+    return getSize().x;
+}
+
+float Sprite2DComponent::getHeight()
+{
+    return getSize().y;
+}
+
+float Sprite2DComponent::getTextureWidth() const
+{
+    return static_pointer_cast<render::Texture2D>(m_op.passProps->getSampler("diffuseMap"))->getOriginalWidth();
+}
+
+float Sprite2DComponent::getTextureHeight() const
+{
+    return static_pointer_cast<render::Texture2D>(m_op.passProps->getSampler("diffuseMap"))->getOriginalHeight();
+}
+
+void Sprite2DComponent::setBlendMode(render::RenderPass::BlendingMode bm)
+{
+    m_op.passProps->setBlendMode(bm);
 }
 
 shared_ptr<NodeComponent> Sprite2DComponent::clone() const

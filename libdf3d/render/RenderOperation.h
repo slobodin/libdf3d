@@ -28,4 +28,10 @@ public:
     ~RenderOperation();
 };
 
+class RenderOperation2D : public RenderOperation
+{
+public:
+    float z = 0.0f;
+};
+
 } }
