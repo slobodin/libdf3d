@@ -8,6 +8,7 @@ FWD_MODULE_CLASS(components, LightComponent)
 FWD_MODULE_CLASS(components, AudioComponent)
 FWD_MODULE_CLASS(components, ParticleSystemComponent)
 FWD_MODULE_CLASS(components, PhysicsComponent)
+FWD_MODULE_CLASS(components, Sprite2DComponent)
 FWD_MODULE_CLASS(render, RenderQueue)
 
 namespace df3d { namespace scene {
@@ -85,6 +86,7 @@ public:
     shared_ptr<components::AudioComponent> audio();
     shared_ptr<components::ParticleSystemComponent> vfx();
     shared_ptr<components::PhysicsComponent> physics();
+    shared_ptr<components::Sprite2DComponent> sprite2d();
     size_t attachedComponentsCount() const;
 
     void attachComponent(shared_ptr<components::NodeComponent> component);

@@ -25,6 +25,7 @@
 #include <components/PhysicsComponent.h>
 #include <components/TransformComponent.h>
 #include <components/TextMeshComponent.h>
+#include <components/Sprite2DComponent.h>
 
 #include <scene/Node.h>
 #include <scene/Frustum.h>

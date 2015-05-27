@@ -18,12 +18,17 @@ void Sprite2DComponent::onDraw(render::RenderQueue *ops)
 {
     m_op.worldTransform = getHolder()->transform()->getTransformation();
     m_op.z = m_op.worldTransform[3][2];
+
+    auto size = getSize();
+    m_op.worldTransform[3][0] += (0.5f - m_anchor.x) * size.x;
+    m_op.worldTransform[3][1] += (0.5f - m_anchor.y) * size.y;
     m_op.worldTransform[3][2] = 0.0f;
     ops->sprite2DOperations.push_back(m_op);
 }
 
 void Sprite2DComponent::onAttached()
 {
+    // FIXME: implicitly sets transformation.
     setSize({ getTextureWidth(), getTextureHeight() });
 }
 
@@ -59,6 +64,11 @@ Sprite2DComponent::~Sprite2DComponent()
 
 }
 
+void Sprite2DComponent::setAnchorPoint(const glm::vec2 &pt)
+{
+    m_anchor = pt;
+}
+
 void Sprite2DComponent::setSize(const glm::vec2 &v)
 {
     getHolder()->transform()->setScale(v.x, v.y, 1.0f);
@@ -91,12 +101,12 @@ float Sprite2DComponent::getHeight()
     return getSize().y;
 }
 
-float Sprite2DComponent::getTextureWidth() const
+size_t Sprite2DComponent::getTextureWidth() const
 {
     return static_pointer_cast<render::Texture2D>(m_op.passProps->getSampler("diffuseMap"))->getOriginalWidth();
 }
 
-float Sprite2DComponent::getTextureHeight() const
+size_t Sprite2DComponent::getTextureHeight() const
 {
     return static_pointer_cast<render::Texture2D>(m_op.passProps->getSampler("diffuseMap"))->getOriginalHeight();
 }

@@ -10,12 +10,16 @@ class DF3D_DLL Sprite2DComponent : public NodeComponent
 {
     render::RenderOperation2D m_op;
 
+    glm::vec2 m_anchor;
+
     virtual void onDraw(render::RenderQueue *ops) override;
     virtual void onAttached() override;
 
 public:
     Sprite2DComponent(const char *pathToTexture);
     ~Sprite2DComponent();
+
+    void setAnchorPoint(const glm::vec2 &pt);
 
     void setSize(const glm::vec2 &v);
     void setWidth(float w);
@@ -25,8 +29,8 @@ public:
     float getWidth();
     float getHeight();
 
-    float getTextureWidth() const;
-    float getTextureHeight() const;
+    size_t getTextureWidth() const;
+    size_t getTextureHeight() const;
 
     void setBlendMode(render::RenderPass::BlendingMode bm);
 
