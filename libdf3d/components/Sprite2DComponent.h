@@ -10,7 +10,7 @@ class DF3D_DLL Sprite2DComponent : public NodeComponent
 {
     render::RenderOperation2D m_op;
 
-    glm::vec2 m_anchor;
+    glm::vec2 m_anchor = glm::vec2(0.5f, 0.5f);
 
     virtual void onDraw(render::RenderQueue *ops) override;
     virtual void onAttached() override;
