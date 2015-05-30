@@ -215,4 +215,10 @@ void EngineController::setViewport(const render::Viewport &newvp)
     m_renderManager->getScreenRenderTarget()->setViewport(newvp);
 }
 
+glm::vec2 EngineController::screenSize() const
+{
+    auto vp = m_renderManager->getScreenRenderTarget()->getViewport();
+    return glm::vec2(vp.width(), vp.height());
+}
+
 } }

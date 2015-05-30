@@ -62,6 +62,7 @@ public:
 
     const render::Viewport &getViewport() const;
     void setViewport(const render::Viewport &newvp);
+    glm::vec2 screenSize() const;
 
     scene::SceneManager *getSceneManager() { return m_sceneManager; }
     resources::ResourceManager *getResourceManager() { return m_resourceManager; }

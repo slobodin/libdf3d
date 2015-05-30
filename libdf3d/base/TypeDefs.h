@@ -5,6 +5,8 @@
 namespace df3d
 {
 
+namespace scene { class Node; }
+
 enum class ResourceLoadingMode
 {
     IMMEDIATE,
@@ -21,5 +23,7 @@ enum class PixelFormat
 };
 
 using ResourceGUID = std::string;
+using SceneNode = shared_ptr<df3d::scene::Node>;
+using WeakSceneNode = weak_ptr<df3d::scene::Node>;
 
 }

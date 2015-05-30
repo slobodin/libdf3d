@@ -116,6 +116,11 @@ void Sprite2DComponent::setBlendMode(render::RenderPass::BlendingMode bm)
     m_op.passProps->setBlendMode(bm);
 }
 
+void Sprite2DComponent::setDiffuseColor(const glm::vec4 &diffuseColor)
+{
+    m_op.passProps->setDiffuseColor(diffuseColor);
+}
+
 shared_ptr<NodeComponent> Sprite2DComponent::clone() const
 {
     // TODO:

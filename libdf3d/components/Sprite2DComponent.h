@@ -33,6 +33,7 @@ public:
     size_t getTextureHeight() const;
 
     void setBlendMode(render::RenderPass::BlendingMode bm);
+    void setDiffuseColor(const glm::vec4 &diffuseColor);
 
     // TODO:
     // Set anchor

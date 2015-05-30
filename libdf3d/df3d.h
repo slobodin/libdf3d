@@ -3,9 +3,9 @@
 #include "libdf3d_dll.h"
 #include "df3d_config.h"
 
+#include <base/Common.h>
 #include <base/TypeDefs.h>
 #include <base/MacroDefs.h>
-#include <base/Common.h>
 
 #include <utils/ConcurrentQueue.h>
 #include <utils/Utils.h>
