@@ -26,7 +26,7 @@ LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* excInfo)
         auto miniDumpWriteDump = (MiniDumpWriteDumpProc)GetProcAddress(dbgHelp, "MiniDumpWriteDump");
         if (miniDumpWriteDump)
         {
-            auto dumpFile = CreateFile("crashdump", GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+            auto dumpFile = CreateFile("crashdump.dmp", GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
 
             if (dumpFile != INVALID_HANDLE_VALUE)
             {
@@ -47,7 +47,7 @@ LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* excInfo)
                 else
                 {
                     CloseHandle(dumpFile);
-                    DeleteFile("crashdump");
+                    DeleteFile("crashdump.dmp");
                     std::cerr << "Failed to write minidump\n";
                 }
             }
