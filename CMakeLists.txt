@@ -233,11 +233,13 @@ if (WINDOWS)
     add_definitions(-DWIN32 -D_WINDOWS -DDF3D_WINDOWS -DBULLET_FORCE_NO_ALIGNMENT)
 
     list(APPEND libdf3d_HEADER_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/CrashHandler.h
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsApplication.h
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsKeyCodes.h
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsFileSystemHelpers.h
     )
     list(APPEND libdf3d_SRC_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/CrashHandler.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsApplication.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsKeyCodes.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsFileSystemHelpers.cpp

@@ -19,6 +19,7 @@
 
 #if defined(DF3D_WINDOWS)
 #define ENABLE_DEBUG_WINDOW
+#include <platform/windows/CrashHandler.h>
 #endif
 
 namespace df3d { namespace base {
@@ -101,6 +102,10 @@ bool EngineController::init(EngineInitParams params)
     try
     {
         srand((unsigned int)time(0));
+
+#ifdef DF3D_WINDOWS
+        platform::CrashHandler::setup("");
+#endif
 
         // Init filesystem.
         m_fileSystem = new resources::FileSystem();
