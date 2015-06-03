@@ -104,7 +104,7 @@ bool EngineController::init(EngineInitParams params)
         srand((unsigned int)time(0));
 
 #ifdef DF3D_WINDOWS
-        platform::CrashHandler::setup("");
+        platform::CrashHandler::setup();
 #endif
 
         // Init filesystem.

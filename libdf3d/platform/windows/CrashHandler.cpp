@@ -6,6 +6,8 @@
 
 namespace df3d { namespace platform {
 
+static const std::string dumpFileName = "df3d_crash.dmp";
+
 LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* excInfo)
 {
     std::cerr << "Unhandled exception occurred\n";
@@ -26,7 +28,7 @@ LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* excInfo)
         auto miniDumpWriteDump = (MiniDumpWriteDumpProc)GetProcAddress(dbgHelp, "MiniDumpWriteDump");
         if (miniDumpWriteDump)
         {
-            auto dumpFile = CreateFile("crashdump.dmp", GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+            auto dumpFile = CreateFile(dumpFileName.c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
 
             if (dumpFile != INVALID_HANDLE_VALUE)
             {
@@ -47,7 +49,7 @@ LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* excInfo)
                 else
                 {
                     CloseHandle(dumpFile);
-                    DeleteFile("crashdump.dmp");
+                    DeleteFile(dumpFileName.c_str());
                     std::cerr << "Failed to write minidump\n";
                 }
             }
@@ -57,7 +59,7 @@ LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* excInfo)
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
-void CrashHandler::setup(const char *dumpFileName)
+void CrashHandler::setup()
 {
     base::glog << "Setting up exception handler" << base::logmess;
     SetUnhandledExceptionFilter(UnhandledExceptionFilter);
