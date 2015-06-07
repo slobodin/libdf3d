@@ -10,7 +10,7 @@ static const std::string dumpFileName = "df3d_crash.dmp";
 
 LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* excInfo)
 {
-    std::cerr << "Unhandled exception occurred\n";
+    std::cerr << "df3d unhandled exception occurred\n";
 
     auto dbgHelp = LoadLibrary("dbghelp.dll");
     if (dbgHelp)

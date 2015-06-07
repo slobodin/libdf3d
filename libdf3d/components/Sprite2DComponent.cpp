@@ -19,17 +19,16 @@ void Sprite2DComponent::onDraw(render::RenderQueue *ops)
     m_op.worldTransform = getHolder()->transform()->getTransformation();
     m_op.z = m_op.worldTransform[3][2];
 
-    auto size = getSize();
-    m_op.worldTransform[3][0] += (0.5f - m_anchor.x) * size.x;
-    m_op.worldTransform[3][1] += (0.5f - m_anchor.y) * size.y;
+    // Set quad scale.
+    m_op.worldTransform[0][0] *= m_textureOriginalSize.x;
+    m_op.worldTransform[1][1] *= m_textureOriginalSize.y;
+    m_op.worldTransform[2][2] = 1.0f;
+
+    // Set position.
+    m_op.worldTransform[3][0] += (0.5f - m_anchor.x) * m_op.worldTransform[0][0];
+    m_op.worldTransform[3][1] += (0.5f - m_anchor.y) * m_op.worldTransform[1][1];
     m_op.worldTransform[3][2] = 0.0f;
     ops->sprite2DOperations.push_back(m_op);
-}
-
-void Sprite2DComponent::onAttached()
-{
-    // FIXME: implicitly sets transformation.
-    setSize({ getTextureWidth(), getTextureHeight() });
 }
 
 Sprite2DComponent::Sprite2DComponent(const char *pathToTexture)
@@ -40,7 +39,7 @@ Sprite2DComponent::Sprite2DComponent(const char *pathToTexture)
     sprite2dPass->setGpuProgram(g_resourceManager->createFFP2DGpuProgram());
     sprite2dPass->enableDepthTest(false);
     sprite2dPass->enableDepthWrite(false);
-    sprite2dPass->setBlendMode(render::RenderPass::BlendingMode::NONE);
+    sprite2dPass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 
     auto texture = g_resourceManager->createTexture(pathToTexture, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->valid())
@@ -57,6 +56,7 @@ Sprite2DComponent::Sprite2DComponent(const char *pathToTexture)
 
     m_op.passProps = sprite2dPass;
     m_op.vertexData = quadVb;
+    m_textureOriginalSize = { texture->getOriginalWidth(), texture->getOriginalHeight() };
 }
 
 Sprite2DComponent::~Sprite2DComponent()
@@ -69,26 +69,36 @@ void Sprite2DComponent::setAnchorPoint(const glm::vec2 &pt)
     m_anchor = pt;
 }
 
-void Sprite2DComponent::setSize(const glm::vec2 &v)
+void Sprite2DComponent::setZIdx(float z)
 {
-    getHolder()->transform()->setScale(v.x, v.y, 1.0f);
+    auto newPos = getHolder()->transform()->getPosition();
+    newPos.z = z;
+
+    getHolder()->transform()->setPosition(newPos);
+}
+
+void Sprite2DComponent::setSize(const glm::vec2 &size)
+{
+    // Compute new scale to fit desired size.
+    auto sc = size / m_textureOriginalSize;
+    getHolder()->transform()->setScale(sc.x, sc.y, 1.0f);
 }
 
 void Sprite2DComponent::setWidth(float w)
 {
-    auto sz = getSize();
-    getHolder()->transform()->setScale(w, sz.y, 1.0f);
+    setSize({ w, getSize().y });
 }
 
 void Sprite2DComponent::setHeight(float h)
 {
-    auto sz = getSize();
-    getHolder()->transform()->setScale(sz.x, h, 1.0f);
+    setSize({ getSize().x, h });
 }
 
 glm::vec2 Sprite2DComponent::getSize()
 {
-    return glm::vec2(getHolder()->transform()->getScale());
+    assert(false);
+    auto scale = getHolder()->transform()->getScale();
+    return glm::vec2(m_textureOriginalSize.x * scale.x, m_textureOriginalSize.y * scale.y);
 }
 
 float Sprite2DComponent::getWidth()
@@ -101,14 +111,9 @@ float Sprite2DComponent::getHeight()
     return getSize().y;
 }
 
-size_t Sprite2DComponent::getTextureWidth() const
+glm::vec2 Sprite2DComponent::getTextureSize() const
 {
-    return static_pointer_cast<render::Texture2D>(m_op.passProps->getSampler("diffuseMap"))->getOriginalWidth();
-}
-
-size_t Sprite2DComponent::getTextureHeight() const
-{
-    return static_pointer_cast<render::Texture2D>(m_op.passProps->getSampler("diffuseMap"))->getOriginalHeight();
+    return m_textureOriginalSize;
 }
 
 void Sprite2DComponent::setBlendMode(render::RenderPass::BlendingMode bm)
