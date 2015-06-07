@@ -30,6 +30,7 @@ public:
     float getWidth();
     float getHeight();
 
+    void useTexture(const char *pathToTexture);
     glm::vec2 getTextureSize() const;
 
     void setBlendMode(render::RenderPass::BlendingMode bm);

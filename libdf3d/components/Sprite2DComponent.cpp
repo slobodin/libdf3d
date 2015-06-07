@@ -41,22 +41,13 @@ Sprite2DComponent::Sprite2DComponent(const char *pathToTexture)
     sprite2dPass->enableDepthWrite(false);
     sprite2dPass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 
-    auto texture = g_resourceManager->createTexture(pathToTexture, ResourceLoadingMode::IMMEDIATE);
-    if (!texture || !texture->valid())
-        base::glog << "Failed to init Sprite2DComponent with texture" << pathToTexture << base::logwarn;
-
-    texture->setFilteringMode(render::TextureFiltering::BILINEAR);
-    texture->setMipmapped(false);
-    texture->setMaxAnisotropy(render::NO_ANISOTROPY);
-
-    sprite2dPass->setSampler("diffuseMap", texture);
-
     auto quadVb = render::createQuad2(render::VertexFormat::create("p:2, tx:2, c:4"), 0.0f, 0.0f, 1.0, 1.0f);
     quadVb->setUsageType(render::GpuBufferUsageType::STATIC);
 
     m_op.passProps = sprite2dPass;
     m_op.vertexData = quadVb;
-    m_textureOriginalSize = { texture->getOriginalWidth(), texture->getOriginalHeight() };
+
+    useTexture(pathToTexture);
 }
 
 Sprite2DComponent::~Sprite2DComponent()
@@ -109,6 +100,20 @@ float Sprite2DComponent::getWidth()
 float Sprite2DComponent::getHeight()
 {
     return getSize().y;
+}
+
+void Sprite2DComponent::useTexture(const char *pathToTexture)
+{
+    auto texture = g_resourceManager->createTexture(pathToTexture, ResourceLoadingMode::IMMEDIATE);
+    if (!texture || !texture->valid())
+        base::glog << "Failed to init Sprite2DComponent with texture" << pathToTexture << base::logwarn;
+
+    texture->setFilteringMode(render::TextureFiltering::BILINEAR);
+    texture->setMipmapped(false);
+    texture->setMaxAnisotropy(render::NO_ANISOTROPY);
+
+    m_op.passProps->setSampler("diffuseMap", texture);
+    m_textureOriginalSize = { texture->getOriginalWidth(), texture->getOriginalHeight() };
 }
 
 glm::vec2 Sprite2DComponent::getTextureSize() const
