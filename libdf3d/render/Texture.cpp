@@ -112,6 +112,9 @@ int Texture::anisotropyLevel() const
 
 void Texture::setFilteringMode(TextureFiltering newFiltering)
 {
+    if (newFiltering == m_filtering)
+        return;
+
     if (m_glid)
         throw std::runtime_error("Failed to set filtering mode. GL texture already created.");
 
@@ -120,6 +123,9 @@ void Texture::setFilteringMode(TextureFiltering newFiltering)
 
 void Texture::setMipmapped(bool hasMipmaps)
 {
+    if (hasMipmaps == m_mipmapped)
+        return;
+
     if (m_glid)
         throw std::runtime_error("Failed to set mipmaps. GL texture already created.");
 
@@ -128,6 +134,9 @@ void Texture::setMipmapped(bool hasMipmaps)
 
 void Texture::setWrapMode(WrapMode mode)
 {
+    if (mode == m_wrapMode)
+        return;
+
     if (m_glid)
         throw std::runtime_error("Failed to set wrap mode. GL texture already created.");
 
@@ -136,6 +145,9 @@ void Texture::setWrapMode(WrapMode mode)
 
 void Texture::setMaxAnisotropy(int aniso)
 {
+    if (aniso == m_anisotropyLevel)
+        return;
+
     if (m_glid)
         throw std::runtime_error("Failed to set anisotropy level. GL texture already created.");
 

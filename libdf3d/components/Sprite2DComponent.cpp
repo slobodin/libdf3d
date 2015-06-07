@@ -28,6 +28,9 @@ void Sprite2DComponent::onDraw(render::RenderQueue *ops)
     m_op.worldTransform[3][0] += (0.5f - m_anchor.x) * m_op.worldTransform[0][0];
     m_op.worldTransform[3][1] += (0.5f - m_anchor.y) * m_op.worldTransform[1][1];
     m_op.worldTransform[3][2] = 0.0f;
+
+    m_screenPosition = { m_op.worldTransform[3][0], m_op.worldTransform[3][1] };
+
     ops->sprite2DOperations.push_back(m_op);
 }
 
@@ -87,9 +90,9 @@ void Sprite2DComponent::setHeight(float h)
 
 glm::vec2 Sprite2DComponent::getSize()
 {
-    assert(false);
-    auto scale = getHolder()->transform()->getScale();
-    return glm::vec2(m_textureOriginalSize.x * scale.x, m_textureOriginalSize.y * scale.y);
+    auto tr = getHolder()->transform()->getTransformation();
+
+    return { tr[0][0] * m_textureOriginalSize.x, tr[1][1] * m_textureOriginalSize.y };
 }
 
 float Sprite2DComponent::getWidth()
@@ -102,11 +105,22 @@ float Sprite2DComponent::getHeight()
     return getSize().y;
 }
 
+glm::vec2 Sprite2DComponent::getScreenPosition() const
+{
+    return m_screenPosition;
+}
+
 void Sprite2DComponent::useTexture(const char *pathToTexture)
 {
     auto texture = g_resourceManager->createTexture(pathToTexture, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->valid())
+    {
         base::glog << "Failed to init Sprite2DComponent with texture" << pathToTexture << base::logwarn;
+        return;
+    }
+
+    if (m_textureGuid == texture->getGUID())
+        return;
 
     texture->setFilteringMode(render::TextureFiltering::BILINEAR);
     texture->setMipmapped(false);
@@ -114,6 +128,7 @@ void Sprite2DComponent::useTexture(const char *pathToTexture)
 
     m_op.passProps->setSampler("diffuseMap", texture);
     m_textureOriginalSize = { texture->getOriginalWidth(), texture->getOriginalHeight() };
+    m_textureGuid = texture->getGUID();
 }
 
 glm::vec2 Sprite2DComponent::getTextureSize() const

@@ -3,6 +3,7 @@
 #include "NodeComponent.h"
 #include <render/RenderOperation.h>
 #include <render/RenderPass.h>
+#include <base/TypeDefs.h>
 
 namespace df3d { namespace components {
 
@@ -12,7 +13,10 @@ class DF3D_DLL Sprite2DComponent : public NodeComponent
 
     glm::vec2 m_anchor = glm::vec2(0.5f, 0.5f);
     glm::vec2 m_textureOriginalSize;
+    glm::vec2 m_screenPosition;
 
+    ResourceGUID m_textureGuid;
+    
     virtual void onDraw(render::RenderQueue *ops) override;
 
 public:
@@ -29,6 +33,8 @@ public:
     glm::vec2 getSize();
     float getWidth();
     float getHeight();
+
+    glm::vec2 getScreenPosition() const;
 
     void useTexture(const char *pathToTexture);
     glm::vec2 getTextureSize() const;
