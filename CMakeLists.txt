@@ -8,8 +8,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/bullet)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libogg)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libvorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/spark)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/lua)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/oolua)
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
