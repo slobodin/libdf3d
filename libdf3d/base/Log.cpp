@@ -207,6 +207,17 @@ Log &Log::operator<< (const LoggerManipulator &man)
     return *this;
 }
 
+void Log::printWithoutFormat(const char *str)
+{
+#if defined(__ANDROID__)
+    __android_log_print(ANDROID_LOG_INFO, "libdf3d", "%s", str);
+#elif defined(DF3D_WINDOWS_PHONE)
+    OutputDebugStringA(str);
+#else
+    std::cerr << str << std::endl;
+#endif
+}
+
 const std::string &Log::logData() const
 {
     return m_logData;
