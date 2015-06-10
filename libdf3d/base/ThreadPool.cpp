@@ -71,4 +71,15 @@ void ThreadPool::enqueue(const std::function<void ()> &fn)
     m_condition.notify_one();
 }
 
+void ThreadPool::clear()
+{
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+
+        m_jobs.clear();
+    }
+
+    m_condition.notify_all();
+}
+
 } }
