@@ -217,11 +217,7 @@ if(MSVC)
 
     set_source_files_properties(${PRECOMPILED_CPP} PROPERTIES COMPILE_FLAGS "/Ycdf3d_pch.h" OBJECT_OUTPUTS "${CMAKE_CURRENT_BINARY_DIR}/df3d_pch.pch")
     set_source_files_properties(${libdf3d_SRC_LIST} PROPERTIES COMPILE_FLAGS "/Yudf3d_pch.h" OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/df3d_pch.pch")
-endif(MSVC)
-
-if (CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
-endif(CMAKE_COMPILER_IS_GNUCXX)
+endif()
 
 set(third_party_SRC_FILES
     ${PROJECT_SOURCE_DIR}/third-party/src/lib_json/jsoncpp.cpp
@@ -263,13 +259,15 @@ find_package(Boost REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/include
+                    ${PROJECT_SOURCE_DIR}/third-party/include/bullet
+                    ${PROJECT_SOURCE_DIR}/third-party/include/spark
                     ${Boost_INCLUDE_DIRS})
 
 if (WINDOWS)
     find_package(OpenGL REQUIRED)
     find_package(GLEW REQUIRED)
     include_directories(${GLEW_INCLUDE_DIRS})
-endif(WINDOWS)
+endif()
 
 add_library(libdf3d SHARED
     ${libdf3d_HEADER_LIST}
@@ -288,7 +286,7 @@ if (WINDOWS)
     target_link_libraries(libdf3d ${OPENGL_LIBRARIES})
     target_link_libraries(libdf3d ${GLEW_LIBRARIES})
     target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/OpenAL32.lib)
-endif(WINDOWS)
+endif()
 
 if (WINDOWS OR WINDOWS_PHONE)
     function(link_with_rocket library_name)
