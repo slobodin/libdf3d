@@ -382,6 +382,8 @@ void ResourceManager::unloadUnused()
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
+    m_threadPool->clear();
+
     // Do this in such a way, because one resource can reference to an another.
     while (true)
     {

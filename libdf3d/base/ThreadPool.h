@@ -18,6 +18,7 @@ public:
     ~ThreadPool();
 
     void enqueue(const std::function<void ()> &fn);
+    void clear();
 };
 
 } }

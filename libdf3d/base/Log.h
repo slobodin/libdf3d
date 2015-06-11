@@ -47,6 +47,8 @@ public:
 
     Log &operator<< (const LoggerManipulator &man);
 
+    void printWithoutFormat(const char *str);
+
     const std::string &logData() const;
 };
 
