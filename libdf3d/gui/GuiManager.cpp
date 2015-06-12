@@ -94,7 +94,7 @@ bool GuiManager::processMouseMotionEvent(const base::MouseMotionEvent &ev)
 
 bool GuiManager::processMouseWheelEvent(const base::MouseWheelEvent &ev)
 {
-    m_rocketContext->ProcessMouseWheel(ev.delta, 0);
+    m_rocketContext->ProcessMouseWheel((int)ev.delta, 0);
     return true;
 }
 

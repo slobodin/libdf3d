@@ -5,35 +5,58 @@ namespace df3d { namespace platform {
 class DF3D_DLL Storage : boost::noncopyable
 {
 protected:
-    using Entry = boost::variant<int32_t,
-                                 int64_t,
-                                 float,
-                                 double,
-                                 bool,
-                                 std::string>;
+    using Entry = boost::variant<int, int64_t, double, bool, std::string>;
 
     std::unordered_map<std::string, Entry> m_entries;
+    std::string m_fileName;
 
-    Storage() { }
-    virtual ~Storage() { }
+    Storage(const char *filename) : m_fileName(filename) { }
 
 public:
-    static Storage *getInstance();
+    static Storage *create(const char *filename);
+    virtual ~Storage() { }
 
     template<typename T>
-    T &operator[](const char *key);
+    void set(const char *key, const T &val)
+    {
+        m_entries[key] = val;
+    }
 
     template<typename T>
-    const T &operator[](const char *key) const;
+    T get(const char *key) const
+    {
+        auto it = m_entries.find(key);
+        if (it == m_entries.end())
+            return T();
 
-    bool contains(const char *key) const;
+        try
+        {
+            return boost::get<T>(it->second);
+        }
+        catch (boost::bad_get &) 
+        {
+            base::glog << "Storage: bad get" << base::logwarn;
+        }
 
-    bool erase(const char *key);
-    void clear();
+        return T();
+    }
 
-    void save();
+    bool contains(const char *key) const
+    {
+        return m_entries.find(key) != m_entries.end();
+    }
 
+    bool erase(const char *key)
+    {
+        return m_entries.erase(key) != 0;
+    }
 
+    void clear()
+    {
+        m_entries.clear();
+    }
+
+    virtual void save() = 0;
 };
 
 } }

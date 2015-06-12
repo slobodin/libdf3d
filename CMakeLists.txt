@@ -54,6 +54,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/Application.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/platform/Storage.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.h
@@ -234,6 +235,7 @@ if (WINDOWS)
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/CrashHandler.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/Storage.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsApplication.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsKeyCodes.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsFileSystemHelpers.cpp

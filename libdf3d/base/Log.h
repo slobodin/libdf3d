@@ -6,6 +6,7 @@
 namespace df3d { namespace base {
 
 enum class MessageType;
+class LoggerImpl;
 
 class LoggerManipulator
 {
@@ -29,7 +30,10 @@ class DF3D_DLL Log
 
     std::string m_logData;
 
+    std::unique_ptr<LoggerImpl> m_impl;
+
     Log();
+    ~Log();
 
 public:
     static Log &instance();
@@ -58,6 +62,6 @@ extern const DF3D_DLL LoggerManipulator logmess;
 extern const DF3D_DLL LoggerManipulator logwarn;
 extern const DF3D_DLL LoggerManipulator logcritical;
 extern const DF3D_DLL LoggerManipulator loggame;
-extern const DF3D_DLL LoggerManipulator loglua;
+extern const DF3D_DLL LoggerManipulator logscript;
 
 } }

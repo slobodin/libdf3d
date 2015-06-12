@@ -19,6 +19,7 @@
 #include <boost/function.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/intrusive_ptr.hpp>
+#include <boost/variant.hpp>
 
 #define GLM_FORCE_RADIANS
 //#define GLM_MESSAGES

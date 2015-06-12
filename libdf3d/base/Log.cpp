@@ -10,6 +10,10 @@
 #include <wrl/client.h>
 #endif
 
+#if defined(DF3D_WINDOWS)
+#include <Windows.h>
+#endif
+
 namespace df3d { namespace base {
 
 const size_t MAX_LOG_SIZE = 2 << 18;
@@ -21,11 +25,98 @@ enum class MessageType
     WARNING,
     CRITICAL,
     GAME,
-    LUA
+    SCRIPT,
+    NONE,
+
+    COUNT
 };
+
+class LoggerImpl
+{
+public:
+    virtual ~LoggerImpl() { }
+
+    virtual void writeBuffer(const std::string &buffer, MessageType type) = 0;
+};
+
+#ifdef DF3D_WINDOWS
+
+class WindowsLoggerImpl : public LoggerImpl
+{
+    HANDLE m_consoleHandle = nullptr;
+    std::unordered_map<MessageType, WORD> m_consoleColors;
+
+public:
+    WindowsLoggerImpl()
+    {
+        m_consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+        m_consoleColors =
+        {
+            { MessageType::DEBUG, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED },
+            { MessageType::MESSAGE, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY },
+            { MessageType::WARNING, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY },
+            { MessageType::CRITICAL, FOREGROUND_RED | FOREGROUND_INTENSITY },
+            { MessageType::GAME, FOREGROUND_GREEN | FOREGROUND_INTENSITY },
+            { MessageType::SCRIPT, FOREGROUND_GREEN | FOREGROUND_INTENSITY },
+            { MessageType::NONE, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED }
+        };
+
+        assert(m_consoleColors.size() == (int)MessageType::COUNT);
+    }
+
+    virtual void writeBuffer(const std::string &buffer, MessageType type) override
+    {
+        if (m_consoleHandle)
+            SetConsoleTextAttribute(m_consoleHandle, m_consoleColors[type]);
+
+        switch (type)
+        {
+        case MessageType::DEBUG:
+            std::cerr << "[debug]: ";
+            break;
+        case MessageType::MESSAGE:
+            std::cerr << "[message]: ";
+            break;
+        case MessageType::WARNING:
+            std::cerr << "[warning]: ";
+            break;
+        case MessageType::CRITICAL:
+            std::cerr << "[critical]: ";
+            break;
+        case MessageType::GAME:
+            std::cerr << "[game]: ";
+            break;
+        case MessageType::SCRIPT:
+            std::cerr << "[script]: ";
+            break;
+        case MessageType::NONE:
+            break;
+        default:
+            break;
+        }
+
+        std::cerr << buffer << std::endl;
+
+        if (m_consoleHandle)
+            SetConsoleTextAttribute(m_consoleHandle, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
+    }
+};
+
+#endif
 
 Log::Log()
 {
+#ifdef DF3D_WINDOWS
+    m_impl.reset(new WindowsLoggerImpl());
+#else
+#error "Not implemented"
+#endif
+}
+
+Log::~Log()
+{
+
 }
 
 Log &Log::instance()
@@ -135,63 +226,7 @@ Log &Log::operator<< (const LoggerManipulator &man)
     std::cerr << std::ctime(&now);
 #endif
 
-#if defined(__ANDROID__)
-    android_LogPriority androidPriority = ANDROID_LOG_UNKNOWN;
-#endif
-
-    switch (man.m_type)
-    {
-    case MessageType::DEBUG:
-        std::cerr << "[debug]: ";
-#if defined(__ANDROID__)
-        androidPriority = ANDROID_LOG_DEBUG;
-#endif
-        break;
-
-    case MessageType::MESSAGE:
-        std::cerr << "[message]: ";
-#if defined(__ANDROID__)
-        androidPriority = ANDROID_LOG_INFO;
-#endif
-        break;
-
-    case MessageType::WARNING:
-        std::cerr << "[warning]: ";
-#if defined(__ANDROID__)
-        androidPriority = ANDROID_LOG_WARN;
-#endif
-        break;
-
-    case MessageType::CRITICAL:
-        std::cerr << "[critical]: ";
-#if defined(__ANDROID__)
-        androidPriority = ANDROID_LOG_FATAL;
-#endif
-        break;
-
-    case MessageType::GAME:
-        std::cerr << "[game]: ";
-#if defined(__ANDROID__)
-        androidPriority = ANDROID_LOG_INFO;
-#endif
-        break;
-
-    case MessageType::LUA:
-        std::cerr << "[lua]: ";
-#if defined(__ANDROID__)
-        androidPriority = ANDROID_LOG_INFO;
-#endif
-        break;
-    }
-
-#if defined(__ANDROID__)
-    __android_log_print(androidPriority, "libdf3d", "%s", m_buffer.str().c_str());
-#elif defined(DF3D_WINDOWS_PHONE)
-    OutputDebugStringA(m_buffer.str().c_str());
-    OutputDebugStringA("\n");
-#else
-    std::cerr << m_buffer.str() << std::endl;
-#endif
+    m_impl->writeBuffer(m_buffer.str(), man.m_type);
 
     m_logData += m_buffer.str();
     m_logData += "\n";
@@ -209,13 +244,7 @@ Log &Log::operator<< (const LoggerManipulator &man)
 
 void Log::printWithoutFormat(const char *str)
 {
-#if defined(__ANDROID__)
-    __android_log_print(ANDROID_LOG_INFO, "libdf3d", "%s", str);
-#elif defined(DF3D_WINDOWS_PHONE)
-    OutputDebugStringA(str);
-#else
-    std::cerr << str << std::endl;
-#endif
+    m_impl->writeBuffer(str, MessageType::NONE);
 }
 
 const std::string &Log::logData() const
@@ -229,6 +258,6 @@ const LoggerManipulator logmess(MessageType::MESSAGE);
 const LoggerManipulator logwarn(MessageType::WARNING);
 const LoggerManipulator logcritical(MessageType::CRITICAL);
 const LoggerManipulator loggame(MessageType::GAME);
-const LoggerManipulator loglua(MessageType::LUA);
+const LoggerManipulator logscript(MessageType::SCRIPT);
 
 } }

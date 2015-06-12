@@ -17,6 +17,7 @@
 #include <base/InputEvents.h>
 
 #include <platform/Application.h>
+#include <platform/Storage.h>
 
 #include <components/AudioComponent.h>
 #include <components/LightComponent.h>
