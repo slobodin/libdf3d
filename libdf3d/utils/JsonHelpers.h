@@ -22,3 +22,9 @@ DF3D_DLL Json::Value glmToJson(const glm::vec3 &v);
 DF3D_DLL Json::Value glmToJson(const glm::vec4 &v);
 
 } }
+
+template<typename T>
+void operator>> (const Json::Value &value, T &to)
+{
+    to = df3d::utils::jsonGetValueWithDefault(value, to);
+}
