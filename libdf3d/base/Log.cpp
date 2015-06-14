@@ -105,12 +105,30 @@ public:
 
 #endif
 
+#ifdef DF3D_WINDOWS_PHONE
+
+class WindowsRTLoggerImpl : public LoggerImpl
+{
+public:
+    WindowsRTLoggerImpl()
+    {
+    }
+
+    virtual void writeBuffer(const std::string &buffer, MessageType type) override
+    {
+        OutputDebugStringA(buffer.c_str());
+        OutputDebugStringA("\n");
+    }
+};
+
+#endif
+
 Log::Log()
 {
 #ifdef DF3D_WINDOWS
     m_impl.reset(new WindowsLoggerImpl());
 #else
-#error "Not implemented"
+    m_impl.reset(new WindowsRTLoggerImpl());
 #endif
 }
 
