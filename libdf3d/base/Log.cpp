@@ -39,6 +39,19 @@ public:
     virtual void writeBuffer(const std::string &buffer, MessageType type) = 0;
 };
 
+class StdoutLogger : public LoggerImpl
+{
+public:
+    StdoutLogger()
+    {
+    }
+
+    virtual void writeBuffer(const std::string &buffer, MessageType type) override
+    {
+        std::cout << buffer << std::endl;
+    }
+};
+
 #ifdef DF3D_WINDOWS
 
 class WindowsLoggerImpl : public LoggerImpl
@@ -125,10 +138,12 @@ public:
 
 Log::Log()
 {
-#ifdef DF3D_WINDOWS
+#if defined(DF3D_WINDOWS)
     m_impl.reset(new WindowsLoggerImpl());
-#else
+#elif defined(DF3D_WINDOWS_PHONE)
     m_impl.reset(new WindowsRTLoggerImpl());
+#else
+    m_impl.reset(new StdoutLogger());
 #endif
 }
 

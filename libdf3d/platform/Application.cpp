@@ -5,6 +5,8 @@
 #include <platform/windows/WindowsApplication.h>
 #elif defined(DF3D_WINDOWS_PHONE)
 #include <platform/windows_phone/WindowsPhoneApplication.h>
+#elif defined(DF3D_LINUX)
+#include <platform/linux/LinuxApplication.h>
 #else
 #error "Unsupported platform"
 #endif
@@ -32,6 +34,8 @@ Application *Application::create(const AppInitParams &params, AppDelegate *appDe
     Application::instance = new WindowsApplication(params, appDelegate);
 #elif defined(DF3D_WINDOWS_PHONE)
     Application::instance = new WindowsPhoneApplication(params, appDelegate);
+#elif defined(DF3D_LINUX)
+    Application::instance = new LinuxApplication(params, appDelegate);
 #else
     return nullptr;
 #endif

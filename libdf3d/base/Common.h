@@ -14,6 +14,10 @@
 #include <memory>
 #include <chrono>
 
+#ifndef MSVC
+#include <gui/RocketIntrusivePtr.h>
+#endif
+
 #include <boost/noncopyable.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/function.hpp>

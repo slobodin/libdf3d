@@ -5,7 +5,7 @@
 #include <GL/glew.h>
 #include <GL/GL.h>
 #include <GL/GLU.h>
-#elif defined(__ANDROID__)
+#elif defined(DF3D_ANDROID)
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <EGL/egl.h>
@@ -13,6 +13,9 @@
 #include <angle/angle_gl.h>
 #include <angle/EGL/egl.h>
 #include <angle/EGL/eglext.h>
+#elif defined(DF3D_LINUX)
+#include <GL/glew.h>
+#include <GL/gl.h>
 #else
 #error "Unsupported platform"
 #endif
