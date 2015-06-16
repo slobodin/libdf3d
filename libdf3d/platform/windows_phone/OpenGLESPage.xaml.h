@@ -13,6 +13,10 @@ FWD_MODULE_CLASS(platform, AppDelegate)
 
 class OpenGLES;
 
+// FIXME:
+// All C++\CX classes should be in one namespace.
+// https://social.msdn.microsoft.com/Forums/windowsapps/en-US/d0b940d2-1c4e-4f28-9130-b45067088aa1/vs2013-update-2-wp-81-arm-deploying-to-device-problem-dep6810-in-release-mode?forum=wpdevelop
+
 namespace df3d_winrt
 {
     enum class TouchType
