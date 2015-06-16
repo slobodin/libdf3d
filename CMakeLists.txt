@@ -196,7 +196,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.cpp
 )
 
-add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD)
+add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD -DBULLET_FORCE_NO_ALIGNMENT)
 
 if (NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party" CACHE PATH "third-party")
@@ -225,7 +225,7 @@ set(third_party_SRC_FILES
 )
 
 if (WINDOWS)
-    add_definitions(-DWIN32 -D_WINDOWS -DDF3D_WINDOWS -DBULLET_FORCE_NO_ALIGNMENT)
+    add_definitions(-DWIN32 -D_WINDOWS -DDF3D_WINDOWS)
 
     list(APPEND libdf3d_HEADER_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/CrashHandler.h
@@ -245,7 +245,7 @@ endif()
 if (WINDOWS_PHONE)
     include_directories(${PROJECT_SOURCE_DIR}/third-party/include/angle)
 
-    add_definitions(-DDF3D_WINDOWS_PHONE -DBULLET_FORCE_NO_ALIGNMENT)
+    add_definitions(-DDF3D_WINDOWS_PHONE)
 
     list(APPEND libdf3d_HEADER_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneApplication.h

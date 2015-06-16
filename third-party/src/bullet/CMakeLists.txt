@@ -354,6 +354,12 @@ include_directories(${PROJECT_SOURCE_DIR}/../../include/bullet
                     ${PROJECT_SOURCE_DIR}/../../include/bullet/BulletDynamics/Vehicle
                     ${PROJECT_SOURCE_DIR}/../../include/bullet/LinearMath)
 
+add_definitions(-DBULLET_FORCE_NO_ALIGNMENT)
+
+if (CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+endif()
+
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_WARNINGS)
 
@@ -361,11 +367,11 @@ if(MSVC)
 endif(MSVC)
 
 if (WINDOWS)
-    add_definitions(-DWIN32 -DBULLET_FORCE_NO_ALIGNMENT -DDF3D_WINDOWS)
+    add_definitions(-DWIN32 -DDF3D_WINDOWS)
 endif()
 
 if (WINDOWS_PHONE)
-    add_definitions(-DBULLET_FORCE_NO_ALIGNMENT -DDF3D_WINDOWS_PHONE)
+    add_definitions(-DDF3D_WINDOWS_PHONE)
 endif()
 
 if (ANDROID)

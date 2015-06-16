@@ -140,6 +140,10 @@ set(libspark_SRC_LIST
 
 include_directories(${PROJECT_SOURCE_DIR}/../../include/spark)
 
+if (CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+endif()
+
 if(MSVC)
     set_source_files_properties(${libspark_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4456\" /wd\"4838\" /wd\"4457\" /wd\"4458\"")
 endif(MSVC)
