@@ -262,6 +262,10 @@ if (ANDROID)
     add_definitions(-DDF3D_ANDROID)
 endif()
 
+if (LINUX)
+    add_definitions(-DDF3D_LINUX)
+endif()
+
 find_package(Boost REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/libdf3d
