@@ -264,6 +264,16 @@ endif()
 
 if (LINUX)
     add_definitions(-DDF3D_LINUX)
+
+    list(APPEND libdf3d_HEADER_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/LinuxApplication.h
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/LinuxFileSystemHelpers.h
+    )
+    list(APPEND libdf3d_SRC_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/Storage.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/LinuxApplication.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/LinuxFileSystemHelpers.cpp
+    )
 endif()
 
 find_package(Boost REQUIRED)

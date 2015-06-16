@@ -5,10 +5,10 @@
 
 namespace df3d { namespace platform {
 
-class WindowsRTStorage : public Storage
+class LinuxStorage : public Storage
 {
 public:
-    WindowsRTStorage(const char *filename)
+    LinuxStorage(const char *filename)
         : Storage(filename)
     {
 
@@ -22,7 +22,7 @@ public:
 
 Storage *Storage::create(const char *filename)
 {
-    return new WindowsRTStorage(filename);
+    return new LinuxStorage(filename);
 }
 
 } }

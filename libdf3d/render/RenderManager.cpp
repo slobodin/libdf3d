@@ -122,7 +122,7 @@ RenderManager::RenderManager(RenderManagerInitParams params)
 {
     m_renderingCaps = params.renderingCaps;
 
-#if defined(DF3D_WINDOWS) || defined(DF3D_WINDOWS_PHONE)
+#if defined(DF3D_WINDOWS) || defined(DF3D_WINDOWS_PHONE) || defined(DF3D_LINUX)
     m_renderer = make_unique<Renderer>();
 #else
 #error "Unsupported platform"

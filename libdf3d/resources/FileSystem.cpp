@@ -7,6 +7,8 @@
 #include <platform/windows/WindowsFileSystemHelpers.h>
 #elif defined(DF3D_WINDOWS_PHONE)
 #include <platform/windows_phone/WindowsPhoneFileSystemHelpers.h>
+#elif defined(DF3D_LINUX)
+#include <platform/linux/LinuxFileSystemHelpers.h>
 #else
 #error "Not implemented"
 #endif
