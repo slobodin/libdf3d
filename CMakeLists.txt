@@ -198,7 +198,7 @@ set(libdf3d_SRC_LIST
 
 add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD -DBULLET_FORCE_NO_ALIGNMENT)
 
-if (NOT CMAKE_PREFIX_PATH)
+if (WINDOWS AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party" CACHE PATH "third-party")
 endif()
 
@@ -285,9 +285,12 @@ include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${Boost_INCLUDE_DIRS})
 
 if (WINDOWS)
-    find_package(OpenGL REQUIRED)
     find_package(GLEW REQUIRED)
     include_directories(${GLEW_INCLUDE_DIRS})
+endif()
+
+if (DF3D_LINUX)
+    find_package(OpenGL REQUIRED)
 endif()
 
 add_library(libdf3d SHARED
@@ -327,4 +330,8 @@ if (WINDOWS_PHONE)
     target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/libEGL.lib)
     target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/libGLESv2.lib)
     target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/OpenAL.wp8.lib)
+endif()
+
+if (DF3D_LINUX)
+    target_link_libraries(libdf3d ${OPENGL_LIBRARIES})
 endif()
