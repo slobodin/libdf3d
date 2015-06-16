@@ -258,6 +258,10 @@ if (WINDOWS_PHONE)
     )
 endif()
 
+if (ANDROID)
+    add_definitions(-DDF3D_ANDROID)
+endif()
+
 find_package(Boost REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/libdf3d

@@ -368,4 +368,8 @@ if (WINDOWS_PHONE)
     add_definitions(-DBULLET_FORCE_NO_ALIGNMENT -DDF3D_WINDOWS_PHONE)
 endif()
 
+if (ANDROID)
+    add_definitions(-DDF3D_ANDROID)
+endif()
+
 add_library(BulletPhysics STATIC ${BulletPhysics_SRC_LIST} ${BulletPhysics_HEADER_LIST})

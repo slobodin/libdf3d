@@ -12,7 +12,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     endif()
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     if (ANDROID)
-
+        message(STATUS "Platform - Android")
     else()
         set(LINUX true)
         message(STATUS "Platform - Linux")

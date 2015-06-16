@@ -110,16 +110,16 @@ set(libspark_SRC_LIST
     ${PROJECT_SOURCE_DIR}/Core/SPK_Types.cpp
     ${PROJECT_SOURCE_DIR}/Core/SPK_Zone.cpp
     ${PROJECT_SOURCE_DIR}/Core/SPK_ZonedModifier.cpp
-    ${PROJECT_SOURCE_DIR}/Core/IO/SPK_IO_Buffer.cpp
-    ${PROJECT_SOURCE_DIR}/Core/IO/SPK_IO_Manager.cpp
+    # ${PROJECT_SOURCE_DIR}/Core/IO/SPK_IO_Buffer.cpp
+    # ${PROJECT_SOURCE_DIR}/Core/IO/SPK_IO_Manager.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Actions/SPK_ActionSet.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Actions/SPK_SpawnParticlesAction.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Emitters/SPK_NormalEmitter.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Emitters/SPK_RandomEmitter.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Emitters/SPK_SphericEmitter.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Emitters/SPK_StraightEmitter.cpp
-    ${PROJECT_SOURCE_DIR}/Extensions/IOConverters/SPK_IO_SPKLoader.cpp
-    ${PROJECT_SOURCE_DIR}/Extensions/IOConverters/SPK_IO_SPKSaver.cpp
+    # ${PROJECT_SOURCE_DIR}/Extensions/IOConverters/SPK_IO_SPKLoader.cpp
+    # ${PROJECT_SOURCE_DIR}/Extensions/IOConverters/SPK_IO_SPKSaver.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Modifiers/SPK_BasicModifiers.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Modifiers/SPK_Collider.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Modifiers/SPK_EmitterAttacher.cpp
