@@ -39,7 +39,7 @@ namespace SPK
 	public :
 		spark_description(DefaultInitializer, Interpolator<T>)
 		(
-			spk_attribute(T, value, setDefaultValue, getDefaultValue);
+//			spk_attribute(T, value, setDefaultValue, getDefaultValue);
 		);
 
 	private :

@@ -370,25 +370,25 @@ namespace SPK
 	public :
 		spark_description(Group, Transformable)
 		(
-			spk_attribute(unsigned int, capacity, reallocate, getCapacity);
-			spk_attribute(Pair<float>, lifeTime, setLifeTime, getMinLifeTime, getMaxLifeTime);
-			spk_attribute(bool, immortal, setImmortal, isImmortal);
-			spk_attribute(bool, still, setStill, isStill);
-			spk_attribute(bool, computeDistances, enableDistanceComputation, isDistanceComputationEnabled);
-			spk_attribute(bool, sortParticles, enableSorting, isSortingEnabled);
-			spk_attribute(float, physicalRadius, setPhysicalRadius, getPhysicalRadius);
-			spk_attribute(float, graphicalRadius, setGraphicalRadius, getGraphicalRadius);
-			spk_attribute(Ref<ColorInterpolator>, colorInterpolator, setColorInterpolator, getColorInterpolator);
-			spk_attribute(Ref<FloatInterpolator>, scaleInterpolator, setScaleInterpolator, getScaleInterpolator);
-			spk_attribute(Ref<FloatInterpolator>, massInterpolator, setMassInterpolator, getMassInterpolator);
-			spk_attribute(Ref<FloatInterpolator>, angleInterpolator, setAngleInterpolator, getAngleInterpolator);
-			spk_attribute(Ref<FloatInterpolator>, textureIndexInterpolator, setTextureIndexInterpolator, getTextureIndexInterpolator);
-			spk_attribute(Ref<FloatInterpolator>, rotationSpeedInterpolator, setRotationSpeedInterpolator, getRotationSpeedInterpolator);
-			spk_array(Ref<Emitter>, emitters, addEmitter, removeEmitter, removeAllEmitters, getEmitter, getNbEmitters);
-			spk_array(Ref<Modifier>, modifiers, addModifier, removeModifier, removeAllModifiers, getModifier, getNbModifiers);
-			spk_attribute(Ref<Action>, birthAction, setBirthAction, getBirthAction);
-			spk_attribute(Ref<Action>, deathAction, setDeathAction, getDeathAction);
-			spk_attribute(Ref<Renderer>, renderer, setRenderer, getRenderer);
+//			spk_attribute(unsigned int, capacity, reallocate, getCapacity);
+//			spk_attribute(Pair<float>, lifeTime, setLifeTime, getMinLifeTime, getMaxLifeTime);
+//			spk_attribute(bool, immortal, setImmortal, isImmortal);
+//			spk_attribute(bool, still, setStill, isStill);
+//			spk_attribute(bool, computeDistances, enableDistanceComputation, isDistanceComputationEnabled);
+//			spk_attribute(bool, sortParticles, enableSorting, isSortingEnabled);
+//			spk_attribute(float, physicalRadius, setPhysicalRadius, getPhysicalRadius);
+//			spk_attribute(float, graphicalRadius, setGraphicalRadius, getGraphicalRadius);
+//			spk_attribute(Ref<ColorInterpolator>, colorInterpolator, setColorInterpolator, getColorInterpolator);
+//			spk_attribute(Ref<FloatInterpolator>, scaleInterpolator, setScaleInterpolator, getScaleInterpolator);
+//			spk_attribute(Ref<FloatInterpolator>, massInterpolator, setMassInterpolator, getMassInterpolator);
+//			spk_attribute(Ref<FloatInterpolator>, angleInterpolator, setAngleInterpolator, getAngleInterpolator);
+//			spk_attribute(Ref<FloatInterpolator>, textureIndexInterpolator, setTextureIndexInterpolator, getTextureIndexInterpolator);
+//			spk_attribute(Ref<FloatInterpolator>, rotationSpeedInterpolator, setRotationSpeedInterpolator, getRotationSpeedInterpolator);
+//			spk_array(Ref<Emitter>, emitters, addEmitter, removeEmitter, removeAllEmitters, getEmitter, getNbEmitters);
+//			spk_array(Ref<Modifier>, modifiers, addModifier, removeModifier, removeAllModifiers, getModifier, getNbModifiers);
+//			spk_attribute(Ref<Action>, birthAction, setBirthAction, getBirthAction);
+//			spk_attribute(Ref<Action>, deathAction, setDeathAction, getDeathAction);
+//			spk_attribute(Ref<Renderer>, renderer, setRenderer, getRenderer);
 		);
 
 	private :

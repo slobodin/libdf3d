@@ -40,7 +40,7 @@ namespace SPK
 	public :
 		spark_description(RandomInitializer, Interpolator<T>)
 		(
-			spk_attribute(Pair<T>, values, setValues, getMinValue, getMaxValue);
+//			spk_attribute(Pair<T>, values, setValues, getMinValue, getMaxValue);
 		);
 
 	private :

@@ -43,7 +43,7 @@ namespace SPK
 	public :
 		spark_description(RandomInterpolator, Interpolator<T>)
 		(
-			spk_attribute(Quadruplet<T>, values, setValues, getMinBirthValue, getMaxBirthValue, getMinDeathValue, getMaxDeathValue);
+//			spk_attribute(Quadruplet<T>, values, setValues, getMinBirthValue, getMaxBirthValue, getMinDeathValue, getMaxDeathValue);
 		);
 
 	private :
@@ -161,7 +161,7 @@ namespace SPK
 		for (GroupIterator particleIt(group); !particleIt.end(); ++particleIt)
 		{
 			size_t index = particleIt->getIndex();
-			interpolateParam(data[index],deathValuesData[index],birthValuesData[index],particleIt->getEnergy());
+            this->interpolateParam(data[index],deathValuesData[index],birthValuesData[index],particleIt->getEnergy());
 		}
 	}
 

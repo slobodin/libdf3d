@@ -236,17 +236,17 @@ namespace SPK
 	public :
 		spark_description(GraphInterpolator, Interpolator<T>)
 		(
-			spk_attribute(InterpolationType, interpolationType, setType, getType);
-			spk_attribute(Param, parameter, setParam, getInterpolatorParam);
-			spk_attribute(bool, loop, enableLooping, isLoopingEnabled);
-			spk_attribute(float, scale, setScaleXVariation, getScaleXVariation);
-			spk_attribute(float, offset, setOffsetXVariation, getOffsetXVariation);
-			spk_structure(graph, createEntry, removeEntry, clearGraph, getNbEntries)
-			(
-				spk_field(float, x, setX, getX);
-				spk_field(T, y0, setY0, getY0);
-				spk_field(T, y1, setY1, getY1);
-			);
+//			spk_attribute(InterpolationType, interpolationType, setType, getType);
+//			spk_attribute(Param, parameter, setParam, getInterpolatorParam);
+//			spk_attribute(bool, loop, enableLooping, isLoopingEnabled);
+//			spk_attribute(float, scale, setScaleXVariation, getScaleXVariation);
+//			spk_attribute(float, offset, setOffsetXVariation, getOffsetXVariation);
+//			spk_structure(graph, createEntry, removeEntry, clearGraph, getNbEntries)
+//			(
+//				spk_field(float, x, setX, getX);
+//				spk_field(T, y0, setY0, getY0);
+//				spk_field(T, y1, setY1, getY1);
+//			);
 		);
 
 	private :
@@ -596,7 +596,7 @@ namespace SPK
 	template<typename T>
 	inline void GraphInterpolator<T>::interpolateEntry(T& result,const InterpolatorEntry<T>& entry,float ratio) const
 	{
-		interpolateParam(result,entry.y0,entry.y1,ratio);
+        this->interpolateParam(result,entry.y0,entry.y1,ratio);
 	}
 
 	template<typename T>
@@ -647,7 +647,7 @@ namespace SPK
 
 			interpolateEntry(y0, previousEntry, ratioY);
 			interpolateEntry(y1, nextEntry, ratioY);
-			interpolateParam(data, y0, y1, ratioX);
+            this->interpolateParam(data, y0, y1, ratioX);
 		}
 	}
 

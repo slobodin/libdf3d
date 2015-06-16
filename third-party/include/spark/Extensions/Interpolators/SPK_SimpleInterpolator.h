@@ -40,7 +40,7 @@ namespace SPK
 	public :
 		spark_description(SimpleInterpolator, Interpolator<T>)
 		(
-			spk_attribute(Pair<T>, values, setValues, getBirthValue, getDeathValue);
+//			spk_attribute(Pair<T>, values, setValues, getBirthValue, getDeathValue);
 		);
 
 	private :
@@ -110,7 +110,7 @@ namespace SPK
 	void SimpleInterpolator<T>::interpolate(T* data,Group& group,DataSet* dataSet) const
 	{
 		for (GroupIterator particleIt(group); !particleIt.end(); ++particleIt)
-			interpolateParam(data[particleIt->getIndex()],deathValue,birthValue,particleIt->getEnergy());
+            this->interpolateParam(data[particleIt->getIndex()],deathValue,birthValue,particleIt->getEnergy());
 	}
 }
 
