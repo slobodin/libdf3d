@@ -372,4 +372,8 @@ if (ANDROID)
     add_definitions(-DDF3D_ANDROID)
 endif()
 
+if (LINUX)
+    add_definitions(-DDF3D_LINUX)
+endif()
+
 add_library(BulletPhysics STATIC ${BulletPhysics_SRC_LIST} ${BulletPhysics_HEADER_LIST})

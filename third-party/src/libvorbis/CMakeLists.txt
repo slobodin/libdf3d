@@ -52,4 +52,8 @@ if (WINDOWS_PHONE)
     add_definitions(-DDF3D_WINDOWS_PHONE)
 endif()
 
+if (LINUX)
+    add_definitions(-DDF3D_LINUX)
+endif()
+
 add_library(libvorbis STATIC ${libvorbis_SRC_LIST} ${libvorbis_HEADER_LIST})

@@ -153,4 +153,8 @@ if (WINDOWS_PHONE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 endif()
 
+if (LINUX)
+    add_definitions(-DDF3D_LINUX)
+endif()
+
 add_library(libspark STATIC ${libspark_SRC_LIST} ${libspark_HEADER_LIST})
