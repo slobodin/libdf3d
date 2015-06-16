@@ -252,6 +252,7 @@ if (WINDOWS_PHONE)
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneFileSystemHelpers.h
     )
     list(APPEND libdf3d_SRC_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/Storage.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneApplication.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneFileSystemHelpers.cpp
     )
