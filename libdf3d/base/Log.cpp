@@ -153,6 +153,15 @@ Log &Log::operator<< (const char *text)
     return *this;
 }
 
+Log &Log::operator<< (const wchar_t *text)
+{
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+    m_buffer << text << " ";
+
+    return *this;
+}
+
 Log &Log::operator<< (const std::string &text)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);

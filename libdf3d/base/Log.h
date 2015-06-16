@@ -39,6 +39,7 @@ public:
     static Log &instance();
 
     Log &operator<< (const char *text);
+    Log &operator<< (const wchar_t *text);
     Log &operator<< (const std::string &text);
     Log &operator<< (int num);
     Log &operator<< (long num);
