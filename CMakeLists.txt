@@ -8,6 +8,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/bullet)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libogg)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libvorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/spark)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/libRocket/Build)
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
@@ -278,20 +279,24 @@ endif()
 
 find_package(Boost REQUIRED)
 
-include_directories(${PROJECT_SOURCE_DIR}/libdf3d
-                    ${PROJECT_SOURCE_DIR}/third-party/include
-                    ${PROJECT_SOURCE_DIR}/third-party/include/bullet
-                    ${PROJECT_SOURCE_DIR}/third-party/include/spark
-                    ${Boost_INCLUDE_DIRS})
-
 if (WINDOWS)
     find_package(GLEW REQUIRED)
     include_directories(${GLEW_INCLUDE_DIRS})
 endif()
 
-if (DF3D_LINUX)
+if (LINUX)
+    find_package(GLEW REQUIRED)
     find_package(OpenGL REQUIRED)
+    find_package(OpenAL REQUIRED)
+    include_directories(${GLEW_INCLUDE_DIRS})
+    include_directories(${OPENAL_INCLUDE_DIRS})
 endif()
+
+include_directories(${PROJECT_SOURCE_DIR}/libdf3d
+                    ${PROJECT_SOURCE_DIR}/third-party/include
+                    ${PROJECT_SOURCE_DIR}/third-party/include/bullet
+                    ${PROJECT_SOURCE_DIR}/third-party/include/spark
+                    ${Boost_INCLUDE_DIRS})
 
 add_library(libdf3d SHARED
     ${libdf3d_HEADER_LIST}
@@ -304,7 +309,10 @@ target_link_libraries(libdf3d
     BulletPhysics
     libogg
     libspark
-    libvorbis)
+    libvorbis
+    RocketCore
+    RocketControls
+    RocketDebugger)
 
 if (WINDOWS)
     target_link_libraries(libdf3d ${OPENGL_LIBRARIES})
@@ -332,6 +340,6 @@ if (WINDOWS_PHONE)
     target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/OpenAL.wp8.lib)
 endif()
 
-if (DF3D_LINUX)
-    target_link_libraries(libdf3d ${OPENGL_LIBRARIES})
+if (LINUX)
+    target_link_libraries(libdf3d ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${OPENAL_LIBRARY})
 endif()
