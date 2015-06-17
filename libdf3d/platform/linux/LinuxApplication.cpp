@@ -23,7 +23,7 @@ LinuxApplication::~LinuxApplication()
 void LinuxApplication::run()
 {
     using namespace std::chrono;
-    MSG msg;
+//    MSG msg;
 
     TimePoint currtime, prevtime;
     currtime = prevtime = system_clock::now();
