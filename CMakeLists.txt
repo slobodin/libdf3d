@@ -285,6 +285,7 @@ include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/
                     ${PROJECT_SOURCE_DIR}/third-party/bullet/include
                     ${PROJECT_SOURCE_DIR}/third-party/spark/include
+                    ${PROJECT_SOURCE_DIR}/third-party/libRocket/Include
                     ${Boost_INCLUDE_DIRS})
 
 add_library(libdf3d SHARED
@@ -307,20 +308,6 @@ if (WINDOWS)
     target_link_libraries(libdf3d ${OPENGL_LIBRARIES})
     target_link_libraries(libdf3d ${GLEW_LIBRARIES})
     target_link_libraries(libdf3d ${OPENAL_LIBRARY})
-endif()
-
-if (WINDOWS OR WINDOWS_PHONE)
-    function(link_with_rocket library_name)
-        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-            target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/${library_name}_d.lib)
-        else()
-            target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/${library_name}.lib)
-        endif()
-    endfunction()
-
-    link_with_rocket(RocketControls)
-    link_with_rocket(RocketCore)
-    link_with_rocket(RocketDebugger)
 endif()
 
 if (WINDOWS_PHONE)
