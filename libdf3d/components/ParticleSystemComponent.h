@@ -1,7 +1,7 @@
 #pragma once
 
 #include "NodeComponent.h"
-#include <spark/SPARK.h>
+#include <SPARK.h>
 
 FWD_MODULE_CLASS(render, RenderPass)
 FWD_MODULE_CLASS(render, VertexBuffer)

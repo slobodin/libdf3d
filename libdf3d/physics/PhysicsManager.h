@@ -4,8 +4,8 @@ FWD_MODULE_CLASS(base, EngineController)
 FWD_MODULE_CLASS(render, RenderManager)
 FWD_MODULE_CLASS(scene, Node)
 
-#include <bullet/btBulletCollisionCommon.h>
-#include <bullet/btBulletDynamicsCommon.h>
+#include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
 
 namespace df3d { namespace physics {
 

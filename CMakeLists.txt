@@ -4,11 +4,11 @@ project(libdf3d)
 
 include(${PROJECT_SOURCE_DIR}/cmake/libdf3d.cmake)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/bullet)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libogg)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/libvorbis)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/src/spark)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/libRocket/Build)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/bullet/src)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/ogg)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/vorbis)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
+# add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/libRocket/Build)
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
@@ -203,12 +203,6 @@ if (WINDOWS AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party" CACHE PATH "third-party")
 endif()
 
-if (WINDOWS)
-    set(PREBUILT_LIBRARIES_PATH ${PROJECT_SOURCE_DIR}/third-party/prebuilt/win32)
-elseif (WINDOWS_PHONE)
-    set(PREBUILT_LIBRARIES_PATH ${PROJECT_SOURCE_DIR}/third-party/prebuilt/wp_81)
-endif()
-
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200 /wd\"4251\" /wd\"4457\" /wd\"4458\"")
 
@@ -222,7 +216,7 @@ if(MSVC)
 endif()
 
 set(third_party_SRC_FILES
-    ${PROJECT_SOURCE_DIR}/third-party/src/lib_json/jsoncpp.cpp
+    ${PROJECT_SOURCE_DIR}/third-party/json/jsoncpp.cpp
 )
 
 if (WINDOWS)
@@ -279,23 +273,18 @@ endif()
 
 find_package(Boost REQUIRED)
 
-if (WINDOWS)
-    find_package(GLEW REQUIRED)
-    include_directories(${GLEW_INCLUDE_DIRS})
-endif()
-
-if (LINUX)
+if (WINDOWS OR LINUX)
     find_package(GLEW REQUIRED)
     find_package(OpenGL REQUIRED)
     find_package(OpenAL REQUIRED)
     include_directories(${GLEW_INCLUDE_DIRS})
-    include_directories(${OPENAL_INCLUDE_DIRS})
+    include_directories(${OPENAL_INCLUDE_DIR})
 endif()
 
 include_directories(${PROJECT_SOURCE_DIR}/libdf3d
-                    ${PROJECT_SOURCE_DIR}/third-party/include
-                    ${PROJECT_SOURCE_DIR}/third-party/include/bullet
-                    ${PROJECT_SOURCE_DIR}/third-party/include/spark
+                    ${PROJECT_SOURCE_DIR}/third-party/
+                    ${PROJECT_SOURCE_DIR}/third-party/bullet/include
+                    ${PROJECT_SOURCE_DIR}/third-party/spark/include
                     ${Boost_INCLUDE_DIRS})
 
 add_library(libdf3d SHARED
@@ -317,7 +306,7 @@ target_link_libraries(libdf3d
 if (WINDOWS)
     target_link_libraries(libdf3d ${OPENGL_LIBRARIES})
     target_link_libraries(libdf3d ${GLEW_LIBRARIES})
-    target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/OpenAL32.lib)
+    target_link_libraries(libdf3d ${OPENAL_LIBRARY})
 endif()
 
 if (WINDOWS OR WINDOWS_PHONE)
