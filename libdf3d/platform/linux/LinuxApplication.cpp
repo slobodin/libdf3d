@@ -13,6 +13,8 @@ LinuxApplication::LinuxApplication(const AppInitParams &params, AppDelegate *app
     m_pImpl(make_unique<Impl>())
 {
 
+    if (!m_appDelegate->onAppStarted(params.windowWidth, params.windowHeight))
+        throw std::runtime_error("Game code initialization failed.");
 }
 
 LinuxApplication::~LinuxApplication()
