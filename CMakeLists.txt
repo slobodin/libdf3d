@@ -8,7 +8,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/bullet/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/ogg)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/vorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
-# add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/libRocket/Build)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/libRocket/Build)
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
