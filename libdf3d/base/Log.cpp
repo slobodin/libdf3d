@@ -34,7 +34,7 @@ enum class MessageType
 class LoggerImpl
 {
 public:
-    virtual ~LoggerImpl() { }
+    virtual ~LoggerImpl() = default;
 
     virtual void writeBuffer(const std::string &buffer, MessageType type) = 0;
 };
@@ -42,19 +42,43 @@ public:
 class StdoutLogger : public LoggerImpl
 {
 public:
-    StdoutLogger()
-    {
-    }
+    StdoutLogger() = default;
 
     virtual void writeBuffer(const std::string &buffer, MessageType type) override
     {
+        switch (type)
+        {
+        case MessageType::DEBUG:
+            std::cerr << "[debug]: ";
+            break;
+        case MessageType::MESSAGE:
+            std::cerr << "[message]: ";
+            break;
+        case MessageType::WARNING:
+            std::cerr << "[warning]: ";
+            break;
+        case MessageType::CRITICAL:
+            std::cerr << "[critical]: ";
+            break;
+        case MessageType::GAME:
+            std::cerr << "[game]: ";
+            break;
+        case MessageType::SCRIPT:
+            std::cerr << "[script]: ";
+            break;
+        case MessageType::NONE:
+            break;
+        default:
+            break;
+        }
+
         std::cout << buffer << std::endl;
     }
 };
 
 #ifdef DF3D_WINDOWS
 
-class WindowsLoggerImpl : public LoggerImpl
+class WindowsLoggerImpl : public StdoutLogger
 {
     HANDLE m_consoleHandle = nullptr;
     std::unordered_map<MessageType, WORD> m_consoleColors;
@@ -83,33 +107,7 @@ public:
         if (m_consoleHandle)
             SetConsoleTextAttribute(m_consoleHandle, m_consoleColors[type]);
 
-        switch (type)
-        {
-        case MessageType::DEBUG:
-            std::cerr << "[debug]: ";
-            break;
-        case MessageType::MESSAGE:
-            std::cerr << "[message]: ";
-            break;
-        case MessageType::WARNING:
-            std::cerr << "[warning]: ";
-            break;
-        case MessageType::CRITICAL:
-            std::cerr << "[critical]: ";
-            break;
-        case MessageType::GAME:
-            std::cerr << "[game]: ";
-            break;
-        case MessageType::SCRIPT:
-            std::cerr << "[script]: ";
-            break;
-        case MessageType::NONE:
-            break;
-        default:
-            break;
-        }
-
-        std::cerr << buffer << std::endl;
+        StdoutLogger::writeBuffer(buffer, type);
 
         if (m_consoleHandle)
             SetConsoleTextAttribute(m_consoleHandle, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
