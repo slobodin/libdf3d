@@ -49,22 +49,22 @@ public:
         switch (type)
         {
         case MessageType::DEBUG:
-            std::cerr << "[debug]: ";
+            std::cout << "[debug]: ";
             break;
         case MessageType::MESSAGE:
-            std::cerr << "[message]: ";
+            std::cout << "[message]: ";
             break;
         case MessageType::WARNING:
-            std::cerr << "[warning]: ";
+            std::cout << "[warning]: ";
             break;
         case MessageType::CRITICAL:
-            std::cerr << "[critical]: ";
+            std::cout << "[critical]: ";
             break;
         case MessageType::GAME:
-            std::cerr << "[game]: ";
+            std::cout << "[game]: ";
             break;
         case MessageType::SCRIPT:
-            std::cerr << "[script]: ";
+            std::cout << "[script]: ";
             break;
         case MessageType::NONE:
             break;
