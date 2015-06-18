@@ -1,6 +1,8 @@
 #include "df3d_pch.h"
 #include "LinuxFileSystemHelpers.h"
 
+#include <unistd.h>
+
 namespace df3d { namespace platform {
 
 bool FileSystemHelpers::isPathAbsolute(const std::string &path)
@@ -13,9 +15,7 @@ bool FileSystemHelpers::isPathAbsolute(const std::string &path)
 
 bool FileSystemHelpers::pathExists(const std::string &path)
 {
-    // TODO:
-    assert(false);
-    return false;
+    return access(path.c_str(), F_OK) != -1;
 }
 
 } }
