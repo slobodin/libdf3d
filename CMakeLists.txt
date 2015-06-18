@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(libdf3d)
 
 include(${PROJECT_SOURCE_DIR}/cmake/libdf3d.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/bullet/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/ogg)

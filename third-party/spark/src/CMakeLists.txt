@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(libspark)
 
+include(${PROJECT_SOURCE_DIR}/../../../cmake/common.cmake)
+
 set(LIBSPARK_HEADERS_ROOT ${PROJECT_SOURCE_DIR}/../include)
 
 set(libspark_HEADER_LIST

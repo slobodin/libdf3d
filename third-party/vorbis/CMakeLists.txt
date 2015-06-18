@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(libvorbis)
 
+include(${PROJECT_SOURCE_DIR}/../../cmake/common.cmake)
+
 set(LIBVORBIS_HEADERS_ROOT ${PROJECT_SOURCE_DIR}/)
 
 set(libvorbis_HEADER_LIST

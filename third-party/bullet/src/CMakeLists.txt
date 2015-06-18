@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(BulletPhysics)
 
+include(${PROJECT_SOURCE_DIR}/../../../cmake/common.cmake)
+
 set(BULLET_HEADERS_ROOT ${PROJECT_SOURCE_DIR}/../include)
 
 set(BulletPhysics_HEADER_LIST

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(libogg)
 
+include(${PROJECT_SOURCE_DIR}/../../cmake/common.cmake)
+
 set(LIBOGG_HEADERS_ROOT ${PROJECT_SOURCE_DIR})
 
 set(libogg_HEADER_LIST

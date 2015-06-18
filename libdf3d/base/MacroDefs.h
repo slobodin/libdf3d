@@ -16,9 +16,3 @@ static const int DEFAULT_WINDOW_HEIGHT = 480;
 #if defined(min)
 #undef min
 #endif
-
-#if defined(DF3D_LINUX)
-#ifndef NDEBUG
-#define _DEBUG
-#endif
-#endif
