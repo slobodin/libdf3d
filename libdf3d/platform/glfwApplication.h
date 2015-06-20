@@ -2,14 +2,12 @@
 
 #include "Application.h"
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 namespace df3d { namespace platform {
 
 class glfwApplication : public Application
 {
-    GLFWwindow *m_window = nullptr;
+    struct Impl;
+    unique_ptr<Impl> m_pImpl;
 
 public:
     glfwApplication(const AppInitParams &params, AppDelegate *appDelegate);

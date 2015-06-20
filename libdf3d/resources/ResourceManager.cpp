@@ -22,7 +22,6 @@
 namespace df3d { namespace resources {
 
 const char * const SIMPLE_LIGHTING_PROGRAM_EMBED_PATH = "__embed_simple_lighting_program";
-const char * const FFP2D_PROGRAM_EMBED_PATH = "__embed_ffp2d_program";
 const char * const RTT_QUAD_PROGRAM_EMBED_PATH = "__embed_quad_render_program";
 const char * const COLORED_PROGRAM_EMBED_PATH = "__embed_colored_program";
 const char * const AMBIENT_PASS_PROGRAM_EMBED_PATH = "__embed_ambient_pass_program";
@@ -54,12 +53,6 @@ void ResourceManager::loadEmbedResources()
     const std::string simple_lighting_frag =
 #include "render/embed_glsl/simple_lighting_frag.h"
         ;
-    const std::string ffp2d_vert =
-#include "render/embed_glsl/ffp2d_vert.h"
-        ;
-    const std::string ffp2d_frag =
-#include "render/embed_glsl/ffp2d_frag.h"
-        ;
     const std::string rtt_quad_vert =
 #include "render/embed_glsl/rtt_quad_vert.h"
         ;
@@ -80,7 +73,6 @@ void ResourceManager::loadEmbedResources()
         ;
 
     loadInternal(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH, simple_lighting_vert, simple_lighting_frag);
-    loadInternal(FFP2D_PROGRAM_EMBED_PATH, ffp2d_vert, ffp2d_frag);
     loadInternal(RTT_QUAD_PROGRAM_EMBED_PATH, rtt_quad_vert, rtt_quad_frag);
     loadInternal(COLORED_PROGRAM_EMBED_PATH, colored_vert, colored_frag);
     loadInternal(AMBIENT_PASS_PROGRAM_EMBED_PATH, ambient_vert, ambient_frag);
@@ -247,13 +239,6 @@ shared_ptr<render::GpuProgram> ResourceManager::createSimpleLightingGpuProgram()
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     return static_pointer_cast<render::GpuProgram>(findResource(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH));
-}
-
-shared_ptr<render::GpuProgram> ResourceManager::createFFP2DGpuProgram()
-{
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-    return static_pointer_cast<render::GpuProgram>(findResource(FFP2D_PROGRAM_EMBED_PATH));
 }
 
 shared_ptr<render::GpuProgram> ResourceManager::createColoredGpuProgram()

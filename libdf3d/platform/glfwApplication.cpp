@@ -1,6 +1,9 @@
 #include "df3d_pch.h"
 #include "glfwApplication.h"
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 namespace df3d { namespace platform {
 
 base::KeyboardEvent::KeyCode convertKeyCode(int keyCode)
@@ -82,8 +85,14 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         appDelegate->onKeyUp(keyCode);
 }
 
+struct glfwApplication::Impl
+{
+    GLFWwindow *window = nullptr;
+};
+
 glfwApplication::glfwApplication(const AppInitParams &params, AppDelegate *appDelegate)
-    : Application(params, appDelegate)
+    : Application(params, appDelegate),
+    m_pImpl(make_unique<Impl>())
 {
     // Create window and OpenGL context.
     if (!glfwInit())
@@ -93,20 +102,20 @@ glfwApplication::glfwApplication(const AppInitParams &params, AppDelegate *appDe
 
     GLFWmonitor *monitor = params.fullscreen ? glfwGetPrimaryMonitor() : nullptr;
 
-    m_window = glfwCreateWindow(params.windowWidth, params.windowHeight, "libdf3d_window", monitor, nullptr);
-    if (!m_window)
+    m_pImpl->window = glfwCreateWindow(params.windowWidth, params.windowHeight, "libdf3d_window", monitor, nullptr);
+    if (!m_pImpl->window)
     {
         throw std::runtime_error("Failed to create glfw window");
         glfwTerminate();
     }
 
-    glfwMakeContextCurrent(m_window);
-    glfwSetWindowUserPointer(m_window, m_appDelegate);
+    glfwMakeContextCurrent(m_pImpl->window);
+    glfwSetWindowUserPointer(m_pImpl->window, m_appDelegate);
 
     // Set input callbacks.
-    glfwSetCursorPosCallback(m_window, cursorPositionCallback);
-    glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
-    glfwSetKeyCallback(m_window, keyCallback);
+    glfwSetCursorPosCallback(m_pImpl->window, cursorPositionCallback);
+    glfwSetMouseButtonCallback(m_pImpl->window, mouseButtonCallback);
+    glfwSetKeyCallback(m_pImpl->window, keyCallback);
 
     // Init GLEW.
     glewExperimental = GL_TRUE;
@@ -129,8 +138,8 @@ glfwApplication::glfwApplication(const AppInitParams &params, AppDelegate *appDe
 
 glfwApplication::~glfwApplication()
 {
-    if (m_window)
-        glfwDestroyWindow(m_window);
+    if (m_pImpl->window)
+        glfwDestroyWindow(m_pImpl->window);
     glfwTerminate();
 }
 
@@ -141,13 +150,13 @@ void glfwApplication::run()
     TimePoint currtime, prevtime;
     currtime = prevtime = system_clock::now();
 
-    while (!glfwWindowShouldClose(m_window))
+    while (!glfwWindowShouldClose(m_pImpl->window))
     {
         currtime = system_clock::now();
 
         m_appDelegate->onAppUpdate(IntervalBetween(currtime, prevtime));
 
-        glfwSwapBuffers(m_window);
+        glfwSwapBuffers(m_pImpl->window);
 
         prevtime = currtime;
 

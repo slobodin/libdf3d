@@ -39,12 +39,12 @@ Sprite2DComponent::Sprite2DComponent(const char *pathToTexture)
 {
     auto sprite2dPass = make_shared<render::RenderPass>();
     sprite2dPass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
-    sprite2dPass->setGpuProgram(g_resourceManager->createFFP2DGpuProgram());
+    sprite2dPass->setGpuProgram(g_resourceManager->createColoredGpuProgram());
     sprite2dPass->enableDepthTest(false);
     sprite2dPass->enableDepthWrite(false);
     sprite2dPass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 
-    auto quadVb = render::createQuad2(render::VertexFormat::create("p:2, tx:2, c:4"), 0.0f, 0.0f, 1.0, 1.0f);
+    auto quadVb = render::createQuad2(render::VertexFormat::create("p:3, tx:2, c:4"), 0.0f, 0.0f, 1.0, 1.0f);
     quadVb->setUsageType(render::GpuBufferUsageType::STATIC);
 
     m_op.passProps = sprite2dPass;

@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 2.8)
 
 project(libdf3d)
 
+if (WINDOWS AND NOT CMAKE_PREFIX_PATH)
+    set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party" CACHE PATH "third-party")
+endif()
+
 include(${PROJECT_SOURCE_DIR}/cmake/libdf3d.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 
@@ -200,10 +204,6 @@ set(libdf3d_SRC_LIST
 )
 
 add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD -DBULLET_FORCE_NO_ALIGNMENT)
-
-if (WINDOWS AND NOT CMAKE_PREFIX_PATH)
-    set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party" CACHE PATH "third-party")
-endif()
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200 /wd\"4251\" /wd\"4457\" /wd\"4458\"")

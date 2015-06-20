@@ -119,7 +119,7 @@ GuiRenderInterface::GuiRenderInterface()
 {
     m_guipass = make_shared<render::RenderPass>();
     m_guipass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
-    m_guipass->setGpuProgram(g_resourceManager->createFFP2DGpuProgram());
+    m_guipass->setGpuProgram(g_resourceManager->createColoredGpuProgram());
     m_guipass->enableDepthTest(false);
     m_guipass->enableDepthWrite(false);
     m_guipass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
@@ -144,7 +144,7 @@ Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket:
                                                                          int *indices, int num_indices, 
                                                                          Rocket::Core::TextureHandle texture)
 {
-    auto vertexBuffer = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:2, tx:2, c:4"));
+    auto vertexBuffer = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
     auto indexBuffer = make_shared<render::IndexBuffer>();
 
     vertexBuffer->resize(num_vertices);
@@ -154,12 +154,13 @@ Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket:
 
     for (int i = 0; i < num_vertices; i++)
     {
-        render::Vertex_2p2tx4c v;
+        render::Vertex_3p2tx4c v;
 
         v.p.x = vertices[i].position.x;
         v.p.y = vertices[i].position.y;
+        v.p.z = 0.0f;
         v.tx.x = vertices[i].tex_coord.x;
-        v.tx.y = vertices[i].tex_coord.y;
+        v.tx.y = 1.0f - vertices[i].tex_coord.y;
         v.color.r = vertices[i].colour.red / 255.0f;
         v.color.g = vertices[i].colour.green / 255.0f;
         v.color.b = vertices[i].colour.blue / 255.0f;

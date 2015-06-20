@@ -61,7 +61,6 @@ public:
     shared_ptr<audio::AudioBuffer> createAudioBuffer(const char *audioPath);
     shared_ptr<render::GpuProgram> createGpuProgram(const char *vertexShader, const char *fragmentShader);
     shared_ptr<render::GpuProgram> createSimpleLightingGpuProgram();
-    shared_ptr<render::GpuProgram> createFFP2DGpuProgram();
     shared_ptr<render::GpuProgram> createColoredGpuProgram();
     shared_ptr<render::GpuProgram> createRttQuadProgram();
     shared_ptr<render::GpuProgram> createAmbientPassProgram();
