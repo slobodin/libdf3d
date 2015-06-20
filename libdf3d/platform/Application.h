@@ -11,7 +11,7 @@ struct DF3D_DLL AppInitParams
     bool fullscreen = false;
 };
 
-class DF3D_DLL Application
+class DF3D_DLL Application : boost::noncopyable
 {
 protected:
     AppDelegate *m_appDelegate;

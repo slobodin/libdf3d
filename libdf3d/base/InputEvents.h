@@ -42,12 +42,6 @@ public:
 class DF3D_DLL KeyboardEvent
 {
 public:
-    enum class State
-    {
-        PRESSED,
-        RELEASED
-    };
-
     enum class KeyCode
     {
         UP,
@@ -61,7 +55,6 @@ public:
         UNDEFINED
     };
 
-    State state;
     KeyCode keycode;
 };
 

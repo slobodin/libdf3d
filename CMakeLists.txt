@@ -10,6 +10,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/ogg)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/vorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/libRocket/Build)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/glfw)
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
@@ -225,15 +226,11 @@ if (WINDOWS)
 
     list(APPEND libdf3d_HEADER_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/CrashHandler.h
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsApplication.h
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsKeyCodes.h
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsFileSystemHelpers.h
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/CrashHandler.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/Storage.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsApplication.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsKeyCodes.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsFileSystemHelpers.cpp
     )
 endif()
@@ -262,13 +259,20 @@ if (LINUX)
     add_definitions(-DDF3D_LINUX)
 
     list(APPEND libdf3d_HEADER_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/LinuxApplication.h
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/LinuxFileSystemHelpers.h
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/Storage.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/LinuxApplication.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/LinuxFileSystemHelpers.cpp
+    )
+endif()
+
+if (LINUX OR WINDOWS OR MACOSX)
+    list(APPEND libdf3d_HEADER_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/glfwApplication.h
+    )
+    list(APPEND libdf3d_SRC_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/glfwApplication.cpp
     )
 endif()
 
@@ -287,6 +291,7 @@ include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/bullet/include
                     ${PROJECT_SOURCE_DIR}/third-party/spark/include
                     ${PROJECT_SOURCE_DIR}/third-party/libRocket/Include
+                    ${PROJECT_SOURCE_DIR}/third-party/glfw/include
                     ${Boost_INCLUDE_DIRS})
 
 add_library(libdf3d SHARED
@@ -303,7 +308,8 @@ target_link_libraries(libdf3d
     libvorbis
     RocketCore
     RocketControls
-    RocketDebugger)
+    RocketDebugger
+    glfw)
 
 if (WINDOWS)
     target_link_libraries(libdf3d ${OPENGL_LIBRARIES})

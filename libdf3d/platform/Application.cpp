@@ -1,13 +1,10 @@
 #include "df3d_pch.h"
 #include "Application.h"
 
-#if defined(DF3D_WINDOWS)
-#include <platform/windows/WindowsApplication.h>
+#if defined(DF3D_WINDOWS) || defined(DF3D_LINUX)
+#include <platform/glfwApplication.h>
 #elif defined(DF3D_WINDOWS_PHONE)
 #include <platform/windows_phone/WindowsPhoneApplication.h>
-#elif defined(DF3D_LINUX)
-#include <platform/linux/LinuxApplication.h>
-#else
 #error "Unsupported platform"
 #endif
 
@@ -30,12 +27,10 @@ Application *Application::create(const AppInitParams &params, AppDelegate *appDe
 {
     assert(!Application::instance);
 
-#if defined(DF3D_WINDOWS)
-    Application::instance = new WindowsApplication(params, appDelegate);
+#if defined(DF3D_WINDOWS) || defined(DF3D_LINUX)
+    Application::instance = new glfwApplication(params, appDelegate);
 #elif defined(DF3D_WINDOWS_PHONE)
     Application::instance = new WindowsPhoneApplication(params, appDelegate);
-#elif defined(DF3D_LINUX)
-    Application::instance = new LinuxApplication(params, appDelegate);
 #else
     return nullptr;
 #endif
