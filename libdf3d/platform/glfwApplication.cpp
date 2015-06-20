@@ -101,20 +101,8 @@ glfwApplication::glfwApplication(const AppInitParams &params, AppDelegate *appDe
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     GLFWmonitor *monitor = params.fullscreen ? glfwGetPrimaryMonitor() : nullptr;
-    auto width = params.windowWidth;
-    auto height = params.windowHeight;
-    if (params.fullscreen)
-    {
-        auto videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-        if (videoMode)
-        {
-            width = videoMode->width;
-            height = videoMode->height;
-        }
-    }
-
-    m_pImpl->window = glfwCreateWindow(width, height, "libdf3d_window", monitor, nullptr);
+    m_pImpl->window = glfwCreateWindow(params.windowWidth, params.windowHeight, "libdf3d_window", monitor, nullptr);
     if (!m_pImpl->window)
     {
         throw std::runtime_error("Failed to create glfw window");
