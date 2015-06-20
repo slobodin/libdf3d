@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 
 project(libdf3d)
 
 if (WINDOWS AND NOT CMAKE_PREFIX_PATH)
-    set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party" CACHE PATH "third-party")
+    set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_win32" CACHE PATH "third-party")
 endif()
 
 include(${PROJECT_SOURCE_DIR}/cmake/libdf3d.cmake)
@@ -14,7 +14,10 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/ogg)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/vorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/libRocket/Build)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/glfw)
+
+if (LINUX OR WINDOWS OR MACOSX)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/glfw)
+endif()
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
@@ -308,8 +311,11 @@ target_link_libraries(libdf3d
     libvorbis
     RocketCore
     RocketControls
-    RocketDebugger
-    glfw)
+    RocketDebugger)
+
+if (LINUX OR WINDOWS OR MACOSX)
+    target_link_libraries(libdf3d glfw)
+endif()
 
 if (WINDOWS)
     target_link_libraries(libdf3d ${OPENGL_LIBRARIES})
