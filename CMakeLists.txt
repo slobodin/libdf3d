@@ -345,4 +345,6 @@ endif()
 
 if (ANDROID)
     target_link_libraries(libdf3d OpenSLES ${OPENAL_LIBRARY} GLESv2 log android)
+
+    add_subdirectory(${PROJECT_SOURCE_DIR}/libdf3d/platform/android/android_native_app)
 endif()
