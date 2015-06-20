@@ -24,7 +24,7 @@ glm::quat fromToRotation(const glm::vec3 &v1, const glm::vec3 &v2)
 
 glm::vec2 toPolar(const glm::vec2 &cartesian)
 {
-    return { std::hypot(cartesian.x, cartesian.y), std::atan2(cartesian.y, cartesian.x) };
+    return { std::sqrt(cartesian.x * cartesian.x + cartesian.y * cartesian.y), std::atan2(cartesian.y, cartesian.x) };
 }
 
 float signedDistanceToPlane(const glm::vec4 &plane, const glm::vec3 &point)

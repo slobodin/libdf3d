@@ -36,4 +36,3 @@ void checkAndPrintGLError(const char *file, int line);
 #endif
 
 } }
-

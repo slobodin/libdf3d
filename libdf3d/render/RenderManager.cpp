@@ -121,12 +121,7 @@ RenderManager::RenderManager(RenderManagerInitParams params)
     : m_renderQueue(make_unique<RenderQueue>())
 {
     m_renderingCaps = params.renderingCaps;
-
-#if defined(DF3D_WINDOWS) || defined(DF3D_WINDOWS_PHONE) || defined(DF3D_LINUX)
     m_renderer = make_unique<Renderer>();
-#else
-#error "Unsupported platform"
-#endif
     m_renderer->setRenderStatsLocation(&m_stats);
 
     createRenderTargets(Viewport(0, 0, params.viewportWidth, params.viewportHeight));
@@ -216,7 +211,7 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
     // Opaque pass with lights on.
     m_renderer->enableBlendModeOverride(RenderPass::BlendingMode::ADD);
     m_renderer->enableDepthWriteOverride(false);
-    
+
     for (const auto &op : m_renderQueue->litOpaqueOperations)
     {
         m_renderer->setWorldMatrix(op.worldTransform);

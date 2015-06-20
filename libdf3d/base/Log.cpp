@@ -1,9 +1,9 @@
 #include "df3d_pch.h"
 #include "Log.h"
 
-#ifdef __ANDROID__
+#ifdef DF3D_ANDROID
 #include <android/log.h>
-#endif // __ANDROID__
+#endif
 
 #if defined(DF3D_WINDOWS_PHONE)
 #include <wrl.h>

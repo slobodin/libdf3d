@@ -1,5 +1,5 @@
 #include "df3d_pch.h"
-#include "WindowsFileSystemHelpers.h"
+#include "../FileSystemHelpers.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>

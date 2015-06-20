@@ -2,12 +2,16 @@ cmake_minimum_required(VERSION 3.1)
 
 project(libdf3d)
 
+include(${PROJECT_SOURCE_DIR}/cmake/libdf3d.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
+
 if (WINDOWS AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_win32" CACHE PATH "third-party")
 endif()
 
-include(${PROJECT_SOURCE_DIR}/cmake/libdf3d.cmake)
-include(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
+if (ANDROID AND NOT CMAKE_PREFIX_PATH)
+    set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_android/armeabi-v7a" CACHE PATH "third-party")
+endif()
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/bullet/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/ogg)
@@ -229,12 +233,11 @@ if (WINDOWS)
 
     list(APPEND libdf3d_HEADER_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/CrashHandler.h
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsFileSystemHelpers.h
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/CrashHandler.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/Storage.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/WindowsFileSystemHelpers.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/FileSystemHelpers.cpp
     )
 endif()
 
@@ -245,28 +248,33 @@ if (WINDOWS_PHONE)
 
     list(APPEND libdf3d_HEADER_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneApplication.h
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneFileSystemHelpers.h
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/Storage.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneApplication.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneFileSystemHelpers.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/FileSystemHelpers.cpp
     )
 endif()
 
 if (ANDROID)
     add_definitions(-DDF3D_ANDROID)
+
+    list(APPEND libdf3d_HEADER_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/AndroidApplication.h
+    )
+    list(APPEND libdf3d_SRC_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/Storage.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/AndroidApplication.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileSystemHelpers.cpp
+    )
 endif()
 
 if (LINUX)
     add_definitions(-DDF3D_LINUX)
 
-    list(APPEND libdf3d_HEADER_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/LinuxFileSystemHelpers.h
-    )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/Storage.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/LinuxFileSystemHelpers.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/FileSystemHelpers.cpp
     )
 endif()
 
@@ -279,7 +287,13 @@ if (LINUX OR WINDOWS OR MACOSX)
     )
 endif()
 
-find_package(Boost REQUIRED)
+if (ANDROID)
+    find_host_package(OpenAL REQUIRED)
+    find_host_package(Boost REQUIRED)
+    include_directories(${OPENAL_INCLUDE_DIR})
+else()
+    find_package(Boost REQUIRED)
+endif()
 
 if (WINDOWS OR LINUX)
     find_package(GLEW REQUIRED)
@@ -317,7 +331,7 @@ if (LINUX OR WINDOWS OR MACOSX)
     target_link_libraries(libdf3d glfw)
 endif()
 
-if (WINDOWS)
+if (WINDOWS OR LINUX)
     target_link_libraries(libdf3d ${OPENGL_LIBRARIES})
     target_link_libraries(libdf3d ${GLEW_LIBRARIES})
     target_link_libraries(libdf3d ${OPENAL_LIBRARY})
@@ -329,6 +343,6 @@ if (WINDOWS_PHONE)
     target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/OpenAL.wp8.lib)
 endif()
 
-if (LINUX)
-    target_link_libraries(libdf3d ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${OPENAL_LIBRARY})
+if (ANDROID)
+    target_link_libraries(libdf3d OpenSLES ${OPENAL_LIBRARY} GLESv2 log android)
 endif()

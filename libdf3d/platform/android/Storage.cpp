@@ -3,10 +3,10 @@
 
 namespace df3d { namespace platform {
 
-class LinuxStorage : public Storage
+class AndroidStorage : public Storage
 {
 public:
-    LinuxStorage(const char *filename)
+    AndroidStorage(const char *filename)
         : Storage(filename)
     {
 
@@ -20,7 +20,7 @@ public:
 
 Storage *Storage::create(const char *filename)
 {
-    return new LinuxStorage(filename);
+    return new AndroidStorage(filename);
 }
 
 } }

@@ -50,7 +50,7 @@ Node::Node(const char *name)
 {
     m_nodeName = name;
     if (m_nodeName.empty())
-        m_nodeName = std::string("unnamed_node_") + std::to_string(nodesCount++);
+        m_nodeName = std::string("unnamed_node_") + utils::to_string(nodesCount++);
 
     attachComponent(make_shared<components::TransformComponent>());
 }
@@ -203,12 +203,12 @@ shared_ptr<Node> Node::clone() const
 }
 
 shared_ptr<components::TransformComponent> Node::transform()
-{ 
+{
     return static_pointer_cast<components::TransformComponent>(getComponent(components::TRANSFORM));
 }
 
 shared_ptr<components::MeshComponent> Node::mesh()
-{ 
+{
     return static_pointer_cast<components::MeshComponent>(getComponent(components::MESH));
 }
 

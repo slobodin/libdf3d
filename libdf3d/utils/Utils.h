@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sstream>
+
 namespace df3d { namespace utils {
 
 inline size_t RandRange(const size_t a, const size_t b) { return a + (rand() % (b - a + 1)); }
@@ -31,6 +33,14 @@ template<typename C, typename T>
 inline bool contains_key(const C &container, const T &key)
 {
     return container.find(key) != container.end();
+}
+
+template<typename T>
+inline std::string to_string(const T &v)
+{
+    std::ostringstream os;
+    os << v;
+    return os.str();
 }
 
 namespace math {

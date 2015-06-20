@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
-#include "LinuxFileSystemHelpers.h"
+#include "../FileSystemHelpers.h"
 
-#include <unistd.h>
+#include <resources/FileDataSource.h>
 
 namespace df3d { namespace platform {
 
@@ -15,7 +15,11 @@ bool FileSystemHelpers::isPathAbsolute(const std::string &path)
 
 bool FileSystemHelpers::pathExists(const std::string &path)
 {
-    return access(path.c_str(), F_OK) != -1;
+    if (path.empty())
+        return false;
+    // TODO:
+    // Search in assets folder first.
+    return resources::FileDataSource(path.c_str()).valid();
 }
 
 } }

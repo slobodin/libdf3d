@@ -15,4 +15,3 @@ void checkAndPrintALError(const char *file, int line);
 #endif
 
 } }
-
