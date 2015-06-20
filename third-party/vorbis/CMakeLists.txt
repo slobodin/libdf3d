@@ -63,3 +63,4 @@ if (LINUX)
 endif()
 
 add_library(libvorbis STATIC ${libvorbis_SRC_LIST} ${libvorbis_HEADER_LIST})
+target_link_libraries(libvorbis libogg)
