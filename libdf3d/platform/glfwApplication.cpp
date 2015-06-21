@@ -109,6 +109,11 @@ glfwApplication::glfwApplication(const AppInitParams &params, AppDelegate *appDe
         glfwTerminate();
     }
 
+    // Center the window.
+    auto videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    if (videoMode && !params.fullscreen)
+        glfwSetWindowPos(m_pImpl->window, (videoMode->width - params.windowWidth) / 2, (videoMode->height - params.windowHeight) / 2);
+
     glfwMakeContextCurrent(m_pImpl->window);
     glfwSetWindowUserPointer(m_pImpl->window, m_appDelegate);
 
