@@ -40,4 +40,42 @@ glm::vec3 safeNormalize(const glm::vec3 &v)
     return res;
 }
 
+spherical::spherical(float r, float yaw, float pitch)
+    : r(r), yaw(yaw), pitch(pitch)
+{
+
+}
+
+spherical::spherical(const glm::vec3 &v)
+{
+    r = glm::length(v);
+
+    if (r > 0.0f)
+    {
+        pitch = glm::asin(-v.y / r);
+        if (glm::abs(pitch) >= glm::half_pi<float>() * 0.9999f)
+            yaw = 0.0f;
+        else
+            yaw = std::atan2(v.x, v.z);
+    }
+    else
+    {
+        yaw = pitch = 0.0f;
+    }
+}
+
+spherical::~spherical()
+{
+
+}
+
+glm::vec3 spherical::toCartesian()
+{
+    float x = r * glm::sin(pitch) * glm::cos(yaw);
+    float y = r * glm::sin(pitch) * glm::sin(yaw);
+    float z = r * glm::cos(pitch);
+
+    return { x, y, z };
+}
+
 } } }

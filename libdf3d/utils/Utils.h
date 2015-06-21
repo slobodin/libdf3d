@@ -55,6 +55,19 @@ DF3D_DLL glm::vec2 toPolar(const glm::vec2 &cartesian);
 DF3D_DLL float signedDistanceToPlane(const glm::vec4 &plane, const glm::vec3 &point);
 DF3D_DLL glm::vec3 safeNormalize(const glm::vec3 &v);
 
+struct DF3D_DLL spherical
+{
+    float r;
+    float yaw;
+    float pitch;
+
+    spherical(float r, float yaw, float pitch);
+    spherical(const glm::vec3 &v);
+    ~spherical();
+
+    glm::vec3 toCartesian();
+};
+
 }
 
 } }
