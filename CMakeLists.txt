@@ -320,9 +320,9 @@ add_library(libdf3d SHARED
 
 target_link_libraries(libdf3d
     BulletPhysics
-    libogg
-    libspark
-    libvorbis
+    ogg
+    spark
+    vorbis
     RocketCore
     RocketControls
     RocketDebugger)

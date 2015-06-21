@@ -1,100 +1,100 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(libspark)
+project(spark)
 
 include(${PROJECT_SOURCE_DIR}/../../../cmake/common.cmake)
 
-set(LIBSPARK_HEADERS_ROOT ${PROJECT_SOURCE_DIR}/../include)
+set(SPARK_HEADERS_ROOT ${PROJECT_SOURCE_DIR}/../include)
 
-set(libspark_HEADER_LIST
-    ${LIBSPARK_HEADERS_ROOT}/SPARK.h
-    ${LIBSPARK_HEADERS_ROOT}/SPARK_Core.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Action.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_ArrayData.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Attributes.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_ClassDescription.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Color.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_ConnectionIterators.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Connections.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Controller.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Controls.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_DataHandler.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_DataSet.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_DEF.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_DescriptionDefines.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Emitter.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Enum.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Factory.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Getters.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Group.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Interpolator.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Iterator.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Logger.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_MemoryTracer.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Meta.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Modifier.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Object.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Octree.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Particle.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Reference.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_RenderBuffer.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Renderer.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Setters.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_StaticDescription.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_System.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Traits.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Transform.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Transformable.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_TypeOperations.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Types.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Vector3D.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_Zone.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/SPK_ZonedModifier.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Buffer.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Context.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Deserializer.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Loader.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Manager.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Saver.h
-    ${LIBSPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Serializer.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Actions/SPK_ActionSet.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Actions/SPK_SpawnParticlesAction.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Emitters/SPK_NormalEmitter.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Emitters/SPK_RandomEmitter.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Emitters/SPK_SphericEmitter.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Emitters/SPK_StaticEmitter.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Emitters/SPK_StraightEmitter.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Interpolators/SPK_DefaultInitializer.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Interpolators/SPK_GraphInterpolator.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Interpolators/SPK_RandomInitializer.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Interpolators/SPK_RandomInterpolator.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Interpolators/SPK_SimpleInterpolator.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/IOConverters/SPK_IO_SPKCommon.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/IOConverters/SPK_IO_SPKLoader.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/IOConverters/SPK_IO_SPKSaver.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_BasicModifiers.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_Collider.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_Destroyer.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_EmitterAttacher.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_LinearForce.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_Obstacle.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_PointMass.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_RandomForce.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_Rotator.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_Vortex.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Renderers/SPK_LineRenderBehavior.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Renderers/SPK_Oriented3DRenderBehavior.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Renderers/SPK_PointRenderBehavior.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Renderers/SPK_QuadRenderBehavior.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Zones/SPK_Box.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Zones/SPK_Cylinder.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Zones/SPK_Plane.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Zones/SPK_Point.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Zones/SPK_Ring.h
-    ${LIBSPARK_HEADERS_ROOT}/Extensions/Zones/SPK_Sphere.h
+set(spark_HEADER_LIST
+    ${SPARK_HEADERS_ROOT}/SPARK.h
+    ${SPARK_HEADERS_ROOT}/SPARK_Core.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Action.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_ArrayData.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Attributes.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_ClassDescription.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Color.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_ConnectionIterators.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Connections.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Controller.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Controls.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_DataHandler.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_DataSet.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_DEF.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_DescriptionDefines.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Emitter.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Enum.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Factory.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Getters.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Group.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Interpolator.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Iterator.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Logger.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_MemoryTracer.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Meta.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Modifier.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Object.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Octree.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Particle.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Reference.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_RenderBuffer.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Renderer.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Setters.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_StaticDescription.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_System.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Traits.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Transform.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Transformable.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_TypeOperations.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Types.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Vector3D.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_Zone.h
+    ${SPARK_HEADERS_ROOT}/Core/SPK_ZonedModifier.h
+    ${SPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Buffer.h
+    ${SPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Context.h
+    ${SPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Deserializer.h
+    ${SPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Loader.h
+    ${SPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Manager.h
+    ${SPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Saver.h
+    ${SPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Serializer.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Actions/SPK_ActionSet.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Actions/SPK_SpawnParticlesAction.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Emitters/SPK_NormalEmitter.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Emitters/SPK_RandomEmitter.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Emitters/SPK_SphericEmitter.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Emitters/SPK_StaticEmitter.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Emitters/SPK_StraightEmitter.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Interpolators/SPK_DefaultInitializer.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Interpolators/SPK_GraphInterpolator.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Interpolators/SPK_RandomInitializer.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Interpolators/SPK_RandomInterpolator.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Interpolators/SPK_SimpleInterpolator.h
+    ${SPARK_HEADERS_ROOT}/Extensions/IOConverters/SPK_IO_SPKCommon.h
+    ${SPARK_HEADERS_ROOT}/Extensions/IOConverters/SPK_IO_SPKLoader.h
+    ${SPARK_HEADERS_ROOT}/Extensions/IOConverters/SPK_IO_SPKSaver.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_BasicModifiers.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_Collider.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_Destroyer.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_EmitterAttacher.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_LinearForce.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_Obstacle.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_PointMass.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_RandomForce.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_Rotator.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_Vortex.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Renderers/SPK_LineRenderBehavior.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Renderers/SPK_Oriented3DRenderBehavior.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Renderers/SPK_PointRenderBehavior.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Renderers/SPK_QuadRenderBehavior.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Zones/SPK_Box.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Zones/SPK_Cylinder.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Zones/SPK_Plane.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Zones/SPK_Point.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Zones/SPK_Ring.h
+    ${SPARK_HEADERS_ROOT}/Extensions/Zones/SPK_Sphere.h
 )
 
-set(libspark_SRC_LIST
+set(spark_SRC_LIST
     ${PROJECT_SOURCE_DIR}/Core/SPK_Connections.cpp
     ${PROJECT_SOURCE_DIR}/Core/SPK_DataSet.cpp
     ${PROJECT_SOURCE_DIR}/Core/SPK_DEF.cpp
@@ -147,7 +147,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 if(MSVC)
-    set_source_files_properties(${libspark_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4456\" /wd\"4838\" /wd\"4457\" /wd\"4458\"")
+    set_source_files_properties(${spark_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4456\" /wd\"4838\" /wd\"4457\" /wd\"4458\"")
 endif(MSVC)
 
 if (WINDOWS)
@@ -163,4 +163,4 @@ if (LINUX)
     add_definitions(-DDF3D_LINUX)
 endif()
 
-add_library(libspark STATIC ${libspark_SRC_LIST} ${libspark_HEADER_LIST})
+add_library(spark STATIC ${spark_SRC_LIST} ${spark_HEADER_LIST})

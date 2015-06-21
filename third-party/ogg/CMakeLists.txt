@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.1)
 
-project(libogg)
+project(ogg)
 
 include(${PROJECT_SOURCE_DIR}/../../cmake/common.cmake)
 
-set(LIBOGG_HEADERS_ROOT ${PROJECT_SOURCE_DIR})
+set(OGG_HEADERS_ROOT ${PROJECT_SOURCE_DIR})
 
-set(libogg_HEADER_LIST
-    ${LIBOGG_HEADERS_ROOT}/config_types.h
-    ${LIBOGG_HEADERS_ROOT}/ogg.h
-    ${LIBOGG_HEADERS_ROOT}/os_types.h
+set(ogg_HEADER_LIST
+    ${OGG_HEADERS_ROOT}/config_types.h
+    ${OGG_HEADERS_ROOT}/ogg.h
+    ${OGG_HEADERS_ROOT}/os_types.h
 )
 
-set(libogg_SRC_LIST
+set(ogg_SRC_LIST
     ${PROJECT_SOURCE_DIR}/bitwise.c
     ${PROJECT_SOURCE_DIR}/framing.c
 )
@@ -26,7 +26,7 @@ endif()
 if(MSVC)
     add_definitions(-DWIN32)
 
-    set_source_files_properties(${libogg_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4456\" /wd\"4457\" /wd\"4458\"")
+    set_source_files_properties(${ogg_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4456\" /wd\"4457\" /wd\"4458\"")
 endif(MSVC)
 
-add_library(libogg STATIC ${libogg_SRC_LIST} ${libogg_HEADER_LIST})
+add_library(ogg STATIC ${ogg_SRC_LIST} ${ogg_HEADER_LIST})

@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.1)
 
-project(libvorbis)
+project(vorbis)
 
 include(${PROJECT_SOURCE_DIR}/../../cmake/common.cmake)
 
-set(LIBVORBIS_HEADERS_ROOT ${PROJECT_SOURCE_DIR}/)
+set(VORBIS_HEADERS_ROOT ${PROJECT_SOURCE_DIR}/)
 
-set(libvorbis_HEADER_LIST
-    ${LIBVORBIS_HEADERS_ROOT}/codec.h
-    ${LIBVORBIS_HEADERS_ROOT}/vorbisenc.h
-    ${LIBVORBIS_HEADERS_ROOT}/vorbisfile.h
+set(vorbis_HEADER_LIST
+    ${VORBIS_HEADERS_ROOT}/codec.h
+    ${VORBIS_HEADERS_ROOT}/vorbisenc.h
+    ${VORBIS_HEADERS_ROOT}/vorbisfile.h
 )
 
-set(libvorbis_SRC_LIST
+set(vorbis_SRC_LIST
     ${PROJECT_SOURCE_DIR}/analysis.c
     ${PROJECT_SOURCE_DIR}/bitrate.c
     ${PROJECT_SOURCE_DIR}/block.c
@@ -47,7 +47,7 @@ endif()
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
-    set_source_files_properties(${libvorbis_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4456\" /wd\"4457\" /wd\"4458\" /wd\"4244\" /wd\"4305\"")
+    set_source_files_properties(${vorbis_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4456\" /wd\"4457\" /wd\"4458\" /wd\"4244\" /wd\"4305\"")
 endif(MSVC)
 
 if (WINDOWS)
@@ -62,5 +62,5 @@ if (LINUX)
     add_definitions(-DDF3D_LINUX)
 endif()
 
-add_library(libvorbis STATIC ${libvorbis_SRC_LIST} ${libvorbis_HEADER_LIST})
-target_link_libraries(libvorbis libogg)
+add_library(vorbis STATIC ${vorbis_SRC_LIST} ${vorbis_HEADER_LIST})
+target_link_libraries(vorbis ogg)
