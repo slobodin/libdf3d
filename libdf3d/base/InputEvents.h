@@ -51,6 +51,7 @@ public:
         SPACE,
 
         F1,
+        F2,
 
         UNDEFINED
     };

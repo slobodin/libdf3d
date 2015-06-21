@@ -22,6 +22,8 @@ base::KeyboardEvent::KeyCode convertKeyCode(int keyCode)
         return base::KeyboardEvent::KeyCode::SPACE;
     case GLFW_KEY_F1:
         return base::KeyboardEvent::KeyCode::F1;
+    case GLFW_KEY_F2:
+        return base::KeyboardEvent::KeyCode::F2;
     default:
         break;
     }
