@@ -111,7 +111,7 @@ void Renderer::setPolygonDrawMode(RenderPass::PolygonMode pm)
         return;
 
     // Doesn't work in OpenGL ES 2.x
-#if defined(DF3D_WINDOWS)
+#if defined(DF3D_WINDOWS) || defined(DF3D_LINUX)
     switch (pm)
     {
     case RenderPass::PolygonMode::FILL:

@@ -23,6 +23,10 @@ if (LINUX OR WINDOWS OR MACOSX)
     add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/glfw)
 endif()
 
+if (ANDROID)
+    include(${PROJECT_SOURCE_DIR}/cmake/AndroidNdkModules.cmake)
+endif()
+
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.h
@@ -344,7 +348,7 @@ if (WINDOWS_PHONE)
 endif()
 
 if (ANDROID)
-    target_link_libraries(libdf3d OpenSLES ${OPENAL_LIBRARY} GLESv2 log android)
+    android_ndk_import_module_native_app_glue()
 
-    add_subdirectory(${PROJECT_SOURCE_DIR}/libdf3d/platform/android/android_native_app)
+    target_link_libraries(libdf3d OpenSLES ${OPENAL_LIBRARY} GLESv2 log android)
 endif()
