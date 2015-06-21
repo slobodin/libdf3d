@@ -81,7 +81,8 @@ public:
     void unloadResource(shared_ptr<Resource> resource);
     void unloadUnused();
 
-    bool resourceExists(const char *path) const;
+    bool resourceExists(const ResourceGUID &guid) const;
+    bool resourceLoaded(const ResourceGUID &guid) const;
 
     void setListener(Listener *listener) { m_listener = listener; }
 };

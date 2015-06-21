@@ -391,17 +391,19 @@ void ResourceManager::unloadUnused()
     }
 }
 
-bool ResourceManager::resourceExists(const char *path) const
+bool ResourceManager::resourceExists(const ResourceGUID &guid) const
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-    if (findResource(path))
-        return true;
+    return findResource(guid) != nullptr;
+}
 
-    if (findResource(createGUIDFromPath(path)))
-        return true;
+bool ResourceManager::resourceLoaded(const ResourceGUID &guid) const
+{
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-    return false;
+    auto res = findResource(guid);
+    return res && res->valid();
 }
 
 } }

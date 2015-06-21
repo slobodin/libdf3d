@@ -181,6 +181,11 @@ bool MeshComponent::isGeometryValid() const
     return m_geometry->valid();
 }
 
+df3d::ResourceGUID MeshComponent::getGeometryResourceGuid() const
+{
+    return m_geometry->getGUID();
+}
+
 void MeshComponent::setMaterial(shared_ptr<render::Material> material, size_t submeshIdx)
 {
     if (!m_geometry->valid())
@@ -213,6 +218,11 @@ shared_ptr<render::Material> MeshComponent::getMaterial(size_t submeshIdx)
     }
 
     return m_geometry->getSubMeshes()[submeshIdx]->getMaterial();
+}
+
+size_t MeshComponent::getSubmeshesCount() const
+{
+    return m_geometry->getSubMeshes().size();
 }
 
 scene::AABB MeshComponent::getAABB()

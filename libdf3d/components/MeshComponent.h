@@ -4,6 +4,7 @@
 #include <scene/bounding_volumes/AABB.h>
 #include <scene/bounding_volumes/BoundingSphere.h>
 #include <scene/bounding_volumes/OBB.h>
+#include <base/TypeDefs.h>
 
 FWD_MODULE_CLASS(render, MeshData)
 FWD_MODULE_CLASS(render, Material)
@@ -53,9 +54,12 @@ public:
     virtual void setGeometry(shared_ptr<render::MeshData> geometry);
     virtual shared_ptr<render::MeshData> getGeometry() { return m_geometry; }
     virtual bool isGeometryValid() const;
+    df3d::ResourceGUID getGeometryResourceGuid() const;
 
     virtual void setMaterial(shared_ptr<render::Material> material, size_t submeshIdx);
     virtual shared_ptr<render::Material> getMaterial(size_t submeshIdx);
+
+    size_t getSubmeshesCount() const;
 
     scene::AABB getAABB();
     scene::BoundingSphere getBoundingSphere();
