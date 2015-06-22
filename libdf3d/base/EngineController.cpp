@@ -153,15 +153,15 @@ bool EngineController::init(EngineInitParams params)
     return m_initialized;
 }
 
-void EngineController::update(float dt)
+void EngineController::update(float systemDelta, float gameDelta)
 {
     // Update engine.
     m_timeElapsed = IntervalBetweenNowAnd(m_timeStarted);
 
-    m_audioManager->update(dt);
-    m_physics->update(dt);
-    m_sceneManager->update(dt);
-    m_guiManager->update(dt);
+    m_audioManager->update(systemDelta);
+    m_physics->update(gameDelta);
+    m_sceneManager->update(gameDelta);
+    m_guiManager->update(systemDelta);
     m_renderManager->update(m_sceneManager->getCurrentScene());
 }
 

@@ -46,7 +46,7 @@ public:
     bool init(EngineInitParams params);
     void shutdown();
 
-    void update(float dt);
+    void update(float systemDelta, float gameDelta);
     void postUpdate();
     void runFrame();
 
