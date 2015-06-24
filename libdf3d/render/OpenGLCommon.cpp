@@ -5,7 +5,7 @@ namespace df3d { namespace render {
 
 std::string checkGLError()
 {
-#if defined(DF3D_WINDOWS) || defined(DF3D_LINUX)
+#if defined(DF3D_DESKTOP)
     std::string errString;
 
     GLenum errCode = glGetError();
@@ -15,7 +15,7 @@ std::string checkGLError()
     }
 
     return errString;
-#elif defined(DF3D_WINDOWS_PHONE)
+#else
     GLenum errCode = glGetError();
     if (errCode == GL_NO_ERROR)
         return "";
@@ -33,8 +33,6 @@ std::string checkGLError()
     default:
         return "Unknown";
     }
-#else
-    return "";
 #endif
 }
 

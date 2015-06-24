@@ -9,7 +9,7 @@
 #include <Rocket/Controls.h>
 #include <Rocket/Debugger.h>
 
-#if defined(DF3D_WINDOWS) || defined(DF3D_LINUX)
+#if defined(DF3D_DESKTOP)
 #define ENABLE_ROCKET_DEBUGGER
 #endif
 

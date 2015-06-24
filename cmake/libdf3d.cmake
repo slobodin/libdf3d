@@ -32,3 +32,7 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 else()
     message(FATAL_ERROR "Unknown system.")
 endif()
+
+if (WINDOWS OR LINUX OR MACOSX)
+    set(DF3D_DESKTOP true)
+endif()

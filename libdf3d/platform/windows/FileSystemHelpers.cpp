@@ -22,26 +22,3 @@ bool FileSystemHelpers::pathExists(const std::string &path)
 }
 
 } }
-
-// TODO:
-// Android:
-// I place it here for a while.
-//bool isPathAbsolute(const std::string &path)
-//{
-//    if (path.empty())
-//        return false;
-//
-//    return path[0] == '/';
-//}
-
-//bool FileSystem::pathExists(const std::string &path)
-//{
-//#if defined(DF3D_WINDOWS)
-//
-//#elif defined(__ANDROID__)
-//    if (path.empty())
-//        return false;
-//
-//    // TODO:
-//    // Search in assets folder first.
-//    return FileDataSource(path.c_str()).valid();

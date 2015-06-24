@@ -88,7 +88,7 @@ void Texture::setupGlWrapMode(GLenum glType, WrapMode wrapMode)
     auto wmGl = getGlWrapMode(wrapMode);
     glTexParameteri(glType, GL_TEXTURE_WRAP_S, wmGl);
     glTexParameteri(glType, GL_TEXTURE_WRAP_T, wmGl);
-#if defined(DF3D_WINDOWS)// || defined(DF3D_WINDOWS_PHONE)
+#if defined(DF3D_DESKTOP)
     glTexParameteri(glType, GL_TEXTURE_WRAP_R, wmGl);
 #endif
 

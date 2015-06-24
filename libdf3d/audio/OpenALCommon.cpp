@@ -5,7 +5,7 @@ namespace df3d { namespace audio {
 
 std::string checkALError()
 {
-#if defined(DF3D_WINDOWS) || defined(DF3D_LINUX)
+#if defined(DF3D_DESKTOP)
     std::string errString;
 
     ALenum errCode = alGetError();

@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "Application.h"
 
-#if defined(DF3D_WINDOWS) || defined(DF3D_LINUX)
+#if defined(DF3D_DESKTOP)
 #include <platform/glfwApplication.h>
 #elif defined(DF3D_WINDOWS_PHONE)
 #include <platform/windows_phone/WindowsPhoneApplication.h>
@@ -27,7 +27,7 @@ Application *Application::create(const AppInitParams &params, AppDelegate *appDe
 {
     assert(!Application::instance);
 
-#if defined(DF3D_WINDOWS) || defined(DF3D_LINUX)
+#if defined(DF3D_DESKTOP)
     Application::instance = new glfwApplication(params, appDelegate);
 #elif defined(DF3D_WINDOWS_PHONE)
     Application::instance = new WindowsPhoneApplication(params, appDelegate);

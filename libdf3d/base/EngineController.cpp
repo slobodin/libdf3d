@@ -17,8 +17,10 @@
 #include <utils/JsonHelpers.h>
 #include <particlesys/SparkInterface.h>
 
-#if defined(DF3D_WINDOWS)
+#if defined(DF3D_DESKTOP)
 #define ENABLE_DEBUG_WINDOW
+#endif
+#if defined(DF3D_WINDOWS)
 #include <platform/windows/CrashHandler.h>
 #endif
 

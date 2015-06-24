@@ -19,7 +19,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/vorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/libRocket/Build)
 
-if (LINUX OR WINDOWS OR MACOSX)
+if (DF3D_DESKTOP)
     add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/glfw)
 endif()
 
@@ -282,7 +282,9 @@ if (LINUX)
     )
 endif()
 
-if (LINUX OR WINDOWS OR MACOSX)
+if (DF3D_DESKTOP)
+    add_definitions(-DDF3D_DESKTOP)
+
     list(APPEND libdf3d_HEADER_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/glfwApplication.h
     )
@@ -299,7 +301,7 @@ else()
     find_package(Boost REQUIRED)
 endif()
 
-if (WINDOWS OR LINUX)
+if (DF3D_DESKTOP)
     find_package(GLEW REQUIRED)
     find_package(OpenGL REQUIRED)
     find_package(OpenAL REQUIRED)
@@ -331,7 +333,7 @@ target_link_libraries(libdf3d
     RocketControls
     RocketDebugger)
 
-if (LINUX OR WINDOWS OR MACOSX)
+if (DF3D_DESKTOP)
     target_link_libraries(libdf3d glfw)
 endif()
 
@@ -348,7 +350,5 @@ if (WINDOWS_PHONE)
 endif()
 
 if (ANDROID)
-    android_ndk_import_module_native_app_glue()
-
     target_link_libraries(libdf3d OpenSLES ${OPENAL_LIBRARY} GLESv2 log android)
 endif()
