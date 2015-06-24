@@ -134,12 +134,45 @@ public:
 
 #endif
 
+#ifdef DF3D_ANDROID
+
+class AndroidLoggerImpl : public LoggerImpl
+{
+    std::unordered_map<int, android_LogPriority> m_priorities;
+
+public:
+    AndroidLoggerImpl()
+    {
+        m_priorities =
+        {
+            { (int)MessageType::DEBUG, ANDROID_LOG_DEBUG },
+            { (int)MessageType::MESSAGE, ANDROID_LOG_INFO },
+            { (int)MessageType::WARNING, ANDROID_LOG_WARN },
+            { (int)MessageType::CRITICAL, ANDROID_LOG_FATAL },
+            { (int)MessageType::GAME, ANDROID_LOG_INFO },
+            { (int)MessageType::SCRIPT, ANDROID_LOG_INFO },
+            { (int)MessageType::NONE, ANDROID_LOG_UNKNOWN }
+        };
+
+        assert(m_priorities.size() == (int)MessageType::COUNT);
+    }
+
+    virtual void writeBuffer(const std::string &buffer, MessageType type) override
+    {
+        __android_log_print(m_priorities[(int)type], "df3d_android", "%s", buffer.c_str());
+    }
+};
+
+#endif
+
 Log::Log()
 {
 #if defined(DF3D_WINDOWS)
     m_impl.reset(new WindowsLoggerImpl());
 #elif defined(DF3D_WINDOWS_PHONE)
     m_impl.reset(new WindowsRTLoggerImpl());
+#elif defined(DF3D_ANDROID)
+    m_impl.reset(new AndroidLoggerImpl());
 #else
     m_impl.reset(new StdoutLogger());
 #endif
