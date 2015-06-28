@@ -2,7 +2,10 @@
 
 #include "../AppDelegate.h"
 #include <base/SystemsMacro.h>
+#include <platform/android/FileDataSourceAndroid.h>
 #include <jni.h>
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 
 JavaVM *g_JavaVm = nullptr;
 df3d::platform::AppDelegate *g_appDelegate = nullptr;
@@ -43,6 +46,11 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
     return JNI_VERSION_1_6;
 }
 
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_si_NativeBindings_setAssetManager(JNIEnv* env, jobject cls, jobject assetManager)
+{
+    df3d::platform::FileDataSourceAndroid::setAssetManager(AAssetManager_fromJava(env, assetManager));
+}
+
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_si_NativeBindings_init(JNIEnv* env, jclass cls, jint jscreenWidth, jint jscreenHeight)
 {
     df3d::base::glog << "Doing native init" << df3d::base::logmess;
@@ -76,4 +84,9 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_si_NativeBindings_onPause(JN
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_si_NativeBindings_onDestroy(JNIEnv* env, jclass cls)
 {
     df3d::base::glog << "Activity was destroyed" << df3d::base::logmess;
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_si_NativeBindings_draw(JNIEnv* env, jclass cls)
+{
+
 }

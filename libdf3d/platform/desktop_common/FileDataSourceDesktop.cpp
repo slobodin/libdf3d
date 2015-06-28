@@ -9,7 +9,7 @@ FileDataSourceDesktop::FileDataSourceDesktop(const char *fileName)
 {
     m_file = fopen(fileName, "rb");
     if (!m_file)
-        base::glog << "Can not open file" << fileName << base::logcritical;
+        base::glog << "Can not open file" << fileName << base::logwarn;
 }
 
 FileDataSourceDesktop::~FileDataSourceDesktop()
@@ -58,7 +58,7 @@ int64_t FileDataSourceDesktop::tell()
     return ftell(m_file);
 }
 
-bool FileDataSourceDesktop::seek(long offset, std::ios_base::seekdir origin)
+bool FileDataSourceDesktop::seek(int64_t offset, std::ios_base::seekdir origin)
 {
     int whence;
     if (origin == std::ios_base::cur)

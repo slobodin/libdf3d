@@ -2,7 +2,7 @@
 
 #include <resources/FileDataSource.h>
 
-namespace df3d { namespace platform { 
+namespace df3d { namespace platform {
 
 class DF3D_DLL FileDataSourceDesktop : public resources::FileDataSource
 {
@@ -19,7 +19,7 @@ public:
     virtual int64_t getSize() override;
 
     virtual int64_t tell() override;
-    virtual bool seek(long offset, std::ios_base::seekdir origin) override;
+    virtual bool seek(int64_t offset, std::ios_base::seekdir origin) override;
 };
 
 } }

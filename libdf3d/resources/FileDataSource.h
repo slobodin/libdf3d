@@ -26,7 +26,7 @@ public:
     virtual int64_t getSize() = 0;
 
     virtual int64_t tell() = 0;
-    virtual bool seek(long offset, std::ios_base::seekdir origin) = 0;
+    virtual bool seek(int64_t offset, std::ios_base::seekdir origin) = 0;
 
     template<typename T>
     bool getAsObjects(T *output, size_t numElements)
