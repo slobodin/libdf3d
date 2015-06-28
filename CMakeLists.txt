@@ -72,6 +72,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/Storage.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/platform/FileSystemHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.h
@@ -186,7 +187,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Vertex.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/VertexIndexBuffer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Viewport.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/FileDataSource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/FileSystem.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceDecoder.cpp
@@ -261,10 +261,14 @@ endif()
 if (ANDROID)
     add_definitions(-DDF3D_ANDROID)
 
+    list(APPEND libdf3d_HEADER_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileDataSourceAndroid.h
+    )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/Storage.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileSystemHelpers.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/AndroidBridge.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileDataSourceAndroid.cpp
     )
 endif()
 
@@ -280,8 +284,12 @@ endif()
 if (DF3D_DESKTOP)
     add_definitions(-DDF3D_DESKTOP)
 
+    list(APPEND libdf3d_HEADER_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.h
+    )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/glfwApplication.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.cpp
     )
 endif()
 

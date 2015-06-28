@@ -1,47 +1,47 @@
 #include "df3d_pch.h"
-#include "FileDataSource.h"
+#include "FileDataSourceDesktop.h"
 
-namespace df3d { namespace resources {
+namespace df3d { namespace platform {
 
-FileDataSource::FileDataSource(const char *fileName)
-    : m_file(nullptr),
-    m_filePath(fileName)
+FileDataSourceDesktop::FileDataSourceDesktop(const char *fileName)
+    : resources::FileDataSource(fileName),
+    m_file(nullptr)
 {
     m_file = fopen(fileName, "rb");
     if (!m_file)
         base::glog << "Can not open file" << fileName << base::logcritical;
 }
 
-FileDataSource::~FileDataSource()
+FileDataSourceDesktop::~FileDataSourceDesktop()
 {
     close();
 }
 
-bool FileDataSource::valid() const
+bool FileDataSourceDesktop::valid() const
 {
     return m_file != nullptr;
 }
 
-void FileDataSource::close()
+void FileDataSourceDesktop::close()
 {
     if (m_file)
         fclose(m_file);
     m_file = nullptr;
 }
 
-size_t FileDataSource::getRaw(void *buffer, size_t sizeInBytes)
+size_t FileDataSourceDesktop::getRaw(void *buffer, size_t sizeInBytes)
 {
     if (!m_file)
         return 0;
     return fread(buffer, 1, sizeInBytes, m_file);
 }
 
-long FileDataSource::getSize()
+int64_t FileDataSourceDesktop::getSize()
 {
     if (!m_file)
         return 0;
 
-    long result = 0;
+    int64_t result = 0;
     if (seek(0, std::ios_base::end))
     {
         result = tell();
@@ -51,14 +51,14 @@ long FileDataSource::getSize()
     return result;
 }
 
-long FileDataSource::tell()
+int64_t FileDataSourceDesktop::tell()
 {
     if (!m_file)
         return -1;
     return ftell(m_file);
 }
 
-bool FileDataSource::seek(long offset, std::ios_base::seekdir origin)
+bool FileDataSourceDesktop::seek(long offset, std::ios_base::seekdir origin)
 {
     int whence;
     if (origin == std::ios_base::cur)
@@ -69,7 +69,7 @@ bool FileDataSource::seek(long offset, std::ios_base::seekdir origin)
         whence = SEEK_END;
     else
         return false;
-    
+
     return fseek(m_file, offset, whence) == 0;
 }
 

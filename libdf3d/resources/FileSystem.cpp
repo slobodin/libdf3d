@@ -71,7 +71,7 @@ shared_ptr<FileDataSource> FileSystem::openFile(const char *filePath)
     if (fullP.empty())
         return nullptr;
 
-    auto fileSource = make_shared<FileDataSource>(fullP.c_str());
+    auto fileSource = platform::FileSystemHelpers::openFile(fullP);
     if (!fileSource->valid())
         return nullptr;
 

@@ -110,7 +110,6 @@ bool EngineController::init(EngineInitParams params)
 
         // Init filesystem.
         m_fileSystem = new resources::FileSystem();
-        m_fileSystem->addSearchPath("data/");
 
         // Init resource manager.
         m_resourceManager = new resources::ResourceManager();

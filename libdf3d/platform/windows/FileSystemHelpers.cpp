@@ -1,6 +1,7 @@
 #include "df3d_pch.h"
 #include "../FileSystemHelpers.h"
 
+#include <platform/desktop_common/FileDataSourceDesktop.h>
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
@@ -19,6 +20,11 @@ bool FileSystemHelpers::pathExists(const std::string &path)
     DWORD attrs = GetFileAttributes(path.c_str());
 
     return (attrs != INVALID_FILE_ATTRIBUTES && !(attrs & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+shared_ptr<resources::FileDataSource> FileSystemHelpers::openFile(const std::string &path)
+{
+    return make_shared<platform::FileDataSourceDesktop>(path.c_str());
 }
 
 } }

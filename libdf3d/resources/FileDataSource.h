@@ -2,38 +2,42 @@
 
 namespace df3d { namespace resources {
 
+// TODO:
+// Implements DataSource.
+
 class DF3D_DLL FileDataSource : boost::noncopyable
 {
-    FILE *m_file = nullptr;
     std::string m_filePath;
 
 public:
-    FileDataSource(const char *fileName);
-    ~FileDataSource();
+    FileDataSource(const char *fileName)
+        : m_filePath(fileName)
+    {
 
-    bool valid() const;
-    void close();
+    }
+
+    virtual ~FileDataSource() { }
+
+    virtual bool valid() const = 0;
+    virtual void close() = 0;
+
+    virtual size_t getRaw(void *buffer, size_t sizeInBytes) = 0;
+    //! Returns size in bytes.
+    virtual int64_t getSize() = 0;
+
+    virtual int64_t tell() = 0;
+    virtual bool seek(long offset, std::ios_base::seekdir origin) = 0;
 
     template<typename T>
-    bool getAsObjects(T *output, size_t numElements);
+    bool getAsObjects(T *output, size_t numElements)
+    {
+        size_t bytes = numElements * sizeof(T);
+        auto got = getRaw(output, bytes);
 
-    size_t getRaw(void *buffer, size_t sizeInBytes);
-    //! Returns size in bytes.
-    long getSize();
-
-    long tell();
-    bool seek(long offset, std::ios_base::seekdir origin);
+        return got == bytes;
+    }
 
     const std::string &getPath() const { return m_filePath; }
 };
-
-template<typename T>
-bool FileDataSource::getAsObjects(T *output, size_t numElements)
-{
-    size_t bytes = numElements * sizeof(T);
-    auto got = getRaw(output, bytes);
-
-    return got == bytes;
-}
 
 } }

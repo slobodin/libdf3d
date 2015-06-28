@@ -2,6 +2,7 @@
 #include "../FileSystemHelpers.h"
 
 #include <resources/FileDataSource.h>
+#include <jni.h>
 
 namespace df3d { namespace platform {
 
@@ -17,9 +18,24 @@ bool FileSystemHelpers::pathExists(const std::string &path)
 {
     if (path.empty())
         return false;
-    // TODO:
-    // Search in assets folder first.
-    return resources::FileDataSource(path.c_str()).valid();
+
+    bool retRes = false;
+
+    if (isPathAbsolute(path))
+    {
+        auto file = fopen(path.c_str(), "r");
+        if (file)
+        {
+            retRes = true;
+            fclose(file);
+        }
+    }
+    else
+    {
+        // AAssetManager_open()
+    }
+
+    return retRes;
 }
 
 } }
