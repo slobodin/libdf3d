@@ -91,3 +91,32 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_si_NativeBindings_draw(JNIEn
 {
     g_appDelegate->onAppUpdate((float)dt);
 }
+
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_si_NativeBindings_onTouchDown(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
+{
+    df3d::base::MouseButtonEvent ev;
+    ev.x = x;
+    ev.y = y;
+    ev.state = df3d::base::MouseButtonEvent::State::PRESSED;
+    ev.button = df3d::base::MouseButtonEvent::Button::LEFT;
+    g_appDelegate->onMouseButtonEvent(ev);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_si_NativeBindings_onTouchUp(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
+{
+    df3d::base::MouseButtonEvent ev;
+    ev.x = x;
+    ev.y = y;
+    ev.state = df3d::base::MouseButtonEvent::State::RELEASED;
+    ev.button = df3d::base::MouseButtonEvent::Button::LEFT;
+    g_appDelegate->onMouseButtonEvent(ev);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_si_NativeBindings_onTouchMove(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
+{
+    df3d::base::MouseMotionEvent ev;
+    ev.x = x;
+    ev.y = y;
+    ev.leftPressed = true;
+    g_appDelegate->onMouseMotionEvent(ev);
+}

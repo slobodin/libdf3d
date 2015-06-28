@@ -317,7 +317,7 @@ Log &Log::operator<< (const LoggerManipulator &man)
 
 void Log::printWithoutFormat(const char *str)
 {
-    m_impl->writeBuffer(str, MessageType::NONE);
+    m_impl->writeBuffer(str, MessageType::DEBUG);
 }
 
 const std::string &Log::logData() const
