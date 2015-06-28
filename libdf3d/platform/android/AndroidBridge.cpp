@@ -84,9 +84,10 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_si_NativeBindings_onPause(JN
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_si_NativeBindings_onDestroy(JNIEnv* env, jclass cls)
 {
     df3d::base::glog << "Activity was destroyed" << df3d::base::logmess;
+    g_appDelegate->onAppEnded();
 }
 
-extern "C" JNIEXPORT void JNICALL Java_org_flaming0_si_NativeBindings_draw(JNIEnv* env, jclass cls)
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_si_NativeBindings_draw(JNIEnv* env, jclass cls, jdouble dt)
 {
-
+    g_appDelegate->onAppUpdate((float)dt);
 }
