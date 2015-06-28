@@ -21,8 +21,12 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
     if (rawPath.empty())
         return "";
 
+    // NOTE:
+    // Can't AAssetManager_open from paths like 'foo1/../bar1/foo/'
+#ifndef DF3D_ANDROID
     if (!platform::FileSystemHelpers::pathExists(rawPath))
         return "";
+#endif
 
     auto result = rawPath;
 
