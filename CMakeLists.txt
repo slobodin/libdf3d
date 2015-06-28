@@ -71,7 +71,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/Application.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/Storage.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
@@ -163,7 +162,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/Application.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.cpp
@@ -263,13 +261,10 @@ endif()
 if (ANDROID)
     add_definitions(-DDF3D_ANDROID)
 
-    list(APPEND libdf3d_HEADER_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/AndroidApplication.h
-    )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/Storage.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/AndroidApplication.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileSystemHelpers.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/AndroidBridge.cpp
     )
 endif()
 
@@ -285,11 +280,8 @@ endif()
 if (DF3D_DESKTOP)
     add_definitions(-DDF3D_DESKTOP)
 
-    list(APPEND libdf3d_HEADER_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/glfwApplication.h
-    )
     list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/glfwApplication.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/glfwApplication.cpp
     )
 endif()
 
@@ -317,7 +309,13 @@ include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/glfw/include
                     ${Boost_INCLUDE_DIRS})
 
-add_library(libdf3d SHARED
+if (ANDROID)
+    set(LIBRARY_TYPE STATIC)
+else()
+    set(LIBRARY_TYPE SHARED)
+endif()
+
+add_library(libdf3d ${LIBRARY_TYPE}
     ${libdf3d_HEADER_LIST}
     ${libdf3d_SRC_LIST}
     ${third_party_SRC_FILES}

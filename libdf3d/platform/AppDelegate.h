@@ -4,11 +4,20 @@
 
 namespace df3d { namespace platform {
 
+struct DF3D_DLL AppInitParams
+{
+    int windowWidth = DEFAULT_WINDOW_WIDTH;
+    int windowHeight = DEFAULT_WINDOW_HEIGHT;
+    bool fullscreen = false;
+};
+
 class DF3D_DLL AppDelegate
 {
 public:
     AppDelegate() { }
     virtual ~AppDelegate() { }
+
+    virtual AppInitParams getAppInitParams() const = 0;
 
     virtual bool onAppStarted(int windowWidth, int windowHeight) = 0;
     virtual void onAppEnded() = 0;
@@ -23,5 +32,8 @@ public:
     virtual void onKeyUp(const base::KeyboardEvent::KeyCode &code) = 0;
     virtual void onKeyDown(const base::KeyboardEvent::KeyCode &code) = 0;
 };
+
+void DF3D_DLL setupDelegate(AppDelegate *appDelegate);
+void DF3D_DLL run();
 
 } }

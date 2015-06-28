@@ -16,7 +16,7 @@
 #include <base/Log.h>
 #include <base/InputEvents.h>
 
-#include <platform/Application.h>
+#include <platform/AppDelegate.h>
 #include <platform/Storage.h>
 
 #include <components/AudioComponent.h>

@@ -3,7 +3,6 @@
 
 #include "InputEvents.h"
 #include <render/RenderManager.h>
-#include <platform/Application.h>
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
 #include <resources/ResourceManager.h>
