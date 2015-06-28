@@ -77,15 +77,18 @@ public class Df3dSurfaceView extends GLSurfaceView {
 				});
 				break;
 			case MotionEvent.ACTION_MOVE:
-				final float xMove = event.getX(0);
-				final float yMove = event.getY(0);
+				int pointerCount = event.getPointerCount();
+				for (int i = 0; i < pointerCount; i++) {
+					final float xMove = event.getX(i);
+					final float yMove = event.getY(i);
 
-				queueEvent(new Runnable() {
-					@Override
-					public void run() {
-						NativeBindings.onTouchMove(0, xMove, yMove);
-					}
-				});
+					queueEvent(new Runnable() {
+						@Override
+						public void run() {
+							NativeBindings.onTouchMove(0, xMove, yMove);
+						}
+					});
+				}
 				break;
 			default:
 				break;
