@@ -183,10 +183,10 @@ void QuadParticleSystemRenderer::render2DRot(const SPK::Particle &particle, MyRe
 void QuadParticleSystemRenderer::fillBufferColorAndVertex(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const
 {
     // Quads are drawn in a counter clockwise order.
-    renderBuffer.setNextVertex(particle.position() + quadSide() + quadUp());	// top right vertex
-    renderBuffer.setNextVertex(particle.position() - quadSide() + quadUp());	// top left vertex
-    renderBuffer.setNextVertex(particle.position() - quadSide() - quadUp());	// bottom left vertex
-    renderBuffer.setNextVertex(particle.position() + quadSide() - quadUp());	// bottom right vertex
+    renderBuffer.setNextVertex(particle.position() + quadSide() + quadUp());    // top right vertex
+    renderBuffer.setNextVertex(particle.position() - quadSide() + quadUp());    // top left vertex
+    renderBuffer.setNextVertex(particle.position() - quadSide() - quadUp());    // bottom left vertex
+    renderBuffer.setNextVertex(particle.position() + quadSide() - quadUp());    // bottom right vertex
 
     const auto &color = particle.getColor();
     renderBuffer.setNextColor(color);
