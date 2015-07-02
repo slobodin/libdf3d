@@ -17,13 +17,13 @@ public:
     virtual ~Storage() { }
 
     template<typename T>
-    void set(const char *key, const T &val)
+    void set(const std::string &key, const T &val)
     {
         m_entries[key] = val;
     }
 
     template<typename T>
-    T get(const char *key) const
+    T get(const std::string &key) const
     {
         auto it = m_entries.find(key);
         if (it == m_entries.end())
@@ -41,12 +41,12 @@ public:
         return T();
     }
 
-    bool contains(const char *key) const
+    bool contains(const std::string &key) const
     {
         return m_entries.find(key) != m_entries.end();
     }
 
-    bool erase(const char *key)
+    bool erase(const std::string &key)
     {
         return m_entries.erase(key) != 0;
     }
@@ -55,6 +55,9 @@ public:
     {
         m_entries.clear();
     }
+
+    Json::Value serialize() const { return Json::Value(); }
+    void deserialize(const Json::Value &root) { }
 
     virtual void save() = 0;
 };
