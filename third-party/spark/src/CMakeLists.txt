@@ -150,17 +150,8 @@ if(MSVC)
     set_source_files_properties(${spark_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4456\" /wd\"4838\" /wd\"4457\" /wd\"4458\"")
 endif(MSVC)
 
-if (WINDOWS)
-    add_definitions(-DWIN32 -DDF3D_WINDOWS)
-endif()
-
 if (WINDOWS_PHONE)
-    add_definitions(-DDF3D_WINDOWS_PHONE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-endif()
-
-if (LINUX)
-    add_definitions(-DDF3D_LINUX)
 endif()
 
 add_library(spark STATIC ${spark_SRC_LIST} ${spark_HEADER_LIST})

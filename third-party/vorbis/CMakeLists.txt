@@ -50,17 +50,5 @@ if(MSVC)
     set_source_files_properties(${vorbis_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4456\" /wd\"4457\" /wd\"4458\" /wd\"4244\" /wd\"4305\"")
 endif(MSVC)
 
-if (WINDOWS)
-    add_definitions(-DWIN32 -DDF3D_WINDOWS)
-endif()
-
-if (WINDOWS_PHONE)
-    add_definitions(-DDF3D_WINDOWS_PHONE)
-endif()
-
-if (LINUX)
-    add_definitions(-DDF3D_LINUX)
-endif()
-
 add_library(vorbis STATIC ${vorbis_SRC_LIST} ${vorbis_HEADER_LIST})
 target_link_libraries(vorbis ogg)

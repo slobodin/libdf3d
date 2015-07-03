@@ -368,20 +368,4 @@ if(MSVC)
     set_source_files_properties(${BulletPhysics_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4456\" /wd\"4838\" /wd\"4244\" /wd\"4305\" /wd\"4457\" /wd\"4458\"")
 endif(MSVC)
 
-if (WINDOWS)
-    add_definitions(-DWIN32 -DDF3D_WINDOWS)
-endif()
-
-if (WINDOWS_PHONE)
-    add_definitions(-DDF3D_WINDOWS_PHONE)
-endif()
-
-if (ANDROID)
-    add_definitions(-DDF3D_ANDROID)
-endif()
-
-if (LINUX)
-    add_definitions(-DDF3D_LINUX)
-endif()
-
 add_library(BulletPhysics STATIC ${BulletPhysics_SRC_LIST} ${BulletPhysics_HEADER_LIST})
