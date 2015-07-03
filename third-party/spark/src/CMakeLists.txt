@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(spark)
 
-include(${PROJECT_SOURCE_DIR}/../../../cmake/common.cmake)
+include(${PROJECT_SOURCE_DIR}/../../../cmake/libdf3d.cmake)
 
 set(SPARK_HEADERS_ROOT ${PROJECT_SOURCE_DIR}/../include)
 
