@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.1)
 project(libdf3d)
 
 include(${PROJECT_SOURCE_DIR}/cmake/libdf3d.cmake)
-include(${PROJECT_SOURCE_DIR}/cmake/common.cmake)
 
 if (WINDOWS AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_win32" CACHE PATH "third-party")
@@ -296,6 +295,7 @@ if (DF3D_DESKTOP)
     find_package(OpenGL REQUIRED)
     find_package(OpenAL REQUIRED)
     include_directories(${GLEW_INCLUDE_DIRS})
+    include_directories(${OPENGL_INCLUDE_DIR})
     include_directories(${OPENAL_INCLUDE_DIR})
 endif()
 
