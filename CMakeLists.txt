@@ -272,6 +272,13 @@ if (LINUX)
     )
 endif()
 
+if (MACOSX)
+    list(APPEND libdf3d_SRC_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/macosx/Storage.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/macosx/FileSystemHelpers.cpp
+    )
+endif()
+
 if (DF3D_DESKTOP)
     list(APPEND libdf3d_HEADER_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.h
@@ -330,13 +337,7 @@ target_link_libraries(libdf3d
     RocketDebugger)
 
 if (DF3D_DESKTOP)
-    target_link_libraries(libdf3d glfw)
-endif()
-
-if (WINDOWS OR LINUX)
-    target_link_libraries(libdf3d ${OPENGL_LIBRARIES})
-    target_link_libraries(libdf3d ${GLEW_LIBRARIES})
-    target_link_libraries(libdf3d ${OPENAL_LIBRARY})
+    target_link_libraries(libdf3d glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${OPENAL_LIBRARY})
 endif()
 
 if (WINDOWS_PHONE)

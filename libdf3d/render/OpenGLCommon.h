@@ -16,6 +16,9 @@
 #elif defined(DF3D_LINUX)
 #include <GL/glew.h>
 #include <GL/gl.h>
+#elif defined(DF3D_MACOSX)
+#include <GL/glew.h>
+#include <OpenGL/gl.h>
 #else
 #error "Unsupported platform"
 #endif
