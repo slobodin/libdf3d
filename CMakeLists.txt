@@ -17,15 +17,14 @@ if (IOS AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_ios" CACHE PATH "third-party")
 endif()
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/bullet/src)
+if (DF3D_DESKTOP)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/glfw)
+endif()
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/bullet)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/ogg)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/vorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/libRocket/Build)
-
-if (DF3D_DESKTOP)
-    add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/glfw)
-endif()
 
 if (ANDROID)
     include(${PROJECT_SOURCE_DIR}/cmake/AndroidNdkModules.cmake)
@@ -216,7 +215,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.cpp
 )
 
-add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD -DBULLET_FORCE_NO_ALIGNMENT)
+add_definitions(-DBULLET_FORCE_NO_ALIGNMENT)
 
 set(third_party_SRC_FILES
     ${PROJECT_SOURCE_DIR}/third-party/json/jsoncpp.cpp
@@ -299,23 +298,17 @@ endif()
 
 include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/
-                    ${PROJECT_SOURCE_DIR}/third-party/bullet/include
+                    ${PROJECT_SOURCE_DIR}/third-party/bullet/src
                     ${PROJECT_SOURCE_DIR}/third-party/spark/include
                     ${PROJECT_SOURCE_DIR}/third-party/libRocket/Include
                     ${PROJECT_SOURCE_DIR}/third-party/glfw/include
                     ${Boost_INCLUDE_DIRS}
                     ${OPENAL_INCLUDE_DIR})
 
-if (ANDROID OR IOS)
-    set(LIBRARY_TYPE STATIC)
-else()
-    set(LIBRARY_TYPE SHARED)
-endif()
-
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200 /wd\"4251\" /wd\"4457\" /wd\"4458\"")
 
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -DGLEW_STATIC)
 
     set(PRECOMPILED_H ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.h)
     set(PRECOMPILED_CPP ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.cpp)
@@ -324,7 +317,7 @@ if(MSVC)
     set_source_files_properties(${libdf3d_SRC_LIST} PROPERTIES COMPILE_FLAGS "/Yudf3d_pch.h" OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/df3d_pch.pch")
 endif()
 
-add_library(libdf3d ${LIBRARY_TYPE}
+add_library(libdf3d STATIC
     ${libdf3d_HEADER_LIST}
     ${libdf3d_SRC_LIST}
     ${third_party_SRC_FILES}
@@ -332,7 +325,9 @@ add_library(libdf3d ${LIBRARY_TYPE}
 )
 
 target_link_libraries(libdf3d
-    BulletPhysics
+    LinearMath
+    BulletCollision
+    BulletDynamics
     ogg
     spark
     vorbis
