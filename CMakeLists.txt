@@ -8,8 +8,13 @@ if (WINDOWS AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_win32" CACHE PATH "third-party")
 endif()
 
+# FIXME: choose abi
 if (ANDROID AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_android/armeabi-v7a" CACHE PATH "third-party")
+endif()
+
+if (IOS AND NOT CMAKE_PREFIX_PATH)
+    set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_ios" CACHE PATH "third-party")
 endif()
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/bullet/src)
@@ -277,21 +282,19 @@ if (DF3D_DESKTOP)
     )
 endif()
 
-if (ANDROID)
-    find_host_package(OpenAL REQUIRED)
+if (ANDROID OR IOS)
     find_host_package(Boost REQUIRED)
-    include_directories(${OPENAL_INCLUDE_DIR})
+    find_host_package(OpenAL REQUIRED)
 else()
     find_package(Boost REQUIRED)
+    find_package(OpenAL REQUIRED)
 endif()
 
 if (DF3D_DESKTOP)
     find_package(GLEW REQUIRED)
     find_package(OpenGL REQUIRED)
-    find_package(OpenAL REQUIRED)
     include_directories(${GLEW_INCLUDE_DIRS})
     include_directories(${OPENGL_INCLUDE_DIR})
-    include_directories(${OPENAL_INCLUDE_DIR})
 endif()
 
 include_directories(${PROJECT_SOURCE_DIR}/libdf3d
@@ -300,9 +303,10 @@ include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/spark/include
                     ${PROJECT_SOURCE_DIR}/third-party/libRocket/Include
                     ${PROJECT_SOURCE_DIR}/third-party/glfw/include
-                    ${Boost_INCLUDE_DIRS})
+                    ${Boost_INCLUDE_DIRS}
+                    ${OPENAL_INCLUDE_DIR})
 
-if (ANDROID)
+if (ANDROID OR IOS)
     set(LIBRARY_TYPE STATIC)
 else()
     set(LIBRARY_TYPE SHARED)

@@ -20,7 +20,7 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Android")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     if (IOS)
-
+        message(STATUS "Platform - iOS")
     else()
         set(MACOSX true)
         message(STATUS "Platform - Mac OS")
@@ -71,4 +71,8 @@ endif()
 
 if (DF3D_DESKTOP)
     add_definitions(-DDF3D_DESKTOP)
+endif()
+
+if (IOS)
+    add_definitions(-DDF3D_IOS)
 endif()
