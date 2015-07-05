@@ -138,7 +138,7 @@ void GpuProgramState::onFrameBegin()
 
     if (g_sceneManager->getCamera())
         m_cameraPosition = g_sceneManager->getCamera()->transform()->getPosition();
-    
+
     m_engineElapsedTime = g_engineController->getElapsedTime();
 }
 
