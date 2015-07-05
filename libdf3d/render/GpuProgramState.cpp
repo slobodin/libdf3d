@@ -138,6 +138,8 @@ void GpuProgramState::onFrameBegin()
 
     if (g_sceneManager->getCamera())
         m_cameraPosition = g_sceneManager->getCamera()->transform()->getPosition();
+    
+    m_engineElapsedTime = g_engineController->getElapsedTime();
 }
 
 void GpuProgramState::onFrameEnd()
@@ -147,6 +149,7 @@ void GpuProgramState::onFrameEnd()
 
 void GpuProgramState::updateSharedUniform(const GpuProgramUniform &uniform)
 {
+    // TODO: kind of lookup table.
     switch (uniform.getSharedType())
     {
     case SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM:
@@ -182,7 +185,6 @@ void GpuProgramState::updateSharedUniform(const GpuProgramUniform &uniform)
     case SharedUniformType::GLOBAL_AMBIENT_UNIFORM:
         uniform.update(glm::value_ptr(m_globalAmbient));
         break;
-        break;
     case SharedUniformType::FOG_DENSITY_UNIFORM:
         uniform.update(&m_fogDensity);
         break;
@@ -193,10 +195,7 @@ void GpuProgramState::updateSharedUniform(const GpuProgramUniform &uniform)
         uniform.update(glm::value_ptr(m_pixelSize));
         break;
     case SharedUniformType::ELAPSED_TIME_UNIFORM:
-    {
-        float time = g_engineController->getElapsedTime();
-        uniform.update(&time);
-    }
+        uniform.update(&m_engineElapsedTime);
         break;
     case SharedUniformType::MATERIAL_AMBIENT_UNIFORM:
         uniform.update(glm::value_ptr(m_currentPass->getAmbientColor()));
@@ -211,10 +210,7 @@ void GpuProgramState::updateSharedUniform(const GpuProgramUniform &uniform)
         uniform.update(glm::value_ptr(m_currentPass->getEmissiveColor()));
         break;
     case SharedUniformType::MATERIAL_SHININESS_UNIFORM:
-    {
-        float sh = m_currentPass->getShininess();
-        uniform.update(&sh);
-    }
+        uniform.update(&m_currentPass->getShininess());
         break;
     case SharedUniformType::SCENE_LIGHT_DIFFUSE_UNIFORM:
         uniform.update(glm::value_ptr(m_currentLight.diffuseParam));

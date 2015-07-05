@@ -130,7 +130,7 @@ public:
     const glm::vec4 &getDiffuseColor() const { return m_diffuseColor; }
     const glm::vec4 &getSpecularColor() const { return m_specularColor; }
     const glm::vec4 &getEmissiveColor() const { return m_emissiveColor; }
-    float getShininess() const { return m_shininess; }
+    const float &getShininess() const { return m_shininess; }
 
     bool isTransparent() const { return m_isTransparent; }
     bool isLit() const { return m_lightingEnabled; }

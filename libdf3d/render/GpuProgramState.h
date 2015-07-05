@@ -42,6 +42,8 @@ class GpuProgramState
     glm::vec3 m_fogColor = glm::vec3(0.0f, 0.0f, 0.0f);
 
     glm::vec2 m_pixelSize = glm::vec2(1.0f / (float)DEFAULT_WINDOW_WIDTH, 1.0f / (float)DEFAULT_WINDOW_HEIGHT);
+    
+    float m_engineElapsedTime = 0.0f;
 
     bool m_worldViewProjDirty = true;
     bool m_worldViewDirty = true;
