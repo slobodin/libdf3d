@@ -1,7 +1,6 @@
 #pragma once
 
 #if defined(DF3D_WINDOWS)
-#define GLEW_STATIC
 #include <GL/glew.h>
 #include <GL/GL.h>
 #include <GL/GLU.h>
