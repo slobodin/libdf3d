@@ -197,4 +197,9 @@ void run()
     delete g_application;
 }
 
+void setTitle(const char *title)
+{
+    g_application->setTitle(title);
+}
+
 } }
