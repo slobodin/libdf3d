@@ -65,7 +65,7 @@ set_target_properties(glfw PROPERTIES
                       POSITION_INDEPENDENT_CODE ON
                       FOLDER "GLFW3")
 
-if (BUILD_SHARED_LIBS)
+if (GLFW_BUILD_SHARED_LIBS)
     if (WIN32)
         # The GLFW DLL needs a special compile-time macro and import library name
         set_target_properties(glfw PROPERTIES PREFIX "" IMPORT_PREFIX "")
