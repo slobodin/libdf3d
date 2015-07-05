@@ -18,6 +18,11 @@
 #elif defined(DF3D_MACOSX)
 #include <GL/glew.h>
 #include <OpenGL/gl.h>
+#elif defined(DF3D_IOS)
+#include <UIKit/UIKit.h>
+#include <OpenGLES/EAGL.h>
+#include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/glext.h>
 #else
 #error "Unsupported platform"
 #endif
