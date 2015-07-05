@@ -50,7 +50,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 
 if (WINDOWS)
-    add_definitions(-DWIN32 D_WINDOWS -DDF3D_WINDOWS)
+    add_definitions(-DWIN32 -D_WINDOWS -DDF3D_WINDOWS)
 endif()
 
 if (ANDROID)
