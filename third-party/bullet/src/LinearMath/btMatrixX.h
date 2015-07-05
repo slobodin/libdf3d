@@ -4,8 +4,8 @@ Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -40,7 +40,7 @@ template <typename T>
 struct btVectorX
 {
 	btAlignedObjectArray<T>	m_storage;
-	
+
 	btVectorX()
 	{
 	}
@@ -48,7 +48,7 @@ struct btVectorX
 	{
 		m_storage.resize(numRows);
 	}
-	
+
 	void resize(int rows)
 	{
 		m_storage.resize(rows);
@@ -65,13 +65,13 @@ struct btVectorX
 	{
 		return rows();
 	}
-	
+
 	T nrm2() const
 	{
 		T norm = T(0);
-		
+
 		int nn = rows();
-		
+
 		{
 			if (nn == 1)
 			{
@@ -81,10 +81,10 @@ struct btVectorX
 			{
 				T scale = 0.0;
 				T ssq = 1.0;
-				
+
 				/* The following loop is equivalent to this call to the LAPACK
 				 auxiliary routine:   CALL SLASSQ( N, X, INCX, SCALE, SSQ ) */
-				
+
 				for (int ix=0;ix<nn;ix++)
 				{
 					if ((*this)[ix] != 0.0)
@@ -109,7 +109,7 @@ struct btVectorX
 			}
 		}
 		return norm;
-		
+
 	}
 	void	setZero()
 	{
@@ -125,22 +125,22 @@ struct btVectorX
 	{
 		return m_storage[index];
 	}
-	
+
 	T& operator[] (int index)
 	{
 		return m_storage[index];
 	}
-	
+
 	T* getBufferPointerWritable()
 	{
 		return m_storage.size() ? &m_storage[0] : 0;
 	}
-	
+
 	const T* getBufferPointer() const
 	{
 		return m_storage.size() ? &m_storage[0] : 0;
 	}
-	
+
 };
 /*
  template <typename T>
@@ -151,7 +151,7 @@ struct btVectorX
  */
 
 
-template <typename T> 
+template <typename T>
 struct btMatrixX
 {
 	int m_rows;
@@ -163,7 +163,7 @@ struct btMatrixX
 	btAlignedObjectArray<T>	m_storage;
 	mutable btAlignedObjectArray< btAlignedObjectArray<int> > m_rowNonZeroElements1;
 
-	T* getBufferPointerWritable() 
+	T* getBufferPointerWritable()
 	{
 		return m_storage.size() ? &m_storage[0] : 0;
 	}
@@ -227,14 +227,14 @@ struct btMatrixX
 			}
 		}
 	}
-	
-	
+
+
 	void setElem(int row,int col, T val)
 	{
 		m_setElemOperations++;
 		m_storage[row*m_cols+col] = val;
 	}
-	
+
 	void mulElem(int row,int col, T val)
 	{
 		m_setElemOperations++;
@@ -242,10 +242,10 @@ struct btMatrixX
 
 		m_storage[row*m_cols+col] *= val;
 	}
-	
-	
-	
-	
+
+
+
+
 	void copyLowerToUpperTriangle()
 	{
 		int count=0;
@@ -255,12 +255,12 @@ struct btMatrixX
 			{
 				setElem(col,row, (*this)(row,col));
 				count++;
-				
+
 			}
 		}
 		//printf("copyLowerToUpperTriangle copied %d elements out of %dx%d=%d\n", count,rows(),cols(),cols()*rows());
 	}
-	
+
 	const T& operator() (int row,int col) const
 	{
 		return m_storage[col+row*m_cols];
@@ -277,11 +277,11 @@ struct btMatrixX
 	//			m_storage[i]=0;
 		}
 	}
-	
+
 	void setIdentity()
 	{
 		btAssert(rows() == cols());
-		
+
 		setZero();
 		for (int row=0;row<rows();row++)
 		{
@@ -289,10 +289,11 @@ struct btMatrixX
 		}
 	}
 
-	
+
 
 	void	printMatrix(const char* msg)
 	{
+#if 0
 		printf("%s ---------------------\n",msg);
 		for (int i=0;i<rows();i++)
 		{
@@ -303,7 +304,7 @@ struct btMatrixX
 			}
 		}
 		printf("\n---------------------\n");
-
+#endif
 	}
 
 
@@ -365,9 +366,9 @@ struct btMatrixX
 								T w = (*this)(i,v);
 								if (other(v,j)!=0.f)
 								{
-									dotProd+=w*other(v,j);	
+									dotProd+=w*other(v,j);
 								}
-						
+
 							}
 						}
 					}
@@ -424,12 +425,12 @@ struct btMatrixX
 			bb += 8;
 		}
 	}
-	
+
 	void setSubMatrix(int rowstart,int colstart,int rowend,int colend,const T value)
 	{
 		int numRows = rowend+1-rowstart;
 		int numCols = colend+1-colstart;
-		
+
 		for (int row=0;row<numRows;row++)
 		{
 			for (int col=0;col<numCols;col++)
@@ -438,7 +439,7 @@ struct btMatrixX
 			}
 		}
 	}
-	
+
 	void setSubMatrix(int rowstart,int colstart,int rowend,int colend,const btMatrixX& block)
 	{
 		btAssert(rowend+1-rowstart == block.rows());
@@ -463,8 +464,8 @@ struct btMatrixX
 			}
 		}
 	}
-	
-	
+
+
 	btMatrixX negative()
 	{
 		btMatrixX neg(rows(),cols());
@@ -489,10 +490,10 @@ typedef btVectorX<double> btVectorXd;
 
 
 #ifdef BT_DEBUG_OSTREAM
-template <typename T> 
+template <typename T>
 std::ostream& operator<< (std::ostream& os, const btMatrixX<T>& mat)
 	{
-		
+
 		os << " [";
 		//printf("%s ---------------------\n",msg);
 		for (int i=0;i<mat.rows();i++)
@@ -509,10 +510,10 @@ std::ostream& operator<< (std::ostream& os, const btMatrixX<T>& mat)
 
 		return os;
 	}
-template <typename T> 
+template <typename T>
 std::ostream& operator<< (std::ostream& os, const btVectorX<T>& mat)
 	{
-		
+
 		os << " [";
 		//printf("%s ---------------------\n",msg);
 		for (int i=0;i<mat.rows();i++)
