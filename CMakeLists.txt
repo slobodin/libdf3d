@@ -30,6 +30,10 @@ if (ANDROID)
     include(${PROJECT_SOURCE_DIR}/cmake/AndroidNdkModules.cmake)
 endif()
 
+if (NOT ANDROID AND NOT IOS)
+    option(DF3D_BUILD_SHARED_LIB "Build shared df3d library" ON)
+endif()
+
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.h
@@ -317,7 +321,14 @@ if(MSVC)
     set_source_files_properties(${libdf3d_SRC_LIST} PROPERTIES COMPILE_FLAGS "/Yudf3d_pch.h" OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/df3d_pch.pch")
 endif()
 
-add_library(libdf3d STATIC
+if (DF3D_BUILD_SHARED_LIB)
+    set(DF3D_LIBRARY_TYPE SHARED)
+    add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD -DDF3D_SHARED_LIBRARY)
+else()
+    set(DF3D_LIBRARY_TYPE STATIC)
+endif()
+
+add_library(libdf3d ${DF3D_LIBRARY_TYPE}
     ${libdf3d_HEADER_LIST}
     ${libdf3d_SRC_LIST}
     ${third_party_SRC_FILES}

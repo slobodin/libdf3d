@@ -11,8 +11,6 @@ IF(COMMAND cmake_policy)
    cmake_policy(SET CMP0003 NEW)
 ENDIF(COMMAND cmake_policy)
 
-include(${PROJECT_SOURCE_DIR}/../../cmake/libdf3d.cmake)
-
 IF (NOT CMAKE_BUILD_TYPE)
 # SET(CMAKE_BUILD_TYPE "Debug")
  SET(CMAKE_BUILD_TYPE "Release")
@@ -24,11 +22,7 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 OPTION(USE_DOUBLE_PRECISION "Use double precision"	OFF)
 OPTION(USE_GRAPHICAL_BENCHMARK "Use Graphical Benchmark" OFF)
 
-if (DF3D_DESKTOP)
-    OPTION(BULLET_BUILD_SHARED_LIBS "Use shared libraries" ON)
-else()
-    OPTION(BULLET_BUILD_SHARED_LIBS "Use shared libraries" OFF)
-endif()
+OPTION(BULLET_BUILD_SHARED_LIBS "Use shared libraries" OFF)
 
 OPTION(USE_MSVC_INCREMENTAL_LINKING "Use MSVC Incremental Linking" ON)
 OPTION(USE_CUSTOM_VECTOR_MATH "Use custom vectormath library" OFF)
