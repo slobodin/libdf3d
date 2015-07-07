@@ -179,7 +179,6 @@ QuadParticleSystemRenderer::~QuadParticleSystemRenderer()
 
 }
 
-
 SPK::RenderBuffer* QuadParticleSystemRenderer::attachRenderBuffer(const SPK::Group &group) const
 {
     size_t totalParticles = group.getCapacity();
