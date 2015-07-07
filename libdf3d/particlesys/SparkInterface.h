@@ -16,15 +16,13 @@ class ParticleSystemRenderer : public SPK::Renderer
 public:
     shared_ptr<render::RenderPass> m_pass;
 
-    // This is a workaround. 
+    // This is a workaround.
     // We need to pass RenderQueue in order to populate it when renderParticles called.
     render::RenderQueue *m_currentRenderQueue;
     glm::mat4 *m_currentTransformation;
 
     ParticleSystemRenderer(bool NEEDS_DATASET);
     ~ParticleSystemRenderer();
-
-    SPK::RenderBuffer* attachRenderBuffer(const SPK::Group &group) const override;
 
     void setBlendMode(SPK::BlendMode blendMode) override;
     void setDiffuseMap(shared_ptr<render::Texture> texture);
@@ -50,13 +48,33 @@ private:
 public:
     ~QuadParticleSystemRenderer();
 
+    SPK::RenderBuffer* attachRenderBuffer(const SPK::Group &group) const override;
     void render(const SPK::Group &group, const SPK::DataSet *dataSet, SPK::RenderBuffer *renderBuffer) const override;
     void computeAABB(SPK::Vector3D &AABBMin, SPK::Vector3D &AABBMax, const SPK::Group &group, const SPK::DataSet *dataSet) const override;
 
-    // Creates and registers a new QuadParticleSystemRenderer
+    // Creates and registers a new QuadParticleSystemRenderer.
     static SPK::Ref<QuadParticleSystemRenderer> create(float scaleX = 1.0f, float scaleY = 1.0f)
     {
         return SPK_NEW(QuadParticleSystemRenderer, scaleX, scaleY);
+    }
+};
+
+// A renderer drawing particles as lines.
+class LineParticleSystemRenderer : public ParticleSystemRenderer, public SPK::LineRenderBehavior
+{
+    LineParticleSystemRenderer(float length, float width);
+
+public:
+    ~LineParticleSystemRenderer();
+
+    SPK::RenderBuffer* attachRenderBuffer(const SPK::Group &group) const override;
+    void render(const SPK::Group &group, const SPK::DataSet *dataSet, SPK::RenderBuffer *renderBuffer) const override;
+    void computeAABB(SPK::Vector3D &AABBMin, SPK::Vector3D &AABBMax, const SPK::Group &group, const SPK::DataSet *dataSet) const override;
+
+    // Creates and registers a new LineParticleSystemRenderer.
+    static SPK::Ref<LineParticleSystemRenderer> create(float length = 1.0f, float width = 1.0f)
+    {
+        return SPK_NEW(LineParticleSystemRenderer, length, width);
     }
 };
 
