@@ -13,6 +13,10 @@ class MyRenderBuffer;
 class ParticleSystemRenderer : public SPK::Renderer
 {
     spark_description(ParticleSystemRenderer, SPK::Renderer)();
+
+protected:
+    void addToRenderQueue(MyRenderBuffer &buffer, size_t nbOfParticles, int verticesPerParticle, int indicesPerParticle) const;
+
 public:
     shared_ptr<render::RenderPass> m_pass;
 

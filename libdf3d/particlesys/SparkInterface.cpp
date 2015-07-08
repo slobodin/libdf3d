@@ -88,6 +88,25 @@ public:
     }
 };
 
+void ParticleSystemRenderer::addToRenderQueue(MyRenderBuffer &buffer, size_t nbOfParticles, int verticesPerParticle, int indicesPerParticle) const
+{
+    buffer.m_vb->setElementsUsed(nbOfParticles * verticesPerParticle);
+    buffer.m_ib->setElementsUsed(nbOfParticles * indicesPerParticle);
+    // Refill gpu with new data (only vertices are changed).
+    buffer.m_vb->setDirty();
+
+    render::RenderOperation op;
+    op.indexData = buffer.m_ib;
+    op.vertexData = buffer.m_vb;
+    op.passProps = m_pass;
+    op.worldTransform = *m_currentTransformation;
+
+    if (op.passProps->isTransparent())
+        m_currentRenderQueue->transparentOperations.push_back(op);
+    else
+        m_currentRenderQueue->notLitOpaqueOperations.push_back(op);
+}
+
 ParticleSystemRenderer::ParticleSystemRenderer(bool NEEDS_DATASET)
     : SPK::Renderer(NEEDS_DATASET)
 {
@@ -261,24 +280,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
         }
     }
 
-    auto totalParticles = group.getNbParticles();
-
-    // 4 vertices and 6 indices per particle quad.
-    buffer.m_vb->setElementsUsed(totalParticles * QUAD_VERTICES_PER_PARTICLE);
-    buffer.m_ib->setElementsUsed(totalParticles * QUAD_INDICES_PER_PARTICLE);
-    // Refill gpu with new data (only vertices are changed).
-    buffer.m_vb->setDirty();
-
-    render::RenderOperation op;
-    op.indexData = buffer.m_ib;
-    op.vertexData = buffer.m_vb;
-    op.passProps = m_pass;
-    op.worldTransform = *m_currentTransformation;
-
-    if (op.passProps->isTransparent())
-        m_currentRenderQueue->transparentOperations.push_back(op);
-    else
-        m_currentRenderQueue->notLitOpaqueOperations.push_back(op);
+    addToRenderQueue(buffer, group.getNbParticles(), QUAD_VERTICES_PER_PARTICLE, QUAD_INDICES_PER_PARTICLE);
 }
 
 void QuadParticleSystemRenderer::computeAABB(SPK::Vector3D &AABBMin, SPK::Vector3D &AABBMax, const SPK::Group &group, const SPK::DataSet *dataSet) const
@@ -334,7 +336,37 @@ SPK::RenderBuffer* LineParticleSystemRenderer::attachRenderBuffer(const SPK::Gro
 
 void LineParticleSystemRenderer::render(const SPK::Group &group, const SPK::DataSet *dataSet, SPK::RenderBuffer *renderBuffer) const
 {
+    auto &buffer = static_cast<MyRenderBuffer&>(*renderBuffer);
+    buffer.positionAtStart(); // Repositions all the buffers at the start.
 
+    m_pass->enableDepthWrite(isRenderingOptionEnabled(SPK::RENDERING_OPTION_DEPTH_WRITE));
+
+    for (SPK::ConstGroupIterator particleIt(group); !particleIt.end(); ++particleIt)
+    {
+        buffer.setNextVertex(particleIt->position());
+        buffer.setNextVertex(particleIt->position() + particleIt->velocity() * length);
+
+        const auto &color = particleIt->getColor();
+        buffer.setNextColor(color);
+        buffer.setNextColor(color);
+    }
+
+    const auto totalParticles = group.getNbParticles();
+    buffer.m_vb->setElementsUsed(totalParticles * LINE_VERTICES_PER_PARTICLE);
+    buffer.m_ib->setElementsUsed(totalParticles * LINE_INDICES_PER_PARTICLE);
+    // Refill gpu with new data (only vertices are changed).
+    buffer.m_vb->setDirty();
+
+    render::RenderOperation op;
+    op.indexData = buffer.m_ib;
+    op.vertexData = buffer.m_vb;
+    op.passProps = m_pass;
+    op.worldTransform = *m_currentTransformation;
+
+    if (op.passProps->isTransparent())
+        m_currentRenderQueue->transparentOperations.push_back(op);
+    else
+        m_currentRenderQueue->notLitOpaqueOperations.push_back(op);
 }
 
 void LineParticleSystemRenderer::computeAABB(SPK::Vector3D &AABBMin, SPK::Vector3D &AABBMax, const SPK::Group &group, const SPK::DataSet *dataSet) const
