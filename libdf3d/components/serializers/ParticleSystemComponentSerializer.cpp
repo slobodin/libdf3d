@@ -12,7 +12,7 @@
 
 namespace df3d { namespace components { namespace serializers {
 
-std::map<std::string, SPK::Param> StringToSparkParam = 
+std::map<std::string, SPK::Param> StringToSparkParam =
 {
     { "angle", SPK::PARAM_ANGLE },
     { "mass", SPK::PARAM_MASS },
@@ -216,7 +216,7 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
         zoneJson["normal"] >> normal;
         zoneJson["minRadius"] >> minRadius;
         zoneJson["maxRadius"] >> maxRadius;
-        
+
         zone = SPK::Ring::create(particlesys::glmToSpk(position), particlesys::glmToSpk(normal), minRadius, maxRadius);
     }
     else if (zoneType == "Sphere")

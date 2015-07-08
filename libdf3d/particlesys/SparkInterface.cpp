@@ -379,5 +379,4 @@ void destroySparkEngine()
     SPK_DUMP_MEMORY
 }
 
-
 } }
