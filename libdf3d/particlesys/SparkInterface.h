@@ -2,6 +2,8 @@
 
 #include <SPARK.h>
 
+#include <render/RenderOperation.h>
+
 FWD_MODULE_CLASS(render, RenderPass)
 FWD_MODULE_CLASS(render, RenderQueue)
 FWD_MODULE_CLASS(render, Texture)
@@ -15,7 +17,7 @@ class ParticleSystemRenderer : public SPK::Renderer
     spark_description(ParticleSystemRenderer, SPK::Renderer)();
 
 protected:
-    void addToRenderQueue(MyRenderBuffer &buffer, size_t nbOfParticles, int verticesPerParticle, int indicesPerParticle) const;
+    void addToRenderQueue(MyRenderBuffer &buffer, size_t nbOfParticles, int verticesPerParticle, int indicesPerParticle, render::RenderOperation::Type type) const;
 
 public:
     shared_ptr<render::RenderPass> m_pass;

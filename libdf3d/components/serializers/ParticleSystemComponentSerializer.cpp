@@ -39,8 +39,11 @@ SPK::Color toSpkColor(glm::vec4 color)
 
 SPK::Ref<SPK::ColorSimpleInterpolator> parseSparkSimpleColorInterpolator(const Json::Value &dataJson)
 {
-    auto birthColor = utils::jsonGetValueWithDefault(dataJson["birth"], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    auto deathColor = utils::jsonGetValueWithDefault(dataJson["death"], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    glm::vec4 birthColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glm::vec4 deathColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    dataJson["birth"] >> birthColor;
+    dataJson["death"] >> deathColor;
 
     return SPK::ColorSimpleInterpolator::create(toSpkColor(birthColor), toSpkColor(deathColor));
 }
@@ -51,8 +54,11 @@ SPK::Ref<SPK::ColorGraphInterpolator> parseSparkGraphColorInterpolator(const Jso
 
     for (const auto &entryJson : dataJson)
     {
-        auto x = utils::jsonGetValueWithDefault(entryJson["x"], 0.0f);
-        auto y = utils::jsonGetValueWithDefault(entryJson["y"], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        float x = 0.0f;
+        glm::vec4 y(0.0f, 0.0f, 0.0f, 1.0f);
+
+        entryJson["x"] >> x;
+        entryJson["y"] >> y;
 
         result->addEntry(x, toSpkColor(y));
     }
@@ -84,8 +90,11 @@ SPK::Ref<SPK::ColorInterpolator> parseSparkColorInterpolator(const Json::Value &
 
 SPK::Ref<SPK::FloatSimpleInterpolator> parseSparkSimpleInterpolator(const Json::Value &dataJson)
 {
-    auto birthValue = utils::jsonGetValueWithDefault(dataJson["birth"], 0.0f);
-    auto deathValue = utils::jsonGetValueWithDefault(dataJson["death"], 0.0f);
+    float birthValue = 0.0f;
+    float deathValue = 0.0f;
+
+    dataJson["birth"] >> birthValue;
+    dataJson["death"] >> deathValue;
 
     return SPK::FloatSimpleInterpolator::create(birthValue, deathValue);
 }
@@ -109,8 +118,11 @@ SPK::Ref<SPK::FloatGraphInterpolator> parseSparkGraphInterpolator(const Json::Va
 
     for (const auto &entryJson : dataJson)
     {
-        auto x = utils::jsonGetValueWithDefault(entryJson["x"], 0.0f);
-        auto y = utils::jsonGetValueWithDefault(entryJson["y"], 0.0f);
+        float x = 0.0f;
+        float y = 0.0f;
+
+        entryJson["x"] >> x;
+        entryJson["y"] >> y;
 
         result->addEntry(x, y);
     }
@@ -159,44 +171,62 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
     // Determine zone type.
     if (zoneType == "Point")
     {
-        auto position = jsonGetValueWithDefault(zoneJson["position"], glm::vec3());
+        glm::vec3 position;
+        zoneJson["position"] >> position;
         zone = SPK::Point::create(particlesys::glmToSpk(position));
     }
     else if (zoneType == "Box")
     {
-        auto position = jsonGetValueWithDefault(zoneJson["position"], glm::vec3());
-        auto dimension = jsonGetValueWithDefault(zoneJson["dimension"], glm::vec3(1.0f, 1.0f, 1.0f));
-        auto front = jsonGetValueWithDefault(zoneJson["front"], glm::vec3(0.0f, 0.0f, 1.0f));
-        auto up = jsonGetValueWithDefault(zoneJson["up"], glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::vec3 position, dimension(1.0f, 1.0f, 1.0f), front(0.0, 0.0, 1.0f), up(0.0f, 1.0f, 0.0f);
+
+        zoneJson["position"] >> position;
+        zoneJson["dimension"] >> dimension;
+        zoneJson["front"] >> front;
+        zoneJson["up"] >> up;
+
         zone = SPK::Box::create(particlesys::glmToSpk(position), particlesys::glmToSpk(dimension), particlesys::glmToSpk(front), particlesys::glmToSpk(up));
     }
     else if (zoneType == "Cylinder")
     {
-        auto position = jsonGetValueWithDefault(zoneJson["position"], glm::vec3());
-        auto axis = jsonGetValueWithDefault(zoneJson["axis"], glm::vec3(0.0f, 1.0f, 0.0f));
-        auto radius = jsonGetValueWithDefault(zoneJson["radius"], 1.0f);
-        auto height = jsonGetValueWithDefault(zoneJson["height"], 1.0f);
+        glm::vec3 position, axis(0.0f, 1.0f, 0.0f);
+        float radius = 1.0f, height = 1.0f;
+
+        zoneJson["position"] >> position;
+        zoneJson["axis"] >> axis;
+        zoneJson["radius"] >> radius;
+        zoneJson["height"] >> height;
+
         zone = SPK::Cylinder::create(particlesys::glmToSpk(position), height, radius, particlesys::glmToSpk(axis));
     }
     else if (zoneType == "Plane")
     {
-        auto position = jsonGetValueWithDefault(zoneJson["position"], glm::vec3());
-        auto normal = jsonGetValueWithDefault(zoneJson["normal"], glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::vec3 position, normal(0.0f, 1.0f, 0.0f);
+
+        zoneJson["position"] >> position;
+        zoneJson["normal"] >> normal;
+
         zone = SPK::Plane::create(particlesys::glmToSpk(position), particlesys::glmToSpk(normal));
     }
     else if (zoneType == "Ring")
     {
-        auto position = jsonGetValueWithDefault(zoneJson["position"], glm::vec3());
-        auto normal = jsonGetValueWithDefault(zoneJson["normal"], glm::vec3(0.0f, 1.0f, 0.0f));
-        auto minRadius = jsonGetValueWithDefault(zoneJson["minRadius"], 0.0f);
-        auto maxRadius = jsonGetValueWithDefault(zoneJson["maxRadius"], 1.0f);
+        glm::vec3 position, normal(0.0f, 1.0f, 0.0f);
+        float minRadius = 0.0f, maxRadius = 1.0f;
+
+        zoneJson["position"] >> position;
+        zoneJson["normal"] >> normal;
+        zoneJson["minRadius"] >> minRadius;
+        zoneJson["maxRadius"] >> maxRadius;
         
         zone = SPK::Ring::create(particlesys::glmToSpk(position), particlesys::glmToSpk(normal), minRadius, maxRadius);
     }
     else if (zoneType == "Sphere")
     {
-        auto position = jsonGetValueWithDefault(zoneJson["position"], glm::vec3());
-        auto radius = jsonGetValueWithDefault(zoneJson["radius"], 1.0f);
+        glm::vec3 position;
+        float radius = 1.0f;
+
+        zoneJson["position"] >> position;
+        zoneJson["radius"] >> radius;
+
         zone = SPK::Sphere::create(particlesys::glmToSpk(position), radius);
     }
     else
@@ -215,8 +245,11 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
     }
     else if (emitterType == "Straight")
     {
-        auto dir = jsonGetValueWithDefault(emitterJson["direction"], glm::vec3(0.0f, 0.0f, -1.0f));
-        emitter = SPK::StraightEmitter::create(SPK::Vector3D(dir.x, dir.y, dir.z));
+        glm::vec3 dir(0.0f, 0.0f, -1.0f);
+
+        emitterJson["direction"] >> dir;
+
+        emitter = SPK::StraightEmitter::create(particlesys::glmToSpk(dir));
     }
     else if (emitterType == "Static")
     {
@@ -224,17 +257,22 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
     }
     else if (emitterType == "Spheric")
     {
-        auto dir = jsonGetValueWithDefault(emitterJson["direction"], glm::vec3(0.0f, 0.0f, -1.0f));
-        auto angleA = jsonGetValueWithDefault(emitterJson["angleA"], 0.0f);
-        auto angleB = jsonGetValueWithDefault(emitterJson["angleB"], 0.0f);
+        glm::vec3 dir(0.0f, 0.0f, -1.0f);
+        float angleA = 0.0f, angleB = 0.0f;
+
+        emitterJson["direction"] >> dir;
+        emitterJson["angleA"] >> angleA;
+        emitterJson["angleB"] >> angleB;
 
         emitter = SPK::SphericEmitter::create(particlesys::glmToSpk(dir), glm::radians(angleA), glm::radians(angleB));
     }
     else if (emitterType == "Normal")
     {
         emitter = SPK::NormalEmitter::create();
+        bool inverted = false;
 
-        bool inverted = jsonGetValueWithDefault(emitterJson["inverted"], false);
+        emitterJson["inverted"] >> inverted;
+
         ((SPK::NormalEmitter*)emitter.get())->setInverted(inverted);
     }
     else
@@ -247,16 +285,20 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
         return SPK_NULL_REF;
 
     // Init emitter.
-    float flow = jsonGetValueWithDefault(emitterJson["flow"], 0.0f);
-    float minForce = jsonGetValueWithDefault(emitterJson["minForce"], 0.0f);
-    float maxForce = jsonGetValueWithDefault(emitterJson["maxForce"], 0.0f);
-    int tank = jsonGetValueWithDefault(emitterJson["tank"], -1);
-    bool fullGen = !jsonGetValueWithDefault(emitterJson["generateOnZoneBorders"], false);
+    float flow = 0.0f, minForce = 0.0f, maxForce = 0.0f;
+    int tank = -1;
+    bool fullGen = false;
+
+    emitterJson["flow"] >> flow;
+    emitterJson["minForce"] >> minForce;
+    emitterJson["maxForce"] >> maxForce;
+    emitterJson["tank"] >> tank;
+    emitterJson["generateOnZoneBorders"] >> fullGen;
 
     emitter->setTank(tank);
     emitter->setFlow(flow);
     emitter->setForce(minForce, maxForce);
-    emitter->setZone(zone, fullGen);
+    emitter->setZone(zone, !fullGen);
 
     return emitter;
 }
@@ -323,41 +365,58 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
         else
             base::glog << "Unknown blending mode" << blending << base::logwarn;
 
+        std::string rendererType("quad");
+        groupJson["renderer"] >> rendererType;
+
         // Create particle system renderer.
-        // TODO:
-        // Can be more types of renderers.
+        SPK::Ref<particlesys::ParticleSystemRenderer> renderer;
+        if (rendererType == "quad")
+        {
+            auto quadRenderer = particlesys::QuadParticleSystemRenderer::create(scaleX, scaleY);
+
+            // Setup special renderer params.
+            if (!groupJson["orientation"].empty())
+            {
+                auto orientationStr = groupJson["orientation"].asString();
+                auto found = StringToSparkDirection.find(orientationStr);
+                if (found != StringToSparkDirection.end())
+                    quadRenderer->setOrientation(found->second);
+                else
+                    base::glog << "Unknown spark particle system orientation" << base::logwarn;
+            }
+
+            std::string pathToTexture = jsonGetValueWithDefault(groupJson["texture"], std::string());
+            SPK::TextureMode textureMode = SPK::TEXTURE_MODE_NONE;
+            if (!pathToTexture.empty())
+            {
+                auto texture = g_resourceManager->createTexture(pathToTexture.c_str(), ResourceLoadingMode::IMMEDIATE);
+                if (texture)
+                {
+                    quadRenderer->setDiffuseMap(texture);
+                    textureMode = SPK::TEXTURE_MODE_2D;
+                }
+            }
+
+            quadRenderer->setTexturingMode(textureMode);
+
+            bool faceCullEnabled = jsonGetValueWithDefault(groupJson["face_cull_enabled"], true);
+            quadRenderer->enableFaceCulling(faceCullEnabled);
+
+            renderer = quadRenderer;
+        }
+        else if (rendererType == "line")
+        {
+            renderer = particlesys::LineParticleSystemRenderer::create(100.0f, 100.0f);
+        }
+        else
+        {
+            base::glog << "Failed to init particle system: unknown renderer type. Crashing." << base::logwarn;
+        }
+
         // FIXME: can share renderer.
-        auto renderer = particlesys::QuadParticleSystemRenderer::create(scaleX, scaleY);
         renderer->enableRenderingOption(SPK::RENDERING_OPTION_DEPTH_WRITE, depthWrite);
         renderer->m_pass->enableDepthTest(depthTest);
         renderer->setBlendMode(spkBlending);
-        
-        if (!groupJson["orientation"].empty())
-        {
-            auto orientationStr = groupJson["orientation"].asString();
-            auto found = StringToSparkDirection.find(orientationStr);
-            if (found != StringToSparkDirection.end())
-                renderer->setOrientation(found->second);
-            else
-                base::glog << "Unknown spark particle system orientation" << base::logwarn;
-        }
-
-        bool faceCullEnabled = jsonGetValueWithDefault(groupJson["face_cull_enabled"], true);
-        renderer->enableFaceCulling(faceCullEnabled);
-
-        std::string pathToTexture = jsonGetValueWithDefault(groupJson["texture"], std::string());
-        SPK::TextureMode textureMode = SPK::TEXTURE_MODE_NONE;
-        if (!pathToTexture.empty())
-        {
-            auto texture = g_resourceManager->createTexture(pathToTexture.c_str(), ResourceLoadingMode::IMMEDIATE);
-            if (texture)
-            {
-                renderer->setDiffuseMap(texture);
-                textureMode = SPK::TEXTURE_MODE_2D;
-            }
-        }
-
-        renderer->setTexturingMode(textureMode);
 
         // Create a group.
         auto particlesGroup = SPK::Group::create(maxParticles);

@@ -57,6 +57,9 @@ public:
     static VertexFormat create(const std::string &definition);
 };
 
+// Silly assert but we support only floats.
+static_assert(std::is_same<glm::vec3::value_type, float>::value, "glm: only floats are supported");
+
 #pragma pack(push, 1)
 
 struct Vertex_3p3n2tx4c3t3b

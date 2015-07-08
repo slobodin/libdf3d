@@ -446,7 +446,9 @@ void Renderer::drawVertexBuffer(shared_ptr<VertexBuffer> vb, shared_ptr<IndexBuf
     switch (type)
     {
     case RenderOperation::Type::LINES:
-        if (vbUsed > 0)
+        if (indexed)
+            glDrawElements(GL_LINES, ib->getElementsUsed(), GL_UNSIGNED_INT, nullptr);
+        else if (vbUsed > 0)
             glDrawArrays(GL_LINES, 0, vbUsed);
         break;
     case RenderOperation::Type::TRIANGLES:
