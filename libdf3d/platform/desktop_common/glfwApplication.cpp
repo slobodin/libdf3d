@@ -42,6 +42,16 @@ static void cursorPositionCallback(GLFWwindow *window, double xpos, double ypos)
     ev.rightPressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
 
     appDelegate->onMouseMotionEvent(ev);
+
+    if (ev.leftPressed)
+    {
+        base::TouchEvent touchev;
+        touchev.id = 0;
+        touchev.x = xpos;
+        touchev.y = ypos;
+        touchev.state = base::TouchEvent::State::MOVING;
+        appDelegate->onTouchEvent(touchev);
+    }
 }
 
 static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
@@ -49,11 +59,19 @@ static void mouseButtonCallback(GLFWwindow *window, int button, int action, int 
     auto appDelegate = reinterpret_cast<AppDelegate*>(glfwGetWindowUserPointer(window));
 
     base::MouseButtonEvent ev;
+    base::TouchEvent touchev;
+    touchev.id = 0;
 
     if (action == GLFW_PRESS)
+    {
         ev.state = base::MouseButtonEvent::State::PRESSED;
+        touchev.state = base::TouchEvent::State::DOWN;
+    }
     else if (action == GLFW_RELEASE)
+    {
         ev.state = base::MouseButtonEvent::State::RELEASED;
+        touchev.state = base::TouchEvent::State::UP;
+    }
     else
         return;
 
@@ -71,8 +89,13 @@ static void mouseButtonCallback(GLFWwindow *window, int button, int action, int 
 
     ev.x = (int)xpos;
     ev.y = (int)ypos;
+    touchev.x = ev.x;
+    touchev.y = ev.y;
 
     appDelegate->onMouseButtonEvent(ev);
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT)
+        appDelegate->onTouchEvent(touchev);
 }
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

@@ -62,39 +62,27 @@ void GuiManager::render()
     m_rocketContext->Render();
 }
 
-bool GuiManager::processMouseButtonEvent(const base::MouseButtonEvent &ev)
+bool GuiManager::processMouseButtonDown(int buttonIdx)
 {
-    int buttonIdx;
-    switch (ev.button)
-    {
-    case base::MouseButtonEvent::Button::LEFT:
-        buttonIdx = 0;
-        break;
-    case base::MouseButtonEvent::Button::RIGHT:
-        buttonIdx = 1;
-        break;
-    case base::MouseButtonEvent::Button::MIDDLE:
-    default:
-        return false;
-    }
-
-    if (ev.state == base::MouseButtonEvent::State::PRESSED)
-        m_rocketContext->ProcessMouseButtonDown(buttonIdx, 0);
-    else if (ev.state == base::MouseButtonEvent::State::RELEASED)
-        m_rocketContext->ProcessMouseButtonUp(buttonIdx, 0);
-
+    m_rocketContext->ProcessMouseButtonDown(buttonIdx, 0);
     return true;
 }
 
-bool GuiManager::processMouseMotionEvent(const base::MouseMotionEvent &ev)
+bool GuiManager::processMouseButtonUp(int buttonIdx)
 {
-    m_rocketContext->ProcessMouseMove(ev.x, ev.y, 0);
+    m_rocketContext->ProcessMouseButtonUp(buttonIdx, 0);
     return true;
 }
 
-bool GuiManager::processMouseWheelEvent(const base::MouseWheelEvent &ev)
+bool GuiManager::processMouseMotion(int x, int y)
 {
-    m_rocketContext->ProcessMouseWheel((int)ev.delta, 0);
+    m_rocketContext->ProcessMouseMove(x, y, 0);
+    return true;
+}
+
+bool GuiManager::processMouseWheel(int delta)
+{
+    m_rocketContext->ProcessMouseWheel(delta, 0);
     return true;
 }
 

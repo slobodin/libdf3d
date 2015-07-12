@@ -33,9 +33,11 @@ class DF3D_DLL GuiManager
     void render();
 
 public:
-    bool processMouseButtonEvent(const base::MouseButtonEvent &ev);
-    bool processMouseMotionEvent(const base::MouseMotionEvent &ev);
-    bool processMouseWheelEvent(const base::MouseWheelEvent &ev);
+    // Calls RocketContext.
+    bool processMouseButtonDown(int buttonIdx);
+    bool processMouseButtonUp(int buttonIdx);
+    bool processMouseMotion(int x, int y);
+    bool processMouseWheel(int delta);
     bool processKeyDownEvent(const base::KeyboardEvent::KeyCode &code);
     bool processKeyUpEvent(const base::KeyboardEvent::KeyCode &code);
 

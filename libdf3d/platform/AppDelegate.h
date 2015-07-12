@@ -26,6 +26,7 @@ public:
     virtual void onAppPaused() = 0;
     virtual void onAppResumed() = 0;
 
+    virtual void onTouchEvent(const base::TouchEvent &touchEvent) = 0;
     virtual void onMouseButtonEvent(const base::MouseButtonEvent &mouseButtonEvent) = 0;
     virtual void onMouseMotionEvent(const base::MouseMotionEvent &mouseMotionEvent) = 0;
     virtual void onMouseWheelEvent(const base::MouseWheelEvent &mouseWheelEvent) = 0;

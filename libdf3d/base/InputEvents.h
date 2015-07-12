@@ -59,4 +59,19 @@ public:
     KeyCode keycode;
 };
 
+class DF3D_DLL TouchEvent
+{
+public:
+    enum class State
+    {
+        UP,
+        DOWN,
+        MOVING
+    };
+
+    int id = 0;
+    int x = 0, y = 0;
+    State state;
+};
+
 } }
