@@ -9,6 +9,8 @@ public:
     bool rightPressed = false;
     int x = 0;
     int y = 0;
+    int dx = 0;
+    int dy = 0;
 };
 
 class DF3D_DLL MouseButtonEvent
@@ -70,7 +72,10 @@ public:
     };
 
     int id = 0;
-    int x = 0, y = 0;
+    int x = 0;
+    int y = 0;
+    int dx = 0;
+    int dy = 0;
     State state;
 };
 
