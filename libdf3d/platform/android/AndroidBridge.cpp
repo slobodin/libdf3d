@@ -85,12 +85,16 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onDestro
 {
     df3d::base::glog << "Activity was destroyed" << df3d::base::logmess;
     g_appDelegate->onAppEnded();
+
+    SAFE_DELETE(g_appDelegate);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_draw(JNIEnv* env, jclass cls, jdouble dt)
 {
     g_appDelegate->onAppUpdate((float)dt);
 }
+
+// TODO: XXX this works incorrect.
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchDown(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
@@ -99,7 +103,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchD
     ev.y = y;
     ev.state = df3d::base::MouseButtonEvent::State::PRESSED;
     ev.button = df3d::base::MouseButtonEvent::Button::LEFT;
-    g_appDelegate->onMouseButtonEvent(ev);
+    // g_appDelegate->onMouseButtonEvent(ev);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchUp(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
@@ -109,7 +113,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchU
     ev.y = y;
     ev.state = df3d::base::MouseButtonEvent::State::RELEASED;
     ev.button = df3d::base::MouseButtonEvent::Button::LEFT;
-    g_appDelegate->onMouseButtonEvent(ev);
+    // g_appDelegate->onMouseButtonEvent(ev);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchMove(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
@@ -118,5 +122,5 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchM
     ev.x = x;
     ev.y = y;
     ev.leftPressed = true;
-    g_appDelegate->onMouseMotionEvent(ev);
+    // g_appDelegate->onMouseMotionEvent(ev);
 }
