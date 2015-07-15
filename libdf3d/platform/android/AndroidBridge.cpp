@@ -94,38 +94,42 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_draw(JNI
     g_appDelegate->onAppUpdate((float)dt);
 }
 
-// TODO: XXX this works incorrect.
-
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchDown(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
-    df3d::base::MouseButtonEvent ev;
+    df3d::base::TouchEvent ev;
     ev.x = x;
     ev.y = y;
-    ev.state = df3d::base::MouseButtonEvent::State::PRESSED;
-    ev.button = df3d::base::MouseButtonEvent::Button::LEFT;
-    // g_appDelegate->onMouseButtonEvent(ev);
+    ev.id = pointerId;
+    ev.state = df3d::base::TouchEvent::State::DOWN;
+    g_appDelegate->onTouchEvent(ev);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchUp(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
-    df3d::base::MouseButtonEvent ev;
+    df3d::base::TouchEvent ev;
     ev.x = x;
     ev.y = y;
-    ev.state = df3d::base::MouseButtonEvent::State::RELEASED;
-    ev.button = df3d::base::MouseButtonEvent::Button::LEFT;
-    // g_appDelegate->onMouseButtonEvent(ev);
+    ev.id = pointerId;
+    ev.state = df3d::base::TouchEvent::State::UP;
+    g_appDelegate->onTouchEvent(ev);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchMove(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
-    df3d::base::MouseMotionEvent ev;
+    df3d::base::TouchEvent ev;
     ev.x = x;
     ev.y = y;
-    ev.leftPressed = true;
-    // g_appDelegate->onMouseMotionEvent(ev);
+    ev.id = pointerId;
+    ev.state = df3d::base::TouchEvent::State::MOVING;
+    g_appDelegate->onTouchEvent(ev);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchCancel(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
-    df3d::base::glog << "Touch cancelled" << df3d::base::logdebug;
+    df3d::base::TouchEvent ev;
+    ev.x = x;
+    ev.y = y;
+    ev.id = pointerId;
+    ev.state = df3d::base::TouchEvent::State::CANCEL;
+    g_appDelegate->onTouchEvent(ev);
 }

@@ -68,7 +68,8 @@ public:
     {
         UP,
         DOWN,
-        MOVING
+        MOVING,
+        CANCEL
     };
 
     int id = 0;
