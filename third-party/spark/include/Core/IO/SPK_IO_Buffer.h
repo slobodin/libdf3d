@@ -61,7 +61,7 @@ namespace IO
 			if (USE_LITTLE_ENDIANS)
 				return *reinterpret_cast<const int32*>(get(4));
 			else
-				return swap32(*reinterpret_cast<const int32*>(get(4)));
+				return swap_32(*reinterpret_cast<const int32*>(get(4)));
 		}
 
 		template<class T> T get() const
@@ -81,7 +81,7 @@ namespace IO
 			if (USE_LITTLE_ENDIANS)
 				put(reinterpret_cast<char*>(&i),4);
 			else
-				put(reinterpret_cast<char*>(swap32(i)),4);
+				put(reinterpret_cast<char*>(swap_32(i)),4);
 		}
 
 		////////////////////////////
@@ -197,7 +197,7 @@ namespace IO
 		size_t size;
 		mutable size_t position;
 
-		static int32 swap32(int32 i)
+		static int32 swap_32(int32 i)
 		{
 			return ((i & 0xFF000000 >> 24) & 0xFF) |
 					(i & 0x00FF0000 >> 8) |
