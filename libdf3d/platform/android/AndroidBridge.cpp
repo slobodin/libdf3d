@@ -124,3 +124,8 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchM
     ev.leftPressed = true;
     // g_appDelegate->onMouseMotionEvent(ev);
 }
+
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchCancel(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
+{
+    df3d::base::glog << "Touch cancelled" << df3d::base::logdebug;
+}

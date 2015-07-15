@@ -53,42 +53,77 @@ public class Df3dSurfaceView extends GLSurfaceView {
     public boolean onTouchEvent(MotionEvent event) {
         super.onTouchEvent(event);
 
+		final int pointerCount = event.getPointerCount();
+		final int[] ids = new int[pointerCount];
+		final float[] xCoords = new float[pointerCount];
+		final float[] yCoords = new float[pointerCount];
+
+		for (int i = 0; i < pointerCount; i++) {
+			ids[i] = event.getPointerId(i);
+			xCoords[i] = event.getX(i);
+			yCoords[i] = event.getY(i);
+		}
+
 		switch (event.getAction() & MotionEvent.ACTION_MASK) {
 			case MotionEvent.ACTION_DOWN:
-				final float xDown = event.getX(0);
-				final float yDown = event.getY(0);
-
 				queueEvent(new Runnable() {
 					@Override
 					public void run() {
-						NativeBindings.onTouchDown(0, xDown, yDown);
+						NativeBindings.onTouchDown(ids[0], xCoords[0], yCoords[0]);
 					}
 				});
 				break;
 			case MotionEvent.ACTION_UP:
-				final float xUp = event.getX(0);
-				final float yUp = event.getY(0);
-
 				queueEvent(new Runnable() {
 					@Override
 					public void run() {
-						NativeBindings.onTouchUp(0, xUp, yUp);
+						NativeBindings.onTouchUp(ids[0], xCoords[0], yCoords[0]);
 					}
 				});
 				break;
 			case MotionEvent.ACTION_MOVE:
-				int pointerCount = event.getPointerCount();
-				for (int i = 0; i < pointerCount; i++) {
-					final float xMove = event.getX(i);
-					final float yMove = event.getY(i);
+				queueEvent(new Runnable() {
+					@Override
+					public void run() {
+						for (int i = 0; i < pointerCount; i++)
+							NativeBindings.onTouchMove(ids[i], xCoords[i], yCoords[i]);
+					}
+				});
+				break;
+			case MotionEvent.ACTION_CANCEL:
+				queueEvent(new Runnable() {
+					@Override
+					public void run() {
+						for (int i = 0; i < pointerCount; i++)
+							NativeBindings.onTouchCancel(ids[i], xCoords[i], yCoords[i]);
+					}
+				});
+				break;
+			case MotionEvent.ACTION_POINTER_UP:
+				final int idxUp = event.getAction() >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+				final int idUp = event.getPointerId(idxUp);
+				final float xUp = event.getX(idxUp);
+				final float yUp = event.getY(idxUp);
 
-					queueEvent(new Runnable() {
-						@Override
-						public void run() {
-							NativeBindings.onTouchMove(0, xMove, yMove);
-						}
-					});
-				}
+				queueEvent(new Runnable() {
+					@Override
+					public void run() {
+						NativeBindings.onTouchUp(idUp, xUp, yUp);
+					}
+				});
+				break;
+			case MotionEvent.ACTION_POINTER_DOWN:
+				final int idxDown = event.getAction() >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+				final int idDown = event.getPointerId(idxDown);
+				final float xDown = event.getX(idxDown);
+				final float yDown = event.getY(idxDown);
+
+				queueEvent(new Runnable() {
+					@Override
+					public void run() {
+						NativeBindings.onTouchDown(idDown, xDown, yDown);
+					}
+				});
 				break;
 			default:
 				break;

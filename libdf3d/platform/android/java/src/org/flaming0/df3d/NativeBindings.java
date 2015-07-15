@@ -13,6 +13,7 @@ public class NativeBindings {
     public static native void onTouchDown(int pointerId, float x, float y);
     public static native void onTouchUp(int pointerId, float x, float y);
     public static native void onTouchMove(int pointerId, float x, float y);
+    public static native void onTouchCancel(int pointerId, float x, float y);
 
     public static native void setAssetManager(AssetManager mgr);
 }
