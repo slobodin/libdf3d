@@ -2,8 +2,11 @@
 
 namespace df3d { namespace render {
 
+class GpuProgram;
+
 class Shader
 {
+    friend class GpuProgram;
 public:
     enum class Type
     {
@@ -20,25 +23,26 @@ private:
     bool m_isCompiled = false;
 
     void createGLShader();
+    //! Shader code preprocessing.
+    static std::string preprocess(const std::string &shaderData);
+    static std::string preprocessInclude(std::string shaderData, const std::string &shaderFilePath);
+
+    void setCompiled(bool isCompiled) { m_isCompiled = isCompiled; }
+    void setShaderData(const std::string &data);
+    void setType(Type type) { m_type = type; }
+
+    bool compile();
+
 public:
     Shader(Type type = Type::UNDEFINED);
     ~Shader();
 
-    bool compile();
+    Type getType() const { return m_type; }
+    unsigned int getDescriptor() const { return m_shaderDescriptor; }
+    bool compiled() { return m_isCompiled; }
 
-    bool compiled();
-
-    void setCompiled(bool isCompiled);
-    void setShaderDescriptor(unsigned int descr);
-    void setShaderData(const std::string &data);
-    void setShaderData(const char **data, size_t lnCount);
-    void setType(Type type);
-
-    Type getType() const;
-    unsigned int getDescriptor() const;
-
-    // FIXME:
     static shared_ptr<Shader> createFromFile(const char *filePath);
+    static shared_ptr<Shader> createFromString(const char *shaderData, Type type);
 };
 
 } }

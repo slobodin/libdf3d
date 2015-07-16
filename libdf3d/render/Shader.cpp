@@ -31,15 +31,68 @@ void Shader::createGLShader()
         m_shaderDescriptor = 0;
 }
 
-Shader::Shader(Type type)
-    : m_type(type)
+std::string Shader::preprocess(const std::string &shaderData)
 {
+#ifdef DF3D_DESKTOP
+    std::string versionPrefix = "#version 110\n";
+#else
+    std::string versionPrefix = "";
+#endif
+
+    std::string precisionPrefix = "#ifdef GL_ES\n"
+        "#define LOWP lowp\n"
+        "precision mediump float;\n"
+        "#else\n"
+        "#define LOWP\n"
+        "#endif\n";
+
+    std::string result = versionPrefix + precisionPrefix + shaderData;
+
+    return result;
 }
 
-Shader::~Shader()
+std::string Shader::preprocessInclude(std::string shaderData, const std::string &shaderFilePath)
 {
-    if (m_shaderDescriptor != 0)
-        glDeleteShader(m_shaderDescriptor);
+    const std::string shaderDirectory = g_fileSystem->getFileDirectory(shaderFilePath);
+    const std::string INCLUDE_DIRECTIVE = "#include";
+    const size_t INCLUDE_DIRECTIVE_LEN = INCLUDE_DIRECTIVE.size();
+
+    size_t found = shaderData.find(INCLUDE_DIRECTIVE, 0);
+    while (found != std::string::npos)
+    {
+        auto start = shaderData.find('\"', found + INCLUDE_DIRECTIVE_LEN);
+        auto end = shaderData.find('\"', start + 1);
+
+        if (start == end || start == std::string::npos || end == std::string::npos)
+        {
+            base::glog << "Failed to preprocess shader: invalid include directive" << base::logwarn;
+            return shaderData;
+        }
+
+        auto fileToInclude = shaderData.substr(start + 1, end - start - 1);
+        if (fileToInclude.empty())
+        {
+            base::glog << "Failed to preprocess shader: empty include path" << base::logwarn;
+            return shaderData;
+        }
+
+        fileToInclude = resources::FileSystem::pathConcatenate(shaderDirectory.c_str(), fileToInclude.c_str());
+        auto file = g_fileSystem->openFile(fileToInclude.c_str());
+        if (!file || !file->valid())
+        {
+            base::glog << "Failed to preprocess shader: file" << fileToInclude << "not found" << base::logwarn;
+            return shaderData;
+        }
+
+        std::string includeData(file->getSize(), 0);
+        file->getRaw(&includeData[0], file->getSize());
+
+        shaderData.replace(found, end - found + 1, includeData);
+
+        found = shaderData.find(INCLUDE_DIRECTIVE, found);
+    }
+
+    return shaderData;
 }
 
 bool Shader::compile()
@@ -63,31 +116,23 @@ bool Shader::compile()
         return false;
     }
 
-    auto precisionPrefix = "#ifdef GL_ES\n"
-        "#define LOWP lowp\n"
-        "precision mediump float;\n"
-        "#else\n"
-        "#define LOWP\n"
-        "#endif\n";
-
-    std::string shaderData = precisionPrefix;
-    shaderData += m_shaderData;
-
-#ifdef DF3D_WINDOWS
-    const char *src[2] = { "#version 110\n", shaderData.c_str() };
-    glShaderSource(m_shaderDescriptor, 2, src, nullptr);
-#else
-    const char *pdata = shaderData.c_str();
+    const char *pdata = m_shaderData.c_str();
     glShaderSource(m_shaderDescriptor, 1, &pdata, nullptr);
-#endif
     glCompileShader(m_shaderDescriptor);
 
     int compileOk;
     glGetShaderiv(m_shaderDescriptor, GL_COMPILE_STATUS, &compileOk);
     if (compileOk == GL_FALSE)
     {
-        base::glog << "Failed to compile shader" << base::logwarn;
+        base::glog << "Failed to compile a shader" << base::logwarn;
+        base::glog << "\n" << m_shaderData << base::logmess;
         shaderLog(m_shaderDescriptor);
+
+        // Force stop the application in debug mode when shader was fail to compile.
+        // FIXME: find out more clever way (do not try to bind failed shaders).
+#ifdef _DEBUG
+        std::exit(1);
+#endif
         return false;
     }
 
@@ -96,51 +141,21 @@ bool Shader::compile()
     return true;
 }
 
-bool Shader::compiled()
-{
-    return m_isCompiled;
-}
-
-void Shader::setCompiled(bool isCompiled)
-{
-    m_isCompiled = isCompiled;
-}
-
-void Shader::setShaderDescriptor(unsigned int descr)
-{
-    m_shaderDescriptor = descr;
-}
-
 void Shader::setShaderData(const std::string &data)
 {
     m_shaderData = data;
     setCompiled(false);
 }
 
-void Shader::setShaderData(const char **data, size_t lnCount)
+Shader::Shader(Type type)
+    : m_type(type)
 {
-    m_shaderData = "";
-
-    for (size_t i = 0; i < lnCount; i++)
-    {
-        m_shaderData.append(data[i]);
-        m_shaderData.append("\n");
-    }
 }
 
-void Shader::setType(Type type)
+Shader::~Shader()
 {
-    m_type = type;
-}
-
-Shader::Type Shader::getType() const
-{
-    return m_type;
-}
-
-unsigned int Shader::getDescriptor() const
-{
-    return m_shaderDescriptor;
+    if (m_shaderDescriptor != 0)
+        glDeleteShader(m_shaderDescriptor);
 }
 
 shared_ptr<Shader> Shader::createFromFile(const char *filePath)
@@ -156,9 +171,9 @@ shared_ptr<Shader> Shader::createFromFile(const char *filePath)
     const std::string &ext = g_fileSystem->getFileExtension(filePath);
 
     if (ext == ".vert")
-        shader->setType(render::Shader::Type::VERTEX);
+        shader->setType(Type::VERTEX);
     else if (ext == ".frag")
-        shader->setType(render::Shader::Type::FRAGMENT);
+        shader->setType(Type::FRAGMENT);
     else
     {
         base::glog << "Can not decode GLSL shader because it's type is undefined" << filePath << base::logwarn;
@@ -168,8 +183,21 @@ shared_ptr<Shader> Shader::createFromFile(const char *filePath)
     std::string buffer(file->getSize(), 0);
     file->getRaw(&buffer[0], file->getSize());
 
-    shader->setShaderData(buffer);
+    shader->setShaderData(preprocessInclude(preprocess(buffer), file->getPath()));
 
+    return shader;
+}
+
+shared_ptr<Shader> Shader::createFromString(const char *shaderData, Type type)
+{
+    if (type == Type::UNDEFINED)
+    {
+        base::glog << "Failed to create shader of UNDEFINED type" << base::logwarn;
+        return nullptr;
+    }
+
+    auto shader = make_shared<Shader>(type);
+    shader->setShaderData(preprocess(shaderData));
     return shader;
 }
 

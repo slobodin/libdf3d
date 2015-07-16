@@ -31,10 +31,8 @@ void ResourceManager::loadEmbedResources()
     auto loadInternal = [&](const char *name, const std::string &dataVert, const std::string &dataFrag)
     {
         auto program = make_shared<render::GpuProgram>();
-        auto vertexShader = make_shared<render::Shader>(render::Shader::Type::VERTEX);
-        vertexShader->setShaderData(dataVert);
-        auto fragmentShader = make_shared<render::Shader>(render::Shader::Type::FRAGMENT);
-        fragmentShader->setShaderData(dataFrag);
+        auto vertexShader = render::Shader::createFromString(dataVert.c_str(), render::Shader::Type::VERTEX);
+        auto fragmentShader = render::Shader::createFromString(dataFrag.c_str(), render::Shader::Type::FRAGMENT);
 
         program->attachShader(vertexShader);
         program->attachShader(fragmentShader);
@@ -99,7 +97,7 @@ void ResourceManager::doRequest(DecodeRequest req)
 ResourceManager::ResourceManager()
 {
     m_threadPool = make_unique<base::ThreadPool>(2);
-    
+
     loadEmbedResources();
 }
 
