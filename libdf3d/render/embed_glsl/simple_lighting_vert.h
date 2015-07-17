@@ -19,7 +19,7 @@ attribute vec3 vertex;                      \n\
 attribute vec3 normal;                      \n\
 attribute vec2 txCoord;                     \n\
 \
-uniform mat3 WorldViewMatrix3x3;            \n\
+uniform mat4 WorldViewMatrix;               \n\
 uniform mat4 WorldViewProjectionMatrix;     \n\
 uniform mat3 NormalMatrix;                  \n\
 \
@@ -48,7 +48,7 @@ void illuminate()                                           \n\
     vec3 diffuse = material.diffuse.rgb * current_light.diffuse * lambertDiffuse;\n\
 \
     // Compute specular light. NOTE: Phong model.           \n\
-    vec3 r = -reflect( L, N );                              \n\
+    vec3 r = reflect( L, N );                               \n\
     float phongSpecular = pow(max(dot(r, V), 0.0), material.shininess); \n\
     vec3 specular = material.specular.rgb * current_light.specular * phongSpecular; \n\
 \
@@ -58,7 +58,7 @@ void illuminate()                                           \n\
 void main()                                             \n\
 {                                                       \n\
     N = normalize( NormalMatrix * normal );             \n\
-    P = WorldViewMatrix3x3 * vertex;                    \n\
+    P = (WorldViewMatrix * vec4(vertex, 1.0)).xyz;                    \n\
     V = normalize( -P );                                \n\
 \
     color = vec4(0.0, 0.0, 0.0, 1.0);                   \n\
