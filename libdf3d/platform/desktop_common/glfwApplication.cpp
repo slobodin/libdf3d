@@ -1,7 +1,6 @@
 #include "df3d_pch.h"
 
 #include "../AppDelegate.h"
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 namespace df3d { namespace platform {
@@ -76,20 +75,6 @@ public:
         glfwSetCursorPosCallback(window, cursorPositionCallback);
         glfwSetMouseButtonCallback(window, mouseButtonCallback);
         glfwSetKeyCallback(window, keyCallback);
-
-        // Init GLEW.
-        glewExperimental = GL_TRUE;
-
-        auto glewerr = glewInit();
-        if (glewerr != GLEW_OK)
-        {
-            std::string errStr = "GLEW initialization failed: ";
-            errStr += (const char *)glewGetErrorString(glewerr);
-            throw std::runtime_error(errStr);
-        }
-
-        if (!glewIsSupported("GL_VERSION_2_1"))
-            throw std::runtime_error("GL 2.1 unsupported");
 
         // Init user code.
         if (!m_appDelegate->onAppStarted(params.windowWidth, params.windowHeight))
