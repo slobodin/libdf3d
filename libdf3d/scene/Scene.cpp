@@ -65,12 +65,6 @@ glm::vec3 Scene::getFogColor() const
 
 void Scene::setPostProcessMaterial(shared_ptr<render::Material> material)
 {
-    if (!material)
-    {
-        base::glog << "Trying to set empty material as post process pass" << base::logwarn;
-        return;
-    }
-
     m_postProcessMaterial = material;
 }
 

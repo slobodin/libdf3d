@@ -6,9 +6,13 @@ namespace df3d { namespace components {
 
 class DF3D_DLL TransformComponent : public NodeComponent
 {
+    //! Accumulated node world transform (including parent).
     glm::mat4 m_transformation;
+    //! Node local position.
     glm::vec3 m_position;
+    //! Node local orientation.
     glm::quat m_orientation;
+    //! Node local scale.
     glm::vec3 m_scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
     enum
@@ -45,11 +49,11 @@ public:
     void rotateRoll(float roll, bool rads = false);
     void rotateAxis(float angle, const glm::vec3 &axis, bool rads = false);
 
-    glm::vec3 getPosition();
-    glm::vec3 getScale();
-    glm::quat getOrientation();
+    glm::vec3 getPosition(bool includeParent = false);
+    glm::vec3 getScale(bool includeParent = false);
+    glm::quat getOrientation(bool includeParent = false);
     glm::mat4 getTransformation();
-    glm::vec3 getRotation(bool rads = false);
+    glm::vec3 getRotation(bool rads = false, bool includeParent = false);
 
     shared_ptr<NodeComponent> clone() const override;
 };

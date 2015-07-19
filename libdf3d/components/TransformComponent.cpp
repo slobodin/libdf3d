@@ -173,21 +173,24 @@ void TransformComponent::rotateAxis(float angle, const glm::vec3 &axis, bool rad
     markDirty(m_dirtyBits | ORIENTATION_DIRTY);
 }
 
-glm::vec3 TransformComponent::getPosition()
+glm::vec3 TransformComponent::getPosition(bool includeParent)
 {
     updateTransformation();
 
-    return m_position;
+    if (!includeParent)
+        return m_position;
+    else
+        return glm::vec3(m_transformation[3]);
 }
 
-glm::vec3 TransformComponent::getScale()
+glm::vec3 TransformComponent::getScale(bool includeParent)
 {
     updateTransformation();
 
     return m_scale;
 }
 
-glm::quat TransformComponent::getOrientation()
+glm::quat TransformComponent::getOrientation(bool includeParent)
 {
     updateTransformation();
 
@@ -201,7 +204,7 @@ glm::mat4 TransformComponent::getTransformation()
     return m_transformation;
 }
 
-glm::vec3 TransformComponent::getRotation(bool rads)
+glm::vec3 TransformComponent::getRotation(bool rads, bool includeParent)
 {
     updateTransformation();
 
