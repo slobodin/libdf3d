@@ -18,7 +18,7 @@ public:
 private:
     unique_ptr<DebugDrawAABBNode> m_debugDraw;
 
-    void onEvent(components::ComponentEvent ev) override;
+    void onComponentEvent(components::ComponentEvent ev) override;
     void onDraw(render::RenderQueue *ops) override;
 
     DebugDrawComponent();

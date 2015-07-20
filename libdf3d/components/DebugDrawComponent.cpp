@@ -107,7 +107,7 @@ public:
     }
 };
 
-void DebugDrawComponent::onEvent(components::ComponentEvent ev)
+void DebugDrawComponent::onComponentEvent(components::ComponentEvent ev)
 {
 
 }

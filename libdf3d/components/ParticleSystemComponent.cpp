@@ -55,13 +55,22 @@ void ParticleSystemComponent::onUpdate(float dt)
     }
 }
 
-void ParticleSystemComponent::onEvent(ComponentEvent ev)
+void ParticleSystemComponent::onComponentEvent(ComponentEvent ev)
 {
-    if (m_worldTransformed)
+    switch (ev)
     {
-        auto tr = m_holder->transform()->getTransformation();
+    case ComponentEvent::ORIENTATION_CHANGED:
+    case ComponentEvent::POSITION_CHANGED:
+    case ComponentEvent::SCALE_CHANGED:
+        if (m_worldTransformed)
+        {
+            auto tr = m_holder->transform()->getTransformation();
 
-        SPKSystem->getTransform().set(glm::value_ptr(tr));
+            SPKSystem->getTransform().set(glm::value_ptr(tr));
+        }
+        break;
+    default:
+        break;
     }
 }
 

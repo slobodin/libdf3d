@@ -24,7 +24,7 @@ private:
 
     void onUpdate(float dt) override;
     void onDraw(render::RenderQueue *ops) override;
-    void onEvent(ComponentEvent ev) override;
+    void onComponentEvent(ComponentEvent ev) override;
 
 public:
     ParticleSystemComponent();

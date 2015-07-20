@@ -23,7 +23,11 @@ enum class ComponentEvent
 {
     POSITION_CHANGED,
     ORIENTATION_CHANGED,
-    SCALE_CHANGED,
+    SCALE_CHANGED
+};
+
+enum class NodeEvent
+{
     CHILD_ATTACHED,
     CHILD_REMOVED,
     ALL_CHILDREN_REMOVED
@@ -47,7 +51,8 @@ public:
 
     void sendEvent(ComponentEvent ev);
 
-    virtual void onEvent(ComponentEvent ev) { }
+    virtual void onComponentEvent(ComponentEvent ev) { }
+    virtual void onNodeEvent(NodeEvent ev) { }
     virtual void onUpdate(float dt) { }
     virtual void onAttached() { }
     virtual void onDetached() { }

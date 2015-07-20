@@ -24,19 +24,22 @@ bool MeshComponent::isInFov()
     return g_sceneManager->getCamera()->getFrustum().sphereInFrustum(getBoundingSphere());
 }
 
-void MeshComponent::onEvent(components::ComponentEvent ev)
+void MeshComponent::onComponentEvent(components::ComponentEvent ev)
 {
-    if (ev == components::ComponentEvent::POSITION_CHANGED ||
-        ev == components::ComponentEvent::ORIENTATION_CHANGED ||
-        ev == components::ComponentEvent::SCALE_CHANGED)
+    switch (ev)
     {
+    case components::ComponentEvent::POSITION_CHANGED:
+    case components::ComponentEvent::ORIENTATION_CHANGED:
         m_transformedAabbDirty = true;
         m_obbTransformationDirty = true;
-    }
-
-    if (ev == components::ComponentEvent::SCALE_CHANGED)
-    {
+        break;
+    case components::ComponentEvent::SCALE_CHANGED:
+        m_transformedAabbDirty = true;
+        m_obbTransformationDirty = true;
         m_boundingSphereDirty = true;
+        break;
+    default:
+        break;
     }
 }
 

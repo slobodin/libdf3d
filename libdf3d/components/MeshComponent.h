@@ -15,7 +15,7 @@ class DF3D_DLL MeshComponent : public NodeComponent
 {
     bool isInFov();
 
-    virtual void onEvent(components::ComponentEvent ev) override;
+    virtual void onComponentEvent(components::ComponentEvent ev) override;
     virtual void onDraw(render::RenderQueue *ops) override;
 
     shared_ptr<render::MeshData> m_geometry;

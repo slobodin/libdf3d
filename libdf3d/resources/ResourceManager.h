@@ -46,8 +46,8 @@ private:
     mutable std::recursive_mutex m_lock;
 
     std::unordered_map<ResourceGUID, shared_ptr<Resource>> m_loadedResources;
-
-    Listener *m_listener = nullptr;
+    
+    std::vector<Listener*> m_listeners;
 
     ResourceManager();
     ~ResourceManager();
@@ -84,7 +84,8 @@ public:
     bool resourceExists(const ResourceGUID &guid) const;
     bool resourceLoaded(const ResourceGUID &guid) const;
 
-    void setListener(Listener *listener) { m_listener = listener; }
+    void addListener(Listener *listener);
+    void removeListener(Listener *listener);
 };
 
 } }

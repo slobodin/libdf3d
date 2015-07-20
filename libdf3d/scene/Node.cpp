@@ -20,12 +20,12 @@ bool findNodeByName(const std::string &name, shared_ptr<Node> node)
     return node->getName() == name;
 }
 
-void Node::broadcastNodeEvent(components::ComponentEvent ev)
+void Node::broadcastNodeEvent(components::NodeEvent ev)
 {
     for (auto c : m_components)
     {
         if (c)
-            c->onEvent(ev);
+            c->onNodeEvent(ev);
     }
 
     for (auto &c : m_children)
@@ -34,14 +34,17 @@ void Node::broadcastNodeEvent(components::ComponentEvent ev)
 
 void Node::broadcastComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev)
 {
+    // Send event to components.
     for (auto c : m_components)
     {
         if (c && c.get() != who)
-            c->onEvent(ev);
+            c->onComponentEvent(ev);
     }
 
+    // Send event to node also.
     onComponentEvent(who, ev);
 
+    // Send event to children.
     for (auto &c : m_children)
         c->broadcastComponentEvent(who, ev);
 }
@@ -143,7 +146,7 @@ void Node::addChild(shared_ptr<Node> child)
     child->m_parent = shared_from_this();
     m_children.push_back(child);
 
-    broadcastNodeEvent(components::ComponentEvent::CHILD_ATTACHED);
+    broadcastNodeEvent(components::NodeEvent::CHILD_ATTACHED);
 }
 
 void Node::removeChild(shared_ptr<Node> child)
@@ -159,14 +162,14 @@ void Node::removeChild(const char *name)
 
     m_children.erase(found);
 
-    broadcastNodeEvent(components::ComponentEvent::CHILD_REMOVED);
+    broadcastNodeEvent(components::NodeEvent::CHILD_REMOVED);
 }
 
 void Node::removeAllChildren()
 {
     m_children.clear();
 
-    broadcastNodeEvent(components::ComponentEvent::ALL_CHILDREN_REMOVED);
+    broadcastNodeEvent(components::NodeEvent::ALL_CHILDREN_REMOVED);
 }
 
 shared_ptr<Node> Node::getChildByName(const char *name) const

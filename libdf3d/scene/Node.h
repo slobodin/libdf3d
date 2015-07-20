@@ -36,7 +36,7 @@ protected:
     weak_ptr<Node> m_parent;
     NodeChildren m_children;
 
-    void broadcastNodeEvent(components::ComponentEvent ev);
+    void broadcastNodeEvent(components::NodeEvent ev);
     void broadcastComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev);
 
     virtual void onComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev) { }

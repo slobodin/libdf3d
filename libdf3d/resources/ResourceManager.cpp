@@ -10,6 +10,7 @@
 #include <render/TextureCube.h>
 #include <render/MeshData.h>
 #include <render/MaterialLib.h>
+#include <utils/Utils.h>
 #include "Resource.h"
 #include "FileDataSource.h"
 #include "decoders/DecoderOBJ.h"
@@ -88,8 +89,8 @@ void ResourceManager::doRequest(DecodeRequest req)
     bool decodeResult = req.decoder->decodeResource(fileSource, req.resource);
     req.resource->setInitialized(true);
 
-    if (m_listener)
-        m_listener->onLoadFromFileSystemRequestComplete(req.resource->getGUID());
+    for (auto listener : m_listeners)
+        listener->onLoadFromFileSystemRequestComplete(req.resource->getGUID());
 
     //base::glog << "Done load" << req.fileSource->getPath() << "with result" << decodeResult << base::logmess;
 }
@@ -170,9 +171,9 @@ shared_ptr<Resource> ResourceManager::loadResourceFromFileSystem(const char *pat
     m_loadedResources[fullPath] = resource;
 
     resource->setGUID(fullPath);
-
-    if (m_listener)
-        m_listener->onLoadFromFileSystemRequest(resource->getGUID());
+    
+    for (auto listener : m_listeners)
+        listener->onLoadFromFileSystemRequest(resource->getGUID());
 
     DecodeRequest request;
     request.decoder = decoder;
@@ -402,6 +403,30 @@ bool ResourceManager::resourceLoaded(const ResourceGUID &guid) const
 
     auto res = findResource(guid);
     return res && res->valid();
+}
+
+void ResourceManager::addListener(Listener *listener)
+{
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+    if (utils::contains(m_listeners, listener))
+    {
+        base::glog << "Trying to add duplicate ResourceManager listener" << base::logwarn;
+        return;
+    }
+
+    m_listeners.push_back(listener);
+}
+
+void ResourceManager::removeListener(Listener *listener)
+{
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+    auto found = std::find(m_listeners.begin(), m_listeners.end(), listener);
+    if (found != m_listeners.end())
+        m_listeners.erase(found);
+    else
+        base::glog << "ResourceManager::removeListener failed: no such listener" << base::logwarn;
 }
 
 } }
