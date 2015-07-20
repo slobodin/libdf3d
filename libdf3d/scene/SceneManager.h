@@ -17,7 +17,6 @@ class DF3D_DLL SceneManager : boost::noncopyable
     ~SceneManager();
 
     shared_ptr<Scene> m_currentScene;
-    std::string m_currentSceneName;
 
     bool m_paused = false;
 
@@ -31,7 +30,8 @@ public:
     void clearCurrentScene();
     void pauseSimulation(bool pause);
 
-    shared_ptr<Scene> setCurrentScene(const char *filePath);
+    bool setCurrentScene(const char *filePath);
+    bool setCurrentScene(shared_ptr<Scene> scene);
     shared_ptr<Scene> getCurrentScene() const;
 
     void setCamera(shared_ptr<Camera> camera);

@@ -65,9 +65,7 @@ void SceneManager::clearCurrentScene()
         return;
 
     m_currentScene.reset();
-    
     m_nodesMarkedForRemoval.clear();
-    m_currentSceneName.clear();
 
     g_resourceManager->unloadUnused();
 
@@ -82,34 +80,29 @@ void SceneManager::pauseSimulation(bool pause)
     m_paused = pause;
 }
 
-shared_ptr<Scene> SceneManager::setCurrentScene(const char *filePath)
+bool SceneManager::setCurrentScene(const char *filePath)
 {
-    auto sceneId = resources::createGUIDFromPath(filePath);
+    return setCurrentScene(scene::Scene::fromJson(filePath));
+}
 
-    if (sceneId == m_currentSceneName)
+bool SceneManager::setCurrentScene(shared_ptr<Scene> scene)
+{
+    if (!scene)
     {
-        base::glog << "Scene with name" << filePath << "already set" << base::logwarn;
-        return nullptr;
+        df3d::base::glog << "Failed to set up scene manager with null scene" << df3d::base::logwarn;
+        return false;
     }
 
     clearCurrentScene();
 
-    auto scene = scene::Scene::fromJson(filePath);
-    if (!scene)
-    {
-        base::glog << "Can not set scene to scene manager. Node at" << filePath << "is invalid" << base::logwarn;
-        return nullptr;
-    }
-
     m_currentScene = scene;
-    m_currentSceneName = sceneId;
 
     for (auto listener : m_listeners)
         listener->onSceneCreated(m_currentScene.get());
 
-    base::glog << "Scene manager was set up for" << filePath << base::logdebug;
+    base::glog << "Scene manager was set up for a new scene" << base::logdebug;
 
-    return m_currentScene;
+    return true;
 }
 
 shared_ptr<Scene> SceneManager::getCurrentScene() const
@@ -138,7 +131,7 @@ void SceneManager::removeNodeFromScene(shared_ptr<Node> node)
 void SceneManager::removeNodeFromScene(const char *name)
 {
     // TODO:
-    // 
+    //
     assert(false);
 }
 
