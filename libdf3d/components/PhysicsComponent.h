@@ -34,9 +34,9 @@ private:
 
     void initFromCreationParams();
 
-    //void onUpdate(float dt);
     void onAttached() override;
     void onDetached() override;
+    void onComponentEvent(ComponentEvent ev) override;
 
 public:
     btRigidBody *body = nullptr;

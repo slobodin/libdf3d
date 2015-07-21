@@ -12,27 +12,13 @@
 
 namespace df3d { namespace components {
 
-// TODO:
-//void PhysicsComponent::onUpdate(float dt)
-//{
-//    // FIXME:
-//    // Because async.
-//    if (!body && m_meshLoaded)
-//    {
-//
-//    }
-//}
-
 void PhysicsComponent::initFromCreationParams()
 {
+    assert(!body);
+
     auto mesh = getHolder()->mesh();
-    if (!mesh || !mesh->isGeometryValid())
-    {
-        base::glog << "Can not create rigid body. Node doesn't have mesh component or it's invalid." << base::logwarn;
-        // TODO:
-        assert(false);
-        return;
-    }
+
+    assert(mesh && mesh->isGeometryValid());
 
     btCollisionShape *colShape = nullptr;
     switch (m_creationParams.type)
@@ -115,15 +101,6 @@ void PhysicsComponent::initFromCreationParams()
     rbInfo.m_angularDamping = m_creationParams.angularDamping;
 
     body = new btRigidBody(rbInfo);
-}
-
-void PhysicsComponent::onAttached()
-{
-    // If not mesh -> exit
-    // If not valid -> wait for mesh loaded.
-    // If valid -> init
-
-    initFromCreationParams();
 
     if (m_creationParams.group != -1 && m_creationParams.mask != -1)
         g_physicsWorld->addRigidBody(body, m_creationParams.group, m_creationParams.mask);
@@ -132,6 +109,20 @@ void PhysicsComponent::onAttached()
 
     // FIXME: remove this. Not needed.
     body->setUserPointer(m_holder);
+}
+
+void PhysicsComponent::onAttached()
+{
+    auto mesh = getHolder()->mesh();
+    if (!mesh)
+    {
+        base::glog << "PhysicsComponent requires mesh component" << base::logwarn;
+        return;
+    }
+
+    if (mesh->isGeometryValid())
+        initFromCreationParams();
+    // If geometry is not valid - wait till mesh being loaded.
 }
 
 void PhysicsComponent::onDetached()
@@ -149,6 +140,12 @@ void PhysicsComponent::onDetached()
 
         body = nullptr;
     }
+}
+
+void PhysicsComponent::onComponentEvent(ComponentEvent ev)
+{
+    if (ev == ComponentEvent::MESH_ASYNC_LOAD_COMPLETE)
+        initFromCreationParams();
 }
 
 PhysicsComponent::PhysicsComponent(const CreationParams &params)
