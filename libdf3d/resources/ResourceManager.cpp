@@ -89,8 +89,11 @@ void ResourceManager::doRequest(DecodeRequest req)
     bool decodeResult = req.decoder->decodeResource(fileSource, req.resource);
     req.resource->setInitialized(true);
 
-    for (auto listener : m_listeners)
-        listener->onLoadFromFileSystemRequestComplete(req.resource->getGUID());
+    {
+        std::lock_guard<std::recursive_mutex> lock(m_lock);
+        for (auto listener : m_listeners)
+            listener->onLoadFromFileSystemRequestComplete(req.resource->getGUID());
+    }
 
     //base::glog << "Done load" << req.fileSource->getPath() << "with result" << decodeResult << base::logmess;
 }
@@ -425,6 +428,8 @@ void ResourceManager::removeListener(Listener *listener)
     auto found = std::find(m_listeners.begin(), m_listeners.end(), listener);
     if (found != m_listeners.end())
         m_listeners.erase(found);
+    else
+        base::glog << "ResourceManager::removeListener failed: listener doesn't exist" << base::logwarn;
 }
 
 } }
