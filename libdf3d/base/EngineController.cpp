@@ -71,8 +71,8 @@ void EngineController::consoleCommandInvoked(const std::string &name, std::strin
 
 void EngineController::shutdown()
 {
-    SAFE_DELETE(m_physics);
     SAFE_DELETE(m_sceneManager);
+    SAFE_DELETE(m_physics);
     SAFE_DELETE(m_guiManager);
     SAFE_DELETE(m_renderManager);
     SAFE_DELETE(m_resourceManager);
