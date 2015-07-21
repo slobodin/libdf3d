@@ -14,7 +14,8 @@ namespace df3d { namespace components {
 
 void PhysicsComponent::initFromCreationParams()
 {
-    assert(!body);
+    if (body)
+        return;
 
     auto mesh = getHolder()->mesh();
 
@@ -109,6 +110,8 @@ void PhysicsComponent::initFromCreationParams()
 
     // FIXME: remove this. Not needed.
     body->setUserPointer(m_holder);
+
+    sendEvent(ComponentEvent::PHYSICS_COMPONENT_INITIALIZED);
 }
 
 void PhysicsComponent::onAttached()
@@ -116,7 +119,7 @@ void PhysicsComponent::onAttached()
     auto mesh = getHolder()->mesh();
     if (!mesh)
     {
-        base::glog << "PhysicsComponent requires mesh component" << base::logwarn;
+        base::glog << "PhysicsComponent::onAttached failed: PhysicsComponent requires mesh component" << base::logwarn;
         return;
     }
 
