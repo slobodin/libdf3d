@@ -23,7 +23,8 @@ enum class ComponentEvent
 {
     POSITION_CHANGED,
     ORIENTATION_CHANGED,
-    SCALE_CHANGED
+    SCALE_CHANGED,
+    MESH_ASYNC_LOAD_COMPLETE
 };
 
 enum class NodeEvent

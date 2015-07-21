@@ -16,6 +16,36 @@
 
 namespace df3d { namespace components {
 
+struct MeshComponent::ResourceMgrListenerImpl : public resources::ResourceManager::Listener
+{
+    std::recursive_mutex m_mutex;
+    MeshComponent *m_holder;
+
+public:
+    ResourceGUID m_guid;
+
+    ResourceMgrListenerImpl(MeshComponent *holder)
+        : m_holder(holder)
+    {
+        g_resourceManager->addListener(this);
+    }
+
+    ~ResourceMgrListenerImpl()
+    {
+        g_resourceManager->removeListener(this);
+    }
+
+    void onLoadFromFileSystemRequest(ResourceGUID resourceId) override { }
+
+    void onLoadFromFileSystemRequestComplete(ResourceGUID resourceId) override
+    {
+        std::lock_guard<decltype(m_mutex)> lock(m_mutex);
+
+        if (resourceId == m_guid)
+            m_holder->m_meshWasLoaded = true;
+    }
+};
+
 bool MeshComponent::isInFov()
 {
     if (m_frustumCullingDisabled)
@@ -86,6 +116,15 @@ void MeshComponent::onDraw(render::RenderQueue *ops)
     }
 }
 
+void MeshComponent::onUpdate(float dt)
+{
+    if (m_meshWasLoaded)
+    {
+        m_meshWasLoaded = false;
+        sendEvent(ComponentEvent::MESH_ASYNC_LOAD_COMPLETE);
+    }
+}
+
 void MeshComponent::constructAABB()
 {
     m_aabb.constructFromGeometry(m_geometry);
@@ -147,7 +186,8 @@ void MeshComponent::constructOBB()
 }
 
 MeshComponent::MeshComponent()
-    : NodeComponent(MESH)
+    : NodeComponent(MESH),
+      m_rmgrListener(make_unique<ResourceMgrListenerImpl>(this))
 {
 
 }
@@ -155,6 +195,8 @@ MeshComponent::MeshComponent()
 MeshComponent::MeshComponent(const char *meshFilePath)
     : MeshComponent()
 {
+    m_rmgrListener->m_guid = resources::createGUIDFromPath(meshFilePath);
+
     setGeometry(g_resourceManager->createMeshData(meshFilePath, ResourceLoadingMode::ASYNC));
 }
 
@@ -276,10 +318,18 @@ std::string MeshComponent::getMeshFilePath() const
 
 shared_ptr<NodeComponent> MeshComponent::clone() const
 {
+    // FIXME: cloning only works for loaded meshes!
+    // XXX: remove clone??
+    if (m_geometry && !m_geometry->valid())
+    {
+        base::glog << "MeshComponent::clone failed. Unsupported cloning for async meshes." << base::logwarn;
+        return nullptr;
+    }
+
     auto retRes = shared_ptr<MeshComponent>(new MeshComponent());
 
     // Clone mesh node fields.
-    retRes->m_geometry = m_geometry->clone();
+    retRes->m_geometry = m_geometry ? m_geometry->clone() : nullptr;
     retRes->m_aabb = m_aabb;
     retRes->m_transformedAABB = m_transformedAABB;
     retRes->m_aabbDirty = m_aabbDirty;
@@ -291,6 +341,7 @@ shared_ptr<NodeComponent> MeshComponent::clone() const
     retRes->m_obbTransformationDirty = m_obbTransformationDirty;
     retRes->m_visible = m_visible;
     retRes->m_frustumCullingDisabled = m_frustumCullingDisabled;
+    // retRes->m_rmgrListener = make_unique<ResourceMgrListenerImpl>(retRes.get());
 
     return retRes;
 }

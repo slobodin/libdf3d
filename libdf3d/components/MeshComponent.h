@@ -15,8 +15,9 @@ class DF3D_DLL MeshComponent : public NodeComponent
 {
     bool isInFov();
 
-    virtual void onComponentEvent(components::ComponentEvent ev) override;
-    virtual void onDraw(render::RenderQueue *ops) override;
+    void onComponentEvent(components::ComponentEvent ev) override;
+    void onDraw(render::RenderQueue *ops) override;
+    void onUpdate(float dt) override;
 
     shared_ptr<render::MeshData> m_geometry;
 
@@ -43,6 +44,10 @@ class DF3D_DLL MeshComponent : public NodeComponent
 
     bool m_visible = true;
     bool m_frustumCullingDisabled = false;
+
+    struct ResourceMgrListenerImpl;
+    unique_ptr<ResourceMgrListenerImpl> m_rmgrListener;
+    bool m_meshWasLoaded = false;   // little workaround
 
 protected:
     MeshComponent();

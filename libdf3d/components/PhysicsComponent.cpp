@@ -119,6 +119,10 @@ void PhysicsComponent::initFromCreationParams()
 
 void PhysicsComponent::onAttached()
 {
+    // If not mesh -> exit
+    // If not valid -> wait for mesh loaded.
+    // If valid -> init
+
     initFromCreationParams();
 
     if (m_creationParams.group != -1 && m_creationParams.mask != -1)
@@ -126,6 +130,7 @@ void PhysicsComponent::onAttached()
     else
         g_physicsWorld->addRigidBody(body);
 
+    // FIXME: remove this. Not needed.
     body->setUserPointer(m_holder);
 }
 

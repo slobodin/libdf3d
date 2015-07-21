@@ -149,18 +149,18 @@ shared_ptr<Resource> ResourceManager::loadResourceFromFileSystem(const char *pat
         return alreadyLoadedResource;
 
     // Try to find resource with the full path.
-    auto fullPath = g_fileSystem->fullPath(path);
-    if (fullPath.empty())
+    auto guid = createGUIDFromPath(path);
+    if (!IsGUIDValid(guid))
     {
         base::glog << "Can't load resource. The path" << path << "doesn't exist or it's a directory." << base::logwarn;
         return nullptr;
     }
 
-    if (auto alreadyLoadedResource = findResource(fullPath))
+    if (auto alreadyLoadedResource = findResource(guid))
         return alreadyLoadedResource;
 
     // Create decoder for the resource.
-    auto fileExtension = g_fileSystem->getFileExtension(fullPath);
+    auto fileExtension = g_fileSystem->getFileExtension(guid);
     auto decoder = getDecoder(fileExtension);
     if (!decoder)
         return nullptr;
@@ -168,16 +168,16 @@ shared_ptr<Resource> ResourceManager::loadResourceFromFileSystem(const char *pat
     // Create resource stub. It will not be fully valid until its completely loaded.
     auto resource = decoder->createResource();
     // Cache resource.
-    m_loadedResources[fullPath] = resource;
+    m_loadedResources[guid] = resource;
 
-    resource->setGUID(fullPath);
-    
+    resource->setGUID(guid);
+
     for (auto listener : m_listeners)
         listener->onLoadFromFileSystemRequest(resource->getGUID());
 
     DecodeRequest request;
     request.decoder = decoder;
-    request.filePath = fullPath;
+    request.filePath = guid;
     request.resource = resource;
 
     if (lm == ResourceLoadingMode::ASYNC)
@@ -425,8 +425,6 @@ void ResourceManager::removeListener(Listener *listener)
     auto found = std::find(m_listeners.begin(), m_listeners.end(), listener);
     if (found != m_listeners.end())
         m_listeners.erase(found);
-    else
-        base::glog << "ResourceManager::removeListener failed: no such listener" << base::logwarn;
 }
 
 } }

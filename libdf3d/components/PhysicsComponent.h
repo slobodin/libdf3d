@@ -41,9 +41,6 @@ private:
 public:
     btRigidBody *body = nullptr;
 
-    // Holder needs to have a valid (loaded) mesh.
-    // TODO:
-    // Patch for async, do not demand valid mesh.
     PhysicsComponent(const CreationParams &params);
     ~PhysicsComponent();
 
