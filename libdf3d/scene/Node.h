@@ -24,13 +24,6 @@ class DF3D_DLL Node : public std::enable_shared_from_this<Node>, private boost::
 public:
     using NodeChildren = std::vector<shared_ptr<Node>>;
 
-    struct Listener
-    {
-        virtual ~Listener() { }
-
-        virtual void onComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev) { }
-    };
-
 protected:
     std::string m_nodeName;
     bool m_visible = true;
@@ -42,8 +35,6 @@ protected:
 
     weak_ptr<Node> m_parent;
     NodeChildren m_children;
-
-    std::vector<Listener*> m_listeners;
 
     void broadcastNodeEvent(components::NodeEvent ev);
     void broadcastComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev);
@@ -70,9 +61,6 @@ public:
     void update(float dt);
     void draw(render::RenderQueue *ops);
     void traverse(std::function<void(shared_ptr<Node>)> fn);
-
-    void addListener(Listener *listener);
-    void removeListener(Listener *listener);
 
     void addChild(shared_ptr<Node> child);
     void removeChild(shared_ptr<Node> child);

@@ -53,7 +53,7 @@ protected:
     MeshComponent();
 
 public:
-    MeshComponent(const char *meshFilePath);
+    MeshComponent(const char *meshFilePath, ResourceLoadingMode lm = ResourceLoadingMode::ASYNC);
     ~MeshComponent();
 
     virtual void setGeometry(shared_ptr<render::MeshData> geometry);

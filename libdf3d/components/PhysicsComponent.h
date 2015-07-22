@@ -29,8 +29,17 @@ public:
         short mask = -1;
     };
 
+    struct Listener
+    {
+        virtual ~Listener() { }
+
+        virtual void onPhysicsComponentInitialized() { }
+    };
+
 private:
     CreationParams m_creationParams;
+
+    std::vector<Listener*> m_listeners;
 
     void initFromCreationParams();
 
@@ -41,8 +50,14 @@ private:
 public:
     btRigidBody *body = nullptr;
 
+    // TODO: ctor with meshdata
     PhysicsComponent(const CreationParams &params);
     ~PhysicsComponent();
+
+    bool isInitialized() const { return body != nullptr; }
+
+    void addListener(Listener *listener);
+    void removeListener(Listener *listener);
 
     shared_ptr<NodeComponent> clone() const override;
 

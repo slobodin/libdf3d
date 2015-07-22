@@ -44,10 +44,6 @@ void Node::broadcastComponentEvent(const components::NodeComponent *who, compone
     // Send event to node also.
     onComponentEvent(who, ev);
 
-    // Broadcast event to external listeners.
-    for (auto listener : m_listeners)
-        listener->onComponentEvent(who, ev);
-
     // Send event to children.
     for (auto &c : m_children)
         c->broadcastComponentEvent(who, ev);
@@ -125,26 +121,6 @@ void Node::traverse(std::function<void (shared_ptr<Node>)> fn)
         child->traverse(fn);
 
     fn(shared_from_this());
-}
-
-void Node::addListener(Listener *listener)
-{
-    if (utils::contains(m_listeners, listener))
-    {
-        base::glog << "Trying to add duplicate Node listener" << base::logwarn;
-        return;
-    }
-
-    m_listeners.push_back(listener);
-}
-
-void Node::removeListener(Listener *listener)
-{
-    auto found = std::find(m_listeners.begin(), m_listeners.end(), listener);
-    if (found != m_listeners.end())
-        m_listeners.erase(found);
-    else
-        base::glog << "Node::removeListener failed: listener doesn't exist" << base::logwarn;
 }
 
 void Node::addChild(shared_ptr<Node> child)

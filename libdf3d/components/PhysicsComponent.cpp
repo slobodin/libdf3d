@@ -9,12 +9,13 @@
 #include <render/VertexIndexBuffer.h>
 #include <render/MeshData.h>
 #include <base/SystemsMacro.h>
+#include <utils/Utils.h>
 
 namespace df3d { namespace components {
 
 void PhysicsComponent::initFromCreationParams()
 {
-    if (body)
+    if (isInitialized())
         return;
 
     auto mesh = getHolder()->mesh();
@@ -111,7 +112,8 @@ void PhysicsComponent::initFromCreationParams()
     // FIXME: remove this. Not needed.
     body->setUserPointer(m_holder);
 
-    sendEvent(ComponentEvent::PHYSICS_COMPONENT_INITIALIZED);
+    for (auto listener : m_listeners)
+        listener->onPhysicsComponentInitialized();
 }
 
 void PhysicsComponent::onAttached()
@@ -161,6 +163,26 @@ PhysicsComponent::PhysicsComponent(const CreationParams &params)
 PhysicsComponent::~PhysicsComponent()
 {
     onDetached();
+}
+
+void PhysicsComponent::addListener(Listener *listener)
+{
+    if (utils::contains(m_listeners, listener))
+    {
+        base::glog << "Trying to add duplicate PhysicsComponent listener" << base::logwarn;
+        return;
+    }
+
+    m_listeners.push_back(listener);
+}
+
+void PhysicsComponent::removeListener(Listener *listener)
+{
+    auto found = std::find(m_listeners.begin(), m_listeners.end(), listener);
+    if (found != m_listeners.end())
+        m_listeners.erase(found);
+    else
+        base::glog << "PhysicsComponent::removeListener failed: listener doesn't exist" << base::logwarn;
 }
 
 shared_ptr<NodeComponent> PhysicsComponent::clone() const
