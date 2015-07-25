@@ -43,6 +43,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/OpenALCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Common.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/ConsoleCommandHandler.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.h
@@ -140,6 +141,8 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/OpenALCommon.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Common.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/ConsoleCommandHandler.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/ConsoleWindowRmlSource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.cpp

@@ -45,6 +45,8 @@ public:
 
     void showDebugger(bool show);
     bool isDebuggerVisible() const;
+
+    Rocket::Core::Context *getContext() { return m_rocketContext; }
 };
 
 } }

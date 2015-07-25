@@ -7,7 +7,6 @@ FWD_MODULE_CLASS(scene, SceneManager)
 FWD_MODULE_CLASS(resources, ResourceManager)
 FWD_MODULE_CLASS(resources, FileSystem)
 FWD_MODULE_CLASS(gui, GuiManager)
-FWD_MODULE_CLASS(gui, DebugOverlayWindow)
 FWD_MODULE_CLASS(physics, PhysicsManager)
 FWD_MODULE_CLASS(audio, AudioManager)
 
@@ -15,7 +14,7 @@ FWD_MODULE_CLASS(audio, AudioManager)
 
 namespace df3d { namespace base {
 
-using ConsoleCommandHandler = std::function<std::string(const std::string &)>;
+class ConsoleCommandHandler;
 
 class DF3D_DLL EngineController : boost::noncopyable
 {
@@ -30,10 +29,7 @@ class DF3D_DLL EngineController : boost::noncopyable
     physics::PhysicsManager *m_physics = nullptr;
     audio::AudioManager *m_audioManager = nullptr;
 
-    gui::DebugOverlayWindow *m_debugWindow = nullptr;
-
-    std::unordered_map<std::string, ConsoleCommandHandler> m_consoleCommandsHandlers;
-    void consoleCommandInvoked(const std::string &name, std::string &result);
+    ConsoleCommandHandler *m_consoleCommandHandler = nullptr;
 
     bool m_initialized = false;
 
@@ -53,11 +49,6 @@ public:
     float getElapsedTime() const { return m_timeElapsed; }
     const render::RenderStats &getLastRenderStats() const;
 
-    void toggleDebugWindow();
-
-    void registerConsoleCommandHandler(const char *commandName, ConsoleCommandHandler handler);
-    void unregisterConsoleCommandHandler(const char *commandName);
-
     bool initialized() const { return m_initialized; }
 
     const render::Viewport &getViewport() const;
@@ -71,6 +62,7 @@ public:
     gui::GuiManager *getGuiManager() { return m_guiManager; }
     physics::PhysicsManager *getPhysicsManager() { return m_physics; }
     audio::AudioManager *getAudioManager() { return m_audioManager; }
+    ConsoleCommandHandler *getConsole() { return m_consoleCommandHandler; }
 };
 
 } }

@@ -2,6 +2,7 @@
 #include "EngineController.h"
 
 #include "InputEvents.h"
+#include "ConsoleCommandHandler.h"
 #include <render/RenderManager.h>
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
@@ -16,9 +17,6 @@
 #include <utils/JsonHelpers.h>
 #include <particlesys/SparkInterface.h>
 
-#if defined(DF3D_DESKTOP)
-#define ENABLE_DEBUG_WINDOW
-#endif
 #if defined(DF3D_WINDOWS)
 #include <platform/windows/CrashHandler.h>
 #endif
@@ -36,41 +34,9 @@ EngineController::~EngineController()
 {
 }
 
-void EngineController::consoleCommandInvoked(const std::string &name, std::string &result)
-{
-    if (name.empty())
-        return;
-
-    // Special case:
-    if (name == "help")
-    {
-        result += "Registered commands: ";
-
-        for (auto it : m_consoleCommandsHandlers)
-            result += it.first + ", ";
-
-        return;
-    }
-
-    auto space = name.find_first_of(' ');
-    auto commandName = name.substr(0, space);
-
-    auto found = m_consoleCommandsHandlers.find(commandName);
-    if (found == m_consoleCommandsHandlers.end())
-    {
-        result = "No such command. Try help for more information.";
-        return;
-    }
-
-    std::string params;
-    if (space != std::string::npos)
-        params = name.substr(space, std::string::npos);
-
-    result = found->second(params);
-}
-
 void EngineController::shutdown()
 {
+    SAFE_DELETE(m_consoleCommandHandler);
     SAFE_DELETE(m_sceneManager);
     SAFE_DELETE(m_physics);
     SAFE_DELETE(m_guiManager);
@@ -78,7 +44,6 @@ void EngineController::shutdown()
     SAFE_DELETE(m_resourceManager);
     SAFE_DELETE(m_fileSystem);
     SAFE_DELETE(m_audioManager);
-    SAFE_DELETE(m_debugWindow);
 
     particlesys::destroySparkEngine();
 
@@ -130,16 +95,16 @@ bool EngineController::init(EngineInitParams params)
         // Init GUI.
         m_guiManager = new gui::GuiManager(params.windowWidth, params.windowHeight);
 
-        // Init debug window.
-#ifdef ENABLE_DEBUG_WINDOW
-        m_debugWindow = new gui::DebugOverlayWindow();
-#endif
-
         // Init physics.
         m_physics = new physics::PhysicsManager();
 
         // Init audio subsystem.
         m_audioManager = new audio::AudioManager();
+
+        // Create console.
+#ifdef DF3D_DESKTOP
+        m_consoleCommandHandler = new ConsoleCommandHandler();
+#endif
 
         base::glog << "Engine initialized" << base::logmess;
 
@@ -184,30 +149,6 @@ void EngineController::runFrame()
 const render::RenderStats &EngineController::getLastRenderStats() const
 {
     return m_renderManager->getLastRenderStats();
-}
-
-void EngineController::toggleDebugWindow()
-{
-#ifdef ENABLE_DEBUG_WINDOW
-    m_debugWindow->toggle();
-#endif
-}
-
-void EngineController::registerConsoleCommandHandler(const char *commandName, ConsoleCommandHandler handler)
-{
-    auto found = m_consoleCommandsHandlers.find(commandName);
-    if (found != m_consoleCommandsHandlers.end())
-    {
-        base::glog << "Console command handler for" << commandName << "already registered" << base::logwarn;
-        return;
-    }
-
-    m_consoleCommandsHandlers[commandName] = handler;
-}
-
-void EngineController::unregisterConsoleCommandHandler(const char *commandName)
-{
-    m_consoleCommandsHandlers.erase(commandName);
 }
 
 const render::Viewport &EngineController::getViewport() const
