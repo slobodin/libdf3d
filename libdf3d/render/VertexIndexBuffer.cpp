@@ -125,9 +125,10 @@ void VertexBuffer::clear()
 
 void VertexBuffer::appendVertexData(const float *source, size_t vertexCount)
 {
+    auto elementsCount = m_vertexFormat.getVertexSize() * vertexCount / sizeof(float);
     // FIXME:
     // Don't use back_inserter.
-    std::copy(source, source + m_vertexFormat.getVertexSize() * vertexCount / sizeof(float), std::back_inserter(m_vertexData));
+    std::copy(source, source + elementsCount, std::back_inserter(m_vertexData));
 
     m_verticesCount += vertexCount;
 }
