@@ -42,6 +42,13 @@ void ParticleSystemComponent::onUpdate(float dt)
     if (!SPKSystem || m_paused || !m_holder->isVisible())
         return;
 
+    if (m_worldTransformed)
+    {
+        auto tr = m_holder->transform()->getTransformation();
+
+        SPKSystem->getTransform().set(glm::value_ptr(tr));
+    }
+
     updateCameraPosition();
     SPKSystem->updateParticles(dt);
 
@@ -52,25 +59,6 @@ void ParticleSystemComponent::onUpdate(float dt)
         {
             m_holder->detachComponent(PARTICLE_EFFECT);
         }
-    }
-}
-
-void ParticleSystemComponent::onComponentEvent(ComponentEvent ev)
-{
-    switch (ev)
-    {
-    case ComponentEvent::ORIENTATION_CHANGED:
-    case ComponentEvent::POSITION_CHANGED:
-    case ComponentEvent::SCALE_CHANGED:
-        if (m_worldTransformed)
-        {
-            auto tr = m_holder->transform()->getTransformation();
-
-            SPKSystem->getTransform().set(glm::value_ptr(tr));
-        }
-        break;
-    default:
-        break;
     }
 }
 
