@@ -11,7 +11,7 @@ public:
     ~DecoderOGG();
 
     shared_ptr<Resource> createResource() override;
-    bool decodeResource(const shared_ptr<FileDataSource> file, shared_ptr<Resource> resource) override;
+    bool decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Resource> resource) override;
 };
 
 } }

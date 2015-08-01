@@ -9,10 +9,10 @@ FWD_MODULE_CLASS(render, MaterialLib)
 
 namespace df3d { namespace resources {
 
-/**
-  * Wavefront OBJ file decoder.
-  * Supports only triangulated models with precomputed normals.
-  */
+//! Wavefront OBJ file decoder.
+/*!
+  Supports only triangulated models with precomputed normals.
+*/
 class DecoderOBJ : public ResourceDecoder
 {
     std::vector<glm::vec3> m_vertices;
@@ -51,7 +51,7 @@ public:
     ~DecoderOBJ();
 
     shared_ptr<Resource> createResource() override;
-    bool decodeResource(const shared_ptr<FileDataSource> file, shared_ptr<Resource> resource) override;
+    bool decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Resource> resource) override;
 };
 
 } }

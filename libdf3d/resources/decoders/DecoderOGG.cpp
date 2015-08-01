@@ -71,7 +71,7 @@ shared_ptr<Resource> DecoderOGG::createResource()
     return make_shared<audio::AudioBuffer>(bufferId);
 }
 
-bool DecoderOGG::decodeResource(const shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
+bool DecoderOGG::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
 {
     if (!file || !file->valid())
         return false;

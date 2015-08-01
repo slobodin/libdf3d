@@ -54,7 +54,7 @@ shared_ptr<Resource> DecoderWAV::createResource()
     return make_shared<audio::AudioBuffer>(bufferId);
 }
 
-bool DecoderWAV::decodeResource(const shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
+bool DecoderWAV::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
 {
     if (!file || !file->valid())
         return false;

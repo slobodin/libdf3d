@@ -34,7 +34,7 @@ private:
 class NodeMotionState : public btMotionState
 {
     scene::Node *m_node;
-    btTransform *m_transform;
+    btTransform m_transform;
 
 public:
     NodeMotionState(scene::Node *node);

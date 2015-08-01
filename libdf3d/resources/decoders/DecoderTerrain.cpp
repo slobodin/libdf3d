@@ -114,7 +114,7 @@ shared_ptr<Resource> DecoderTerrain::createResource()
     //return make_shared<render::MeshData>();
 }
 
-bool DecoderTerrain::decodeResource(const shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
+bool DecoderTerrain::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
 {
     // TODO:
     return false;

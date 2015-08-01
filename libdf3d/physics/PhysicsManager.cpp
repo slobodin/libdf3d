@@ -105,17 +105,17 @@ NodeMotionState::NodeMotionState(scene::Node *node)
     auto orientation = node->transform()->getOrientation();
     auto pos = node->transform()->getPosition();
 
-    m_transform = new btTransform(btQuaternion(orientation.x, orientation.y, orientation.z, orientation.w), glmTobt(pos));
+    m_transform = btTransform(btQuaternion(orientation.x, orientation.y, orientation.z, orientation.w), glmTobt(pos));
 }
 
 NodeMotionState::~NodeMotionState()
 {
-    delete m_transform;
+
 }
 
 void NodeMotionState::getWorldTransform(btTransform &worldTrans) const
 {
-    worldTrans = *m_transform;
+    worldTrans = m_transform;
 }
 
 void NodeMotionState::setWorldTransform(const btTransform &worldTrans)
@@ -126,7 +126,7 @@ void NodeMotionState::setWorldTransform(const btTransform &worldTrans)
     m_node->transform()->setOrientation(glm::quat(rot.w(), rot.x(), rot.y(), rot.z()));
     m_node->transform()->setPosition(v.getX(), v.getY(), v.getZ());
 
-    *m_transform = worldTrans;
+    m_transform = worldTrans;
 }
 
 } }

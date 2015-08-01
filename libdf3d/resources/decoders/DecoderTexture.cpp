@@ -57,7 +57,7 @@ shared_ptr<Resource> DecoderTexture::createResource()
     return make_shared<render::Texture2D>();
 }
 
-bool DecoderTexture::decodeResource(const shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
+bool DecoderTexture::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
 {
     if (!file || !file->valid())
         return false;

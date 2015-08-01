@@ -509,7 +509,7 @@ shared_ptr<Resource> DecoderMTL::createResource()
     return make_shared<render::MaterialLib>();
 }
 
-bool DecoderMTL::decodeResource(const shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
+bool DecoderMTL::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
 {
     if (!file || !file->valid())
         return false;

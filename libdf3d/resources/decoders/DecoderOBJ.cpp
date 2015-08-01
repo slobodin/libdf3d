@@ -186,7 +186,7 @@ shared_ptr<Resource> DecoderOBJ::createResource()
     return make_shared<render::MeshData>();
 }
 
-bool DecoderOBJ::decodeResource(const shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
+bool DecoderOBJ::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
 {
     if (!file || !file->valid())
     {
