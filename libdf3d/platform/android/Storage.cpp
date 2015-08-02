@@ -6,7 +6,7 @@ namespace df3d { namespace platform {
 class AndroidStorage : public Storage
 {
 public:
-    AndroidStorage(const char *filename)
+    AndroidStorage(const std::string &filename)
         : Storage(filename)
     {
 
@@ -18,7 +18,7 @@ public:
     }
 };
 
-Storage *Storage::create(const char *filename)
+Storage *Storage::create(const std::string &filename)
 {
     return new AndroidStorage(filename);
 }
