@@ -35,10 +35,10 @@ public:
 
     const std::string &getName() const;
 
-    void setCurrentTechnique(const char *name);
+    void setCurrentTechnique(const std::string &name);
     shared_ptr<Technique> getCurrentTechnique();
 
-    shared_ptr<Technique> getTechnique(const char *name);
+    shared_ptr<Technique> getTechnique(const std::string &name);
     size_t getTechniquesCount() const;
 };
 

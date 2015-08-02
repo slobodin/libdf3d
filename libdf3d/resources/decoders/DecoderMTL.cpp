@@ -91,7 +91,7 @@ shared_ptr<render::Texture> createTextureOfType(const std::string &type, const s
     {
         std::string path = keyValues.find("path")->second;
 
-        return g_resourceManager->createTexture(path.c_str(), ResourceLoadingMode::ASYNC);
+        return g_resourceManager->createTexture(path, ResourceLoadingMode::ASYNC);
     }
     else if (type == "TEXTURE_CUBE")
     {
@@ -102,7 +102,7 @@ shared_ptr<render::Texture> createTextureOfType(const std::string &type, const s
         std::string negativez = keyValues.find("negative_z")->second;
         std::string positivez = keyValues.find("positive_z")->second;
 
-        return g_resourceManager->createCubeTexture(positivex.c_str(), negativex.c_str(), positivey.c_str(), negativey.c_str(), positivez.c_str(), negativez.c_str(), ResourceLoadingMode::ASYNC);
+        return g_resourceManager->createCubeTexture(positivex, negativex, positivey, negativey, positivez, negativez, ResourceLoadingMode::ASYNC);
     }
 
     base::glog << "Unknown texture type" << type << base::logwarn;
@@ -307,7 +307,7 @@ shared_ptr<render::Material> DecoderMTL::parseMaterialNode(MaterialLibNode &node
         }
     }
 
-    material->setCurrentTechnique(defaultTechniqueName.c_str());
+    material->setCurrentTechnique(defaultTechniqueName);
 
     return material;
 }
@@ -429,7 +429,7 @@ shared_ptr<render::RenderPass> DecoderMTL::parsePassNode(MaterialLibNode &node)
         else if (n->type == SAMPLER_TYPE)
         {
             auto texture = parseSamplerNode(*n);
-            pass->setSampler(n->name.c_str(), texture);
+            pass->setSampler(n->name, texture);
         }
     }
 
@@ -465,7 +465,7 @@ shared_ptr<render::GpuProgram> DecoderMTL::parseShaderNode(MaterialLibNode &node
         return nullptr;
     }
 
-    return g_resourceManager->createGpuProgram(vshader.c_str(), fshader.c_str());
+    return g_resourceManager->createGpuProgram(vshader, fshader);
 }
 
 void DecoderMTL::parseShaderParamsNode(MaterialLibNode &node, shared_ptr<render::RenderPass> pass)

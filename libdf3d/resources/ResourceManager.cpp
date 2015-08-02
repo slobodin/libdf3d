@@ -29,11 +29,11 @@ const char * const AMBIENT_PASS_PROGRAM_EMBED_PATH = "__embed_ambient_pass_progr
 
 void ResourceManager::loadEmbedResources()
 {
-    auto loadInternal = [&](const char *name, const std::string &dataVert, const std::string &dataFrag)
+    auto loadInternal = [&](const std::string &name, const std::string &dataVert, const std::string &dataFrag)
     {
         auto program = make_shared<render::GpuProgram>();
-        auto vertexShader = render::Shader::createFromString(dataVert.c_str(), render::Shader::Type::VERTEX);
-        auto fragmentShader = render::Shader::createFromString(dataFrag.c_str(), render::Shader::Type::FRAGMENT);
+        auto vertexShader = render::Shader::createFromString(dataVert, render::Shader::Type::VERTEX);
+        auto fragmentShader = render::Shader::createFromString(dataFrag, render::Shader::Type::FRAGMENT);
 
         program->attachShader(vertexShader);
         program->attachShader(fragmentShader);
@@ -84,7 +84,7 @@ void ResourceManager::doRequest(DecodeRequest req)
 
     //base::glog << "Start load" << req.fileSource->getPath() << base::logmess;
 
-    auto fileSource = g_fileSystem->openFile(req.filePath.c_str());
+    auto fileSource = g_fileSystem->openFile(req.filePath);
 
     bool decodeResult = req.decoder->decodeResource(fileSource, req.resource);
     req.resource->setInitialized(true);
@@ -143,7 +143,7 @@ shared_ptr<ResourceDecoder> ResourceManager::getDecoder(const std::string &exten
     }
 }
 
-shared_ptr<Resource> ResourceManager::loadResourceFromFileSystem(const char *path, ResourceLoadingMode lm)
+shared_ptr<Resource> ResourceManager::loadResourceFromFileSystem(const std::string &path, ResourceLoadingMode lm)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
@@ -196,23 +196,23 @@ shared_ptr<Resource> ResourceManager::loadResourceFromFileSystem(const char *pat
 void ResourceManager::loadResources(const std::vector<std::string> &resourcesList, ResourceLoadingMode lm)
 {
     for (const auto &path : resourcesList)
-        loadResourceFromFileSystem(path.c_str(), lm);
+        loadResourceFromFileSystem(path, lm);
 }
 
-shared_ptr<audio::AudioBuffer> ResourceManager::createAudioBuffer(const char *audioPath)
+shared_ptr<audio::AudioBuffer> ResourceManager::createAudioBuffer(const std::string &audioPath)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     return static_pointer_cast<audio::AudioBuffer>(loadResourceFromFileSystem(audioPath, ResourceLoadingMode::IMMEDIATE));
 }
 
-shared_ptr<render::GpuProgram> ResourceManager::createGpuProgram(const char *vertexShader, const char *fragmentShader)
+shared_ptr<render::GpuProgram> ResourceManager::createGpuProgram(const std::string &vertexShader, const std::string &fragmentShader)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     // FIXME:
     // Use full path.
-    std::string gpuProgramId = std::string(vertexShader) + ";" + fragmentShader;
+    std::string gpuProgramId = vertexShader + ";" + fragmentShader;
     if (auto alreadyLoaded = findResource(gpuProgramId))
         return static_pointer_cast<render::GpuProgram>(alreadyLoaded);
 
@@ -220,7 +220,7 @@ shared_ptr<render::GpuProgram> ResourceManager::createGpuProgram(const char *ver
     auto vShader = render::Shader::createFromFile(vertexShader);
     auto fShader = render::Shader::createFromFile(fragmentShader);
 
-    if (!vertexShader || !fragmentShader)
+    if (!vShader || !fShader)
     {
         base::glog << "Can not create gpu program. Either vertex or fragment shader is invalid" << base::logwarn;
         return nullptr;
@@ -264,25 +264,25 @@ shared_ptr<render::GpuProgram> ResourceManager::createAmbientPassProgram()
     return static_pointer_cast<render::GpuProgram>(findResource(AMBIENT_PASS_PROGRAM_EMBED_PATH));
 }
 
-shared_ptr<render::MeshData> ResourceManager::createMeshData(const char *meshDataPath, ResourceLoadingMode lm)
+shared_ptr<render::MeshData> ResourceManager::createMeshData(const std::string &meshDataPath, ResourceLoadingMode lm)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     return static_pointer_cast<render::MeshData>(loadResourceFromFileSystem(meshDataPath, lm));
 }
 
-shared_ptr<render::Texture2D> ResourceManager::createTexture(const char *imagePath, ResourceLoadingMode lm)
+shared_ptr<render::Texture2D> ResourceManager::createTexture(const std::string &imagePath, ResourceLoadingMode lm)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     return static_pointer_cast<render::Texture2D>(loadResourceFromFileSystem(imagePath, lm));
 }
 
-shared_ptr<render::Texture2D> ResourceManager::createEmptyTexture(const char *id)
+shared_ptr<render::Texture2D> ResourceManager::createEmptyTexture(const std::string &id)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-    if (id)
+    if (!id.empty())
     {
         if (auto alreadyLoaded = findResource(id))
             return static_pointer_cast<render::Texture2D>(alreadyLoaded);
@@ -290,16 +290,16 @@ shared_ptr<render::Texture2D> ResourceManager::createEmptyTexture(const char *id
 
     auto texture = make_shared<render::Texture2D>();
     texture->setInitialized();
-    if (id)
+    if (!id.empty())
         texture->setGUID(id);
     appendResource(texture);
 
     return texture;
 }
 
-shared_ptr<render::TextureCube> ResourceManager::createCubeTexture(const char *positiveXImage, const char *negativeXImage,
-                                                                   const char *positiveYImage, const char *negativeYImage,
-                                                                   const char *positiveZImage, const char *negativeZImage,
+shared_ptr<render::TextureCube> ResourceManager::createCubeTexture(const std::string &positiveXImage, const std::string &negativeXImage,
+                                                                   const std::string &positiveYImage, const std::string &negativeYImage,
+                                                                   const std::string &positiveZImage, const std::string &negativeZImage,
                                                                    ResourceLoadingMode lm)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
@@ -322,7 +322,7 @@ shared_ptr<render::TextureCube> ResourceManager::createCubeTexture(const char *p
     return textureCube;
 }
 
-shared_ptr<render::MaterialLib> ResourceManager::createMaterialLib(const char *mtlLibPath)
+shared_ptr<render::MaterialLib> ResourceManager::createMaterialLib(const std::string &mtlLibPath)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 

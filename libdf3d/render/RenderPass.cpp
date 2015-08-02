@@ -50,9 +50,9 @@ shared_ptr<GpuProgram> RenderPass::getGpuProgram() const
     return m_gpuProgram;
 }
 
-void RenderPass::setSampler(const char *name, shared_ptr<Texture> texture)
+void RenderPass::setSampler(const std::string &name, shared_ptr<Texture> texture)
 {
-    auto found = std::find_if(m_samplers.begin(), m_samplers.end(), [&](const Sampler &s) -> bool { return s.name == name; } );
+    auto found = std::find_if(m_samplers.begin(), m_samplers.end(), [&name](const Sampler &s) -> bool { return s.name == name; } );
     if (found == m_samplers.end())
     {
         Sampler newsampler;
@@ -71,9 +71,9 @@ std::vector<Sampler> &RenderPass::getSamplers()
     return m_samplers;
 }
 
-shared_ptr<Texture> RenderPass::getSampler(const char *name)
+shared_ptr<Texture> RenderPass::getSampler(const std::string &name)
 {
-    auto found = std::find_if(m_samplers.cbegin(), m_samplers.cend(), [&](const Sampler &s) -> bool { return s.name == name; });
+    auto found = std::find_if(m_samplers.cbegin(), m_samplers.cend(), [&name](const Sampler &s) -> bool { return s.name == name; });
     if (found == m_samplers.cend())
         return nullptr;
     return found->texture;
@@ -97,9 +97,9 @@ void RenderPass::addPassParam(const RenderPassParam &param)
     m_passParams.push_back(param);
 }
 
-RenderPassParam *RenderPass::getPassParam(const char *name)
+RenderPassParam *RenderPass::getPassParam(const std::string &name)
 {
-    auto found = std::find_if(m_passParams.begin(), m_passParams.end(), [&](const RenderPassParam &p) -> bool { return p.name == name; });
+    auto found = std::find_if(m_passParams.begin(), m_passParams.end(), [&name](const RenderPassParam &p) -> bool { return p.name == name; });
     if (found == m_passParams.end())
     {
         base::glog << "Couldn't find pass param" << name << "in render pass" << getName() << base::logwarn;

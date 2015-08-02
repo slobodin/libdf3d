@@ -389,7 +389,7 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
             SPK::TextureMode textureMode = SPK::TEXTURE_MODE_NONE;
             if (!pathToTexture.empty())
             {
-                auto texture = g_resourceManager->createTexture(pathToTexture.c_str(), ResourceLoadingMode::IMMEDIATE);
+                auto texture = g_resourceManager->createTexture(pathToTexture, ResourceLoadingMode::IMMEDIATE);
                 if (texture)
                 {
                     quadRenderer->setDiffuseMap(texture);

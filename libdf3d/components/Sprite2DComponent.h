@@ -20,7 +20,7 @@ class DF3D_DLL Sprite2DComponent : public NodeComponent
     virtual void onDraw(render::RenderQueue *ops) override;
 
 public:
-    Sprite2DComponent(const char *pathToTexture);
+    Sprite2DComponent(const std::string &pathToTexture);
     ~Sprite2DComponent();
 
     void setAnchorPoint(const glm::vec2 &pt);
@@ -36,7 +36,7 @@ public:
 
     glm::vec2 getScreenPosition() const;
 
-    void useTexture(const char *pathToTexture);
+    void useTexture(const std::string &pathToTexture);
     glm::vec2 getTextureSize() const;
 
     void setBlendMode(render::RenderPass::BlendingMode bm);

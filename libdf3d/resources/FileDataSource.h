@@ -10,7 +10,7 @@ class DF3D_DLL FileDataSource : boost::noncopyable
     std::string m_filePath;
 
 public:
-    FileDataSource(const char *fileName)
+    FileDataSource(const std::string &fileName)
         : m_filePath(fileName)
     {
 

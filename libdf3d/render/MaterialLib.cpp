@@ -18,7 +18,7 @@ MaterialLib::~MaterialLib()
 
 }
 
-shared_ptr<Material> MaterialLib::getMaterial(const char *name)
+shared_ptr<Material> MaterialLib::getMaterial(const std::string &name)
 {
     auto found = m_materials.find(name);
     if (found == m_materials.end())
@@ -47,7 +47,7 @@ void MaterialLib::appendMaterial(shared_ptr<Material> material)
     }
 }
 
-bool MaterialLib::isMaterialExists(const char *name)
+bool MaterialLib::isMaterialExists(const std::string &name)
 {
     return m_materials.find(name) != m_materials.end();
 }
@@ -57,7 +57,7 @@ size_t MaterialLib::materialCount() const
     return m_materials.size();
 }
 
-shared_ptr<Material> MaterialLib::getMaterial(const char *mtlLibName, const char *mtlName)
+shared_ptr<Material> MaterialLib::getMaterial(const std::string &mtlLibName, const std::string &mtlName)
 {
     auto mtlLib = g_resourceManager->createMaterialLib(mtlLibName);
     if (!mtlLib)

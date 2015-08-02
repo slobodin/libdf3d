@@ -113,9 +113,9 @@ public:
         m_appDelegate->onAppEnded();
     }
 
-    void setTitle(const char *title)
+    void setTitle(const std::string &title)
     {
-        glfwSetWindowTitle(window, title);
+        glfwSetWindowTitle(window, title.c_str());
     }
 
     void onMouseMove(float xpos, float ypos)
@@ -216,7 +216,7 @@ void run()
     delete g_application;
 }
 
-void setTitle(const char *title)
+void setTitle(const std::string &title)
 {
     g_application->setTitle(title);
 }

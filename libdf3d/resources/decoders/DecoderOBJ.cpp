@@ -45,14 +45,14 @@ void DecoderOBJ::createDefaultMaterial(const std::string &filename)
 
     defaultTech->appendPass(pass);
     m_defaultMaterial->appendTechnique(defaultTech);
-    m_defaultMaterial->setCurrentTechnique(filename.c_str());
+    m_defaultMaterial->setCurrentTechnique(filename);
 }
 
-void DecoderOBJ::createMaterials(const char *dirPath, const char *filePath)
+void DecoderOBJ::createMaterials(const std::string &dirPath, const std::string &filePath)
 {
     // Try to open material library.
     auto fullp = FileSystem::pathConcatenate(dirPath, filePath);
-    m_materials = g_resourceManager->createMaterialLib(fullp.c_str());
+    m_materials = g_resourceManager->createMaterialLib(fullp);
 }
 
 void DecoderOBJ::processLine_v(std::istream &is)
@@ -238,7 +238,7 @@ bool DecoderOBJ::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
             std::string fileName;
             input >> fileName;
 
-            createMaterials(dir.c_str(), fileName.c_str());
+            createMaterials(dir, fileName);
         }
     }
 
@@ -268,10 +268,10 @@ bool DecoderOBJ::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
     for (auto vb : m_vertexBuffers)
     {
         // If m_materials someway became empty (if mtl lib wasn't found), then use default material.
-        if (!m_materials->isMaterialExists(vb.first.c_str()))
+        if (!m_materials->isMaterialExists(vb.first))
             initVb(vb.second, m_defaultMaterial);
         else
-            initVb(vb.second, m_materials->getMaterial(vb.first.c_str()));
+            initVb(vb.second, m_materials->getMaterial(vb.first));
     }
 
     // Attach submeshes without OBJ material (use default instead).

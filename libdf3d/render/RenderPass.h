@@ -100,13 +100,13 @@ public:
     void setGpuProgram(shared_ptr<GpuProgram> newProgram);
     shared_ptr<GpuProgram> getGpuProgram() const;
 
-    void setSampler(const char *name, shared_ptr<Texture> texture);
+    void setSampler(const std::string &name, shared_ptr<Texture> texture);
     std::vector<Sampler> &getSamplers();
-    shared_ptr<Texture> getSampler(const char *name);
+    shared_ptr<Texture> getSampler(const std::string &name);
 
     void addPassParam(const RenderPassParam &param);
     std::vector<RenderPassParam> &getPassParams() { return m_passParams; }
-    RenderPassParam *getPassParam(const char *name);
+    RenderPassParam *getPassParam(const std::string &name);
 
     void setAmbientColor(float ra, float ga, float ba, float aa = 1.0f);
     void setAmbientColor(const glm::vec4 &ambient);

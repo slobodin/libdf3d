@@ -192,7 +192,7 @@ MeshComponent::MeshComponent()
 
 }
 
-MeshComponent::MeshComponent(const char *meshFilePath, ResourceLoadingMode lm)
+MeshComponent::MeshComponent(const std::string &meshFilePath, ResourceLoadingMode lm)
     : MeshComponent()
 {
     m_rmgrListener->m_guid = resources::createGUIDFromPath(meshFilePath);

@@ -42,10 +42,10 @@ protected:
     virtual void onComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev) { }
 
 public:
-    Node(const char *name = "");
+    Node(const std::string &name = "");
     virtual ~Node();
 
-    void setName(const char *newName);
+    void setName(const std::string &newName);
     const std::string &getName() const { return m_nodeName; }
 
     void setVisible(bool visible) { m_visible = visible; }
@@ -64,7 +64,7 @@ public:
 
     void addChild(shared_ptr<Node> child);
     void removeChild(shared_ptr<Node> child);
-    void removeChild(const char *name);
+    void removeChild(const std::string &name);
     void removeAllChildren();
 
     NodeChildren::iterator begin() { return m_children.begin(); }
@@ -73,7 +73,7 @@ public:
     NodeChildren::const_iterator cbegin() const { return m_children.cbegin(); }
     NodeChildren::const_iterator cend() const { return m_children.cend(); }
 
-    shared_ptr<Node> getChildByName(const char *name) const;
+    shared_ptr<Node> getChildByName(const std::string &name) const;
     shared_ptr<Node> getParent() const { return m_parent.lock(); }
     size_t getChildrenCount() const { return m_children.size(); }
 
@@ -92,7 +92,7 @@ public:
     void attachComponent(shared_ptr<components::NodeComponent> component);
     void detachComponent(components::ComponentType type);
 
-    static shared_ptr<Node> fromFile(const char *jsonDefinition);
+    static shared_ptr<Node> fromFile(const std::string &jsonDefinition);
     static shared_ptr<Node> fromJson(const Json::Value &root);
     static Json::Value toJson(shared_ptr<const Node> node);
 };

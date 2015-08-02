@@ -9,7 +9,7 @@ class DF3D_DLL FileDataSourceDesktop : public resources::FileDataSource
     FILE *m_file = nullptr;
 
 public:
-    FileDataSourceDesktop(const char *fileName);
+    FileDataSourceDesktop(const std::string &fileName);
     ~FileDataSourceDesktop();
 
     virtual bool valid() const override;

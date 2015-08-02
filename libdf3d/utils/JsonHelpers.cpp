@@ -6,7 +6,7 @@
 
 namespace df3d { namespace utils {
 
-Json::Value jsonLoadFromFile(const char *path)
+Json::Value jsonLoadFromFile(const std::string &path)
 {
     auto fileSource = g_fileSystem->openFile(path);
     if (!fileSource || !fileSource->valid())
@@ -30,7 +30,7 @@ Json::Value jsonLoadFromFile(const char *path)
     return root;
 }
 
-Json::Value jsonLoadFromSource(const char *data)
+Json::Value jsonLoadFromSource(const std::string &data)
 {
     Json::Value root;
     Json::Reader reader;

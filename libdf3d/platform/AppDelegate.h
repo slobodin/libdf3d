@@ -37,6 +37,6 @@ public:
 void DF3D_DLL setupDelegate(AppDelegate *appDelegate);
 void DF3D_DLL run();
 
-void DF3D_DLL setTitle(const char *title);
+void DF3D_DLL setTitle(const std::string &itle);
 
 } }

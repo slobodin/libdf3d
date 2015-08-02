@@ -41,7 +41,7 @@ public:
     bool processKeyDownEvent(const base::KeyboardEvent::KeyCode &code);
     bool processKeyUpEvent(const base::KeyboardEvent::KeyCode &code);
 
-    RocketDocument loadDocument(const char *name);
+    RocketDocument loadDocument(const std::string &name);
 
     void showDebugger(bool show);
     bool isDebuggerVisible() const;

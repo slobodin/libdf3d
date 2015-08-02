@@ -41,8 +41,8 @@ public:
     unsigned int getDescriptor() const { return m_shaderDescriptor; }
     bool compiled() { return m_isCompiled; }
 
-    static shared_ptr<Shader> createFromFile(const char *filePath);
-    static shared_ptr<Shader> createFromString(const char *shaderData, Type type);
+    static shared_ptr<Shader> createFromFile(const std::string &filePath);
+    static shared_ptr<Shader> createFromString(const std::string &shaderData, Type type);
 };
 
 } }

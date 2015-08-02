@@ -50,7 +50,7 @@ shared_ptr<RenderPass> Technique::getPass(int idx)
     return nullptr;
 }
 
-shared_ptr<RenderPass> Technique::getPass(const char *name)
+shared_ptr<RenderPass> Technique::getPass(const std::string &name)
 {
     return findPass(name);
 }

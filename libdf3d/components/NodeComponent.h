@@ -48,7 +48,7 @@ public:
     virtual ~NodeComponent() { }
 
     scene::Node *getHolder() { return m_holder; }
-    const char *getName() const;
+    const std::string &getName() const;
 
     void sendEvent(ComponentEvent ev);
 
@@ -62,7 +62,7 @@ public:
 
     virtual shared_ptr<NodeComponent> clone() const = 0;
 
-    static shared_ptr<NodeComponent> fromJson(const char *jsonFile);
+    static shared_ptr<NodeComponent> fromJson(const std::string &jsonFile);
     static shared_ptr<NodeComponent> fromJson(const Json::Value &root);
     static Json::Value toJson(shared_ptr<const NodeComponent> component);
 };

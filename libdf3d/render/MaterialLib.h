@@ -15,14 +15,14 @@ public:
     MaterialLib();
     ~MaterialLib();
 
-    shared_ptr<Material> getMaterial(const char *name);
+    shared_ptr<Material> getMaterial(const std::string &name);
     void appendMaterial(shared_ptr<Material> material);
 
-    bool isMaterialExists(const char *name);
+    bool isMaterialExists(const std::string &name);
     size_t materialCount() const;
 
     // FIXME:
-    static shared_ptr<Material> getMaterial(const char *mtlLibName, const char *mtlName);
+    static shared_ptr<Material> getMaterial(const std::string &mtlLibName, const std::string &mtlName);
 };
 
 } }

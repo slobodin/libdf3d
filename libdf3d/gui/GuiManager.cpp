@@ -96,9 +96,9 @@ bool GuiManager::processKeyUpEvent(const base::KeyboardEvent::KeyCode &code)
     return false;
 }
 
-RocketDocument GuiManager::loadDocument(const char *name)
+RocketDocument GuiManager::loadDocument(const std::string &name)
 {
-    auto doc = m_rocketContext->LoadDocument(name);
+    auto doc = m_rocketContext->LoadDocument(name.c_str());
     if (!doc)
         return nullptr;
 

@@ -28,7 +28,7 @@ private:
     void onUpdate(float dt) override;
 
 public:
-    AudioComponent(const char *audioFilePath);
+    AudioComponent(const std::string &audioFilePath);
     ~AudioComponent();
 
     void play();

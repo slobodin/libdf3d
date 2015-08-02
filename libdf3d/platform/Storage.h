@@ -10,10 +10,10 @@ protected:
     std::unordered_map<std::string, Entry> m_entries;
     std::string m_fileName;
 
-    Storage(const char *filename) : m_fileName(filename) { }
+    Storage(const std::string &filename) : m_fileName(filename) { }
 
 public:
-    static Storage *create(const char *filename);
+    static Storage *create(const std::string &filename);
     virtual ~Storage() { }
 
     template<typename T>

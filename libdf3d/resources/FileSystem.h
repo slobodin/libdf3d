@@ -21,11 +21,11 @@ class DF3D_DLL FileSystem : boost::noncopyable
     static std::string canonicalPath(const std::string &rawPath);
 
 public:
-    shared_ptr<FileDataSource> openFile(const char *filePath);
+    shared_ptr<FileDataSource> openFile(const std::string &filePath);
 
-    void addSearchPath(const char *path);
+    void addSearchPath(const std::string &path);
 
-    std::string fullPath(const char *path) const;
+    std::string fullPath(const std::string &path) const;
 
     static std::string getFileDirectory(const std::string &filePath);
     static std::string pathConcatenate(const std::string &fp1, const std::string &fp2);

@@ -45,13 +45,13 @@ public:
     void collectStats(render::RenderStats *stats);
     void collectRenderOperations(render::RenderQueue *ops);
 
-    shared_ptr<Node> getChildByName(const char *name) const;
+    shared_ptr<Node> getChildByName(const std::string &name) const;
     void addChild(shared_ptr<Node> child);
     void removeChild(shared_ptr<Node> child);
-    void removeChild(const char *name);
+    void removeChild(const std::string &name);
     void removeAllChildren();
 
-    static shared_ptr<Scene> fromJson(const char *jsonFile);
+    static shared_ptr<Scene> fromJson(const std::string &jsonFile);
     static shared_ptr<Scene> fromJson(const Json::Value &root);
     static Json::Value toJson(shared_ptr<const Scene> scene);
 };

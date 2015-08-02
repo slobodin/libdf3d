@@ -31,7 +31,7 @@ public:
 
     shared_ptr<RenderPass> getPass(int idx);
     //! Returns first pass with given name.
-    shared_ptr<RenderPass> getPass(const char *name);
+    shared_ptr<RenderPass> getPass(const std::string &name);
     size_t getPassCount() const;
 
     const std::string &getName();

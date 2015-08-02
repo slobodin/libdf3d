@@ -30,7 +30,7 @@ public:
     void clearCurrentScene();
     void pauseSimulation(bool pause);
 
-    bool setCurrentScene(const char *filePath);
+    bool setCurrentScene(const std::string &filePath);
     bool setCurrentScene(shared_ptr<Scene> scene);
     shared_ptr<Scene> getCurrentScene() const;
 
@@ -40,7 +40,7 @@ public:
     // NOTE:
     // Not immediate removal.
     void removeNodeFromScene(shared_ptr<Node> node);
-    void removeNodeFromScene(const char *name);
+    void removeNodeFromScene(const std::string &name);
 
     void addNodeToScene(shared_ptr<Node> node);
 

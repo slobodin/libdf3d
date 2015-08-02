@@ -4,8 +4,8 @@
 
 namespace df3d { namespace utils {
 
-DF3D_DLL Json::Value jsonLoadFromFile(const char *path);
-DF3D_DLL Json::Value jsonLoadFromSource(const char *data);
+DF3D_DLL Json::Value jsonLoadFromFile(const std::string &path);
+DF3D_DLL Json::Value jsonLoadFromSource(const std::string &data);
 
 DF3D_DLL glm::vec2 jsonGetValueWithDefault(const Json::Value &v, const glm::vec2 &defVal = glm::vec2());
 DF3D_DLL glm::vec3 jsonGetValueWithDefault(const Json::Value &v, const glm::vec3 &defVal = glm::vec3());

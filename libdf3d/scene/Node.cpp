@@ -49,7 +49,7 @@ void Node::broadcastComponentEvent(const components::NodeComponent *who, compone
         c->broadcastComponentEvent(who, ev);
 }
 
-Node::Node(const char *name)
+Node::Node(const std::string &name)
 {
     m_nodeName = name;
     if (m_nodeName.empty())
@@ -63,7 +63,7 @@ Node::~Node()
 
 }
 
-void Node::setName(const char *newName)
+void Node::setName(const std::string &newName)
 {
     if (m_parent.lock())
     {
@@ -71,7 +71,7 @@ void Node::setName(const char *newName)
         return;
     }
 
-    if (!newName)
+    if (newName.empty())
     {
         base::glog << "Can not set invalid name for a node." << base::logwarn;
         return;
@@ -137,7 +137,7 @@ void Node::addChild(shared_ptr<Node> child)
         return;
     }
 
-    if (getChildByName(child->m_nodeName.c_str()))
+    if (getChildByName(child->m_nodeName))
     {
         base::glog << "Node" << m_nodeName << "already has child with name" << child->m_nodeName << base::logwarn;
         return;
@@ -151,10 +151,10 @@ void Node::addChild(shared_ptr<Node> child)
 
 void Node::removeChild(shared_ptr<Node> child)
 {
-    removeChild(child->getName().c_str());
+    removeChild(child->getName());
 }
 
-void Node::removeChild(const char *name)
+void Node::removeChild(const std::string &name)
 {
     auto found = std::find_if(m_children.begin(), m_children.end(), std::bind(findNodeByName, name, std::placeholders::_1));
     if (found == m_children.end())
@@ -172,7 +172,7 @@ void Node::removeAllChildren()
     broadcastNodeEvent(components::NodeEvent::ALL_CHILDREN_REMOVED);
 }
 
-shared_ptr<Node> Node::getChildByName(const char *name) const
+shared_ptr<Node> Node::getChildByName(const std::string &name) const
 {
     auto found = std::find_if(m_children.begin(), m_children.end(), std::bind(findNodeByName, name, std::placeholders::_1));
     if (found == m_children.end())
@@ -288,7 +288,7 @@ void Node::detachComponent(components::ComponentType type)
     m_components[type].reset();
 }
 
-shared_ptr<Node> Node::fromFile(const char *jsonDefinition)
+shared_ptr<Node> Node::fromFile(const std::string &jsonDefinition)
 {
     auto root = utils::jsonLoadFromFile(jsonDefinition);
 
@@ -310,7 +310,7 @@ shared_ptr<Node> Node::fromJson(const Json::Value &root)
     auto objName = root["name"].asString();
     const auto &componentsJson = root["components"];
 
-    auto result = make_shared<scene::Node>(objName.c_str());
+    auto result = make_shared<scene::Node>(objName);
     // FIXME: first attach transform, then other componets!
     for (const auto &component : componentsJson)
         result->attachComponent(components::NodeComponent::fromJson(component));

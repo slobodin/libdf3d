@@ -80,7 +80,7 @@ void SceneManager::pauseSimulation(bool pause)
     m_paused = pause;
 }
 
-bool SceneManager::setCurrentScene(const char *filePath)
+bool SceneManager::setCurrentScene(const std::string &filePath)
 {
     return setCurrentScene(scene::Scene::fromJson(filePath));
 }
@@ -128,7 +128,7 @@ void SceneManager::removeNodeFromScene(shared_ptr<Node> node)
     m_nodesMarkedForRemoval.push_back(node);
 }
 
-void SceneManager::removeNodeFromScene(const char *name)
+void SceneManager::removeNodeFromScene(const std::string &name)
 {
     // TODO:
     //

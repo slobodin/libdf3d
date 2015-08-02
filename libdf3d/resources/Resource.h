@@ -27,6 +27,6 @@ public:
 };
 
 bool IsGUIDValid(const ResourceGUID &guid);
-ResourceGUID createGUIDFromPath(const char *path);
+ResourceGUID createGUIDFromPath(const std::string &path);
 
 } }

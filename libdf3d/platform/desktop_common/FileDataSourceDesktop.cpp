@@ -3,11 +3,11 @@
 
 namespace df3d { namespace platform {
 
-FileDataSourceDesktop::FileDataSourceDesktop(const char *fileName)
+FileDataSourceDesktop::FileDataSourceDesktop(const std::string &fileName)
     : resources::FileDataSource(fileName),
     m_file(nullptr)
 {
-    m_file = fopen(fileName, "rb");
+    m_file = fopen(fileName.c_str(), "rb");
     if (!m_file)
         base::glog << "Can not open file" << fileName << base::logwarn;
 }

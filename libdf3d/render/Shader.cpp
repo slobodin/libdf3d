@@ -76,8 +76,8 @@ std::string Shader::preprocessInclude(std::string shaderData, const std::string 
             return shaderData;
         }
 
-        fileToInclude = resources::FileSystem::pathConcatenate(shaderDirectory.c_str(), fileToInclude.c_str());
-        auto file = g_fileSystem->openFile(fileToInclude.c_str());
+        fileToInclude = resources::FileSystem::pathConcatenate(shaderDirectory, fileToInclude);
+        auto file = g_fileSystem->openFile(fileToInclude);
         if (!file || !file->valid())
         {
             base::glog << "Failed to preprocess shader: file" << fileToInclude << "not found" << base::logwarn;
@@ -158,7 +158,7 @@ Shader::~Shader()
         glDeleteShader(m_shaderDescriptor);
 }
 
-shared_ptr<Shader> Shader::createFromFile(const char *filePath)
+shared_ptr<Shader> Shader::createFromFile(const std::string &filePath)
 {
     auto shader = make_shared<Shader>();
     auto file = g_fileSystem->openFile(filePath);
@@ -188,7 +188,7 @@ shared_ptr<Shader> Shader::createFromFile(const char *filePath)
     return shader;
 }
 
-shared_ptr<Shader> Shader::createFromString(const char *shaderData, Type type)
+shared_ptr<Shader> Shader::createFromString(const std::string &shaderData, Type type)
 {
     if (type == Type::UNDEFINED)
     {

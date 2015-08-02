@@ -37,9 +37,9 @@ NodeComponent::NodeComponent(ComponentType t)
 
 }
 
-const char *NodeComponent::getName() const
+const std::string &NodeComponent::getName() const
 {
-    return TypeName.find(type)->second.c_str();
+    return TypeName.find(type)->second;
 }
 
 void NodeComponent::sendEvent(ComponentEvent ev)
@@ -47,7 +47,7 @@ void NodeComponent::sendEvent(ComponentEvent ev)
     getHolder()->broadcastComponentEvent(this, ev);
 }
 
-shared_ptr<NodeComponent> NodeComponent::fromJson(const char *jsonFile)
+shared_ptr<NodeComponent> NodeComponent::fromJson(const std::string &jsonFile)
 {
     return fromJson(utils::jsonLoadFromFile(jsonFile));
 }

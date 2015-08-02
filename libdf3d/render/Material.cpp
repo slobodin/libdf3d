@@ -52,7 +52,7 @@ const std::string &Material::getName() const
     return m_name;
 }
 
-void Material::setCurrentTechnique(const char *name)
+void Material::setCurrentTechnique(const std::string &name)
 {
     if (m_currentTechnique && m_currentTechnique->getName() == name)
         return;
@@ -69,10 +69,8 @@ shared_ptr<Technique> Material::getCurrentTechnique()
     return m_currentTechnique;
 }
 
-shared_ptr<Technique> Material::getTechnique(const char *name)
+shared_ptr<Technique> Material::getTechnique(const std::string &name)
 {
-    // TODO:
-    // Maybe create technique if not found?
     return findTechnique(name);
 }
 

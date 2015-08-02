@@ -82,7 +82,7 @@ void Scene::collectRenderOperations(render::RenderQueue *ops)
     m_root->draw(ops);
 }
 
-shared_ptr<Node> Scene::getChildByName(const char *name) const
+shared_ptr<Node> Scene::getChildByName(const std::string &name) const
 {
     return m_root->getChildByName(name);
 }
@@ -97,7 +97,7 @@ void Scene::removeChild(shared_ptr<Node> child)
     m_root->removeChild(child);
 }
 
-void Scene::removeChild(const char *name)
+void Scene::removeChild(const std::string &name)
 {
     m_root->removeChild(name);
 }
@@ -107,7 +107,7 @@ void Scene::removeAllChildren()
     m_root->removeAllChildren();
 }
 
-shared_ptr<Scene> Scene::fromJson(const char *jsonFile)
+shared_ptr<Scene> Scene::fromJson(const std::string &jsonFile)
 {
     return fromJson(utils::jsonLoadFromFile(jsonFile));
 }

@@ -28,7 +28,7 @@ void AudioComponent::onUpdate(float dt)
     }
 }
 
-AudioComponent::AudioComponent(const char *audioFilePath)
+AudioComponent::AudioComponent(const std::string &audioFilePath)
     : NodeComponent(AUDIO)
 {
     m_buffer = g_resourceManager->createAudioBuffer(audioFilePath);

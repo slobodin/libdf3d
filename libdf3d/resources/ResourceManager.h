@@ -55,23 +55,23 @@ private:
     shared_ptr<Resource> findResource(const std::string &guid) const;
     shared_ptr<ResourceDecoder> getDecoder(const std::string &extension) const;
 
-    shared_ptr<Resource> loadResourceFromFileSystem(const char *path, ResourceLoadingMode lm);
+    shared_ptr<Resource> loadResourceFromFileSystem(const std::string &path, ResourceLoadingMode lm);
 
 public:
-    shared_ptr<audio::AudioBuffer> createAudioBuffer(const char *audioPath);
-    shared_ptr<render::GpuProgram> createGpuProgram(const char *vertexShader, const char *fragmentShader);
+    shared_ptr<audio::AudioBuffer> createAudioBuffer(const std::string &audioPath);
+    shared_ptr<render::GpuProgram> createGpuProgram(const std::string &vertexShader, const std::string &fragmentShader);
     shared_ptr<render::GpuProgram> createSimpleLightingGpuProgram();
     shared_ptr<render::GpuProgram> createColoredGpuProgram();
     shared_ptr<render::GpuProgram> createRttQuadProgram();
     shared_ptr<render::GpuProgram> createAmbientPassProgram();
-    shared_ptr<render::MeshData> createMeshData(const char *meshDataPath, ResourceLoadingMode lm);
-    shared_ptr<render::Texture2D> createTexture(const char *imagePath, ResourceLoadingMode lm);
-    shared_ptr<render::Texture2D> createEmptyTexture(const char *id = nullptr);
-    shared_ptr<render::TextureCube> createCubeTexture(const char *positiveXImage, const char *negativeXImage, 
-                                                      const char *positiveYImage, const char *negativeYImage, 
-                                                      const char *positiveZImage, const char *negativeZImage, 
+    shared_ptr<render::MeshData> createMeshData(const std::string &meshDataPath, ResourceLoadingMode lm);
+    shared_ptr<render::Texture2D> createTexture(const std::string &imagePath, ResourceLoadingMode lm);
+    shared_ptr<render::Texture2D> createEmptyTexture(const std::string &id = "");
+    shared_ptr<render::TextureCube> createCubeTexture(const std::string &positiveXImage, const std::string &negativeXImage,
+                                                      const std::string &positiveYImage, const std::string &negativeYImage,
+                                                      const std::string &positiveZImage, const std::string &negativeZImage,
                                                       ResourceLoadingMode lm);
-    shared_ptr<render::MaterialLib> createMaterialLib(const char *mtlLibPath);
+    shared_ptr<render::MaterialLib> createMaterialLib(const std::string &mtlLibPath);
 
     void loadResources(const std::vector<std::string> &resourcesList, ResourceLoadingMode lm);
 

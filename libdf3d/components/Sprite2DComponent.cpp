@@ -34,7 +34,7 @@ void Sprite2DComponent::onDraw(render::RenderQueue *ops)
     ops->sprite2DOperations.push_back(m_op);
 }
 
-Sprite2DComponent::Sprite2DComponent(const char *pathToTexture)
+Sprite2DComponent::Sprite2DComponent(const std::string &pathToTexture)
     : NodeComponent(SPRITE_2D)
 {
     auto sprite2dPass = make_shared<render::RenderPass>();
@@ -110,7 +110,7 @@ glm::vec2 Sprite2DComponent::getScreenPosition() const
     return m_screenPosition;
 }
 
-void Sprite2DComponent::useTexture(const char *pathToTexture)
+void Sprite2DComponent::useTexture(const std::string &pathToTexture)
 {
     auto texture = g_resourceManager->createTexture(pathToTexture, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->valid())

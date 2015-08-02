@@ -34,7 +34,7 @@ class DecoderOBJ : public ResourceDecoder
     shared_ptr<render::VertexBuffer> createVertexBuffer();
 
     void createDefaultMaterial(const std::string &filename);
-    void createMaterials(const char *dirPath, const char *filePath);
+    void createMaterials(const std::string &dirPath, const std::string &filePath);
 
     void processLine_v(std::istream &is);
     void processLine_vt(std::istream &is);

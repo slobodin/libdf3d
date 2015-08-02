@@ -67,7 +67,7 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
     return result;
 }
 
-shared_ptr<FileDataSource> FileSystem::openFile(const char *filePath)
+shared_ptr<FileDataSource> FileSystem::openFile(const std::string &filePath)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
@@ -82,11 +82,11 @@ shared_ptr<FileDataSource> FileSystem::openFile(const char *filePath)
     return fileSource;
 }
 
-void FileSystem::addSearchPath(const char *path)
+void FileSystem::addSearchPath(const std::string &path)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-    auto found = std::find_if(m_searchPaths.cbegin(), m_searchPaths.cend(), [&](const std::string &it) { return it == path; });
+    auto found = std::find_if(m_searchPaths.cbegin(), m_searchPaths.cend(), [&path](const std::string &it) { return it == path; });
     if (found != m_searchPaths.cend())
     {
         base::glog << "Trying to add duplicate search path" << path << base::logwarn;
@@ -96,7 +96,7 @@ void FileSystem::addSearchPath(const char *path)
     m_searchPaths.push_back(path);
 }
 
-std::string FileSystem::fullPath(const char *path) const
+std::string FileSystem::fullPath(const std::string &path) const
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
