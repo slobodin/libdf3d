@@ -8,7 +8,7 @@ namespace df3d { namespace platform {
 class WindowsStorage : public Storage
 {
 public:
-    WindowsStorage(const char *filename)
+    WindowsStorage(const std::string &filename)
         : Storage(filename)
     {
         auto root = utils::jsonLoadFromFile(filename);
@@ -44,7 +44,7 @@ public:
     }
 };
 
-Storage *Storage::create(const char *filename)
+Storage *Storage::create(const std::string &filename)
 {
     return new WindowsStorage(filename);
 }
