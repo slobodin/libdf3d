@@ -60,6 +60,12 @@ shared_ptr<NodeComponent> NodeComponent::fromJson(const Json::Value &root)
         return nullptr;
     }
 
+    if (root["type"].empty())
+    {
+        base::glog << "Failed to create a component. Missing \"type\" field" << base::logwarn;
+        return nullptr;
+    }
+
     auto typeStr = root["type"].asCString();
     auto type = NameType.find(typeStr);
     if (type == NameType.end())
@@ -76,17 +82,22 @@ shared_ptr<NodeComponent> NodeComponent::fromJson(const Json::Value &root)
         return nullptr;
     }
 
-    auto serializer = serializers::create(type->second);
+    if (dataJson.empty())
+        return fromJson(type->second, utils::jsonLoadFromFile(externalDataJson.asCString()));
+    else
+        return fromJson(type->second, dataJson);
+}
+
+shared_ptr<NodeComponent> NodeComponent::fromJson(ComponentType type, const Json::Value &root)
+{
+    auto serializer = serializers::create(type);
     if (!serializer)
     {
-        base::glog << "Can not create component from json definition. Unsupported component type" << typeStr << base::logwarn;
+        base::glog << "Can not create component from json definition. Unsupported component type" << base::logwarn;
         return nullptr;
     }
 
-    if (dataJson.empty())
-        return serializer->fromJson(utils::jsonLoadFromFile(externalDataJson.asCString()));
-    else
-        return serializer->fromJson(dataJson);
+    return serializer->fromJson(root);
 }
 
 Json::Value NodeComponent::toJson(shared_ptr<const NodeComponent> component)
