@@ -10,3 +10,4 @@ buildcmake/
 *.pyo
 tools/libdf3d-editor/bin
 tools/libdf3d-editor/obj
+.DS_Store
