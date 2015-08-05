@@ -100,7 +100,7 @@ SPK::Ref<SPK::FloatRandomInitializer> parseSparkRandomInitializer(const Json::Va
 {
     float minValue = 0.0f, maxValue = 0.0f;
     dataJson["minValue"] >> minValue;
-    dataJson["maxValue"] >> maxValue;
+    dataJson["maxValue"] >> maxValue;   // NOTE: spk_random generates random number in interval [a, b)
 
     return SPK::FloatRandomInitializer::create(minValue, maxValue);
 }
@@ -454,6 +454,12 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
 
             bool faceCullEnabled = jsonGetValueWithDefault(groupJson["face_cull_enabled"], true);
             quadRenderer->enableFaceCulling(faceCullEnabled);
+
+            int atlasDimensionX = 1, atlasDimensionY = 1;
+            groupJson["atlasDimensionX"] >> atlasDimensionX;
+            groupJson["atlasDimensionY"] >> atlasDimensionY;
+
+            quadRenderer->setAtlasDimensions(atlasDimensionX, atlasDimensionY);
 
             renderer = quadRenderer;
         }
