@@ -249,13 +249,9 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
     }
 
     if (group.isEnabled(SPK::PARAM_ANGLE))
-    {
         m_renderParticle = &QuadParticleSystemRenderer::render2DRot;
-    }
     else
-    {
         m_renderParticle = &QuadParticleSystemRenderer::render2D;
-    }
 
     auto camMatr = g_sceneManager->getCamera()->getViewMatrix() * *m_currentTransformation;
     camMatr = glm::inverse(camMatr);

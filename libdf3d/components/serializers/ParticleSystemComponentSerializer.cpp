@@ -88,6 +88,23 @@ SPK::Ref<SPK::ColorInterpolator> parseSparkColorInterpolator(const Json::Value &
     return SPK_NULL_REF;
 }
 
+SPK::Ref<SPK::FloatDefaultInitializer> parseSparkDefaultInitializer(const Json::Value &dataJson)
+{
+    float value = 0.0f;
+    dataJson["value"] >> value;
+
+    return SPK::FloatDefaultInitializer::create(value);
+}
+
+SPK::Ref<SPK::FloatRandomInitializer> parseSparkRandomInitializer(const Json::Value &dataJson)
+{
+    float minValue = 0.0f, maxValue = 0.0f;
+    dataJson["minValue"] >> minValue;
+    dataJson["maxValue"] >> maxValue;
+
+    return SPK::FloatRandomInitializer::create(minValue, maxValue);
+}
+
 SPK::Ref<SPK::FloatSimpleInterpolator> parseSparkSimpleInterpolator(const Json::Value &dataJson)
 {
     float birthValue = 0.0f;
@@ -149,6 +166,10 @@ SPK::Ref<SPK::FloatInterpolator> parseSparkParamInterpolator(const Json::Value &
         return parseSparkRandomInterpolator(dataJson);
     else if (typeStr == "graph")
         return parseSparkGraphInterpolator(dataJson);
+    else if (typeStr == "defaultInitializer")
+        return parseSparkDefaultInitializer(dataJson);
+    else if (typeStr == "randomInitializer")
+        return parseSparkRandomInitializer(dataJson);
 
     base::glog << "Unknown spark float interpolator type" << typeStr << base::logwarn;
     return SPK_NULL_REF;
