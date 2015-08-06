@@ -88,6 +88,23 @@ SPK::Ref<SPK::ColorInterpolator> parseSparkColorInterpolator(const Json::Value &
     return SPK_NULL_REF;
 }
 
+SPK::Ref<SPK::FloatDefaultInitializer> parseSparkDefaultInitializer(const Json::Value &dataJson)
+{
+    float value = 0.0f;
+    dataJson["value"] >> value;
+
+    return SPK::FloatDefaultInitializer::create(value);
+}
+
+SPK::Ref<SPK::FloatRandomInitializer> parseSparkRandomInitializer(const Json::Value &dataJson)
+{
+    float minValue = 0.0f, maxValue = 0.0f;
+    dataJson["minValue"] >> minValue;
+    dataJson["maxValue"] >> maxValue;   // NOTE: spk_random generates random number in interval [a, b)
+
+    return SPK::FloatRandomInitializer::create(minValue, maxValue);
+}
+
 SPK::Ref<SPK::FloatSimpleInterpolator> parseSparkSimpleInterpolator(const Json::Value &dataJson)
 {
     float birthValue = 0.0f;
@@ -149,6 +166,10 @@ SPK::Ref<SPK::FloatInterpolator> parseSparkParamInterpolator(const Json::Value &
         return parseSparkRandomInterpolator(dataJson);
     else if (typeStr == "graph")
         return parseSparkGraphInterpolator(dataJson);
+    else if (typeStr == "defaultInitializer")
+        return parseSparkDefaultInitializer(dataJson);
+    else if (typeStr == "randomInitializer")
+        return parseSparkRandomInitializer(dataJson);
 
     base::glog << "Unknown spark float interpolator type" << typeStr << base::logwarn;
     return SPK_NULL_REF;
@@ -303,6 +324,31 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
     return emitter;
 }
 
+void parseSparkModifiers(SPK::Ref<SPK::Group> group, const Json::Value &modifiersJson)
+{
+    for (const auto &modifierJson : modifiersJson)
+    {
+        auto type = modifierJson["type"].asString();
+
+        if (type == "gravity")
+        {
+            glm::vec3 val;
+            modifierJson["value"] >> val;
+            group->addModifier(SPK::Gravity::create({ val.x, val.y, val.z }));
+        }
+        else if (type == "friction")
+        {
+            float val = 0.0f;
+            modifierJson["value"] >> val;
+            group->addModifier(SPK::Friction::create(val));
+        }
+        else
+        {
+            df3d::base::glog << "Unknown particle system modifier" << type << df3d::base::logwarn;
+        }
+    }
+}
+
 shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
 {
     using namespace utils;
@@ -338,22 +384,29 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
         }
 
         // Get group params.
-        auto groupName = groupJson["name"].asString();
-        auto gravity = jsonGetValueWithDefault(groupJson["gravity"], glm::vec3());
-        auto friction = jsonGetValueWithDefault(groupJson["friction"], 0.0f);
-        bool enableSorting = jsonGetValueWithDefault(groupJson["enableSorting"], false);
-        auto maxParticles = jsonGetValueWithDefault(groupJson["maxParticles"], 1000);
-        float minLifeTime = jsonGetValueWithDefault(groupJson["minLifeTime"], 1.0f);
-        float maxLifeTime = jsonGetValueWithDefault(groupJson["maxLifeTime"], 1.0f);
-        bool immortal = jsonGetValueWithDefault(groupJson["immortal"], false);
-        float radius = jsonGetValueWithDefault(groupJson["radius"], 1.0f);
+        std::string groupName;
+        bool enableSorting = false, immortal = false;
+        int maxParticles = 100;
+        float minLifeTime = 1.0f, maxLifeTime = 1.0f, radius = 1.0f;
+
+        groupJson["name"] >> groupName;
+        groupJson["enableSorting"] >> enableSorting;
+        groupJson["maxParticles"] >> maxParticles;
+        groupJson["minLifeTime"] >> minLifeTime;
+        groupJson["maxLifeTime"] >> maxLifeTime;
+        groupJson["immortal"] >> immortal;
+        groupJson["radius"] >> radius;
 
         // Get renderer params.
-        float scaleX = jsonGetValueWithDefault(groupJson["quadScaleX"], 1.0f);
-        float scaleY = jsonGetValueWithDefault(groupJson["quadScaleY"], 1.0f);
-        bool depthTest = jsonGetValueWithDefault(groupJson["depthTest"], true);
-        bool depthWrite = jsonGetValueWithDefault(groupJson["depthWrite"], true);
-        std::string blending = jsonGetValueWithDefault(groupJson["blending"], std::string("none"));
+        float scaleX = 1.0f, scaleY = 1.0f;
+        bool depthTest = true, depthWrite = true;
+        std::string blending = "none";
+
+        groupJson["quadScaleX"] >> scaleX;
+        groupJson["quadScaleY"] >> scaleY;
+        groupJson["depthTest"] >> depthTest;
+        groupJson["depthWrite"] >> depthWrite;
+        groupJson["blending"] >> blending;
 
         auto spkBlending = SPK::BLEND_MODE_NONE;
         if (blending == "none")
@@ -402,6 +455,12 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
             bool faceCullEnabled = jsonGetValueWithDefault(groupJson["face_cull_enabled"], true);
             quadRenderer->enableFaceCulling(faceCullEnabled);
 
+            int atlasDimensionX = 1, atlasDimensionY = 1;
+            groupJson["atlasDimensionX"] >> atlasDimensionX;
+            groupJson["atlasDimensionY"] >> atlasDimensionY;
+
+            quadRenderer->setAtlasDimensions(atlasDimensionX, atlasDimensionY);
+
             renderer = quadRenderer;
         }
         else if (rendererType == "line")
@@ -421,8 +480,6 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
         // Create a group.
         auto particlesGroup = SPK::Group::create(maxParticles);
         particlesGroup->setName(groupName);
-        particlesGroup->addModifier(SPK::Gravity::create({ gravity.x, gravity.y, gravity.z }));
-        particlesGroup->addModifier(SPK::Friction::create(friction));
         particlesGroup->enableSorting(enableSorting);
         particlesGroup->setRenderer(renderer);
         particlesGroup->setLifeTime(minLifeTime, maxLifeTime);
@@ -451,6 +508,9 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
 
             particlesGroup->setParamInterpolator(StringToSparkParam[key], parseSparkParamInterpolator(*it));
         }
+
+        // Add modifiers.
+        parseSparkModifiers(particlesGroup, groupJson["Modifiers"]);
 
         // Store group.
         systemGroups.push_back(particlesGroup);

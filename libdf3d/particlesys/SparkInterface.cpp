@@ -33,7 +33,9 @@ public:
     {
         m_vb = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
         m_ib = make_shared<render::IndexBuffer>();
+        // Particles vertex data is update frequently.
         m_vb->setUsageType(render::GpuBufferUsageType::STREAM);
+        // Index data is always static.
         m_ib->setUsageType(render::GpuBufferUsageType::STATIC);
 
         m_vb->resize(nbParticles * verticesPerParticle);
@@ -42,6 +44,7 @@ public:
 
     void positionAtStart()
     {
+        // Repositions all the buffer pointers at the start.
         m_currentIndexIndex = 0;
         m_currentVertexIndex = 0;
         m_currentColorIndex = 0;
@@ -172,6 +175,20 @@ void QuadParticleSystemRenderer::render2DRot(const SPK::Particle &particle, MyRe
     fillBufferColorAndVertex(particle, renderBuffer);
 }
 
+void QuadParticleSystemRenderer::render2DAtlas(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const
+{
+    scaleQuadVectors(particle, scaleX, scaleY);
+    fillBufferColorAndVertex(particle, renderBuffer);
+    fillBufferTexture2DCoordsAtlas(particle, renderBuffer);
+}
+
+void QuadParticleSystemRenderer::render2DAtlasRot(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const
+{
+    rotateAndScaleQuadVectors(particle, scaleX, scaleY);
+    fillBufferColorAndVertex(particle, renderBuffer);
+    fillBufferTexture2DCoordsAtlas(particle, renderBuffer);
+}
+
 void QuadParticleSystemRenderer::fillBufferColorAndVertex(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const
 {
     // Quads are drawn in a counter clockwise order.
@@ -185,6 +202,16 @@ void QuadParticleSystemRenderer::fillBufferColorAndVertex(const SPK::Particle &p
     renderBuffer.setNextColor(color);
     renderBuffer.setNextColor(color);
     renderBuffer.setNextColor(color);
+}
+
+void QuadParticleSystemRenderer::fillBufferTexture2DCoordsAtlas(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const
+{
+    computeAtlasCoordinates(particle);
+
+    renderBuffer.setNextTexCoords(textureAtlasU1(), textureAtlasV1());
+    renderBuffer.setNextTexCoords(textureAtlasU0(), textureAtlasV1());
+    renderBuffer.setNextTexCoords(textureAtlasU0(), textureAtlasV0());
+    renderBuffer.setNextTexCoords(textureAtlasU1(), textureAtlasV0());
 }
 
 QuadParticleSystemRenderer::QuadParticleSystemRenderer(float scaleX, float scaleY)
@@ -240,6 +267,16 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
     case SPK::TEXTURE_MODE_NONE:
         break;
     case SPK::TEXTURE_MODE_2D:
+        if (!group.isEnabled(SPK::PARAM_TEXTURE_INDEX))
+        {
+            for (size_t i = 0; i < group.getCapacity(); ++i)
+            {
+                buffer.setNextTexCoords(1.0f, 1.0f);
+                buffer.setNextTexCoords(0.0f, 1.0f);
+                buffer.setNextTexCoords(0.0f, 0.0f);
+                buffer.setNextTexCoords(1.0f, 0.0f);
+            }
+        }
         break;
     case SPK::TEXTURE_MODE_3D:
         base::glog << "3D texture for particle systems is not implemented" << base::logwarn;
@@ -248,13 +285,19 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
         break;
     }
 
-    if (group.isEnabled(SPK::PARAM_ANGLE))
+    if (group.isEnabled(SPK::PARAM_TEXTURE_INDEX))
     {
-        m_renderParticle = &QuadParticleSystemRenderer::render2DRot;
+        if (group.isEnabled(SPK::PARAM_ANGLE))
+            m_renderParticle = &QuadParticleSystemRenderer::render2DAtlasRot;
+        else
+            m_renderParticle = &QuadParticleSystemRenderer::render2DAtlas;
     }
     else
     {
-        m_renderParticle = &QuadParticleSystemRenderer::render2D;
+        if (group.isEnabled(SPK::PARAM_ANGLE))
+            m_renderParticle = &QuadParticleSystemRenderer::render2DRot;
+        else
+            m_renderParticle = &QuadParticleSystemRenderer::render2D;
     }
 
     auto camMatr = g_sceneManager->getCamera()->getViewMatrix() * *m_currentTransformation;

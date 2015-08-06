@@ -62,8 +62,16 @@ public:
 
     virtual shared_ptr<NodeComponent> clone() const = 0;
 
+    //! Creates node component from a file with json description.
     static shared_ptr<NodeComponent> fromJson(const std::string &jsonFile);
+    //! Creates node component directly from json value.
+    /*!
+      This function determines node component type from field in JSON description
+    */
     static shared_ptr<NodeComponent> fromJson(const Json::Value &root);
+    //! Creates node component of given type from JSON value.
+    static shared_ptr<NodeComponent> fromJson(ComponentType type, const Json::Value &root);
+    //! 
     static Json::Value toJson(shared_ptr<const NodeComponent> component);
 };
 

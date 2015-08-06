@@ -35,19 +35,24 @@ public:
     void enableFaceCulling(bool enable);
 };
 
-// A Renderer drawing particles as quads.
+//! A Renderer drawing particles as quads.
 class QuadParticleSystemRenderer : public ParticleSystemRenderer, public SPK::QuadRenderBehavior, public SPK::Oriented3DRenderBehavior
 {
     spark_description(QuadParticleSystemRenderer, ParticleSystemRenderer)();
 private:
     mutable void (QuadParticleSystemRenderer::*m_renderParticle)(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const = nullptr;
 
-    // Rendering for particles with texture 2D or no texture.
+    //! Rendering for particles with texture 2D or no texture.
     void render2D(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const;
-    // Rendering for particles with texture 2D or no texture and rotation.
+    //! Rendering for particles with texture 2D or no texture and rotation.
     void render2DRot(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const;
+    //! Rendering for particles with texture 2D atlas.
+    void render2DAtlas(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const;
+    //! Rendering for particles with texture 2D atlas and rotation.
+    void render2DAtlasRot(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const;
 
     void fillBufferColorAndVertex(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const;
+    void fillBufferTexture2DCoordsAtlas(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const;
 
     QuadParticleSystemRenderer(float scaleX = 1.0f, float scaleY = 1.0f);
 
