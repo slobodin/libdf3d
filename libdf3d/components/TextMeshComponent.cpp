@@ -62,7 +62,7 @@ shared_ptr<render::VertexBuffer> TextMeshComponent::createQuad(float x, float y,
         v.p.x = quad_pos[i][0];
         v.p.y = quad_pos[i][1];
         v.tx.x = quad_uv[i][0];
-        v.tx.y = quad_uv[i][1];
+        v.tx.y = 1.0f - quad_uv[i][1];
 
         result->appendVertexData((const float *)&v, 1);
     }

@@ -208,10 +208,11 @@ void QuadParticleSystemRenderer::fillBufferTexture2DCoordsAtlas(const SPK::Parti
 {
     computeAtlasCoordinates(particle);
 
-    renderBuffer.setNextTexCoords(textureAtlasU1(), textureAtlasV1());
-    renderBuffer.setNextTexCoords(textureAtlasU0(), textureAtlasV1());
-    renderBuffer.setNextTexCoords(textureAtlasU0(), textureAtlasV0());
+    // FIXME: inverted UV's Y because of OpenGL.
     renderBuffer.setNextTexCoords(textureAtlasU1(), textureAtlasV0());
+    renderBuffer.setNextTexCoords(textureAtlasU0(), textureAtlasV0());
+    renderBuffer.setNextTexCoords(textureAtlasU0(), textureAtlasV1());
+    renderBuffer.setNextTexCoords(textureAtlasU1(), textureAtlasV1());
 }
 
 QuadParticleSystemRenderer::QuadParticleSystemRenderer(float scaleX, float scaleY)
@@ -246,10 +247,11 @@ SPK::RenderBuffer* QuadParticleSystemRenderer::attachRenderBuffer(const SPK::Gro
     // Initialize the texture array (CCW order).
     for (size_t i = 0; i < group.getCapacity(); ++i)
     {
-        buffer->setNextTexCoords(1.0f, 1.0f);
-        buffer->setNextTexCoords(0.0f, 1.0f);
-        buffer->setNextTexCoords(0.0f, 0.0f);
+        // FIXME: inverted UV's Y because of OpenGL.
         buffer->setNextTexCoords(1.0f, 0.0f);
+        buffer->setNextTexCoords(0.0f, 0.0f);
+        buffer->setNextTexCoords(0.0f, 1.0f);
+        buffer->setNextTexCoords(1.0f, 1.0f);
     }
 
     return buffer;
@@ -269,12 +271,13 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
     case SPK::TEXTURE_MODE_2D:
         if (!group.isEnabled(SPK::PARAM_TEXTURE_INDEX))
         {
+            // FIXME: inverted UV's Y because of OpenGL.
             for (size_t i = 0; i < group.getCapacity(); ++i)
             {
-                buffer.setNextTexCoords(1.0f, 1.0f);
-                buffer.setNextTexCoords(0.0f, 1.0f);
-                buffer.setNextTexCoords(0.0f, 0.0f);
                 buffer.setNextTexCoords(1.0f, 0.0f);
+                buffer.setNextTexCoords(0.0f, 0.0f);
+                buffer.setNextTexCoords(0.0f, 1.0f);
+                buffer.setNextTexCoords(1.0f, 1.0f);
             }
         }
         break;

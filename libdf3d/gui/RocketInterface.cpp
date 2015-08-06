@@ -160,7 +160,7 @@ Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket:
         v.p.y = vertices[i].position.y;
         v.p.z = 0.0f;
         v.tx.x = vertices[i].tex_coord.x;
-        v.tx.y = 1.0f - vertices[i].tex_coord.y;
+        v.tx.y = vertices[i].tex_coord.y;
         v.color.r = vertices[i].colour.red / 255.0f;
         v.color.g = vertices[i].colour.green / 255.0f;
         v.color.b = vertices[i].colour.blue / 255.0f;

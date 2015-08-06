@@ -68,6 +68,11 @@ void DecoderOBJ::processLine_vt(std::istream &is)
     glm::vec2 uv;
     is >> uv.x >> uv.y;
 
+    // NOTE:
+    // Invert for OpenGL
+    // FIXME: if DirectX???
+    uv.y = 1.0f - uv.y;
+
     m_txCoords.push_back(uv);
 }
 

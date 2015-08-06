@@ -23,6 +23,6 @@ void main()                                 \n\
 \
     gl_Position = WorldViewProjectionMatrix * vec4( vertex, 1.0 );\n\
 \
-    UV = vec2(txCoord.x, 1.0 - txCoord.y);              \n\
-}                                                       \n\
+    UV = txCoord;                           \n\
+}                                           \n\
 "

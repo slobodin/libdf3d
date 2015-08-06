@@ -294,7 +294,7 @@ shared_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, f
         v.p.y = quad_pos[i][1];
         v.p.z = 0.0f;
         v.tx.x = quad_uv[i][0];
-        v.tx.y = 1.0f - quad_uv[i][1];
+        v.tx.y = quad_uv[i][1];
         v.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
         result->appendVertexData((const float *)&v, 1);
