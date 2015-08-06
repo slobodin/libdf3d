@@ -239,6 +239,7 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
         drawOperation(op);
 
     // Transparent pass.
+    // TODO: sort by Z.
     for (const auto &op : m_renderQueue->transparentOperations)
         drawOperation(op);
 
