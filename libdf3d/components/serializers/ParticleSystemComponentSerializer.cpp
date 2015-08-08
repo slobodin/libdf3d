@@ -349,6 +349,102 @@ void parseSparkModifiers(SPK::Ref<SPK::Group> group, const Json::Value &modifier
     }
 }
 
+SPK::Ref<particlesys::ParticleSystemRenderer> createRenderer(const Json::Value &rendererJson)
+{
+    if (rendererJson.empty())
+    {
+        df3d::base::glog << "No renderer description in JSON particle system. Crashing" << df3d::base::logwarn;
+        return SPK_NULL_REF;
+    }
+
+    std::string rendererType("quad");
+    rendererJson["type"] >> rendererType;
+
+    // Create particle system renderer.
+    SPK::Ref<particlesys::ParticleSystemRenderer> renderer;
+    if (rendererType == "quad")
+    {
+        float scaleX = 1.0f, scaleY = 1.0f;
+        rendererJson["quadScaleX"] >> scaleX;
+        rendererJson["quadScaleY"] >> scaleY;
+
+        auto quadRenderer = particlesys::QuadParticleSystemRenderer::create(scaleX, scaleY);
+
+        // Setup special renderer params.
+        if (!rendererJson["orientation"].empty())
+        {
+            auto orientationStr = rendererJson["orientation"].asString();
+            auto found = StringToSparkDirection.find(orientationStr);
+            if (found != StringToSparkDirection.end())
+                quadRenderer->setOrientation(found->second);
+            else
+                base::glog << "Unknown spark particle system orientation" << base::logwarn;
+        }
+
+        std::string pathToTexture;
+        rendererJson["texture"] >> pathToTexture;
+        
+        SPK::TextureMode textureMode = SPK::TEXTURE_MODE_NONE;
+        if (!pathToTexture.empty())
+        {
+            auto texture = g_resourceManager->createTexture(pathToTexture, ResourceLoadingMode::IMMEDIATE);
+            if (texture)
+            {
+                quadRenderer->setDiffuseMap(texture);
+                textureMode = SPK::TEXTURE_MODE_2D;
+            }
+        }
+
+        quadRenderer->setTexturingMode(textureMode);
+
+        bool faceCullEnabled = true;
+        rendererJson["face_cull_enabled"] >> faceCullEnabled;
+        quadRenderer->enableFaceCulling(faceCullEnabled);
+
+        int atlasDimensionX = 1, atlasDimensionY = 1;
+        rendererJson["atlasDimensionX"] >> atlasDimensionX;
+        rendererJson["atlasDimensionY"] >> atlasDimensionY;
+
+        quadRenderer->setAtlasDimensions(atlasDimensionX, atlasDimensionY);
+
+        renderer = quadRenderer;
+    }
+    else if (rendererType == "line")
+    {
+        renderer = particlesys::LineParticleSystemRenderer::create(100.0f, 100.0f);
+    }
+    else
+    {
+        base::glog << "Failed to init particle system: unknown renderer type. Crashing." << base::logwarn;
+        return SPK_NULL_REF;
+    }
+
+    // Get common renderer params.
+    bool depthTest = true, depthWrite = true;
+    std::string blending = "none";
+
+    rendererJson["depthTest"] >> depthTest;
+    rendererJson["depthWrite"] >> depthWrite;
+    rendererJson["blending"] >> blending;
+
+    auto spkBlending = SPK::BLEND_MODE_NONE;
+    if (blending == "none")
+        spkBlending = SPK::BLEND_MODE_NONE;
+    else if (blending == "add")
+        spkBlending = SPK::BLEND_MODE_ADD;
+    else if (blending == "alpha")
+        spkBlending = SPK::BLEND_MODE_ALPHA;
+    else
+        base::glog << "Unknown blending mode" << blending << base::logwarn;
+
+    // FIXME: can share renderer.
+    renderer->enableRenderingOption(SPK::RENDERING_OPTION_DEPTH_WRITE, depthWrite);
+    renderer->m_pass->enableDepthTest(depthTest);
+    renderer->setBlendMode(spkBlending);
+
+    return renderer;
+}
+
 shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
 {
     using namespace utils;
@@ -397,91 +493,11 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
         groupJson["immortal"] >> immortal;
         groupJson["radius"] >> radius;
 
-        // Get renderer params.
-        float scaleX = 1.0f, scaleY = 1.0f;
-        bool depthTest = true, depthWrite = true;
-        std::string blending = "none";
-
-        groupJson["quadScaleX"] >> scaleX;
-        groupJson["quadScaleY"] >> scaleY;
-        groupJson["depthTest"] >> depthTest;
-        groupJson["depthWrite"] >> depthWrite;
-        groupJson["blending"] >> blending;
-
-        auto spkBlending = SPK::BLEND_MODE_NONE;
-        if (blending == "none")
-            spkBlending = SPK::BLEND_MODE_NONE;
-        else if (blending == "add")
-            spkBlending = SPK::BLEND_MODE_ADD;
-        else if (blending == "alpha")
-            spkBlending = SPK::BLEND_MODE_ALPHA;
-        else
-            base::glog << "Unknown blending mode" << blending << base::logwarn;
-
-        std::string rendererType("quad");
-        groupJson["renderer"] >> rendererType;
-
-        // Create particle system renderer.
-        SPK::Ref<particlesys::ParticleSystemRenderer> renderer;
-        if (rendererType == "quad")
-        {
-            auto quadRenderer = particlesys::QuadParticleSystemRenderer::create(scaleX, scaleY);
-
-            // Setup special renderer params.
-            if (!groupJson["orientation"].empty())
-            {
-                auto orientationStr = groupJson["orientation"].asString();
-                auto found = StringToSparkDirection.find(orientationStr);
-                if (found != StringToSparkDirection.end())
-                    quadRenderer->setOrientation(found->second);
-                else
-                    base::glog << "Unknown spark particle system orientation" << base::logwarn;
-            }
-
-            std::string pathToTexture = jsonGetValueWithDefault(groupJson["texture"], std::string());
-            SPK::TextureMode textureMode = SPK::TEXTURE_MODE_NONE;
-            if (!pathToTexture.empty())
-            {
-                auto texture = g_resourceManager->createTexture(pathToTexture, ResourceLoadingMode::IMMEDIATE);
-                if (texture)
-                {
-                    quadRenderer->setDiffuseMap(texture);
-                    textureMode = SPK::TEXTURE_MODE_2D;
-                }
-            }
-
-            quadRenderer->setTexturingMode(textureMode);
-
-            bool faceCullEnabled = jsonGetValueWithDefault(groupJson["face_cull_enabled"], true);
-            quadRenderer->enableFaceCulling(faceCullEnabled);
-
-            int atlasDimensionX = 1, atlasDimensionY = 1;
-            groupJson["atlasDimensionX"] >> atlasDimensionX;
-            groupJson["atlasDimensionY"] >> atlasDimensionY;
-
-            quadRenderer->setAtlasDimensions(atlasDimensionX, atlasDimensionY);
-
-            renderer = quadRenderer;
-        }
-        else if (rendererType == "line")
-        {
-            renderer = particlesys::LineParticleSystemRenderer::create(100.0f, 100.0f);
-        }
-        else
-        {
-            base::glog << "Failed to init particle system: unknown renderer type. Crashing." << base::logwarn;
-        }
-
-        // FIXME: can share renderer.
-        renderer->enableRenderingOption(SPK::RENDERING_OPTION_DEPTH_WRITE, depthWrite);
-        renderer->m_pass->enableDepthTest(depthTest);
-        renderer->setBlendMode(spkBlending);
-
         // Create a group.
         auto particlesGroup = SPK::Group::create(maxParticles);
         particlesGroup->setName(groupName);
         particlesGroup->enableSorting(enableSorting);
-        particlesGroup->setRenderer(renderer);
+        particlesGroup->setRenderer(createRenderer(groupJson["Renderer"]));
         particlesGroup->setLifeTime(minLifeTime, maxLifeTime);
         particlesGroup->setImmortal(immortal);
         particlesGroup->setRadius(radius);
