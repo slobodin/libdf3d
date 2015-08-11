@@ -2,6 +2,7 @@
 #include "Vertex.h"
 
 #include "OpenGLCommon.h"
+#include <utils/Utils.h>
 
 namespace df3d { namespace render {
 
@@ -95,7 +96,7 @@ VertexFormat VertexFormat::create(const std::string &definition)
             return retRes;
         }
 
-        VertexComponent component(t, boost::lexical_cast<size_t>(count));
+        VertexComponent component(t, utils::from_string<size_t>(count));
         
         retRes.addComponent(component);
     }

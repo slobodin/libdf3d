@@ -141,7 +141,7 @@ void setTextureBaseParams(shared_ptr<render::Texture> texture, const std::map<st
             }
             else
             {
-                auto anisotropyLevel = boost::lexical_cast<int>(keyval.second);
+                auto anisotropyLevel = utils::from_string<int>(keyval.second);
                 texture->setMaxAnisotropy(anisotropyLevel);
             }
         }
@@ -474,7 +474,7 @@ void DecoderMTL::parseShaderParamsNode(MaterialLibNode &node, shared_ptr<render:
     {
         render::RenderPassParam param;
         param.name = it.first;
-        param.value = boost::lexical_cast<float>(it.second);
+        param.value = utils::from_string<float>(it.second);
 
         pass->addPassParam(param);
     }

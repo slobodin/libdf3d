@@ -43,6 +43,21 @@ inline std::string to_string(const T &v)
     return os.str();
 }
 
+template<typename T>
+inline T from_string(const std::string &s)
+{
+    T res;
+    std::istringstream is(s);
+    is >> res;
+    return res;
+}
+
+template<typename T>
+inline T clamp(const T &val, const T &min, const T &max)
+{
+    return std::min(std::max(val, min), max);
+}
+
 namespace math {
 
 extern const DF3D_DLL glm::vec4 XAxis;

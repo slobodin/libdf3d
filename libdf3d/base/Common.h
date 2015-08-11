@@ -18,8 +18,6 @@
 #include <gui/RocketIntrusivePtr.h>
 #endif
 
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
 #include <boost/intrusive_ptr.hpp>
 
 #define GLM_FORCE_RADIANS

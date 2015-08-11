@@ -35,10 +35,8 @@
 #include "df3d_config.h"
 #include "libdf3d_dll.h"
 
-#include <boost/algorithm/clamp.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/utility.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
 
 #include <base/Common.h>

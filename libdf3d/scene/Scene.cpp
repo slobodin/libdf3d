@@ -3,6 +3,7 @@
 
 #include <utils/SceneSerializer.h>
 #include <utils/JsonHelpers.h>
+#include <utils/Utils.h>
 #include <scene/Node.h>
 #include <render/RenderStats.h>
 #include <components/ParticleSystemComponent.h>
@@ -32,9 +33,9 @@ Scene::~Scene()
 
 void Scene::setAmbientLight(float ra, float ga, float ba)
 {
-    m_ambientLight.r = boost::algorithm::clamp(ra, 0.0f, 1.0f);
-    m_ambientLight.g = boost::algorithm::clamp(ga, 0.0f, 1.0f);
-    m_ambientLight.b = boost::algorithm::clamp(ba, 0.0f, 1.0f);
+    m_ambientLight.r = utils::clamp(ra, 0.0f, 1.0f);
+    m_ambientLight.g = utils::clamp(ga, 0.0f, 1.0f);
+    m_ambientLight.b = utils::clamp(ba, 0.0f, 1.0f);
 }
 
 glm::vec3 Scene::getAmbientLight() const
