@@ -1,6 +1,8 @@
 #include "df3d_pch.h"
 #include "FileSystem.h"
 
+#include <boost/algorithm/string.hpp>
+
 #include "FileDataSource.h"
 #include <platform/FileSystemHelpers.h>
 #include <utils/Utils.h>

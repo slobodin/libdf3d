@@ -31,12 +31,9 @@
 #include <chrono>
 #include <atomic>
 #include <memory>
+#include <iterator>
 
 #include "df3d_config.h"
 #include "libdf3d_dll.h"
-
-#include <boost/algorithm/string.hpp>
-#include <boost/utility.hpp>
-#include <boost/optional.hpp>
 
 #include <base/Common.h>

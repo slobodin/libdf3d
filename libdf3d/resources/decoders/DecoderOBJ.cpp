@@ -1,6 +1,8 @@
 #include "df3d_pch.h"
 #include "DecoderOBJ.h"
 
+#include <boost/algorithm/string.hpp>
+
 #include <base/SystemsMacro.h>
 #include <resources/FileDataSource.h>
 #include <resources/FileSystem.h>

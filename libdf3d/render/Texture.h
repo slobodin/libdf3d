@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/optional.hpp>
+
 #include <resources/Resource.h>
 #include "OpenGLCommon.h"
 #include "RenderingCapabilities.h"

@@ -1,6 +1,8 @@
 #include "df3d_pch.h"
 #include "Vertex.h"
 
+#include <boost/algorithm/string.hpp>
+
 #include "OpenGLCommon.h"
 #include <utils/Utils.h>
 

@@ -1,6 +1,8 @@
 #include "df3d_pch.h"
 #include "DecoderMTL.h"
 
+#include <boost/algorithm/string.hpp>
+
 #include <base/SystemsMacro.h>
 #include <resources/FileDataSource.h>
 #include <render/MaterialLib.h>
