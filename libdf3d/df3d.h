@@ -13,6 +13,7 @@
 
 #include <base/SystemsMacro.h>
 #include <base/InputEvents.h>
+#include <base/DebugConsole.h>
 
 #include <platform/AppDelegate.h>
 #include <platform/Storage.h>
