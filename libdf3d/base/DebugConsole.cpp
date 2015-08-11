@@ -1,5 +1,5 @@
 #include "df3d_pch.h"
-#include "ConsoleCommandHandler.h"
+#include "DebugConsole.h"
 
 #include <base/SystemsMacro.h>
 #include <Rocket/Core.h>
@@ -9,7 +9,9 @@ extern const char *ConsoleRcss;
 
 namespace df3d { namespace base {
 
-class ConsoleCommandHandler::ConsoleWindow : public Rocket::Core::ElementDocument, public Rocket::Core::EventListener
+const std::string CVAR_DEBUG_DRAW = "df3d_debug_draw";
+
+class DebugConsole::ConsoleWindow : public Rocket::Core::ElementDocument, public Rocket::Core::EventListener
 {
     void ProcessEvent(Rocket::Core::Event &ev)
     {
@@ -35,46 +37,46 @@ public:
     }
 };
 
-ConsoleCommandHandler::ConsoleCommandHandler()
+DebugConsole::DebugConsole()
 {
     Rocket::Core::Factory::RegisterElementInstancer("__debug_console_window", new Rocket::Core::ElementInstancerGeneric<ConsoleWindow>())->RemoveReference();
     m_menu = dynamic_cast<ConsoleWindow *>(g_guiManager->getContext()->CreateDocument("__debug_console_window"));
     m_menu->SetProperty("visibility", "hidden");
 }
 
-ConsoleCommandHandler::~ConsoleCommandHandler()
+DebugConsole::~DebugConsole()
 {
     if (m_menu)
         m_menu->RemoveReference();
     m_menu = nullptr;
 }
 
-bool ConsoleCommandHandler::isVisible() const
+bool DebugConsole::isVisible() const
 {
     return false;
 }
 
-void ConsoleCommandHandler::show()
+void DebugConsole::show()
 {
 
 }
 
-void ConsoleCommandHandler::hide()
+void DebugConsole::hide()
 {
 
 }
 
-void ConsoleCommandHandler::toggle()
+void DebugConsole::toggle()
 {
 
 }
 
-void ConsoleCommandHandler::registerCommand()
+void DebugConsole::registerCommand()
 {
 
 }
 
-void ConsoleCommandHandler::unregisterCommand()
+void DebugConsole::unregisterCommand()
 {
 
 }

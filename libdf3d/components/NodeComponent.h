@@ -66,8 +66,8 @@ public:
     static shared_ptr<NodeComponent> fromJson(const std::string &jsonFile);
     //! Creates node component directly from json value.
     /*!
-      This function determines node component type from field in JSON description
-    */
+     * This function determines node component type from field in JSON description
+     */
     static shared_ptr<NodeComponent> fromJson(const Json::Value &root);
     //! Creates node component of given type from JSON value.
     static shared_ptr<NodeComponent> fromJson(ComponentType type, const Json::Value &root);

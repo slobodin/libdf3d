@@ -2,6 +2,7 @@
 #include "RenderManager.h"
 
 #include <base/SystemsMacro.h>
+#include <base/DebugConsole.h>
 #include <scene/Scene.h>
 #include <scene/Camera.h>
 #include "Renderer.h"
@@ -63,12 +64,15 @@ void RenderManager::createAmbientPassProps()
 
 void RenderManager::debugDrawPass()
 {
+    if (!g_engineController->getConsole()->getCVars().get<bool>(base::CVAR_DEBUG_DRAW))
+        return;
+
     // Draw scene graph debug draw nodes.
-    for (auto &op : m_renderQueue->debugDrawOperations)
+    for (const auto &op : m_renderQueue->debugDrawOperations)
         drawOperation(op);
 
     // Draw bullet physics debug.
-    //g_engineController->getPhysicsManager()->drawDebug();
+    g_engineController->getPhysicsManager()->drawDebug();
 }
 
 void RenderManager::postProcessPass(shared_ptr<Material> material)
@@ -244,8 +248,9 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
         drawOperation(op);
 
     // Debug draw pass.
-    //if (m_debugDrawEnabled)
-        debugDrawPass();
+#ifdef DF3D_DESKTOP
+     debugDrawPass();
+#endif
 
     m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)rt->getViewport().width(), (float)rt->getViewport().height(), 0.0f));
     m_renderer->setCameraMatrix(glm::mat4(1.0f));

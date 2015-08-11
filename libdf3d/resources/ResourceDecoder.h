@@ -17,11 +17,11 @@ public:
 
     //! Performs resource decoding from given stream.
     /*! 
-      This function is called by resource manager. Needs to be thread safe
-      \param stream Input stream
-      \param resource Resource which is need to be initialized. Instantiated by createResource.
-      \return Decode result
-    */
+     * This function is called by resource manager. Needs to be thread safe
+     * \param stream Input stream
+     * \param resource Resource which is need to be initialized. Instantiated by createResource.
+     * \return Decode result
+     */
     virtual bool decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Resource> resource) = 0;
 
     // TODO:

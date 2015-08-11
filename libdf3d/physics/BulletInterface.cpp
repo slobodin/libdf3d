@@ -1,9 +1,8 @@
 #include "df3d_pch.h"
 #include "BulletInterface.h"
 
-#include <base/EngineController.h>
+#include <base/SystemsMacro.h>
 #include <render/RenderPass.h>
-#include <render/RenderManager.h>
 #include <render/Renderer.h>
 #include <render/VertexIndexBuffer.h>
 
@@ -14,7 +13,7 @@ BulletDebugDraw::BulletDebugDraw()
     m_linesOp.passProps = render::RenderPass::createDebugDrawPass();
     m_linesOp.passProps->setDiffuseColor(1.0f, 1.0f, 1.0f, 0.7f);
     m_linesOp.vertexData = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
-    m_linesOp.vertexData->setUsageType(render::GpuBufferUsageType::STATIC);
+    m_linesOp.vertexData->setUsageType(render::GpuBufferUsageType::DYNAMIC);
     m_linesOp.type = render::RenderOperation::Type::LINES;
 }
 
@@ -68,14 +67,9 @@ int BulletDebugDraw::getDebugMode() const
 
 void BulletDebugDraw::flushRenderOperations()
 {
-    // TODO:
-    assert(false);
-
-    //m_linesOp.vertexData->setDirty();
-
-    //g_renderManager->drawOperation(m_linesOp);
-
-    //m_linesOp.vertexData->clear();
+    m_linesOp.vertexData->setDirty();
+    g_renderManager->drawOperation(m_linesOp);
+    m_linesOp.vertexData->clear();
 }
 
 } }

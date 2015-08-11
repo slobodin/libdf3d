@@ -43,7 +43,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/OpenALCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Common.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/ConsoleCommandHandler.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/DebugConsole.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.h
@@ -128,6 +128,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingVolume.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/OBB.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshIndexer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/NonCopyable.h
@@ -140,7 +141,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/OpenALCommon.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Common.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/ConsoleCommandHandler.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/DebugConsole.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/ConsoleWindowRmlSource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.cpp

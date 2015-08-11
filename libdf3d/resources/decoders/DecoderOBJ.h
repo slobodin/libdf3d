@@ -11,8 +11,8 @@ namespace df3d { namespace resources {
 
 //! Wavefront OBJ file decoder.
 /*!
-  Supports only triangulated models with precomputed normals.
-*/
+ * Supports only triangulated models with precomputed normals.
+ */
 class DecoderOBJ : public ResourceDecoder
 {
     std::vector<glm::vec3> m_vertices;

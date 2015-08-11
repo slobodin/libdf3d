@@ -2,7 +2,7 @@
 #include "EngineController.h"
 
 #include "InputEvents.h"
-#include "ConsoleCommandHandler.h"
+#include "DebugConsole.h"
 #include <render/RenderManager.h>
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
@@ -36,7 +36,7 @@ EngineController::~EngineController()
 
 void EngineController::shutdown()
 {
-    SAFE_DELETE(m_consoleCommandHandler);
+    SAFE_DELETE(m_debugConsole);
     SAFE_DELETE(m_sceneManager);
     SAFE_DELETE(m_physics);
     SAFE_DELETE(m_guiManager);
@@ -103,7 +103,7 @@ bool EngineController::init(EngineInitParams params)
 
         // Create console.
 #ifdef DF3D_DESKTOP
-        m_consoleCommandHandler = new ConsoleCommandHandler();
+        m_debugConsole = new DebugConsole();
 #endif
 
         base::glog << "Engine initialized" << base::logmess;

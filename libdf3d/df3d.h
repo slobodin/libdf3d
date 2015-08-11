@@ -9,6 +9,7 @@
 #include <utils/Utils.h>
 #include <utils/JsonHelpers.h>
 #include <utils/SceneSerializer.h>
+#include <utils/Dict.h>
 
 #include <base/SystemsMacro.h>
 #include <base/InputEvents.h>
