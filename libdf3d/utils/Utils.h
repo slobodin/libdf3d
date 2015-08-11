@@ -52,6 +52,11 @@ inline T from_string(const std::string &s)
     return res;
 }
 
+inline bool starts_with(const std::string &s, const std::string &with)
+{
+    return s.compare(0, with.size(), with) == 0;
+}
+
 template<typename T>
 inline T clamp(const T &val, const T &min, const T &max)
 {

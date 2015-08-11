@@ -3,6 +3,7 @@
 
 #include "FileDataSource.h"
 #include <platform/FileSystemHelpers.h>
+#include <utils/Utils.h>
 
 namespace df3d { namespace resources {
 
@@ -39,7 +40,7 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
 
     // Remove not needed ./
     boost::replace_all(result, "/./", "/");
-    if (boost::starts_with(result, "./"))
+    if (utils::starts_with(result, "./"))
         result.erase(0, 2);
     if (boost::ends_with(result, "/."))
         result.erase(result.size() - 2, 2);

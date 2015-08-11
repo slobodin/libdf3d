@@ -193,7 +193,7 @@ public:
         bool skippingLines = false;
         while (is >> tok)
         {
-            if (boost::starts_with(tok, "#endif"))
+            if (utils::starts_with(tok, "#endif"))
             {
                 utils::skip_line(is);
                 skippingLines = false;
@@ -212,13 +212,13 @@ public:
                 continue;
 
             // Skip comment lines.
-            if (boost::starts_with(tok, "//"))
+            if (utils::starts_with(tok, "//"))
             {
                 utils::skip_line(is);
                 continue;
             }
 
-            if (boost::starts_with(tok, "#ifdef"))
+            if (utils::starts_with(tok, "#ifdef"))
             {
                 std::string define;
                 is >> define;
