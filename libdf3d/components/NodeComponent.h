@@ -34,7 +34,7 @@ enum class NodeEvent
     ALL_CHILDREN_REMOVED
 };
 
-class DF3D_DLL NodeComponent : boost::noncopyable
+class DF3D_DLL NodeComponent : utils::NonCopyable
 {
     friend class scene::Node;
 

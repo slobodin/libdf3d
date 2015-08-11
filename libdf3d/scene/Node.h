@@ -17,7 +17,7 @@ namespace df3d { namespace scene {
 // FIXME:
 // Use more cache-friendly structure.
 
-class DF3D_DLL Node : public std::enable_shared_from_this<Node>, private boost::noncopyable
+class DF3D_DLL Node : public std::enable_shared_from_this<Node>, utils::NonCopyable
 {
     friend class components::NodeComponent;
 

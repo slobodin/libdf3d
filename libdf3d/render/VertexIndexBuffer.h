@@ -21,7 +21,7 @@ enum class GpuBufferUsageType
 using INDICES_TYPE = INDICES_32_BIT;
 using IndexArray = std::vector<INDICES_TYPE>;
 
-class GpuBuffer : boost::noncopyable
+class GpuBuffer : utils::NonCopyable
 {
 protected:
     GpuBufferUsageType m_usageType = GpuBufferUsageType::STATIC;

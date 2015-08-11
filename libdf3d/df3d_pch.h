@@ -39,13 +39,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/tokenizer.hpp>
-#include <boost/function.hpp>
-#include <boost/functional/hash.hpp>
 #include <boost/optional.hpp>
 
-#include <base/MacroDefs.h>
 #include <base/Common.h>
-#include <base/Log.h>
-
-

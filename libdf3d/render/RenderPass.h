@@ -26,7 +26,7 @@ private:
     GpuProgramUniform *m_uniform = nullptr;
 };
 
-class DF3D_DLL RenderPass : boost::noncopyable
+class DF3D_DLL RenderPass : utils::NonCopyable
 {
 public:
     enum class WindingOrder

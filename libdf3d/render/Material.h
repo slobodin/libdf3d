@@ -9,7 +9,7 @@ class Technique;
 class RenderManager;
 
 //! Material is a collection of rendering techniques.
-class DF3D_DLL Material : boost::noncopyable
+class DF3D_DLL Material : utils::NonCopyable
 {
     friend class resources::DecoderMTL;
     friend class resources::DecoderOBJ;

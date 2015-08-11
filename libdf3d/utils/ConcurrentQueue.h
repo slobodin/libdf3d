@@ -3,7 +3,7 @@
 namespace df3d { namespace utils { 
 
 template<typename T>
-class ConcurrentQueue : public boost::noncopyable
+class ConcurrentQueue : public NonCopyable
 {
     std::mutex m_lock;
     std::queue<T> m_queue;

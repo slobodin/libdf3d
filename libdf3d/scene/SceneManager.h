@@ -9,7 +9,7 @@ class Node;
 class Camera;
 class SceneManagerListener;
 
-class DF3D_DLL SceneManager : boost::noncopyable
+class DF3D_DLL SceneManager : utils::NonCopyable
 {
     friend class base::EngineController;
 

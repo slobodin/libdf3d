@@ -1,7 +1,5 @@
 #pragma once
 
-#include <base/TypeDefs.h>
-
 FWD_MODULE_CLASS(base, ThreadPool)
 FWD_MODULE_CLASS(base, EngineController)
 FWD_MODULE_CLASS(audio, AudioBuffer)
@@ -17,7 +15,7 @@ class Resource;
 class ResourceDecoder;
 class FileDataSource;
 
-class DF3D_DLL ResourceManager : boost::noncopyable
+class DF3D_DLL ResourceManager : utils::NonCopyable
 {
 public:
     class Listener

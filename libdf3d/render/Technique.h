@@ -8,7 +8,7 @@ namespace df3d { namespace render {
 class RenderPass;
 class RenderManager;
 
-class DF3D_DLL Technique : boost::noncopyable
+class DF3D_DLL Technique : utils::NonCopyable
 {
     friend class resources::DecoderMTL;
     friend class resources::DecoderOBJ;

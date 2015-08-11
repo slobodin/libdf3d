@@ -6,7 +6,7 @@ namespace df3d { namespace render {
 
 class Viewport;
 
-class RenderTarget : boost::noncopyable
+class RenderTarget : utils::NonCopyable
 {
 protected:
     Viewport m_viewport;

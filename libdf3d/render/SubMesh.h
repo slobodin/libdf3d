@@ -6,7 +6,7 @@ class Material;
 class VertexBuffer;
 class IndexBuffer;
 
-class SubMesh : boost::noncopyable
+class SubMesh : utils::NonCopyable
 {
     shared_ptr<Material> m_material;
     shared_ptr<VertexBuffer> m_vb;

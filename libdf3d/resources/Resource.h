@@ -1,10 +1,8 @@
 #pragma once
 
-#include <base/TypeDefs.h>
-
 namespace df3d { namespace resources {
 
-class DF3D_DLL Resource : boost::noncopyable
+class DF3D_DLL Resource : utils::NonCopyable
 {
 protected:
     ResourceGUID m_guid;

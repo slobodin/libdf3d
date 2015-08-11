@@ -1,8 +1,10 @@
 #pragma once
 
+#include <boost/variant.hpp>
+
 namespace df3d { namespace platform {
 
-class DF3D_DLL Storage : boost::noncopyable
+class DF3D_DLL Storage : utils::NonCopyable
 {
 protected:
     using Entry = boost::variant<int, int64_t, double, bool, std::string>;

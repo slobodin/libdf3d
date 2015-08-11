@@ -4,8 +4,6 @@
 #include "df3d_config.h"
 
 #include <base/Common.h>
-#include <base/TypeDefs.h>
-#include <base/MacroDefs.h>
 
 #include <utils/ConcurrentQueue.h>
 #include <utils/Utils.h>
@@ -13,7 +11,6 @@
 #include <utils/SceneSerializer.h>
 
 #include <base/SystemsMacro.h>
-#include <base/Log.h>
 #include <base/InputEvents.h>
 
 #include <platform/AppDelegate.h>

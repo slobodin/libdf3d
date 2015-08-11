@@ -18,12 +18,9 @@
 #include <gui/RocketIntrusivePtr.h>
 #endif
 
-#include <boost/noncopyable.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/function.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/intrusive_ptr.hpp>
-#include <boost/variant.hpp>
 
 #define GLM_FORCE_RADIANS
 //#define GLM_MESSAGES
@@ -39,8 +36,6 @@
 
 #include <json/json.h>
 
-using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
-
 namespace Rocket { namespace Core { class Element; class ElementDocument; } }
 
 using RocketDocument = boost::intrusive_ptr<Rocket::Core::ElementDocument>;
@@ -54,9 +49,47 @@ using std::weak_ptr;
 using std::dynamic_pointer_cast;
 using std::static_pointer_cast;
 
+// Common macros.
+
+#define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
+#define SAFE_DELETE(x) { delete x; x = nullptr; }
+#define SAFE_ARRAY_DELETE(x) { delete [] x; x = nullptr; }
+
+#define FWD_MODULE_CLASS(_namespace, _class) namespace df3d { namespace _namespace { class _class; } }
+
+#if defined(max)
+#undef max
+#endif
+
+#if defined(min)
+#undef min
+#endif
+
 namespace df3d {
 
-DF3D_DLL std::string glmVecToString(const glm::vec3 &v);
+// Common typedefs.
+
+namespace scene { class Node; }
+
+enum class ResourceLoadingMode
+{
+    IMMEDIATE,
+    ASYNC
+};
+
+enum class PixelFormat
+{
+    INVALID,
+    RGB,
+    BGR,
+    RGBA,
+    GRAYSCALE
+};
+
+using ResourceGUID = std::string;
+using SceneNode = shared_ptr<df3d::scene::Node>;
+using WeakSceneNode = weak_ptr<df3d::scene::Node>;
+using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
 
 inline float IntervalBetween(const TimePoint &t1, const TimePoint &t2)
 {
@@ -69,4 +102,12 @@ inline float IntervalBetweenNowAnd(const TimePoint &timepoint)
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - timepoint).count() / 1000.0f;
 }
 
+static const int DEFAULT_WINDOW_WIDTH = 640;
+static const int DEFAULT_WINDOW_HEIGHT = 480;
+
 }
+
+// Include some useful df3d stuff.
+
+#include <base/Log.h>
+#include <utils/NonCopyable.h>

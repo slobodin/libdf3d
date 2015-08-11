@@ -3,7 +3,6 @@
 #include "NodeComponent.h"
 #include <render/RenderOperation.h>
 #include <render/RenderPass.h>
-#include <base/TypeDefs.h>
 
 namespace df3d { namespace components {
 

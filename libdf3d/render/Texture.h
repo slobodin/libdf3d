@@ -1,6 +1,5 @@
 #pragma once
 
-#include <base/TypeDefs.h>
 #include <resources/Resource.h>
 #include "OpenGLCommon.h"
 #include "RenderingCapabilities.h"

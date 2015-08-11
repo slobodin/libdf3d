@@ -4,7 +4,6 @@
 #include <scene/bounding_volumes/AABB.h>
 #include <scene/bounding_volumes/BoundingSphere.h>
 #include <scene/bounding_volumes/OBB.h>
-#include <base/TypeDefs.h>
 
 FWD_MODULE_CLASS(render, MeshData)
 FWD_MODULE_CLASS(render, Material)

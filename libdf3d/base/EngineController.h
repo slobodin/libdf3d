@@ -16,7 +16,7 @@ namespace df3d { namespace base {
 
 class ConsoleCommandHandler;
 
-class DF3D_DLL EngineController : boost::noncopyable
+class DF3D_DLL EngineController : utils::NonCopyable
 {
     EngineController();
     ~EngineController();

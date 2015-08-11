@@ -2,7 +2,7 @@
 
 namespace df3d { namespace base {
 
-class ThreadPool
+class ThreadPool : utils::NonCopyable
 {
     friend struct ThreadPoolWorker;
 

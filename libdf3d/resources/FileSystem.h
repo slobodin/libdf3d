@@ -6,7 +6,7 @@ namespace df3d { namespace resources {
 
 class FileDataSource;
 
-class DF3D_DLL FileSystem : boost::noncopyable
+class DF3D_DLL FileSystem : utils::NonCopyable
 {
     friend class base::EngineController;
 

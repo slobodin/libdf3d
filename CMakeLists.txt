@@ -48,10 +48,8 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/MacroDefs.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/SystemsMacro.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/ThreadPool.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/TypeDefs.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/AudioComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/DebugDrawComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/LightComponent.h
@@ -132,6 +130,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshIndexer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/NonCopyable.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.h
 )
