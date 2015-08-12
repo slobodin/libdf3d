@@ -55,13 +55,13 @@ public:
     MeshComponent(const std::string &meshFilePath, ResourceLoadingMode lm = ResourceLoadingMode::ASYNC);
     ~MeshComponent();
 
-    virtual void setGeometry(shared_ptr<render::MeshData> geometry);
-    virtual shared_ptr<render::MeshData> getGeometry() { return m_geometry; }
-    virtual bool isGeometryValid() const;
+    void setGeometry(shared_ptr<render::MeshData> geometry);
+    shared_ptr<render::MeshData> getGeometry() { return m_geometry; }
+    bool isGeometryValid() const;
     df3d::ResourceGUID getGeometryResourceGuid() const;
 
-    virtual void setMaterial(shared_ptr<render::Material> material, size_t submeshIdx);
-    virtual shared_ptr<render::Material> getMaterial(size_t submeshIdx);
+    void setMaterial(shared_ptr<render::Material> material, size_t submeshIdx);
+    shared_ptr<render::Material> getMaterial(size_t submeshIdx);
 
     size_t getSubmeshesCount() const;
 

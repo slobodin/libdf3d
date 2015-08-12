@@ -26,6 +26,8 @@ public:
 
     RenderOperation();
     ~RenderOperation();
+
+    bool isEmpty() const;
 };
 
 class RenderOperation2D : public RenderOperation

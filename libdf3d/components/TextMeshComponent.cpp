@@ -14,7 +14,7 @@
 // TODO:
 
 namespace df3d { namespace components {
-
+/*
 shared_ptr<render::RenderPass> TextMeshComponent::createRenderPass()
 {
     auto pass = make_shared<render::RenderPass>("text_mesh_render_pass");
@@ -150,5 +150,5 @@ shared_ptr<NodeComponent> TextMeshComponent::clone() const
     assert(false);
     return nullptr;
 }
-
+*/
 } }

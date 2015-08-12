@@ -271,6 +271,9 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
 
 void RenderManager::drawOperation(const RenderOperation &op)
 {
+    if (op.isEmpty())
+        return;
+
     m_renderer->setWorldMatrix(op.worldTransform);
     m_renderer->bindPass(op.passProps);
     m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);

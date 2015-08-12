@@ -6,7 +6,7 @@
 FWD_MODULE_CLASS(render, RenderPass)
 
 namespace df3d { namespace components {
-
+/*
 class DF3D_DLL TextMeshComponent : public MeshComponent
 {
     //int *m_font = nullptr;
@@ -26,12 +26,13 @@ public:
     shared_ptr<NodeComponent> clone() const override;
 
 private:
-    void setGeometry(shared_ptr<render::MeshData> geometry) override { }
-    shared_ptr<render::MeshData> getGeometry() override { return nullptr; }
-    bool isGeometryValid() const override { return true; }
+//    void setGeometry(shared_ptr<render::MeshData> geometry) override { }
+//    shared_ptr<render::MeshData> getGeometry() override { return nullptr; }
+//    bool isGeometryValid() const override { return true; }
 
-    void setMaterial(shared_ptr<render::Material> material, size_t submeshIdx) override { }
-    shared_ptr<render::Material> getMaterial(size_t submeshIdx) override { return nullptr; }
+//    void setMaterial(shared_ptr<render::Material> material, size_t submeshIdx) override { }
+//    shared_ptr<render::Material> getMaterial(size_t submeshIdx) override { return nullptr; }
 };
+*/
 
 } }
