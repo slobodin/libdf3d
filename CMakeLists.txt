@@ -110,6 +110,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceDecoder.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderDFMesh.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTexture.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderMTL.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOBJ.h
@@ -201,6 +202,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceDecoder.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderDFMesh.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTexture.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderMTL.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOBJ.cpp

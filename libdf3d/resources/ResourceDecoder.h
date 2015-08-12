@@ -17,7 +17,7 @@ public:
 
     //! Performs resource decoding from given stream.
     /*! 
-     * This function is called by resource manager. Needs to be thread safe
+     * This function is called by resource manager. Must be thread safe.
      * \param stream Input stream
      * \param resource Resource which is need to be initialized. Instantiated by createResource.
      * \return Decode result
