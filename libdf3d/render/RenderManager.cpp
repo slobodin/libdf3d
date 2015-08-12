@@ -131,23 +131,11 @@ RenderManager::RenderManager(RenderManagerInitParams params)
     createRenderTargets(Viewport(0, 0, params.viewportWidth, params.viewportHeight));
     createQuadRenderOperation();
     createAmbientPassProps();
-
-    enableDebugDraw(params.debugDraw);
 }
 
 RenderManager::~RenderManager()
 {
 
-}
-
-void RenderManager::enableDebugDraw(bool enable)
-{
-    m_debugDrawEnabled = enable;
-}
-
-bool RenderManager::isDebugDrawEnabled()
-{
-    return m_debugDrawEnabled;
 }
 
 void RenderManager::update(shared_ptr<scene::Scene> renderableScene)
@@ -248,9 +236,7 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
         drawOperation(op);
 
     // Debug draw pass.
-#ifdef DF3D_DESKTOP
-     debugDrawPass();
-#endif
+    debugDrawPass();
 
     m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)rt->getViewport().width(), (float)rt->getViewport().height(), 0.0f));
     m_renderer->setCameraMatrix(glm::mat4(1.0f));

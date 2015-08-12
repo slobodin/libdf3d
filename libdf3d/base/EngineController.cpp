@@ -9,7 +9,6 @@
 #include <resources/ResourceManager.h>
 #include <resources/FileSystem.h>
 #include <gui/GuiManager.h>
-#include <gui/DebugOverlayWindow.h>
 #include <physics/PhysicsManager.h>
 #include <audio/AudioManager.h>
 #include <render/RenderStats.h>
@@ -83,7 +82,6 @@ bool EngineController::init(EngineInitParams params)
         render::RenderManagerInitParams renderParams;
         renderParams.viewportWidth = params.windowWidth;
         renderParams.viewportHeight = params.windowHeight;
-        renderParams.debugDraw = params.debugDraw;
         m_renderManager = new render::RenderManager(renderParams);
 
         // Init scene manager.
@@ -102,9 +100,7 @@ bool EngineController::init(EngineInitParams params)
         m_audioManager = new audio::AudioManager();
 
         // Create console.
-#ifdef DF3D_DESKTOP
-        m_debugConsole = new DebugConsole();
-#endif
+        params.createConsole ? m_debugConsole = new DebugConsole() : m_debugConsole = new NullConsole();
 
         base::glog << "Engine initialized" << base::logmess;
 

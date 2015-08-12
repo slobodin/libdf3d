@@ -52,7 +52,7 @@ public:
 
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-        const auto params = m_appDelegate->getAppInitParams();
+        const auto params = m_appDelegate->getInitParams();
 
         GLFWmonitor *monitor = params.fullscreen ? glfwGetPrimaryMonitor() : nullptr;
 

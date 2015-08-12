@@ -7,7 +7,8 @@ struct DF3D_DLL EngineInitParams
     int windowWidth = DEFAULT_WINDOW_WIDTH;
     int windowHeight = DEFAULT_WINDOW_HEIGHT;
     bool fullscreen = false;
-    bool debugDraw = false;
+
+    bool createConsole = false;
     // TODO:
     // More params
     // More rendering params

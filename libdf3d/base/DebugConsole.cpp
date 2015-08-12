@@ -2,12 +2,34 @@
 #include "DebugConsole.h"
 
 #include <base/SystemsMacro.h>
+#include <utils/Utils.h>
+
 #include <Rocket/Core.h>
 
 extern const char *ConsoleRml;
 extern const char *ConsoleRcss;
 
 namespace df3d { namespace base {
+
+void IConsole::registerCommand(const ConsoleCommand &command)
+{
+    if (df3d::utils::contains_key(m_consoleCommands, command.name))
+    {
+        base::glog << "Console command with name" << command.name << "already registered" << base::logwarn;
+        return;
+    }
+
+    m_consoleCommands.insert(std::make_pair(command.name, command));
+}
+
+void IConsole::unregisterCommand(const ConsoleCommand &command)
+{
+    auto found = m_consoleCommands.find(command.name);
+    if (found != m_consoleCommands.end())
+        m_consoleCommands.erase(found);
+    else
+        base::glog << "IConsole::unregisterCommand failed. No such command" << command.name << base::logwarn;
+}
 
 const std::string CVAR_DEBUG_DRAW = "df3d_debug_draw";
 
@@ -19,12 +41,16 @@ class DebugConsole::ConsoleWindow : public Rocket::Core::ElementDocument, public
         {
             if (ev.GetTargetElement()->GetId() == "submit_command")
             {
-                //submitConsoleCommand();
+                auto command = ev.GetTargetElement()->GetAttribute<Rocket::Core::String>("value", "");
+
+                m_parent->onConsoleInput(command.CString());
             }
         }
     }
 
 public:
+    DebugConsole *m_parent = nullptr;
+
     ConsoleWindow(const Rocket::Core::String& tag)
         : ElementDocument(tag)
     {
@@ -37,10 +63,17 @@ public:
     }
 };
 
+void DebugConsole::onConsoleInput(const std::string &str)
+{
+    if (str.empty())
+        return;
+}
+
 DebugConsole::DebugConsole()
 {
     Rocket::Core::Factory::RegisterElementInstancer("__debug_console_window", new Rocket::Core::ElementInstancerGeneric<ConsoleWindow>())->RemoveReference();
     m_menu = dynamic_cast<ConsoleWindow *>(g_guiManager->getContext()->CreateDocument("__debug_console_window"));
+    m_menu->m_parent = this;
     m_menu->SetProperty("visibility", "hidden");
 }
 
@@ -62,21 +95,6 @@ void DebugConsole::show()
 }
 
 void DebugConsole::hide()
-{
-
-}
-
-void DebugConsole::toggle()
-{
-
-}
-
-void DebugConsole::registerCommand()
-{
-
-}
-
-void DebugConsole::unregisterCommand()
 {
 
 }

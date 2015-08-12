@@ -25,7 +25,6 @@ struct RenderManagerInitParams
 {
     int viewportWidth = DEFAULT_WINDOW_WIDTH;
     int viewportHeight = DEFAULT_WINDOW_HEIGHT;
-    bool debugDraw = false;
 
     RenderingCapabilities renderingCaps = RenderingCapabilities::getDefaults();
 };
@@ -63,15 +62,10 @@ class RenderManager
     RenderStats m_stats;
     RenderStats m_lastStats;
 
-    bool m_debugDrawEnabled = false;
-
     RenderManager(RenderManagerInitParams params);
     ~RenderManager();
 
 public:
-    void enableDebugDraw(bool enable);
-    bool isDebugDrawEnabled();
-
     void update(shared_ptr<scene::Scene> renderableScene);
     void drawScene(shared_ptr<scene::Scene> sc);
     void drawOperation(const RenderOperation &op);

@@ -14,7 +14,7 @@ FWD_MODULE_CLASS(audio, AudioManager)
 
 namespace df3d { namespace base {
 
-class DebugConsole;
+class IConsole;
 
 class DF3D_DLL EngineController : utils::NonCopyable
 {
@@ -29,7 +29,7 @@ class DF3D_DLL EngineController : utils::NonCopyable
     physics::PhysicsManager *m_physics = nullptr;
     audio::AudioManager *m_audioManager = nullptr;
 
-    DebugConsole *m_debugConsole = nullptr;
+    IConsole *m_debugConsole = nullptr;
 
     bool m_initialized = false;
 
@@ -62,7 +62,7 @@ public:
     gui::GuiManager *getGuiManager() { return m_guiManager; }
     physics::PhysicsManager *getPhysicsManager() { return m_physics; }
     audio::AudioManager *getAudioManager() { return m_audioManager; }
-    DebugConsole *getConsole() { return m_debugConsole; }
+    IConsole *getConsole() { return m_debugConsole; }
 };
 
 } }
