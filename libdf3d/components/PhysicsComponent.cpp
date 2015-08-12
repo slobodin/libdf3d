@@ -1,6 +1,8 @@
 #include "df3d_pch.h"
 #include "PhysicsComponent.h"
 
+#include <BulletCollision/CollisionShapes/btShapeHull.h>
+
 #include <scene/Node.h>
 #include <components/MeshComponent.h>
 #include <components/TransformComponent.h>
@@ -53,7 +55,7 @@ void PhysicsComponent::initFromCreationParams()
         break;
     case CollisionShapeType::CONVEX_HULL:
     {
-        colShape = new btConvexHullShape();
+        auto convexHull = new btConvexHullShape();
 
         auto geometry = mesh->getGeometry();
         if (!geometry->valid())
@@ -76,9 +78,22 @@ void PhysicsComponent::initFromCreationParams()
                 const float *base = vertexData + stride * vertex + posOffset;
                 glm::vec3 p(base[0], base[1], base[2]);
 
-                ((btConvexHullShape *)colShape)->addPoint(physics::glmTobt(p));
+                convexHull->addPoint(physics::glmTobt(p));
             }
         }
+
+        // FIXME:
+        // Too slow for big meshes. Can preload this from a special asset.
+        // FIXME:
+        // Use cache of already created hulls.
+        // NOTE:
+        // Save timestamp or save convex hull in a special binary format together with mesh.
+
+        auto hull = new btShapeHull(convexHull);
+        btScalar margin = convexHull->getMargin();
+        hull->buildHull(margin);
+        colShape = new btConvexHullShape((btScalar*)hull->getVertexPointer(), hull->numVertices());
+        delete convexHull;
 
         colShape->setLocalScaling(physics::glmTobt(getHolder()->transform()->getScale()));
     }
