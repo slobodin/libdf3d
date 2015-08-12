@@ -33,7 +33,7 @@ public:
         {
             return boost::any_cast<T>(found->second);
         }
-        catch(boost::bad_any_cast &e)
+        catch(boost::bad_any_cast &)
         {
             return T();
         }
