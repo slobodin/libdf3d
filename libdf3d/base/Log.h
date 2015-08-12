@@ -20,9 +20,7 @@ public:
     { }
 };
 
-/**
- * @brief Simple log support.
- */
+//! Simple log support.
 class DF3D_DLL Log
 {
     std::stringstream m_buffer;

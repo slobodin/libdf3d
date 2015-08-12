@@ -4,7 +4,7 @@
 
 namespace df3d { namespace base {
 
-extern const std::string CVAR_DEBUG_DRAW;
+extern const DF3D_DLL std::string CVAR_DEBUG_DRAW;
 // TODO:
 // More cvars.
 
@@ -12,7 +12,7 @@ struct DF3D_DLL ConsoleCommand
 {
     std::string name;
     std::string help;
-    std::function<void()> handler;
+    std::function<void(const std::vector<std::string> &params)> handler;
 };
 
 class DF3D_DLL IConsole : utils::NonCopyable
