@@ -282,10 +282,12 @@ endif()
 
 if (DF3D_DESKTOP)
     list(APPEND libdf3d_HEADER_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/glfwKeyCodes.h
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.h
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/glfwApplication.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/glfwKeyCodes.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.cpp
     )
 endif()

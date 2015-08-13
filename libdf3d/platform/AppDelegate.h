@@ -26,6 +26,7 @@ public:
     virtual void onMouseWheelEvent(const base::MouseWheelEvent &mouseWheelEvent) = 0;
     virtual void onKeyUp(const base::KeyboardEvent::KeyCode &code) = 0;
     virtual void onKeyDown(const base::KeyboardEvent::KeyCode &code) = 0;
+    virtual void onTextInput(unsigned int codepoint) = 0;
 };
 
 void DF3D_DLL setupDelegate(AppDelegate *appDelegate);

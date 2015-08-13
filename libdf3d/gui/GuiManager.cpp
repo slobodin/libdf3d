@@ -96,6 +96,11 @@ bool GuiManager::processKeyUpEvent(const base::KeyboardEvent::KeyCode &code)
     return false;
 }
 
+bool GuiManager::processTextInput(unsigned int codepoint)
+{
+    return m_rocketContext->ProcessTextInput(codepoint);
+}
+
 RocketDocument GuiManager::loadDocument(const std::string &name)
 {
     auto doc = m_rocketContext->LoadDocument(name.c_str());

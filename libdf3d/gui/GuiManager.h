@@ -40,6 +40,7 @@ public:
     bool processMouseWheel(int delta);
     bool processKeyDownEvent(const base::KeyboardEvent::KeyCode &code);
     bool processKeyUpEvent(const base::KeyboardEvent::KeyCode &code);
+    bool processTextInput(unsigned int codepoint);
 
     RocketDocument loadDocument(const std::string &name);
 

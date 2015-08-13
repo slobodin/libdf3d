@@ -1,38 +1,15 @@
 #include "df3d_pch.h"
 
 #include "../AppDelegate.h"
+#include "glfwKeyCodes.h"
 #include <GLFW/glfw3.h>
 
 namespace df3d { namespace platform {
 
-base::KeyboardEvent::KeyCode convertKeyCode(int keyCode)
-{
-    switch(keyCode)
-    {
-    case GLFW_KEY_UP:
-        return base::KeyboardEvent::KeyCode::UP;
-    case GLFW_KEY_DOWN:
-        return base::KeyboardEvent::KeyCode::DOWN;
-    case GLFW_KEY_LEFT:
-        return base::KeyboardEvent::KeyCode::LEFT;
-    case GLFW_KEY_RIGHT:
-        return base::KeyboardEvent::KeyCode::RIGHT;
-    case GLFW_KEY_SPACE:
-        return base::KeyboardEvent::KeyCode::SPACE;
-    case GLFW_KEY_F1:
-        return base::KeyboardEvent::KeyCode::F1;
-    case GLFW_KEY_F2:
-        return base::KeyboardEvent::KeyCode::F2;
-    default:
-        break;
-    }
-
-    return base::KeyboardEvent::KeyCode::UNDEFINED;
-}
-
 static void cursorPositionCallback(GLFWwindow *window, double xpos, double ypos);
 static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
-static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
+static void textInputCallback(GLFWwindow *window, unsigned int codepoint);
 
 class glfwApplication
 {
@@ -75,6 +52,7 @@ public:
         glfwSetCursorPosCallback(window, cursorPositionCallback);
         glfwSetMouseButtonCallback(window, mouseButtonCallback);
         glfwSetKeyCallback(window, keyCallback);
+        glfwSetCharCallback(window, textInputCallback);
 
         // Init user code.
         if (!m_appDelegate->onAppStarted(params.windowWidth, params.windowHeight))
@@ -172,12 +150,17 @@ public:
 
     void onKey(int key, int scancode, int action, int mods)
     {
-        auto keyCode = convertKeyCode(key);
+        auto keyCode = convertGlfwKeyCode(key);
 
         if (action == GLFW_PRESS)
             m_appDelegate->onKeyDown(keyCode);
         else if (action == GLFW_RELEASE)
             m_appDelegate->onKeyUp(keyCode);
+    }
+
+    void onTextInput(unsigned int codepoint)
+    {
+        m_appDelegate->onTextInput(codepoint);
     }
 };
 
@@ -200,6 +183,13 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
 
     app->onKey(key, scancode, action, mods);
+}
+
+static void textInputCallback(GLFWwindow *window, unsigned int codepoint)
+{
+    auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
+
+    app->onTextInput(codepoint);
 }
 
 glfwApplication *g_application = nullptr;
