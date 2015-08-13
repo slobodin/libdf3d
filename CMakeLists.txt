@@ -73,6 +73,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketIntrusivePtr.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketKeyCodesAdapter.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
@@ -171,6 +172,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketIntrusivePtr.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketKeyCodesAdapter.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.cpp

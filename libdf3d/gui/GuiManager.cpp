@@ -2,6 +2,7 @@
 #include "GuiManager.h"
 
 #include "RocketInterface.h"
+#include "RocketKeyCodesAdapter.h"
 #include <base/EngineController.h>
 #include <base/InputEvents.h>
 
@@ -86,14 +87,14 @@ bool GuiManager::processMouseWheel(int delta)
     return true;
 }
 
-bool GuiManager::processKeyDownEvent(const base::KeyboardEvent::KeyCode &code)
+bool GuiManager::processKeyDownEvent(base::KeyboardEvent::KeyCode code)
 {
-    return false;
+    return m_rocketContext->ProcessKeyDown(convertToRocketKeyCode(code), 0);
 }
 
-bool GuiManager::processKeyUpEvent(const base::KeyboardEvent::KeyCode &code)
+bool GuiManager::processKeyUpEvent(base::KeyboardEvent::KeyCode code)
 {
-    return false;
+    return m_rocketContext->ProcessKeyUp(convertToRocketKeyCode(code), 0);
 }
 
 bool GuiManager::processTextInput(unsigned int codepoint)

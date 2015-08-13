@@ -35,13 +35,15 @@ const std::string CVAR_DEBUG_DRAW = "df3d_debug_draw";
 
 class DebugConsole::ConsoleWindow : public Rocket::Core::ElementDocument, public Rocket::Core::EventListener
 {
+    RocketElement m_inputText;
+
     void ProcessEvent(Rocket::Core::Event &ev)
     {
         if (ev == "click")
         {
             if (ev.GetTargetElement()->GetId() == "submit_command")
             {
-                auto command = ev.GetTargetElement()->GetAttribute<Rocket::Core::String>("value", "");
+                auto command = m_inputText->GetAttribute<Rocket::Core::String>("value", "");
 
                 m_parent->onConsoleInput(command.CString());
             }
@@ -60,6 +62,8 @@ public:
 
         SetStyleSheet(styleSheet);
         styleSheet->RemoveReference();
+
+        m_inputText = GetElementById("console_input");
     }
 };
 
