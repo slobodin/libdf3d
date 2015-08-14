@@ -52,6 +52,18 @@ inline T from_string(const std::string &s)
     return res;
 }
 
+inline std::vector<std::string> split(const std::string &str, char delim)
+{
+    std::vector<std::string> result;
+
+    std::stringstream ss(str);
+    std::string item;
+    while (std::getline(ss, item, delim))
+        result.push_back(item);
+
+    return result;
+}
+
 inline bool starts_with(const std::string &s, const std::string &with)
 {
     return s.compare(0, with.size(), with) == 0;

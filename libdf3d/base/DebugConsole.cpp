@@ -4,6 +4,7 @@
 #include <base/SystemsMacro.h>
 #include <utils/Utils.h>
 
+#include <boost/algorithm/string.hpp>
 #include <Rocket/Core.h>
 
 extern const char *ConsoleRml;
@@ -13,6 +14,12 @@ namespace df3d { namespace base {
 
 void IConsole::registerCommand(const ConsoleCommand &command)
 {
+    if (command.name.empty())
+    {
+        base::glog << "Command name should not be empty" << base::logwarn;
+        return;
+    }
+
     if (df3d::utils::contains_key(m_consoleCommands, command.name))
     {
         base::glog << "Console command with name" << command.name << "already registered" << base::logwarn;
@@ -36,6 +43,7 @@ const std::string CVAR_DEBUG_DRAW = "df3d_debug_draw";
 class DebugConsole::ConsoleWindow : public Rocket::Core::ElementDocument, public Rocket::Core::EventListener
 {
     RocketElement m_inputText;
+    RocketElement m_historyElement;
 
     void ProcessEvent(Rocket::Core::Event &ev)
     {
@@ -64,6 +72,13 @@ public:
         styleSheet->RemoveReference();
 
         m_inputText = GetElementById("console_input");
+        m_historyElement = GetElementById("previous_commands");
+    }
+
+    void setHistory(const std::string &history)
+    {
+        m_historyElement->SetInnerRML(Rocket::Core::String(history.c_str()));
+        m_inputText->SetAttribute("value", "");
     }
 };
 
@@ -71,6 +86,36 @@ void DebugConsole::onConsoleInput(const std::string &str)
 {
     if (str.empty())
         return;
+
+    auto space = str.find_first_of(' ');
+    auto commandName = str.substr(0, space);
+    if (commandName.empty())
+        return;
+
+    auto found = m_consoleCommands.find(commandName);
+    if (found == m_consoleCommands.end())
+    {
+        updateHistory(std::string("No such command `") + commandName + "`. Try help for more information.");
+        return;
+    }
+
+    std::string params;
+    if (space != std::string::npos)
+        params = str.substr(space, std::string::npos);
+
+    boost::trim(params);
+
+    updateHistory(found->second.handler(utils::split(params, ' ')));
+}
+
+void DebugConsole::updateHistory(const std::string &commandResult)
+{
+    if (commandResult.empty())
+        return;
+
+    m_history += commandResult + "\n";
+
+    m_menu->setHistory(m_history);
 }
 
 DebugConsole::DebugConsole()
@@ -79,6 +124,20 @@ DebugConsole::DebugConsole()
     m_menu = dynamic_cast<ConsoleWindow *>(g_guiManager->getContext()->CreateDocument("__debug_console_window"));
     m_menu->m_parent = this;
     m_menu->Hide();
+
+    ConsoleCommand helpCommand;
+    helpCommand.name = "help";
+    helpCommand.help = "Displays help message.";
+    helpCommand.handler = [this](const std::vector<std::string> &params) 
+    {
+        std::string result = "Available console commands:\n";
+        for (auto kv : m_consoleCommands)
+            result += "  " + kv.first + ": " + kv.second.help;
+
+        return result;
+    };
+
+    registerCommand(helpCommand);
 }
 
 DebugConsole::~DebugConsole()
@@ -104,38 +163,3 @@ void DebugConsole::hide()
 }
 
 } }
-
-/*
-void EngineController::consoleCommandInvoked(const std::string &name, std::string &result)
-{
-    if (name.empty())
-        return;
-
-    // Special case:
-    if (name == "help")
-    {
-        result += "Registered commands: ";
-
-        for (auto it : m_consoleCommandsHandlers)
-            result += it.first + ", ";
-
-        return;
-    }
-
-    auto space = name.find_first_of(' ');
-    auto commandName = name.substr(0, space);
-
-    auto found = m_consoleCommandsHandlers.find(commandName);
-    if (found == m_consoleCommandsHandlers.end())
-    {
-        result = "No such command. Try help for more information.";
-        return;
-    }
-
-    std::string params;
-    if (space != std::string::npos)
-        params = name.substr(space, std::string::npos);
-
-    result = found->second(params);
-}
-*/

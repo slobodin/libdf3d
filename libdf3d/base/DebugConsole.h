@@ -12,7 +12,7 @@ struct DF3D_DLL ConsoleCommand
 {
     std::string name;
     std::string help;
-    std::function<void(const std::vector<std::string> &params)> handler;
+    std::function<std::string(const std::vector<std::string> &params)> handler;
 };
 
 class DF3D_DLL IConsole : utils::NonCopyable
@@ -43,7 +43,10 @@ class DF3D_DLL DebugConsole : public IConsole
     ConsoleWindow *m_menu = nullptr;
     friend class ConsoleWindow;
 
+    std::string m_history;
+
     void onConsoleInput(const std::string &str);
+    void updateHistory(const std::string &commandResult);
 
 public:
     DebugConsole();

@@ -10,6 +10,7 @@ static void cursorPositionCallback(GLFWwindow *window, double xpos, double ypos)
 static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 static void textInputCallback(GLFWwindow *window, unsigned int codepoint);
+static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 
 class glfwApplication
 {
@@ -53,6 +54,7 @@ public:
         glfwSetMouseButtonCallback(window, mouseButtonCallback);
         glfwSetKeyCallback(window, keyCallback);
         glfwSetCharCallback(window, textInputCallback);
+        glfwSetScrollCallback(window, scrollCallback);
 
         // Init user code.
         if (!m_appDelegate->onAppStarted(params.windowWidth, params.windowHeight))
@@ -174,6 +176,13 @@ public:
     {
         m_appDelegate->onTextInput(codepoint);
     }
+
+    void onScroll(double xoffset, double yoffset)
+    {
+        base::MouseWheelEvent ev;
+        ev.delta = (float)-yoffset;
+        m_appDelegate->onMouseWheelEvent(ev);
+    }
 };
 
 static void cursorPositionCallback(GLFWwindow *window, double xpos, double ypos)
@@ -202,6 +211,13 @@ static void textInputCallback(GLFWwindow *window, unsigned int codepoint)
     auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
 
     app->onTextInput(codepoint);
+}
+
+void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
+{
+    auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
+
+    app->onScroll(xoffset, yoffset);
 }
 
 glfwApplication *g_application = nullptr;
