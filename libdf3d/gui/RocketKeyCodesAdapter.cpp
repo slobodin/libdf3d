@@ -8,167 +8,167 @@ Rocket::Core::Input::KeyIdentifier convertToRocketKeyCode(base::KeyboardEvent::K
     switch (keycode)
     {
     case base::KeyboardEvent::KEY_F1:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_F1;
     case base::KeyboardEvent::KEY_F2:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_F2;
     case base::KeyboardEvent::KEY_F3:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_F3;
     case base::KeyboardEvent::KEY_F4:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_F4;
     case base::KeyboardEvent::KEY_F5:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_F5;
     case base::KeyboardEvent::KEY_F6:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_F6;
     case base::KeyboardEvent::KEY_F7:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_F7;
     case base::KeyboardEvent::KEY_F8:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_F8;
     case base::KeyboardEvent::KEY_F9:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_F9;
     case base::KeyboardEvent::KEY_F10:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_F10;
     case base::KeyboardEvent::KEY_F11:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_F11;
     case base::KeyboardEvent::KEY_F12:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_F12;
     case base::KeyboardEvent::KEY_0:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_0;
     case base::KeyboardEvent::KEY_1:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_1;
     case base::KeyboardEvent::KEY_2:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_2;
     case base::KeyboardEvent::KEY_3:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_3;
     case base::KeyboardEvent::KEY_4:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_4;
     case base::KeyboardEvent::KEY_5:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_5;
     case base::KeyboardEvent::KEY_6:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_6;
     case base::KeyboardEvent::KEY_7:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_7;
     case base::KeyboardEvent::KEY_8:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_8;
     case base::KeyboardEvent::KEY_9:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_9;
     case base::KeyboardEvent::KEY_A:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_A;
     case base::KeyboardEvent::KEY_B:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_B;
     case base::KeyboardEvent::KEY_C:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_C;
     case base::KeyboardEvent::KEY_D:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_D;
     case base::KeyboardEvent::KEY_E:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_E;
     case base::KeyboardEvent::KEY_F:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_F;
     case base::KeyboardEvent::KEY_G:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_G;
     case base::KeyboardEvent::KEY_H:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_H;
     case base::KeyboardEvent::KEY_I:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_I;
     case base::KeyboardEvent::KEY_J:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_J;
     case base::KeyboardEvent::KEY_K:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_K;
     case base::KeyboardEvent::KEY_L:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_L;
     case base::KeyboardEvent::KEY_M:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_M;
     case base::KeyboardEvent::KEY_N:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_N;
     case base::KeyboardEvent::KEY_O:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_O;
     case base::KeyboardEvent::KEY_P:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_P;
     case base::KeyboardEvent::KEY_Q:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_Q;
     case base::KeyboardEvent::KEY_R:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_R;
     case base::KeyboardEvent::KEY_S:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_S;
     case base::KeyboardEvent::KEY_T:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_T;
     case base::KeyboardEvent::KEY_U:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_U;
     case base::KeyboardEvent::KEY_V:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_V;
     case base::KeyboardEvent::KEY_W:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_W;
     case base::KeyboardEvent::KEY_X:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_X;
     case base::KeyboardEvent::KEY_Y:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_Y;
     case base::KeyboardEvent::KEY_Z:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_Z;
     case base::KeyboardEvent::KEY_LEFT_BRACKET:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_OEM_4;
     case base::KeyboardEvent::KEY_RIGHT_BRACKET:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_OEM_6;
     case base::KeyboardEvent::KEY_GRAVE_ACCENT:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_OEM_3;
     case base::KeyboardEvent::KEY_SLASH:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_OEM_2;
     case base::KeyboardEvent::KEY_BACKSLASH:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_OEM_102;
     case base::KeyboardEvent::KEY_SPACE:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_SPACE;
     case base::KeyboardEvent::KEY_EQUAL:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_OEM_PLUS;
     case base::KeyboardEvent::KEY_MINUS:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_OEM_MINUS;
     case base::KeyboardEvent::KEY_ESCAPE:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_ESCAPE;
     case base::KeyboardEvent::KEY_ENTER:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_RETURN;
     case base::KeyboardEvent::KEY_TAB:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_TAB;
     case base::KeyboardEvent::KEY_BACKSPACE:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_BACK;
     case base::KeyboardEvent::KEY_INSERT:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_INSERT;
     case base::KeyboardEvent::KEY_DELETE:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_DELETE;
     case base::KeyboardEvent::KEY_LEFT:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_LEFT;
     case base::KeyboardEvent::KEY_RIGHT:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_RIGHT;
     case base::KeyboardEvent::KEY_UP:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_UP;
     case base::KeyboardEvent::KEY_DOWN:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_DOWN;
     case base::KeyboardEvent::KEY_PAGE_UP:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_PRIOR;
     case base::KeyboardEvent::KEY_PAGE_DOWN:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_NEXT;
     case base::KeyboardEvent::KEY_HOME:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_HOME;
     case base::KeyboardEvent::KEY_END:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_END;
     case base::KeyboardEvent::KEY_CAPS_LOCK:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_CAPITAL;
     case base::KeyboardEvent::KEY_SCROLL_LOCK:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_SCROLL;
     case base::KeyboardEvent::KEY_NUM_LOCK:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_NUMLOCK;
     case base::KeyboardEvent::KEY_PRINT_SCREEN:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_SNAPSHOT;
     case base::KeyboardEvent::KEY_PAUSE:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_PAUSE;
     case base::KeyboardEvent::KEY_LEFT_SHIFT:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_LSHIFT;
     case base::KeyboardEvent::KEY_LEFT_ALT:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_LMENU;
     case base::KeyboardEvent::KEY_LEFT_CTRL:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_LCONTROL;
     case base::KeyboardEvent::KEY_RIGHT_SHIFT:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_RSHIFT;
     case base::KeyboardEvent::KEY_RIGHT_ALT:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_RMENU;
     case base::KeyboardEvent::KEY_RIGHT_CTRL:
-        break;
+        return Rocket::Core::Input::KeyIdentifier::KI_RCONTROL;
     case base::KeyboardEvent::UNDEFINED:
     default:
         break;
