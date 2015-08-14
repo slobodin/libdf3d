@@ -6,5 +6,6 @@
 namespace df3d { namespace gui {
 
 Rocket::Core::Input::KeyIdentifier convertToRocketKeyCode(base::KeyboardEvent::KeyCode keycode);
+Rocket::Core::Input::KeyModifier convertToRocketModifier(base::KeyboardEvent::KeyModifier modifier);
 
 } }

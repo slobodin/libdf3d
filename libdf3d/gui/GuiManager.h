@@ -38,8 +38,8 @@ public:
     bool processMouseButtonUp(int buttonIdx);
     bool processMouseMotion(int x, int y);
     bool processMouseWheel(int delta);
-    bool processKeyDownEvent(base::KeyboardEvent::KeyCode code);
-    bool processKeyUpEvent(base::KeyboardEvent::KeyCode code);
+    bool processKeyDownEvent(const base::KeyboardEvent &keyEv);
+    bool processKeyUpEvent(const base::KeyboardEvent &keyEv);
     bool processTextInput(unsigned int codepoint);
 
     RocketDocument loadDocument(const std::string &name);

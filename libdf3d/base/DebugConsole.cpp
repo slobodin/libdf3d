@@ -78,7 +78,7 @@ DebugConsole::DebugConsole()
     Rocket::Core::Factory::RegisterElementInstancer("__debug_console_window", new Rocket::Core::ElementInstancerGeneric<ConsoleWindow>())->RemoveReference();
     m_menu = dynamic_cast<ConsoleWindow *>(g_guiManager->getContext()->CreateDocument("__debug_console_window"));
     m_menu->m_parent = this;
-    m_menu->SetProperty("visibility", "hidden");
+    m_menu->Hide();
 }
 
 DebugConsole::~DebugConsole()
@@ -90,17 +90,17 @@ DebugConsole::~DebugConsole()
 
 bool DebugConsole::isVisible() const
 {
-    return false;
+    return m_menu->IsVisible();
 }
 
 void DebugConsole::show()
 {
-
+    m_menu->Show();
 }
 
 void DebugConsole::hide()
 {
-
+    m_menu->Hide();
 }
 
 } }

@@ -87,14 +87,14 @@ bool GuiManager::processMouseWheel(int delta)
     return true;
 }
 
-bool GuiManager::processKeyDownEvent(base::KeyboardEvent::KeyCode code)
+bool GuiManager::processKeyDownEvent(const base::KeyboardEvent &keyEv)
 {
-    return m_rocketContext->ProcessKeyDown(convertToRocketKeyCode(code), 0);
+    return m_rocketContext->ProcessKeyDown(convertToRocketKeyCode(keyEv.keycode), convertToRocketModifier(keyEv.modifiers));
 }
 
-bool GuiManager::processKeyUpEvent(base::KeyboardEvent::KeyCode code)
+bool GuiManager::processKeyUpEvent(const base::KeyboardEvent &keyEv)
 {
-    return m_rocketContext->ProcessKeyUp(convertToRocketKeyCode(code), 0);
+    return m_rocketContext->ProcessKeyUp(convertToRocketKeyCode(keyEv.keycode), convertToRocketModifier(keyEv.modifiers));
 }
 
 bool GuiManager::processTextInput(unsigned int codepoint)

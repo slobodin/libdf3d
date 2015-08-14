@@ -177,4 +177,17 @@ Rocket::Core::Input::KeyIdentifier convertToRocketKeyCode(base::KeyboardEvent::K
     return Rocket::Core::Input::KI_UNKNOWN;
 }
 
+Rocket::Core::Input::KeyModifier convertToRocketModifier(base::KeyboardEvent::KeyModifier modifier)
+{
+    int res = 0;
+    if (modifier & base::KeyboardEvent::KM_SHIFT)
+        res |= Rocket::Core::Input::KM_SHIFT;
+    if (modifier & base::KeyboardEvent::KM_ALT)
+        res |= Rocket::Core::Input::KM_ALT;
+    if (modifier & base::KeyboardEvent::KM_CTRL)
+        res |= Rocket::Core::Input::KM_CTRL;
+
+    return static_cast<Rocket::Core::Input::KeyModifier>(res);
+}
+
 } }

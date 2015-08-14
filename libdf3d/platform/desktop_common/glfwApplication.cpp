@@ -152,10 +152,22 @@ public:
     {
         auto keyCode = convertGlfwKeyCode(key);
 
+        int keyModifiers = 0;
+        if (mods & GLFW_MOD_SHIFT)
+            keyModifiers |= base::KeyboardEvent::KM_SHIFT;
+        if (mods & GLFW_MOD_ALT)
+            keyModifiers |= base::KeyboardEvent::KM_ALT;
+        if (mods & GLFW_MOD_CONTROL)
+            keyModifiers |= base::KeyboardEvent::KM_CTRL;
+
+        base::KeyboardEvent ev;
+        ev.keycode = convertGlfwKeyCode(key);
+        ev.modifiers = static_cast<base::KeyboardEvent::KeyModifier>(keyModifiers);
+
         if (action == GLFW_PRESS)
-            m_appDelegate->onKeyDown(keyCode);
+            m_appDelegate->onKeyDown(ev);
         else if (action == GLFW_RELEASE)
-            m_appDelegate->onKeyUp(keyCode);
+            m_appDelegate->onKeyUp(ev);
     }
 
     void onTextInput(unsigned int codepoint)

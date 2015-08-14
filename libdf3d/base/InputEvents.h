@@ -136,7 +136,16 @@ public:
         UNDEFINED
     };
 
+    enum KeyModifier
+    {
+        KM_NONE = 0,
+        KM_CTRL = 1 << 0,
+        KM_ALT = 1 << 1,
+        KM_SHIFT = 1 << 2
+    };
+
     KeyCode keycode;
+    KeyModifier modifiers;
 };
 
 class DF3D_DLL TouchEvent
