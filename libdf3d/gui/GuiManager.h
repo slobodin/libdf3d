@@ -37,7 +37,7 @@ public:
     bool processMouseButtonDown(int buttonIdx);
     bool processMouseButtonUp(int buttonIdx);
     bool processMouseMotion(int x, int y);
-    bool processMouseWheel(int delta);
+    bool processMouseWheel(float delta);
     bool processKeyDownEvent(const base::KeyboardEvent &keyEv);
     bool processKeyUpEvent(const base::KeyboardEvent &keyEv);
     bool processTextInput(unsigned int codepoint);

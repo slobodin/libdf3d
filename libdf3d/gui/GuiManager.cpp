@@ -81,9 +81,9 @@ bool GuiManager::processMouseMotion(int x, int y)
     return true;
 }
 
-bool GuiManager::processMouseWheel(int delta)
+bool GuiManager::processMouseWheel(float delta)
 {
-    m_rocketContext->ProcessMouseWheel(delta, 0);
+    m_rocketContext->ProcessMouseWheel(static_cast<int>(delta), 0);
     return true;
 }
 
