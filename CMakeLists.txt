@@ -220,6 +220,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingSphere.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingVolume.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/OBB.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonHelpers.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshIndexer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneSerializer.cpp

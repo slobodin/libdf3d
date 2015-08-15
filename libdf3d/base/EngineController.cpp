@@ -31,6 +31,7 @@ EngineController::EngineController()
 
 EngineController::~EngineController()
 {
+
 }
 
 void EngineController::shutdown()
@@ -100,7 +101,8 @@ bool EngineController::init(EngineInitParams params)
         m_audioManager = new audio::AudioManager();
 
         // Create console.
-        params.createConsole ? m_debugConsole = new DebugConsole() : m_debugConsole = new NullConsole();
+        if (params.createConsole)
+            m_debugConsole = new DebugConsole();
 
         base::glog << "Engine initialized" << base::logmess;
 

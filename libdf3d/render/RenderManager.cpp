@@ -64,8 +64,11 @@ void RenderManager::createAmbientPassProps()
 
 void RenderManager::debugDrawPass()
 {
-    if (!g_engineController->getConsole()->getCVars().get<bool>(base::CVAR_DEBUG_DRAW))
-        return;
+    if (auto console = g_engineController->getConsole())
+    {
+        if (!console->getCVars().get<bool>(base::CVAR_DEBUG_DRAW))
+            return;
+    }
 
     // Draw scene graph debug draw nodes.
     for (const auto &op : m_renderQueue->debugDrawOperations)

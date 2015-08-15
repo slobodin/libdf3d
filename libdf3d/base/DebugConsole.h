@@ -1,6 +1,6 @@
 #pragma once
 
-#include <utils/Dict.h>
+#include <utils/Utils.h>
 
 namespace df3d { namespace base {
 
@@ -15,36 +15,43 @@ struct DF3D_DLL ConsoleCommand
     std::function<std::string(const std::vector<std::string> &params)> handler;
 };
 
-class DF3D_DLL IConsole : utils::NonCopyable
+class CVarsContainer : utils::NonCopyable
 {
-protected:
-    utils::Dict m_cvars;
-    std::unordered_map<std::string, ConsoleCommand> m_consoleCommands;
+    std::unordered_map<std::string, std::string> m_cvars;
 
 public:
-    IConsole() = default;
-    virtual ~IConsole() = default;
+    CVarsContainer() = default;
+    ~CVarsContainer() = default;
 
-    virtual bool isVisible() const = 0;
-    virtual void show() = 0;
-    virtual void hide() = 0;
-    void toggle() { isVisible() ? hide() : show(); }
+    template<typename T>
+    void set(const std::string &key, const T &val)
+    {
+        m_cvars[key] = utils::to_string(val);
+    }
 
-    void registerCommand(const ConsoleCommand &command);
-    void unregisterCommand(const ConsoleCommand &command);
+    template<typename T>
+    T get(const std::string &key) const
+    {
+        auto found = m_cvars.find(key);
+        if (found == m_cvars.end())
+            return T();
 
-    utils::Dict& getCVars() { return m_cvars; }
-    const utils::Dict& getCVars() const { return m_cvars; }
+        return utils::from_string<T>(found->second);
+    }
 };
 
-class DF3D_DLL DebugConsole : public IConsole
+class DF3D_DLL DebugConsole : utils::NonCopyable
 {
+    CVarsContainer m_cvars;
+    std::unordered_map<std::string, ConsoleCommand> m_consoleCommands;
+
     class ConsoleWindow;
     ConsoleWindow *m_menu = nullptr;
     friend class ConsoleWindow;
 
     std::string m_history;
 
+    void registerDefaultCommands();
     void onConsoleInput(const std::string &str);
     void updateHistory(const std::string &commandResult);
 
@@ -52,17 +59,16 @@ public:
     DebugConsole();
     ~DebugConsole();
 
-    bool isVisible() const override;
-    void show() override;
-    void hide() override;
-};
+    bool isVisible() const;
+    void show();
+    void hide();
+    void toggle() { isVisible() ? hide() : show(); }
 
-class DF3D_DLL NullConsole : public IConsole
-{
-public:
-    bool isVisible() const override { return false; }
-    void show() override { }
-    void hide() override { }
+    void registerCommand(const ConsoleCommand &command);
+    void unregisterCommand(const ConsoleCommand &command);
+
+    CVarsContainer& getCVars() { return m_cvars; }
+    const CVarsContainer& getCVars() const { return m_cvars; }
 };
 
 } }

@@ -13,8 +13,8 @@ class DF3D_DLL Dict
     std::unordered_map<std::string, boost::any> m_kvPairs;
 
 public:
-    Dict() = default;
-    ~Dict() = default;
+    Dict();
+    ~Dict();
 
     template<typename T>
     void set(const std::string &key, const T &val)
