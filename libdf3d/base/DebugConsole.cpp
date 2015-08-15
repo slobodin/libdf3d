@@ -16,9 +16,6 @@ const std::string CVAR_DEBUG_DRAW = "df3d_debug_draw";
 
 class DebugConsole::ConsoleWindow : public Rocket::Core::ElementDocument, public Rocket::Core::EventListener
 {
-    RocketElement m_inputText;
-    RocketElement m_historyElement;
-
     void ProcessEvent(Rocket::Core::Event &ev)
     {
         if (ev == "click")
@@ -35,6 +32,9 @@ class DebugConsole::ConsoleWindow : public Rocket::Core::ElementDocument, public
 public:
     DebugConsole *m_parent = nullptr;
 
+    RocketElement m_inputText;
+    RocketElement m_historyElement;
+
     ConsoleWindow(const Rocket::Core::String& tag)
         : ElementDocument(tag)
     {
@@ -47,12 +47,6 @@ public:
 
         m_inputText = GetElementById("console_input");
         m_historyElement = GetElementById("previous_commands");
-    }
-
-    void setHistory(const std::string &history)
-    {
-        m_historyElement->SetInnerRML(Rocket::Core::String(history.c_str()));
-        m_inputText->SetAttribute("value", "");
     }
 };
 
@@ -116,12 +110,13 @@ void DebugConsole::onConsoleInput(const std::string &str)
 
 void DebugConsole::updateHistory(const std::string &commandResult)
 {
-    if (commandResult.empty())
-        return;
-
-    m_history += commandResult + "\n";
-
-    m_menu->setHistory(m_history);
+    if (!commandResult.empty())
+    {
+        m_history += commandResult + "\n";
+        m_menu->m_historyElement->SetInnerRML(Rocket::Core::String(m_history.c_str()));
+    }
+    
+    m_menu->m_inputText->SetAttribute("value", "");
 }
 
 DebugConsole::DebugConsole()
