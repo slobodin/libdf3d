@@ -79,8 +79,15 @@ public:
     void unloadResource(shared_ptr<Resource> resource);
     void unloadUnused();
 
-    bool resourceExists(const ResourceGUID &guid) const;
-    bool resourceLoaded(const ResourceGUID &guid) const;
+    //! Checks whether or not resource is present in the resource manager cache.
+    /*!
+     * \brief NOTE: Resource may not be decoded yet.
+     * \param guid
+     * \return
+     */
+    bool isResourceExist(const ResourceGUID &guid) const;
+    //! Checks whether or not resource exists and loaded (i.e. successfully decoded).
+    bool isResourceLoaded(const ResourceGUID &guid) const;
 
     void addListener(Listener *listener);
     void removeListener(Listener *listener);

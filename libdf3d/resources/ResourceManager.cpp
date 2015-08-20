@@ -393,14 +393,14 @@ void ResourceManager::unloadUnused()
     }
 }
 
-bool ResourceManager::resourceExists(const ResourceGUID &guid) const
+bool ResourceManager::isResourceExist(const ResourceGUID &guid) const
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     return findResource(guid) != nullptr;
 }
 
-bool ResourceManager::resourceLoaded(const ResourceGUID &guid) const
+bool ResourceManager::isResourceLoaded(const ResourceGUID &guid) const
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
