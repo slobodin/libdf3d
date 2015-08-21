@@ -1,4 +1,5 @@
 if(NOT CMAKE_BUILD_TYPE)
+    message(STATUS "CMAKE_BUILD_TYPE default set to debug")
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif()
 
@@ -34,10 +35,6 @@ endif()
 
 if (WINDOWS OR LINUX OR MACOSX)
     set(DF3D_DESKTOP true)
-endif()
-
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
