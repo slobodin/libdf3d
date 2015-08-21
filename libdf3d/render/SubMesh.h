@@ -6,7 +6,7 @@ class Material;
 class VertexBuffer;
 class IndexBuffer;
 
-class SubMesh : utils::NonCopyable
+class DF3D_DLL SubMesh : utils::NonCopyable
 {
     shared_ptr<Material> m_material;
     shared_ptr<VertexBuffer> m_vb;
@@ -14,6 +14,7 @@ class SubMesh : utils::NonCopyable
 
 public:
     SubMesh();
+    ~SubMesh();
 
     //! Computes normals for vertices.
     void computeNormals();

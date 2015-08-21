@@ -9,9 +9,9 @@ FWD_MODULE_CLASS(render, MaterialLib)
 
 namespace df3d { namespace resources {
 
-//! Wavefront OBJ file decoder.
 /*!
- * Supports only triangulated models with precomputed normals.
+ * \brief Wavefront OBJ file decoder.
+ * Supports only triangulated models.
  */
 class DecoderOBJ : public ResourceDecoder
 {

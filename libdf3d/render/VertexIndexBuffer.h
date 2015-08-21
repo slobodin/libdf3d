@@ -22,7 +22,7 @@ enum class GpuBufferUsageType
 using INDICES_TYPE = INDICES_32_BIT;
 using IndexArray = std::vector<INDICES_TYPE>;
 
-class GpuBuffer : utils::NonCopyable
+class DF3D_DLL GpuBuffer : utils::NonCopyable
 {
 protected:
     GpuBufferUsageType m_usageType = GpuBufferUsageType::STATIC;
@@ -50,7 +50,7 @@ public:
 };
 
 //! Gpu vertex buffer representation.
-class VertexBuffer : public GpuBuffer
+class DF3D_DLL VertexBuffer : public GpuBuffer
 {
     VertexFormat m_vertexFormat;
 
@@ -83,7 +83,7 @@ public:
 };
 
 // Gpu index buffer representation.
-class IndexBuffer : public GpuBuffer
+class DF3D_DLL IndexBuffer : public GpuBuffer
 {
     IndexArray m_indices;
 

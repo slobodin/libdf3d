@@ -51,8 +51,6 @@ private:
     ~ResourceManager();
 
     shared_ptr<Resource> findResource(const std::string &guid) const;
-    shared_ptr<ResourceDecoder> getDecoder(const std::string &extension) const;
-
     shared_ptr<Resource> loadResourceFromFileSystem(const std::string &path, ResourceLoadingMode lm);
 
 public:

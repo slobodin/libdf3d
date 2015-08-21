@@ -6,7 +6,7 @@ class Texture;
 class GpuProgram;
 class GpuProgramUniform;
 
-struct Sampler
+struct DF3D_DLL Sampler
 {
     shared_ptr<render::Texture> texture;
     std::string name;

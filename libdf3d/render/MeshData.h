@@ -7,7 +7,7 @@ namespace df3d { namespace render {
 class SubMesh;
 class Material;
 
-class MeshData : public resources::Resource
+class DF3D_DLL MeshData : public resources::Resource
 {
     std::vector<shared_ptr<SubMesh>> m_submeshes;
     size_t m_trianglesCount = 0;

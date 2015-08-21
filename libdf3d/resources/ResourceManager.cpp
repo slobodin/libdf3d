@@ -12,13 +12,8 @@
 #include <render/MaterialLib.h>
 #include <utils/Utils.h>
 #include "Resource.h"
+#include "ResourceDecoder.h"
 #include "FileDataSource.h"
-#include "decoders/DecoderOBJ.h"
-#include "decoders/DecoderMTL.h"
-#include "decoders/DecoderTexture.h"
-#include "decoders/DecoderTerrain.h"
-#include "decoders/DecoderWAV.h"
-#include "decoders/DecoderOGG.h"
 
 namespace df3d { namespace resources {
 
@@ -122,27 +117,6 @@ shared_ptr<Resource> ResourceManager::findResource(const std::string &fullPath) 
     return found->second;
 }
 
-shared_ptr<ResourceDecoder> ResourceManager::getDecoder(const std::string &extension) const
-{
-    if (extension == ".obj")
-        return make_shared<DecoderOBJ>();
-    if (extension == ".mtl")
-        return make_shared<DecoderMTL>();
-    if (extension == ".png" || extension == ".jpg" || extension == ".jpeg" || extension == ".bmp")
-        return make_shared<DecoderTexture>();
-    if (extension == ".wav")
-        return make_shared<DecoderWAV>();
-    if (extension == ".ogg")
-        return make_shared<DecoderOGG>();
-    if (extension == ".terrain")
-        return make_shared<DecoderTerrain>();
-    else
-    {
-        base::glog << "Decoder for resources of type" << extension << "doesn't exist." << base::logwarn;
-        return nullptr;
-    }
-}
-
 shared_ptr<Resource> ResourceManager::loadResourceFromFileSystem(const std::string &path, ResourceLoadingMode lm)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
@@ -163,8 +137,7 @@ shared_ptr<Resource> ResourceManager::loadResourceFromFileSystem(const std::stri
         return alreadyLoadedResource;
 
     // Create decoder for the resource.
-    auto fileExtension = g_fileSystem->getFileExtension(guid);
-    auto decoder = getDecoder(fileExtension);
+    auto decoder = createResourceDecoder(guid);
     if (!decoder)
         return nullptr;
 

@@ -11,6 +11,11 @@ SubMesh::SubMesh()
 
 }
 
+SubMesh::~SubMesh()
+{
+    
+}
+
 void SubMesh::computeNormals()
 {
     if (!m_vb || !m_vb->getFormat().hasComponent(VertexComponent::NORMAL) || !m_vb->getFormat().hasComponent(VertexComponent::POSITION))
@@ -104,8 +109,8 @@ void SubMesh::computeTangentBasis()
         return;
 
     const auto &format = m_vb->getFormat();
-    if (!format.hasComponent(VertexComponent::TANGENT) || 
-        !format.hasComponent(VertexComponent::BITANGENT) || 
+    if (!format.hasComponent(VertexComponent::TANGENT) ||
+        !format.hasComponent(VertexComponent::BITANGENT) ||
         !format.hasComponent(VertexComponent::POSITION) ||
         !format.hasComponent(VertexComponent::TEXTURE_COORDS) ||
         !format.hasComponent(VertexComponent::NORMAL))
