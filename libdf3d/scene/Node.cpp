@@ -205,37 +205,37 @@ shared_ptr<Node> Node::clone() const
     return result;
 }
 
-shared_ptr<components::TransformComponent> Node::transform()
+const shared_ptr<components::TransformComponent> Node::transform()
 {
     return static_pointer_cast<components::TransformComponent>(getComponent(components::TRANSFORM));
 }
 
-shared_ptr<components::MeshComponent> Node::mesh()
+const shared_ptr<components::MeshComponent> Node::mesh()
 {
     return static_pointer_cast<components::MeshComponent>(getComponent(components::MESH));
 }
 
-shared_ptr<components::LightComponent> Node::light()
+const shared_ptr<components::LightComponent> Node::light()
 {
     return static_pointer_cast<components::LightComponent>(getComponent(components::LIGHT));
 }
 
-shared_ptr<components::AudioComponent> Node::audio()
+const shared_ptr<components::AudioComponent> Node::audio()
 {
     return static_pointer_cast<components::AudioComponent>(getComponent(components::AUDIO));
 }
 
-shared_ptr<components::ParticleSystemComponent> Node::vfx()
+const shared_ptr<components::ParticleSystemComponent> Node::vfx()
 {
     return static_pointer_cast<components::ParticleSystemComponent>(getComponent(components::PARTICLE_EFFECT));
 }
 
-shared_ptr<components::PhysicsComponent> Node::physics()
+const shared_ptr<components::PhysicsComponent> Node::physics()
 {
     return static_pointer_cast<components::PhysicsComponent>(getComponent(components::PHYSICS));
 }
 
-shared_ptr<components::Sprite2DComponent> Node::sprite2d()
+const shared_ptr<components::Sprite2DComponent> Node::sprite2d()
 {
     return static_pointer_cast<components::Sprite2DComponent>(getComponent(components::SPRITE_2D));
 }

@@ -33,6 +33,9 @@ protected:
 
     shared_ptr<components::NodeComponent> m_components[components::COUNT];
 
+    // TODO:
+    // List of active components.
+
     weak_ptr<Node> m_parent;
     NodeChildren m_children;
 
@@ -79,14 +82,14 @@ public:
 
     shared_ptr<Node> clone() const;
 
-    shared_ptr<components::NodeComponent> getComponent(components::ComponentType type) const { return m_components[type]; }
-    shared_ptr<components::TransformComponent> transform();
-    shared_ptr<components::MeshComponent> mesh();
-    shared_ptr<components::LightComponent> light();
-    shared_ptr<components::AudioComponent> audio();
-    shared_ptr<components::ParticleSystemComponent> vfx();
-    shared_ptr<components::PhysicsComponent> physics();
-    shared_ptr<components::Sprite2DComponent> sprite2d();
+    const shared_ptr<components::NodeComponent> getComponent(components::ComponentType type) const { return m_components[type]; }
+    const shared_ptr<components::TransformComponent> transform();
+    const shared_ptr<components::MeshComponent> mesh();
+    const shared_ptr<components::LightComponent> light();
+    const shared_ptr<components::AudioComponent> audio();
+    const shared_ptr<components::ParticleSystemComponent> vfx();
+    const shared_ptr<components::PhysicsComponent> physics();
+    const shared_ptr<components::Sprite2DComponent> sprite2d();
     size_t attachedComponentsCount() const;
 
     void attachComponent(shared_ptr<components::NodeComponent> component);
