@@ -17,7 +17,7 @@ public:
     void setGUID(const ResourceGUID &guid);
     const ResourceGUID &getGUID() const;
 
-    bool valid() const { return m_initialized; }
+    bool isValid() const { return m_initialized; }
     bool isResident() const { return m_resident; }
 
     void setInitialized(bool initialized = true) { m_initialized = initialized; }

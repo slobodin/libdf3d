@@ -21,7 +21,7 @@ static const std::vector<GLenum> MapSidesToGl =
 bool TextureCube::imagesValid() const
 {
     for (int i = 0; i < 6; i++)
-        if (!m_images[i] || !m_images[i]->valid())
+        if (!m_images[i] || !m_images[i]->isValid())
             return false;
 
     return true;

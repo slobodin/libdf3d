@@ -307,7 +307,7 @@ void ResourceManager::appendResource(shared_ptr<Resource> resource)
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     const auto &guid = resource->getGUID();
-    if (!resource->valid() || !IsGUIDValid(guid))
+    if (!resource->isValid() || !IsGUIDValid(guid))
     {
         base::glog << "Can not append" << guid << "to resource manager because resource is not valid" << base::logwarn;
         return;
@@ -378,7 +378,7 @@ bool ResourceManager::isResourceLoaded(const ResourceGUID &guid) const
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     auto res = findResource(guid);
-    return res && res->valid();
+    return res && res->isValid();
 }
 
 void ResourceManager::addListener(Listener *listener)

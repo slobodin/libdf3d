@@ -76,7 +76,7 @@ void MeshComponent::onComponentEvent(components::ComponentEvent ev)
 void MeshComponent::onDraw(render::RenderQueue *ops)
 {
     // If geometry data has not been loaded yet.
-    if (!m_geometry || !m_geometry->valid())
+    if (!m_geometry || !m_geometry->isValid())
         return;
 
     if (!m_visible || !isInFov())
@@ -223,7 +223,7 @@ void MeshComponent::setGeometry(shared_ptr<render::MeshData> geometry)
 
 bool MeshComponent::isGeometryValid() const
 {
-    return m_geometry->valid();
+    return m_geometry->isValid();
 }
 
 df3d::ResourceGUID MeshComponent::getGeometryResourceGuid() const
@@ -233,7 +233,7 @@ df3d::ResourceGUID MeshComponent::getGeometryResourceGuid() const
 
 void MeshComponent::setMaterial(shared_ptr<render::Material> material, size_t submeshIdx)
 {
-    if (!m_geometry->valid())
+    if (!m_geometry->isValid())
     {
         base::glog << "Can not set material for non valid mesh" << base::logwarn;
         return;
@@ -250,7 +250,7 @@ void MeshComponent::setMaterial(shared_ptr<render::Material> material, size_t su
 
 shared_ptr<render::Material> MeshComponent::getMaterial(size_t submeshIdx)
 {
-    if (!m_geometry->valid())
+    if (!m_geometry->isValid())
     {
         base::glog << "Can not get material from not valid mesh" << base::logwarn;
         return nullptr;
@@ -272,7 +272,7 @@ size_t MeshComponent::getSubmeshesCount() const
 
 scene::AABB MeshComponent::getAABB()
 {
-    if (!m_geometry->valid())
+    if (!m_geometry->isValid())
         return scene::AABB();       // No valid AABB for non valid geometry.
 
     if (m_aabbDirty)
@@ -320,7 +320,7 @@ shared_ptr<NodeComponent> MeshComponent::clone() const
 {
     // FIXME: cloning only works for loaded meshes!
     // XXX: remove clone??
-    if (m_geometry && !m_geometry->valid())
+    if (m_geometry && !m_geometry->isValid())
     {
         base::glog << "MeshComponent::clone failed. Unsupported cloning for async meshes." << base::logwarn;
         return nullptr;

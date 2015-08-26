@@ -29,7 +29,7 @@ void MeshData::attachSubMesh(shared_ptr<SubMesh> submesh)
 
 void MeshData::clear()
 {
-    if (!valid())
+    if (!isValid())
     {
         base::glog << "Can not clear invalid mesh data" << base::logwarn;
         return;
@@ -41,7 +41,7 @@ void MeshData::clear()
 
 void MeshData::setMaterial(shared_ptr<render::Material> newMaterial)
 {
-    if (!valid())
+    if (!isValid())
     {
         base::glog << "Can't set material because mesh is not valid" << base::logwarn;
         return;
@@ -65,7 +65,7 @@ void MeshData::computeNormals()
 
 shared_ptr<MeshData> MeshData::clone() const
 {
-    if (!valid())
+    if (!isValid())
     {
         base::glog << "Can not clone invalid meshdata" << base::logwarn;
         return nullptr;

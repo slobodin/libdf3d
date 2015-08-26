@@ -113,7 +113,7 @@ glm::vec2 Sprite2DComponent::getScreenPosition() const
 void Sprite2DComponent::useTexture(const std::string &pathToTexture)
 {
     auto texture = g_resourceManager->createTexture(pathToTexture, ResourceLoadingMode::IMMEDIATE);
-    if (!texture || !texture->valid())
+    if (!texture || !texture->isValid())
     {
         base::glog << "Failed to init Sprite2DComponent with texture" << pathToTexture << base::logwarn;
         return;

@@ -181,7 +181,7 @@ size_t Texture2D::getActualHeight() const
 
 bool Texture2D::bind(size_t unit)
 {
-    if (!valid())
+    if (!isValid())
         return false;
 
     if (createGLTexture())

@@ -228,7 +228,7 @@ bool GuiRenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle
                                      const Rocket::Core::String &source)
 {
     auto texture = g_resourceManager->createTexture(source.CString(), ResourceLoadingMode::IMMEDIATE);
-    if (!texture || !texture->valid())
+    if (!texture || !texture->isValid())
         return false;
 
     texture->setFilteringMode(render::TextureFiltering::BILINEAR);

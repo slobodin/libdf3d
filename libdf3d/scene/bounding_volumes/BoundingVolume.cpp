@@ -9,7 +9,7 @@ namespace df3d { namespace scene {
 
 void BoundingVolume::constructFromGeometry(shared_ptr<render::MeshData> geometry)
 {
-    if (!geometry->valid())
+    if (!geometry->isValid())
         return;
 
     reset();

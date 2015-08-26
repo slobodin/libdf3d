@@ -58,7 +58,7 @@ void PhysicsComponent::initFromCreationParams()
         auto convexHull = new btConvexHullShape();
 
         auto geometry = mesh->getGeometry();
-        if (!geometry->valid())
+        if (!geometry->isValid())
         {
             base::glog << "Can not create convex hull for not valid geometry" << base::logwarn;
             return;
