@@ -2,7 +2,7 @@
 #include "Texture.h"
 
 #include <base/SystemsMacro.h>
-#include "Renderer.h"
+#include "RendererBackend.h"
 
 namespace df3d { namespace render {
 
@@ -95,7 +95,7 @@ void Texture::setupGlWrapMode(GLenum glType, WrapMode wrapMode)
     printOpenGLError();
 }
 
-TextureFiltering Texture::filtering() const
+TextureFiltering Texture::getFilteringMode() const
 {
     return m_filtering.get();
 }
@@ -105,7 +105,7 @@ bool Texture::isMipmapped() const
     return m_mipmapped.get();
 }
 
-int Texture::anisotropyLevel() const
+int Texture::getAnisotropyLevel() const
 {
     return m_anisotropyLevel.get();
 }

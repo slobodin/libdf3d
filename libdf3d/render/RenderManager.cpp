@@ -5,7 +5,7 @@
 #include <base/DebugConsole.h>
 #include <scene/Scene.h>
 #include <scene/Camera.h>
-#include "Renderer.h"
+#include "RendererBackend.h"
 #include "VertexIndexBuffer.h"
 #include "RenderOperation.h"
 #include "MeshData.h"
@@ -128,7 +128,7 @@ RenderManager::RenderManager(RenderManagerInitParams params)
     : m_renderQueue(make_unique<RenderQueue>())
 {
     m_renderingCaps = params.renderingCaps;
-    m_renderer = make_unique<Renderer>();
+    m_renderer = make_unique<RendererBackend>();
     m_renderer->setRenderStatsLocation(&m_stats);
 
     createRenderTargets(Viewport(0, 0, params.viewportWidth, params.viewportHeight));
@@ -306,7 +306,7 @@ const RenderingCapabilities &RenderManager::getRenderingCapabilities() const
     return m_renderingCaps;
 }
 
-Renderer *RenderManager::getRenderer() const
+RendererBackend *RenderManager::getRenderer() const
 {
     return m_renderer.get();
 }

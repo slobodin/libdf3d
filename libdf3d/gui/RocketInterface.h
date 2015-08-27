@@ -9,7 +9,7 @@
 
 FWD_MODULE_CLASS(resources, FileDataSource)
 FWD_MODULE_CLASS(render, GpuProgram)
-FWD_MODULE_CLASS(render, Renderer)
+FWD_MODULE_CLASS(render, RendererBackend)
 FWD_MODULE_CLASS(render, RenderPass)
 FWD_MODULE_CLASS(render, Texture)
 

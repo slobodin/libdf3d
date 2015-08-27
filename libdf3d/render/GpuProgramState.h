@@ -8,7 +8,7 @@ class GpuProgram;
 
 class GpuProgramState
 {
-    friend class Renderer;
+    friend class RendererBackend;
 
     glm::mat4 m_worldMatrix;
     glm::mat4 m_viewMatrix;

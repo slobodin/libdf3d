@@ -93,6 +93,26 @@ void ResourceManager::doRequest(DecodeRequest req)
     //base::glog << "Done load" << req.fileSource->getPath() << "with result" << decodeResult << base::logmess;
 }
 
+void ResourceManager::appendResource(shared_ptr<Resource> resource)
+{
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+    const auto &guid = resource->getGUID();
+    if (!resource->isValid() || !IsGUIDValid(guid))
+    {
+        base::glog << "Can not append" << guid << "to resource manager because resource is not valid" << base::logwarn;
+        return;
+    }
+
+    if (findResource(guid))
+    {
+        base::glog << "Resource" << guid << "already loaded" << base::logwarn;
+        return;
+    }
+
+    m_loadedResources[guid] = resource;
+}
+
 ResourceManager::ResourceManager()
 {
     m_threadPool = make_unique<base::ThreadPool>(2);
@@ -126,7 +146,7 @@ shared_ptr<Resource> ResourceManager::loadResourceFromFileSystem(const std::stri
         return alreadyLoadedResource;
 
     // Try to find resource with the full path.
-    auto guid = createGUIDFromPath(path);
+    auto guid = CreateGUIDFromPath(path);
     if (!IsGUIDValid(guid))
     {
         base::glog << "Can't load resource. The path" << path << "doesn't exist or it's a directory." << base::logwarn;
@@ -164,12 +184,6 @@ shared_ptr<Resource> ResourceManager::loadResourceFromFileSystem(const std::stri
         return nullptr;
 
     return resource;
-}
-
-void ResourceManager::loadResources(const std::vector<std::string> &resourcesList, ResourceLoadingMode lm)
-{
-    for (const auto &path : resourcesList)
-        loadResourceFromFileSystem(path, lm);
 }
 
 shared_ptr<audio::AudioBuffer> ResourceManager::createAudioBuffer(const std::string &audioPath)
@@ -211,43 +225,31 @@ shared_ptr<render::GpuProgram> ResourceManager::createGpuProgram(const std::stri
 
 shared_ptr<render::GpuProgram> ResourceManager::createSimpleLightingGpuProgram()
 {
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
     return static_pointer_cast<render::GpuProgram>(findResource(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH));
 }
 
 shared_ptr<render::GpuProgram> ResourceManager::createColoredGpuProgram()
 {
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
     return static_pointer_cast<render::GpuProgram>(findResource(COLORED_PROGRAM_EMBED_PATH));
 }
 
 shared_ptr<render::GpuProgram> ResourceManager::createRttQuadProgram()
 {
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
     return static_pointer_cast<render::GpuProgram>(findResource(RTT_QUAD_PROGRAM_EMBED_PATH));
 }
 
 shared_ptr<render::GpuProgram> ResourceManager::createAmbientPassProgram()
 {
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
     return static_pointer_cast<render::GpuProgram>(findResource(AMBIENT_PASS_PROGRAM_EMBED_PATH));
 }
 
 shared_ptr<render::MeshData> ResourceManager::createMeshData(const std::string &meshDataPath, ResourceLoadingMode lm)
 {
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
     return static_pointer_cast<render::MeshData>(loadResourceFromFileSystem(meshDataPath, lm));
 }
 
 shared_ptr<render::Texture2D> ResourceManager::createTexture(const std::string &imagePath, ResourceLoadingMode lm)
 {
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
     return static_pointer_cast<render::Texture2D>(loadResourceFromFileSystem(imagePath, lm));
 }
 
@@ -275,8 +277,6 @@ shared_ptr<render::TextureCube> ResourceManager::createCubeTexture(const std::st
                                                                    const std::string &positiveZImage, const std::string &negativeZImage,
                                                                    ResourceLoadingMode lm)
 {
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
     auto positiveX = createTexture(positiveXImage, lm);
     auto negativeX = createTexture(negativeXImage, lm);
     auto positiveY = createTexture(positiveYImage, lm);
@@ -297,29 +297,7 @@ shared_ptr<render::TextureCube> ResourceManager::createCubeTexture(const std::st
 
 shared_ptr<render::MaterialLib> ResourceManager::createMaterialLib(const std::string &mtlLibPath)
 {
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
     return static_pointer_cast<render::MaterialLib>(loadResourceFromFileSystem(mtlLibPath, ResourceLoadingMode::IMMEDIATE));
-}
-
-void ResourceManager::appendResource(shared_ptr<Resource> resource)
-{
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-    const auto &guid = resource->getGUID();
-    if (!resource->isValid() || !IsGUIDValid(guid))
-    {
-        base::glog << "Can not append" << guid << "to resource manager because resource is not valid" << base::logwarn;
-        return;
-    }
-
-    if (findResource(guid))
-    {
-        base::glog << "Resource" << guid << "already loaded" << base::logwarn;
-        return;
-    }
-
-    m_loadedResources[guid] = resource;
 }
 
 void ResourceManager::unloadResource(const ResourceGUID &guid)

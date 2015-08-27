@@ -52,12 +52,12 @@ protected:
     Texture() = default;
 
 public:
-    WrapMode wrapMode() const { return m_wrapMode; }
+    WrapMode getWrapMode() const { return m_wrapMode; }
     unsigned getGLId() const { return m_glid; }
 
-    TextureFiltering filtering() const;
+    TextureFiltering getFilteringMode() const;
     bool isMipmapped() const;
-    int anisotropyLevel() const;
+    int getAnisotropyLevel() const;
 
     void setFilteringMode(TextureFiltering newFiltering);
     void setMipmapped(bool hasMipmaps);

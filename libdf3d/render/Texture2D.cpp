@@ -2,7 +2,7 @@
 #include "Texture2D.h"
 
 #include <base/SystemsMacro.h>
-#include "Renderer.h"
+#include "RendererBackend.h"
 
 namespace df3d { namespace render {
 
@@ -46,7 +46,7 @@ bool Texture2D::createGLTexture()
         m_mipmapped = defaultCaps.mipmaps;
 
     setupGlWrapMode(GL_TEXTURE_2D, m_wrapMode);
-    setupGlTextureFiltering(GL_TEXTURE_2D, filtering(), isMipmapped());
+    setupGlTextureFiltering(GL_TEXTURE_2D, getFilteringMode(), isMipmapped());
 
     GLint glPixelFormat = 0;
     switch (m_pixelBuffer->format)

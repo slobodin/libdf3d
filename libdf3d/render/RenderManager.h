@@ -11,7 +11,7 @@ FWD_MODULE_CLASS(base, EngineController)
 
 namespace df3d { namespace render {
 
-class Renderer;
+class RendererBackend;
 class VertexBuffer;
 class GpuProgram;
 class RenderTarget;
@@ -36,7 +36,7 @@ class RenderManager
 
     friend class base::EngineController;
 
-    unique_ptr<Renderer> m_renderer;
+    unique_ptr<RendererBackend> m_renderer;
     RenderingCapabilities m_renderingCaps;
 
     // Ambient pass support.
@@ -79,7 +79,7 @@ public:
 
     const RenderingCapabilities &getRenderingCapabilities() const;
 
-    Renderer *getRenderer() const;
+    RendererBackend *getRenderer() const;
 };
 
 } }

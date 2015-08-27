@@ -14,7 +14,7 @@ class GpuProgramState;
 class Viewport;
 class Texture2D;
 
-class Renderer
+class RendererBackend
 {
     RenderStats *m_renderStats = nullptr;
 
@@ -45,8 +45,8 @@ class Renderer
     bool m_initialized = false;
 
 public:
-    Renderer();
-    ~Renderer();
+    RendererBackend();
+    ~RendererBackend();
 
     void setRenderStatsLocation(RenderStats *renderStats);
 
@@ -93,10 +93,7 @@ public:
 
     void bindPass(shared_ptr<RenderPass> pass);
 
-    // bind render target
-
     void drawVertexBuffer(shared_ptr<VertexBuffer> vb, shared_ptr<IndexBuffer> ib, RenderOperation::Type type);
-    //virtual void drawVertexBuffer(shared_ptr<VertexBuffer> vb, shared_ptr<RenderTargetTexture> rtt) = 0;
 
     // TODO:
     // Debug draw:

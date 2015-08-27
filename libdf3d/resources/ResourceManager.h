@@ -37,15 +37,16 @@ private:
         shared_ptr<Resource> resource;
     };
 
-    void loadEmbedResources();
-    void doRequest(DecodeRequest req);
-
     unique_ptr<base::ThreadPool> m_threadPool;
     mutable std::recursive_mutex m_lock;
 
     std::unordered_map<ResourceGUID, shared_ptr<Resource>> m_loadedResources;
     
     std::vector<Listener*> m_listeners;
+
+    void loadEmbedResources();
+    void doRequest(DecodeRequest req);
+    void appendResource(shared_ptr<Resource> resource);
 
     ResourceManager();
     ~ResourceManager();
@@ -68,10 +69,6 @@ public:
                                                       const std::string &positiveZImage, const std::string &negativeZImage,
                                                       ResourceLoadingMode lm);
     shared_ptr<render::MaterialLib> createMaterialLib(const std::string &mtlLibPath);
-
-    void loadResources(const std::vector<std::string> &resourcesList, ResourceLoadingMode lm);
-
-    void appendResource(shared_ptr<Resource> resource);
 
     void unloadResource(const ResourceGUID &guid);
     void unloadResource(shared_ptr<Resource> resource);

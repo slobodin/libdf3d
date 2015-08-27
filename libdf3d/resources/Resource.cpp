@@ -38,7 +38,7 @@ bool IsGUIDValid(const ResourceGUID &guid)
     return !guid.empty();
 }
 
-ResourceGUID createGUIDFromPath(const std::string &path)
+ResourceGUID CreateGUIDFromPath(const std::string &path)
 {
     return g_fileSystem->fullPath(path);
 }

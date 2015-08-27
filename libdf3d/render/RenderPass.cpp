@@ -4,7 +4,7 @@
 #include "GpuProgram.h"
 #include "Texture.h"
 #include "RenderManager.h"
-#include "Renderer.h"
+#include "RendererBackend.h"
 #include <base/SystemsMacro.h>
 
 namespace df3d { namespace render {

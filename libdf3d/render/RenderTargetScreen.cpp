@@ -4,7 +4,7 @@
 #include <base/SystemsMacro.h>
 #include "RenderManager.h"
 #include "OpenGLCommon.h"
-#include "Renderer.h"
+#include "RendererBackend.h"
 
 namespace df3d { namespace render {
 

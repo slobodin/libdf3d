@@ -3,7 +3,7 @@
 
 #include <base/SystemsMacro.h>
 #include "RenderManager.h"
-#include "Renderer.h"
+#include "RendererBackend.h"
 #include "Texture2D.h"
 
 namespace df3d { namespace render {
@@ -43,7 +43,7 @@ bool TextureCube::createGLTexture()
         m_mipmapped = defaultCaps.mipmaps;
 
     setupGlWrapMode(GL_TEXTURE_CUBE_MAP, m_wrapMode);
-    setupGlTextureFiltering(GL_TEXTURE_CUBE_MAP, filtering(), isMipmapped());
+    setupGlTextureFiltering(GL_TEXTURE_CUBE_MAP, getFilteringMode(), isMipmapped());
 
     for (int i = 0; i < 6; i++)
     {

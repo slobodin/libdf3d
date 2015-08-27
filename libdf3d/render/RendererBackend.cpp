@@ -1,5 +1,5 @@
 #include "df3d_pch.h"
-#include "Renderer.h"
+#include "RendererBackend.h"
 
 #include <base/SystemsMacro.h>
 #include <components/LightComponent.h>
@@ -15,11 +15,11 @@
 
 namespace df3d { namespace render {
 
-void Renderer::createWhiteTexture()
+void RendererBackend::createWhiteTexture()
 {
-    auto w = 32;
-    auto h = 32;
-    auto pf = PixelFormat::RGBA;
+    const auto w = 8;
+    const auto h = 8;
+    const auto pf = PixelFormat::RGBA;
 
     auto data = new unsigned char[w * h * 4];
     memset(data, 255, w * h * 4);
@@ -34,7 +34,7 @@ void Renderer::createWhiteTexture()
     delete [] data;
 }
 
-void Renderer::setBlendMode(RenderPass::BlendingMode bm)
+void RendererBackend::setBlendMode(RenderPass::BlendingMode bm)
 {
     if (m_blendModeOverriden)
         return;
@@ -61,7 +61,7 @@ void Renderer::setBlendMode(RenderPass::BlendingMode bm)
     }
 }
 
-void Renderer::setFrontFace(RenderPass::WindingOrder wo)
+void RendererBackend::setFrontFace(RenderPass::WindingOrder wo)
 {
     if (m_frontFaceOverriden)
         return;
@@ -78,7 +78,7 @@ void Renderer::setFrontFace(RenderPass::WindingOrder wo)
     }
 }
 
-void Renderer::setCullFace(RenderPass::FaceCullMode cm)
+void RendererBackend::setCullFace(RenderPass::FaceCullMode cm)
 {
     if (m_cullFaceOverriden)
         return;
@@ -105,7 +105,7 @@ void Renderer::setCullFace(RenderPass::FaceCullMode cm)
     }
 }
 
-void Renderer::setPolygonDrawMode(RenderPass::PolygonMode pm)
+void RendererBackend::setPolygonDrawMode(RenderPass::PolygonMode pm)
 {
     if (m_polygonDrawModeOverriden)
         return;
@@ -126,7 +126,7 @@ void Renderer::setPolygonDrawMode(RenderPass::PolygonMode pm)
 #endif
 }
 
-void Renderer::updateProgramUniformValues(GpuProgram *program, RenderPass *pass)
+void RendererBackend::updateProgramUniformValues(GpuProgram *program, RenderPass *pass)
 {
     // Update shader uniforms.
     size_t uniCount = program->getSharedUniformsCount();
@@ -142,7 +142,7 @@ void Renderer::updateProgramUniformValues(GpuProgram *program, RenderPass *pass)
         passParams[i].updateTo(program);
 }
 
-void Renderer::updateTextureSamplers()
+void RendererBackend::updateTextureSamplers()
 {
     // Bind textures to samplers.
     auto &samplers = m_programState->m_currentPass->getSamplers();
@@ -167,7 +167,7 @@ void Renderer::updateTextureSamplers()
     }
 }
 
-Renderer::Renderer()
+RendererBackend::RendererBackend()
     : m_programState(new GpuProgramState())
 {
 #ifdef DF3D_DESKTOP
@@ -214,16 +214,16 @@ Renderer::Renderer()
     m_initialized = true;
 }
 
-Renderer::~Renderer()
+RendererBackend::~RendererBackend()
 {
 }
 
-void Renderer::setRenderStatsLocation(RenderStats *renderStats)
+void RendererBackend::setRenderStatsLocation(RenderStats *renderStats)
 {
     m_renderStats = renderStats;
 }
 
-void Renderer::beginFrame()
+void RendererBackend::beginFrame()
 {
     clearColorBuffer();
     clearDepthBuffer();
@@ -239,21 +239,21 @@ void Renderer::beginFrame()
     printOpenGLError();
 }
 
-void Renderer::endFrame()
+void RendererBackend::endFrame()
 {
     m_programState->onFrameEnd();
 
     glFlush();
 }
 
-void Renderer::setViewport(const Viewport &viewport)
+void RendererBackend::setViewport(const Viewport &viewport)
 {
     glViewport(viewport.x(), viewport.y(), viewport.width(), viewport.height());
 
     m_programState->m_pixelSize = glm::vec2(1.0f / (float)viewport.width(), 1.0f / (float)viewport.height());
 }
 
-void Renderer::enableDepthTest(bool enable)
+void RendererBackend::enableDepthTest(bool enable)
 {
     if (m_depthTestOverriden)
         return;
@@ -264,7 +264,7 @@ void Renderer::enableDepthTest(bool enable)
         glDisable(GL_DEPTH_TEST);
 }
 
-void Renderer::enableDepthWrite(bool enable)
+void RendererBackend::enableDepthWrite(bool enable)
 {
     if (m_depthWriteOverriden)
         return;
@@ -272,7 +272,7 @@ void Renderer::enableDepthWrite(bool enable)
     glDepthMask(enable);
 }
 
-void Renderer::enableScissorTest(bool enable)
+void RendererBackend::enableScissorTest(bool enable)
 {
     if (enable)
         glEnable(GL_SCISSOR_TEST);
@@ -280,108 +280,108 @@ void Renderer::enableScissorTest(bool enable)
         glDisable(GL_SCISSOR_TEST);
 }
 
-void Renderer::setScissorRegion(int x, int y, int width, int height)
+void RendererBackend::setScissorRegion(int x, int y, int width, int height)
 {
     glScissor(x, y, width, height);
 }
 
-void Renderer::enableFog(float density, const glm::vec3 &fogColor)
+void RendererBackend::enableFog(float density, const glm::vec3 &fogColor)
 {
     m_programState->m_fogDensity = density;
     m_programState->m_fogColor = fogColor;
 }
 
-void Renderer::enableBlendModeOverride(RenderPass::BlendingMode bm)
+void RendererBackend::enableBlendModeOverride(RenderPass::BlendingMode bm)
 {
     m_blendModeOverriden = false;
     setBlendMode(bm);
     m_blendModeOverriden = true;
 }
 
-void Renderer::enableFrontFaceOverride(RenderPass::WindingOrder wo)
+void RendererBackend::enableFrontFaceOverride(RenderPass::WindingOrder wo)
 {
     m_frontFaceOverriden = false;
     setFrontFace(wo);
     m_frontFaceOverriden = true;
 }
 
-void Renderer::enableCullFaceOverride(RenderPass::FaceCullMode cm)
+void RendererBackend::enableCullFaceOverride(RenderPass::FaceCullMode cm)
 {
     m_cullFaceOverriden = false;
     setCullFace(cm);
     m_cullFaceOverriden = true;
 }
 
-void Renderer::enablePolygonDrawModeOverride(RenderPass::PolygonMode pm)
+void RendererBackend::enablePolygonDrawModeOverride(RenderPass::PolygonMode pm)
 {
     m_polygonDrawModeOverriden = false;
     setPolygonDrawMode(pm);
     m_polygonDrawModeOverriden = true;
 }
 
-void Renderer::enableDepthTestOverride(bool enable)
+void RendererBackend::enableDepthTestOverride(bool enable)
 {
     m_depthTestOverriden = false;
     enableDepthTest(enable);
     m_depthTestOverriden = true;
 }
 
-void Renderer::enableDepthWriteOverride(bool enable)
+void RendererBackend::enableDepthWriteOverride(bool enable)
 {
     m_depthWriteOverriden = false;
     enableDepthWrite(enable);
     m_depthWriteOverriden = true;
 }
 
-void Renderer::clearColorBuffer(const glm::vec4 &color)
+void RendererBackend::clearColorBuffer(const glm::vec4 &color)
 {
     glClearColor(color.r, color.g, color.b, color.a);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Renderer::clearDepthBuffer()
+void RendererBackend::clearDepthBuffer()
 {
     glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::clearStencilBuffer()
+void RendererBackend::clearStencilBuffer()
 {
     glClear(GL_STENCIL_BUFFER_BIT);
 }
 
-float Renderer::readDepthBuffer(int x, int y)
+float RendererBackend::readDepthBuffer(int x, int y)
 {
     float z = 0.0f;
     glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
     return z;
 }
 
-void Renderer::setWorldMatrix(const glm::mat4 &worldm)
+void RendererBackend::setWorldMatrix(const glm::mat4 &worldm)
 {
     m_programState->setWorldMatrix(worldm);
 }
 
-void Renderer::setCameraMatrix(const glm::mat4 &viewm)
+void RendererBackend::setCameraMatrix(const glm::mat4 &viewm)
 {
     m_programState->setViewMatrix(viewm);
 }
 
-void Renderer::setProjectionMatrix(const glm::mat4 &projm)
+void RendererBackend::setProjectionMatrix(const glm::mat4 &projm)
 {
     m_programState->setProjectionMatrix(projm);
 }
 
-void Renderer::setAmbientLight(const glm::vec3 &ambient)
+void RendererBackend::setAmbientLight(const glm::vec3 &ambient)
 {
     m_programState->m_globalAmbient = glm::vec4(ambient, 1.0f);
 }
 
-void Renderer::setAmbientLight(float ra, float ga, float ba)
+void RendererBackend::setAmbientLight(float ra, float ga, float ba)
 {
     setAmbientLight(glm::vec3(ra, ga, ba));
 }
 
-void Renderer::setLight(const components::LightComponent *light)
+void RendererBackend::setLight(const components::LightComponent *light)
 {
     auto &glslLight = m_programState->m_currentLight;
 
@@ -405,7 +405,7 @@ void Renderer::setLight(const components::LightComponent *light)
     }
 }
 
-void Renderer::bindPass(shared_ptr<RenderPass> pass)
+void RendererBackend::bindPass(shared_ptr<RenderPass> pass)
 {
     if (!pass)
         return;
@@ -446,7 +446,7 @@ void Renderer::bindPass(shared_ptr<RenderPass> pass)
     printOpenGLError();
 }
 
-void Renderer::drawVertexBuffer(shared_ptr<VertexBuffer> vb, shared_ptr<IndexBuffer> ib, RenderOperation::Type type)
+void RendererBackend::drawVertexBuffer(shared_ptr<VertexBuffer> vb, shared_ptr<IndexBuffer> ib, RenderOperation::Type type)
 {
     if (!vb)
         return;
@@ -493,22 +493,22 @@ void Renderer::drawVertexBuffer(shared_ptr<VertexBuffer> vb, shared_ptr<IndexBuf
     printOpenGLError();
 }
 
-int Renderer::getMaxTextureSize()
+int RendererBackend::getMaxTextureSize()
 {
     if (!m_initialized)
     {
-        base::glog << "Failed to get max texture size. Renderer is not initialized" << base::logwarn;
+        base::glog << "Failed to get max texture size. RendererBackend is not initialized" << base::logwarn;
         return -1;
     }
 
     return m_maxTextureSize;
 }
 
-float Renderer::getMaxAnisotropy()
+float RendererBackend::getMaxAnisotropy()
 {
     if (!m_initialized)
     {
-        base::glog << "Failed to get max anisotropy level. Renderer is not initialized" << base::logwarn;
+        base::glog << "Failed to get max anisotropy level. RendererBackend is not initialized" << base::logwarn;
         return 1.0f;
     }
 
