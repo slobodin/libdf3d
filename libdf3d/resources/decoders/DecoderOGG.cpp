@@ -93,7 +93,7 @@ bool DecoderOGG::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
 
     if (ov_open_callbacks(file.get(), &oggVorbisFile, NULL, -1, ovCallbacks) < 0)
     {
-        base::glog << "Failed to open ogg file" << resource->getGUID() << base::logwarn;
+        base::glog << "Failed to open ogg file" << resource->getFilePath() << base::logwarn;
         return false;
     }
 

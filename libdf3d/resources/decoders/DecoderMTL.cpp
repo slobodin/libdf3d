@@ -288,7 +288,7 @@ shared_ptr<render::Material> DecoderMTL::parseMaterialNode(MaterialLibNode &node
 {
     if (node.name.empty())
     {
-        base::glog << "Invalid material name found while parsing" << m_libName << base::logwarn;
+        base::glog << "Invalid material name found while parsing" << m_libPath << base::logwarn;
         return nullptr;
     }
 
@@ -318,7 +318,7 @@ shared_ptr<render::Technique> DecoderMTL::parseTechniqueNode(MaterialLibNode &no
 {
     if (node.name.empty())
     {
-        base::glog << "Invalid technique name found while parsing" << m_libName << base::logwarn;
+        base::glog << "Invalid technique name found while parsing" << m_libPath << base::logwarn;
         return nullptr;
     }
 
@@ -377,37 +377,37 @@ shared_ptr<render::RenderPass> DecoderMTL::parsePassNode(MaterialLibNode &node)
         else if (keyval.first == "cull_face")
         {
             std::function<void(render::RenderPass::FaceCullMode)> fn = std::bind(&render::RenderPass::setFaceCullMode, pass.get(), std::placeholders::_1);
-            setPassParam(keyval.first, keyval.second, faceCullModeValues, fn, m_libName);
+            setPassParam(keyval.first, keyval.second, faceCullModeValues, fn, m_libPath);
         }
         else if (keyval.first == "front_face")
         {
             std::function<void(render::RenderPass::WindingOrder)> fn = std::bind(&render::RenderPass::setFrontFaceWinding, pass.get(), std::placeholders::_1);
-            setPassParam(keyval.first, keyval.second, woValues, fn, m_libName);
+            setPassParam(keyval.first, keyval.second, woValues, fn, m_libPath);
         }
         else if (keyval.first == "polygon_mode")
         {
             std::function<void(render::RenderPass::PolygonMode)> fn = std::bind(&render::RenderPass::setPolygonDrawMode, pass.get(), std::placeholders::_1);
-            setPassParam(keyval.first, keyval.second, polygonModeValues, fn, m_libName);
+            setPassParam(keyval.first, keyval.second, polygonModeValues, fn, m_libPath);
         }
         else if (keyval.first == "depth_test")
         {
             std::function<void(bool)> fn = std::bind(&render::RenderPass::enableDepthTest, pass.get(), std::placeholders::_1);
-            setPassParam(keyval.first, keyval.second, boolValues, fn, m_libName);
+            setPassParam(keyval.first, keyval.second, boolValues, fn, m_libPath);
         }
         else if (keyval.first == "depth_write")
         {
             std::function<void(bool)> fn = std::bind(&render::RenderPass::enableDepthWrite, pass.get(), std::placeholders::_1);
-            setPassParam(keyval.first, keyval.second, boolValues, fn, m_libName);
+            setPassParam(keyval.first, keyval.second, boolValues, fn, m_libPath);
         }
         else if (keyval.first == "is_lit")
         {
             std::function<void(bool)> fn = std::bind(&render::RenderPass::enableLighting, pass.get(), std::placeholders::_1);
-            setPassParam(keyval.first, keyval.second, boolValues, fn, m_libName);
+            setPassParam(keyval.first, keyval.second, boolValues, fn, m_libPath);
         }
         else if (keyval.first == "blend")
         {
             std::function<void(render::RenderPass::BlendingMode)> fn = std::bind(&render::RenderPass::setBlendMode, pass.get(), std::placeholders::_1);
-            setPassParam(keyval.first, keyval.second, blendModeValues, fn, m_libName);
+            setPassParam(keyval.first, keyval.second, blendModeValues, fn, m_libPath);
         }
     }
 
@@ -463,7 +463,7 @@ shared_ptr<render::GpuProgram> DecoderMTL::parseShaderNode(MaterialLibNode &node
 
     if (vshader.empty() || fshader.empty())
     {
-        base::glog << "Invalid shader properties found while parsing" << m_libName << base::logwarn;
+        base::glog << "Invalid shader properties found while parsing" << m_libPath << base::logwarn;
         return nullptr;
     }
 
@@ -491,7 +491,7 @@ shared_ptr<render::Texture> DecoderMTL::parseSamplerNode(MaterialLibNode &node)
     }
 
     auto texture = createTextureOfType(node.keyValues["type"], node.keyValues);
-    setTextureBaseParams(texture, node.keyValues, m_libName);
+    setTextureBaseParams(texture, node.keyValues, m_libPath);
 
     return texture;
 }
@@ -520,7 +520,7 @@ bool DecoderMTL::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
     if (!mtllib)
         return false;
 
-    m_libName = mtllib->getGUID();
+    m_libPath = mtllib->getFilePath();
 
     std::string filedata(file->getSize(), 0);
     file->getRaw(&filedata[0], file->getSize());
@@ -530,7 +530,7 @@ bool DecoderMTL::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
     auto root = MaterialLibNode::createTree(input);
     if (!root)
     {
-        base::glog << "Can not parse material library" << m_libName << base::logwarn;
+        base::glog << "Can not parse material library" << m_libPath << base::logwarn;
         return false;
     }
 

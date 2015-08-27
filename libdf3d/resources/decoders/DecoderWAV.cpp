@@ -68,7 +68,7 @@ bool DecoderWAV::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
 
     if (memcmp(header.chunkID, "RIFF", 4) || memcmp(header.format, "WAVE", 4))
     {
-        base::glog << "Invalid WAVE file header" << resource->getGUID() << base::logwarn;
+        base::glog << "Invalid WAVE file header" << resource->getFilePath() << base::logwarn;
         return false;
     }
 
@@ -77,7 +77,7 @@ bool DecoderWAV::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
 
     if (memcmp(format.subChunkID, "fmt ", 4))
     {
-        base::glog << "Invalid WAVE format" << resource->getGUID() << base::logwarn;
+        base::glog << "Invalid WAVE format" << resource->getFilePath() << base::logwarn;
         return false;
     }
 
@@ -89,7 +89,7 @@ bool DecoderWAV::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
 
     if (memcmp(data.subChunkID, "data", 4))
     {
-        base::glog << "Invalid WAVE data" << resource->getGUID() << base::logwarn;
+        base::glog << "Invalid WAVE data" << resource->getFilePath() << base::logwarn;
         return false;
     }
 
@@ -98,7 +98,7 @@ bool DecoderWAV::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
     auto got = file->getRaw(sounddata, data.subChunk2Size);
     if (got != data.subChunk2Size)
     {
-        base::glog << "Error loading WAVE data" << resource->getGUID() << base::logwarn;
+        base::glog << "Error loading WAVE data" << resource->getFilePath() << base::logwarn;
         return false;
     }
 

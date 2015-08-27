@@ -22,7 +22,7 @@ class DecoderMTL : public ResourceDecoder
     shared_ptr<render::Texture> parseSamplerNode(MaterialLibNode &node);
 
     // For logging.
-    std::string m_libName;
+    std::string m_libPath;
 
 public:
     DecoderMTL();
