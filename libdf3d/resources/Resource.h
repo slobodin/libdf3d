@@ -17,6 +17,8 @@ public:
     void setGUID(const ResourceGUID &guid);
     const ResourceGUID &getGUID() const;
 
+    const std::string &getFilePath() const;
+
     bool isValid() const { return m_initialized; }
     bool isResident() const { return m_resident; }
 

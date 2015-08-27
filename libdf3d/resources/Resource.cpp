@@ -33,6 +33,11 @@ const ResourceGUID &Resource::getGUID() const
     return m_guid; 
 }
 
+const std::string &Resource::getFilePath() const
+{
+    return m_guid;
+}
+
 bool IsGUIDValid(const ResourceGUID &guid)
 {
     return !guid.empty();

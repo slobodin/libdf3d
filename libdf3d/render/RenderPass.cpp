@@ -16,7 +16,7 @@ void RenderPassParam::updateTo(GpuProgram *program)
         m_uniform = program->getCustomUniform(name);
         if (!m_uniform)
         {
-            base::glog << "Uniform" << name << "was not found in shader" << program->getGUID() << base::logwarn;
+            base::glog << "Uniform" << name << "was not found in shader" << program->getFilePath() << base::logwarn;
             return;
         }
     }
