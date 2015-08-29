@@ -155,7 +155,7 @@ void GpuProgram::detachShader(shared_ptr<Shader> shader)
 
 void GpuProgram::bind()
 {
-    if (!isValid() || m_shaders.empty())
+    if (!isInitialized() || m_shaders.empty())
         return;
 
     compileShaders();
