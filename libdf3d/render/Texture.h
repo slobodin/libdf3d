@@ -1,68 +1,73 @@
 #pragma once
 
-#include <boost/optional.hpp>
-
 #include <resources/Resource.h>
 #include "OpenGLCommon.h"
 #include "RenderingCapabilities.h"
 
 namespace df3d { namespace render {
 
-struct PixelBuffer
+class PixelBuffer : utils::NonCopyable
 {
-    PixelFormat format = PixelFormat::INVALID;
-    int w = 0;
-    int h = 0;
-    unsigned char *data = nullptr;
+    PixelFormat m_format = PixelFormat::INVALID;
+    int m_w = 0;
+    int m_h = 0;
+    unsigned char *m_data = nullptr;
 
-    ~PixelBuffer()
-    {
-        delete [] data;
-    }
+public:
+    PixelBuffer(int w, int h, PixelFormat format);
+    PixelBuffer(int w, int h, const unsigned char *data, PixelFormat format);
+    ~PixelBuffer();
+
+    int getWidth() const { return m_w; }
+    int getHeight() const { return m_h; }
+    PixelFormat getFormat() const { return m_format; }
+    const unsigned char* getData() const { return m_data; }
 };
 
-int GetPixelSizeForFormat(PixelFormat format);
+class TextureCreationParams
+{
+    TextureFiltering m_filtering;
+    bool m_mipmapped;
+    int m_anisotropyLevel;
+    TextureWrapMode m_wrapMode;
+
+public:
+    TextureCreationParams();
+
+    TextureFiltering getFiltering() const { return m_filtering; }
+    bool isMipmapped() const { return m_mipmapped; }
+    int getAnisotropyLevel() const { return m_anisotropyLevel; }
+    TextureWrapMode getWrapMode() const { return m_wrapMode; }
+
+    void setFiltering(TextureFiltering filtering);
+    void setMipmapped(bool mipmapped);
+    void setAnisotropyLevel(int anisotropy);
+    void setWrapMode(TextureWrapMode wrapMode);
+};
 
 class Texture : public resources::Resource
 {
-public:
-    enum class WrapMode
-    {
-        WRAP,
-        CLAMP
-    };
-
 protected:
-    WrapMode m_wrapMode = WrapMode::CLAMP;
-    GLuint m_glid = 0;
+    TextureCreationParams m_params;
 
-    boost::optional<TextureFiltering> m_filtering;
-    boost::optional<bool> m_mipmapped;
-    boost::optional<int> m_anisotropyLevel;
+    GLuint m_glid = 0;
 
     // Helpers.
     static bool isPot(size_t v);
     static size_t getNextPot(size_t v);
     static GLint getGlFilteringMode(TextureFiltering filtering, bool mipmapped);
-    static GLint getGlWrapMode(WrapMode mode);
+    static GLint getGlWrapMode(TextureWrapMode mode);
 
     static void setupGlTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped);
-    static void setupGlWrapMode(GLenum glType, WrapMode wrapMode);
+    static void setupGlWrapMode(GLenum glType, TextureWrapMode wrapMode);
 
     Texture() = default;
 
 public:
-    WrapMode getWrapMode() const { return m_wrapMode; }
+    Texture(TextureCreationParams params);
+
     unsigned getGLId() const { return m_glid; }
-
-    TextureFiltering getFilteringMode() const;
-    bool isMipmapped() const;
-    int getAnisotropyLevel() const;
-
-    void setFilteringMode(TextureFiltering newFiltering);
-    void setMipmapped(bool hasMipmaps);
-    void setWrapMode(WrapMode mode);
-    void setMaxAnisotropy(int aniso);
+    const TextureCreationParams& getParams() const { return m_params; }
 
     virtual bool bind(size_t unit) = 0;
     virtual void unbind() = 0;
