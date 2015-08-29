@@ -6,11 +6,6 @@ namespace df3d { namespace render {
 
 class Material;
 
-// FIXME:
-// Make setting.
-#define INDICES_16_BIT uint16_t
-#define INDICES_32_BIT uint32_t
-
 //! Hint to graphics backend as to how a buffer's data will be accessed.
 enum class GpuBufferUsageType
 {
@@ -18,9 +13,6 @@ enum class GpuBufferUsageType
     DYNAMIC,    /*!< The data store contents will be modified repeatedly and used many times. */
     STREAM      /*!< The data store contents will be modified once and used at most a few times. */
 };
-
-using INDICES_TYPE = INDICES_32_BIT;
-using IndexArray = std::vector<INDICES_TYPE>;
 
 class DF3D_DLL GpuBuffer : utils::NonCopyable
 {
