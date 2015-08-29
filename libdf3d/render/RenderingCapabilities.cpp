@@ -8,12 +8,7 @@ const int NO_ANISOTROPY = 1;
 
 RenderingCapabilities RenderingCapabilities::getDefaults()
 {
-    RenderingCapabilities result;
-    result.anisotropyMax = ANISOTROPY_LEVEL_MAX;
-    result.mipmaps = true;
-    result.textureFiltering = TextureFiltering::TRILINEAR;
-
-    return result;
+    return RenderingCapabilities();
 }
 
 } }
