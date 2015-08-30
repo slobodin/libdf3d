@@ -1,6 +1,7 @@
 #include "df3d_pch.h"
 #include "AudioComponent.h"
 
+#include <resources/ResourceFactory.h>
 #include <utils/JsonHelpers.h>
 #include <base/SystemsMacro.h>
 #include <scene/Node.h>
@@ -31,7 +32,7 @@ void AudioComponent::onUpdate(float dt)
 AudioComponent::AudioComponent(const std::string &audioFilePath)
     : NodeComponent(AUDIO)
 {
-    m_buffer = g_resourceManager->createAudioBuffer(audioFilePath);
+    m_buffer = g_resourceManager->getFactory().createAudioBuffer(audioFilePath);
     if (!m_buffer)
     {
         base::glog << "Can not initialize audio component from" << audioFilePath << base::logwarn;
