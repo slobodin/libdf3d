@@ -53,6 +53,7 @@ bool BoundingSphere::intersects(const BoundingSphere &other) const
 bool BoundingSphere::intersects(const AABB &aabb) const
 {
     // TODO:
+    assert(false);
     return false;
 }
 
