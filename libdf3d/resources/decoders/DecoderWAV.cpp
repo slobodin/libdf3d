@@ -46,12 +46,7 @@ DecoderWAV::~DecoderWAV()
 
 shared_ptr<Resource> DecoderWAV::createResource()
 {
-    ALuint bufferId = 0;
-    alGenBuffers(1, &bufferId);
-
-    printOpenALError();
-
-    return make_shared<audio::AudioBuffer>(bufferId);
+    return make_shared<audio::AudioBuffer>();
 }
 
 bool DecoderWAV::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
@@ -119,7 +114,7 @@ bool DecoderWAV::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
             alFormat = AL_FORMAT_STEREO16;
     }
 
-    alBufferData(buffer->getALId(), alFormat, sounddata, data.subChunk2Size, format.sampleRate);
+    alBufferData(buffer->m_alBufferId, alFormat, sounddata, data.subChunk2Size, format.sampleRate);
 
     delete [] sounddata;
 

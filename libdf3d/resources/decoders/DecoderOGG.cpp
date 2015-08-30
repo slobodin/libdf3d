@@ -63,12 +63,7 @@ DecoderOGG::~DecoderOGG()
 
 shared_ptr<Resource> DecoderOGG::createResource()
 {
-    ALuint bufferId = 0;
-    alGenBuffers(1, &bufferId);
-
-    printOpenALError();
-
-    return make_shared<audio::AudioBuffer>(bufferId);
+    return make_shared<audio::AudioBuffer>();
 }
 
 bool DecoderOGG::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
@@ -76,9 +71,7 @@ bool DecoderOGG::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
     if (!file || !file->valid())
         return false;
 
-    auto audiobuffer = dynamic_pointer_cast<audio::AudioBuffer>(resource);
-    if (!audiobuffer)
-        return false;
+    auto audiobuffer = static_pointer_cast<audio::AudioBuffer>(resource);
 
     // TODO:
     // Streaming.
@@ -117,7 +110,7 @@ bool DecoderOGG::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
 
     if (totalGot > 0)
     {
-        alBufferData(audiobuffer->getALId(), (ovInfo->channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, audioData, totalGot, ovInfo->rate);
+        alBufferData(audiobuffer->m_alBufferId, (ovInfo->channels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, audioData, totalGot, ovInfo->rate);
         printOpenALError();
     }
 
