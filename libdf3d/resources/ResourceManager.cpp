@@ -50,12 +50,13 @@ shared_ptr<Resource> ResourceManager::findResource(const std::string &fullPath) 
     return found->second;
 }
 
-shared_ptr<Resource> ResourceManager::loadManual(ManualResourceLoader *loader)
+shared_ptr<Resource> ResourceManager::loadManual(shared_ptr<ManualResourceLoader> loader)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     auto resource = shared_ptr<Resource>(loader->load());
 
+    // FIXME: maybe check in cache and return existing instead?
 #ifdef _DEBUG
     assert(!isResourceExist(resource->getGUID()));
 #endif
@@ -65,7 +66,7 @@ shared_ptr<Resource> ResourceManager::loadManual(ManualResourceLoader *loader)
     return resource;
 }
 
-shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, FSResourceLoader *loader)
+shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared_ptr<FSResourceLoader> loader)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
@@ -84,7 +85,19 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, FSReso
     if (auto alreadyLoadedResource = findResource(guid))
         return alreadyLoadedResource;
 
+    auto resource = shared_ptr<Resource>(loader->createDummy(guid));
+    // Cache the resource.
+    m_loadedResources[resource->getGUID()] = resource;
 
+    for (auto listener : m_listeners)
+        listener->onLoadFromFileSystemRequest(resource->getGUID());
+
+    // TODO_REFACTO: async calls.
+
+    loader->decode(g_fileSystem->openFile(guid), resource.get());
+    loader->onDecoded(resource.get());
+
+    return resource;
 }
 
 ResourceManager::ResourceManager()

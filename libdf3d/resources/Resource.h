@@ -2,6 +2,8 @@
 
 namespace df3d { namespace resources {
 
+class FileDataSource;
+
 class DF3D_DLL Resource : utils::NonCopyable
 {
 protected:
@@ -38,12 +40,17 @@ public:
 class FSResourceLoader
 {
 public:
-    ResourceLoadingMode loadingMode = ResourceLoadingMode::IMMEDIATE;
+    const ResourceLoadingMode loadingMode;
 
+    FSResourceLoader(ResourceLoadingMode lm) : loadingMode(lm) { }
     virtual ~FSResourceLoader() = default;
 
-    virtual Resource* createDummy() = 0;
+    //! Creates resource stub which can be immediately used while the resource is actually being decoded.
+    virtual Resource* createDummy(const ResourceGUID &guid) = 0;
+    //! Performs resource decoding from given source. Must be thread safe.
     virtual void decode(shared_ptr<FileDataSource> source, Resource *resource) = 0;
+    //! Resource manager calls this when decoding is complete. Called from main thread only.
+    virtual void onDecoded(Resource *resource) = 0;
 };
 
 bool IsGUIDValid(const ResourceGUID &guid);

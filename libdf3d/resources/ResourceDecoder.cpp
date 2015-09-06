@@ -27,7 +27,7 @@ shared_ptr<ResourceDecoder> createResourceDecoder(const std::string &filepath)
     if (extension == ".mtl")
         return make_shared<DecoderMTL>();
     if (extension == ".png" || extension == ".jpg" || extension == ".jpeg" || extension == ".bmp")
-        return make_shared<DecoderTexture>();
+        return nullptr;
     if (extension == ".wav")
         return make_shared<DecoderWAV>();
     if (extension == ".ogg")

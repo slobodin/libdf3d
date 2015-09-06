@@ -2,6 +2,7 @@
 #include "ResourceFactory.h"
 
 #include "ResourceManager.h"
+#include "loaders/TextureLoaders.h"
 #include <render/Texture2D.h>
 #include <render/GpuProgram.h>
 
@@ -66,11 +67,9 @@ shared_ptr<render::GpuProgram> ResourceFactory::createGpuProgram(const std::stri
 
 shared_ptr<render::GpuProgram> ResourceFactory::createGpuProgram(const std::string &guid, const std::string &vertexData, const std::string &fragmentData)
 {
-    // FIXME: maybe check in cache?
+    auto loader = make_shared<render::GpuProgramManualLoader>(guid, vertexData, fragmentData);
 
-    render::GpuProgramManualLoader loader(guid, vertexData, fragmentData);
-
-    return static_pointer_cast<render::GpuProgram>(m_holder->loadManual(&loader));
+    return static_pointer_cast<render::GpuProgram>(m_holder->loadManual(loader));
 }
 
 shared_ptr<render::GpuProgram> ResourceFactory::createSimpleLightingGpuProgram()
@@ -106,44 +105,18 @@ shared_ptr<render::Texture2D> ResourceFactory::createTexture(const std::string &
 
 shared_ptr<render::Texture2D> ResourceFactory::createTexture(const std::string &imagePath, render::TextureCreationParams params, ResourceLoadingMode lm)
 {
-    return nullptr;
+    auto loader = make_shared<Texture2DFSLoader>(imagePath, params, lm);
+
+    return static_pointer_cast<render::Texture2D>(m_holder->loadFromFS(imagePath, loader));
 }
 
 shared_ptr<render::Texture2D> ResourceFactory::createTexture(unique_ptr<render::PixelBuffer> pixelBuffer, render::TextureCreationParams params)
 {
-    render::Texture2DManualLoader loader(std::move(pixelBuffer), params);
+    auto loader = make_shared<Texture2DManualLoader>(std::move(pixelBuffer), params);
 
-    return static_pointer_cast<render::Texture2D>(m_holder->loadManual(&loader));
-}
-/*
-shared_ptr<render::Texture2D> ResourceFactory::createTexture(const std::string &imagePath, ResourceLoadingMode lm)
-{
-    return nullptr;
-    //return static_pointer_cast<render::Texture2D>(loadResourceFromFileSystem(imagePath, lm));
+    return static_pointer_cast<render::Texture2D>(m_holder->loadManual(loader));
 }
 
-shared_ptr<render::Texture2D> ResourceFactory::createEmptyTexture(const std::string &id)
-{
-    return nullptr;
-    /*
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-    if (!id.empty())
-    {
-        if (auto alreadyLoaded = findResource(id))
-            return static_pointer_cast<render::Texture2D>(alreadyLoaded);
-    }
-
-    auto texture = make_shared<render::Texture2D>();
-    texture->setInitialized();
-    if (!id.empty())
-        texture->setGUID(id);
-    appendResource(texture);
-
-    return texture;
-    *
-}
-*/
 shared_ptr<render::TextureCube> ResourceFactory::createCubeTexture(const std::string &positiveXImage, const std::string &negativeXImage,
                                                                    const std::string &positiveYImage, const std::string &negativeYImage,
                                                                    const std::string &positiveZImage, const std::string &negativeZImage,

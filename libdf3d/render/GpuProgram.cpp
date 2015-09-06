@@ -113,7 +113,7 @@ GpuProgram::GpuProgram(const std::vector<shared_ptr<Shader>> &shaders)
     assert(!shaders.empty());
 
     if (compileShaders())
-        attachShaders();
+        m_initialized = attachShaders();
 }
 
 GpuProgram::~GpuProgram()
@@ -174,7 +174,6 @@ GpuProgram* GpuProgramManualLoader::load()
     auto program = new GpuProgram({ vertexShader, fragmentShader });
 
     program->setGUID(m_resourceGuid);
-    program->m_initialized = true;
 
     return program;
 }

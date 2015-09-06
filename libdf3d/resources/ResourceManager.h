@@ -48,8 +48,8 @@ private:
     void doRequest(DecodeRequest req);
 
     shared_ptr<Resource> findResource(const std::string &guid) const;
-    shared_ptr<Resource> loadManual(ManualResourceLoader *loader);
-    shared_ptr<Resource> loadFromFS(const std::string &path, FSResourceLoader *loader);
+    shared_ptr<Resource> loadManual(shared_ptr<ManualResourceLoader> loader);
+    shared_ptr<Resource> loadFromFS(const std::string &path, shared_ptr<FSResourceLoader> loader);
 
     ResourceManager();
     ~ResourceManager();

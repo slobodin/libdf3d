@@ -91,6 +91,12 @@ void Texture2D::deleteGLTexture()
     }
 }
 
+Texture2D::Texture2D(TextureCreationParams params)
+    : Texture(params)
+{
+
+}
+
 Texture2D::Texture2D(const PixelBuffer &pixelBuffer, TextureCreationParams params)
     : Texture(params)
 {
@@ -140,17 +146,6 @@ bool Texture2D::bind(size_t unit)
 void Texture2D::unbind()
 {
     glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-Texture2DManualLoader::Texture2DManualLoader(unique_ptr<PixelBuffer> pixelBuffer, TextureCreationParams params)
-    : m_pixelBuffer(std::move(pixelBuffer)), m_params(params)
-{
-
-}
-
-Texture2D* Texture2DManualLoader::load()
-{
-    return new Texture2D(*m_pixelBuffer, m_params);
 }
 
 } }

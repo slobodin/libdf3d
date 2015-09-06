@@ -61,8 +61,6 @@ protected:
     static void setupGlTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped);
     static void setupGlWrapMode(GLenum glType, TextureWrapMode wrapMode);
 
-    Texture() = default;
-
 public:
     Texture(TextureCreationParams params);
 

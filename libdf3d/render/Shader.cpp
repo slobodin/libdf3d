@@ -128,11 +128,6 @@ bool Shader::compile()
         base::glog << "\n" << m_shaderData << base::logmess;
         shaderLog(m_shaderDescriptor);
 
-        // Force stop the application in debug mode when shader was fail to compile.
-        // FIXME: find out more clever way (do not try to bind failed shaders).
-#ifdef _DEBUG
-        std::exit(1);
-#endif
         return false;
     }
 

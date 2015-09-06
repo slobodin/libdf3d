@@ -107,6 +107,7 @@ void TextureCube::deleteGLTexture()
 TextureCube::TextureCube(shared_ptr<Texture2D> positiveX, shared_ptr<Texture2D> negativeX,
                          shared_ptr<Texture2D> positiveY, shared_ptr<Texture2D> negativeY,
                          shared_ptr<Texture2D> positiveZ, shared_ptr<Texture2D> negativeZ)
+    : Texture(TextureCreationParams())  // TODO_REFACTO
 {
     m_images[0] = positiveX;
     m_images[1] = negativeX;
