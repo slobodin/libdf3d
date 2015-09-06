@@ -14,12 +14,12 @@ struct MaterialLibNode;
 
 class DecoderMTL : public ResourceDecoder
 {
-    shared_ptr<render::Material> parseMaterialNode(MaterialLibNode &node);
-    shared_ptr<render::Technique> parseTechniqueNode(MaterialLibNode &node);
-    shared_ptr<render::RenderPass> parsePassNode(MaterialLibNode &node);
-    shared_ptr<render::GpuProgram> parseShaderNode(MaterialLibNode &node);
+    shared_ptr<render::Material> parseMaterialNode(const MaterialLibNode &node);
+    shared_ptr<render::Technique> parseTechniqueNode(const MaterialLibNode &node);
+    shared_ptr<render::RenderPass> parsePassNode(const MaterialLibNode &node);
+    shared_ptr<render::GpuProgram> parseShaderNode(const MaterialLibNode &node);
     void parseShaderParamsNode(MaterialLibNode &node, shared_ptr<render::RenderPass> pass);
-    shared_ptr<render::Texture> parseSamplerNode(MaterialLibNode &node);
+    shared_ptr<render::Texture> parseSamplerNode(const MaterialLibNode &node);
 
     // For logging.
     std::string m_libPath;

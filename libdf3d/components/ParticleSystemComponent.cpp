@@ -6,7 +6,6 @@
 #include <scene/Camera.h>
 #include <scene/Node.h>
 #include <render/RenderOperation.h>
-#include <render/RenderPass.h>
 #include <render/RenderQueue.h>
 #include <base/SystemsMacro.h>
 

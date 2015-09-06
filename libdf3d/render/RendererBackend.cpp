@@ -1,6 +1,7 @@
 #include "df3d_pch.h"
 #include "RendererBackend.h"
 
+#include <resources/ResourceFactory.h>
 #include <base/SystemsMacro.h>
 #include <components/LightComponent.h>
 #include "OpenGLCommon.h"
@@ -24,12 +25,15 @@ void RendererBackend::createWhiteTexture()
     auto data = new unsigned char[w * h * 4];
     memset(data, 255, w * h * 4);
 
-    m_whiteTexture = g_resourceManager->createEmptyTexture("__white_texture");
-    m_whiteTexture->setFilteringMode(TextureFiltering::NEAREST);
-    m_whiteTexture->setMipmapped(false);
-    m_whiteTexture->setWrapMode(Texture::WrapMode::WRAP);
-    m_whiteTexture->setWithData(w, h, pf, data);
-    m_whiteTexture->setResident();
+    TextureCreationParams params;
+    params.setFiltering(TextureFiltering::NEAREST);
+    params.setMipmapped(false);
+    params.setWrapMode(TextureWrapMode::WRAP);
+
+    auto pb = make_unique<render::PixelBuffer>(w, h, data, pf);
+
+    m_whiteTexture = g_resourceManager->getFactory().createTexture(std::move(pb), params);
+    m_whiteTexture->setResident(true);
 
     delete [] data;
 }
@@ -405,19 +409,19 @@ void RendererBackend::setLight(const components::LightComponent *light)
     }
 }
 
-void RendererBackend::bindPass(shared_ptr<RenderPass> pass)
+void RendererBackend::bindPass(RenderPass *pass)
 {
     if (!pass)
         return;
 
-    if (pass.get() == m_programState->m_currentPass)
+    if (pass == m_programState->m_currentPass)
     {
         updateProgramUniformValues(m_programState->m_currentShader, m_programState->m_currentPass);
         updateTextureSamplers();
         return;
     }
 
-    m_programState->m_currentPass = pass.get();
+    m_programState->m_currentPass = pass;
 
     // FIXME:
     // Cache state.
@@ -446,12 +450,12 @@ void RendererBackend::bindPass(shared_ptr<RenderPass> pass)
     printOpenGLError();
 }
 
-void RendererBackend::drawVertexBuffer(shared_ptr<VertexBuffer> vb, shared_ptr<IndexBuffer> ib, RenderOperation::Type type)
+void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, RenderOperation::Type type)
 {
     if (!vb)
         return;
 
-    bool indexed = ib.get() != nullptr;
+    bool indexed = ib != nullptr;
 
     vb->bind();
     if (indexed)

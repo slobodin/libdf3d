@@ -3,6 +3,7 @@
 #include "RenderOperation.h"
 #include "RenderStats.h"
 #include "RenderingCapabilities.h"
+#include "RenderPass.h"
 
 FWD_MODULE_CLASS(scene, Scene)
 FWD_MODULE_CLASS(scene, Node)
@@ -40,7 +41,7 @@ class RenderManager
     RenderingCapabilities m_renderingCaps;
 
     // Ambient pass support.
-    shared_ptr<RenderPass> m_ambientPassProps;
+    RenderPass m_ambientPassProps;
 
     // For postfx support.
     shared_ptr<RenderTargetScreen> m_screenRt;

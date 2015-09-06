@@ -5,6 +5,7 @@
 #include "Texture.h"
 #include "RenderManager.h"
 #include "RendererBackend.h"
+#include <resources/ResourceFactory.h>
 #include <base/SystemsMacro.h>
 
 namespace df3d { namespace render {
@@ -27,7 +28,7 @@ void RenderPassParam::updateTo(GpuProgram *program)
 RenderPass::RenderPass(const std::string &name)
     : m_name(name)
 {
-    setGpuProgram(g_resourceManager->createSimpleLightingGpuProgram());
+    setGpuProgram(g_resourceManager->getFactory().createSimpleLightingGpuProgram());
     setSampler("diffuseMap", nullptr);
 }
 
@@ -202,17 +203,17 @@ void RenderPass::enableLighting(bool enable)
     m_lightingEnabled = enable;
 }
 
-shared_ptr<RenderPass> RenderPass::createDebugDrawPass()
+RenderPass RenderPass::createDebugDrawPass()
 {
-    auto pass = make_shared<render::RenderPass>("debug_draw_pass");
-    pass->setFrontFaceWinding(WindingOrder::CCW);
-    pass->setFaceCullMode(FaceCullMode::NONE);
-    pass->setPolygonDrawMode(PolygonMode::WIRE);
-    pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 0.2f);
-    pass->setBlendMode(BlendingMode::ALPHA);
+    auto pass = RenderPass("debug_draw_pass");
+    pass.setFrontFaceWinding(WindingOrder::CCW);
+    pass.setFaceCullMode(FaceCullMode::NONE);
+    pass.setPolygonDrawMode(PolygonMode::WIRE);
+    pass.setDiffuseColor(1.0f, 1.0f, 1.0f, 0.2f);
+    pass.setBlendMode(BlendingMode::ALPHA);
 
-    auto program = g_resourceManager->createColoredGpuProgram();
-    pass->setGpuProgram(program);
+    auto program = g_resourceManager->getFactory().createColoredGpuProgram();
+    pass.setGpuProgram(program);
 
     return pass;
 }

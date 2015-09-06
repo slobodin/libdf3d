@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vertex.h"
+#include "RenderingCapabilities.h"
 
 namespace df3d { namespace render {
 

@@ -15,11 +15,14 @@ class DebugDrawAABBNode
 {
 public:
     render::RenderOperation m_ro;
+    render::RenderPass m_pass;
 
     DebugDrawAABBNode()
     {
+        m_pass = render::RenderPass::createDebugDrawPass();
+
         m_ro.worldTransform = glm::mat4();
-        m_ro.passProps = render::RenderPass::createDebugDrawPass();
+        m_ro.passProps = &m_pass;
 
         m_ro.vertexData = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
         m_ro.indexData = make_shared<render::IndexBuffer>();

@@ -2,8 +2,14 @@
 
 namespace df3d { namespace resources {
 
+class ResourceManager;
+class ResourceFactory;
+
 class DF3D_DLL Resource : utils::NonCopyable
 {
+    friend class ResourceManager;
+    friend class ResourceFactory;
+
 protected:
     ResourceGUID m_guid;
 
@@ -11,6 +17,7 @@ protected:
     std::atomic<bool> m_resident = false;
 
     //! Called by resource decoder. This function should set m_initialized depending on decode result.
+    //! Called on main thread only.
     virtual void onDecoded(bool decodeResult) = 0;
 
 public:

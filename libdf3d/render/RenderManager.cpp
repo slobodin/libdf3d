@@ -1,6 +1,7 @@
 #include "df3d_pch.h"
 #include "RenderManager.h"
 
+#include <resources/ResourceFactory.h>
 #include <base/SystemsMacro.h>
 #include <base/DebugConsole.h>
 #include <scene/Scene.h>
@@ -17,28 +18,28 @@
 #include "RenderTargetTexture.h"
 #include "GpuProgram.h"
 #include "Viewport.h"
-#include "SubMesh.h"
 #include "RenderQueue.h"
 
 namespace df3d { namespace render {
 
 void RenderManager::createQuadRenderOperation()
 {
-    auto passThrough = make_shared<RenderPass>();
-    passThrough->setFrontFaceWinding(RenderPass::WindingOrder::CCW);
-    passThrough->setFaceCullMode(RenderPass::FaceCullMode::BACK);
-    passThrough->setGpuProgram(g_resourceManager->createRttQuadProgram());
-    passThrough->setBlendMode(RenderPass::BlendingMode::NONE);
-    passThrough->enableDepthTest(false);
-    passThrough->enableDepthWrite(false);
+    RenderPass passThrough;
+    passThrough.setFrontFaceWinding(RenderPass::WindingOrder::CCW);
+    passThrough.setFaceCullMode(RenderPass::FaceCullMode::BACK);
+    passThrough.setGpuProgram(g_resourceManager->getFactory().createRttQuadProgram());
+    passThrough.setBlendMode(RenderPass::BlendingMode::NONE);
+    passThrough.enableDepthTest(false);
+    passThrough.enableDepthWrite(false);
 
     m_quadVb = render::createQuad(VertexFormat::create("p:3, tx:2"), 0.0f, 0.0f, 2.0, 2.0f);
     m_quadVb->setUsageType(GpuBufferUsageType::STATIC);
 
     m_defaultPostProcessMaterial = shared_ptr<render::Material>(new render::Material("default_postprocess_material"));
-    auto defaultTech = shared_ptr<render::Technique>(new render::Technique("default_technique"));
 
-    defaultTech->appendPass(passThrough);
+    Technique defaultTech("default_technique");
+    defaultTech.appendPass(passThrough);
+
     m_defaultPostProcessMaterial->appendTechnique(defaultTech);
     m_defaultPostProcessMaterial->setCurrentTechnique("default_technique");
 }
@@ -57,9 +58,7 @@ void RenderManager::createRenderTargets(const Viewport &vp)
 
 void RenderManager::createAmbientPassProps()
 {
-    m_ambientPassProps = make_shared<RenderPass>();
-
-    m_ambientPassProps->setGpuProgram(g_resourceManager->createAmbientPassProgram());
+    m_ambientPassProps.setGpuProgram(g_resourceManager->getFactory().createAmbientPassProgram());
 }
 
 void RenderManager::debugDrawPass()
@@ -195,12 +194,12 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
     {
         m_renderer->setWorldMatrix(op.worldTransform);
 
-        m_ambientPassProps->setAmbientColor(op.passProps->getAmbientColor());
-        m_ambientPassProps->setEmissiveColor(op.passProps->getEmissiveColor());
+        m_ambientPassProps.setAmbientColor(op.passProps->getAmbientColor());
+        m_ambientPassProps.setEmissiveColor(op.passProps->getEmissiveColor());
 
-        m_renderer->bindPass(m_ambientPassProps);
+        m_renderer->bindPass(&m_ambientPassProps);
 
-        m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);
+        m_renderer->drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
     }
 
     // Opaque pass with lights on.
@@ -220,7 +219,7 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
 
             // TODO: update ONLY light uniforms.
             m_renderer->bindPass(op.passProps);
-            m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);
+            m_renderer->drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
         }
     }
 
@@ -265,7 +264,7 @@ void RenderManager::drawOperation(const RenderOperation &op)
 
     m_renderer->setWorldMatrix(op.worldTransform);
     m_renderer->bindPass(op.passProps);
-    m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);
+    m_renderer->drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
 }
 
 void RenderManager::drawGUI()

@@ -91,9 +91,9 @@ public:
     void setAmbientLight(float ra, float ga, float ba);
     void setLight(const components::LightComponent *light);
 
-    void bindPass(shared_ptr<RenderPass> pass);
+    void bindPass(RenderPass *pass);
 
-    void drawVertexBuffer(shared_ptr<VertexBuffer> vb, shared_ptr<IndexBuffer> ib, RenderOperation::Type type);
+    void drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, RenderOperation::Type type);
 
     // TODO:
     // Debug draw:

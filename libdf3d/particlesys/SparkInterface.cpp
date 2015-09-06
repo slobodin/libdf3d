@@ -9,6 +9,7 @@
 #include <render/GpuProgram.h>
 #include <render/RenderOperation.h>
 #include <render/RenderQueue.h>
+#include <resources/ResourceFactory.h>
 
 namespace df3d { namespace particlesys {
 
@@ -102,7 +103,7 @@ void ParticleSystemRenderer::addToRenderQueue(MyRenderBuffer &buffer, size_t nbO
     op.type = type;
     op.indexData = buffer.m_ib;
     op.vertexData = buffer.m_vb;
-    op.passProps = m_pass;
+    op.passProps = &m_pass;
     op.worldTransform = *m_currentTransformation;
 
     if (op.passProps->isTransparent())
@@ -114,12 +115,11 @@ void ParticleSystemRenderer::addToRenderQueue(MyRenderBuffer &buffer, size_t nbO
 ParticleSystemRenderer::ParticleSystemRenderer(bool NEEDS_DATASET)
     : SPK::Renderer(NEEDS_DATASET)
 {
-    m_pass = make_shared<render::RenderPass>();
-    m_pass->setFaceCullMode(render::RenderPass::FaceCullMode::BACK);
-    m_pass->setFrontFaceWinding(render::RenderPass::WindingOrder::CCW);
-    m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f);
+    m_pass.setFaceCullMode(render::RenderPass::FaceCullMode::BACK);
+    m_pass.setFrontFaceWinding(render::RenderPass::WindingOrder::CCW);
+    m_pass.setDiffuseColor(1.0f, 1.0f, 1.0f);
 
-    m_pass->setGpuProgram(g_resourceManager->createColoredGpuProgram());
+    m_pass.setGpuProgram(g_resourceManager->getFactory().createColoredGpuProgram());
 }
 
 ParticleSystemRenderer::~ParticleSystemRenderer()
@@ -132,13 +132,13 @@ void ParticleSystemRenderer::setBlendMode(SPK::BlendMode blendMode)
     switch (blendMode)
     {
     case SPK::BLEND_MODE_NONE:
-        m_pass->setBlendMode(render::RenderPass::BlendingMode::NONE);
+        m_pass.setBlendMode(render::RenderPass::BlendingMode::NONE);
         break;
     case SPK::BLEND_MODE_ADD:
-        m_pass->setBlendMode(render::RenderPass::BlendingMode::ADDALPHA);
+        m_pass.setBlendMode(render::RenderPass::BlendingMode::ADDALPHA);
         break;
     case SPK::BLEND_MODE_ALPHA:
-        m_pass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
+        m_pass.setBlendMode(render::RenderPass::BlendingMode::ALPHA);
         break;
     default:
         break;
@@ -147,19 +147,19 @@ void ParticleSystemRenderer::setBlendMode(SPK::BlendMode blendMode)
 
 void ParticleSystemRenderer::setDiffuseMap(shared_ptr<render::Texture> texture)
 {
-    m_pass->setSampler("diffuseMap", texture);
+    m_pass.setSampler("diffuseMap", texture);
 }
 
 void ParticleSystemRenderer::enableFaceCulling(bool enable)
 {
     if (enable)
     {
-        m_pass->setFaceCullMode(render::RenderPass::FaceCullMode::BACK);
-        m_pass->setFrontFaceWinding(render::RenderPass::WindingOrder::CCW);
+        m_pass.setFaceCullMode(render::RenderPass::FaceCullMode::BACK);
+        m_pass.setFrontFaceWinding(render::RenderPass::WindingOrder::CCW);
     }
     else
     {
-        m_pass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
+        m_pass.setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
     }
 }
 
@@ -262,7 +262,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
     auto &buffer = static_cast<MyRenderBuffer&>(*renderBuffer);
     buffer.positionAtStart(); // Repositions all the buffers at the start.
 
-    m_pass->enableDepthWrite(isRenderingOptionEnabled(SPK::RENDERING_OPTION_DEPTH_WRITE));
+    m_pass.enableDepthWrite(isRenderingOptionEnabled(SPK::RENDERING_OPTION_DEPTH_WRITE));
 
     switch (texturingMode)
     {
@@ -386,7 +386,7 @@ void LineParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
     auto &buffer = static_cast<MyRenderBuffer&>(*renderBuffer);
     buffer.positionAtStart(); // Repositions all the buffers at the start.
 
-    m_pass->enableDepthWrite(isRenderingOptionEnabled(SPK::RENDERING_OPTION_DEPTH_WRITE));
+    m_pass.enableDepthWrite(isRenderingOptionEnabled(SPK::RENDERING_OPTION_DEPTH_WRITE));
 
     for (SPK::ConstGroupIterator particleIt(group); !particleIt.end(); ++particleIt)
     {

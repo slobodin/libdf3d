@@ -8,6 +8,7 @@
 #include <components/TransformComponent.h>
 #include <base/SystemsMacro.h>
 #include <render/MaterialLib.h>
+#include <resources/ResourceFactory.h>
 
 namespace df3d { namespace utils { namespace serializers {
 
@@ -71,17 +72,17 @@ void parsePostProcessOption(const Json::Value &postFxNode, shared_ptr<scene::Sce
         return;
     }
 
-    auto materialLibrary = g_resourceManager->createMaterialLib(mtlLib);
+    auto materialLibrary = g_resourceManager->getFactory().createMaterialLib(mtlLib);
     auto material = materialLibrary->getMaterial(mtlName);
     if (!material)
         return;
 
-    scene->setPostProcessMaterial(material);
+    scene->setPostProcessMaterial(make_shared<render::Material>(*material));
 }
 
 Json::Value savePostProcessOption(shared_ptr<const scene::Scene> scene)
 {
-    auto material = scene->getPostProcessMaterial();
+    //auto material = scene->getPostProcessMaterial();
     // TODO:
     return Json::Value();
 }

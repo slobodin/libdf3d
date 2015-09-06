@@ -98,7 +98,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetScreen.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetTexture.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Shader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/SubMesh.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Technique.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture2D.h
@@ -110,6 +109,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/FileSystem.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceDecoder.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderDFMesh.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTexture.h
@@ -192,7 +192,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetScreen.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetTexture.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Shader.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/SubMesh.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Technique.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture2D.cpp
@@ -203,6 +202,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/FileSystem.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceDecoder.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderDFMesh.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTexture.cpp

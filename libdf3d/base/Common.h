@@ -54,6 +54,7 @@ using std::static_pointer_cast;
 #define SAFE_ARRAY_DELETE(x) { delete [] x; x = nullptr; }
 
 #define FWD_MODULE_CLASS(_namespace, _class) namespace df3d { namespace _namespace { class _class; } }
+#define FWD_MODULE_STRUCT(_namespace, _struct) namespace df3d { namespace _namespace { struct _struct; } }
 
 #if defined(max)
 #undef max

@@ -3,11 +3,6 @@
 #include "NodeComponent.h"
 #include <SPARK.h>
 
-FWD_MODULE_CLASS(render, RenderPass)
-FWD_MODULE_CLASS(render, VertexBuffer)
-FWD_MODULE_CLASS(render, RenderOperation)
-FWD_MODULE_CLASS(render, RenderManager)
-
 namespace df3d { namespace components {
 
 class DF3D_DLL ParticleSystemComponent : public NodeComponent

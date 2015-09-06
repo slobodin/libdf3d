@@ -2,7 +2,6 @@
 #include "DecoderDFMesh.h"
 
 #include <render/MeshData.h>
-#include <render/SubMesh.h>
 #include <render/Material.h>
 #include <render/VertexIndexBuffer.h>
 

@@ -20,12 +20,14 @@ public:
 
     glm::mat4 worldTransform;
 
-    shared_ptr<IndexBuffer> indexData;
-    shared_ptr<VertexBuffer> vertexData;
-    shared_ptr<RenderPass> passProps;
+    // TODO_REFACTO: make this just pointers.
 
-    RenderOperation();
-    ~RenderOperation();
+    shared_ptr<IndexBuffer> indexData = nullptr;
+    shared_ptr<VertexBuffer> vertexData = nullptr;
+    RenderPass *passProps = nullptr;
+
+    RenderOperation() = default;
+    ~RenderOperation() = default;
 
     bool isEmpty() const;
 };

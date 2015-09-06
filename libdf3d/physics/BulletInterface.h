@@ -4,12 +4,14 @@
 #include <btBulletDynamicsCommon.h>
 
 #include <render/RenderOperation.h>
+#include <render/RenderPass.h>
 
 namespace df3d { namespace physics {
 
 class BulletDebugDraw : public btIDebugDraw
 {
     render::RenderOperation m_linesOp;
+    render::RenderPass m_pass;
 
 public:
     BulletDebugDraw();

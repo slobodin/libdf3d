@@ -9,6 +9,7 @@ namespace df3d { namespace components {
 class DF3D_DLL Sprite2DComponent : public NodeComponent
 {
     render::RenderOperation2D m_op;
+    render::RenderPass m_pass;
 
     glm::vec2 m_anchor = glm::vec2(0.5f, 0.5f);
     glm::vec2 m_textureOriginalSize;

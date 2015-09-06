@@ -6,6 +6,7 @@
 #include <base/SystemsMacro.h>
 #include <resources/FileDataSource.h>
 #include <resources/FileSystem.h>
+#include <resources/ResourceFactory.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/Material.h>
 #include <render/Technique.h>
@@ -14,7 +15,6 @@
 #include <render/Shader.h>
 #include <render/GpuProgram.h>
 #include <render/MaterialLib.h>
-#include <render/SubMesh.h>
 #include <utils/MeshIndexer.h>
 #include <utils/Utils.h>
 
@@ -41,11 +41,12 @@ shared_ptr<render::VertexBuffer> DecoderOBJ::createVertexBuffer()
 void DecoderOBJ::createDefaultMaterial(const std::string &filename)
 {
     // Default material is used for vertex buffers without any material at all.
-    m_defaultMaterial = shared_ptr<render::Material>(new render::Material(filename));
-    auto defaultTech = shared_ptr<render::Technique>(new render::Technique(filename));
-    auto pass = make_shared<render::RenderPass>();
+    m_defaultMaterial = std::make_shared<render::Material>(filename);
+    render::Technique defaultTech(filename);
+    render::RenderPass pass;
 
-    defaultTech->appendPass(pass);
+    defaultTech.appendPass(pass);
+
     m_defaultMaterial->appendTechnique(defaultTech);
     m_defaultMaterial->setCurrentTechnique(filename);
 }
@@ -54,7 +55,7 @@ void DecoderOBJ::createMaterials(const std::string &dirPath, const std::string &
 {
     // Try to open material library.
     auto fullp = FileSystem::pathConcatenate(dirPath, filePath);
-    m_materials = g_resourceManager->createMaterialLib(fullp);
+    m_materials = g_resourceManager->getFactory().createMaterialLib(fullp);
 }
 
 void DecoderOBJ::processLine_v(std::istream &is)
@@ -251,6 +252,12 @@ bool DecoderOBJ::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
 
     bool computeNormals = m_normals.size() > 0 ? false : true;
 
+    // TODO_REFACTO
+
+    assert(false);
+
+    /*
+
     // Post init.
 
     // Attaches submeshes to the mesh and sets up materials.
@@ -287,6 +294,8 @@ bool DecoderOBJ::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
         createDefaultMaterial(file->getPath());
         initVb(m_vbWithDefaultMaterial, m_defaultMaterial);
     }
+
+    */
 
     return true;
 }

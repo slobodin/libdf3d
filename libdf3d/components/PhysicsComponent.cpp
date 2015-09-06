@@ -7,7 +7,6 @@
 #include <components/MeshComponent.h>
 #include <components/TransformComponent.h>
 #include <components/serializers/PhysicsComponentSerializer.h>
-#include <render/SubMesh.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/MeshData.h>
 #include <base/SystemsMacro.h>
@@ -22,7 +21,7 @@ void PhysicsComponent::initFromCreationParams()
 
     auto mesh = getHolder()->mesh();
 
-    assert(mesh && mesh->isGeometryValid());
+    assert(mesh && mesh->getMeshData()->isInitialized());
 
     btCollisionShape *colShape = nullptr;
     switch (m_creationParams.type)
@@ -55,6 +54,10 @@ void PhysicsComponent::initFromCreationParams()
         break;
     case CollisionShapeType::CONVEX_HULL:
     {
+        // TODO_REFACTO:
+        assert(false);
+        /*
+
         auto convexHull = new btConvexHullShape();
 
         auto geometry = mesh->getGeometry();
@@ -96,6 +99,7 @@ void PhysicsComponent::initFromCreationParams()
         delete convexHull;
 
         colShape->setLocalScaling(physics::glmTobt(getHolder()->transform()->getScale()));
+        */
     }
         break;
     default:
@@ -140,7 +144,7 @@ void PhysicsComponent::onAttached()
         return;
     }
 
-    if (mesh->isGeometryValid())
+    if (mesh->getMeshData()->isInitialized())
         initFromCreationParams();
     // If geometry is not valid - wait till mesh being loaded.
 }

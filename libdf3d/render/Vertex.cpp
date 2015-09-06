@@ -51,12 +51,12 @@ size_t VertexFormat::getOffsetTo(VertexComponent::Type component) const
 
 bool VertexFormat::hasComponent(VertexComponent::Type component) const
 {
-    return std::find_if(m_components.cbegin(), m_components.cend(), [&](const VertexComponent &c) { return c.getType() == component; }) != m_components.cend();
+    return getComponent(component) != nullptr;
 }
 
 const VertexComponent *VertexFormat::getComponent(VertexComponent::Type component) const
 {
-    auto found = std::find_if(m_components.begin(), m_components.end(), [&](const VertexComponent &c) { return c.getType() == component; });
+    auto found = std::find_if(m_components.cbegin(), m_components.cend(), [&](const VertexComponent &c) { return c.getType() == component; });
     if (found == m_components.end())
         return nullptr;
 

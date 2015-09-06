@@ -93,7 +93,13 @@ void Texture2D::deleteGLTexture()
 
 void Texture2D::onDecoded(bool decodeResult)
 {
-    createGLTexture();
+    if (!decodeResult)
+    {
+        base::glog << "Texture2D::onDecoded failed" << base::logwarn;
+        return;
+    }
+
+    m_initialized = createGLTexture();
 }
 
 Texture2D::Texture2D(unique_ptr<PixelBuffer> pixelBuffer, TextureCreationParams params)

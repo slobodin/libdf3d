@@ -5,29 +5,18 @@
 
 namespace df3d { namespace render {
 
-shared_ptr<RenderPass> Technique::findPass(const std::string &name) const
+RenderPass* Technique::findPass(const std::string &name)
 {
-    auto findFn = [&](const shared_ptr<RenderPass> pass)
+    auto findFn = [&](const RenderPass &pass)
     {
-        return pass->getName() == name;
+        return pass.getName() == name;
     };
 
-    auto found = std::find_if(m_passes.cbegin(), m_passes.cend(), findFn);
-    if (found == m_passes.cend())
+    auto found = std::find_if(m_passes.begin(), m_passes.end(), findFn);
+    if (found == m_passes.end())
         return nullptr;
 
-    return *found;
-}
-
-void Technique::appendPass(shared_ptr<RenderPass> pass)
-{
-    if (!pass)
-    {
-        base::glog << "Trying to add empty pass to technique" << m_name << base::logwarn;
-        return;
-    }
-
-    m_passes.push_back(pass);
+    return &(*found);
 }
 
 Technique::Technique(const std::string &name)
@@ -39,18 +28,23 @@ Technique::~Technique()
 {
 }
 
-shared_ptr<RenderPass> Technique::getPass(int idx)
+void Technique::appendPass(const RenderPass &pass)
+{
+    m_passes.push_back(pass);
+}
+
+RenderPass* Technique::getPass(int idx)
 {
     try
     {
-        return m_passes.at(idx);
+        return &m_passes.at(idx);
     }
     catch (std::out_of_range &) { }
 
     return nullptr;
 }
 
-shared_ptr<RenderPass> Technique::getPass(const std::string &name)
+RenderPass* Technique::getPass(const std::string &name)
 {
     return findPass(name);
 }
@@ -60,7 +54,7 @@ size_t Technique::getPassCount() const
     return m_passes.size();
 }
 
-const std::string &Technique::getName()
+const std::string &Technique::getName() const
 {
     return m_name;
 }

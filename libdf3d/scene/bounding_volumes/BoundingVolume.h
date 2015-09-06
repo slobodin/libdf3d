@@ -1,20 +1,20 @@
 #pragma once
 
-FWD_MODULE_CLASS(render, MeshData)
+FWD_MODULE_STRUCT(render, SubMesh)
 
 namespace df3d { namespace scene {
 
 class DF3D_DLL BoundingVolume
 {
 public:
-    virtual ~BoundingVolume() {}
+    virtual ~BoundingVolume() = default;
 
     virtual void reset() = 0;
     virtual void updateBounds(const glm::vec3 &point) = 0;
 
     virtual bool isValid() const = 0;
 
-    void constructFromGeometry(shared_ptr<render::MeshData> geometry);
+    void constructFromGeometry(const std::vector<render::SubMesh> &submeshes);
 };
 
 } }

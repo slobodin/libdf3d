@@ -3,6 +3,7 @@
 
 #include <base/SystemsMacro.h>
 #include <resources/FileDataSource.h>
+#include <resources/ResourceFactory.h>
 #include <render/GpuProgram.h>
 #include <render/Texture.h>
 #include <render/RenderOperation.h>
@@ -66,7 +67,7 @@ bool GuiFileInterface::Seek(Rocket::Core::FileHandle file, long offset, int orig
 
 size_t GuiFileInterface::Tell(Rocket::Core::FileHandle file)
 {
-    return m_openedFiles[file]->tell();
+    return static_cast<size_t>(m_openedFiles[file]->tell());
 }
 
 GuiSystemInterface::GuiSystemInterface()
@@ -114,15 +115,13 @@ struct CompiledGeometry
 };
 
 GuiRenderInterface::GuiRenderInterface()
-    : m_textureId(0),
-    m_renderOperation(new render::RenderOperation())
+    : m_textureId(0)
 {
-    m_guipass = make_shared<render::RenderPass>();
-    m_guipass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
-    m_guipass->setGpuProgram(g_resourceManager->createColoredGpuProgram());
-    m_guipass->enableDepthTest(false);
-    m_guipass->enableDepthWrite(false);
-    m_guipass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
+    m_guipass.setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
+    m_guipass.setGpuProgram(g_resourceManager->getFactory().createColoredGpuProgram());
+    m_guipass.enableDepthTest(false);
+    m_guipass.enableDepthWrite(false);
+    m_guipass.setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 }
 
 void GuiRenderInterface::SetViewport(int width, int height)
@@ -195,12 +194,12 @@ void GuiRenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHa
 
     auto geom = (CompiledGeometry *)geometry;
 
-    m_guipass->setSampler("diffuseMap", geom->texture);
+    m_guipass.setSampler("diffuseMap", geom->texture);
 
     render::RenderOperation op;
     op.vertexData = geom->vb;
     op.indexData = geom->ib;
-    op.passProps = m_guipass;
+    op.passProps = &m_guipass;
     op.worldTransform = glm::translate(glm::vec3(translation.x, translation.y, 0.0f));
 
     g_renderManager->drawOperation(op);
@@ -227,13 +226,14 @@ bool GuiRenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle
                                      Rocket::Core::Vector2i &texture_dimensions, 
                                      const Rocket::Core::String &source)
 {
-    auto texture = g_resourceManager->createTexture(source.CString(), ResourceLoadingMode::IMMEDIATE);
-    if (!texture || !texture->isValid())
-        return false;
+    render::TextureCreationParams params;
+    params.setFiltering(render::TextureFiltering::BILINEAR);
+    params.setMipmapped(false);
+    params.setAnisotropyLevel(render::NO_ANISOTROPY);
 
-    texture->setFilteringMode(render::TextureFiltering::BILINEAR);
-    texture->setMipmapped(false);
-    texture->setMaxAnisotropy(render::NO_ANISOTROPY);
+    auto texture = g_resourceManager->getFactory().createTexture(source.CString(), params, ResourceLoadingMode::IMMEDIATE);
+    if (!texture || !texture->isInitialized())
+        return false;
 
     m_textures[++m_textureId] = texture;
     texture_handle = m_textureId;
@@ -248,11 +248,14 @@ bool GuiRenderInterface::GenerateTexture(Rocket::Core::TextureHandle& texture_ha
                                          const Rocket::Core::byte *source,
                                          const Rocket::Core::Vector2i &source_dimensions)
 {
-    auto texture = g_resourceManager->createEmptyTexture();
-    texture->setWithData(source_dimensions.x, source_dimensions.y, PixelFormat::RGBA, source);
-    texture->setFilteringMode(render::TextureFiltering::BILINEAR);
-    texture->setMipmapped(false);
-    texture->setMaxAnisotropy(render::NO_ANISOTROPY);
+    render::TextureCreationParams params;
+    params.setMipmapped(false);
+    params.setAnisotropyLevel(render::NO_ANISOTROPY);
+    params.setFiltering(render::TextureFiltering::BILINEAR);
+
+    auto pb = make_unique<render::PixelBuffer>(source_dimensions.x, source_dimensions.y, source, PixelFormat::RGBA);
+
+    auto texture = g_resourceManager->getFactory().createTexture(std::move(pb), params);
 
     m_textures[++m_textureId] = texture;
     texture_handle = m_textureId;

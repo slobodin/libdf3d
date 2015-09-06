@@ -2,33 +2,26 @@
 #include "BoundingVolume.h"
 
 #include <render/MeshData.h>
-#include <render/SubMesh.h>
-#include <render/VertexIndexBuffer.h>
 
 namespace df3d { namespace scene {
 
-void BoundingVolume::constructFromGeometry(shared_ptr<render::MeshData> geometry)
+void BoundingVolume::constructFromGeometry(const std::vector<render::SubMesh> &submeshes)
 {
-    if (!geometry->isValid())
-        return;
-
     reset();
 
     // Compute volume.
-    const auto &submeshes = geometry->getSubMeshes();
     for (const auto &submesh : submeshes)
     {
-        auto vb = submesh->getVertexBuffer();
-        auto vertexData = vb->getVertexData();
+        auto vertexData = submesh.vertexData.data();
 
         // Some sanity checks.
-        auto positionComponent = vb->getFormat().getComponent(render::VertexComponent::POSITION);
+        auto positionComponent = submesh.vertexFormat.getComponent(render::VertexComponent::POSITION);
         if (!positionComponent || positionComponent->getCount() != 3)
             continue;
 
-        auto offsetToPosition = vb->getFormat().getOffsetTo(render::VertexComponent::POSITION) / sizeof(float);
-        auto stride = vb->getFormat().getVertexSize() / sizeof(float);
-        auto vertexCount = vb->getVerticesCount();
+        auto offsetToPosition = submesh.vertexFormat.getOffsetTo(render::VertexComponent::POSITION) / sizeof(float);
+        auto stride = submesh.vertexFormat.getVertexSize() / sizeof(float);
+        auto vertexCount = submesh.getVerticesCount();
 
         for (size_t i = 0; i < vertexCount; i++)
         {

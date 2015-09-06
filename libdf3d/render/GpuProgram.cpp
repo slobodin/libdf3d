@@ -4,7 +4,6 @@
 #include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include "Shader.h"
-#include "RenderPass.h"
 #include "OpenGLCommon.h"
 #include "Vertex.h"
 

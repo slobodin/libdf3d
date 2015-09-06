@@ -6,11 +6,9 @@
 #include <Rocket/Core/RenderInterface.h>
 
 #include <render/RenderOperation.h>
+#include <render/RenderPass.h>
 
 FWD_MODULE_CLASS(resources, FileDataSource)
-FWD_MODULE_CLASS(render, GpuProgram)
-FWD_MODULE_CLASS(render, RendererBackend)
-FWD_MODULE_CLASS(render, RenderPass)
 FWD_MODULE_CLASS(render, Texture)
 
 namespace df3d { namespace gui {
@@ -56,9 +54,9 @@ public:
 class GuiRenderInterface : public Rocket::Core::RenderInterface
 {
     //! Gui rendering pass properties.
-    shared_ptr<render::RenderPass> m_guipass;
+    render::RenderPass m_guipass;
     //! Gui render operation holder.
-    unique_ptr<render::RenderOperation> m_renderOperation;
+    render::RenderOperation m_renderOperation;
     
     std::unordered_map<uint32_t, shared_ptr<render::Texture>> m_textures;
     uint32_t m_textureId;

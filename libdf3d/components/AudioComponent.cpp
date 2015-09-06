@@ -44,7 +44,11 @@ AudioComponent::AudioComponent(const std::string &audioFilePath)
 
     alSourcef(sourceId, AL_PITCH, 1.0f);
     alSourcef(sourceId, AL_GAIN, 1.0f);
-    alSourcei(sourceId, AL_BUFFER, m_buffer->getALId());
+
+    // TODO_REFACTO
+    assert(false);
+
+    //alSourcei(sourceId, AL_BUFFER, m_buffer->getALId());
 
     m_audioSourceId = sourceId;
 

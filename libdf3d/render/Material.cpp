@@ -5,41 +5,25 @@
 
 namespace df3d { namespace render {
 
-shared_ptr<Technique> Material::findTechnique(const std::string &name) const
+Technique* Material::findTechnique(const std::string &name)
 {
-    auto findFn = [&](const shared_ptr<Technique> tech)
+    auto findFn = [&](const Technique &tech)
     {
-        return tech->getName() == name;
+        return tech.getName() == name;
     };
 
-    auto found = std::find_if(m_techniques.cbegin(), m_techniques.cend(), findFn);
-    if (found == m_techniques.cend())
+    auto found = std::find_if(m_techniques.begin(), m_techniques.end(), findFn);
+    if (found == m_techniques.end())
         return nullptr;
     
-    return *found;
-}
-
-void Material::appendTechnique(shared_ptr<Technique> technique)
-{
-    if (!technique)
-    {
-        base::glog << "Trying to add empty technique to material" << m_name << base::logwarn;
-        return;
-    }
-
-    if (findTechnique(technique->getName()))
-    {
-        base::glog << "Trying to add duplicate technique" << technique->getName() << "to material" << m_name << base::logwarn;
-        return;
-    }
-
-    m_techniques.push_back(technique);
+    return &(*found);
 }
 
 Material::Material(const std::string &name)
     : m_name(name)
 {
-
+    if (name.empty())
+        base::glog << "Creating material with empty name" << base::logwarn;
 }
 
 Material::~Material()
@@ -50,6 +34,17 @@ Material::~Material()
 const std::string &Material::getName() const
 {
     return m_name;
+}
+
+void Material::appendTechnique(const Technique &technique)
+{
+    if (findTechnique(technique.getName()))
+    {
+        base::glog << "Trying to add duplicate technique" << technique.getName() << "to material" << m_name << base::logwarn;
+        return;
+    }
+
+    m_techniques.push_back(technique);
 }
 
 void Material::setCurrentTechnique(const std::string &name)
@@ -64,12 +59,12 @@ void Material::setCurrentTechnique(const std::string &name)
         base::glog << "Trying to set empty technique" << name << "to material" << m_name << base::logwarn;
 }
 
-shared_ptr<Technique> Material::getCurrentTechnique()
+Technique* Material::getCurrentTechnique()
 {
     return m_currentTechnique;
 }
 
-shared_ptr<Technique> Material::getTechnique(const std::string &name)
+Technique* Material::getTechnique(const std::string &name)
 {
     return findTechnique(name);
 }

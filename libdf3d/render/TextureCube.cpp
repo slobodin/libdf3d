@@ -21,7 +21,7 @@ static const std::vector<GLenum> MapSidesToGl =
 bool TextureCube::imagesValid() const
 {
     for (int i = 0; i < 6; i++)
-        if (!m_images[i] || !m_images[i]->isValid())
+        if (!m_images[i] || !m_images[i]->isInitialized())
             return false;
 
     return true;
@@ -29,6 +29,14 @@ bool TextureCube::imagesValid() const
 
 bool TextureCube::createGLTexture()
 {
+    // TODO_REFACTO
+
+    assert(false);
+
+    return false;
+
+    /*
+
     if (m_glid)
         return true;
 
@@ -82,6 +90,7 @@ bool TextureCube::createGLTexture()
     printOpenGLError();
 
     return true;
+    */
 }
 
 void TextureCube::deleteGLTexture()
@@ -93,6 +102,17 @@ void TextureCube::deleteGLTexture()
 
         m_glid = 0;
     }
+}
+
+void TextureCube::onDecoded(bool decodeResult)
+{
+    if (!decodeResult)
+    {
+        base::glog << "TextureCube::onDecoded failed" << base::logwarn;
+        return;
+    }
+
+    m_initialized = createGLTexture();
 }
 
 TextureCube::TextureCube(shared_ptr<Texture2D> positiveX, shared_ptr<Texture2D> negativeX,
@@ -117,21 +137,16 @@ bool TextureCube::bind(size_t unit)
     if (!imagesValid())
         return false;
 
-    if (createGLTexture())
-    {
-        glActiveTexture(GL_TEXTURE0 + unit);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, m_glid);
-        return true;
-    }
-    else
-        return false;
+    assert(m_glid);
+
+    glActiveTexture(GL_TEXTURE0 + unit);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_glid);
+
+    return true;
 }
 
 void TextureCube::unbind()
 {
-    if (!m_glid)
-        return;
-
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 

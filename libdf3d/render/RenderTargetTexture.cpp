@@ -1,6 +1,7 @@
 #include "df3d_pch.h"
 #include "RenderTargetTexture.h"
 
+#include <resources/ResourceFactory.h>
 #include <base/SystemsMacro.h>
 #include "OpenGLCommon.h"
 #include "Texture2D.h"
@@ -85,10 +86,14 @@ void RenderTargetTexture::setViewport(const Viewport &vp)
         g_resourceManager->unloadResource(m_texture);
 
     m_viewport = vp;
-    m_texture = g_resourceManager->createEmptyTexture();
-    m_texture->setMipmapped(false);
-    m_texture->setFilteringMode(TextureFiltering::NEAREST);
-    m_texture->setEmpty(m_viewport.width(), m_viewport.height(), PixelFormat::RGBA);
+
+    TextureCreationParams params;
+    params.setMipmapped(false);
+    params.setFiltering(TextureFiltering::NEAREST);
+
+    auto pb = make_unique<PixelBuffer>(m_viewport.width(), m_viewport.height(), PixelFormat::RGBA);
+
+    m_texture = g_resourceManager->getFactory().createTexture(std::move(pb), params);
 }
 
 shared_ptr<Texture2D> RenderTargetTexture::getTexture()

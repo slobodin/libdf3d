@@ -5,6 +5,7 @@
 
 #include <base/SystemsMacro.h>
 #include <resources/FileDataSource.h>
+#include <resources/ResourceFactory.h>
 #include <render/MaterialLib.h>
 #include <render/Material.h>
 #include <render/Technique.h>
@@ -43,10 +44,10 @@ std::map<std::string, render::TextureFiltering> textureFilteringValues =
     { "TRILINEAR", render::TextureFiltering::TRILINEAR }
 };
 
-std::map<std::string, render::Texture::WrapMode> textureWrapValues =
+std::map<std::string, render::TextureWrapMode> textureWrapValues =
 {
-    { "WRAP", render::Texture::WrapMode::WRAP },
-    { "CLAMP", render::Texture::WrapMode::CLAMP }
+    { "WRAP", render::TextureWrapMode::WRAP },
+    { "CLAMP", render::TextureWrapMode::CLAMP }
 };
 
 std::map<std::string, render::RenderPass::BlendingMode> blendModeValues = 
@@ -87,67 +88,37 @@ void setPassParam(const std::string &param, const std::string &valueStr, const s
     }
 }
 
-shared_ptr<render::Texture> createTextureOfType(const std::string &type, const std::map<std::string, std::string> &keyValues)
+render::TextureCreationParams getTextureCreationParams(const std::map<std::string, std::string> &keyValues, const std::string &libName)
 {
-    if (type == "TEXTURE_2D")
-    {
-        std::string path = keyValues.find("path")->second;
+    render::TextureCreationParams retRes;
 
-        return g_resourceManager->createTexture(path, ResourceLoadingMode::ASYNC);
-    }
-    else if (type == "TEXTURE_CUBE")
-    {
-        std::string negativex = keyValues.find("negative_x")->second;
-        std::string positivex = keyValues.find("positive_x")->second;
-        std::string negativey = keyValues.find("negative_y")->second;
-        std::string positivey = keyValues.find("positive_y")->second;
-        std::string negativez = keyValues.find("negative_z")->second;
-        std::string positivez = keyValues.find("positive_z")->second;
-
-        return g_resourceManager->createCubeTexture(positivex, negativex, positivey, negativey, positivez, negativez, ResourceLoadingMode::ASYNC);
-    }
-
-    base::glog << "Unknown texture type" << type << base::logwarn;
-    return nullptr;
-
-    // TODO: other types are:
-    // TEXTURE_1D TEXTURE_2D TEXTURE_3D 
-}
-
-void setTextureBaseParams(shared_ptr<render::Texture> texture, const std::map<std::string, std::string> keyValues, const std::string &libName)
-{
-    if (!texture)
-        return;
     for (const auto &keyval : keyValues)
     {
         if (keyval.first == "filtering")
         {
-            std::function<void(render::TextureFiltering)> fn = std::bind(&render::Texture::setFilteringMode, texture.get(), std::placeholders::_1);
+            std::function<void(render::TextureFiltering)> fn = std::bind(&render::TextureCreationParams::setFiltering, &retRes, std::placeholders::_1);
             setPassParam(keyval.first, keyval.second, textureFilteringValues, fn, libName);
         }
         else if (keyval.first == "wrap_mode")
         {
-            std::function<void(render::Texture::WrapMode)> fn = std::bind(&render::Texture::setWrapMode, texture.get(), std::placeholders::_1);
+            std::function<void(render::TextureWrapMode)> fn = std::bind(&render::TextureCreationParams::setWrapMode, &retRes, std::placeholders::_1);
             setPassParam(keyval.first, keyval.second, textureWrapValues, fn, libName);
         }
         else if (keyval.first == "mipmaps")
         {
-            std::function<void(bool)> fn = std::bind(&render::Texture::setMipmapped, texture.get(), std::placeholders::_1);
+            std::function<void(bool)> fn = std::bind(&render::TextureCreationParams::setMipmapped, &retRes, std::placeholders::_1);
             setPassParam(keyval.first, keyval.second, boolValues, fn, libName);
         }
         else if (keyval.first == "anisotropy")
         {
             if (keyval.second == "max")
-            {
-                texture->setMaxAnisotropy(render::ANISOTROPY_LEVEL_MAX);
-            }
+                retRes.setAnisotropyLevel(render::ANISOTROPY_LEVEL_MAX);
             else
-            {
-                auto anisotropyLevel = utils::from_string<int>(keyval.second);
-                texture->setMaxAnisotropy(anisotropyLevel);
-            }
+                retRes.setAnisotropyLevel(utils::from_string<int>(keyval.second));
         }
     }
+
+    return retRes;
 }
 
 const std::string MATERIAL_TYPE = "material";
@@ -284,7 +255,7 @@ public:
     }
 };
 
-shared_ptr<render::Material> DecoderMTL::parseMaterialNode(MaterialLibNode &node)
+shared_ptr<render::Material> DecoderMTL::parseMaterialNode(const MaterialLibNode &node)
 {
     if (node.name.empty())
     {
@@ -292,7 +263,7 @@ shared_ptr<render::Material> DecoderMTL::parseMaterialNode(MaterialLibNode &node
         return nullptr;
     }
 
-    auto material = shared_ptr<render::Material>(new render::Material(node.name));
+    auto material = make_shared<render::Material>(node.name);
 
     std::string defaultTechniqueName;
     for (const auto &n : node.children)
@@ -300,12 +271,16 @@ shared_ptr<render::Material> DecoderMTL::parseMaterialNode(MaterialLibNode &node
         if (n->type == TECHNIQUE_TYPE)
         {
             auto technique = parseTechniqueNode(*n);
+            if (!technique)
+                continue;
 
             // Set first technique as default.
             if (defaultTechniqueName.empty())
                 defaultTechniqueName = technique->getName();
 
-            material->appendTechnique(technique);
+            // TODO_REFACTO move semantics
+
+            material->appendTechnique(*technique);
         }
     }
 
@@ -314,7 +289,7 @@ shared_ptr<render::Material> DecoderMTL::parseMaterialNode(MaterialLibNode &node
     return material;
 }
 
-shared_ptr<render::Technique> DecoderMTL::parseTechniqueNode(MaterialLibNode &node)
+shared_ptr<render::Technique> DecoderMTL::parseTechniqueNode(const MaterialLibNode &node)
 {
     if (node.name.empty())
     {
@@ -322,21 +297,24 @@ shared_ptr<render::Technique> DecoderMTL::parseTechniqueNode(MaterialLibNode &no
         return nullptr;
     }
 
-    auto technique = shared_ptr<render::Technique>(new render::Technique(node.name));
+    auto technique = make_shared<render::Technique>(node.name);
 
     for (const auto &n : node.children)
     {
         if (n->type == PASS_TYPE)
         {
+            // TODO_REFACTO move semantics
+
             auto pass = parsePassNode(*n);
-            technique->appendPass(pass);
+            if (pass)
+                technique->appendPass(*pass);
         }
     }
 
     return technique;
 }
 
-shared_ptr<render::RenderPass> DecoderMTL::parsePassNode(MaterialLibNode &node)
+shared_ptr<render::RenderPass> DecoderMTL::parsePassNode(const MaterialLibNode &node)
 {
     auto pass = shared_ptr<render::RenderPass>(new render::RenderPass(node.name));
 
@@ -438,17 +416,17 @@ shared_ptr<render::RenderPass> DecoderMTL::parsePassNode(MaterialLibNode &node)
     return pass;
 }
 
-shared_ptr<render::GpuProgram> DecoderMTL::parseShaderNode(MaterialLibNode &node)
+shared_ptr<render::GpuProgram> DecoderMTL::parseShaderNode(const MaterialLibNode &node)
 {
     // First, check for embed program usage.
-    std::string embedProgram = node.keyValues["embed"];
+    std::string embedProgram = node.keyValues.find("embed")->second;
     if (!embedProgram.empty())
     {
         std::string embedProgramName;
         if (embedProgram == "colored")
-            return g_resourceManager->createColoredGpuProgram();
+            return g_resourceManager->getFactory().createColoredGpuProgram();
         else if (embedProgram == "quad_render")
-            return g_resourceManager->createRttQuadProgram();
+            return g_resourceManager->getFactory().createRttQuadProgram();
         else
         {
             base::glog << "Invalid embed program name" << embedProgram << base::logwarn;
@@ -457,17 +435,16 @@ shared_ptr<render::GpuProgram> DecoderMTL::parseShaderNode(MaterialLibNode &node
     }
 
     // Otherwise, create program from passed paths.
-    std::string vshader, fshader;
-    vshader = node.keyValues["vertex"];
-    fshader = node.keyValues["fragment"];
+    auto vshader = node.keyValues.find("vertex");
+    auto fshader = node.keyValues.find("vertex");
 
-    if (vshader.empty() || fshader.empty())
+    if (vshader == node.keyValues.end() || fshader == node.keyValues.end())
     {
         base::glog << "Invalid shader properties found while parsing" << m_libPath << base::logwarn;
         return nullptr;
     }
 
-    return g_resourceManager->createGpuProgram(vshader, fshader);
+    return g_resourceManager->getFactory().createGpuProgram(vshader->second, fshader->second);
 }
 
 void DecoderMTL::parseShaderParamsNode(MaterialLibNode &node, shared_ptr<render::RenderPass> pass)
@@ -482,7 +459,7 @@ void DecoderMTL::parseShaderParamsNode(MaterialLibNode &node, shared_ptr<render:
     }
 }
 
-shared_ptr<render::Texture> DecoderMTL::parseSamplerNode(MaterialLibNode &node)
+shared_ptr<render::Texture> DecoderMTL::parseSamplerNode(const MaterialLibNode &node)
 {
     if (!utils::contains_key(node.keyValues, "type"))
     {
@@ -490,10 +467,32 @@ shared_ptr<render::Texture> DecoderMTL::parseSamplerNode(MaterialLibNode &node)
         return nullptr;
     }
 
-    auto texture = createTextureOfType(node.keyValues["type"], node.keyValues);
-    setTextureBaseParams(texture, node.keyValues, m_libPath);
+    auto type = node.keyValues.find("type")->second;
+    auto creationParams = getTextureCreationParams(node.keyValues, m_libPath);
 
-    return texture;
+    if (type == "TEXTURE_2D")
+    {
+        std::string path = node.keyValues.find("path")->second;
+
+        return g_resourceManager->getFactory().createTexture(path, creationParams, ResourceLoadingMode::ASYNC);
+    }
+    else if (type == "TEXTURE_CUBE")
+    {
+        std::string negativex = node.keyValues.find("negative_x")->second;
+        std::string positivex = node.keyValues.find("positive_x")->second;
+        std::string negativey = node.keyValues.find("negative_y")->second;
+        std::string positivey = node.keyValues.find("positive_y")->second;
+        std::string negativez = node.keyValues.find("negative_z")->second;
+        std::string positivez = node.keyValues.find("positive_z")->second;
+
+        return g_resourceManager->getFactory().createCubeTexture(positivex, negativex, positivey, negativey, positivez, negativez, ResourceLoadingMode::ASYNC);
+    }
+
+    base::glog << "Unknown texture type" << type << base::logwarn;
+    return nullptr;
+
+    // TODO: other types are:
+    // TEXTURE_1D TEXTURE_2D TEXTURE_3D 
 }
 
 DecoderMTL::DecoderMTL()
@@ -539,14 +538,15 @@ bool DecoderMTL::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Reso
         if (n->type == MATERIAL_TYPE)
         {
             auto material = parseMaterialNode(*n);
-            mtllib->appendMaterial(material);
+            if (material)
+                mtllib->appendMaterial(*material);
         }
     }
     
     // Clean up.
     MaterialLibNode::clean(root);
 
-    return mtllib->materialCount() != 0;
+    return mtllib->materialsCount() != 0;
 }
 
 } }
