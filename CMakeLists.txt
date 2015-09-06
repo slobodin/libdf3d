@@ -112,12 +112,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderDFMesh.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTexture.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderMTL.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOBJ.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOGG.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTerrain.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderWAV.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/AudioLoaders.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/TextureLoaders.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.h
@@ -206,12 +203,9 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderDFMesh.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTexture.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderMTL.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOBJ.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOGG.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTerrain.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderWAV.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/AudioLoaders.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/TextureLoaders.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.cpp

@@ -3,6 +3,7 @@
 
 #include "ResourceManager.h"
 #include "loaders/TextureLoaders.h"
+#include "loaders/AudioLoaders.h"
 #include <render/Texture2D.h>
 #include <render/GpuProgram.h>
 
@@ -28,41 +29,21 @@ ResourceFactory::~ResourceFactory()
 
 shared_ptr<audio::AudioBuffer> ResourceFactory::createAudioBuffer(const std::string &audioPath)
 {
-    return nullptr;
-    //return static_pointer_cast<audio::AudioBuffer>(loadResourceFromFileSystem(audioPath, ResourceLoadingMode::IMMEDIATE));
+    auto loader = make_shared<AudioBufferFSLoader>(audioPath);
+
+    return static_pointer_cast<audio::AudioBuffer>(m_holder->loadFromFS(audioPath, loader));
 }
 
 shared_ptr<render::GpuProgram> ResourceFactory::createGpuProgram(const std::string &vertexShader, const std::string &fragmentShader)
 {
-    return nullptr;
-    /*
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-    // FIXME:
-    // Use full path.
+    // FIXME: Doesn't fit in my system(((((. Mb create 1 file with all the shaders texts of this gpu program!!!
     std::string gpuProgramId = vertexShader + ";" + fragmentShader;
-    if (auto alreadyLoaded = findResource(gpuProgramId))
+    if (auto alreadyLoaded = m_holder->findResource(gpuProgramId))
         return static_pointer_cast<render::GpuProgram>(alreadyLoaded);
 
-    auto program = make_shared<render::GpuProgram>();
-    auto vShader = render::Shader::createFromFile(vertexShader);
-    auto fShader = render::Shader::createFromFile(fragmentShader);
+    auto loader = make_shared<render::GpuProgramManualLoader>(vertexShader, fragmentShader);
 
-    if (!vShader || !fShader)
-    {
-        base::glog << "Can not create gpu program. Either vertex or fragment shader is invalid" << base::logwarn;
-        return nullptr;
-    }
-
-    program->attachShader(vShader);
-    program->attachShader(fShader);
-
-    program->setGUID(gpuProgramId);
-    program->setInitialized();
-    appendResource(program);
-
-    return program;
-    */
+    return static_pointer_cast<render::GpuProgram>(m_holder->loadManual(loader));
 }
 
 shared_ptr<render::GpuProgram> ResourceFactory::createGpuProgram(const std::string &guid, const std::string &vertexData, const std::string &fragmentData)

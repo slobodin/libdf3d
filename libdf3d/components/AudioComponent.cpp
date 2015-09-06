@@ -33,7 +33,7 @@ AudioComponent::AudioComponent(const std::string &audioFilePath)
     : NodeComponent(AUDIO)
 {
     m_buffer = g_resourceManager->getFactory().createAudioBuffer(audioFilePath);
-    if (!m_buffer)
+    if (!m_buffer || !m_buffer->isInitialized())
     {
         base::glog << "Can not initialize audio component from" << audioFilePath << base::logwarn;
         return;
@@ -44,11 +44,7 @@ AudioComponent::AudioComponent(const std::string &audioFilePath)
 
     alSourcef(sourceId, AL_PITCH, 1.0f);
     alSourcef(sourceId, AL_GAIN, 1.0f);
-
-    // TODO_REFACTO
-    assert(false);
-
-    //alSourcei(sourceId, AL_BUFFER, m_buffer->getALId());
+    alSourcei(sourceId, AL_BUFFER, m_buffer->getALId());
 
     m_audioSourceId = sourceId;
 

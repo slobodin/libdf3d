@@ -43,6 +43,8 @@ void ResourceManager::doRequest(DecodeRequest req)
 
 shared_ptr<Resource> ResourceManager::findResource(const std::string &fullPath) const
 {
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
+
     auto found = m_loadedResources.find(fullPath);
     if (found == m_loadedResources.end())
         return nullptr;
@@ -94,7 +96,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
 
     // TODO_REFACTO: async calls.
 
-    loader->decode(g_fileSystem->openFile(guid), resource.get());
+    loader->decode(g_fileSystem->openFile(guid));
     loader->onDecoded(resource.get());
 
     return resource;
@@ -193,15 +195,11 @@ void ResourceManager::unloadUnused()
 
 bool ResourceManager::isResourceExist(const ResourceGUID &guid) const
 {
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
     return findResource(guid) != nullptr;
 }
 
 bool ResourceManager::isResourceLoaded(const ResourceGUID &guid) const
 {
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
     auto res = findResource(guid);
     return res && res->isInitialized();
 }

@@ -27,7 +27,7 @@ public:
     Texture2DFSLoader(const std::string &path, const render::TextureCreationParams &params, ResourceLoadingMode lm);
 
     render::Texture2D* createDummy(const ResourceGUID &guid) override;
-    void decode(shared_ptr<FileDataSource> source, Resource *resource) override;
+    void decode(shared_ptr<FileDataSource> source) override;
     void onDecoded(Resource *resource) override;
 };
 

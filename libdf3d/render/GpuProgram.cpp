@@ -166,10 +166,28 @@ GpuProgramManualLoader::GpuProgramManualLoader(const std::string &guid, const st
 
 }
 
+GpuProgramManualLoader::GpuProgramManualLoader(const std::string &vertexShaderPath, const std::string &fragmentShaderPath)
+    : m_resourceGuid(vertexShaderPath + ";" + fragmentShaderPath),
+    m_vertexShaderPath(vertexShaderPath),
+    m_fragmentShaderPath(fragmentShaderPath)
+{
+
+}
+
 GpuProgram* GpuProgramManualLoader::load()
 {
-    auto vertexShader = Shader::createFromString(m_vertexData, Shader::Type::VERTEX);
-    auto fragmentShader = Shader::createFromString(m_fragmentData, Shader::Type::FRAGMENT);
+    shared_ptr<Shader> vertexShader, fragmentShader;
+
+    if (!m_vertexShaderPath.empty() && !m_fragmentShaderPath.empty())
+    {
+        vertexShader = Shader::createFromFile(m_vertexShaderPath);
+        fragmentShader = Shader::createFromFile(m_fragmentShaderPath);
+    }
+    else
+    {
+        vertexShader = Shader::createFromString(m_vertexData, Shader::Type::VERTEX);
+        fragmentShader = Shader::createFromString(m_fragmentData, Shader::Type::FRAGMENT);
+    }
 
     auto program = new GpuProgram({ vertexShader, fragmentShader });
 

@@ -14,7 +14,7 @@ namespace df3d { namespace resources {
 // stb image loader helpers.
 namespace
 {
-    // fill 'data' with 'size' bytes.  return number of bytes actually read 
+    // fill 'data' with 'size' bytes.  return number of bytes actually read
     int read(void *user, char *data, int size)
     {
         auto dataSource = static_cast<FileDataSource*>(user);
@@ -105,9 +105,7 @@ render::Texture2D* Texture2DFSLoader::createDummy(const ResourceGUID &guid)
     return result;
 }
 
-// TODO_REFACTO may be do not need resource here as param!!!
-
-void Texture2DFSLoader::decode(shared_ptr<FileDataSource> source, Resource *resource)
+void Texture2DFSLoader::decode(shared_ptr<FileDataSource> source)
 {
     m_pixelBuffer = loadPixelBuffer(source);
 }

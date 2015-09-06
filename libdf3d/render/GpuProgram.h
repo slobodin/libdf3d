@@ -43,8 +43,11 @@ class GpuProgramManualLoader : public resources::ManualResourceLoader
     std::string m_vertexData;
     std::string m_fragmentData;
 
+    std::string m_vertexShaderPath, m_fragmentShaderPath;
+
 public:
     GpuProgramManualLoader(const std::string &guid, const std::string &vertexData, const std::string &fragmentData);
+    GpuProgramManualLoader(const std::string &vertexShaderPath, const std::string &fragmentShaderPath);
 
     GpuProgram* load() override;
 };
