@@ -49,7 +49,8 @@ public:
     virtual Resource* createDummy(const ResourceGUID &guid) = 0;
     //! Performs resource decoding from given source. Must be thread safe.
     virtual void decode(shared_ptr<FileDataSource> source) = 0;
-    //! Resource manager calls this when decoding is complete. Called from main thread only.
+    //! Resource manager calls this when decoding is complete. Called from main thread only. 
+    //! Must set m_initialized when initialization was succeed.
     virtual void onDecoded(Resource *resource) = 0;
 };
 

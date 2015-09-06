@@ -46,7 +46,6 @@
 
 #include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
-#include <resources/ResourceDecoder.h>
 
 #include <gui/GuiManager.h>
 

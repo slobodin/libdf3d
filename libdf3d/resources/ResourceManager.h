@@ -6,7 +6,6 @@ FWD_MODULE_CLASS(base, EngineController)
 namespace df3d { namespace resources {
 
 class Resource;
-class ResourceDecoder;
 class ResourceFactory;
 class FileDataSource;
 class ManualResourceLoader;
@@ -28,13 +27,6 @@ private:
     friend class base::EngineController;
     friend class ResourceFactory;
 
-    struct DecodeRequest
-    {
-        shared_ptr<ResourceDecoder> decoder;
-        std::string filePath;
-        shared_ptr<Resource> resource;
-    };
-
     unique_ptr<base::ThreadPool> m_threadPool;
     mutable std::recursive_mutex m_lock;
 
@@ -45,7 +37,7 @@ private:
     unique_ptr<ResourceFactory> m_factory;
 
     void loadEmbedResources();
-    void doRequest(DecodeRequest req);
+    //void doRequest(DecodeRequest req);
 
     shared_ptr<Resource> findResource(const std::string &guid) const;
     shared_ptr<Resource> loadManual(shared_ptr<ManualResourceLoader> loader);

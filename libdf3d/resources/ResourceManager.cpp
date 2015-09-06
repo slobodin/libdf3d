@@ -5,7 +5,6 @@
 #include <base/ThreadPool.h>
 #include <utils/Utils.h>
 #include "Resource.h"
-#include "ResourceDecoder.h"
 #include "ResourceFactory.h"
 #include "FileDataSource.h"
 
@@ -16,30 +15,30 @@ void ResourceManager::loadEmbedResources()
 
 }
 
-void ResourceManager::doRequest(DecodeRequest req)
-{
+//void ResourceManager::doRequest(DecodeRequest req)
+//{
     // If 1 thread, need to be locked.
     //std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     //base::glog << "Start load" << req.fileSource->getPath() << base::logmess;
 
-    auto fileSource = g_fileSystem->openFile(req.filePath);
+    //auto fileSource = g_fileSystem->openFile(req.filePath);
 
-    bool decodeResult = req.decoder->decodeResource(fileSource, req.resource);
+    //bool decodeResult = req.decoder->decodeResource(fileSource, req.resource);
 
     // TODO:
     // Enqueue this into engine thread.
 
     //req.resource->onDecoded(decodeResult);
 
-    {
-        std::lock_guard<std::recursive_mutex> lock(m_lock);
-        for (auto listener : m_listeners)
-            listener->onLoadFromFileSystemRequestComplete(req.resource->getGUID());
-    }
+    //{
+    //    std::lock_guard<std::recursive_mutex> lock(m_lock);
+    //    for (auto listener : m_listeners)
+    //        listener->onLoadFromFileSystemRequestComplete(req.resource->getGUID());
+    //}
 
     //base::glog << "Done load" << req.fileSource->getPath() << "with result" << decodeResult << base::logmess;
-}
+//}
 
 shared_ptr<Resource> ResourceManager::findResource(const std::string &fullPath) const
 {

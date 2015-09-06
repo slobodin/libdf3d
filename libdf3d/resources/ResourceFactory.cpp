@@ -4,6 +4,7 @@
 #include "ResourceManager.h"
 #include "loaders/TextureLoaders.h"
 #include "loaders/AudioLoaders.h"
+#include "loaders/MaterialLibLoaders.h"
 #include <render/Texture2D.h>
 #include <render/GpuProgram.h>
 
@@ -126,8 +127,8 @@ shared_ptr<render::TextureCube> ResourceFactory::createCubeTexture(const std::st
 
 shared_ptr<render::MaterialLib> ResourceFactory::createMaterialLib(const std::string &mtlLibPath)
 {
-    return nullptr;
-    //return static_pointer_cast<render::MaterialLib>(loadResourceFromFileSystem(mtlLibPath, ResourceLoadingMode::IMMEDIATE));
+    auto loader = make_shared<MaterialLibFSLoader>(mtlLibPath);
+    return static_pointer_cast<render::MaterialLib>(m_holder->loadFromFS(mtlLibPath, loader));
 }
 
 

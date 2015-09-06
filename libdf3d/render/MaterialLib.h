@@ -3,10 +3,14 @@
 #include "resources/Resource.h"
 #include "Material.h"
 
+FWD_MODULE_CLASS(resources, MaterialLibFSLoader)
+
 namespace df3d { namespace render {
 
 class DF3D_DLL MaterialLib : public resources::Resource
 {
+    friend class resources::MaterialLibFSLoader;
+
     std::unordered_map<std::string, Material> m_materials;
 
 public:
@@ -18,7 +22,6 @@ public:
     const Material* getMaterial(const std::string &name) const;
     Material* getMaterial(const std::string &name);
 
-    // TODO_REFACTO move semantics
     void appendMaterial(const Material &material);
 
     bool isMaterialExists(const std::string &name);

@@ -108,13 +108,11 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/FileDataSource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/FileSystem.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceDecoder.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderDFMesh.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderMTL.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOBJ.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/AudioLoaders.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MaterialLibLoaders.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoaders.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/TextureLoaders.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.h
@@ -199,13 +197,11 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Viewport.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/FileSystem.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceDecoder.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderDFMesh.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderMTL.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOBJ.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/AudioLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MaterialLibLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoaders.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/TextureLoaders.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.cpp
