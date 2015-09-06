@@ -3,6 +3,7 @@
 
 #include <resources/ResourceFactory.h>
 #include <base/SystemsMacro.h>
+#include <resources/ResourceFactory.h>
 #include <components/LightComponent.h>
 #include "OpenGLCommon.h"
 #include "GpuProgramState.h"
@@ -36,6 +37,43 @@ void RendererBackend::createWhiteTexture()
     m_whiteTexture->setResident(true);
 
     delete [] data;
+}
+
+void RendererBackend::loadResidentGpuPrograms()
+{
+    const std::string simple_lighting_vert =
+#include "render/embed_glsl/simple_lighting_vert.h"
+        ;
+    const std::string simple_lighting_frag =
+#include "render/embed_glsl/simple_lighting_frag.h"
+        ;
+    const std::string rtt_quad_vert =
+#include "render/embed_glsl/rtt_quad_vert.h"
+        ;
+    const std::string rtt_quad_frag =
+#include "render/embed_glsl/rtt_quad_frag.h"
+        ;
+    const std::string colored_vert =
+#include "render/embed_glsl/colored_vert.h"
+        ;
+    const std::string colored_frag =
+#include "render/embed_glsl/colored_frag.h"
+        ;
+    const std::string ambient_vert =
+#include "render/embed_glsl/ambient_vert.h"
+        ;
+    const std::string ambient_frag =
+#include "render/embed_glsl/ambient_frag.h"
+        ;
+
+    auto &factory = g_resourceManager->getFactory();
+
+    using namespace resources;
+
+    factory.createGpuProgram(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH, simple_lighting_vert, simple_lighting_frag)->setResident(true);
+    factory.createGpuProgram(RTT_QUAD_PROGRAM_EMBED_PATH, rtt_quad_vert, rtt_quad_frag)->setResident(true);
+    factory.createGpuProgram(COLORED_PROGRAM_EMBED_PATH, colored_vert, colored_frag)->setResident(true);
+    factory.createGpuProgram(AMBIENT_PASS_PROGRAM_EMBED_PATH, ambient_vert, ambient_frag)->setResident(true);
 }
 
 void RendererBackend::setBlendMode(RenderPass::BlendingMode bm)
@@ -206,8 +244,6 @@ RendererBackend::RendererBackend()
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    createWhiteTexture();
-
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_maxTextureSize);
     // TODO:
     // Check extension supported.
@@ -220,6 +256,12 @@ RendererBackend::RendererBackend()
 
 RendererBackend::~RendererBackend()
 {
+}
+
+void RendererBackend::loadResources()
+{
+    createWhiteTexture();
+    loadResidentGpuPrograms();
 }
 
 void RendererBackend::setRenderStatsLocation(RenderStats *renderStats)

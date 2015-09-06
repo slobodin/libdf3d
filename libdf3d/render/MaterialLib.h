@@ -9,8 +9,6 @@ class DF3D_DLL MaterialLib : public resources::Resource
 {
     std::unordered_map<std::string, Material> m_materials;
 
-    void onDecoded(bool decodeResult) override;
-
 public:
     static std::vector<std::string> Defines;
 

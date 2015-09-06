@@ -5,11 +5,6 @@
 
 namespace df3d { namespace audio {
 
-void AudioBuffer::onDecoded(bool decodeResult)
-{
-    m_initialized = decodeResult;
-}
-
 AudioBuffer::AudioBuffer()
 {
     alGenBuffers(1, &m_alBufferId);

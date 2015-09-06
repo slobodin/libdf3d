@@ -3,7 +3,6 @@
 #include "RenderOperation.h"
 #include "RenderStats.h"
 #include "RenderingCapabilities.h"
-#include "RenderPass.h"
 
 FWD_MODULE_CLASS(scene, Scene)
 FWD_MODULE_CLASS(scene, Node)
@@ -21,6 +20,7 @@ class RenderTargetTexture;
 class Viewport;
 class Material;
 class RenderQueue;
+class RenderPass;
 
 struct RenderManagerInitParams
 {
@@ -38,10 +38,10 @@ class RenderManager
     friend class base::EngineController;
 
     unique_ptr<RendererBackend> m_renderer;
-    RenderingCapabilities m_renderingCaps;
+    RenderManagerInitParams m_initParams;
 
     // Ambient pass support.
-    RenderPass m_ambientPassProps;
+    unique_ptr<RenderPass> m_ambientPassProps;
 
     // For postfx support.
     shared_ptr<RenderTargetScreen> m_screenRt;
@@ -62,6 +62,8 @@ class RenderManager
 
     RenderStats m_stats;
     RenderStats m_lastStats;
+
+    void loadEmbedResources();
 
     RenderManager(RenderManagerInitParams params);
     ~RenderManager();

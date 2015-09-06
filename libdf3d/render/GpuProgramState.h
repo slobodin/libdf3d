@@ -58,8 +58,8 @@ class GpuProgramState
     GpuProgram *m_currentShader = nullptr;
 
 public:
-    GpuProgramState();
-    ~GpuProgramState();
+    GpuProgramState() = default;
+    ~GpuProgramState() = default;
 
     const glm::mat4 &getWorldMatrix();
     const glm::mat4 &getViewMatrix();

@@ -58,7 +58,9 @@ void RenderManager::createRenderTargets(const Viewport &vp)
 
 void RenderManager::createAmbientPassProps()
 {
-    m_ambientPassProps.setGpuProgram(g_resourceManager->getFactory().createAmbientPassProgram());
+    m_ambientPassProps = make_unique<RenderPass>();
+
+    m_ambientPassProps->setGpuProgram(g_resourceManager->getFactory().createAmbientPassProgram());
 }
 
 void RenderManager::debugDrawPass()
@@ -123,16 +125,21 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
     }
 }
 
-RenderManager::RenderManager(RenderManagerInitParams params)
-    : m_renderQueue(make_unique<RenderQueue>())
+void RenderManager::loadEmbedResources()
 {
-    m_renderingCaps = params.renderingCaps;
-    m_renderer = make_unique<RendererBackend>();
-    m_renderer->setRenderStatsLocation(&m_stats);
+    m_renderer->loadResources();
 
-    createRenderTargets(Viewport(0, 0, params.viewportWidth, params.viewportHeight));
+    createRenderTargets(Viewport(0, 0, m_initParams.viewportWidth, m_initParams.viewportHeight));
     createQuadRenderOperation();
     createAmbientPassProps();
+}
+
+RenderManager::RenderManager(RenderManagerInitParams params)
+    : m_renderQueue(make_unique<RenderQueue>()),
+    m_initParams(params)
+{
+    m_renderer = make_unique<RendererBackend>();
+    m_renderer->setRenderStatsLocation(&m_stats);
 }
 
 RenderManager::~RenderManager()
@@ -194,10 +201,10 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
     {
         m_renderer->setWorldMatrix(op.worldTransform);
 
-        m_ambientPassProps.setAmbientColor(op.passProps->getAmbientColor());
-        m_ambientPassProps.setEmissiveColor(op.passProps->getEmissiveColor());
+        m_ambientPassProps->setAmbientColor(op.passProps->getAmbientColor());
+        m_ambientPassProps->setEmissiveColor(op.passProps->getEmissiveColor());
 
-        m_renderer->bindPass(&m_ambientPassProps);
+        m_renderer->bindPass(m_ambientPassProps.get());
 
         m_renderer->drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
     }
@@ -302,7 +309,7 @@ shared_ptr<RenderTargetScreen> RenderManager::getScreenRenderTarget() const
 
 const RenderingCapabilities &RenderManager::getRenderingCapabilities() const
 {
-    return m_renderingCaps;
+    return m_initParams.renderingCaps;
 }
 
 RendererBackend *RenderManager::getRenderer() const

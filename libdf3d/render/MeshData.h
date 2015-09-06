@@ -54,8 +54,6 @@ class DF3D_DLL MeshData : public resources::Resource
     void computeNormals(const float *vertices, const VertexFormat &format);
     void computeTangentBasis();
 
-    void onDecoded(bool decodeResult) override;
-
 public:
     // TODO_REFACTO - this ctor only for mesh decoder.
     // TODO_REFACTO - create ctor with cpu verts (limited ctor with only one submesh).

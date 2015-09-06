@@ -9,6 +9,8 @@ class Resource;
 class ResourceDecoder;
 class ResourceFactory;
 class FileDataSource;
+class ManualResourceLoader;
+class FSResourceLoader;
 
 class DF3D_DLL ResourceManager : utils::NonCopyable
 {
@@ -24,7 +26,7 @@ public:
 
 private:
     friend class base::EngineController;
-    friend class ResourceManager;
+    friend class ResourceFactory;
 
     struct DecodeRequest
     {
@@ -44,20 +46,23 @@ private:
 
     void loadEmbedResources();
     void doRequest(DecodeRequest req);
-    void appendResource(shared_ptr<Resource> resource);
+
+    shared_ptr<Resource> findResource(const std::string &guid) const;
+    shared_ptr<Resource> loadManual(ManualResourceLoader *loader);
+    shared_ptr<Resource> loadFromFS(const std::string &path, FSResourceLoader *loader);
 
     ResourceManager();
     ~ResourceManager();
-
-    shared_ptr<Resource> findResource(const std::string &guid) const;
-    shared_ptr<Resource> loadResourceFromFileSystem(const std::string &path, ResourceLoadingMode lm);
 
 public:
     //! All resources creation is going through this factory.
     ResourceFactory& getFactory() { return *m_factory; }
 
+    //! Unloads a resource with given guid.
     void unloadResource(const ResourceGUID &guid);
+    //! Unloads a given resource.
     void unloadResource(shared_ptr<Resource> resource);
+    //! Unloads all resources with refcount equals to 1.
     void unloadUnused();
 
     //! Checks whether or not resource is present in the resource manager cache.

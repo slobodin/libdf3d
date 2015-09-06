@@ -85,6 +85,12 @@ bool EngineController::init(EngineInitParams params)
         renderParams.viewportHeight = params.windowHeight;
         m_renderManager = new render::RenderManager(renderParams);
 
+        // Load embedded resources.
+        base::glog << "Loading embedded resources" << base::logdebug;
+
+        m_resourceManager->loadEmbedResources();
+        m_renderManager->loadEmbedResources();
+
         // Init scene manager.
         m_sceneManager = new scene::SceneManager();
 

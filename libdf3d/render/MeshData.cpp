@@ -244,6 +244,7 @@ void MeshData::computeTangentBasis()
     */
 }
 
+/*
 void MeshData::onDecoded(bool decodeResult)
 {
     if (!decodeResult)
@@ -269,7 +270,7 @@ void MeshData::onDecoded(bool decodeResult)
     // Create GPU buffers.
     // Set initialized.
 }
-
+*/
 MeshData::MeshData()
 {
 

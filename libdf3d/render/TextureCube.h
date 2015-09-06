@@ -14,8 +14,6 @@ class TextureCube : public Texture
     bool createGLTexture();
     void deleteGLTexture();
 
-    void onDecoded(bool decodeResult) override;
-
 public:
     TextureCube(shared_ptr<Texture2D> positiveX, shared_ptr<Texture2D> negativeX,
                 shared_ptr<Texture2D> positiveY, shared_ptr<Texture2D> negativeY,

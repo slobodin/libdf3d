@@ -1,9 +1,16 @@
 #include "df3d_pch.h"
 #include "ResourceFactory.h"
 
-#include <render/Texture.h>
+#include "ResourceManager.h"
+#include <render/Texture2D.h>
+#include <render/GpuProgram.h>
 
 namespace df3d { namespace resources {
+
+const char * const SIMPLE_LIGHTING_PROGRAM_EMBED_PATH = "__embed_simple_lighting_program";
+const char * const RTT_QUAD_PROGRAM_EMBED_PATH = "__embed_quad_render_program";
+const char * const COLORED_PROGRAM_EMBED_PATH = "__embed_colored_program";
+const char * const AMBIENT_PASS_PROGRAM_EMBED_PATH = "__embed_ambient_pass_program";
 
 // TODO_REFACTO
 
@@ -59,50 +66,31 @@ shared_ptr<render::GpuProgram> ResourceFactory::createGpuProgram(const std::stri
 
 shared_ptr<render::GpuProgram> ResourceFactory::createGpuProgram(const std::string &guid, const std::string &vertexData, const std::string &fragmentData)
 {
-    // TODO_REFACTO
-    assert(false);
+    // FIXME: maybe check in cache?
 
-    /*
-    auto program = make_shared<render::GpuProgram>();
-    auto vertexShader = render::Shader::createFromString(dataVert, render::Shader::Type::VERTEX);
-    auto fragmentShader = render::Shader::createFromString(dataFrag, render::Shader::Type::FRAGMENT);
+    render::GpuProgramManualLoader loader(guid, vertexData, fragmentData);
 
-    program->attachShader(vertexShader);
-    program->attachShader(fragmentShader);
-
-    program->setGUID(name);
-    program->setInitialized();
-    // Pin forever.
-    program->setResident();
-
-    appendResource(program);
-    */
-
-    return nullptr;
+    return static_pointer_cast<render::GpuProgram>(m_holder->loadManual(&loader));
 }
 
 shared_ptr<render::GpuProgram> ResourceFactory::createSimpleLightingGpuProgram()
 {
-    return nullptr;
-    //return static_pointer_cast<render::GpuProgram>(findResource(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH));
+    return static_pointer_cast<render::GpuProgram>(m_holder->findResource(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH));
 }
 
 shared_ptr<render::GpuProgram> ResourceFactory::createColoredGpuProgram()
 {
-    return nullptr;
-    //return static_pointer_cast<render::GpuProgram>(findResource(COLORED_PROGRAM_EMBED_PATH));
+    return static_pointer_cast<render::GpuProgram>(m_holder->findResource(COLORED_PROGRAM_EMBED_PATH));
 }
 
 shared_ptr<render::GpuProgram> ResourceFactory::createRttQuadProgram()
 {
-    return nullptr;
-    //return static_pointer_cast<render::GpuProgram>(findResource(RTT_QUAD_PROGRAM_EMBED_PATH));
+    return static_pointer_cast<render::GpuProgram>(m_holder->findResource(RTT_QUAD_PROGRAM_EMBED_PATH));
 }
 
 shared_ptr<render::GpuProgram> ResourceFactory::createAmbientPassProgram()
 {
-    return nullptr;
-    //return static_pointer_cast<render::GpuProgram>(findResource(AMBIENT_PASS_PROGRAM_EMBED_PATH));
+    return static_pointer_cast<render::GpuProgram>(m_holder->findResource(AMBIENT_PASS_PROGRAM_EMBED_PATH));
 }
 
 shared_ptr<render::MeshData> ResourceFactory::createMeshData(const std::string &meshDataPath, ResourceLoadingMode lm)
@@ -113,7 +101,7 @@ shared_ptr<render::MeshData> ResourceFactory::createMeshData(const std::string &
 
 shared_ptr<render::Texture2D> ResourceFactory::createTexture(const std::string &imagePath, ResourceLoadingMode lm)
 {
-    return nullptr;
+    return createTexture(imagePath, render::TextureCreationParams(), lm);
 }
 
 shared_ptr<render::Texture2D> ResourceFactory::createTexture(const std::string &imagePath, render::TextureCreationParams params, ResourceLoadingMode lm)
@@ -123,7 +111,9 @@ shared_ptr<render::Texture2D> ResourceFactory::createTexture(const std::string &
 
 shared_ptr<render::Texture2D> ResourceFactory::createTexture(unique_ptr<render::PixelBuffer> pixelBuffer, render::TextureCreationParams params)
 {
-    return nullptr;
+    render::Texture2DManualLoader loader(std::move(pixelBuffer), params);
+
+    return static_pointer_cast<render::Texture2D>(m_holder->loadManual(&loader));
 }
 /*
 shared_ptr<render::Texture2D> ResourceFactory::createTexture(const std::string &imagePath, ResourceLoadingMode lm)

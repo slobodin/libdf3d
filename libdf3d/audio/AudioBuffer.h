@@ -14,8 +14,6 @@ class AudioBuffer : public resources::Resource
 
     unsigned m_alBufferId = 0;
 
-    void onDecoded(bool decodeResult) override;
-
 public:
     AudioBuffer();
     ~AudioBuffer();

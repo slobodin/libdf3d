@@ -25,6 +25,7 @@ class RendererBackend
     float m_maxAnisotropyLevel = 1.0f;
 
     void createWhiteTexture();
+    void loadResidentGpuPrograms();
 
     // Helpers.
     void setBlendMode(RenderPass::BlendingMode bm);
@@ -47,6 +48,9 @@ class RendererBackend
 public:
     RendererBackend();
     ~RendererBackend();
+
+    // TODO_REFACTO
+    void loadResources();
 
     void setRenderStatsLocation(RenderStats *renderStats);
 

@@ -104,17 +104,6 @@ void TextureCube::deleteGLTexture()
     }
 }
 
-void TextureCube::onDecoded(bool decodeResult)
-{
-    if (!decodeResult)
-    {
-        base::glog << "TextureCube::onDecoded failed" << base::logwarn;
-        return;
-    }
-
-    m_initialized = createGLTexture();
-}
-
 TextureCube::TextureCube(shared_ptr<Texture2D> positiveX, shared_ptr<Texture2D> negativeX,
                          shared_ptr<Texture2D> positiveY, shared_ptr<Texture2D> negativeY,
                          shared_ptr<Texture2D> positiveZ, shared_ptr<Texture2D> negativeZ)

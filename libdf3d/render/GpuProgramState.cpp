@@ -16,14 +16,6 @@ void GpuProgramState::resetFlags()
         = m_normalDirty = m_viewInverseDirty = m_worldInverseDirty = true;
 }
 
-GpuProgramState::GpuProgramState()
-{
-}
-
-GpuProgramState::~GpuProgramState()
-{
-}
-
 const glm::mat4 &GpuProgramState::getWorldMatrix()
 {
     return m_worldMatrix;

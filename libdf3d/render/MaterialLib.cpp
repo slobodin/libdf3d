@@ -9,13 +9,6 @@ namespace df3d { namespace render {
 
 std::vector<std::string> MaterialLib::Defines;
 
-void MaterialLib::onDecoded(bool decodeResult)
-{
-    // TODO_REFACTO
-
-    assert(false);
-}
-
 MaterialLib::MaterialLib()
 {
 

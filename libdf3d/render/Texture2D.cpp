@@ -6,10 +6,14 @@
 
 namespace df3d { namespace render {
 
-bool Texture2D::createGLTexture()
+bool Texture2D::createGLTexture(const PixelBuffer &buffer)
 {
-    auto actWidth = /*getNextPot(*/m_pixelBuffer->getWidth();
-    auto actHeight = /*getNextPot(*/m_pixelBuffer->getHeight();
+    m_originalWidth = buffer.getWidth();
+    m_originalHeight = buffer.getHeight();
+
+    auto actWidth = /*getNextPot(*/buffer.getWidth();
+    auto actHeight = /*getNextPot(*/buffer.getHeight();
+
     auto maxSize = g_renderManager->getRenderer()->getMaxTextureSize();
     if (actWidth > maxSize || actHeight > maxSize)
     {
@@ -18,7 +22,7 @@ bool Texture2D::createGLTexture()
     }
 
     GLint glPixelFormat = 0;
-    switch (m_pixelBuffer->getFormat())
+    switch (buffer.getFormat())
     {
     case PixelFormat::RGB:
     case PixelFormat::BGR:
@@ -38,7 +42,7 @@ bool Texture2D::createGLTexture()
     m_actualWidth = actWidth;
     m_actualHeight = actHeight;
 
-    if (!(m_actualWidth == m_pixelBuffer->getWidth() && m_actualHeight == m_pixelBuffer->getHeight()))
+    if (!(m_actualWidth == buffer.getWidth() && m_actualHeight == buffer.getHeight()))
         base::glog << "Texture with name" << getGUID() << "is not pot" << base::logdebug;
 
     glGenTextures(1, &m_glid);
@@ -52,12 +56,8 @@ bool Texture2D::createGLTexture()
     // Init empty texture.
     glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, m_actualWidth, m_actualHeight, 0, glPixelFormat, GL_UNSIGNED_BYTE, nullptr);
 
-    if (m_pixelBuffer->getData())
-    {
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_pixelBuffer->getWidth(), m_pixelBuffer->getHeight(), glPixelFormat, GL_UNSIGNED_BYTE, m_pixelBuffer->getData());
-
-        m_pixelBuffer.reset();
-    }
+    if (buffer.getData())
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, buffer.getWidth(), buffer.getHeight(), glPixelFormat, GL_UNSIGNED_BYTE, buffer.getData());
 
     if (m_params.isMipmapped())
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -91,22 +91,10 @@ void Texture2D::deleteGLTexture()
     }
 }
 
-void Texture2D::onDecoded(bool decodeResult)
+Texture2D::Texture2D(const PixelBuffer &pixelBuffer, TextureCreationParams params)
+    : Texture(params)
 {
-    if (!decodeResult)
-    {
-        base::glog << "Texture2D::onDecoded failed" << base::logwarn;
-        return;
-    }
-
-    m_initialized = createGLTexture();
-}
-
-Texture2D::Texture2D(unique_ptr<PixelBuffer> pixelBuffer, TextureCreationParams params)
-    : Texture(params),
-    m_pixelBuffer(std::move(pixelBuffer))
-{
-    onDecoded(true);
+    m_initialized = createGLTexture(pixelBuffer);
 }
 
 Texture2D::~Texture2D()
@@ -114,31 +102,25 @@ Texture2D::~Texture2D()
     deleteGLTexture();
 }
 
+// FIXME: these getters are not thread safe.
+
 size_t Texture2D::getOriginalWidth() const
 {
-    if (!isInitialized())
-        return 0;
-    return m_pixelBuffer->getWidth();
+    return m_originalWidth;
 }
 
 size_t Texture2D::getOriginalHeight() const
 {
-    if (!isInitialized())
-        return 0;
-    return m_pixelBuffer->getHeight();
+    return m_originalHeight;
 }
 
 size_t Texture2D::getActualWidth() const
 {
-    if (!isInitialized())
-        return 0;
     return m_actualWidth;
 }
 
 size_t Texture2D::getActualHeight() const
 {
-    if (!isInitialized())
-        return 0;
     return m_actualHeight;
 }
 
@@ -158,6 +140,17 @@ bool Texture2D::bind(size_t unit)
 void Texture2D::unbind()
 {
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+Texture2DManualLoader::Texture2DManualLoader(unique_ptr<PixelBuffer> pixelBuffer, TextureCreationParams params)
+    : m_pixelBuffer(std::move(pixelBuffer)), m_params(params)
+{
+
+}
+
+Texture2D* Texture2DManualLoader::load()
+{
+    return new Texture2D(*m_pixelBuffer, m_params);
 }
 
 } }

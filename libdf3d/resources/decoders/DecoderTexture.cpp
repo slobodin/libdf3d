@@ -54,7 +54,8 @@ DecoderTexture::~DecoderTexture()
 
 shared_ptr<Resource> DecoderTexture::createResource()
 {
-    return shared_ptr<Resource>(new render::Texture2D());
+    return nullptr;
+    //return shared_ptr<Resource>(new render::Texture2D());
 }
 
 bool DecoderTexture::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
@@ -94,7 +95,7 @@ bool DecoderTexture::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<
     else
         base::glog << "Parsed image with an invalid bpp" << base::logwarn;
 
-    texture->m_pixelBuffer = make_unique<render::PixelBuffer>(x, y, pixels, fmt);
+    //texture->m_pixelBuffer = make_unique<render::PixelBuffer>(x, y, pixels, fmt);
 
     stbi_image_free(pixels);
 

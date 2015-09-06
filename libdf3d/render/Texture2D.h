@@ -2,27 +2,22 @@
 
 #include "Texture.h"
 
-FWD_MODULE_CLASS(resources, DecoderTexture)
-
 namespace df3d { namespace render {
 
 class Texture2D : public Texture
 {
-    friend class resources::DecoderTexture;
+    friend class Texture2DManualLoader;
 
-    unique_ptr<PixelBuffer> m_pixelBuffer;
-
+    size_t m_originalWidth = 0, m_originalHeight = 0;
     size_t m_actualWidth = 0, m_actualHeight = 0;
 
-    bool createGLTexture();
+    bool createGLTexture(const PixelBuffer &buffer);
     void deleteGLTexture();
 
-    void onDecoded(bool decodeResult) override;
-
     Texture2D() = default;
+    Texture2D(const PixelBuffer &pixelBuffer, TextureCreationParams params);
 
 public:
-    Texture2D(unique_ptr<PixelBuffer> pixelBuffer, TextureCreationParams params);
     ~Texture2D();
 
     size_t getOriginalWidth() const;
@@ -32,6 +27,22 @@ public:
 
     bool bind(size_t unit) override;
     void unbind() override;
+};
+
+class Texture2DManualLoader : public resources::ManualResourceLoader
+{
+    unique_ptr<PixelBuffer> m_pixelBuffer;
+    TextureCreationParams m_params;
+
+public:
+    Texture2DManualLoader(unique_ptr<PixelBuffer> pixelBuffer, TextureCreationParams params);
+
+    Texture2D* load() override;
+};
+
+class Texture2DFSLoader : public resources::FSResourceLoader
+{
+public:
 };
 
 } }

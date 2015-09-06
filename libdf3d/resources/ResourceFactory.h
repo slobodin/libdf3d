@@ -13,6 +13,11 @@ namespace df3d { namespace resources {
 
 class ResourceManager;
 
+extern const char * const SIMPLE_LIGHTING_PROGRAM_EMBED_PATH;
+extern const char * const RTT_QUAD_PROGRAM_EMBED_PATH;
+extern const char * const COLORED_PROGRAM_EMBED_PATH;
+extern const char * const AMBIENT_PASS_PROGRAM_EMBED_PATH;
+
 class DF3D_DLL ResourceFactory : utils::NonCopyable
 {
     ResourceManager *m_holder;
