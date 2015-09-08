@@ -38,9 +38,6 @@ class DF3D_DLL MeshData : public resources::Resource
         shared_ptr<VertexBuffer> vb;
         shared_ptr<IndexBuffer> ib;
         Material material;
-
-        std::vector<float> cpuVertices;
-        VertexFormat format;
     };
 
     std::vector<HardwareSubMesh> m_submeshes;
