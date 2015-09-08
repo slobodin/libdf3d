@@ -86,17 +86,21 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
     if (auto alreadyLoadedResource = findResource(guid))
         return alreadyLoadedResource;
 
+    // Create resource dummy. It will not be fully valid until its completely loaded.
     auto resource = shared_ptr<Resource>(loader->createDummy(guid));
     // Cache the resource.
     m_loadedResources[resource->getGUID()] = resource;
 
+    // TODO_REFACTO: async calls.
+
     for (auto listener : m_listeners)
         listener->onLoadFromFileSystemRequest(resource->getGUID());
 
-    // TODO_REFACTO: async calls.
-
     loader->decode(g_fileSystem->openFile(guid));
     loader->onDecoded(resource.get());
+
+    for (auto listener : m_listeners)
+        listener->onLoadFromFileSystemRequestComplete(resource->getGUID());
 
     return resource;
 }
@@ -117,27 +121,6 @@ ResourceManager::~ResourceManager()
 
 //shared_ptr<Resource> ResourceManager::loadResourceFromFileSystem(const std::string &path, ResourceLoadingMode lm)
 //{
-//
-//    // Create decoder for the resource.
-//    auto decoder = createResourceDecoder(guid);
-//    if (!decoder)
-//        return nullptr;
-//
-//    // Create resource stub. It will not be fully valid until its completely loaded.
-//    auto resource = decoder->createResource();
-//    // Cache resource.
-//    m_loadedResources[guid] = resource;
-//
-//    resource->setGUID(guid);
-//
-//    for (auto listener : m_listeners)
-//        listener->onLoadFromFileSystemRequest(resource->getGUID());
-//
-//    DecodeRequest request;
-//    request.decoder = decoder;
-//    request.filePath = guid;
-//    request.resource = resource;
-//
 //    if (lm == ResourceLoadingMode::ASYNC)
 //        m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, request));
 //    else if (lm == ResourceLoadingMode::IMMEDIATE)

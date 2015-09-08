@@ -8,6 +8,9 @@
 #include "Material.h"
 #include "RenderingCapabilities.h"
 
+FWD_MODULE_CLASS(resources, MeshDataManualLoader)
+FWD_MODULE_CLASS(resources, MeshDataFSLoader)
+
 namespace df3d { namespace render {
 
 class VertexBuffer;
@@ -31,6 +34,9 @@ struct DF3D_DLL SubMesh
 
 class DF3D_DLL MeshData : public resources::Resource
 {
+    friend class resources::MeshDataManualLoader;
+    friend class resources::MeshDataFSLoader;
+
     size_t m_trianglesCount = 0;
 
     struct HardwareSubMesh
@@ -41,20 +47,21 @@ class DF3D_DLL MeshData : public resources::Resource
     };
 
     std::vector<HardwareSubMesh> m_submeshes;
-    std::vector<SubMesh> m_cpuSubmeshesCopy;    // mesh surface is stored here if there is no file from where we can load this resource.
 
     // Bounding volumes in model space.
     scene::AABB m_aabb;
     scene::BoundingSphere m_sphere;
     scene::OBB m_obb;
 
+    void doInitMesh(const std::vector<SubMesh> &geometry);
+
     void computeNormals(const float *vertices, const VertexFormat &format);
     void computeTangentBasis();
 
-public:
-    // TODO_REFACTO - this ctor only for mesh decoder.
-    // TODO_REFACTO - create ctor with cpu verts (limited ctor with only one submesh).
     MeshData();
+    MeshData(const std::vector<SubMesh> &geometry);
+
+public:
     ~MeshData();
 
     // TODO_REFACTO consider move semantics

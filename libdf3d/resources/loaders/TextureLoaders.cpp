@@ -116,7 +116,7 @@ void Texture2DFSLoader::onDecoded(Resource *resource)
         return;
 
     auto texture = static_cast<render::Texture2D*>(resource);
-    texture->m_initialized = texture->createGLTexture(*m_pixelBuffer);
+    texture->createGLTexture(*m_pixelBuffer);
 
     // Explicitly remove CPU copy of pixel buffer in order to prevent caching.
     // Instead, will load new copy from FS when rebinding occurs.

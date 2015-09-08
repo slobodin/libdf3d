@@ -77,7 +77,9 @@ bool Texture2D::createGLTexture(const PixelBuffer &buffer)
 
     printOpenGLError();
 
-    return true;
+    m_initialized = true;
+
+    return m_initialized;
 }
 
 void Texture2D::deleteGLTexture()
@@ -100,7 +102,7 @@ Texture2D::Texture2D(TextureCreationParams params)
 Texture2D::Texture2D(const PixelBuffer &pixelBuffer, TextureCreationParams params)
     : Texture(params)
 {
-    m_initialized = createGLTexture(pixelBuffer);
+    createGLTexture(pixelBuffer);
 }
 
 Texture2D::~Texture2D()

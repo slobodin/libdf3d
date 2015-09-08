@@ -15,8 +15,6 @@ const char * const RTT_QUAD_PROGRAM_EMBED_PATH = "__embed_quad_render_program";
 const char * const COLORED_PROGRAM_EMBED_PATH = "__embed_colored_program";
 const char * const AMBIENT_PASS_PROGRAM_EMBED_PATH = "__embed_ambient_pass_program";
 
-// TODO_REFACTO
-
 ResourceFactory::ResourceFactory(ResourceManager *holder)
     : m_holder(holder)
 {
@@ -130,6 +128,5 @@ shared_ptr<render::MaterialLib> ResourceFactory::createMaterialLib(const std::st
     auto loader = make_shared<MaterialLibFSLoader>(mtlLibPath);
     return static_pointer_cast<render::MaterialLib>(m_holder->loadFromFS(mtlLibPath, loader));
 }
-
 
 } }

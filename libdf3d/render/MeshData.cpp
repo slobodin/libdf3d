@@ -5,6 +5,29 @@
 
 namespace df3d { namespace render {
 
+void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
+{
+    assert(!isInitialized());
+
+    for (const auto &s : m_submeshes)
+    {
+        //computeNormals(s.cpuVertices.data(), s.format);
+        //computeTangentBasis();
+    }
+
+    //m_aabb.constructFromGeometry()
+
+    m_initialized = true;
+
+    // TODO:
+    // Compute normals.
+    // Compute tangent basis.
+    // Compute all bounding volumes.
+    // Create GPU buffers.
+    // Set initialized.
+    // Check sizes of cpu verts, clear mb!
+}
+
 void MeshData::computeNormals(const float *vertices, const VertexFormat &format)
 {
     assert(false);
@@ -244,36 +267,14 @@ void MeshData::computeTangentBasis()
     */
 }
 
-/*
-void MeshData::onDecoded(bool decodeResult)
-{
-    if (!decodeResult)
-    {
-        base::glog << "MeshData::onDecoded failed" << base::logwarn;
-        return;
-    }
-
-    for (const auto &s : m_submeshes)
-    {
-        computeNormals(s.cpuVertices.data(), s.format);
-        computeTangentBasis();
-    }
-
-    //m_aabb.constructFromGeometry()
-
-    m_initialized = decodeResult;
-
-    // TODO:
-    // Compute normals.
-    // Compute tangent basis.
-    // Compute all bounding volumes.
-    // Create GPU buffers.
-    // Set initialized.
-}
-*/
 MeshData::MeshData()
 {
 
+}
+
+MeshData::MeshData(const std::vector<SubMesh> &geometry)
+{
+    doInitMesh(geometry);
 }
 
 MeshData::~MeshData()
