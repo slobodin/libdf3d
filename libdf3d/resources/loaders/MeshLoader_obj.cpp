@@ -231,8 +231,6 @@ std::unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileData
 
     // TODO_REFACTO
 
-    assert(false);
-
     /*
 
     // Post init.
@@ -274,13 +272,19 @@ std::unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileData
 
     */
 
+    auto result = make_unique<MeshDataFSLoader::Mesh>();
+    for (auto s : m_submeshes)
+    {
+        result->submeshes.emplace_back(std::move(*s.second));
+    }
+
     // TODO: can also unload materiallib from resource manager.
 
     // Clear all the state.
     m_materialLibPath.clear();
     m_meshDataFileName.clear();
 
-    return nullptr;
+    return result;
 }
 
 } }
