@@ -17,7 +17,22 @@ public:
 
 class MeshDataFSLoader : public FSResourceLoader
 {
+    friend class MeshLoader_obj;
+    friend class MeshLoader_dfmesh;
+
+    struct Mesh
+    {
+        std::vector<render::SubMesh> submeshes;
+        scene::AABB aabb;
+        scene::BoundingSphere sphere;
+        scene::OBB obb;
+
+        // TODO_REFACTO:
+        // convexHUll
+    };
+
     std::string m_path;
+    std::unique_ptr<Mesh> m_mesh;
 
 public:
     MeshDataFSLoader(const std::string &path, ResourceLoadingMode lm);

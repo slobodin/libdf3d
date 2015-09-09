@@ -110,6 +110,8 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoader_dfmesh.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoader_obj.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/AudioLoaders.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MaterialLibLoaders.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoaders.h
@@ -199,6 +201,8 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoader_dfmesh.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoader_obj.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/AudioLoaders.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MaterialLibLoaders.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoaders.cpp

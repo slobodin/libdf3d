@@ -5,6 +5,7 @@
 #include "loaders/TextureLoaders.h"
 #include "loaders/AudioLoaders.h"
 #include "loaders/MaterialLibLoaders.h"
+#include "loaders/MeshLoaders.h"
 #include <render/Texture2D.h>
 #include <render/GpuProgram.h>
 
@@ -74,8 +75,9 @@ shared_ptr<render::GpuProgram> ResourceFactory::createAmbientPassProgram()
 
 shared_ptr<render::MeshData> ResourceFactory::createMeshData(const std::string &meshDataPath, ResourceLoadingMode lm)
 {
-    return nullptr;
-    //return static_pointer_cast<render::MeshData>(loadResourceFromFileSystem(meshDataPath, lm));
+    auto loader = make_shared<MeshDataFSLoader>(meshDataPath, lm);
+
+    return static_pointer_cast<render::MeshData>(m_holder->loadFromFS(meshDataPath, loader));
 }
 
 shared_ptr<render::Texture2D> ResourceFactory::createTexture(const std::string &imagePath, ResourceLoadingMode lm)
