@@ -5,6 +5,34 @@
 
 namespace df3d { namespace render {
 
+SubMesh::SubMesh()
+{
+
+}
+
+SubMesh::~SubMesh()
+{
+
+}
+
+size_t SubMesh::getVerticesCount() const
+{
+    return m_verticesCount;
+}
+
+void SubMesh::appendVertexData(const float *source, size_t vertexCount)
+{
+    // Assume that vertex format is valid.
+    assert(m_vertexFormat.getVertexSize() != 0);
+
+    auto elementsCount = m_vertexFormat.getVertexSize() * vertexCount / sizeof(float);
+    // FIXME:
+    // Don't use back_inserter.
+    std::copy(source, source + elementsCount, std::back_inserter(m_vertexData));
+
+    m_verticesCount += vertexCount;
+}
+
 void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
 {
     assert(!isInitialized());

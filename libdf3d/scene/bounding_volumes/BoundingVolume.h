@@ -1,6 +1,6 @@
 #pragma once
 
-FWD_MODULE_STRUCT(render, SubMesh)
+FWD_MODULE_CLASS(render, SubMesh)
 
 namespace df3d { namespace scene {
 

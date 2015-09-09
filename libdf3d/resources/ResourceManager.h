@@ -48,7 +48,7 @@ private:
 
 public:
     //! All resources creation is going through this factory.
-    ResourceFactory& getFactory() { return *m_factory; }
+    ResourceFactory& getFactory() { /* TODO_REFACTO  do wee neeed lock here???? */return *m_factory; }
 
     //! Unloads a resource with given guid.
     void unloadResource(const ResourceGUID &guid);

@@ -38,8 +38,6 @@ class DF3D_DLL VertexFormat
     std::vector<VertexComponent> m_components;
     size_t m_vertexSize = 0;    // bytes
 
-    VertexFormat() { }
-
     void addComponent(const VertexComponent &component);
 
 public:

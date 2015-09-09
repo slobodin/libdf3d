@@ -17,19 +17,35 @@ class VertexBuffer;
 class IndexBuffer;
 
 //! Non GPU representation of a mesh surface.
-struct DF3D_DLL SubMesh
+class DF3D_DLL SubMesh
 {
-    std::string mtlLibPath;
-    std::string mtlName;
+    std::string m_mtlLibPath;
+    std::string m_mtlName;
     
-    VertexFormat vertexFormat;
-    std::vector<float> vertexData;
-    IndexArray indexData;
+    std::vector<float> m_vertexData;
+    VertexFormat m_vertexFormat;
+    IndexArray m_indexData;
 
-    // TODO_REFACTO
-    size_t getVerticesCount() const { assert(false); return 0; }
+    size_t m_verticesCount = 0;
 
-    // TODO_REFACTO: mb iterator??
+public:
+    SubMesh();
+    ~SubMesh();
+
+    void setMtlLibPath(const std::string &mtlLibPath) { m_mtlLibPath = mtlLibPath; }
+    void setMtlName(const std::string &mtlName) { m_mtlName = mtlName; }
+    void setVertexFormat(const VertexFormat &vf) { m_vertexFormat = vf; }
+
+    const std::string& getMtlLibPath() const { return m_mtlLibPath; }
+    const std::string& getMtlName() const { return m_mtlName; }
+    const VertexFormat& getVertexFormat() const { return m_vertexFormat; }
+    size_t getVerticesCount() const;
+    const float* getVertexData() const { return m_vertexData.data(); }
+
+    // TODO_REFACTO: mb iterator?? instead of raw vertex data.
+
+    //! Appends vertices from given raw float source to the vertexData interpreting them using vertexFormat.
+    void appendVertexData(const float *source, size_t vertexCount);
 };
 
 class DF3D_DLL MeshData : public resources::Resource

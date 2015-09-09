@@ -12,15 +12,16 @@ void BoundingVolume::constructFromGeometry(const std::vector<render::SubMesh> &s
     // Compute volume.
     for (const auto &submesh : submeshes)
     {
-        auto vertexData = submesh.vertexData.data();
+        auto vertexData = submesh.getVertexData();
+        const auto vertexFormat = submesh.getVertexFormat();
 
         // Some sanity checks.
-        auto positionComponent = submesh.vertexFormat.getComponent(render::VertexComponent::POSITION);
+        auto positionComponent = vertexFormat.getComponent(render::VertexComponent::POSITION);
         if (!positionComponent || positionComponent->getCount() != 3)
             continue;
 
-        auto offsetToPosition = submesh.vertexFormat.getOffsetTo(render::VertexComponent::POSITION) / sizeof(float);
-        auto stride = submesh.vertexFormat.getVertexSize() / sizeof(float);
+        auto offsetToPosition = vertexFormat.getOffsetTo(render::VertexComponent::POSITION) / sizeof(float);
+        auto stride = vertexFormat.getVertexSize() / sizeof(float);
         auto vertexCount = submesh.getVerticesCount();
 
         for (size_t i = 0; i < vertexCount; i++)
