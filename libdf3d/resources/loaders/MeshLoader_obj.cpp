@@ -7,6 +7,7 @@
 #include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
 #include <resources/ResourceFactory.h>
+#include <utils/MeshUtils.h>
 #include <utils/Utils.h>
 
 namespace df3d { namespace resources {
@@ -32,26 +33,6 @@ shared_ptr<render::SubMesh> MeshLoader_obj::createSubmesh(const std::string &mat
 
     return submesh;
 }
-
-//void MeshLoader_obj::createDefaultMaterial(const std::string &filename)
-//{
-//    // Default material is used for vertex buffers without any material at all.
-//    m_defaultMaterial = std::make_unique<render::Material>(filename);
-//    render::Technique defaultTech(filename);
-//    render::RenderPass pass;
-//
-//    defaultTech.appendPass(pass);
-//
-//    m_defaultMaterial->appendTechnique(defaultTech);
-//    m_defaultMaterial->setCurrentTechnique(filename);
-//}
-//
-//void MeshLoader_obj::createMaterials(const std::string &dirPath, const std::string &filePath)
-//{
-//    // Try to open material library.
-//    auto fullp = FileSystem::pathConcatenate(dirPath, filePath);
-//    m_materials = g_resourceManager->getFactory().createMaterialLib(fullp);
-//}
 
 void MeshLoader_obj::processLine_v(std::istream &is)
 {
@@ -91,7 +72,11 @@ void MeshLoader_obj::processLine_f(std::istream &is)
 {
     // If do not have submesh yet, then create default and set is as current.
     if (!m_currentSubmesh)
+    {
+        // TODO_REFACTO: check on all cases, please!
         m_currentSubmesh = createSubmesh(m_meshDataFileName);   // Using filename as the material name.
+        m_submeshes[m_meshDataFileName] = m_currentSubmesh;
+    }
 
     size_t verticesCount = 0;
     // FIXME:
@@ -229,53 +214,22 @@ std::unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileData
 
     bool computeNormals = m_normals.size() > 0 ? false : true;
 
-    // TODO_REFACTO
-
-    /*
-
-    // Post init.
-
-    // Attaches submeshes to the mesh and sets up materials.
-    auto initVb = [&](shared_ptr<render::VertexBuffer> vb, shared_ptr<render::Material> m)
-    {
-    auto submesh = make_shared<render::SubMesh>();
-    submesh->setMaterial(m);
-    submesh->setVertexBuffer(vb);
-    if (computeNormals)
-    submesh->computeNormals();
-
-    submesh->computeTangentBasis();
-
-    // Indexize vertex buffer.
-    utils::MeshIndexer indexer;
-    //indexer.index(vb);
-
-    mesh->attachSubMesh(submesh);
-    };
-
-    // Attach submeshes with given materials.
-    for (auto vb : m_vertexBuffers)
-    {
-    // If m_materials someway became empty (if mtl lib wasn't found), then use default material.
-    if (!m_materials->isMaterialExists(vb.first))
-    initVb(vb.second, m_defaultMaterial);
-    else
-    initVb(vb.second, m_materials->getMaterial(vb.first));
-    }
-
-    // Attach submeshes without OBJ material (use default instead).
-    if (m_vbWithDefaultMaterial)
-    {
-    createDefaultMaterial(file->getPath());
-    initVb(m_vbWithDefaultMaterial, m_defaultMaterial);
-    }
-
-    */
-
+    // Do post init.
     auto result = make_unique<MeshDataFSLoader::Mesh>();
     for (auto s : m_submeshes)
     {
+        if (computeNormals)
+        {
+            base::glog << "Computing normals in" << source->getPath() << base::logdebug;
+            utils::mesh::computeNormals(*s.second);
+        }
+
+        utils::mesh::computeTangentBasis(*s.second);
+
         result->submeshes.emplace_back(std::move(*s.second));
+
+        // TODO_REFACTO:
+        // Compute bounding volumes.
     }
 
     // TODO: can also unload materiallib from resource manager.

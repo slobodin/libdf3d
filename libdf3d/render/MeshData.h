@@ -40,7 +40,14 @@ public:
     const std::string& getMtlName() const { return m_mtlName; }
     const VertexFormat& getVertexFormat() const { return m_vertexFormat; }
     size_t getVerticesCount() const;
+
+    // FIXME: Do not like these getters.
     const float* getVertexData() const { return m_vertexData.data(); }
+    float* getVertexData() { return m_vertexData.data(); }
+    const IndexArray &getIndices() const { return m_indexData; }
+    IndexArray &getIndices() { return m_indexData; }
+
+    bool hasIndices() const { return !m_indexData.empty(); }
 
     // TODO_REFACTO: mb iterator?? instead of raw vertex data.
 
@@ -70,9 +77,6 @@ class DF3D_DLL MeshData : public resources::Resource
     scene::OBB m_obb;
 
     void doInitMesh(const std::vector<SubMesh> &geometry);
-
-    void computeNormals(const float *vertices, const VertexFormat &format);
-    void computeTangentBasis();
 
     MeshData();
     MeshData(const std::vector<SubMesh> &geometry);
