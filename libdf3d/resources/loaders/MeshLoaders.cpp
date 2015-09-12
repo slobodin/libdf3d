@@ -10,7 +10,7 @@
 namespace df3d { namespace resources {
 
 MeshDataManualLoader::MeshDataManualLoader(std::vector<render::SubMesh> &&geometry)
-    : m_geometry(geometry)
+    : m_geometry(std::move(geometry))
 {
 
 }

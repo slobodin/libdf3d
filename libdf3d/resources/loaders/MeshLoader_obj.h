@@ -16,10 +16,10 @@ class MeshLoader_obj
     bool hasTxCoords() const;
 
     // Merged (by material) submeshes.
-    std::map<std::string, shared_ptr<render::SubMesh>> m_submeshes;
+    std::map<std::string, unique_ptr<render::SubMesh>> m_submeshes;
 
-    shared_ptr<render::SubMesh> m_currentSubmesh;
-    shared_ptr<render::SubMesh> createSubmesh(const std::string &materialName);
+    render::SubMesh* m_currentSubmesh;
+    unique_ptr<render::SubMesh> createSubmesh(const std::string &materialName);
 
     void processLine_v(std::istream &is);
     void processLine_vt(std::istream &is);

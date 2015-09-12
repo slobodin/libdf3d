@@ -26,9 +26,6 @@ public:
 
     bool isMaterialExists(const std::string &name);
     size_t materialsCount() const;
-
-    // FIXME:
-    static Material* getMaterial(const std::string &mtlLibName, const std::string &mtlName);
 };
 
 } }

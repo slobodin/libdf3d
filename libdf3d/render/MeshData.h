@@ -25,6 +25,7 @@ class DF3D_DLL SubMesh
     std::vector<float> m_vertexData;
     VertexFormat m_vertexFormat;
     IndexArray m_indexData;
+    GpuBufferUsageType m_bufferUsageType = GpuBufferUsageType::STATIC;
 
     size_t m_verticesCount = 0;
 
@@ -35,11 +36,17 @@ public:
     void setMtlLibPath(const std::string &mtlLibPath) { m_mtlLibPath = mtlLibPath; }
     void setMtlName(const std::string &mtlName) { m_mtlName = mtlName; }
     void setVertexFormat(const VertexFormat &vf) { m_vertexFormat = vf; }
+    void setGpuBufferUsageHint(GpuBufferUsageType usageType) { m_bufferUsageType = usageType; }
 
+    //! Returns material lib path associated with this submesh.
     const std::string& getMtlLibPath() const { return m_mtlLibPath; }
+    //! Returns material name in the material lib.
     const std::string& getMtlName() const { return m_mtlName; }
+    //! Returns vertex format of this submesh.
     const VertexFormat& getVertexFormat() const { return m_vertexFormat; }
     size_t getVerticesCount() const;
+    //! Returns GPU buffer usage hint.
+    GpuBufferUsageType getGpuBufferUsageHint() const { return m_bufferUsageType; }
 
     // FIXME: Do not like these getters.
     const float* getVertexData() const { return m_vertexData.data(); }
@@ -67,6 +74,8 @@ class DF3D_DLL MeshData : public resources::Resource
         shared_ptr<VertexBuffer> vb;
         shared_ptr<IndexBuffer> ib;
         Material material;
+
+        HardwareSubMesh() = default;
     };
 
     std::vector<HardwareSubMesh> m_submeshes;

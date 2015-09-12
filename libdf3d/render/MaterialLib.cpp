@@ -62,14 +62,4 @@ size_t MaterialLib::materialsCount() const
     return m_materials.size();
 }
 
-Material* MaterialLib::getMaterial(const std::string &mtlLibName, const std::string &mtlName)
-{
-    // TODO_REFACTO remove async materiallib loading.
-
-    auto mtlLib = g_resourceManager->getFactory().createMaterialLib(mtlLibName);
-    if (!mtlLib)
-        return nullptr;
-    return mtlLib->getMaterial(mtlName);
-}
-
 } }

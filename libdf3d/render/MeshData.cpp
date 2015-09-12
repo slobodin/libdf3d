@@ -2,6 +2,8 @@
 #include "MeshData.h"
 
 #include <base/SystemsMacro.h>
+#include <render/MaterialLib.h>
+#include <resources/ResourceFactory.h>
 
 namespace df3d { namespace render {
 
@@ -36,6 +38,21 @@ void SubMesh::appendVertexData(const float *source, size_t vertexCount)
 void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
 {
     assert(!isInitialized());
+
+    // TODO_REFACTO
+    for (const auto &s : geometry) 
+    {
+        HardwareSubMesh hs;
+
+        // Loading materials here, is it ok?
+        auto material = g_resourceManager->getFactory().createMaterialLib(s.getMtlLibPath())->getMaterial(s.getMtlName());
+        if (material)
+            hs.material = *material;
+        else
+            base::glog << "Setting up default material in" << getFilePath() << base::logwarn;
+
+
+    }
 
     //m_aabb.constructFromGeometry()
 

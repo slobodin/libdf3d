@@ -22,14 +22,12 @@ bool MeshLoader_obj::hasTxCoords() const
     return m_txCoords.size() > 0;
 }
 
-shared_ptr<render::SubMesh> MeshLoader_obj::createSubmesh(const std::string &materialName)
+unique_ptr<render::SubMesh> MeshLoader_obj::createSubmesh(const std::string &materialName)
 {
-    auto submesh = make_shared<render::SubMesh>();
+    auto submesh = make_unique<render::SubMesh>();
     submesh->setVertexFormat(render::VertexFormat::create("p:3, n:3, tx:2, c:4, tan:3, bitan:3"));
     submesh->setMtlName(materialName);
-
-    // TODO_REFACTO:
-    // usage type? STATIC
+    submesh->setGpuBufferUsageHint(render::GpuBufferUsageType::STATIC);
 
     return submesh;
 }
@@ -74,8 +72,10 @@ void MeshLoader_obj::processLine_f(std::istream &is)
     if (!m_currentSubmesh)
     {
         // TODO_REFACTO: check on all cases, please!
-        m_currentSubmesh = createSubmesh(m_meshDataFileName);   // Using filename as the material name.
-        m_submeshes[m_meshDataFileName] = m_currentSubmesh;
+        auto submesh = createSubmesh(m_meshDataFileName);   // Using filename as the material name.
+
+        m_currentSubmesh = submesh.get();
+        m_submeshes[m_meshDataFileName] = std::move(submesh);
     }
 
     size_t verticesCount = 0;
@@ -136,12 +136,14 @@ void MeshLoader_obj::processLine_mtl(std::istream &is)
     auto found = m_submeshes.find(material);
     if (found == m_submeshes.end())
     {
-        m_currentSubmesh = createSubmesh(material);
-        m_submeshes[material] = m_currentSubmesh;
+        auto submesh = createSubmesh(material);
+
+        m_currentSubmesh = submesh.get();
+        m_submeshes[material] = std::move(submesh);
     }
     else
     {
-        m_currentSubmesh = found->second;
+        m_currentSubmesh = found->second.get();
     }
 }
 
@@ -209,14 +211,15 @@ std::unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileData
     }
 
     // Set material lib path for all the submeshes.
-    for (auto submesh : m_submeshes)
+    for (const auto &submesh : m_submeshes)
         submesh.second->setMtlLibPath(m_materialLibPath);
 
     bool computeNormals = m_normals.size() > 0 ? false : true;
 
     // Do post init.
     auto result = make_unique<MeshDataFSLoader::Mesh>();
-    for (auto s : m_submeshes)
+
+    for (auto &s : m_submeshes)
     {
         if (computeNormals)
         {
@@ -226,17 +229,22 @@ std::unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileData
 
         utils::mesh::computeTangentBasis(*s.second);
 
-        result->submeshes.emplace_back(std::move(*s.second));
-
-        // TODO_REFACTO:
-        // Compute bounding volumes.
+        result->submeshes.push_back(*s.second);     // FIXME: invokes copy ctor, consider move semantics.
     }
+
+    // Compute all the bounding volumes.
+    // TODO_REFACTO: convex hull also.
+    result->aabb.constructFromGeometry(result->submeshes);
+    result->sphere.constructFromGeometry(result->submeshes);
+    result->obb.constructFromGeometry(result->submeshes);
 
     // TODO: can also unload materiallib from resource manager.
 
     // Clear all the state.
     m_materialLibPath.clear();
     m_meshDataFileName.clear();
+    m_submeshes.clear();
+    m_currentSubmesh = nullptr;
 
     return result;
 }

@@ -25,6 +25,14 @@ enum class TextureWrapMode
     CLAMP
 };
 
+//! Hint to graphics backend as to how a buffer's data will be accessed.
+enum class GpuBufferUsageType
+{
+    STATIC,     /*!< The data store contents will be modified once and used many times. */
+    DYNAMIC,    /*!< The data store contents will be modified repeatedly and used many times. */
+    STREAM      /*!< The data store contents will be modified once and used at most a few times. */
+};
+
 extern const DF3D_DLL int ANISOTROPY_LEVEL_MAX;
 extern const DF3D_DLL int NO_ANISOTROPY;
 
