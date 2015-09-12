@@ -13,7 +13,7 @@ class MaterialLibFSLoader : public FSResourceLoader
 public:
     MaterialLibFSLoader(const std::string &path);
 
-    render::MaterialLib* createDummy(const ResourceGUID &guid) override;
+    render::MaterialLib* createDummy() override;
     void decode(shared_ptr<FileDataSource> source) override;
     void onDecoded(Resource *resource) override;
 };

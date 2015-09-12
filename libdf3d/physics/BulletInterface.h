@@ -3,15 +3,16 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 
-#include <render/RenderOperation.h>
 #include <render/RenderPass.h>
+#include <render/Vertex.h>
 
 namespace df3d { namespace physics {
 
 class BulletDebugDraw : public btIDebugDraw
 {
-    render::RenderOperation m_linesOp;
     render::RenderPass m_pass;
+
+    std::vector<render::Vertex_3p2tx4c> m_vertexData;
 
 public:
     BulletDebugDraw();

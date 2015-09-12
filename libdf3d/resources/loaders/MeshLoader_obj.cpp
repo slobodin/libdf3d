@@ -27,7 +27,8 @@ unique_ptr<render::SubMesh> MeshLoader_obj::createSubmesh(const std::string &mat
     auto submesh = make_unique<render::SubMesh>();
     submesh->setVertexFormat(render::VertexFormat::create("p:3, n:3, tx:2, c:4, tan:3, bitan:3"));
     submesh->setMtlName(materialName);
-    submesh->setGpuBufferUsageHint(render::GpuBufferUsageType::STATIC);
+    submesh->setVertexBufferUsageHint(render::GpuBufferUsageType::STATIC);
+    submesh->setIndexBufferUsageHint(render::GpuBufferUsageType::STATIC);
 
     return submesh;
 }

@@ -423,24 +423,24 @@ class MaterialLibParser
     shared_ptr<render::GpuProgram> parseShaderNode(const MaterialLibNode &node)
     {
         // First, check for embed program usage.
-        std::string embedProgram = node.keyValues.find("embed")->second;
-        if (!embedProgram.empty())
+        auto embedProgramFound = node.keyValues.find("embed");
+        if (embedProgramFound != node.keyValues.end())
         {
-            std::string embedProgramName;
-            if (embedProgram == "colored")
+            std::string embedProgramName = embedProgramFound->second;
+            if (embedProgramName == "colored")
                 return g_resourceManager->getFactory().createColoredGpuProgram();
-            else if (embedProgram == "quad_render")
+            else if (embedProgramName == "quad_render")
                 return g_resourceManager->getFactory().createRttQuadProgram();
             else
             {
-                base::glog << "Invalid embed program name" << embedProgram << base::logwarn;
+                base::glog << "Invalid embed program name" << embedProgramName << base::logwarn;
                 return nullptr;
             }
         }
 
         // Otherwise, create program from passed paths.
         auto vshader = node.keyValues.find("vertex");
-        auto fshader = node.keyValues.find("vertex");
+        auto fshader = node.keyValues.find("fragment");
 
         if (vshader == node.keyValues.end() || fshader == node.keyValues.end())
         {
@@ -539,11 +539,9 @@ MaterialLibFSLoader::MaterialLibFSLoader(const std::string &path)
 
 }
 
-render::MaterialLib* MaterialLibFSLoader::createDummy(const ResourceGUID &guid)
+render::MaterialLib* MaterialLibFSLoader::createDummy()
 {
-    auto retRes = new render::MaterialLib();
-    retRes->setGUID(guid);
-    return retRes;
+    return new render::MaterialLib();
 }
 
 void MaterialLibFSLoader::decode(shared_ptr<FileDataSource> source)

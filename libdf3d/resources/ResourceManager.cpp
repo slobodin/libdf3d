@@ -87,7 +87,8 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
         return alreadyLoadedResource;
 
     // Create resource dummy. It will not be fully valid until its completely loaded.
-    auto resource = shared_ptr<Resource>(loader->createDummy(guid));
+    auto resource = shared_ptr<Resource>(loader->createDummy());
+    resource->setGUID(guid);
     // Cache the resource.
     m_loadedResources[resource->getGUID()] = resource;
 

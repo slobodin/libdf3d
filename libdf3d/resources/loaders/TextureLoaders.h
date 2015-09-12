@@ -26,7 +26,7 @@ class Texture2DFSLoader : public FSResourceLoader
 public:
     Texture2DFSLoader(const std::string &path, const render::TextureCreationParams &params, ResourceLoadingMode lm);
 
-    render::Texture2D* createDummy(const ResourceGUID &guid) override;
+    render::Texture2D* createDummy() override;
     void decode(shared_ptr<FileDataSource> source) override;
     void onDecoded(Resource *resource) override;
 };

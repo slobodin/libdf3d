@@ -46,7 +46,7 @@ public:
     virtual ~FSResourceLoader() = default;
 
     //! Creates resource stub which can be immediately used while the resource is actually being decoded.
-    virtual Resource* createDummy(const ResourceGUID &guid) = 0;
+    virtual Resource* createDummy() = 0;
     //! Performs resource decoding from given source. Must be thread safe.
     virtual void decode(shared_ptr<FileDataSource> source) = 0;
     //! Resource manager calls this when decoding is complete. Called from main thread only. 

@@ -1,8 +1,9 @@
 #include "df3d_pch.h"
 #include "MeshData.h"
 
+#include "MaterialLib.h"
+#include "VertexIndexBuffer.h"
 #include <base/SystemsMacro.h>
-#include <render/MaterialLib.h>
 #include <resources/ResourceFactory.h>
 
 namespace df3d { namespace render {
@@ -15,11 +16,6 @@ SubMesh::SubMesh()
 SubMesh::~SubMesh()
 {
 
-}
-
-size_t SubMesh::getVerticesCount() const
-{
-    return m_verticesCount;
 }
 
 void SubMesh::appendVertexData(const float *source, size_t vertexCount)
@@ -39,29 +35,42 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
 {
     assert(!isInitialized());
 
-    // TODO_REFACTO
+    m_trianglesCount = 0;
+
     for (const auto &s : geometry) 
     {
-        HardwareSubMesh hs;
+        m_submeshes.push_back(HardwareSubMesh());
+        HardwareSubMesh &hs = m_submeshes.back();
 
         // Loading materials here, is it ok?
         auto material = g_resourceManager->getFactory().createMaterialLib(s.getMtlLibPath())->getMaterial(s.getMtlName());
         if (material)
-            hs.material = *material;
+        {
+            hs.material = make_unique<Material>(*material);
+        }
         else
+        {
             base::glog << "Setting up default material in" << getFilePath() << base::logwarn;
+            hs.material = make_unique<Material>(getFilePath());
+        }
 
+        hs.vb = make_shared<VertexBuffer>(s.getVertexFormat());
+        hs.vb->alloc(s.getVerticesCount(), s.getVertexData(), s.getVertexBufferUsageHint());
 
+        if (s.hasIndices())
+        {
+            hs.ib = make_shared<IndexBuffer>();
+            hs.ib->alloc(s.getIndicesCount(), s.getIndices().data(), s.getIndexBufferUsageHint());
+
+            m_trianglesCount += s.getIndicesCount() / 3;
+        }
+        else
+        {
+            m_trianglesCount += s.getVerticesCount() / 3;
+        }
     }
 
-    //m_aabb.constructFromGeometry()
-
     m_initialized = true;
-
-    // TODO:
-    // Create GPU buffers.
-    // Set initialized.
-    // Check sizes of cpu verts, clear mb!
 }
 
 MeshData::MeshData()
@@ -88,7 +97,7 @@ void MeshData::setMaterial(const Material &newMaterial)
     }
 
     for (auto &s : m_submeshes)
-        s.material = newMaterial;
+        *s.material = newMaterial;
 }
 
 void MeshData::setMaterial(const Material &newMaterial, size_t submeshIdx)
@@ -105,7 +114,7 @@ void MeshData::setMaterial(const Material &newMaterial, size_t submeshIdx)
         return;
     }
 
-    m_submeshes[submeshIdx].material = newMaterial;
+    *m_submeshes[submeshIdx].material = newMaterial;
 }
 
 size_t MeshData::getSubMeshesCount() const
@@ -113,9 +122,7 @@ size_t MeshData::getSubMeshesCount() const
     if (!isInitialized())
         return 0;
 
-    // TODO_REFACTO
-
-    return 0;
+    return m_submeshes.size();
 }
 
 size_t MeshData::getTrianglesCount() const
@@ -123,21 +130,7 @@ size_t MeshData::getTrianglesCount() const
     if (!isInitialized())
         return 0;
 
-    // TODO_REFACTO
-
-    /*
-    if (m_ib)
-    {
-        // Indexed.
-        return m_ib->getIndices().size() / 3;
-    }
-    else
-    {
-        return m_vb->getElementsUsed() / 3;
-    }
-    */
-
-    return 0;
+    return m_trianglesCount;
 }
 
 const scene::AABB* MeshData::getAABB() const

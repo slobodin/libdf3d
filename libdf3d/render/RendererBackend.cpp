@@ -503,21 +503,19 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
     if (indexed)
         ib->bind();
 
-    auto vbUsed = vb->getElementsUsed();
-
     switch (type)
     {
     case RenderOperation::Type::LINES:
         if (indexed)
-            glDrawElements(GL_LINES, ib->getElementsUsed(), GL_UNSIGNED_INT, nullptr);
-        else if (vbUsed > 0)
-            glDrawArrays(GL_LINES, 0, vbUsed);
+            glDrawElements(GL_LINES, ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
+        else
+            glDrawArrays(GL_LINES, 0, vb->getVerticesUsed());
         break;
     case RenderOperation::Type::TRIANGLES:
         if (indexed)
-            glDrawElements(GL_TRIANGLES, ib->getElementsUsed(), GL_UNSIGNED_INT, nullptr);
-        else if (vbUsed > 0)
-            glDrawArrays(GL_TRIANGLES, 0, vbUsed);
+            glDrawElements(GL_TRIANGLES, ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
+        else
+            glDrawArrays(GL_TRIANGLES, 0, vb->getVerticesUsed());
         break;
     default:
         break;
@@ -533,7 +531,7 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
 
         // FIXME:
         if (type != RenderOperation::Type::LINES)
-            m_renderStats->totalTriangles += indexed ? ib->getElementsUsed() / 3 : vb->getElementsUsed() / 3;
+            m_renderStats->totalTriangles += indexed ? ib->getIndicesUsed() / 3 : vb->getVerticesUsed() / 3;
     }
 
     printOpenGLError();

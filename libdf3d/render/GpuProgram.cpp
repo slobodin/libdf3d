@@ -72,6 +72,7 @@ bool GpuProgram::attachShaders()
     glGetProgramiv(m_programDescriptor, GL_LINK_STATUS, &linkOk);
     if (linkOk == GL_FALSE)
     {
+        base::glog << "GPU program linkage failed" << base::logwarn;
         gpuProgramLog(m_programDescriptor);
         return false;
     }
@@ -171,7 +172,7 @@ GpuProgramManualLoader::GpuProgramManualLoader(const std::string &vertexShaderPa
     m_vertexShaderPath(vertexShaderPath),
     m_fragmentShaderPath(fragmentShaderPath)
 {
-
+    assert(vertexShaderPath != fragmentShaderPath);
 }
 
 GpuProgram* GpuProgramManualLoader::load()

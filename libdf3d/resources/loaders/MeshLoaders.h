@@ -37,7 +37,7 @@ class MeshDataFSLoader : public FSResourceLoader
 public:
     MeshDataFSLoader(const std::string &path, ResourceLoadingMode lm);
 
-    render::MeshData* createDummy(const ResourceGUID &guid) override;
+    render::MeshData* createDummy() override;
     void decode(shared_ptr<FileDataSource> source) override;
     void onDecoded(Resource *resource) override;
 };

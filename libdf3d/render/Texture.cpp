@@ -34,12 +34,12 @@ PixelBuffer::PixelBuffer(int w, int h, PixelFormat format)
 PixelBuffer::PixelBuffer(int w, int h, const unsigned char *data, PixelFormat format)
     : m_w(w), m_h(h), m_format(format)
 {
-    auto dataSize = m_w * m_h * GetPixelSizeForFormat(m_format);
+    m_dataSize = m_w * m_h * GetPixelSizeForFormat(m_format);
 
-    assert(dataSize != 0);
+    assert(m_dataSize != 0);
 
-    m_data = new unsigned char[dataSize];
-    memcpy(m_data, data, dataSize);
+    m_data = new unsigned char[m_dataSize];
+    memcpy(m_data, data, m_dataSize);
 }
 
 PixelBuffer::~PixelBuffer()

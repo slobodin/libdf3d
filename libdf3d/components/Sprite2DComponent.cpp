@@ -44,8 +44,7 @@ Sprite2DComponent::Sprite2DComponent(const std::string &pathToTexture)
     m_pass.enableDepthWrite(false);
     m_pass.setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 
-    auto quadVb = render::createQuad2(render::VertexFormat::create("p:3, tx:2, c:4"), 0.0f, 0.0f, 1.0, 1.0f);
-    quadVb->setUsageType(render::GpuBufferUsageType::STATIC);
+    auto quadVb = render::createQuad2(render::VertexFormat::create("p:3, tx:2, c:4"), 0.0f, 0.0f, 1.0, 1.0f, render::GpuBufferUsageType::STATIC);
 
     m_op.passProps = &m_pass;
     m_op.vertexData = quadVb;

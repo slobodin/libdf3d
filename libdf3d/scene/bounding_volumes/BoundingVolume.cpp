@@ -12,7 +12,7 @@ void BoundingVolume::constructFromGeometry(const std::vector<render::SubMesh> &s
     // Compute volume.
     for (const auto &submesh : submeshes)
     {
-        auto vertexData = submesh.getVertexData();
+        const auto vertexData = submesh.getVertexData();
         const auto vertexFormat = submesh.getVertexFormat();
 
         // Some sanity checks.

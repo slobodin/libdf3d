@@ -32,8 +32,7 @@ void RenderManager::createQuadRenderOperation()
     passThrough.enableDepthTest(false);
     passThrough.enableDepthWrite(false);
 
-    m_quadVb = render::createQuad(VertexFormat::create("p:3, tx:2"), 0.0f, 0.0f, 2.0, 2.0f);
-    m_quadVb->setUsageType(GpuBufferUsageType::STATIC);
+    m_quadVb = render::createQuad(VertexFormat::create("p:3, tx:2"), 0.0f, 0.0f, 2.0, 2.0f, GpuBufferUsageType::STATIC);
 
     m_defaultPostProcessMaterial = shared_ptr<render::Material>(new render::Material("default_postprocess_material"));
 

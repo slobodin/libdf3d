@@ -143,14 +143,11 @@ Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket:
                                                                          int *indices, int num_indices, 
                                                                          Rocket::Core::TextureHandle texture)
 {
+    // Set up vertex buffer.
     auto vertexBuffer = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
-    auto indexBuffer = make_shared<render::IndexBuffer>();
 
-    vertexBuffer->resize(num_vertices);
-    auto vertexData = vertexBuffer->getVertexData();
-    size_t vertexSize = vertexBuffer->getFormat().getVertexSize();
-    size_t offset = vertexBuffer->getFormat().getVertexSize() / sizeof(float);
-
+    // FIXME: can map directly to vertexBuffer if Rocket::Core::Vertex is the same layout as internal vertex buffer storage.
+    std::vector<render::Vertex_3p2tx4c> vertexData;
     for (int i = 0; i < num_vertices; i++)
     {
         render::Vertex_3p2tx4c v;
@@ -165,18 +162,17 @@ Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket:
         v.color.b = vertices[i].colour.blue / 255.0f;
         v.color.a = vertices[i].colour.alpha / 255.0f;
 
-        memcpy(vertexData + i * offset, &v, vertexSize);
+        vertexData.push_back(v);
     }
 
-    static render::IndexArray ia;
+    vertexBuffer->alloc(num_vertices, vertexData.data(), render::GpuBufferUsageType::STATIC);
 
-    for (int i = 0; i < num_indices; i++)
-    {
-        ia.push_back(indices[i]);
-    }
+    // FIXME: this is not 64 bit
+    static_assert(sizeof(render::INDICES_TYPE) == sizeof(int), "rocket indices should be the same as render::INDICES_TYPE");
 
-    indexBuffer->appendIndices(ia);
-    ia.clear();
+    // Set up index buffer
+    auto indexBuffer = make_shared<render::IndexBuffer>();
+    indexBuffer->alloc(num_indices, indices, render::GpuBufferUsageType::STATIC);
 
     CompiledGeometry *geom = new CompiledGeometry();
     geom->texture = m_textures[texture];        // NOTE: can be nullptr. It's okay.

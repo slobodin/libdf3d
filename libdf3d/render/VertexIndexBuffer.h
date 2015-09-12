@@ -5,100 +5,80 @@
 
 namespace df3d { namespace render {
 
-class Material;
-
-class DF3D_DLL GpuBuffer : utils::NonCopyable
+//! GPU vertex buffer representation.
+class DF3D_DLL VertexBuffer : utils::NonCopyable
 {
-protected:
-    GpuBufferUsageType m_usageType = GpuBufferUsageType::STATIC;
+    // TODO: use vao
+    unsigned int m_vao = 0;
+    unsigned int m_glId = 0;
 
-    unsigned int m_glBufferId = 0;
-
-    bool m_cached = false;
-    bool m_dirty = false;
-
-    int m_elementsUsed = -1;
-    size_t m_gpuBufferSize = 0;     // bytes
+    VertexFormat m_format;
+    size_t m_verticesUsed = 0;
+    size_t m_sizeInBytes = 0;
 
 public:
-    //! Sets usage hint.
-    void setUsageType(GpuBufferUsageType newType);
-    //! Reloads whole buffer from its local data storage when the next bind occurs.
-    void setDirty();
-    //! Sets count of used buffer elements, i.e. it's possible to draw or update only part of a buffer.
-    void setElementsUsed(size_t elementsCount);
+    VertexBuffer(const VertexFormat &format);
+    ~VertexBuffer();
 
-    GpuBufferUsageType getUsageType() const;
+    /*! 
+     * \brief Creates new data store for the vertex buffer.
+     * \param verticesCount count of vertices, actual size in bytes is computed using vertex format.
+     * \param data raw vertex data, usually floats array. May be null.
+     * \param usage GPU buffer usage hint.
+     * \return
+     */
+    void alloc(size_t verticesCount, const void *data, GpuBufferUsageType usage);
+    //! Update buffer with new data, verticesCount may be less than initially allocated.
+    void update(size_t verticesCount, const void *data);
+
+    void bind();
+    void unbind();
+
+    void setVerticesUsed(size_t used) { m_verticesUsed = used; }
+    size_t getVerticesUsed() const { return m_verticesUsed; }
 
     // TODO:
     // Buffer lock/unlock via glMapBuffer
 };
 
-//! Gpu vertex buffer representation.
-class DF3D_DLL VertexBuffer : public GpuBuffer
+//! GPU index buffer representation.
+// NOTE: Implementation is mostly similar to the vertex buffer 
+// but it may be useful to distinguish these buffers in future.
+class DF3D_DLL IndexBuffer : utils::NonCopyable
 {
-    VertexFormat m_vertexFormat;
-
-    std::vector<float> m_vertexData;
-    size_t m_verticesCount = 0;
-
-    // TODO: use vao
-    unsigned int m_vao = 0;
-
-    void recreateHardwareBuffer();
-    void updateHardwareBuffer();
-
-public:
-    VertexBuffer(const VertexFormat &vf);
-    ~VertexBuffer();
-
-    void bind();
-    void unbind();
-
-    void resize(size_t vertexCount);
-    void clear();
-    void appendVertexData(const float *source, size_t vertexCount);
-
-    const float *getVertexData() const { return m_vertexData.data(); }
-    float *getVertexData() { return m_vertexData.data(); }
-    size_t getVerticesCount() const { return m_verticesCount; }
-
-    size_t getElementsUsed() const;
-    const VertexFormat &getFormat() const { return m_vertexFormat; }
-};
-
-// Gpu index buffer representation.
-class DF3D_DLL IndexBuffer : public GpuBuffer
-{
-    IndexArray m_indices;
-
-    void recreateHardwareBuffer();
-    void updateHardwareBuffer();
+    unsigned int m_glId = 0;
+    size_t m_indicesUsed = 0;
+    size_t m_sizeInBytes = 0;
 
 public:
     IndexBuffer(/*TODO: index buffer type*/);
     ~IndexBuffer();
 
-    void appendIndices(const IndexArray &indices);
+    /*! 
+     * \brief Creates new data store for the index buffer.
+     * \param indicesCount count of vertices, actual size in bytes is computed using index size (hardcoded for now).
+     * \param data raw index data,may be null.
+     * \param usage GPU buffer usage hint.
+     * \return
+     */
+    void alloc(size_t indicesCount, const void *data, GpuBufferUsageType usage);
+    //! Update buffer with new data, indicesCount may be less than initially allocated.
+    void update(size_t indicesCount, const void *data);
 
     void bind();
     void unbind();
 
-    const IndexArray &getIndices() const { return m_indices; }
-    IndexArray &getIndices() { return m_indices; }
-
-    INDICES_TYPE *getRawIndices() { if (m_indices.size() == 0) return nullptr; return &m_indices[0]; }
-
-    size_t getElementsUsed() const;
+    void setIndicesUsed(size_t used) { m_indicesUsed = used; }
+    size_t getIndicesUsed() const { return m_indicesUsed; }
 };
 
 // XXX:
 // Valid only for quads with vertex format Vertex_3p2tx!!!
 // FIXME:
-shared_ptr<VertexBuffer> createQuad(const VertexFormat &vf, float x, float y, float w, float h);
+shared_ptr<VertexBuffer> createQuad(const VertexFormat &vf, float x, float y, float w, float h, GpuBufferUsageType usage);
 
 // FIXME: keeping this ugly names as reminder to refactor this shit!
 // XXX: Valid only for vertex format Vertex_3p2tx4c!!!
-shared_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, float w, float h);
+shared_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, float w, float h, GpuBufferUsageType usage);
 
 } }

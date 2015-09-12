@@ -230,11 +230,9 @@ AudioBufferFSLoader::AudioBufferFSLoader(const std::string &path)
 
 }
 
-audio::AudioBuffer* AudioBufferFSLoader::createDummy(const ResourceGUID &guid)
+audio::AudioBuffer* AudioBufferFSLoader::createDummy()
 {
-    auto retRes = new audio::AudioBuffer();
-    retRes->setGUID(guid);
-    return retRes;
+    return new audio::AudioBuffer();
 }
 
 void AudioBufferFSLoader::decode(shared_ptr<FileDataSource> source)

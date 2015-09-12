@@ -27,7 +27,7 @@ MeshDataFSLoader::MeshDataFSLoader(const std::string &path, ResourceLoadingMode 
 
 }
 
-render::MeshData* MeshDataFSLoader::createDummy(const ResourceGUID &guid)
+render::MeshData* MeshDataFSLoader::createDummy()
 {
     return new render::MeshData();
 }
@@ -54,10 +54,12 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
 
     meshdata->doInitMesh(m_mesh->submeshes);
 
-    m_mesh.reset();     // Cleanup main memory.
+    size_t meshTotalBytes = 0;
+    for (const auto &s : m_mesh->submeshes)
+        meshTotalBytes += s.getVerticesCount() * s.getVertexFormat().getVertexSize();
+    base::glog << "Cleaning up" << meshTotalBytes / 1024.0f << "KB of CPU copy of mesh data" << base::logdebug;
 
-    // TODO_REFACTO:
-    // Check hardware size!
+    m_mesh.reset();     // Cleanup main memory.
 }
 
 } }

@@ -36,7 +36,7 @@ private:
 public:
     AudioBufferFSLoader(const std::string &path);
 
-    audio::AudioBuffer* createDummy(const ResourceGUID &guid) override;
+    audio::AudioBuffer* createDummy() override;
     void decode(shared_ptr<FileDataSource> source) override;
     void onDecoded(Resource *resource) override;
 };

@@ -104,6 +104,7 @@ shared_ptr<render::TextureCube> ResourceFactory::createCubeTexture(const std::st
                                                                    const std::string &positiveZImage, const std::string &negativeZImage,
                                                                    ResourceLoadingMode lm)
 {
+    // TODO_REFACTO
     return nullptr;
     /*
     auto positiveX = createTexture(positiveXImage, lm);
