@@ -5,18 +5,18 @@
 
 namespace df3d { namespace render {
 
-Technique* Material::findTechnique(const std::string &name)
+shared_ptr<Technique> Material::findTechnique(const std::string &name)
 {
-    auto findFn = [&](const Technique &tech)
+    auto findFn = [&name](const shared_ptr<Technique> &tech)
     {
-        return tech.getName() == name;
+        return tech->getName() == name;
     };
 
-    auto found = std::find_if(m_techniques.begin(), m_techniques.end(), findFn);
-    if (found == m_techniques.end())
+    auto found = std::find_if(m_techniques.cbegin(), m_techniques.cend(), findFn);
+    if (found == m_techniques.cend())
         return nullptr;
     
-    return &(*found);
+    return *found;
 }
 
 Material::Material(const std::string &name)
@@ -44,7 +44,7 @@ void Material::appendTechnique(const Technique &technique)
         return;
     }
 
-    m_techniques.push_back(technique);
+    m_techniques.push_back(make_shared<Technique>(technique));
 }
 
 void Material::setCurrentTechnique(const std::string &name)
@@ -61,12 +61,12 @@ void Material::setCurrentTechnique(const std::string &name)
 
 Technique* Material::getCurrentTechnique()
 {
-    return m_currentTechnique;
+    return m_currentTechnique.get();
 }
 
 Technique* Material::getTechnique(const std::string &name)
 {
-    return findTechnique(name);
+    return findTechnique(name).get();
 }
 
 size_t Material::getTechniquesCount() const

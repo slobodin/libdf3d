@@ -19,7 +19,7 @@ MaterialLib::~MaterialLib()
 
 }
 
-const Material* MaterialLib::getMaterial(const std::string &name) const
+shared_ptr<Material> MaterialLib::getMaterial(const std::string &name) const
 {
     auto found = m_materials.find(name);
     if (found == m_materials.end())
@@ -28,28 +28,22 @@ const Material* MaterialLib::getMaterial(const std::string &name) const
         return nullptr;
     }
 
-    return &found->second;
+    return found->second;
 }
 
-Material* MaterialLib::getMaterial(const std::string &name)
+void MaterialLib::appendMaterial(shared_ptr<Material> material)
 {
-    // TODO_REFACTO this is fucking disgusting.
-    return (Material*)const_cast<const MaterialLib*>(this)->getMaterial(name);
-}
-
-void MaterialLib::appendMaterial(const Material &material)
-{
-    auto found = m_materials.find(material.getName());
+    auto found = m_materials.find(material->getName());
     if (found != m_materials.end())
     {
         base::glog << "Trying to add duplicate material" << found->first << "to material library" << getGUID() << base::logwarn;
         return;
     }
 
-    m_materials[material.getName()] = material;
+    m_materials[material->getName()] = material;
 
-    if (material.getTechniquesCount() == 0)
-        base::glog << "Material without techniques" << material.getName() << "has been added to library" << getGUID() << base::logwarn;
+    if (material->getTechniquesCount() == 0)
+        base::glog << "Material without techniques" << material->getName() << "has been added to library" << getGUID() << base::logwarn;
 }
 
 bool MaterialLib::isMaterialExists(const std::string &name)

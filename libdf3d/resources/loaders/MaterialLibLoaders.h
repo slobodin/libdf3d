@@ -8,7 +8,7 @@ namespace df3d { namespace resources {
 class MaterialLibFSLoader : public FSResourceLoader
 {
     std::string m_path;
-    std::vector<render::Material> m_materials;
+    std::vector<shared_ptr<render::Material>> m_materials;
 
 public:
     MaterialLibFSLoader(const std::string &path);

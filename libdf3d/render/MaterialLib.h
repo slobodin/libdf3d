@@ -11,7 +11,7 @@ class DF3D_DLL MaterialLib : public resources::Resource
 {
     friend class resources::MaterialLibFSLoader;
 
-    std::unordered_map<std::string, Material> m_materials;
+    std::unordered_map<std::string, shared_ptr<Material>> m_materials;
 
 public:
     static std::vector<std::string> Defines;
@@ -19,10 +19,9 @@ public:
     MaterialLib();
     ~MaterialLib();
 
-    const Material* getMaterial(const std::string &name) const;
-    Material* getMaterial(const std::string &name);
+    shared_ptr<Material> getMaterial(const std::string &name) const;
 
-    void appendMaterial(const Material &material);
+    void appendMaterial(shared_ptr<Material> material);
 
     bool isMaterialExists(const std::string &name);
     size_t materialsCount() const;

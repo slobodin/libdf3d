@@ -9,10 +9,10 @@ class DF3D_DLL Technique
     //! Technique id.
     std::string m_name;
     //! A list of passes. May contain passes with the same names.
-    std::vector<RenderPass> m_passes;
+    std::vector<shared_ptr<RenderPass>> m_passes;
 
     //! Helper. Finds first with given name.
-    RenderPass* findPass(const std::string &name);
+    shared_ptr<RenderPass> findPass(const std::string &name);
 
 public:
     Technique(const std::string &name);
@@ -24,6 +24,7 @@ public:
     RenderPass* getPass(int idx);
     //! Returns first pass with given name.
     RenderPass* getPass(const std::string &name);
+    //! Returns passes count.
     size_t getPassCount() const;
 
     const std::string& getName() const;

@@ -10,13 +10,13 @@ class DF3D_DLL Material
     //! Material name.
     std::string m_name;
     //! A list of techniques.
-    std::vector<Technique> m_techniques;
+    std::vector<shared_ptr<Technique>> m_techniques;
 
     //! Current technique being used by this material.
-    Technique *m_currentTechnique = nullptr;
+    shared_ptr<Technique> m_currentTechnique = nullptr;
 
     //! Helper function.
-    Technique* findTechnique(const std::string &name);
+    shared_ptr<Technique> findTechnique(const std::string &name);
 
 public:
     Material(const std::string &name = "");

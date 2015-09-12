@@ -506,7 +506,7 @@ public:
 
     }
 
-    bool parse(std::istringstream &input, std::vector<render::Material> &output)
+    bool parse(std::istringstream &input, std::vector<shared_ptr<render::Material>> &output)
     {
         auto root = MaterialLibNode::createTree(input);
         if (!root)
@@ -521,7 +521,7 @@ public:
             {
                 auto material = parseMaterialNode(*n);
                 if (material)
-                    output.push_back(*material);
+                    output.push_back(material);
             }
         }
 
