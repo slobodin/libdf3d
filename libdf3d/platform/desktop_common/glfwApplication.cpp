@@ -49,6 +49,9 @@ public:
         glfwMakeContextCurrent(window);
         glfwSetWindowUserPointer(window, this);
 
+        if (params.vsync)
+            glfwSwapInterval(1);
+
         // Set input callbacks.
         glfwSetCursorPosCallback(window, cursorPositionCallback);
         glfwSetMouseButtonCallback(window, mouseButtonCallback);
