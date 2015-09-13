@@ -225,27 +225,20 @@ scene::OBB MeshComponent::getOBB()
 shared_ptr<NodeComponent> MeshComponent::clone() const
 {
     assert(false);
-
     auto retRes = shared_ptr<MeshComponent>(new MeshComponent());
 
-    // TODO_REFACTO
-    /*
-
     // Clone mesh node fields.
-    retRes->m_geometry = m_geometry;
-    retRes->m_aabb = m_aabb;
+    retRes->m_meshData = m_meshData;
     retRes->m_transformedAABB = m_transformedAABB;
-    retRes->m_aabbDirty = m_aabbDirty;
     retRes->m_transformedAabbDirty = m_transformedAabbDirty;
-    retRes->m_boundingSphereDirty = m_boundingSphereDirty;
     retRes->m_sphere = m_sphere;
+    retRes->m_boundingSphereDirty = m_boundingSphereDirty;
     retRes->m_obb = m_obb;
-    retRes->m_obbDirty = m_obbDirty;
     retRes->m_obbTransformationDirty = m_obbTransformationDirty;
     retRes->m_visible = m_visible;
     retRes->m_frustumCullingDisabled = m_frustumCullingDisabled;
     retRes->m_rmgrListener->m_guid = m_rmgrListener->m_guid;
-    */
+    retRes->m_meshWasLoaded = m_meshWasLoaded;
 
     return retRes;
 }
