@@ -3,9 +3,8 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <resources/FileDataSource.h>
-#include <resources/ResourceFactory.h>
 #include <render/MaterialLib.h>
 #include <render/Material.h>
 #include <render/Technique.h>
@@ -424,9 +423,9 @@ class MaterialLibParser
         {
             std::string embedProgramName = embedProgramFound->second;
             if (embedProgramName == "colored")
-                return g_resourceManager->getFactory().createColoredGpuProgram();
+                return gsvc().resourceMgr.getFactory().createColoredGpuProgram();
             else if (embedProgramName == "quad_render")
-                return g_resourceManager->getFactory().createRttQuadProgram();
+                return gsvc().resourceMgr.getFactory().createRttQuadProgram();
             else
             {
                 base::glog << "Invalid embed program name" << embedProgramName << base::logwarn;
@@ -444,7 +443,7 @@ class MaterialLibParser
             return nullptr;
         }
 
-        return g_resourceManager->getFactory().createGpuProgram(vshader->second, fshader->second);
+        return gsvc().resourceMgr.getFactory().createGpuProgram(vshader->second, fshader->second);
     }
 
     void parseShaderParamsNode(MaterialLibNode &node, shared_ptr<render::RenderPass> pass)
@@ -474,7 +473,7 @@ class MaterialLibParser
         {
             std::string path = node.keyValues.find("path")->second;
 
-            return g_resourceManager->getFactory().createTexture(path, creationParams, ResourceLoadingMode::ASYNC);
+            return gsvc().resourceMgr.getFactory().createTexture(path, creationParams, ResourceLoadingMode::ASYNC);
         }
         else if (type == "TEXTURE_CUBE")
         {
@@ -485,7 +484,7 @@ class MaterialLibParser
             std::string negativez = node.keyValues.find("negative_z")->second;
             std::string positivez = node.keyValues.find("positive_z")->second;
 
-            return g_resourceManager->getFactory().createCubeTexture(positivex, negativex, positivey, negativey, positivez, negativez, ResourceLoadingMode::ASYNC);
+            return gsvc().resourceMgr.getFactory().createCubeTexture(positivex, negativex, positivey, negativey, positivez, negativez, ResourceLoadingMode::ASYNC);
         }
 
         base::glog << "Unknown texture type" << type << base::logwarn;

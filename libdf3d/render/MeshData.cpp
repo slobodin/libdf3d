@@ -4,8 +4,7 @@
 #include "MaterialLib.h"
 #include "VertexIndexBuffer.h"
 #include "RenderQueue.h"
-#include <base/SystemsMacro.h>
-#include <resources/ResourceFactory.h>
+#include <base/Service.h>
 
 namespace df3d { namespace render {
 
@@ -44,7 +43,7 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
         HardwareSubMesh &hs = m_submeshes.back();
 
         // Loading materials here, is it ok?
-        auto material = g_resourceManager->getFactory().createMaterialLib(s.getMtlLibPath())->getMaterial(s.getMtlName());
+        auto material = gsvc().resourceMgr.getFactory().createMaterialLib(s.getMtlLibPath())->getMaterial(s.getMtlName());
         if (material)
         {
             hs.material = make_unique<Material>(*material);

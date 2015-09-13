@@ -11,8 +11,7 @@
 #include <render/Material.h>
 #include <render/RenderPass.h>
 #include <render/Technique.h>
-#include <resources/ResourceFactory.h>
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 
 namespace df3d { namespace components {
 
@@ -27,12 +26,12 @@ public:
     ResourceMgrListenerImpl(MeshComponent *holder)
         : m_holder(holder)
     {
-        g_resourceManager->addListener(this);
+        gsvc().resourceMgr.addListener(this);
     }
 
     ~ResourceMgrListenerImpl()
     {
-        g_resourceManager->removeListener(this);
+        gsvc().resourceMgr.removeListener(this);
     }
 
     void onLoadFromFileSystemRequest(ResourceGUID resourceId) override { }
@@ -51,7 +50,7 @@ bool MeshComponent::isInFov()
     if (m_frustumCullingDisabled)
         return true;
 
-    return g_sceneManager->getCamera()->getFrustum().sphereInFrustum(getBoundingSphere());
+    return gsvc().sceneMgr.getCamera()->getFrustum().sphereInFrustum(getBoundingSphere());
 }
 
 void MeshComponent::onComponentEvent(components::ComponentEvent ev)
@@ -169,7 +168,7 @@ MeshComponent::MeshComponent(const std::string &meshFilePath, ResourceLoadingMod
 {
     m_rmgrListener->m_guid = resources::CreateGUIDFromPath(meshFilePath);
 
-    setMeshData(g_resourceManager->getFactory().createMeshData(meshFilePath, lm));
+    setMeshData(gsvc().resourceMgr.getFactory().createMeshData(meshFilePath, lm));
 }
 
 MeshComponent::~MeshComponent()

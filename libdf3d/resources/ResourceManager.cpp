@@ -1,11 +1,10 @@
 #include "df3d_pch.h"
 #include "ResourceManager.h"
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <base/ThreadPool.h>
 #include <utils/Utils.h>
 #include "Resource.h"
-#include "ResourceFactory.h"
 #include "FileDataSource.h"
 
 namespace df3d { namespace resources {
@@ -22,7 +21,7 @@ void ResourceManager::loadEmbedResources()
 
     //base::glog << "Start load" << req.fileSource->getPath() << base::logmess;
 
-    //auto fileSource = g_fileSystem->openFile(req.filePath);
+    //auto fileSource = gsvc().filesystem.openFile(req.filePath);
 
     //bool decodeResult = req.decoder->decodeResource(fileSource, req.resource);
 
@@ -97,7 +96,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
     for (auto listener : m_listeners)
         listener->onLoadFromFileSystemRequest(resource->getGUID());
 
-    loader->decode(g_fileSystem->openFile(guid));
+    loader->decode(gsvc().filesystem.openFile(guid));
     loader->onDecoded(resource.get());
 
     for (auto listener : m_listeners)

@@ -1,9 +1,7 @@
 #include "df3d_pch.h"
 #include "RendererBackend.h"
 
-#include <resources/ResourceFactory.h>
-#include <base/SystemsMacro.h>
-#include <resources/ResourceFactory.h>
+#include <base/Service.h>
 #include <components/LightComponent.h>
 #include "OpenGLCommon.h"
 #include "GpuProgramState.h"
@@ -33,7 +31,7 @@ void RendererBackend::createWhiteTexture()
 
     auto pb = make_unique<render::PixelBuffer>(w, h, data, pf);
 
-    m_whiteTexture = g_resourceManager->getFactory().createTexture(std::move(pb), params);
+    m_whiteTexture = gsvc().resourceMgr.getFactory().createTexture(std::move(pb), params);
     m_whiteTexture->setResident(true);
 
     delete [] data;
@@ -66,7 +64,7 @@ void RendererBackend::loadResidentGpuPrograms()
 #include "render/embed_glsl/ambient_frag.h"
         ;
 
-    auto &factory = g_resourceManager->getFactory();
+    auto &factory = gsvc().resourceMgr.getFactory();
 
     using namespace resources;
 

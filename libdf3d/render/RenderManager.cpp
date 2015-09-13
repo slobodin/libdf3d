@@ -1,8 +1,7 @@
 #include "df3d_pch.h"
 #include "RenderManager.h"
 
-#include <resources/ResourceFactory.h>
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <base/DebugConsole.h>
 #include <scene/Scene.h>
 #include <scene/Camera.h>
@@ -27,7 +26,7 @@ void RenderManager::createQuadRenderOperation()
     RenderPass passThrough;
     passThrough.setFrontFaceWinding(RenderPass::WindingOrder::CCW);
     passThrough.setFaceCullMode(RenderPass::FaceCullMode::BACK);
-    passThrough.setGpuProgram(g_resourceManager->getFactory().createRttQuadProgram());
+    passThrough.setGpuProgram(gsvc().resourceMgr.getFactory().createRttQuadProgram());
     passThrough.setBlendMode(RenderPass::BlendingMode::NONE);
     passThrough.enableDepthTest(false);
     passThrough.enableDepthWrite(false);
@@ -59,12 +58,12 @@ void RenderManager::createAmbientPassProps()
 {
     m_ambientPassProps = make_unique<RenderPass>();
 
-    m_ambientPassProps->setGpuProgram(g_resourceManager->getFactory().createAmbientPassProgram());
+    m_ambientPassProps->setGpuProgram(gsvc().resourceMgr.getFactory().createAmbientPassProgram());
 }
 
 void RenderManager::debugDrawPass()
 {
-    if (auto console = g_engineController->getConsole())
+    if (auto console = gsvc().console)
     {
         if (!console->getCVars().get<bool>(base::CVAR_DEBUG_DRAW))
             return;
@@ -75,7 +74,7 @@ void RenderManager::debugDrawPass()
         drawOperation(op);
 
     // Draw bullet physics debug.
-    g_engineController->getPhysicsManager()->drawDebug();
+    gsvc().physicsMgr.drawDebug();
 }
 
 void RenderManager::postProcessPass(shared_ptr<Material> material)
@@ -280,7 +279,7 @@ void RenderManager::drawGUI()
     m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)m_screenRt->getViewport().width(), (float)m_screenRt->getViewport().height(), 0.0f));
     m_renderer->setCameraMatrix(glm::mat4(1.0f));
 
-    g_guiManager->render();
+    gsvc().guiMgr.render();
 }
 
 void RenderManager::onFrameBegin()

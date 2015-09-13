@@ -2,7 +2,7 @@
 #include "AudioManager.h"
 
 #include "OpenALCommon.h"
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <components/TransformComponent.h>
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
@@ -58,7 +58,7 @@ AudioManager::~AudioManager()
 
 void AudioManager::update(float dt)
 {
-    auto cam = g_sceneManager->getCamera();
+    auto cam = gsvc().sceneMgr.getCamera();
     if (cam)
     {
         alListenerfv(AL_POSITION, glm::value_ptr(cam->transform()->getPosition()));

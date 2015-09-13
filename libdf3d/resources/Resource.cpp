@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "Resource.h"
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 
 namespace df3d { namespace resources {
 
@@ -43,7 +43,7 @@ bool IsGUIDValid(const ResourceGUID &guid)
 
 ResourceGUID CreateGUIDFromPath(const std::string &path)
 {
-    return g_fileSystem->fullPath(path);
+    return gsvc().filesystem.fullPath(path);
 }
 
 } }

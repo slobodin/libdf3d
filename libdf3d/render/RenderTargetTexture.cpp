@@ -1,8 +1,7 @@
 #include "df3d_pch.h"
 #include "RenderTargetTexture.h"
 
-#include <resources/ResourceFactory.h>
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include "OpenGLCommon.h"
 #include "Texture2D.h"
 #include "RendererBackend.h"
@@ -65,7 +64,7 @@ void RenderTargetTexture::bind()
     if (!m_fbo)
         return;
 
-    g_renderManager->getRenderer()->setViewport(m_viewport);
+    gsvc().renderMgr.getRenderer()->setViewport(m_viewport);
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     m_texture->bind(0);
@@ -83,7 +82,7 @@ void RenderTargetTexture::unbind()
 void RenderTargetTexture::setViewport(const Viewport &vp)
 {
     if (m_texture)
-        g_resourceManager->unloadResource(m_texture);
+        gsvc().resourceMgr.unloadResource(m_texture);
 
     m_viewport = vp;
 
@@ -93,7 +92,7 @@ void RenderTargetTexture::setViewport(const Viewport &vp)
 
     auto pb = make_unique<PixelBuffer>(m_viewport.width(), m_viewport.height(), PixelFormat::RGBA);
 
-    m_texture = g_resourceManager->getFactory().createTexture(std::move(pb), params);
+    m_texture = gsvc().resourceMgr.getFactory().createTexture(std::move(pb), params);
 }
 
 shared_ptr<Texture2D> RenderTargetTexture::getTexture()

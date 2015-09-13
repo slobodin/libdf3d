@@ -7,7 +7,7 @@
 #include <scene/Node.h>
 #include <render/RenderOperation.h>
 #include <render/RenderQueue.h>
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 
 namespace df3d { namespace components {
 
@@ -17,7 +17,7 @@ void ParticleSystemComponent::updateCameraPosition()
     {
         if (SPKSystem->getGroup(i)->isDistanceComputationEnabled())
         {
-            auto pos = g_sceneManager->getCamera()->transform()->getPosition();
+            auto pos = gsvc().sceneMgr.getCamera()->transform()->getPosition();
             if (!m_worldTransformed)
             {
                 // Transform camera position into this node space.

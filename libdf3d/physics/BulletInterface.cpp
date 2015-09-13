@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "BulletInterface.h"
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <render/RenderPass.h>
 #include <render/RendererBackend.h>
 #include <render/VertexIndexBuffer.h>
@@ -72,7 +72,7 @@ void BulletDebugDraw::flushRenderOperations()
     op.vertexData->alloc(m_vertexData.size(), m_vertexData.data(), render::GpuBufferUsageType::STREAM);
     m_vertexData.clear();
 
-    g_renderManager->drawOperation(op);
+    gsvc().renderMgr.drawOperation(op);
 }
 
 } }

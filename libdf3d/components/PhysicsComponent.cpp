@@ -9,7 +9,7 @@
 #include <components/serializers/PhysicsComponentSerializer.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/MeshData.h>
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <utils/Utils.h>
 
 namespace df3d { namespace components {
@@ -124,9 +124,9 @@ void PhysicsComponent::initFromCreationParams()
     body = new btRigidBody(rbInfo);
 
     if (m_creationParams.group != -1 && m_creationParams.mask != -1)
-        g_physicsWorld->addRigidBody(body, m_creationParams.group, m_creationParams.mask);
+        gsvc().physicsWorld.addRigidBody(body, m_creationParams.group, m_creationParams.mask);
     else
-        g_physicsWorld->addRigidBody(body);
+        gsvc().physicsWorld.addRigidBody(body);
 
     // FIXME: remove this. Not needed.
     body->setUserPointer(m_holder);
@@ -155,7 +155,7 @@ void PhysicsComponent::onDetached()
     {
         // FIXME:
         // Here we assuming that body was added to the world.
-        g_physicsWorld->removeRigidBody(body);
+        gsvc().physicsWorld.removeRigidBody(body);
         auto motionState = body->getMotionState();
         delete motionState;
         auto shape = body->getCollisionShape();

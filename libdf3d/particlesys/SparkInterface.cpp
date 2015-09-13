@@ -2,14 +2,13 @@
 #include "SparkInterface.h"
 
 #include <render/RenderPass.h>
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <scene/Camera.h>
 #include <components/TransformComponent.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/GpuProgram.h>
 #include <render/RenderOperation.h>
 #include <render/RenderQueue.h>
-#include <resources/ResourceFactory.h>
 
 namespace df3d { namespace particlesys {
 
@@ -127,7 +126,7 @@ ParticleSystemRenderer::ParticleSystemRenderer(bool NEEDS_DATASET)
     m_pass->setFrontFaceWinding(render::RenderPass::WindingOrder::CCW);
     m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f);
 
-    m_pass->setGpuProgram(g_resourceManager->getFactory().createColoredGpuProgram());
+    m_pass->setGpuProgram(gsvc().resourceMgr.getFactory().createColoredGpuProgram());
 }
 
 ParticleSystemRenderer::~ParticleSystemRenderer()
@@ -316,7 +315,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
             m_renderParticle = &QuadParticleSystemRenderer::render2D;
     }
 
-    auto camMatr = g_sceneManager->getCamera()->getViewMatrix() * *m_currentTransformation;
+    auto camMatr = gsvc().sceneMgr.getCamera()->getViewMatrix() * *m_currentTransformation;
     camMatr = glm::inverse(camMatr);
 
     bool globalOrientation = precomputeOrientation3D(group,

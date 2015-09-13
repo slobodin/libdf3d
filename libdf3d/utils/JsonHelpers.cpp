@@ -1,14 +1,14 @@
 #include "df3d_pch.h"
 #include "JsonHelpers.h"
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <resources/FileDataSource.h>
 
 namespace df3d { namespace utils {
 
 Json::Value jsonLoadFromFile(const std::string &path)
 {
-    auto fileSource = g_fileSystem->openFile(path);
+    auto fileSource = gsvc().filesystem.openFile(path);
     if (!fileSource || !fileSource->valid())
     {
         base::glog << "Couldn't load json configs from" << path << base::logwarn;

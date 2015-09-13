@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "Texture.h"
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include "RendererBackend.h"
 
 namespace df3d { namespace render {
@@ -67,7 +67,7 @@ void TextureCreationParams::setMipmapped(bool mipmapped)
 
 void TextureCreationParams::setAnisotropyLevel(int anisotropy)
 {
-    float maxSupportedAniso = g_renderManager->getRenderer()->getMaxAnisotropy();
+    float maxSupportedAniso = gsvc().renderMgr.getRenderer()->getMaxAnisotropy();
     if (anisotropy > maxSupportedAniso)
     {
         base::glog << "Anisotropy level is bigger than supported. Setting maximum." << base::logwarn;

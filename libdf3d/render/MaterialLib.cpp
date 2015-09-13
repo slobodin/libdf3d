@@ -2,8 +2,7 @@
 #include "MaterialLib.h"
 
 #include "Material.h"
-#include <base/SystemsMacro.h>
-#include <resources/ResourceFactory.h>
+#include <base/Service.h>
 
 namespace df3d { namespace render {
 

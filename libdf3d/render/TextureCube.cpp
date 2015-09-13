@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "TextureCube.h"
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include "RenderManager.h"
 #include "RendererBackend.h"
 #include "Texture2D.h"
@@ -44,7 +44,7 @@ bool TextureCube::createGLTexture()
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_glid);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    const auto &defaultCaps = g_renderManager->getRenderingCapabilities();
+    const auto &defaultCaps = gsvc().renderMgr.getRenderingCapabilities();
     if (!m_filtering)
         m_filtering = defaultCaps.textureFiltering;
     if (!m_mipmapped)
@@ -83,7 +83,7 @@ bool TextureCube::createGLTexture()
 
     for (auto i = 0; i < 6; i++)
     {
-        g_resourceManager->unloadResource(m_images[i]);
+        gsvc().resourceMgr.unloadResource(m_images[i]);
         m_images[i].reset();
     }
 

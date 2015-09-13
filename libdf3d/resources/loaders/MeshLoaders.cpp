@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "MeshLoaders.h"
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <resources/FileDataSource.h>
 
 #include "MeshLoader_obj.h"
@@ -34,7 +34,7 @@ render::MeshData* MeshDataFSLoader::createDummy()
 
 void MeshDataFSLoader::decode(shared_ptr<FileDataSource> source)
 {
-    auto extension = g_fileSystem->getFileExtension(source->getPath());
+    auto extension = gsvc().filesystem.getFileExtension(source->getPath());
 
     if (extension == ".obj")
         m_mesh = MeshLoader_obj().load(source);

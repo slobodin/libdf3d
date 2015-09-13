@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "RenderTargetScreen.h"
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include "RenderManager.h"
 #include "OpenGLCommon.h"
 #include "RendererBackend.h"
@@ -15,7 +15,7 @@ RenderTargetScreen::RenderTargetScreen(const Viewport &vp)
 
 void RenderTargetScreen::bind()
 {
-    g_renderManager->getRenderer()->setViewport(m_viewport);
+    gsvc().renderMgr.getRenderer()->setViewport(m_viewport);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

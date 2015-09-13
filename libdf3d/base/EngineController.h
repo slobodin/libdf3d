@@ -12,6 +12,8 @@ FWD_MODULE_CLASS(audio, AudioManager)
 
 #include "EngineInitParams.h"
 
+namespace df3d { class df3dServices; }
+
 namespace df3d { namespace base {
 
 class DebugConsole;
@@ -21,6 +23,7 @@ class DF3D_DLL EngineController : utils::NonCopyable
     EngineController();
     ~EngineController();
 
+    df3dServices *m_svc = nullptr;
     render::RenderManager *m_renderManager = nullptr;
     scene::SceneManager *m_sceneManager = nullptr;
     resources::ResourceManager *m_resourceManager = nullptr;
@@ -37,7 +40,7 @@ class DF3D_DLL EngineController : utils::NonCopyable
     float m_timeElapsed = 0;
 
 public:
-    static EngineController *getInstance();
+    static EngineController& instance();
 
     bool init(EngineInitParams params);
     void shutdown();
@@ -55,14 +58,7 @@ public:
     void setViewport(const render::Viewport &newvp);
     glm::vec2 screenSize() const;
 
-    scene::SceneManager *getSceneManager() { return m_sceneManager; }
-    resources::ResourceManager *getResourceManager() { return m_resourceManager; }
-    resources::FileSystem *getFileSystem() { return m_fileSystem; }
-    render::RenderManager *getRenderManager() { return m_renderManager; }
-    gui::GuiManager *getGuiManager() { return m_guiManager; }
-    physics::PhysicsManager *getPhysicsManager() { return m_physics; }
-    audio::AudioManager *getAudioManager() { return m_audioManager; }
-    DebugConsole *getConsole() { return m_debugConsole; }
+    df3dServices& svc();
 };
 
 } }
