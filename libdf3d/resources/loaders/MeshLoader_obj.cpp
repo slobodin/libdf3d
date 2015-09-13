@@ -234,10 +234,10 @@ std::unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileData
     }
 
     // Compute all the bounding volumes.
-    // TODO_REFACTO: convex hull also.
     result->aabb.constructFromGeometry(result->submeshes);
     result->sphere.constructFromGeometry(result->submeshes);
     result->obb.constructFromGeometry(result->submeshes);
+    // TODO: create convex hull.
 
     // TODO: can also unload materiallib from resource manager.
 

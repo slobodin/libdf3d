@@ -3,10 +3,10 @@
 #include <SPARK.h>
 
 #include <render/RenderOperation.h>
-#include <render/RenderPass.h>
 
 FWD_MODULE_CLASS(render, RenderQueue)
 FWD_MODULE_CLASS(render, Texture)
+FWD_MODULE_CLASS(render, RenderPass)
 
 namespace df3d { namespace particlesys {
 
@@ -20,7 +20,7 @@ protected:
     void addToRenderQueue(MyRenderBuffer &buffer, size_t nbOfParticles, int verticesPerParticle, int indicesPerParticle, render::RenderOperation::Type type) const;
 
 public:
-    mutable render::RenderPass m_pass;
+    shared_ptr<render::RenderPass> m_pass;
 
     // This is a workaround.
     // We need to pass RenderQueue in order to populate it when renderParticles called.

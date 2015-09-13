@@ -15,14 +15,14 @@ class DebugDrawAABBNode
 {
 public:
     render::RenderOperation m_ro;
-    render::RenderPass m_pass;
+    shared_ptr<render::RenderPass> m_pass;
 
     DebugDrawAABBNode()
     {
-        m_pass = render::RenderPass::createDebugDrawPass();
+        m_pass = make_shared<render::RenderPass>(render::RenderPass::createDebugDrawPass());
 
         m_ro.worldTransform = glm::mat4();
-        m_ro.passProps = &m_pass;
+        m_ro.passProps = m_pass;
 
         // Fill index buffer.
         m_ro.indexData = make_shared<render::IndexBuffer>();

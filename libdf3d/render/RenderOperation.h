@@ -17,14 +17,10 @@ public:
     };
 
     Type type = Type::TRIANGLES;
-
     glm::mat4 worldTransform;
-
-    // TODO_REFACTO: make this just pointers.
-
-    shared_ptr<IndexBuffer> indexData = nullptr;
-    shared_ptr<VertexBuffer> vertexData = nullptr;
-    RenderPass *passProps = nullptr;
+    shared_ptr<IndexBuffer> indexData;
+    shared_ptr<VertexBuffer> vertexData;
+    shared_ptr<RenderPass> passProps;
 
     RenderOperation() = default;
     ~RenderOperation() = default;

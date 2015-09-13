@@ -20,6 +20,8 @@ class DF3D_DLL Material
 
 public:
     Material(const std::string &name = "");
+    Material(const Material &other);
+    Material& operator= (Material other);
     ~Material();
 
     const std::string &getName() const;
@@ -27,9 +29,9 @@ public:
     void appendTechnique(const Technique &technique);
 
     void setCurrentTechnique(const std::string &name);
-    Technique* getCurrentTechnique();
+    shared_ptr<Technique> getCurrentTechnique();
 
-    Technique* getTechnique(const std::string &name);
+    shared_ptr<Technique> getTechnique(const std::string &name);
     size_t getTechniquesCount() const;
 };
 

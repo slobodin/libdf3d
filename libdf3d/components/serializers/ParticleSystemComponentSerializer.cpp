@@ -440,7 +440,7 @@ SPK::Ref<particlesys::ParticleSystemRenderer> createRenderer(const Json::Value &
 
     // FIXME: can share renderer.
     renderer->enableRenderingOption(SPK::RENDERING_OPTION_DEPTH_WRITE, depthWrite);
-    renderer->m_pass.enableDepthTest(depthTest);
+    renderer->m_pass->enableDepthTest(depthTest);
     renderer->setBlendMode(spkBlending);
 
     return renderer;

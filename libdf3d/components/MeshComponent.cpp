@@ -95,7 +95,6 @@ void MeshComponent::onUpdate(float dt)
 
 void MeshComponent::constructTransformedAABB()
 {
-    // TODO_REFACTO
     m_transformedAABB.reset();
 
     auto modelSpaceAABB = m_meshData->getAABB();
@@ -147,7 +146,6 @@ void MeshComponent::updateBoundingSpherePosition()
 
 void MeshComponent::updateOBB()
 {
-    // TODO_REFACTO
     m_obb.reset();
     auto obb = m_meshData->getOBB();
     if (!obb)
@@ -201,11 +199,6 @@ shared_ptr<render::MeshData> MeshComponent::getMeshData() const
 
 scene::AABB MeshComponent::getAABB()
 {
-    // TODO_REFACTO
-    auto modelSpaceAABB = m_meshData->getAABB();
-    if (!modelSpaceAABB)
-        return scene::AABB();       // No valid AABB for non valid geometry.
-
     if (m_transformedAabbDirty)
         constructTransformedAABB();
 
@@ -224,7 +217,6 @@ scene::BoundingSphere MeshComponent::getBoundingSphere()
 
 scene::OBB MeshComponent::getOBB()
 {
-    // TODO_REFACTO
     if (m_obbTransformationDirty)
         updateOBB();
 

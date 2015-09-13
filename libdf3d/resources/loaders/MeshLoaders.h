@@ -27,8 +27,8 @@ class MeshDataFSLoader : public FSResourceLoader
         scene::BoundingSphere sphere;
         scene::OBB obb;
 
-        // TODO_REFACTO:
-        // convexHUll
+        // TODO:
+        // Add convex hull also.
     };
 
     std::string m_path;

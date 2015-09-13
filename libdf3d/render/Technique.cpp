@@ -24,6 +24,21 @@ Technique::Technique(const std::string &name)
 {
 }
 
+Technique::Technique(const Technique &other)
+    : m_name(other.m_name)
+{
+    for (const auto &pass : other.m_passes)
+        m_passes.push_back(make_shared<RenderPass>(*pass));
+}
+
+Technique& Technique::operator= (Technique other)
+{
+    std::swap(m_name, other.m_name);
+    std::swap(m_passes, other.m_passes);
+
+    return *this;
+}
+
 Technique::~Technique()
 {
 }
@@ -33,20 +48,20 @@ void Technique::appendPass(const RenderPass &pass)
     m_passes.push_back(make_shared<RenderPass>(pass));
 }
 
-RenderPass* Technique::getPass(int idx)
+shared_ptr<RenderPass> Technique::getPass(int idx)
 {
     try
     {
-        return m_passes.at(idx).get();
+        return m_passes.at(idx);
     }
     catch (std::out_of_range &) { }
 
     return nullptr;
 }
 
-RenderPass* Technique::getPass(const std::string &name)
+shared_ptr<RenderPass> Technique::getPass(const std::string &name)
 {
-    return findPass(name).get();
+    return findPass(name);
 }
 
 size_t Technique::getPassCount() const

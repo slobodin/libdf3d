@@ -9,9 +9,9 @@
 namespace df3d { namespace physics {
 
 BulletDebugDraw::BulletDebugDraw()
-    : m_pass(render::RenderPass::createDebugDrawPass())
+    : m_pass(make_shared<render::RenderPass>(render::RenderPass::createDebugDrawPass()))
 {
-    m_pass.setDiffuseColor(1.0f, 1.0f, 1.0f, 0.7f);
+    m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 0.7f);
 }
 
 BulletDebugDraw::~BulletDebugDraw()
@@ -65,7 +65,7 @@ int BulletDebugDraw::getDebugMode() const
 void BulletDebugDraw::flushRenderOperations()
 {
     render::RenderOperation op;
-    op.passProps = &m_pass;
+    op.passProps = m_pass;
     op.type = render::RenderOperation::Type::LINES;
 
     op.vertexData = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));

@@ -16,14 +16,16 @@ class DF3D_DLL Technique
 
 public:
     Technique(const std::string &name);
+    Technique(const Technique &other);
+    Technique& operator= (Technique other);
     ~Technique();
 
     void appendPass(const RenderPass &pass);
 
     //! Returns ith pass.
-    RenderPass* getPass(int idx);
+    shared_ptr<RenderPass> getPass(int idx);
     //! Returns first pass with given name.
-    RenderPass* getPass(const std::string &name);
+    shared_ptr<RenderPass> getPass(const std::string &name);
     //! Returns passes count.
     size_t getPassCount() const;
 

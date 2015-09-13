@@ -117,11 +117,13 @@ struct CompiledGeometry
 GuiRenderInterface::GuiRenderInterface()
     : m_textureId(0)
 {
-    m_guipass.setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
-    m_guipass.setGpuProgram(g_resourceManager->getFactory().createColoredGpuProgram());
-    m_guipass.enableDepthTest(false);
-    m_guipass.enableDepthWrite(false);
-    m_guipass.setBlendMode(render::RenderPass::BlendingMode::ALPHA);
+    m_guipass = make_shared<render::RenderPass>();
+
+    m_guipass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
+    m_guipass->setGpuProgram(g_resourceManager->getFactory().createColoredGpuProgram());
+    m_guipass->enableDepthTest(false);
+    m_guipass->enableDepthWrite(false);
+    m_guipass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 }
 
 void GuiRenderInterface::SetViewport(int width, int height)
@@ -190,12 +192,12 @@ void GuiRenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHa
 
     auto geom = (CompiledGeometry *)geometry;
 
-    m_guipass.setSampler("diffuseMap", geom->texture);
+    m_guipass->setSampler("diffuseMap", geom->texture);
 
     render::RenderOperation op;
     op.vertexData = geom->vb;
     op.indexData = geom->ib;
-    op.passProps = &m_guipass;
+    op.passProps = m_guipass;
     op.worldTransform = glm::translate(glm::vec3(translation.x, translation.y, 0.0f));
 
     g_renderManager->drawOperation(op);

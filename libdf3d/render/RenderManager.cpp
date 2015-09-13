@@ -224,7 +224,7 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
             m_renderer->setLight(lights[lightIdx]);
 
             // TODO: update ONLY light uniforms.
-            m_renderer->bindPass(op.passProps);
+            m_renderer->bindPass(op.passProps.get());
             m_renderer->drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
         }
     }
@@ -269,7 +269,7 @@ void RenderManager::drawOperation(const RenderOperation &op)
         return;
 
     m_renderer->setWorldMatrix(op.worldTransform);
-    m_renderer->bindPass(op.passProps);
+    m_renderer->bindPass(op.passProps.get());
     m_renderer->drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
 }
 

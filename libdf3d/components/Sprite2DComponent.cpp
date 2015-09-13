@@ -38,16 +38,14 @@ void Sprite2DComponent::onDraw(render::RenderQueue *ops)
 Sprite2DComponent::Sprite2DComponent(const std::string &pathToTexture)
     : NodeComponent(SPRITE_2D)
 {
-    m_pass.setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
-    m_pass.setGpuProgram(g_resourceManager->getFactory().createColoredGpuProgram());
-    m_pass.enableDepthTest(false);
-    m_pass.enableDepthWrite(false);
-    m_pass.setBlendMode(render::RenderPass::BlendingMode::ALPHA);
+    m_op.passProps = make_shared<render::RenderPass>();
+    m_op.passProps->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
+    m_op.passProps->setGpuProgram(g_resourceManager->getFactory().createColoredGpuProgram());
+    m_op.passProps->enableDepthTest(false);
+    m_op.passProps->enableDepthWrite(false);
+    m_op.passProps->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 
-    auto quadVb = render::createQuad2(render::VertexFormat::create("p:3, tx:2, c:4"), 0.0f, 0.0f, 1.0, 1.0f, render::GpuBufferUsageType::STATIC);
-
-    m_op.passProps = &m_pass;
-    m_op.vertexData = quadVb;
+    m_op.vertexData = render::createQuad2(render::VertexFormat::create("p:3, tx:2, c:4"), 0.0f, 0.0f, 1.0, 1.0f, render::GpuBufferUsageType::STATIC);
 
     useTexture(pathToTexture);
 }

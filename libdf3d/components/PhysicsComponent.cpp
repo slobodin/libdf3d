@@ -54,7 +54,7 @@ void PhysicsComponent::initFromCreationParams()
         break;
     case CollisionShapeType::CONVEX_HULL:
     {
-        // TODO_REFACTO:
+        // TODO:
         assert(false);
         /*
 

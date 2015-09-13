@@ -26,6 +26,25 @@ Material::Material(const std::string &name)
         base::glog << "Creating material with empty name" << base::logwarn;
 }
 
+Material::Material(const Material &other)
+    : m_name(other.m_name)
+{
+    for (const auto &tech : other.m_techniques)
+        m_techniques.push_back(make_shared<Technique>(*tech));
+
+    if (other.m_currentTechnique)
+        m_currentTechnique = findTechnique(other.m_currentTechnique->getName());
+}
+
+Material& Material::operator= (Material other)
+{
+    std::swap(m_name, other.m_name);
+    std::swap(m_techniques, other.m_techniques);
+    std::swap(m_currentTechnique, other.m_currentTechnique);
+
+    return *this;
+}
+
 Material::~Material()
 {
 
@@ -59,14 +78,14 @@ void Material::setCurrentTechnique(const std::string &name)
         base::glog << "Trying to set empty technique" << name << "to material" << m_name << base::logwarn;
 }
 
-Technique* Material::getCurrentTechnique()
+shared_ptr<Technique> Material::getCurrentTechnique()
 {
-    return m_currentTechnique.get();
+    return m_currentTechnique;
 }
 
-Technique* Material::getTechnique(const std::string &name)
+shared_ptr<Technique> Material::getTechnique(const std::string &name)
 {
-    return findTechnique(name).get();
+    return findTechnique(name);
 }
 
 size_t Material::getTechniquesCount() const
