@@ -3,6 +3,7 @@
 
 #include "MaterialLib.h"
 #include "VertexIndexBuffer.h"
+#include "RenderQueue.h"
 #include <base/SystemsMacro.h>
 #include <resources/ResourceFactory.h>
 
@@ -155,6 +156,41 @@ const scene::OBB* MeshData::getOBB() const
         return nullptr;
 
     return &m_obb;
+}
+
+void MeshData::populateRenderQueue(RenderQueue *ops, const glm::mat4 &transformation)
+{
+    // Include all the submeshes.
+    for (auto &sm : m_submeshes)
+    {
+        auto tech = sm.material->getCurrentTechnique();
+        if (!tech || !sm.vb)
+            continue;
+
+        size_t passCount = tech->getPassCount();
+        for (size_t passidx = 0; passidx < passCount; passidx++)
+        {
+            RenderOperation newoperation;
+            auto passProps = tech->getPass(passidx);
+
+            newoperation.worldTransform = transformation;
+            newoperation.vertexData = sm.vb;
+            newoperation.indexData = sm.ib;
+            newoperation.passProps = passProps;
+
+            if (passProps->isTransparent())
+            {
+                ops->transparentOperations.push_back(newoperation);
+            }
+            else
+            {
+                if (passProps->isLit())
+                    ops->litOpaqueOperations.push_back(newoperation);
+                else
+                    ops->notLitOpaqueOperations.push_back(newoperation);
+            }
+        }
+    }
 }
 
 } }

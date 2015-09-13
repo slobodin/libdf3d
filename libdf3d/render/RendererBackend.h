@@ -49,7 +49,6 @@ public:
     RendererBackend();
     ~RendererBackend();
 
-    // TODO_REFACTO
     void loadResources();
 
     void setRenderStatsLocation(RenderStats *renderStats);

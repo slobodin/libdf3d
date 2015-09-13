@@ -6,7 +6,7 @@
 #include <scene/bounding_volumes/OBB.h>
 #include "Vertex.h"
 #include "Material.h"
-#include "RenderingCapabilities.h"
+#include "RenderCommon.h"
 
 FWD_MODULE_CLASS(resources, MeshDataManualLoader)
 FWD_MODULE_CLASS(resources, MeshDataFSLoader)
@@ -15,6 +15,7 @@ namespace df3d { namespace render {
 
 class VertexBuffer;
 class IndexBuffer;
+class RenderQueue;
 
 //! Non GPU representation of a mesh surface.
 class DF3D_DLL SubMesh
@@ -100,7 +101,6 @@ class DF3D_DLL MeshData : public resources::Resource
 public:
     ~MeshData();
 
-    // TODO_REFACTO consider move semantics
     //! Sets given material for all submeshes.
     void setMaterial(const Material &newMaterial);
     //! Sets given material for a particular submesh.
@@ -112,6 +112,8 @@ public:
     const scene::AABB* getAABB() const;
     const scene::BoundingSphere* getBoundingSphere() const;
     const scene::OBB* getOBB() const;
+
+    void populateRenderQueue(RenderQueue *ops, const glm::mat4 &transformation);
 };
 
 } }

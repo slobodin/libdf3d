@@ -88,7 +88,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/OpenGLCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RendererBackend.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderingCapabilities.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderOperation.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderPass.h
@@ -182,7 +182,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/OpenGLCommon.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RendererBackend.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderingCapabilities.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderCommon.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderOperation.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderPass.cpp

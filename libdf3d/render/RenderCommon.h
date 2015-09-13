@@ -2,8 +2,6 @@
 
 namespace df3d { namespace render {
 
-// TODO_REFACTO rename this file.
-
 // FIXME:
 // Make setting.
 #define INDICES_16_BIT uint16_t
@@ -36,8 +34,7 @@ enum class GpuBufferUsageType
 extern const DF3D_DLL int ANISOTROPY_LEVEL_MAX;
 extern const DF3D_DLL int NO_ANISOTROPY;
 
-// TODO_REFACTO - 
-
+// FIXME: don't like it.
 class DF3D_DLL RenderingCapabilities
 {
 public:

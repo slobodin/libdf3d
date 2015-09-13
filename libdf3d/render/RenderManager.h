@@ -1,8 +1,7 @@
 #pragma once
 
-#include "RenderOperation.h"
 #include "RenderStats.h"
-#include "RenderingCapabilities.h"
+#include "RenderCommon.h"
 
 FWD_MODULE_CLASS(scene, Scene)
 FWD_MODULE_CLASS(scene, Node)
@@ -21,6 +20,7 @@ class Viewport;
 class Material;
 class RenderQueue;
 class RenderPass;
+class RenderOperation;
 
 struct RenderManagerInitParams
 {

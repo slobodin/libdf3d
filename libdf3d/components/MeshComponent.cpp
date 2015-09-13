@@ -75,50 +75,13 @@ void MeshComponent::onComponentEvent(components::ComponentEvent ev)
 
 void MeshComponent::onDraw(render::RenderQueue *ops)
 {
-    // TODO_REFACTO
-
-    /*
-
-    // If geometry data has not been loaded yet.
-    if (!m_geometry || !m_geometry->isValid())
+    if (!m_meshData || !m_meshData->isInitialized())
         return;
 
     if (!m_visible || !isInFov())
         return;
 
-    // Include all the submeshes.
-    const auto &submeshes = m_geometry->getSubMeshes();
-    for (auto &sm : submeshes)
-    {
-        auto tech = sm->getMaterial()->getCurrentTechnique();
-        auto vb = sm->getVertexBuffer();
-        auto ib = sm->getIndexBuffer();
-        if (!tech || !vb)
-            continue;
-
-        size_t passCount = tech->getPassCount();
-        for (size_t passidx = 0; passidx < passCount; passidx++)
-        {
-            render::RenderOperation newoperation;
-            auto passProps = tech->getPass(passidx);
-
-            newoperation.worldTransform = m_holder->transform()->getTransformation();
-            newoperation.vertexData = vb;
-            newoperation.indexData = ib;
-            newoperation.passProps = passProps;
-
-            if (passProps->isTransparent())
-                ops->transparentOperations.push_back(newoperation);
-            else
-            {
-                if (passProps->isLit())
-                    ops->litOpaqueOperations.push_back(newoperation);
-                else
-                    ops->notLitOpaqueOperations.push_back(newoperation);
-            }
-        }
-    }
-    */
+    m_meshData->populateRenderQueue(ops, getHolder()->transform()->getTransformation());
 }
 
 void MeshComponent::onUpdate(float dt)
@@ -156,7 +119,6 @@ void MeshComponent::constructTransformedAABB()
 
 void MeshComponent::constructBoundingSphere()
 {
-    // TODO_REFACTO
     m_sphere.reset();
     auto meshDataSphere = m_meshData->getBoundingSphere();
     if (!meshDataSphere || !meshDataSphere->isValid())
@@ -169,6 +131,7 @@ void MeshComponent::constructBoundingSphere()
     auto scale = m_holder->transform()->getScale();
     m_sphere.setPosition(pos);
 
+    // FIXME: wtf is this??? Why can't just scale radius?
     auto dir = m_sphere.getRadius() * glm::normalize(pos + glm::vec3(1.0f, 1.0f, 1.0f));
     dir = glm::mat3(glm::scale(scale)) * dir;
 
@@ -251,7 +214,6 @@ scene::AABB MeshComponent::getAABB()
 
 scene::BoundingSphere MeshComponent::getBoundingSphere()
 {
-    // TODO_REFACTO
     if (m_boundingSphereDirty)
         constructBoundingSphere();
 

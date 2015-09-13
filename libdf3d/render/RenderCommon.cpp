@@ -1,5 +1,5 @@
 #include "df3d_pch.h"
-#include "RenderingCapabilities.h"
+#include "RenderCommon.h"
 
 namespace df3d { namespace render {
 
