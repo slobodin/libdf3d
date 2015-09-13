@@ -38,7 +38,6 @@ EngineController::~EngineController()
 
 void EngineController::shutdown()
 {
-    SAFE_DELETE(m_svc);
     SAFE_DELETE(m_debugConsole);
     SAFE_DELETE(m_sceneManager);
     SAFE_DELETE(m_physics);
@@ -47,6 +46,8 @@ void EngineController::shutdown()
     SAFE_DELETE(m_resourceManager);
     SAFE_DELETE(m_fileSystem);
     SAFE_DELETE(m_audioManager);
+
+    SAFE_DELETE(m_svc);
 
     particlesys::destroySparkEngine();
 
@@ -88,12 +89,6 @@ bool EngineController::init(EngineInitParams params)
         renderParams.viewportHeight = params.windowHeight;
         m_renderManager = new render::RenderManager(renderParams);
 
-        // Load embedded resources.
-        base::glog << "Loading embedded resources" << base::logdebug;
-
-        m_resourceManager->loadEmbedResources();
-        m_renderManager->loadEmbedResources();
-
         // Init scene manager.
         m_sceneManager = new scene::SceneManager();
 
@@ -109,19 +104,27 @@ bool EngineController::init(EngineInitParams params)
         // Init audio subsystem.
         m_audioManager = new audio::AudioManager();
 
-        // Create console.
-        if (params.createConsole)
-            m_debugConsole = new DebugConsole();
-
         // Init services.
-        m_svc = new df3dServices(*m_sceneManager, *m_resourceManager, *m_fileSystem, 
-                                 *m_renderManager, *m_guiManager, 
-                                 *m_physics, *m_physics->getWorld(), *m_audioManager,
-                                 m_debugConsole);
-
-        base::glog << "Engine initialized" << base::logmess;
+        m_svc = new df3dServices(*m_sceneManager, *m_resourceManager, *m_fileSystem,
+                                 *m_renderManager, *m_guiManager,
+                                 *m_physics, *m_physics->getWorld(), *m_audioManager);
 
         m_initialized = true;
+
+        // Load embedded resources.
+        base::glog << "Loading embedded resources" << base::logdebug;
+
+        m_resourceManager->loadEmbedResources();
+        m_renderManager->loadEmbedResources();
+
+        // Create console.
+        if (params.createConsole)
+        {
+            m_debugConsole = new DebugConsole();
+            m_svc->console = m_debugConsole;
+        }
+
+        base::glog << "Engine initialized" << base::logmess;
     }
     catch (std::exception &e)
     {

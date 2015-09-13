@@ -116,13 +116,7 @@ struct CompiledGeometry
 GuiRenderInterface::GuiRenderInterface()
     : m_textureId(0)
 {
-    m_guipass = make_shared<render::RenderPass>();
 
-    m_guipass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
-    m_guipass->setGpuProgram(gsvc().resourceMgr.getFactory().createColoredGpuProgram());
-    m_guipass->enableDepthTest(false);
-    m_guipass->enableDepthWrite(false);
-    m_guipass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 }
 
 void GuiRenderInterface::SetViewport(int width, int height)
@@ -188,6 +182,17 @@ void GuiRenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHa
 {
     if (!geometry)
         return;
+
+    if (!m_guipass)
+    {
+        m_guipass = make_shared<render::RenderPass>();
+
+        m_guipass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
+        m_guipass->setGpuProgram(gsvc().resourceMgr.getFactory().createColoredGpuProgram());
+        m_guipass->enableDepthTest(false);
+        m_guipass->enableDepthWrite(false);
+        m_guipass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
+    }
 
     auto geom = (CompiledGeometry *)geometry;
 

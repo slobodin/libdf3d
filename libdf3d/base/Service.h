@@ -24,8 +24,7 @@ class DF3D_DLL df3dServices
                  gui::GuiManager &guiMgr,
                  physics::PhysicsManager &physicsMgr,
                  btDynamicsWorld &physicsWorld,
-                 audio::AudioManager &audioManager,
-                 base::DebugConsole *debugConsole);
+                 audio::AudioManager &audioManager);
 
 public:
     scene::SceneManager &sceneMgr;

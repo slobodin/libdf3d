@@ -10,8 +10,7 @@ df3dServices::df3dServices(scene::SceneManager &sceneMgr,
                            gui::GuiManager &guiMgr,
                            physics::PhysicsManager &physicsMgr,
                            btDynamicsWorld &physicsWorld,
-                           audio::AudioManager &audioManager,
-                           base::DebugConsole *debugConsole)
+                           audio::AudioManager &audioManager)
     : sceneMgr(sceneMgr),
     resourceMgr(resourceMgr),
     filesystem(filesystem),
@@ -19,14 +18,14 @@ df3dServices::df3dServices(scene::SceneManager &sceneMgr,
     guiMgr(guiMgr),
     physicsMgr(physicsMgr),
     physicsWorld(physicsWorld),
-    audioManager(audioManager),
-    console(debugConsole)
+    audioManager(audioManager)
 {
 
 }
 
 df3dServices& gsvc()
 {
+    assert(base::EngineController::instance().initialized());
     return base::EngineController::instance().svc();
 }
 
