@@ -12,7 +12,7 @@
 #include <render/RendererBackend.h>
 #include <render/Texture2D.h>
 #include <render/Viewport.h>
-#include <render/RenderingCapabilities.h>
+#include <render/RenderCommon.h>
 
 #include <Rocket/Core.h>
 

@@ -62,7 +62,6 @@ static_assert(std::is_same<glm::vec3::value_type, float>::value, "glm: only floa
 
 struct DF3D_DLL Vertex_3p3n2tx4c3t3b
 {
-    // TODO_REFACTO
     // FIXME: order here matters.
     glm::vec3 p;
     glm::vec3 n;

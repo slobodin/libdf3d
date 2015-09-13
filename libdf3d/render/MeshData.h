@@ -76,7 +76,6 @@ class DF3D_DLL MeshData : public resources::Resource
 
     size_t m_trianglesCount = 0;
 
-    // TODO_REFACTO: make non copyable
     struct HardwareSubMesh
     {
         shared_ptr<VertexBuffer> vb;

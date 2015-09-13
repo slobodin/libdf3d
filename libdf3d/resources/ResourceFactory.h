@@ -34,8 +34,6 @@ public:
     shared_ptr<render::GpuProgram> createRttQuadProgram();
     shared_ptr<render::GpuProgram> createAmbientPassProgram();
     shared_ptr<render::MeshData> createMeshData(const std::string &meshDataPath, ResourceLoadingMode lm);
-    // TODO_REFACTO: MeshBuilder.
-    shared_ptr<render::MeshData> createMeshData();
     shared_ptr<render::Texture2D> createTexture(const std::string &imagePath, ResourceLoadingMode lm);
     shared_ptr<render::Texture2D> createTexture(const std::string &imagePath, render::TextureCreationParams params, ResourceLoadingMode lm);
     shared_ptr<render::Texture2D> createTexture(unique_ptr<render::PixelBuffer> pixelBuffer, render::TextureCreationParams params);

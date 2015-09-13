@@ -282,8 +282,6 @@ class MaterialLibParser
                 if (defaultTechniqueName.empty())
                     defaultTechniqueName = technique->getName();
 
-                // TODO_REFACTO move semantics
-
                 material->appendTechnique(*technique);
             }
         }
@@ -307,8 +305,6 @@ class MaterialLibParser
         {
             if (n->type == PASS_TYPE)
             {
-                // TODO_REFACTO move semantics
-
                 auto pass = parsePassNode(*n);
                 if (pass)
                     technique->appendPass(*pass);
