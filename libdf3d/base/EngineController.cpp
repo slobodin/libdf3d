@@ -139,6 +139,7 @@ void EngineController::update(float systemDelta, float gameDelta)
     // Update engine.
     m_timeElapsed = IntervalBetweenNowAnd(m_timeStarted);
 
+    m_resourceManager->poll();
     m_audioManager->update(systemDelta);
     m_physics->update(gameDelta);
     m_sceneManager->update(gameDelta);

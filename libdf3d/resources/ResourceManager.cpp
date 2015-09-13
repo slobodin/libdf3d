@@ -14,30 +14,14 @@ void ResourceManager::loadEmbedResources()
 
 }
 
-//void ResourceManager::doRequest(DecodeRequest req)
-//{
-    // If 1 thread, need to be locked.
-    //std::lock_guard<std::recursive_mutex> lock(m_lock);
+void ResourceManager::doRequest(DecodeRequest req)
+{
+    base::glog << "ASYNC decoding" << req.source->getPath() << base::logdebug;
 
-    //base::glog << "Start load" << req.fileSource->getPath() << base::logmess;
+    req.loader->decode(req.source);
 
-    //auto fileSource = gsvc().filesystem.openFile(req.filePath);
-
-    //bool decodeResult = req.decoder->decodeResource(fileSource, req.resource);
-
-    // TODO:
-    // Enqueue this into engine thread.
-
-    //req.resource->onDecoded(decodeResult);
-
-    //{
-    //    std::lock_guard<std::recursive_mutex> lock(m_lock);
-    //    for (auto listener : m_listeners)
-    //        listener->onLoadFromFileSystemRequestComplete(req.resource->getGUID());
-    //}
-
-    //base::glog << "Done load" << req.fileSource->getPath() << "with result" << decodeResult << base::logmess;
-//}
+    m_decodedResources.push(req);
+}
 
 shared_ptr<Resource> ResourceManager::findResource(const std::string &fullPath) const
 {
@@ -91,16 +75,27 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
     // Cache the resource.
     m_loadedResources[resource->getGUID()] = resource;
 
-    // TODO_REFACTO: async calls.
-
     for (auto listener : m_listeners)
         listener->onLoadFromFileSystemRequest(resource->getGUID());
 
-    loader->decode(gsvc().filesystem.openFile(guid));
-    loader->onDecoded(resource.get());
+    DecodeRequest req;
+    req.loader = loader;
+    req.resource = resource;
+    req.source = gsvc().filesystem.openFile(guid);
 
-    for (auto listener : m_listeners)
-        listener->onLoadFromFileSystemRequestComplete(resource->getGUID());
+    if (loader->loadingMode == ResourceLoadingMode::ASYNC)
+        m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, req));
+    else
+    {
+        base::glog << "Decoding" << req.source->getPath() << base::logdebug;
+
+        loader->decode(req.source);
+
+        loader->onDecoded(resource.get());
+
+        for (auto listener : m_listeners)
+            listener->onLoadFromFileSystemRequestComplete(resource->getGUID());
+    }
 
     return resource;
 }
@@ -119,17 +114,18 @@ ResourceManager::~ResourceManager()
     m_loadedResources.clear();
 }
 
-//shared_ptr<Resource> ResourceManager::loadResourceFromFileSystem(const std::string &path, ResourceLoadingMode lm)
-//{
-//    if (lm == ResourceLoadingMode::ASYNC)
-//        m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, request));
-//    else if (lm == ResourceLoadingMode::IMMEDIATE)
-//        doRequest(request);
-//    else
-//        return nullptr;
-//
-//    return resource;
-//}
+void ResourceManager::poll()
+{
+    while (!m_decodedResources.empty())
+    {
+        auto request = m_decodedResources.pop();
+
+        request.loader->onDecoded(request.resource.get());
+
+        for (auto listener : m_listeners)
+            listener->onLoadFromFileSystemRequestComplete(request.resource->getGUID());
+    }
+}
 
 void ResourceManager::unloadResource(const ResourceGUID &guid)
 {

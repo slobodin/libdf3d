@@ -54,10 +54,12 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
 
     meshdata->doInitMesh(m_mesh->submeshes);
 
+    /*
     size_t meshTotalBytes = 0;
     for (const auto &s : m_mesh->submeshes)
         meshTotalBytes += s.getVerticesCount() * s.getVertexFormat().getVertexSize();
     base::glog << "Cleaning up" << meshTotalBytes / 1024.0f << "KB of CPU copy of mesh data" << base::logdebug;
+    */
 
     m_mesh.reset();     // Cleanup main memory.
 }

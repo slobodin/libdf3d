@@ -110,8 +110,6 @@ Texture2D::~Texture2D()
     deleteGLTexture();
 }
 
-// FIXME: these getters are not thread safe.
-
 size_t Texture2D::getOriginalWidth() const
 {
     return m_originalWidth;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utils/ConcurrentQueue.h>
+
 FWD_MODULE_CLASS(base, ThreadPool)
 FWD_MODULE_CLASS(base, EngineController)
 
@@ -27,7 +29,17 @@ private:
     friend class base::EngineController;
     friend class ResourceFactory;
 
+    struct DecodeRequest
+    {
+        shared_ptr<FileDataSource> source;
+        shared_ptr<Resource> resource;
+        shared_ptr<FSResourceLoader> loader;
+    };
+
+    // Thread pool for resources decoding.
     unique_ptr<base::ThreadPool> m_threadPool;
+    // Resources for which should call onDecoded in the main thread.
+    utils::ConcurrentQueue<DecodeRequest> m_decodedResources;
     mutable std::recursive_mutex m_lock;
 
     std::unordered_map<ResourceGUID, shared_ptr<Resource>> m_loadedResources;
@@ -37,7 +49,7 @@ private:
     unique_ptr<ResourceFactory> m_factory;
 
     void loadEmbedResources();
-    //void doRequest(DecodeRequest req);
+    void doRequest(DecodeRequest req);
 
     shared_ptr<Resource> findResource(const std::string &guid) const;
     shared_ptr<Resource> loadManual(shared_ptr<ManualResourceLoader> loader);
@@ -45,6 +57,8 @@ private:
 
     ResourceManager();
     ~ResourceManager();
+
+    void poll();
 
 public:
     //! All resources creation is going through this factory.
