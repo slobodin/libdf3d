@@ -71,7 +71,6 @@ void MeshLoader_obj::processLine_f(std::istream &is)
     // If do not have submesh yet, then create default and set is as current.
     if (!m_currentSubmesh)
     {
-        // TODO_REFACTO: check on all cases, please!
         auto submesh = createSubmesh(m_meshDataFileName);   // Using filename as the material name.
 
         m_currentSubmesh = submesh.get();
