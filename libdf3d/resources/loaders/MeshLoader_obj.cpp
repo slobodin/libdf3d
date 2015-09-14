@@ -23,8 +23,10 @@ bool MeshLoader_obj::hasTxCoords() const
 
 unique_ptr<render::SubMesh> MeshLoader_obj::createSubmesh(const std::string &materialName)
 {
-    auto submesh = make_unique<render::SubMesh>();
-    submesh->setVertexFormat(render::VertexFormat::create("p:3, n:3, tx:2, c:4, tan:3, bitan:3"));
+    auto vertexFormat = render::VertexFormat({ render::VertexFormat::POSITION_3, render::VertexFormat::NORMAL_3,
+                                               render::VertexFormat::TX_2, render::VertexFormat::COLOR_4, 
+                                               render::VertexFormat::TANGENT_3, render::VertexFormat::BITANGENT_3 });
+    auto submesh = make_unique<render::SubMesh>(vertexFormat);
     submesh->setMtlName(materialName);
     submesh->setVertexBufferUsageHint(render::GpuBufferUsageType::STATIC);
     submesh->setIndexBufferUsageHint(render::GpuBufferUsageType::STATIC);
@@ -110,16 +112,14 @@ void MeshLoader_obj::processLine_f(std::istream &is)
             is >> vertexidx >> temp >> uvidx >> temp >> normalidx;
         }
 
-        render::Vertex_3p3n2tx4c3t3b v;
-
-        v.p = m_vertices.at(vertexidx - 1);
+        auto v = m_currentSubmesh->getVertexData().getNextVertex();
+        v.setPosition(m_vertices.at(vertexidx - 1));
+        v.setColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 
         if (normalidx > 0)
-            v.n = m_normals.at(normalidx - 1);
+            v.setNormal(m_normals.at(normalidx - 1));
         if (uvidx > 0)
-            v.tx = m_txCoords.at(uvidx - 1);
-
-        m_currentSubmesh->appendVertexData((const float *)&v, 1);
+            v.setTx(m_txCoords.at(uvidx - 1));
 
         if (!is.good())
             break;

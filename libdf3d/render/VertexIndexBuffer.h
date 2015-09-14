@@ -28,6 +28,8 @@ public:
      * \return
      */
     void alloc(size_t verticesCount, const void *data, GpuBufferUsageType usage);
+    //! Creates new data store for a given VertexData.
+    void alloc(const VertexData &data, GpuBufferUsageType usage);
     //! Update buffer with new data, verticesCount may be less than initially allocated.
     void update(size_t verticesCount, const void *data);
 

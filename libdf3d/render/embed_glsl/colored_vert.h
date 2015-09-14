@@ -5,9 +5,9 @@ struct Material                             \n\
     vec4 diffuse;                           \n\
 };                                          \n\
 \
-attribute vec3 vertex;                      \n\
-attribute vec2 txCoord;                     \n\
-attribute vec4 vertexColor;                 \n\
+attribute vec3 a_vertex3;                   \n\
+attribute vec2 a_txCoord;                   \n\
+attribute vec4 a_vertexColor;               \n\
 \
 uniform mat4 WorldViewProjectionMatrix;     \n\
 \
@@ -19,10 +19,10 @@ varying LOWP vec2 UV;                       \n\
 void main()                                 \n\
 {                                           \n\
 \
-    color = vertexColor * material.diffuse; \n\
+    color = a_vertexColor * material.diffuse; \n\
 \
-    gl_Position = WorldViewProjectionMatrix * vec4( vertex, 1.0 );\n\
+    gl_Position = WorldViewProjectionMatrix * vec4( a_vertex3, 1.0 );\n\
 \
-    UV = txCoord;                           \n\
+    UV = a_txCoord;                         \n\
 }                                           \n\
 "

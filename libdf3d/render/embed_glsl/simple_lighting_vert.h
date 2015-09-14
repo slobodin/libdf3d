@@ -15,9 +15,9 @@ struct Light                                \n\
     vec4 position;                          \n\
 };                                          \n\
 \
-attribute vec3 vertex;                      \n\
-attribute vec3 normal;                      \n\
-attribute vec2 txCoord;                     \n\
+attribute vec3 a_vertex3;                    \n\
+attribute vec3 a_normal;                    \n\
+attribute vec2 a_txCoord;                   \n\
 \
 uniform mat4 WorldViewMatrix;               \n\
 uniform mat4 WorldViewProjectionMatrix;     \n\
@@ -57,16 +57,16 @@ void illuminate()                                           \n\
 \
 void main()                                             \n\
 {                                                       \n\
-    N = normalize( NormalMatrix * normal );             \n\
-    P = (WorldViewMatrix * vec4(vertex, 1.0)).xyz;                    \n\
+    N = normalize( NormalMatrix * a_normal );           \n\
+    P = (WorldViewMatrix * vec4(a_vertex3, 1.0)).xyz;                  \n\
     V = normalize( -P );                                \n\
 \
     color = vec4(0.0, 0.0, 0.0, 1.0);                   \n\
 \
     illuminate();                                       \n\
 \
-    gl_Position = WorldViewProjectionMatrix * vec4(vertex, 1.0);     \n\
+    gl_Position = WorldViewProjectionMatrix * vec4(a_vertex3, 1.0);     \n\
 \
-    UV = txCoord;                                       \n\
+    UV = a_txCoord;                                     \n\
 }                                                       \n\
 "

@@ -48,6 +48,13 @@ void VertexBuffer::alloc(size_t verticesCount, const void *data, GpuBufferUsageT
     m_sizeInBytes = verticesCount * m_format.getVertexSize();
 }
 
+void VertexBuffer::alloc(const VertexData &data, GpuBufferUsageType usage)
+{
+    assert(data.getFormat() == m_format);
+
+    alloc(data.getVerticesCount(), data.getRawData(), usage);
+}
+
 void VertexBuffer::update(size_t verticesCount, const void *data)
 {
     auto bytesUpdating = verticesCount * m_format.getVertexSize();
@@ -142,21 +149,18 @@ shared_ptr<VertexBuffer> createQuad(const VertexFormat &vf, float x, float y, fl
         { 0.0, 0.0 }
     };
 
-    std::vector<Vertex_3p2tx> vertexData;
+    VertexData vertexData(vf);
 
     for (int i = 0; i < 6; i++)
     {
-        Vertex_3p2tx v;
-        v.p.x = quad_pos[i][0];
-        v.p.y = quad_pos[i][1];
-        v.tx.x = quad_uv[i][0];
-        v.tx.y = quad_uv[i][1];
+        auto v = vertexData.getNextVertex();
 
-        vertexData.push_back(v);
+        v.setPosition({ quad_pos[i][0], quad_pos[i][1], 0.0f });
+        v.setTx({ quad_uv[i][0], quad_uv[i][1] });
     }
 
     auto result = make_shared<VertexBuffer>(vf);
-    result->alloc(6, vertexData.data(), usage);
+    result->alloc(vertexData, usage);
 
     return result;
 }
@@ -187,23 +191,19 @@ shared_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, f
         { 0.0, 0.0 }
     };
 
-    std::vector<Vertex_3p2tx4c> vertexData;
+    VertexData vertexData(vf);
 
     for (int i = 0; i < 6; i++)
     {
-        Vertex_3p2tx4c v;
-        v.p.x = quad_pos[i][0];
-        v.p.y = quad_pos[i][1];
-        v.p.z = 0.0f;
-        v.tx.x = quad_uv[i][0];
-        v.tx.y = quad_uv[i][1];
-        v.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        auto v = vertexData.getNextVertex();
 
-        vertexData.push_back(v);
+        v.setPosition({ quad_pos[i][0], quad_pos[i][1], 0.0f });
+        v.setTx({ quad_uv[i][0], quad_uv[i][1] });
+        v.setColor({ 1.0f, 1.0f, 1.0f, 1.0f });
     }
 
     auto result = make_shared<VertexBuffer>(vf);
-    result->alloc(6, vertexData.data(), usage);
+    result->alloc(vertexData, usage);
 
     return result;
 }

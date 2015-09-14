@@ -2,119 +2,100 @@
 
 namespace df3d { namespace render {
 
-class VertexFormat;
-
-class DF3D_DLL VertexComponent
-{
-    friend class VertexFormat;
-public:
-    enum Type
-    {
-        POSITION = 0,
-        NORMAL,
-        TEXTURE_COORDS,
-        COLOR,
-        TANGENT,
-        BITANGENT
-    };
-
-private:
-    Type m_type = POSITION;
-    size_t m_count = 0;
-
-    VertexComponent(Type type, size_t count)
-        : m_type(type), m_count(count)
-    {
-
-    }
-
-public:
-    Type getType() const { return m_type; }
-    size_t getCount() const { return m_count; }
-};
-
-class DF3D_DLL VertexFormat
-{
-    std::vector<VertexComponent> m_components;
-    size_t m_vertexSize = 0;    // bytes
-
-    void addComponent(const VertexComponent &component);
-
-public:
-    //! Returns size in bytes.
-    size_t getVertexSize() const { return m_vertexSize; }
-    void enableGLAttributes() const;
-    void disableGLAttributes() const;
-
-    //! Returns offset in bytes to the component of provided type.
-    size_t getOffsetTo(VertexComponent::Type component) const;
-
-    bool hasComponent(VertexComponent::Type component) const;
-    const VertexComponent *getComponent(VertexComponent::Type component) const;
-
-    static VertexFormat create(const std::string &definition);
-};
-
 // Silly assert but we support only floats.
 static_assert(std::is_same<glm::vec3::value_type, float>::value, "glm: only floats are supported");
 
-#pragma pack(push, 1)
-
-struct DF3D_DLL Vertex_3p3n2tx4c3t3b
+class VertexFormat
 {
-    // FIXME: order here matters.
-    glm::vec3 p;
-    glm::vec3 n;
-    glm::vec2 tx;
-    glm::vec4 color;
-    glm::vec3 tangent;
-    glm::vec3 bitangent;
-
-    Vertex_3p3n2tx4c3t3b()
+public:
+    enum VertexAttribute
     {
-        color.r = color.g = color.b = color.a = 1.0f;
-    }
+        POSITION_2,
+        POSITION_3,
+        TX_2,
+        COLOR_4,
+        NORMAL_3,
+        TANGENT_3,
+        BITANGENT_3,
+
+        COUNT
+    };
+
+private:
+    std::vector<VertexAttribute> m_attribs;
+    size_t m_offsets[COUNT] = { 0 };
+    size_t m_counts[COUNT] = { 0 };
+    size_t m_size = 0;
+
+public:
+    VertexFormat(const std::vector<VertexAttribute> &attribs);
+
+    //! Whether or not this format has a given attribute.
+    bool hasAttribute(VertexAttribute attrib) const;
+    //! Returns size in bytes.
+    size_t getVertexSize() const;
+    //! Returns offset in bytes to a given attribute.
+    size_t getOffsetTo(VertexAttribute attrib) const;
+    //! Return the size in bytes of a given attribute.
+    size_t getAttributeSize(VertexAttribute attrib) const;
+
+    void enableGLAttributes();
+    void disableGLAttributes();
+
+    bool operator== (const VertexFormat &other) const;
+    bool operator!= (const VertexFormat &other) const;
 };
 
-struct DF3D_DLL Vertex_3p3n2tx3t3b
+class Vertex
 {
-    glm::vec3 p;
-    glm::vec3 n;
-    glm::vec2 tx;
-    glm::vec3 tangent;
-    glm::vec3 bitangent;
+    float *m_vertexData;
+    const VertexFormat &m_format;
+
+public:
+    Vertex(const VertexFormat &format, float *vertexData);
+
+    void setPosition(const glm::vec2 &pos);
+    void setPosition(const glm::vec3 &pos);
+    void setTx(const glm::vec2 &tx);
+    void setColor(const glm::vec4 &color);
+    void setNormal(const glm::vec3 &normal);
+    void setTangent(const glm::vec3 &tangent);
+    void setBitangent(const glm::vec3 &bitangent);
+
+    void getPosition(glm::vec2 *pos);
+    void getPosition(glm::vec3 *pos);
+    void getTx(glm::vec2 *tx);
+    void getColor(glm::vec4 *color);
+    void getNormal(glm::vec3 *normal);
+    void getTangent(glm::vec3 *tangent);
+    void getBitangent(glm::vec3 *bitangent);
 };
 
-struct DF3D_DLL Vertex_3p2tx
+class VertexData
 {
-    glm::vec3 p;
-    glm::vec2 tx;
+    std::vector<float> m_data;
+    VertexFormat m_format;
+    size_t m_verticesCount = 0;
+
+public:
+    VertexData(const VertexFormat &format);
+
+    //! Allocates memory for given number of vertices.
+    void alloc(size_t verticesCount);
+    //! Allocates memory for a new vertex and returns vertex proxy.
+    Vertex getNextVertex();
+    //! Returns vertex proxy for ith vertex [0, n).
+    Vertex getVertex(size_t idx);
+    //! Returns this data vertex format.
+    const VertexFormat& getFormat() const { return m_format; }
+    //! Returns count of vertices in this buffer.
+    size_t getVerticesCount() const { return m_verticesCount; }
+    //! Returns raw vertex data.
+    const float* getRawData() const { return m_data.data(); }
+    //! Returns raw vertex data.
+    float* getRawData() { return m_data.data(); }
+    //! Clears the buffer.
+    void clear();
 };
-
-struct DF3D_DLL Vertex_3p2tx4c
-{
-    glm::vec3 p;
-    glm::vec2 tx;
-    glm::vec4 color;
-
-    Vertex_3p2tx4c()
-    {
-        color.r = color.g = color.b = color.a = 1.0f;
-    }
-};
-
-struct DF3D_DLL Vertex_2p2tx4c
-{
-    glm::vec2 p;
-    glm::vec2 tx;
-    glm::vec4 color;
-
-    Vertex_2p2tx4c()
-    {
-        color.r = color.g = color.b = color.a = 1.0f;
-    }
-};
-
-#pragma pack(pop)
 
 } }

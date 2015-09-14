@@ -53,56 +53,27 @@ public:
         if (!aabb.isValid())
             return;
 
-        m_ro.vertexData = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
-        std::vector<render::Vertex_3p2tx4c> vertexData;
+        render::VertexFormat vertexFormat({ render::VertexFormat::POSITION_3, render::VertexFormat::TX_2, render::VertexFormat::COLOR_4 });
+        render::VertexData vertexData(vertexFormat);
 
         // Create debug visual for AABB.
         // FIXME: This happens even if AABB is the same as was on the last frame.
-        render::Vertex_3p2tx4c v;
         const auto &minpt = aabb.minPoint();
         const auto &maxpt = aabb.maxPoint();
 
-        v.p.x = minpt.x;
-        v.p.y = maxpt.y;
-        v.p.z = maxpt.z;
-        vertexData.push_back(v);
+        // FIXME: set color also.
 
-        v.p.x = minpt.x;
-        v.p.y = maxpt.y;
-        v.p.z = minpt.z;
-        vertexData.push_back(v);
+        vertexData.getNextVertex().setPosition({ minpt.x, maxpt.y, maxpt.z });
+        vertexData.getNextVertex().setPosition({ minpt.x, maxpt.y, minpt.z });
+        vertexData.getNextVertex().setPosition({ maxpt.x, maxpt.y, minpt.z });
+        vertexData.getNextVertex().setPosition({ maxpt.x, maxpt.y, maxpt.z });
+        vertexData.getNextVertex().setPosition({ minpt.x, minpt.y, maxpt.z });
+        vertexData.getNextVertex().setPosition({ minpt.x, minpt.y, minpt.z });
+        vertexData.getNextVertex().setPosition({ maxpt.x, minpt.y, minpt.z });
+        vertexData.getNextVertex().setPosition({ maxpt.x, minpt.y, maxpt.z });
 
-        v.p.x = maxpt.x;
-        v.p.y = maxpt.y;
-        v.p.z = minpt.z;
-        vertexData.push_back(v);
-
-        v.p.x = maxpt.x;
-        v.p.y = maxpt.y;
-        v.p.z = maxpt.z;
-        vertexData.push_back(v);
-
-        v.p.x = minpt.x;
-        v.p.y = minpt.y;
-        v.p.z = maxpt.z;
-        vertexData.push_back(v);
-
-        v.p.x = minpt.x;
-        v.p.y = minpt.y;
-        v.p.z = minpt.z;
-        vertexData.push_back(v);
-
-        v.p.x = maxpt.x;
-        v.p.y = minpt.y;
-        v.p.z = minpt.z;
-        vertexData.push_back(v);
-
-        v.p.x = maxpt.x;
-        v.p.y = minpt.y;
-        v.p.z = maxpt.z;
-        vertexData.push_back(v);
-
-        m_ro.vertexData->alloc(vertexData.size(), vertexData.data(), render::GpuBufferUsageType::STREAM);
+        m_ro.vertexData = make_shared<render::VertexBuffer>(vertexFormat);
+        m_ro.vertexData->alloc(vertexData, render::GpuBufferUsageType::STREAM);
     }
 };
 

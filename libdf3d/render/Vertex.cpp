@@ -1,109 +1,242 @@
 #include "df3d_pch.h"
 #include "Vertex.h"
 
-#include <boost/algorithm/string.hpp>
-
 #include "OpenGLCommon.h"
 #include <utils/Utils.h>
 
 namespace df3d { namespace render {
 
-void VertexFormat::addComponent(const VertexComponent &component)
-{
-    m_components.push_back(component);
-    m_vertexSize += component.getCount() * sizeof(float);
-}
-
-void VertexFormat::enableGLAttributes() const
+VertexFormat::VertexFormat(const std::vector<VertexAttribute> &attribs)
+    : m_attribs(attribs)
 {
     size_t offset = 0;
-    for (const auto &c : m_components)
+    for (auto attrib : m_attribs)
     {
-        glEnableVertexAttribArray(c.getType());
+        m_size += getAttributeSize(attrib);
+        m_offsets[attrib] = offset;
+        offset = m_size;
 
-        glVertexAttribPointer(c.getType(), c.getCount(), GL_FLOAT, GL_FALSE, m_vertexSize, (void *)offset);
-
-        offset += c.getCount() * sizeof(float);
+        switch (attrib)
+        {
+        case VertexFormat::POSITION_2:
+        case VertexFormat::TX_2:
+            m_counts[attrib] = 2;
+            break;
+        case VertexFormat::POSITION_3:
+        case VertexFormat::NORMAL_3:
+        case VertexFormat::TANGENT_3:
+        case VertexFormat::BITANGENT_3:
+            m_counts[attrib] = 3;
+            break;
+        case VertexFormat::COLOR_4:
+            m_counts[attrib] = 4;
+            break;
+        default:
+            assert(false);
+        }
     }
 }
 
-void VertexFormat::disableGLAttributes() const
+bool VertexFormat::hasAttribute(VertexAttribute attrib) const
 {
-    for (const auto &c : m_components)
-        glDisableVertexAttribArray(c.getType());
+    return utils::contains(m_attribs, attrib);
 }
 
-size_t VertexFormat::getOffsetTo(VertexComponent::Type component) const
+size_t VertexFormat::getVertexSize() const
 {
-    size_t offset = 0;
-    for (const auto &c : m_components)
-    {
-        if (c.getType() == component)
-            return offset;
+    return m_size;
+}
 
-        offset += c.getCount() * sizeof(float);
+size_t VertexFormat::getOffsetTo(VertexAttribute attrib) const
+{
+    return m_offsets[attrib];
+}
+
+size_t VertexFormat::getAttributeSize(VertexAttribute attrib) const
+{
+    switch (attrib)
+    {
+    case VertexFormat::POSITION_2:
+        return 2 * sizeof(float);
+    case VertexFormat::POSITION_3:
+        return 3 * sizeof(float);
+    case VertexFormat::TX_2:
+        return 2 * sizeof(float);
+    case VertexFormat::COLOR_4:
+        return 4 * sizeof(float);
+    case VertexFormat::NORMAL_3:
+        return 3 * sizeof(float);
+    case VertexFormat::TANGENT_3:
+        return 3 * sizeof(float);
+    case VertexFormat::BITANGENT_3:
+        return 3 * sizeof(float);
+    default:
+        break;
     }
 
-    // No such component.
-    base::glog << "Invalid component type passed to VertexFormat::getOffsetTo" << base::logwarn;
+    assert(false && "no such attribute in vertex format");
     return 0;
 }
 
-bool VertexFormat::hasComponent(VertexComponent::Type component) const
+void VertexFormat::enableGLAttributes()
 {
-    return getComponent(component) != nullptr;
-}
-
-const VertexComponent *VertexFormat::getComponent(VertexComponent::Type component) const
-{
-    auto found = std::find_if(m_components.cbegin(), m_components.cend(), [&](const VertexComponent &c) { return c.getType() == component; });
-    if (found == m_components.end())
-        return nullptr;
-
-    return &(*found);
-}
-
-VertexFormat VertexFormat::create(const std::string &definition)
-{
-    VertexFormat retRes;
-
-    std::vector<std::string> components;
-    boost::split(components, definition, boost::is_any_of(", "));
-
-    for (const auto &c : components)
+    for (auto attrib : m_attribs)
     {
-        if (c.empty())
-            continue;
+        glEnableVertexAttribArray(attrib);
+        size_t offs = getOffsetTo(attrib);
+        glVertexAttribPointer(attrib, m_counts[attrib], GL_FLOAT, GL_FALSE, getVertexSize(), (const GLvoid*)offs);
+    }
+}
 
-        auto colon = c.find(':');
-        auto name = c.substr(0, colon);
-        auto count = c.substr(colon + 1);
+void VertexFormat::disableGLAttributes()
+{
+    for (auto attrib : m_attribs)
+        glDisableVertexAttribArray(attrib);
+}
 
-        VertexComponent::Type t;
-        if (name == "p")
-            t = VertexComponent::POSITION;
-        else if (name == "n")
-            t = VertexComponent::NORMAL;
-        else if (name == "tx")
-            t = VertexComponent::TEXTURE_COORDS;
-        else if (name == "c")
-            t = VertexComponent::COLOR;
-        else if (name == "tan")
-            t = VertexComponent::TANGENT;
-        else if (name == "bitan")
-            t = VertexComponent::BITANGENT;
-        else
-        {
-            base::glog << "Invalid vertex format" << definition << base::logwarn;
-            return retRes;
-        }
+bool VertexFormat::operator== (const VertexFormat &other) const
+{
+    if (m_size != other.m_size)
+        return false;
 
-        VertexComponent component(t, utils::from_string<size_t>(count));
-        
-        retRes.addComponent(component);
+    if (m_attribs.size() != other.m_attribs.size())
+        return 0;
+
+    for (size_t i = 0; i < m_attribs.size(); i++)
+    {
+        if (m_attribs[i] != other.m_attribs[i])
+            return false;
     }
 
-    return retRes;
+    return true;
+}
+
+bool VertexFormat::operator!= (const VertexFormat &other) const
+{
+    return !(*this == other);
+}
+
+Vertex::Vertex(const VertexFormat &format, float *vertexData)
+    : m_format(format)
+{
+    m_vertexData = vertexData;
+}
+
+template<typename T>
+T* getPointer(float *base, size_t bytesOffset)
+{
+    return reinterpret_cast<T*>(base + bytesOffset / sizeof(float));
+}
+
+void Vertex::setPosition(const glm::vec2 &pos)
+{
+    *getPointer<glm::vec2>(m_vertexData, m_format.getOffsetTo(VertexFormat::POSITION_2)) = pos;
+}
+
+void Vertex::setPosition(const glm::vec3 &pos)
+{
+    *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::POSITION_3)) = pos;
+}
+
+void Vertex::setTx(const glm::vec2 &tx)
+{
+    *getPointer<glm::vec2>(m_vertexData, m_format.getOffsetTo(VertexFormat::TX_2)) = tx;
+}
+
+void Vertex::setColor(const glm::vec4 &color)
+{
+    *getPointer<glm::vec4>(m_vertexData, m_format.getOffsetTo(VertexFormat::COLOR_4)) = color;
+}
+
+void Vertex::setNormal(const glm::vec3 &normal)
+{
+    *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::NORMAL_3)) = normal;
+}
+
+void Vertex::setTangent(const glm::vec3 &tangent)
+{
+    *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::TANGENT_3)) = tangent;
+}
+
+void Vertex::setBitangent(const glm::vec3 &bitangent)
+{
+    *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::BITANGENT_3)) = bitangent;
+}
+
+void Vertex::getPosition(glm::vec2 *pos)
+{
+    *pos = *getPointer<glm::vec2>(m_vertexData, m_format.getOffsetTo(VertexFormat::POSITION_2));
+}
+
+void Vertex::getPosition(glm::vec3 *pos)
+{
+    *pos = *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::POSITION_3));
+}
+
+void Vertex::getTx(glm::vec2 *tx)
+{
+    *tx = *getPointer<glm::vec2>(m_vertexData, m_format.getOffsetTo(VertexFormat::TX_2));
+}
+
+void Vertex::getColor(glm::vec4 *color)
+{
+    *color = *getPointer<glm::vec4>(m_vertexData, m_format.getOffsetTo(VertexFormat::COLOR_4));
+}
+
+void Vertex::getNormal(glm::vec3 *normal)
+{
+    *normal = *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::NORMAL_3));
+}
+
+void Vertex::getTangent(glm::vec3 *tangent)
+{
+    *tangent = *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::TANGENT_3));
+}
+
+void Vertex::getBitangent(glm::vec3 *bitangent)
+{
+    *bitangent = *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::BITANGENT_3));
+}
+
+VertexData::VertexData(const VertexFormat &format)
+    : m_format(format)
+{
+
+}
+
+void VertexData::alloc(size_t verticesCount)
+{
+    assert(verticesCount > 0);
+
+    m_data.assign(m_format.getVertexSize() * verticesCount / sizeof(float), 0.0f);
+
+    m_verticesCount = verticesCount;
+}
+
+Vertex VertexData::getNextVertex()
+{
+    // Allocate buffer for a new vertex.
+    auto it = m_data.insert(m_data.end(), m_format.getVertexSize() / sizeof(float), 0.0f);
+    // Get pointer to this vertex raw data.
+    auto vertexData = m_data.data() + (it - m_data.begin());
+
+    m_verticesCount++;
+
+    // Return vertex proxy.
+    return Vertex(m_format, vertexData);
+}
+
+Vertex VertexData::getVertex(size_t idx)
+{
+    assert(idx < m_verticesCount);
+
+    return Vertex(m_format, m_data.data() + m_format.getVertexSize() * idx / sizeof(float));
+}
+
+void VertexData::clear()
+{
+    m_verticesCount = 0;
+    m_data.clear();
 }
 
 } }

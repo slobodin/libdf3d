@@ -59,12 +59,13 @@ bool GpuProgram::attachShaders()
     for (auto shader : m_shaders)
         glAttachShader(m_programDescriptor, shader->getDescriptor());
 
-    glBindAttribLocation(m_programDescriptor, VertexComponent::POSITION, "vertex");
-    glBindAttribLocation(m_programDescriptor, VertexComponent::NORMAL, "normal");
-    glBindAttribLocation(m_programDescriptor, VertexComponent::TEXTURE_COORDS, "txCoord");
-    glBindAttribLocation(m_programDescriptor, VertexComponent::COLOR, "vertexColor");
-    glBindAttribLocation(m_programDescriptor, VertexComponent::TANGENT, "tangent");
-    glBindAttribLocation(m_programDescriptor, VertexComponent::BITANGENT, "bitangent");
+    glBindAttribLocation(m_programDescriptor, VertexFormat::POSITION_3, "a_vertex3");
+    glBindAttribLocation(m_programDescriptor, VertexFormat::POSITION_2, "a_vertex2");
+    glBindAttribLocation(m_programDescriptor, VertexFormat::NORMAL_3, "a_normal");
+    glBindAttribLocation(m_programDescriptor, VertexFormat::TX_2, "a_txCoord");
+    glBindAttribLocation(m_programDescriptor, VertexFormat::COLOR_4, "a_vertexColor");
+    glBindAttribLocation(m_programDescriptor, VertexFormat::TANGENT_3, "a_tangent");
+    glBindAttribLocation(m_programDescriptor, VertexFormat::BITANGENT_3, "a_bitangent");
 
     glLinkProgram(m_programDescriptor);
 
@@ -78,6 +79,8 @@ bool GpuProgram::attachShaders()
     }
 
     requestUniforms();
+
+    printOpenGLError();
 
     return true;
 }

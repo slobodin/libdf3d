@@ -8,7 +8,8 @@
 
 namespace df3d { namespace render {
 
-SubMesh::SubMesh()
+SubMesh::SubMesh(const VertexFormat &format)
+    : m_vertexData(format)
 {
 
 }
@@ -16,19 +17,6 @@ SubMesh::SubMesh()
 SubMesh::~SubMesh()
 {
 
-}
-
-void SubMesh::appendVertexData(const float *source, size_t vertexCount)
-{
-    // Assume that vertex format is valid.
-    assert(m_vertexFormat.getVertexSize() != 0);
-
-    auto elementsCount = m_vertexFormat.getVertexSize() * vertexCount / sizeof(float);
-    // FIXME:
-    // Don't use back_inserter.
-    std::copy(source, source + elementsCount, std::back_inserter(m_vertexData));
-
-    m_verticesCount += vertexCount;
 }
 
 void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
@@ -56,18 +44,18 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
         }
 
         hs.vb = make_shared<VertexBuffer>(s.getVertexFormat());
-        hs.vb->alloc(s.getVerticesCount(), s.getVertexData(), s.getVertexBufferUsageHint());
+        hs.vb->alloc(s.getVertexData(), s.getVertexBufferUsageHint());
 
         if (s.hasIndices())
         {
             hs.ib = make_shared<IndexBuffer>();
-            hs.ib->alloc(s.getIndicesCount(), s.getIndices().data(), s.getIndexBufferUsageHint());
+            hs.ib->alloc(s.getIndices().size(), s.getIndices().data(), s.getIndexBufferUsageHint());
 
-            m_trianglesCount += s.getIndicesCount() / 3;
+            m_trianglesCount += s.getIndices().size() / 3;
         }
         else
         {
-            m_trianglesCount += s.getVerticesCount() / 3;
+            m_trianglesCount += s.getVertexData().getVerticesCount() / 3;
         }
     }
 

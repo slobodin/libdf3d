@@ -72,7 +72,7 @@ void PhysicsComponent::initFromCreationParams()
         {
             auto vb = submesh->getVertexBuffer();
 
-            const float *vertexData = vb->getVertexData();
+            const float *vertexData = vb->getVertexData(); use &
             size_t stride = vb->getFormat().getVertexSize() / sizeof(float);
             size_t posOffset = vb->getFormat().getOffsetTo(render::VertexComponent::POSITION) / sizeof(float);
 

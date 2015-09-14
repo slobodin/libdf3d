@@ -50,26 +50,24 @@ void computeNormals(render::SubMesh &submesh)
 {
     const auto &vformat = submesh.getVertexFormat();
 
-    if (!vformat.hasComponent(render::VertexComponent::NORMAL) || !vformat.hasComponent(render::VertexComponent::POSITION))
+    if (!vformat.hasAttribute(render::VertexFormat::NORMAL_3) || !vformat.hasAttribute(render::VertexFormat::POSITION_3))
         return;
 
-    auto vertexData = submesh.getVertexData();
-    size_t stride = vformat.getVertexSize() / sizeof(float);
-    size_t normalOffset = vformat.getOffsetTo(render::VertexComponent::NORMAL) / sizeof(float);
-    size_t positionOffset = vformat.getOffsetTo(render::VertexComponent::POSITION) / sizeof(float);
-
-    std::vector<int> polysTouchVertex(submesh.getVerticesCount());
+    auto &vertexData = submesh.getVertexData();
+    std::vector<int> polysTouchVertex(vertexData.getVerticesCount());
 
     // Clear normals for all vertices.
-    for (size_t i = 0; i < submesh.getVerticesCount(); i++)
+    for (size_t i = 0; i < vertexData.getVerticesCount(); i++)
     {
-        float *normal = vertexData + i * stride + normalOffset;
-        normal[0] = normal[1] = normal[2] = 0.0f;
+        auto v = vertexData.getVertex(i);
+        v.setNormal({ 0.0f, 0.0f, 0.0f });
     }
 
     // Indexed.
     if (submesh.hasIndices())
     {
+        assert(false && "please check it works");
+
         const auto &indices = submesh.getIndices();
         for (size_t ind = 0; ind < indices.size(); ind += 3)
         {
@@ -77,17 +75,18 @@ void computeNormals(render::SubMesh &submesh)
             size_t vindex1 = indices[ind + 1];
             size_t vindex2 = indices[ind + 2];
 
-            float *base0 = vertexData + vindex0 * stride + positionOffset;
-            float *base1 = vertexData + vindex1 * stride + positionOffset;
-            float *base2 = vertexData + vindex2 * stride + positionOffset;
-
+            auto v1 = vertexData.getVertex(vindex0);
+            auto v2 = vertexData.getVertex(vindex1);
+            auto v3 = vertexData.getVertex(vindex2);
+  
             polysTouchVertex[vindex0]++;
             polysTouchVertex[vindex1]++;
             polysTouchVertex[vindex2]++;
 
-            glm::vec3 v0p(base0[0], base0[1], base0[2]);
-            glm::vec3 v1p(base1[0], base1[1], base1[2]);
-            glm::vec3 v2p(base2[0], base2[1], base2[2]);
+            glm::vec3 v0p, v1p, v2p;
+            v1.getPosition(&v0p);
+            v2.getPosition(&v1p);
+            v3.getPosition(&v2p);
 
             glm::vec3 u = v1p - v0p;
             glm::vec3 v = v2p - v0p;
@@ -97,35 +96,34 @@ void computeNormals(render::SubMesh &submesh)
             glm::vec3 normal = glm::cross(u, v);
             // uv?
 
-            float *normalBase0 = vertexData + vindex0 * stride + normalOffset;
-            float *normalBase1 = vertexData + vindex1 * stride + normalOffset;
-            float *normalBase2 = vertexData + vindex2 * stride + normalOffset;
+            glm::vec3 v1n, v2n, v3n;
 
-            normalBase0[0] += normal.x;
-            normalBase0[1] += normal.y;
-            normalBase0[2] += normal.z;
+            v1.getNormal(&v1n);
+            v1n += normal;
+            v1.setNormal(v1n);
 
-            normalBase1[0] += normal.x;
-            normalBase1[1] += normal.y;
-            normalBase1[2] += normal.z;
+            v2.getNormal(&v2n);
+            v2n += normal;
+            v2.setNormal(v2n);
 
-            normalBase2[0] += normal.x;
-            normalBase2[1] += normal.y;
-            normalBase2[2] += normal.z;
+            v2.getNormal(&v3n);
+            v3n += normal;
+            v2.setNormal(v3n);
         }
 
-        for (size_t vertex = 0; vertex < submesh.getVerticesCount(); vertex++)
+        for (size_t vertex = 0; vertex < vertexData.getVerticesCount(); vertex++)
         {
             if (polysTouchVertex[vertex] >= 1)
             {
-                float *normalBase = vertexData + vertex * stride + normalOffset;
-                glm::vec3 n(normalBase[0], normalBase[1], normalBase[2]);
+                auto v = vertexData.getVertex(vertex);
+                glm::vec3 n;
+                v.getNormal(&n);
 
                 n /= polysTouchVertex[vertex];
 
                 n = utils::math::safeNormalize(n);
 
-                memcpy(normalBase, glm::value_ptr(n), sizeof(float) * 3);
+                v.setNormal(n);
             }
         }
     }
@@ -138,11 +136,11 @@ void computeNormals(render::SubMesh &submesh)
 void computeTangentBasis(render::SubMesh &submesh)
 {
     const auto &format = submesh.getVertexFormat();
-    if (!format.hasComponent(render::VertexComponent::TANGENT) ||
-        !format.hasComponent(render::VertexComponent::BITANGENT) ||
-        !format.hasComponent(render::VertexComponent::POSITION) ||
-        !format.hasComponent(render::VertexComponent::TEXTURE_COORDS) ||
-        !format.hasComponent(render::VertexComponent::NORMAL))
+    if (!format.hasAttribute(render::VertexFormat::TANGENT_3) ||
+        !format.hasAttribute(render::VertexFormat::BITANGENT_3) ||
+        !format.hasAttribute(render::VertexFormat::POSITION_3) ||
+        !format.hasAttribute(render::VertexFormat::TX_2) ||
+        !format.hasAttribute(render::VertexFormat::NORMAL_3))
         return;
 
     // Indexed.
@@ -201,29 +199,23 @@ void computeTangentBasis(render::SubMesh &submesh)
     }
     else
     {
-        float *vertexData = submesh.getVertexData();
-        size_t stride = format.getVertexSize() / sizeof(float);
-        size_t tangentOffset = format.getOffsetTo(render::VertexComponent::TANGENT) / sizeof(float);
-        size_t bitangentOffset = format.getOffsetTo(render::VertexComponent::BITANGENT) / sizeof(float);
-        size_t posOffset = format.getOffsetTo(render::VertexComponent::POSITION) / sizeof(float);
-        size_t txOffset = format.getOffsetTo(render::VertexComponent::TEXTURE_COORDS) / sizeof(float);
-        size_t normalOffset = format.getOffsetTo(render::VertexComponent::NORMAL) / sizeof(float);
+        auto &vertexData = submesh.getVertexData();
 
-        for (size_t i = 0; i < submesh.getVerticesCount(); i += 3)
+        for (size_t i = 0; i < vertexData.getVerticesCount(); i += 3)
         {
-            float *base0 = vertexData + (i + 0) * stride;
-            float *base1 = vertexData + (i + 1) * stride;
-            float *base2 = vertexData + (i + 2) * stride;
+            auto v0 = vertexData.getVertex(i + 0);
+            auto v1 = vertexData.getVertex(i + 1);
+            auto v2 = vertexData.getVertex(i + 2);
 
             glm::vec3 v0p, v1p, v2p;
-            memcpy(glm::value_ptr(v0p), base0 + posOffset, sizeof(float) * 3);
-            memcpy(glm::value_ptr(v1p), base1 + posOffset, sizeof(float) * 3);
-            memcpy(glm::value_ptr(v2p), base2 + posOffset, sizeof(float) * 3);
+            v0.getPosition(&v0p);
+            v1.getPosition(&v1p);
+            v2.getPosition(&v2p);
 
             glm::vec2 v0t, v1t, v2t;
-            memcpy(glm::value_ptr(v0t), base0 + txOffset, sizeof(float) * 2);
-            memcpy(glm::value_ptr(v1t), base1 + txOffset, sizeof(float) * 2);
-            memcpy(glm::value_ptr(v2t), base2 + txOffset, sizeof(float) * 2);
+            v0.getTx(&v0t);
+            v1.getTx(&v1t);
+            v2.getTx(&v2t);
 
             auto e1 = v1p - v0p;
             auto e2 = v2p - v0p;
@@ -236,40 +228,29 @@ void computeTangentBasis(render::SubMesh &submesh)
 
             for (size_t j = 0; j < 3; j++)
             {
-                float *pt = vertexData + (i + j) * stride;
-
-                (pt + tangentOffset)[0] = tangent.x;
-                (pt + tangentOffset)[1] = tangent.y;
-                (pt + tangentOffset)[2] = tangent.z;
-
-                (pt + bitangentOffset)[0] = bitangent.x;
-                (pt + bitangentOffset)[1] = bitangent.y;
-                (pt + bitangentOffset)[2] = bitangent.z;
+                auto v = vertexData.getVertex(i + j);
+                v.setTangent(tangent);
+                v.setBitangent(bitangent);
             }
         }
 
-        for (size_t i = 0; i < submesh.getVerticesCount(); i++)
+        // Gram-Schmidt orthogonalization.
+        for (size_t i = 0; i < vertexData.getVerticesCount(); i++)
         {
-            // Gram-Schmidt orthogonalization.
-            float *tangentPt = vertexData + i * stride + tangentOffset;
-            float *bitangentPt = vertexData + i * stride + bitangentOffset;
-            float *normalPt = vertexData + i * stride + normalOffset;
+            auto v = vertexData.getVertex(i);
 
-            glm::vec3 tangent(tangentPt[0], tangentPt[1], tangentPt[2]);
-            glm::vec3 bitangent(bitangentPt[0], bitangentPt[1], bitangentPt[2]);
-            glm::vec3 normal(normalPt[0], normalPt[1], normalPt[2]);
+            glm::vec3 tangent, bitangent, normal;
+            v.getTangent(&tangent);
+            v.getBitangent(&bitangent);
+            v.getNormal(&normal);
 
             tangent = tangent - normal * glm::dot(normal, tangent);
             tangent = utils::math::safeNormalize(tangent);
 
             if (glm::dot(glm::cross(normal, tangent), bitangent) < 0.0f)
-            {
                 tangent = tangent * -1.0f;
-            }
 
-            tangentPt[0] = tangent.x;
-            tangentPt[1] = tangent.y;
-            tangentPt[2] = tangent.z;
+            v.setTangent(tangent);
         }
     }
 }

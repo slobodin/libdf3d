@@ -138,29 +138,22 @@ Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket:
                                                                          int *indices, int num_indices, 
                                                                          Rocket::Core::TextureHandle texture)
 {
-    // Set up vertex buffer.
-    auto vertexBuffer = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
+    render::VertexFormat vertexFormat({ render::VertexFormat::POSITION_3, render::VertexFormat::TX_2, render::VertexFormat::COLOR_4 });
 
     // FIXME: can map directly to vertexBuffer if Rocket::Core::Vertex is the same layout as internal vertex buffer storage.
-    std::vector<render::Vertex_3p2tx4c> vertexData;
+    render::VertexData vertexData(vertexFormat);
     for (int i = 0; i < num_vertices; i++)
     {
-        render::Vertex_3p2tx4c v;
+        auto v = vertexData.getNextVertex();
 
-        v.p.x = vertices[i].position.x;
-        v.p.y = vertices[i].position.y;
-        v.p.z = 0.0f;
-        v.tx.x = vertices[i].tex_coord.x;
-        v.tx.y = vertices[i].tex_coord.y;
-        v.color.r = vertices[i].colour.red / 255.0f;
-        v.color.g = vertices[i].colour.green / 255.0f;
-        v.color.b = vertices[i].colour.blue / 255.0f;
-        v.color.a = vertices[i].colour.alpha / 255.0f;
-
-        vertexData.push_back(v);
+        v.setPosition({ vertices[i].position.x, vertices[i].position.y, 0.0f });
+        v.setTx({ vertices[i].tex_coord.x, vertices[i].tex_coord.y });
+        v.setColor({ vertices[i].colour.red / 255.0f, vertices[i].colour.green / 255.0f, vertices[i].colour.blue / 255.0f, vertices[i].colour.alpha / 255.0f });
     }
 
-    vertexBuffer->alloc(num_vertices, vertexData.data(), render::GpuBufferUsageType::STATIC);
+    // Set up vertex buffer.
+    auto vertexBuffer = make_shared<render::VertexBuffer>(vertexFormat);
+    vertexBuffer->alloc(vertexData, render::GpuBufferUsageType::STATIC);
 
     // FIXME: this is not 64 bit
     static_assert(sizeof(render::INDICES_TYPE) == sizeof(int), "rocket indices should be the same as render::INDICES_TYPE");

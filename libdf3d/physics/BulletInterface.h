@@ -13,7 +13,7 @@ class BulletDebugDraw : public btIDebugDraw
 {
     shared_ptr<render::RenderPass> m_pass;
 
-    std::vector<render::Vertex_3p2tx4c> m_vertexData;
+    render::VertexData m_vertexData;
 
 public:
     BulletDebugDraw();

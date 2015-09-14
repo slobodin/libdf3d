@@ -29,12 +29,13 @@ public:
     shared_ptr<render::VertexBuffer> m_vb;
     shared_ptr<render::IndexBuffer> m_ib;
 
-    std::vector<render::Vertex_3p2tx4c> m_vertexData;
+    render::VertexData m_vertexData;
     render::IndexArray m_indexData;
 
     MyRenderBuffer(size_t nbParticles, int verticesPerParticle, int indicesPerParticle)
+        : m_vertexData(render::VertexFormat({ render::VertexFormat::POSITION_3, render::VertexFormat::TX_2, render::VertexFormat::COLOR_4 }))
     {
-        m_vb = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
+        m_vb = make_shared<render::VertexBuffer>(m_vertexData.getFormat());
         m_ib = make_shared<render::IndexBuffer>();
 
         // Allocate GPU storage.
@@ -42,7 +43,7 @@ public:
         m_ib->alloc(nbParticles * indicesPerParticle, nullptr, render::GpuBufferUsageType::STATIC);
 
         // Allocate main memory storage copy (no glMapBuffer on ES2.0)
-        m_vertexData.resize(nbParticles * verticesPerParticle);
+        m_vertexData.alloc(nbParticles * verticesPerParticle);
         m_indexData.resize(nbParticles * indicesPerParticle);
 
         positionAtStart();
@@ -64,43 +65,27 @@ public:
 
     void setNextVertex(const SPK::Vector3D &vertex)
     {
-        auto &vert = m_vertexData[m_currentVertexIndex++];
-        vert.p.x = vertex.x;
-        vert.p.y = vertex.y;
-        vert.p.z = vertex.z;
+        auto vert = m_vertexData.getVertex(m_currentVertexIndex++);
+        vert.setPosition({ vertex.x, vertex.y, vertex.z });
     }
 
     void setNextColor(const SPK::Color &color)
     {
-        auto &vert = m_vertexData[m_currentColorIndex++];
-        vert.color.r = color.r / 255.0f;
-        vert.color.g = color.g / 255.0f;
-        vert.color.b = color.b / 255.0f;
-        vert.color.a = color.a / 255.0f;
-    }
-
-    void skipNextColors(size_t nb)
-    {
-        m_currentColorIndex += nb;
+        auto vert = m_vertexData.getVertex(m_currentColorIndex++);
+        vert.setColor({ color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f });
     }
 
     void setNextTexCoords(float u, float v)
     {
-        auto &vert = m_vertexData[m_currentTexCoordIndex++];
-        vert.tx.x = u;
-        vert.tx.y = v;
-    }
-
-    void skipNextTexCoords(size_t nb)
-    {
-        m_currentTexCoordIndex += nb;
+        auto vert = m_vertexData.getVertex(m_currentTexCoordIndex++);
+        vert.setTx({ u, v });
     }
 };
 
 void ParticleSystemRenderer::addToRenderQueue(MyRenderBuffer &buffer, size_t nbOfParticles, int verticesPerParticle, int indicesPerParticle, render::RenderOperation::Type type) const
 {
     // Refill GPU with new data (only vertices was changed).
-    buffer.m_vb->update(nbOfParticles * verticesPerParticle, buffer.m_vertexData.data());
+    buffer.m_vb->update(nbOfParticles * verticesPerParticle, buffer.m_vertexData.getRawData());
 
     buffer.m_vb->setVerticesUsed(nbOfParticles * verticesPerParticle);
     buffer.m_ib->setIndicesUsed(nbOfParticles * indicesPerParticle);

@@ -6,7 +6,7 @@ struct Material                             \n\
     vec4 emissive;                          \n\
 };                                          \n\
 \
-attribute vec3 vertex;                      \n\
+attribute vec3 a_vertex3;                   \n\
 \
 uniform mat4 WorldViewProjectionMatrix;     \n\
 uniform vec4 globalAmbient;                 \n\
@@ -20,6 +20,6 @@ void main()                                 \n\
     color = material.ambient * globalAmbient + material.emissive; \n\
     color.a = 1.0;                          \n\
 \
-    gl_Position = WorldViewProjectionMatrix * vec4( vertex, 1.0 );\n\
+    gl_Position = WorldViewProjectionMatrix * vec4( a_vertex3, 1.0 );\n\
 }                                           \n\
 "

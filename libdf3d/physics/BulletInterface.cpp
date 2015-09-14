@@ -9,6 +9,7 @@
 namespace df3d { namespace physics {
 
 BulletDebugDraw::BulletDebugDraw()
+    : m_vertexData(render::VertexFormat({ render::VertexFormat::POSITION_3, render::VertexFormat::TX_2, render::VertexFormat::COLOR_4 }))
 {
 
 }
@@ -20,20 +21,14 @@ BulletDebugDraw::~BulletDebugDraw()
 
 void BulletDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)
 {
-    render::Vertex_3p2tx4c v;
-    v.color.r = color.x();
-    v.color.g = color.y();
-    v.color.b = color.z();
+    // FIXME: map directly to GPU.
+    auto v1 = m_vertexData.getNextVertex();
+    v1.setColor({ color.x(), color.y(), color.z(), 1.0f });
+    v1.setPosition({ from.x(), from.y(), from.z() });
 
-    v.p.x = from.x();
-    v.p.y = from.y();
-    v.p.z = from.z();
-    m_vertexData.push_back(v);
-
-    v.p.x = to.x();
-    v.p.y = to.y();
-    v.p.z = to.z();
-    m_vertexData.push_back(v);
+    auto v2 = m_vertexData.getNextVertex();
+    v2.setColor({ color.x(), color.y(), color.z(), 1.0f });
+    v2.setPosition({ to.x(), to.y(), to.z() });
 }
 
 void BulletDebugDraw::drawContactPoint(const btVector3 &PointOnB, const btVector3 &normalOnB, btScalar distance, int lifeTime, const btVector3 &color)
@@ -73,8 +68,8 @@ void BulletDebugDraw::flushRenderOperations()
     op.passProps = m_pass;
     op.type = render::RenderOperation::Type::LINES;
 
-    op.vertexData = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
-    op.vertexData->alloc(m_vertexData.size(), m_vertexData.data(), render::GpuBufferUsageType::STREAM);
+    op.vertexData = make_shared<render::VertexBuffer>(m_vertexData.getFormat());
+    op.vertexData->alloc(m_vertexData, render::GpuBufferUsageType::STREAM);
     m_vertexData.clear();
 
     gsvc().renderMgr.drawOperation(op);

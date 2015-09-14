@@ -44,7 +44,8 @@ Sprite2DComponent::Sprite2DComponent(const std::string &pathToTexture)
     m_op.passProps->enableDepthWrite(false);
     m_op.passProps->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 
-    m_op.vertexData = render::createQuad2(render::VertexFormat::create("p:3, tx:2, c:4"), 0.0f, 0.0f, 1.0, 1.0f, render::GpuBufferUsageType::STATIC);
+    auto format = render::VertexFormat({ render::VertexFormat::POSITION_3, render::VertexFormat::TX_2, render::VertexFormat::COLOR_4 });
+    m_op.vertexData = render::createQuad2(format, 0.0f, 0.0f, 1.0, 1.0f, render::GpuBufferUsageType::STATIC);
 
     useTexture(pathToTexture);
 }
