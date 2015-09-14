@@ -9,8 +9,8 @@ class DF3D_DLL Resource : utils::NonCopyable
 protected:
     ResourceGUID m_guid;
 
-    std::atomic<bool> m_initialized = false;
-    std::atomic<bool> m_resident = false;
+    std::atomic<bool> m_initialized;
+    std::atomic<bool> m_resident;
 
 public:
     Resource();

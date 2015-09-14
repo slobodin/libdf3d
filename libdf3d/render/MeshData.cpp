@@ -111,7 +111,7 @@ void MeshData::setMaterial(const Material &newMaterial, size_t submeshIdx)
 
     if (submeshIdx >= getSubMeshesCount())
     {
-        base::glog << "Failed to set material to submesh" << submeshIdx << "because it is not exist" << base::logwarn;
+        base::glog << "Failed to set material to submesh" << submeshIdx << "because it does not exist" << base::logwarn;
         return;
     }
 

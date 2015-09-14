@@ -6,6 +6,8 @@
 namespace df3d { namespace resources {
 
 Resource::Resource()
+    : m_initialized(false),
+    m_resident(false)
 {
     // guid = g_resmgr->getGuid()??
     static unsigned long resourcesCount = 0;

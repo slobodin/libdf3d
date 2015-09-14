@@ -36,17 +36,42 @@ class DF3D_DLL Log
 public:
     static Log &instance();
 
-    Log &operator<< (const char *text);
-    Log &operator<< (const wchar_t *text);
-    Log &operator<< (const std::string &text);
-    Log &operator<< (int num);
-    Log &operator<< (long num);
-    Log &operator<< (long long num);
-    Log &operator<< (unsigned num);
-    Log &operator<< (double num);
-    Log &operator<< (const glm::vec2 &v);
-    Log &operator<< (const glm::vec3 &v);
-    Log &operator<< (const glm::vec4 &v);
+    template<typename T>
+    Log& operator<< (const T &t)
+    {
+        std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+        m_buffer << t << " ";
+
+        return *this;
+    }
+
+    Log& operator<< (const glm::vec2 &v)
+    {
+        std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+        m_buffer << "[x: " << v.x << " y: " << v.y << "] ";
+
+        return *this;
+    }
+
+    Log& operator<< (const glm::vec3 &v)
+    {
+        std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+        m_buffer << "[x: " << v.x << " y: " << v.y << " z: " << v.z << "] ";
+
+        return *this;
+    }
+
+    Log& operator<< (const glm::vec4 &v)
+    {
+        std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+        m_buffer << "[x: " << v.x << " y: " << v.y << " z: " << v.z << " w: " << v.w << "] ";
+
+        return *this;
+    }
 
     Log &operator<< (const LoggerManipulator &man);
 
