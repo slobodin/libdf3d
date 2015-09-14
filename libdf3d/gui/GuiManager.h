@@ -2,6 +2,7 @@
 
 #include "RocketIntrusivePtr.h"
 #include <base/InputEvents.h>
+#include <Rocket/Core.h>
 
 FWD_MODULE_CLASS(base, EngineController)
 FWD_MODULE_CLASS(render, RenderManager)
