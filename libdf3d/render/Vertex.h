@@ -10,7 +10,8 @@ class VertexFormat
 public:
     enum VertexAttribute
     {
-        POSITION_2,
+        // FIXME: figure out why if its starting not from 0 gives black screen on mac os.
+        // stackoverflow.com/questions/11497870
         POSITION_3,
         TX_2,
         COLOR_4,
@@ -54,7 +55,6 @@ class Vertex
 public:
     Vertex(const VertexFormat &format, float *vertexData);
 
-    void setPosition(const glm::vec2 &pos);
     void setPosition(const glm::vec3 &pos);
     void setTx(const glm::vec2 &tx);
     void setColor(const glm::vec4 &color);
@@ -62,7 +62,6 @@ public:
     void setTangent(const glm::vec3 &tangent);
     void setBitangent(const glm::vec3 &bitangent);
 
-    void getPosition(glm::vec2 *pos);
     void getPosition(glm::vec3 *pos);
     void getTx(glm::vec2 *tx);
     void getColor(glm::vec4 *color);

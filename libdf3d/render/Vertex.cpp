@@ -18,7 +18,6 @@ VertexFormat::VertexFormat(const std::vector<VertexAttribute> &attribs)
 
         switch (attrib)
         {
-        case VertexFormat::POSITION_2:
         case VertexFormat::TX_2:
             m_counts[attrib] = 2;
             break;
@@ -56,8 +55,6 @@ size_t VertexFormat::getAttributeSize(VertexAttribute attrib) const
 {
     switch (attrib)
     {
-    case VertexFormat::POSITION_2:
-        return 2 * sizeof(float);
     case VertexFormat::POSITION_3:
         return 3 * sizeof(float);
     case VertexFormat::TX_2:
@@ -128,11 +125,6 @@ T* getPointer(float *base, size_t bytesOffset)
     return reinterpret_cast<T*>(base + bytesOffset / sizeof(float));
 }
 
-void Vertex::setPosition(const glm::vec2 &pos)
-{
-    *getPointer<glm::vec2>(m_vertexData, m_format.getOffsetTo(VertexFormat::POSITION_2)) = pos;
-}
-
 void Vertex::setPosition(const glm::vec3 &pos)
 {
     *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::POSITION_3)) = pos;
@@ -161,11 +153,6 @@ void Vertex::setTangent(const glm::vec3 &tangent)
 void Vertex::setBitangent(const glm::vec3 &bitangent)
 {
     *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::BITANGENT_3)) = bitangent;
-}
-
-void Vertex::getPosition(glm::vec2 *pos)
-{
-    *pos = *getPointer<glm::vec2>(m_vertexData, m_format.getOffsetTo(VertexFormat::POSITION_2));
 }
 
 void Vertex::getPosition(glm::vec3 *pos)

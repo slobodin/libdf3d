@@ -60,7 +60,6 @@ bool GpuProgram::attachShaders()
         glAttachShader(m_programDescriptor, shader->getDescriptor());
 
     glBindAttribLocation(m_programDescriptor, VertexFormat::POSITION_3, "a_vertex3");
-    glBindAttribLocation(m_programDescriptor, VertexFormat::POSITION_2, "a_vertex2");
     glBindAttribLocation(m_programDescriptor, VertexFormat::NORMAL_3, "a_normal");
     glBindAttribLocation(m_programDescriptor, VertexFormat::TX_2, "a_txCoord");
     glBindAttribLocation(m_programDescriptor, VertexFormat::COLOR_4, "a_vertexColor");
