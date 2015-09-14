@@ -91,8 +91,6 @@ public:
     size_t getVerticesCount() const { return m_verticesCount; }
     //! Returns raw vertex data.
     const float* getRawData() const { return m_data.data(); }
-    //! Returns raw vertex data.
-    float* getRawData() { return m_data.data(); }
     //! Clears the buffer.
     void clear();
 };
