@@ -58,6 +58,8 @@ bool AABB::isValid() const
 
 bool AABB::contains(const glm::vec3 &point) const
 {
+    // TODO:
+    assert(false);
     return true;
 }
 
@@ -74,6 +76,7 @@ bool AABB::intersects(const AABB &other) const
 bool AABB::intersects(const BoundingSphere &sphere) const
 {
     // TODO:
+    assert(false);
     return false;
 }
 
@@ -82,7 +85,7 @@ glm::vec3 AABB::getCenter() const
     return (m_min + m_max) / 2.f;
 }
 
-void AABB::getCorners(std::vector<glm::vec3> &output)
+void AABB::getCorners(std::vector<glm::vec3> &output) const
 {
     if (output.size() != 8)
     {

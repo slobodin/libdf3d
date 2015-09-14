@@ -1,19 +1,17 @@
 #pragma once
 
+#include <utils/ConcurrentQueue.h>
+
 FWD_MODULE_CLASS(base, ThreadPool)
 FWD_MODULE_CLASS(base, EngineController)
-FWD_MODULE_CLASS(audio, AudioBuffer)
-FWD_MODULE_CLASS(render, Texture2D)
-FWD_MODULE_CLASS(render, TextureCube)
-FWD_MODULE_CLASS(render, GpuProgram)
-FWD_MODULE_CLASS(render, MeshData)
-FWD_MODULE_CLASS(render, MaterialLib)
 
 namespace df3d { namespace resources {
 
 class Resource;
-class ResourceDecoder;
+class ResourceFactory;
 class FileDataSource;
+class ManualResourceLoader;
+class FSResourceLoader;
 
 class DF3D_DLL ResourceManager : utils::NonCopyable
 {
@@ -29,52 +27,48 @@ public:
 
 private:
     friend class base::EngineController;
+    friend class ResourceFactory;
 
     struct DecodeRequest
     {
-        shared_ptr<ResourceDecoder> decoder;
-        std::string filePath;
+        shared_ptr<FileDataSource> source;
         shared_ptr<Resource> resource;
+        shared_ptr<FSResourceLoader> loader;
     };
 
-    void loadEmbedResources();
-    void doRequest(DecodeRequest req);
-
+    // Thread pool for resources decoding.
     unique_ptr<base::ThreadPool> m_threadPool;
+    // Resources for which should call onDecoded in the main thread.
+    utils::ConcurrentQueue<DecodeRequest> m_decodedResources;
     mutable std::recursive_mutex m_lock;
 
     std::unordered_map<ResourceGUID, shared_ptr<Resource>> m_loadedResources;
     
     std::vector<Listener*> m_listeners;
 
+    unique_ptr<ResourceFactory> m_factory;
+
+    void loadEmbedResources();
+    void doRequest(DecodeRequest req);
+
+    shared_ptr<Resource> findResource(const std::string &guid) const;
+    shared_ptr<Resource> loadManual(shared_ptr<ManualResourceLoader> loader);
+    shared_ptr<Resource> loadFromFS(const std::string &path, shared_ptr<FSResourceLoader> loader);
+
     ResourceManager();
     ~ResourceManager();
 
-    shared_ptr<Resource> findResource(const std::string &guid) const;
-    shared_ptr<Resource> loadResourceFromFileSystem(const std::string &path, ResourceLoadingMode lm);
+    void poll();
 
 public:
-    shared_ptr<audio::AudioBuffer> createAudioBuffer(const std::string &audioPath);
-    shared_ptr<render::GpuProgram> createGpuProgram(const std::string &vertexShader, const std::string &fragmentShader);
-    shared_ptr<render::GpuProgram> createSimpleLightingGpuProgram();
-    shared_ptr<render::GpuProgram> createColoredGpuProgram();
-    shared_ptr<render::GpuProgram> createRttQuadProgram();
-    shared_ptr<render::GpuProgram> createAmbientPassProgram();
-    shared_ptr<render::MeshData> createMeshData(const std::string &meshDataPath, ResourceLoadingMode lm);
-    shared_ptr<render::Texture2D> createTexture(const std::string &imagePath, ResourceLoadingMode lm);
-    shared_ptr<render::Texture2D> createEmptyTexture(const std::string &id = "");
-    shared_ptr<render::TextureCube> createCubeTexture(const std::string &positiveXImage, const std::string &negativeXImage,
-                                                      const std::string &positiveYImage, const std::string &negativeYImage,
-                                                      const std::string &positiveZImage, const std::string &negativeZImage,
-                                                      ResourceLoadingMode lm);
-    shared_ptr<render::MaterialLib> createMaterialLib(const std::string &mtlLibPath);
+    //! All resources creation is going through this factory.
+    ResourceFactory& getFactory() { return *m_factory; }
 
-    void loadResources(const std::vector<std::string> &resourcesList, ResourceLoadingMode lm);
-
-    void appendResource(shared_ptr<Resource> resource);
-
+    //! Unloads a resource with given guid.
     void unloadResource(const ResourceGUID &guid);
+    //! Unloads a given resource.
     void unloadResource(shared_ptr<Resource> resource);
+    //! Unloads all resources with refcount equals to 1.
     void unloadUnused();
 
     //! Checks whether or not resource is present in the resource manager cache.
@@ -85,6 +79,10 @@ public:
      */
     bool isResourceExist(const ResourceGUID &guid) const;
     //! Checks whether or not resource exists and loaded (i.e. successfully decoded).
+    /*!
+     * \param guid
+     * \return
+     */
     bool isResourceLoaded(const ResourceGUID &guid) const;
 
     void addListener(Listener *listener);

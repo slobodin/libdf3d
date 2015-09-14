@@ -4,8 +4,8 @@
 #include "GpuProgram.h"
 #include "Texture.h"
 #include "RenderManager.h"
-#include "Renderer.h"
-#include <base/SystemsMacro.h>
+#include "RendererBackend.h"
+#include <base/Service.h>
 
 namespace df3d { namespace render {
 
@@ -16,7 +16,7 @@ void RenderPassParam::updateTo(GpuProgram *program)
         m_uniform = program->getCustomUniform(name);
         if (!m_uniform)
         {
-            base::glog << "Uniform" << name << "was not found in shader" << program->getGUID() << base::logwarn;
+            base::glog << "Uniform" << name << "was not found in shader" << program->getFilePath() << base::logwarn;
             return;
         }
     }
@@ -27,7 +27,7 @@ void RenderPassParam::updateTo(GpuProgram *program)
 RenderPass::RenderPass(const std::string &name)
     : m_name(name)
 {
-    setGpuProgram(g_resourceManager->createSimpleLightingGpuProgram());
+    setGpuProgram(gsvc().resourceMgr.getFactory().createSimpleLightingGpuProgram());
     setSampler("diffuseMap", nullptr);
 }
 
@@ -202,17 +202,17 @@ void RenderPass::enableLighting(bool enable)
     m_lightingEnabled = enable;
 }
 
-shared_ptr<RenderPass> RenderPass::createDebugDrawPass()
+RenderPass RenderPass::createDebugDrawPass()
 {
-    auto pass = make_shared<render::RenderPass>("debug_draw_pass");
-    pass->setFrontFaceWinding(WindingOrder::CCW);
-    pass->setFaceCullMode(FaceCullMode::NONE);
-    pass->setPolygonDrawMode(PolygonMode::WIRE);
-    pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 0.2f);
-    pass->setBlendMode(BlendingMode::ALPHA);
+    auto pass = RenderPass("debug_draw_pass");
+    pass.setFrontFaceWinding(WindingOrder::CCW);
+    pass.setFaceCullMode(FaceCullMode::NONE);
+    pass.setPolygonDrawMode(PolygonMode::WIRE);
+    pass.setDiffuseColor(1.0f, 1.0f, 1.0f, 0.2f);
+    pass.setBlendMode(BlendingMode::ALPHA);
 
-    auto program = g_resourceManager->createColoredGpuProgram();
-    pass->setGpuProgram(program);
+    auto program = gsvc().resourceMgr.getFactory().createColoredGpuProgram();
+    pass.setGpuProgram(program);
 
     return pass;
 }

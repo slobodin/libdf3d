@@ -3,6 +3,7 @@
 
 #include "InputEvents.h"
 #include "DebugConsole.h"
+#include "Service.h"
 #include <render/RenderManager.h>
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
@@ -20,7 +21,8 @@
 #include <platform/windows/CrashHandler.h>
 #endif
 
-namespace df3d { namespace base {
+namespace df3d {
+namespace base {
 
 EngineController::EngineController()
 {
@@ -45,6 +47,8 @@ void EngineController::shutdown()
     SAFE_DELETE(m_fileSystem);
     SAFE_DELETE(m_audioManager);
 
+    SAFE_DELETE(m_svc);
+
     particlesys::destroySparkEngine();
 
     base::glog << "Shutdown success" << base::logmess;
@@ -52,13 +56,13 @@ void EngineController::shutdown()
     //delete this;
 }
 
-EngineController *EngineController::getInstance()
+EngineController& EngineController::instance()
 {
     static EngineController *controller = nullptr;
     if (!controller)
         controller = new EngineController();
 
-    return controller;
+    return *controller;
 }
 
 bool EngineController::init(EngineInitParams params)
@@ -100,13 +104,27 @@ bool EngineController::init(EngineInitParams params)
         // Init audio subsystem.
         m_audioManager = new audio::AudioManager();
 
-        // Create console.
-        if (params.createConsole)
-            m_debugConsole = new DebugConsole();
-
-        base::glog << "Engine initialized" << base::logmess;
+        // Init services.
+        m_svc = new df3dServices(*m_sceneManager, *m_resourceManager, *m_fileSystem,
+                                 *m_renderManager, *m_guiManager,
+                                 *m_physics, *m_physics->getWorld(), *m_audioManager);
 
         m_initialized = true;
+
+        // Load embedded resources.
+        base::glog << "Loading embedded resources" << base::logdebug;
+
+        m_resourceManager->loadEmbedResources();
+        m_renderManager->loadEmbedResources();
+
+        // Create console.
+        if (params.createConsole)
+        {
+            m_debugConsole = new DebugConsole();
+            m_svc->console = m_debugConsole;
+        }
+
+        base::glog << "Engine initialized" << base::logmess;
     }
     catch (std::exception &e)
     {
@@ -121,6 +139,7 @@ void EngineController::update(float systemDelta, float gameDelta)
     // Update engine.
     m_timeElapsed = IntervalBetweenNowAnd(m_timeStarted);
 
+    m_resourceManager->poll();
     m_audioManager->update(systemDelta);
     m_physics->update(gameDelta);
     m_sceneManager->update(gameDelta);
@@ -163,6 +182,11 @@ glm::vec2 EngineController::screenSize() const
 {
     auto vp = m_renderManager->getScreenRenderTarget()->getViewport();
     return glm::vec2(vp.width(), vp.height());
+}
+
+df3dServices& EngineController::svc()
+{
+    return *m_svc;
 }
 
 } }

@@ -4,9 +4,9 @@
 
 #include <render/RenderOperation.h>
 
-FWD_MODULE_CLASS(render, RenderPass)
 FWD_MODULE_CLASS(render, RenderQueue)
 FWD_MODULE_CLASS(render, Texture)
+FWD_MODULE_CLASS(render, RenderPass)
 
 namespace df3d { namespace particlesys {
 

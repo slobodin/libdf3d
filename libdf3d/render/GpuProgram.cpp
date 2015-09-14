@@ -4,11 +4,11 @@
 #include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include "Shader.h"
-#include "RenderPass.h"
 #include "OpenGLCommon.h"
 #include "Vertex.h"
 
-namespace df3d { namespace render {
+namespace df3d {
+namespace render {
 
 void gpuProgramLog(unsigned int program)
 {
@@ -33,42 +33,38 @@ bool isSampler(GLenum type)
 #endif
 }
 
-void GpuProgram::compileShaders()
+bool GpuProgram::compileShaders()
 {
-    if (m_shadersCompiled)
-        return;
+    assert(!m_programDescriptor);
 
-    if (m_programDescriptor == 0)
-        m_programDescriptor = glCreateProgram();
+    m_programDescriptor = glCreateProgram();
 
     for (auto shader : m_shaders)
     {
         if (!shader || !shader->compile())
         {
-            base::glog << "Failed to compile shaders in" << m_guid << base::logwarn;
-            return;
+            base::glog << "Failed to compile shaders in" << getGUID() << base::logwarn;
+            return false;
         }
     }
 
-    m_shadersCompiled = true;
+    return true;
 }
 
-void GpuProgram::attachShaders()
+bool GpuProgram::attachShaders()
 {
-    if (m_shadersAttached || m_programDescriptor == 0)
-        return;
+    if (!m_programDescriptor)
+        return false;
 
     for (auto shader : m_shaders)
         glAttachShader(m_programDescriptor, shader->getDescriptor());
 
-//#if defined(__ANDROID__)
     glBindAttribLocation(m_programDescriptor, VertexComponent::POSITION, "vertex");
     glBindAttribLocation(m_programDescriptor, VertexComponent::NORMAL, "normal");
     glBindAttribLocation(m_programDescriptor, VertexComponent::TEXTURE_COORDS, "txCoord");
     glBindAttribLocation(m_programDescriptor, VertexComponent::COLOR, "vertexColor");
     glBindAttribLocation(m_programDescriptor, VertexComponent::TANGENT, "tangent");
     glBindAttribLocation(m_programDescriptor, VertexComponent::BITANGENT, "bitangent");
-//#endif
 
     glLinkProgram(m_programDescriptor);
 
@@ -76,13 +72,14 @@ void GpuProgram::attachShaders()
     glGetProgramiv(m_programDescriptor, GL_LINK_STATUS, &linkOk);
     if (linkOk == GL_FALSE)
     {
+        base::glog << "GPU program linkage failed" << base::logwarn;
         gpuProgramLog(m_programDescriptor);
-        return;
+        return false;
     }
 
     requestUniforms();
 
-    m_shadersAttached = true;
+    return true;
 }
 
 void GpuProgram::requestUniforms()
@@ -111,8 +108,13 @@ void GpuProgram::requestUniforms()
     }
 }
 
-GpuProgram::GpuProgram()
+GpuProgram::GpuProgram(const std::vector<shared_ptr<Shader>> &shaders)
+    : m_shaders(shaders)
 {
+    assert(!shaders.empty());
+
+    if (compileShaders())
+        m_initialized = attachShaders();
 }
 
 GpuProgram::~GpuProgram()
@@ -131,48 +133,18 @@ GpuProgram::~GpuProgram()
     glDeleteProgram(m_programDescriptor);
 }
 
-void GpuProgram::attachShader(shared_ptr<Shader> shader)
-{
-    m_shaders.push_back(shader);
-    m_shadersCompiled = false;
-    m_shadersAttached = false;
-}
-
-void GpuProgram::detachShader(shared_ptr<Shader> shader)
-{
-    auto erasepos = std::find_if(m_shaders.cbegin(), m_shaders.cend(), 
-        [=](const shared_ptr<Shader> val) -> bool { return shader->getDescriptor() == val->getDescriptor(); });
-
-    if (erasepos == m_shaders.cend())
-        return;
-
-    m_shaders.erase(erasepos);
-    glDetachShader(m_programDescriptor, shader->getDescriptor());
-
-    m_shadersCompiled = false;
-    m_shadersAttached = false;
-}
-
 void GpuProgram::bind()
 {
-    if (!valid() || m_shaders.empty())
+    if (!isInitialized())
         return;
 
-    compileShaders();
-    if (!m_shadersCompiled)
-        return;
-
-    attachShaders();
-    if (!m_shadersAttached)
-        return;
+    assert(m_programDescriptor);
 
     glUseProgram(m_programDescriptor);
 }
 
 void GpuProgram::unbind()
 {
-    if (m_programDescriptor == 0)
-        return;
     glUseProgram(0);
 }
 
@@ -185,6 +157,44 @@ GpuProgramUniform *GpuProgram::getCustomUniform(const std::string &name)
     }
 
     return nullptr;
+}
+
+GpuProgramManualLoader::GpuProgramManualLoader(const std::string &guid, const std::string &vertexData, const std::string &fragmentData)
+    : m_resourceGuid(guid),
+    m_vertexData(vertexData),
+    m_fragmentData(fragmentData)
+{
+
+}
+
+GpuProgramManualLoader::GpuProgramManualLoader(const std::string &vertexShaderPath, const std::string &fragmentShaderPath)
+    : m_resourceGuid(vertexShaderPath + ";" + fragmentShaderPath),
+    m_vertexShaderPath(vertexShaderPath),
+    m_fragmentShaderPath(fragmentShaderPath)
+{
+    assert(vertexShaderPath != fragmentShaderPath);
+}
+
+GpuProgram* GpuProgramManualLoader::load()
+{
+    shared_ptr<Shader> vertexShader, fragmentShader;
+
+    if (!m_vertexShaderPath.empty() && !m_fragmentShaderPath.empty())
+    {
+        vertexShader = Shader::createFromFile(m_vertexShaderPath);
+        fragmentShader = Shader::createFromFile(m_fragmentShaderPath);
+    }
+    else
+    {
+        vertexShader = Shader::createFromString(m_vertexData, Shader::Type::VERTEX);
+        fragmentShader = Shader::createFromString(m_fragmentData, Shader::Type::FRAGMENT);
+    }
+
+    auto program = new GpuProgram({ vertexShader, fragmentShader });
+
+    program->setGUID(m_resourceGuid);
+
+    return program;
 }
 
 } }

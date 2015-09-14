@@ -1,20 +1,16 @@
 #include "df3d_pch.h"
 #include "BulletInterface.h"
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <render/RenderPass.h>
-#include <render/Renderer.h>
+#include <render/RendererBackend.h>
 #include <render/VertexIndexBuffer.h>
 
 namespace df3d { namespace physics {
 
 BulletDebugDraw::BulletDebugDraw()
 {
-    m_linesOp.passProps = render::RenderPass::createDebugDrawPass();
-    m_linesOp.passProps->setDiffuseColor(1.0f, 1.0f, 1.0f, 0.7f);
-    m_linesOp.vertexData = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
-    m_linesOp.vertexData->setUsageType(render::GpuBufferUsageType::DYNAMIC);
-    m_linesOp.type = render::RenderOperation::Type::LINES;
+
 }
 
 BulletDebugDraw::~BulletDebugDraw()
@@ -32,12 +28,12 @@ void BulletDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const
     v.p.x = from.x();
     v.p.y = from.y();
     v.p.z = from.z();
-    m_linesOp.vertexData->appendVertexData((const float *)&v, 1);
+    m_vertexData.push_back(v);
 
     v.p.x = to.x();
     v.p.y = to.y();
     v.p.z = to.z();
-    m_linesOp.vertexData->appendVertexData((const float *)&v, 1);
+    m_vertexData.push_back(v);
 }
 
 void BulletDebugDraw::drawContactPoint(const btVector3 &PointOnB, const btVector3 &normalOnB, btScalar distance, int lifeTime, const btVector3 &color)
@@ -67,9 +63,21 @@ int BulletDebugDraw::getDebugMode() const
 
 void BulletDebugDraw::flushRenderOperations()
 {
-    m_linesOp.vertexData->setDirty();
-    g_renderManager->drawOperation(m_linesOp);
-    m_linesOp.vertexData->clear();
+    if (!m_pass)
+    {
+        m_pass = make_shared<render::RenderPass>(render::RenderPass::createDebugDrawPass());
+        m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 0.7f);
+    }
+
+    render::RenderOperation op;
+    op.passProps = m_pass;
+    op.type = render::RenderOperation::Type::LINES;
+
+    op.vertexData = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
+    op.vertexData->alloc(m_vertexData.size(), m_vertexData.data(), render::GpuBufferUsageType::STREAM);
+    m_vertexData.clear();
+
+    gsvc().renderMgr.drawOperation(op);
 }
 
 } }

@@ -28,7 +28,7 @@ Json::Value AudioComponentSerializer::toJson(shared_ptr<const NodeComponent> com
 
     auto comp = static_cast<const AudioComponent*>(component.get());
 
-    result["path"] = comp->getBuffer()->getGUID(); // FIXME:
+    result["path"] = comp->getBuffer()->getFilePath();
     result["pitch"] = comp->getPitch();
     result["gain"] = comp->getGain();
     result["looped"] = comp->isLooped();

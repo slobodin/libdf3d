@@ -1,9 +1,9 @@
 #include "df3d_pch.h"
 #include "TextureCube.h"
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include "RenderManager.h"
-#include "Renderer.h"
+#include "RendererBackend.h"
 #include "Texture2D.h"
 
 namespace df3d { namespace render {
@@ -21,7 +21,7 @@ static const std::vector<GLenum> MapSidesToGl =
 bool TextureCube::imagesValid() const
 {
     for (int i = 0; i < 6; i++)
-        if (!m_images[i] || !m_images[i]->valid())
+        if (!m_images[i] || !m_images[i]->isInitialized())
             return false;
 
     return true;
@@ -29,6 +29,14 @@ bool TextureCube::imagesValid() const
 
 bool TextureCube::createGLTexture()
 {
+    // TODO_REFACTO
+
+    assert(false);
+
+    return false;
+
+    /*
+
     if (m_glid)
         return true;
 
@@ -36,14 +44,14 @@ bool TextureCube::createGLTexture()
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_glid);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    const auto &defaultCaps = g_renderManager->getRenderingCapabilities();
+    const auto &defaultCaps = gsvc().renderMgr.getRenderingCapabilities();
     if (!m_filtering)
         m_filtering = defaultCaps.textureFiltering;
     if (!m_mipmapped)
         m_mipmapped = defaultCaps.mipmaps;
 
     setupGlWrapMode(GL_TEXTURE_CUBE_MAP, m_wrapMode);
-    setupGlTextureFiltering(GL_TEXTURE_CUBE_MAP, filtering(), isMipmapped());
+    setupGlTextureFiltering(GL_TEXTURE_CUBE_MAP, getFilteringMode(), isMipmapped());
 
     for (int i = 0; i < 6; i++)
     {
@@ -75,13 +83,14 @@ bool TextureCube::createGLTexture()
 
     for (auto i = 0; i < 6; i++)
     {
-        g_resourceManager->unloadResource(m_images[i]);
+        gsvc().resourceMgr.unloadResource(m_images[i]);
         m_images[i].reset();
     }
 
     printOpenGLError();
 
     return true;
+    */
 }
 
 void TextureCube::deleteGLTexture()
@@ -98,6 +107,7 @@ void TextureCube::deleteGLTexture()
 TextureCube::TextureCube(shared_ptr<Texture2D> positiveX, shared_ptr<Texture2D> negativeX,
                          shared_ptr<Texture2D> positiveY, shared_ptr<Texture2D> negativeY,
                          shared_ptr<Texture2D> positiveZ, shared_ptr<Texture2D> negativeZ)
+    : Texture(TextureCreationParams())  // TODO_REFACTO
 {
     m_images[0] = positiveX;
     m_images[1] = negativeX;
@@ -117,21 +127,16 @@ bool TextureCube::bind(size_t unit)
     if (!imagesValid())
         return false;
 
-    if (createGLTexture())
-    {
-        glActiveTexture(GL_TEXTURE0 + unit);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, m_glid);
-        return true;
-    }
-    else
-        return false;
+    assert(m_glid);
+
+    glActiveTexture(GL_TEXTURE0 + unit);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_glid);
+
+    return true;
 }
 
 void TextureCube::unbind()
 {
-    if (!m_glid)
-        return;
-
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 

@@ -14,7 +14,7 @@ class GpuProgramState;
 class Viewport;
 class Texture2D;
 
-class Renderer
+class RendererBackend
 {
     RenderStats *m_renderStats = nullptr;
 
@@ -25,6 +25,7 @@ class Renderer
     float m_maxAnisotropyLevel = 1.0f;
 
     void createWhiteTexture();
+    void loadResidentGpuPrograms();
 
     // Helpers.
     void setBlendMode(RenderPass::BlendingMode bm);
@@ -45,8 +46,10 @@ class Renderer
     bool m_initialized = false;
 
 public:
-    Renderer();
-    ~Renderer();
+    RendererBackend();
+    ~RendererBackend();
+
+    void loadResources();
 
     void setRenderStatsLocation(RenderStats *renderStats);
 
@@ -91,12 +94,9 @@ public:
     void setAmbientLight(float ra, float ga, float ba);
     void setLight(const components::LightComponent *light);
 
-    void bindPass(shared_ptr<RenderPass> pass);
+    void bindPass(RenderPass *pass);
 
-    // bind render target
-
-    void drawVertexBuffer(shared_ptr<VertexBuffer> vb, shared_ptr<IndexBuffer> ib, RenderOperation::Type type);
-    //virtual void drawVertexBuffer(shared_ptr<VertexBuffer> vb, shared_ptr<RenderTargetTexture> rtt) = 0;
+    void drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, RenderOperation::Type type);
 
     // TODO:
     // Debug draw:

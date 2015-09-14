@@ -1,10 +1,5 @@
 #include "df3d_pch.h"
-#include "DecoderDFMesh.h"
-
-#include <render/MeshData.h>
-#include <render/SubMesh.h>
-#include <render/Material.h>
-#include <render/VertexIndexBuffer.h>
+#include "MeshLoader_dfmesh.h"
 
 namespace df3d { namespace resources {
 
@@ -51,29 +46,9 @@ struct SubmeshHeader
 
 #pragma pack(pop)
 
-enum class DFMeshVertexFormat
+std::unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<FileDataSource> source)
 {
-
-};
-
-DecoderDFMesh::DecoderDFMesh()
-{
-
-}
-
-DecoderDFMesh::~DecoderDFMesh()
-{
-
-}
-
-shared_ptr<Resource> DecoderDFMesh::createResource()
-{
-    return make_shared<render::MeshData>();
-}
-
-bool DecoderDFMesh::decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Resource> resource)
-{
-    return false;
+    return nullptr;
 }
 
 } }

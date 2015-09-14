@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ResourceDecoder.h"
+#include "MeshLoaders.h"
 
 namespace df3d { namespace resources {
 
@@ -11,14 +11,10 @@ namespace df3d { namespace resources {
  * It may include convex hull for physics support.
  * TODO: more features.
  */
-class DecoderDFMesh : public ResourceDecoder
+class MeshLoader_dfmesh
 {
 public:
-    DecoderDFMesh();
-    ~DecoderDFMesh();
-
-    shared_ptr<Resource> createResource() override;
-    bool decodeResource(shared_ptr<FileDataSource> file, shared_ptr<Resource> resource) override;
+    std::unique_ptr<MeshDataFSLoader::Mesh> load(shared_ptr<FileDataSource> source);
 };
 
 } }

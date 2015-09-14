@@ -1,17 +1,17 @@
 #include "df3d_pch.h"
 #include "RocketInterface.h"
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <resources/FileDataSource.h>
 #include <render/GpuProgram.h>
 #include <render/Texture.h>
 #include <render/RenderOperation.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/RenderPass.h>
-#include <render/Renderer.h>
+#include <render/RendererBackend.h>
 #include <render/Texture2D.h>
 #include <render/Viewport.h>
-#include <render/RenderingCapabilities.h>
+#include <render/RenderCommon.h>
 
 #include <Rocket/Core.h>
 
@@ -27,7 +27,7 @@ GuiFileInterface::~GuiFileInterface()
 
 Rocket::Core::FileHandle GuiFileInterface::Open(const Rocket::Core::String& path)
 {
-    auto file = g_fileSystem->openFile(path.CString());
+    auto file = gsvc().filesystem.openFile(path.CString());
     if (!file)
         return 0;
 
@@ -66,7 +66,7 @@ bool GuiFileInterface::Seek(Rocket::Core::FileHandle file, long offset, int orig
 
 size_t GuiFileInterface::Tell(Rocket::Core::FileHandle file)
 {
-    return m_openedFiles[file]->tell();
+    return static_cast<size_t>(m_openedFiles[file]->tell());
 }
 
 GuiSystemInterface::GuiSystemInterface()
@@ -114,15 +114,9 @@ struct CompiledGeometry
 };
 
 GuiRenderInterface::GuiRenderInterface()
-    : m_textureId(0),
-    m_renderOperation(new render::RenderOperation())
+    : m_textureId(0)
 {
-    m_guipass = make_shared<render::RenderPass>();
-    m_guipass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
-    m_guipass->setGpuProgram(g_resourceManager->createColoredGpuProgram());
-    m_guipass->enableDepthTest(false);
-    m_guipass->enableDepthWrite(false);
-    m_guipass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
+
 }
 
 void GuiRenderInterface::SetViewport(int width, int height)
@@ -144,14 +138,11 @@ Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket:
                                                                          int *indices, int num_indices, 
                                                                          Rocket::Core::TextureHandle texture)
 {
+    // Set up vertex buffer.
     auto vertexBuffer = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
-    auto indexBuffer = make_shared<render::IndexBuffer>();
 
-    vertexBuffer->resize(num_vertices);
-    auto vertexData = vertexBuffer->getVertexData();
-    size_t vertexSize = vertexBuffer->getFormat().getVertexSize();
-    size_t offset = vertexBuffer->getFormat().getVertexSize() / sizeof(float);
-
+    // FIXME: can map directly to vertexBuffer if Rocket::Core::Vertex is the same layout as internal vertex buffer storage.
+    std::vector<render::Vertex_3p2tx4c> vertexData;
     for (int i = 0; i < num_vertices; i++)
     {
         render::Vertex_3p2tx4c v;
@@ -166,18 +157,17 @@ Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket:
         v.color.b = vertices[i].colour.blue / 255.0f;
         v.color.a = vertices[i].colour.alpha / 255.0f;
 
-        memcpy(vertexData + i * offset, &v, vertexSize);
+        vertexData.push_back(v);
     }
 
-    static render::IndexArray ia;
+    vertexBuffer->alloc(num_vertices, vertexData.data(), render::GpuBufferUsageType::STATIC);
 
-    for (int i = 0; i < num_indices; i++)
-    {
-        ia.push_back(indices[i]);
-    }
+    // FIXME: this is not 64 bit
+    static_assert(sizeof(render::INDICES_TYPE) == sizeof(int), "rocket indices should be the same as render::INDICES_TYPE");
 
-    indexBuffer->appendIndices(ia);
-    ia.clear();
+    // Set up index buffer
+    auto indexBuffer = make_shared<render::IndexBuffer>();
+    indexBuffer->alloc(num_indices, indices, render::GpuBufferUsageType::STATIC);
 
     CompiledGeometry *geom = new CompiledGeometry();
     geom->texture = m_textures[texture];        // NOTE: can be nullptr. It's okay.
@@ -193,6 +183,17 @@ void GuiRenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHa
     if (!geometry)
         return;
 
+    if (!m_guipass)
+    {
+        m_guipass = make_shared<render::RenderPass>();
+
+        m_guipass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
+        m_guipass->setGpuProgram(gsvc().resourceMgr.getFactory().createColoredGpuProgram());
+        m_guipass->enableDepthTest(false);
+        m_guipass->enableDepthWrite(false);
+        m_guipass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
+    }
+
     auto geom = (CompiledGeometry *)geometry;
 
     m_guipass->setSampler("diffuseMap", geom->texture);
@@ -203,7 +204,7 @@ void GuiRenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHa
     op.passProps = m_guipass;
     op.worldTransform = glm::translate(glm::vec3(translation.x, translation.y, 0.0f));
 
-    g_renderManager->drawOperation(op);
+    gsvc().renderMgr.drawOperation(op);
 }
 
 void GuiRenderInterface::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry)
@@ -214,26 +215,27 @@ void GuiRenderInterface::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryH
 
 void GuiRenderInterface::EnableScissorRegion(bool enable)
 {
-    g_renderManager->getRenderer()->enableScissorTest(enable);
+    gsvc().renderMgr.getRenderer()->enableScissorTest(enable);
 }
 
 void GuiRenderInterface::SetScissorRegion(int x, int y, int width, int height)
 {
-    auto vp = g_engineController->getViewport();
-    g_renderManager->getRenderer()->setScissorRegion(x, vp.height() - (y + height), width, height);
+    auto vp = base::EngineController::instance().getViewport();
+    gsvc().renderMgr.getRenderer()->setScissorRegion(x, vp.height() - (y + height), width, height);
 }
 
 bool GuiRenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle, 
                                      Rocket::Core::Vector2i &texture_dimensions, 
                                      const Rocket::Core::String &source)
 {
-    auto texture = g_resourceManager->createTexture(source.CString(), ResourceLoadingMode::IMMEDIATE);
-    if (!texture || !texture->valid())
-        return false;
+    render::TextureCreationParams params;
+    params.setFiltering(render::TextureFiltering::BILINEAR);
+    params.setMipmapped(false);
+    params.setAnisotropyLevel(render::NO_ANISOTROPY);
 
-    texture->setFilteringMode(render::TextureFiltering::BILINEAR);
-    texture->setMipmapped(false);
-    texture->setMaxAnisotropy(render::NO_ANISOTROPY);
+    auto texture = gsvc().resourceMgr.getFactory().createTexture(source.CString(), params, ResourceLoadingMode::IMMEDIATE);
+    if (!texture || !texture->isInitialized())
+        return false;
 
     m_textures[++m_textureId] = texture;
     texture_handle = m_textureId;
@@ -248,11 +250,14 @@ bool GuiRenderInterface::GenerateTexture(Rocket::Core::TextureHandle& texture_ha
                                          const Rocket::Core::byte *source,
                                          const Rocket::Core::Vector2i &source_dimensions)
 {
-    auto texture = g_resourceManager->createEmptyTexture();
-    texture->setWithData(source_dimensions.x, source_dimensions.y, PixelFormat::RGBA, source);
-    texture->setFilteringMode(render::TextureFiltering::BILINEAR);
-    texture->setMipmapped(false);
-    texture->setMaxAnisotropy(render::NO_ANISOTROPY);
+    render::TextureCreationParams params;
+    params.setMipmapped(false);
+    params.setAnisotropyLevel(render::NO_ANISOTROPY);
+    params.setFiltering(render::TextureFiltering::BILINEAR);
+
+    auto pb = make_unique<render::PixelBuffer>(source_dimensions.x, source_dimensions.y, source, PixelFormat::RGBA);
+
+    auto texture = gsvc().resourceMgr.getFactory().createTexture(std::move(pb), params);
 
     m_textures[++m_textureId] = texture;
     texture_handle = m_textureId;
@@ -267,7 +272,7 @@ void GuiRenderInterface::ReleaseTexture(Rocket::Core::TextureHandle texture_hand
     // Erase from internal buffer.
     m_textures.erase(texture_handle);
     // Unload from resource manager.
-    g_resourceManager->unloadResource(guid);
+    gsvc().resourceMgr.unloadResource(guid);
 }
 
 } }

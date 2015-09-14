@@ -1,40 +1,35 @@
 #pragma once
 
-FWD_MODULE_CLASS(resources, DecoderMTL)
-FWD_MODULE_CLASS(resources, DecoderOBJ)
+#include <render/RenderPass.h>
 
 namespace df3d { namespace render {
 
-class RenderPass;
-class RenderManager;
-
-class DF3D_DLL Technique : utils::NonCopyable
+class DF3D_DLL Technique
 {
-    friend class resources::DecoderMTL;
-    friend class resources::DecoderOBJ;
-    friend class RenderManager;
-
     //! Technique id.
     std::string m_name;
     //! A list of passes. May contain passes with the same names.
     std::vector<shared_ptr<RenderPass>> m_passes;
 
     //! Helper. Finds first with given name.
-    shared_ptr<RenderPass> findPass(const std::string &name) const;
-
-    void appendPass(shared_ptr<RenderPass> pass);
-
-    Technique(const std::string &name);
+    shared_ptr<RenderPass> findPass(const std::string &name);
 
 public:
+    Technique(const std::string &name);
+    Technique(const Technique &other);
+    Technique& operator= (Technique other);
     ~Technique();
 
+    void appendPass(const RenderPass &pass);
+
+    //! Returns ith pass.
     shared_ptr<RenderPass> getPass(int idx);
     //! Returns first pass with given name.
     shared_ptr<RenderPass> getPass(const std::string &name);
+    //! Returns passes count.
     size_t getPassCount() const;
 
-    const std::string &getName();
+    const std::string& getName() const;
 };
 
 } }

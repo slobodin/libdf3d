@@ -1,44 +1,76 @@
 #include "df3d_pch.h"
-#include "SubMesh.h"
+#include "MeshUtils.h"
 
-#include "VertexIndexBuffer.h"
 #include <utils/Utils.h>
+#include <render/MeshData.h>
 
-namespace df3d { namespace render {
+namespace df3d { namespace utils { namespace mesh { 
 
-SubMesh::SubMesh()
+void indexize()
 {
+    // TODO:
+    assert(false);
 
+    //std::map<render::Vertex, render::INDICES_TYPE> alreadyIndexed;
+    //render::IndexArray indexBuffer;
+    //render::VertexArray newVertexBuffer;
+    //const auto &vertices = vb->getVertices();
+
+    //for (auto &v : vertices)
+    //{
+    //    auto found = alreadyIndexed.find(v);
+    //    if (found != alreadyIndexed.end())
+    //    {
+    //        indexBuffer.push_back(found->second);
+    //        newVertexBuffer.at(found->second).tangent += v.tangent;
+    //        newVertexBuffer.at(found->second).bitangent += v.bitangent;
+    //    }
+    //    else
+    //    {
+    //        newVertexBuffer.push_back(v);
+    //        render::INDICES_TYPE newIdx = newVertexBuffer.size() - 1;
+    //        indexBuffer.push_back(newIdx);
+
+    //        alreadyIndexed[v] = newIdx;
+    //    }
+    //}
+
+    //auto ib = make_shared<render::IndexBuffer>();
+
+    //ib->appendIndices(indexBuffer);
+    //vb->getVertices().swap(newVertexBuffer);
+
+    //ib->setDirty();
+    //vb->setDirty();
+
+    //return ib;
 }
 
-SubMesh::~SubMesh()
+void computeNormals(render::SubMesh &submesh)
 {
-    
-}
+    const auto &vformat = submesh.getVertexFormat();
 
-void SubMesh::computeNormals()
-{
-    if (!m_vb || !m_vb->getFormat().hasComponent(VertexComponent::NORMAL) || !m_vb->getFormat().hasComponent(VertexComponent::POSITION))
+    if (!vformat.hasComponent(render::VertexComponent::NORMAL) || !vformat.hasComponent(render::VertexComponent::POSITION))
         return;
 
-    auto vertexData = m_vb->getVertexData();
-    size_t stride = m_vb->getFormat().getVertexSize() / sizeof(float);
-    size_t normalOffset = m_vb->getFormat().getOffsetTo(VertexComponent::NORMAL) / sizeof(float);
-    size_t positionOffset = m_vb->getFormat().getOffsetTo(VertexComponent::POSITION) / sizeof(float);
+    auto vertexData = submesh.getVertexData();
+    size_t stride = vformat.getVertexSize() / sizeof(float);
+    size_t normalOffset = vformat.getOffsetTo(render::VertexComponent::NORMAL) / sizeof(float);
+    size_t positionOffset = vformat.getOffsetTo(render::VertexComponent::POSITION) / sizeof(float);
 
-    std::vector<int> polysTouchVertex(m_vb->getVerticesCount());
+    std::vector<int> polysTouchVertex(submesh.getVerticesCount());
 
     // Clear normals for all vertices.
-    for (size_t i = 0; i < m_vb->getVerticesCount(); i++)
+    for (size_t i = 0; i < submesh.getVerticesCount(); i++)
     {
         float *normal = vertexData + i * stride + normalOffset;
         normal[0] = normal[1] = normal[2] = 0.0f;
     }
 
     // Indexed.
-    if (m_ib)
+    if (submesh.hasIndices())
     {
-        auto indices = m_ib->getIndices();
+        const auto &indices = submesh.getIndices();
         for (size_t ind = 0; ind < indices.size(); ind += 3)
         {
             size_t vindex0 = indices[ind];
@@ -82,7 +114,7 @@ void SubMesh::computeNormals()
             normalBase2[2] += normal.z;
         }
 
-        for (size_t vertex = 0; vertex < m_vb->getVerticesCount(); vertex++)
+        for (size_t vertex = 0; vertex < submesh.getVerticesCount(); vertex++)
         {
             if (polysTouchVertex[vertex] >= 1)
             {
@@ -103,21 +135,18 @@ void SubMesh::computeNormals()
     }
 }
 
-void SubMesh::computeTangentBasis()
+void computeTangentBasis(render::SubMesh &submesh)
 {
-    if (!m_vb)
-        return;
-
-    const auto &format = m_vb->getFormat();
-    if (!format.hasComponent(VertexComponent::TANGENT) ||
-        !format.hasComponent(VertexComponent::BITANGENT) ||
-        !format.hasComponent(VertexComponent::POSITION) ||
-        !format.hasComponent(VertexComponent::TEXTURE_COORDS) ||
-        !format.hasComponent(VertexComponent::NORMAL))
+    const auto &format = submesh.getVertexFormat();
+    if (!format.hasComponent(render::VertexComponent::TANGENT) ||
+        !format.hasComponent(render::VertexComponent::BITANGENT) ||
+        !format.hasComponent(render::VertexComponent::POSITION) ||
+        !format.hasComponent(render::VertexComponent::TEXTURE_COORDS) ||
+        !format.hasComponent(render::VertexComponent::NORMAL))
         return;
 
     // Indexed.
-    if (m_ib)
+    if (submesh.hasIndices())
     {
         //std::vector<glm::vec3> tempTangent(m_vertices.size());
         //std::vector<glm::vec3> tempBinormal(m_vertices.size());
@@ -172,15 +201,15 @@ void SubMesh::computeTangentBasis()
     }
     else
     {
-        float *vertexData = m_vb->getVertexData();
-        size_t stride = m_vb->getFormat().getVertexSize() / sizeof(float);
-        size_t tangentOffset = m_vb->getFormat().getOffsetTo(VertexComponent::TANGENT) / sizeof(float);
-        size_t bitangentOffset = m_vb->getFormat().getOffsetTo(VertexComponent::BITANGENT) / sizeof(float);
-        size_t posOffset = m_vb->getFormat().getOffsetTo(VertexComponent::POSITION) / sizeof(float);
-        size_t txOffset = m_vb->getFormat().getOffsetTo(VertexComponent::TEXTURE_COORDS) / sizeof(float);
-        size_t normalOffset = m_vb->getFormat().getOffsetTo(VertexComponent::NORMAL) / sizeof(float);
+        float *vertexData = submesh.getVertexData();
+        size_t stride = format.getVertexSize() / sizeof(float);
+        size_t tangentOffset = format.getOffsetTo(render::VertexComponent::TANGENT) / sizeof(float);
+        size_t bitangentOffset = format.getOffsetTo(render::VertexComponent::BITANGENT) / sizeof(float);
+        size_t posOffset = format.getOffsetTo(render::VertexComponent::POSITION) / sizeof(float);
+        size_t txOffset = format.getOffsetTo(render::VertexComponent::TEXTURE_COORDS) / sizeof(float);
+        size_t normalOffset = format.getOffsetTo(render::VertexComponent::NORMAL) / sizeof(float);
 
-        for (size_t i = 0; i < m_vb->getVerticesCount(); i += 3)
+        for (size_t i = 0; i < submesh.getVerticesCount(); i += 3)
         {
             float *base0 = vertexData + (i + 0) * stride;
             float *base1 = vertexData + (i + 1) * stride;
@@ -219,7 +248,7 @@ void SubMesh::computeTangentBasis()
             }
         }
 
-        for (size_t i = 0; i < m_vb->getVerticesCount(); i++)
+        for (size_t i = 0; i < submesh.getVerticesCount(); i++)
         {
             // Gram-Schmidt orthogonalization.
             float *tangentPt = vertexData + i * stride + tangentOffset;
@@ -245,50 +274,4 @@ void SubMesh::computeTangentBasis()
     }
 }
 
-void SubMesh::setMaterial(shared_ptr<Material> material)
-{
-    if (!material)
-    {
-        base::glog << "Can not set empty material to a submesh" << base::logwarn;
-        return;
-    }
-
-    m_material = material;
-}
-
-void SubMesh::setVertexBuffer(shared_ptr<VertexBuffer> vb)
-{
-    if (!vb)
-    {
-        base::glog << "Can not set empty vertex buffer to a submesh" << base::logwarn;
-        return;
-    }
-
-    m_vb = vb;
-}
-
-void SubMesh::setIndexBuffer(shared_ptr<IndexBuffer> ib)
-{
-    if (!ib)
-    {
-        base::glog << "Can not set empty index buffer to a submesh" << base::logwarn;
-        return;
-    }
-
-    m_ib = ib;
-}
-
-size_t SubMesh::getTrianglesCount() const
-{
-    if (m_ib)
-    {
-        // Indexed.
-        return m_ib->getIndices().size() / 3;
-    }
-    else
-    {
-        return m_vb->getElementsUsed() / 3;
-    }
-}
-
-} }
+} } }

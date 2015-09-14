@@ -1,8 +1,8 @@
 #include "df3d_pch.h"
 #include "Texture.h"
 
-#include <base/SystemsMacro.h>
-#include "Renderer.h"
+#include <base/Service.h>
+#include "RendererBackend.h"
 
 namespace df3d { namespace render {
 
@@ -23,6 +23,65 @@ int GetPixelSizeForFormat(PixelFormat format)
     }
 
     return 0;
+}
+
+PixelBuffer::PixelBuffer(int w, int h, PixelFormat format)
+    : m_w(w), m_h(h), m_format(format)
+{
+
+}
+
+PixelBuffer::PixelBuffer(int w, int h, const unsigned char *data, PixelFormat format)
+    : m_w(w), m_h(h), m_format(format)
+{
+    m_dataSize = m_w * m_h * GetPixelSizeForFormat(m_format);
+
+    assert(m_dataSize != 0);
+
+    m_data = new unsigned char[m_dataSize];
+    memcpy(m_data, data, m_dataSize);
+}
+
+PixelBuffer::~PixelBuffer()
+{
+    delete [] m_data;
+}
+
+TextureCreationParams::TextureCreationParams()
+{
+    m_filtering = TextureFiltering::TRILINEAR;
+    m_mipmapped = true;
+    m_wrapMode = TextureWrapMode::WRAP;
+    m_anisotropyLevel = ANISOTROPY_LEVEL_MAX;
+}
+
+void TextureCreationParams::setFiltering(TextureFiltering filtering)
+{
+    m_filtering = filtering;
+}
+
+void TextureCreationParams::setMipmapped(bool mipmapped)
+{
+    m_mipmapped = mipmapped;
+}
+
+void TextureCreationParams::setAnisotropyLevel(int anisotropy)
+{
+    float maxSupportedAniso = gsvc().renderMgr.getRenderer()->getMaxAnisotropy();
+    if (anisotropy > maxSupportedAniso)
+    {
+        base::glog << "Anisotropy level is bigger than supported. Setting maximum." << base::logwarn;
+        m_anisotropyLevel = (int)maxSupportedAniso;
+    }
+    else
+    {
+        m_anisotropyLevel = anisotropy;
+    }
+}
+
+void TextureCreationParams::setWrapMode(TextureWrapMode wrapMode)
+{
+    m_wrapMode = wrapMode;
 }
 
 bool Texture::isPot(size_t v)
@@ -60,13 +119,13 @@ GLint Texture::getGlFilteringMode(TextureFiltering filtering, bool mipmapped)
     return -1;
 }
 
-GLint Texture::getGlWrapMode(Texture::WrapMode mode)
+GLint Texture::getGlWrapMode(TextureWrapMode mode)
 {
     switch (mode)
     {
-    case Texture::WrapMode::WRAP:
+    case TextureWrapMode::WRAP:
         return GL_REPEAT;
-    case Texture::WrapMode::CLAMP:
+    case TextureWrapMode::CLAMP:
         return GL_CLAMP_TO_EDGE;
     default:
         break;
@@ -83,7 +142,7 @@ void Texture::setupGlTextureFiltering(GLenum glType, TextureFiltering filtering,
     printOpenGLError();
 }
 
-void Texture::setupGlWrapMode(GLenum glType, WrapMode wrapMode)
+void Texture::setupGlWrapMode(GLenum glType, TextureWrapMode wrapMode)
 {
     auto wmGl = getGlWrapMode(wrapMode);
     glTexParameteri(glType, GL_TEXTURE_WRAP_S, wmGl);
@@ -95,72 +154,10 @@ void Texture::setupGlWrapMode(GLenum glType, WrapMode wrapMode)
     printOpenGLError();
 }
 
-TextureFiltering Texture::filtering() const
+Texture::Texture(TextureCreationParams params)
+    : m_params(params)
 {
-    return m_filtering.get();
-}
 
-bool Texture::isMipmapped() const
-{
-    return m_mipmapped.get();
-}
-
-int Texture::anisotropyLevel() const
-{
-    return m_anisotropyLevel.get();
-}
-
-void Texture::setFilteringMode(TextureFiltering newFiltering)
-{
-    if (newFiltering == m_filtering)
-        return;
-
-    if (m_glid)
-        throw std::runtime_error("Failed to set filtering mode. GL texture already created.");
-
-    m_filtering = newFiltering;
-}
-
-void Texture::setMipmapped(bool hasMipmaps)
-{
-    if (hasMipmaps == m_mipmapped)
-        return;
-
-    if (m_glid)
-        throw std::runtime_error("Failed to set mipmaps. GL texture already created.");
-
-    m_mipmapped = hasMipmaps;
-}
-
-void Texture::setWrapMode(WrapMode mode)
-{
-    if (mode == m_wrapMode)
-        return;
-
-    if (m_glid)
-        throw std::runtime_error("Failed to set wrap mode. GL texture already created.");
-
-    m_wrapMode = mode;
-}
-
-void Texture::setMaxAnisotropy(int aniso)
-{
-    if (aniso == m_anisotropyLevel)
-        return;
-
-    if (m_glid)
-        throw std::runtime_error("Failed to set anisotropy level. GL texture already created.");
-
-    float maxSupportedAniso = g_renderManager->getRenderer()->getMaxAnisotropy();
-    if (aniso > maxSupportedAniso)
-    {
-        base::glog << "Anisotropy level is bigger than supported. Setting maximum." << base::logwarn;
-        m_anisotropyLevel = (int)maxSupportedAniso;
-    }
-    else
-    {
-        m_anisotropyLevel = aniso;
-    }
 }
 
 } }

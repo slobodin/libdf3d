@@ -2,7 +2,7 @@
 #include "SparkInterface.h"
 
 #include <render/RenderPass.h>
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <scene/Camera.h>
 #include <components/TransformComponent.h>
 #include <render/VertexIndexBuffer.h>
@@ -29,17 +29,23 @@ public:
     shared_ptr<render::VertexBuffer> m_vb;
     shared_ptr<render::IndexBuffer> m_ib;
 
+    std::vector<render::Vertex_3p2tx4c> m_vertexData;
+    render::IndexArray m_indexData;
+
     MyRenderBuffer(size_t nbParticles, int verticesPerParticle, int indicesPerParticle)
     {
         m_vb = make_shared<render::VertexBuffer>(render::VertexFormat::create("p:3, tx:2, c:4"));
         m_ib = make_shared<render::IndexBuffer>();
-        // Particles vertex data is update frequently.
-        m_vb->setUsageType(render::GpuBufferUsageType::STREAM);
-        // Index data is always static.
-        m_ib->setUsageType(render::GpuBufferUsageType::STATIC);
 
-        m_vb->resize(nbParticles * verticesPerParticle);
-        m_ib->getIndices().resize(nbParticles * indicesPerParticle);
+        // Allocate GPU storage.
+        m_vb->alloc(nbParticles * verticesPerParticle, nullptr, render::GpuBufferUsageType::DYNAMIC);
+        m_ib->alloc(nbParticles * indicesPerParticle, nullptr, render::GpuBufferUsageType::STATIC);
+
+        // Allocate main memory storage copy (no glMapBuffer on ES2.0)
+        m_vertexData.resize(nbParticles * verticesPerParticle);
+        m_indexData.resize(nbParticles * indicesPerParticle);
+
+        positionAtStart();
     }
 
     void positionAtStart()
@@ -53,24 +59,24 @@ public:
 
     void setNextIndex(int index)
     {
-        m_ib->getIndices()[m_currentIndexIndex++] = index;
+        m_indexData[m_currentIndexIndex++] = index;
     }
 
     void setNextVertex(const SPK::Vector3D &vertex)
     {
-        auto vert = reinterpret_cast<render::Vertex_3p2tx4c *>(m_vb->getVertexData() + (m_currentVertexIndex++) * STRIDE_BETWEEN_VERTICES);
-        vert->p.x = vertex.x;
-        vert->p.y = vertex.y;
-        vert->p.z = vertex.z;
+        auto &vert = m_vertexData[m_currentVertexIndex++];
+        vert.p.x = vertex.x;
+        vert.p.y = vertex.y;
+        vert.p.z = vertex.z;
     }
 
     void setNextColor(const SPK::Color &color)
     {
-        auto vert = reinterpret_cast<render::Vertex_3p2tx4c *>(m_vb->getVertexData() + (m_currentColorIndex++) * STRIDE_BETWEEN_VERTICES);
-        vert->color.r = color.r / 255.0f;
-        vert->color.g = color.g / 255.0f;
-        vert->color.b = color.b / 255.0f;
-        vert->color.a = color.a / 255.0f;
+        auto &vert = m_vertexData[m_currentColorIndex++];
+        vert.color.r = color.r / 255.0f;
+        vert.color.g = color.g / 255.0f;
+        vert.color.b = color.b / 255.0f;
+        vert.color.a = color.a / 255.0f;
     }
 
     void skipNextColors(size_t nb)
@@ -80,9 +86,9 @@ public:
 
     void setNextTexCoords(float u, float v)
     {
-        auto vert = reinterpret_cast<render::Vertex_3p2tx4c *>(m_vb->getVertexData() + (m_currentTexCoordIndex++) * STRIDE_BETWEEN_VERTICES);
-        vert->tx.x = u;
-        vert->tx.y = v;
+        auto &vert = m_vertexData[m_currentTexCoordIndex++];
+        vert.tx.x = u;
+        vert.tx.y = v;
     }
 
     void skipNextTexCoords(size_t nb)
@@ -93,10 +99,11 @@ public:
 
 void ParticleSystemRenderer::addToRenderQueue(MyRenderBuffer &buffer, size_t nbOfParticles, int verticesPerParticle, int indicesPerParticle, render::RenderOperation::Type type) const
 {
-    buffer.m_vb->setElementsUsed(nbOfParticles * verticesPerParticle);
-    buffer.m_ib->setElementsUsed(nbOfParticles * indicesPerParticle);
-    // Refill gpu with new data (only vertices are changed).
-    buffer.m_vb->setDirty();
+    // Refill GPU with new data (only vertices was changed).
+    buffer.m_vb->update(nbOfParticles * verticesPerParticle, buffer.m_vertexData.data());
+
+    buffer.m_vb->setVerticesUsed(nbOfParticles * verticesPerParticle);
+    buffer.m_ib->setIndicesUsed(nbOfParticles * indicesPerParticle);
 
     render::RenderOperation op;
     op.type = type;
@@ -112,14 +119,14 @@ void ParticleSystemRenderer::addToRenderQueue(MyRenderBuffer &buffer, size_t nbO
 }
 
 ParticleSystemRenderer::ParticleSystemRenderer(bool NEEDS_DATASET)
-    : SPK::Renderer(NEEDS_DATASET)
+    : SPK::Renderer(NEEDS_DATASET),
+    m_pass(make_shared<render::RenderPass>())
 {
-    m_pass = make_shared<render::RenderPass>();
     m_pass->setFaceCullMode(render::RenderPass::FaceCullMode::BACK);
     m_pass->setFrontFaceWinding(render::RenderPass::WindingOrder::CCW);
     m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f);
 
-    m_pass->setGpuProgram(g_resourceManager->createColoredGpuProgram());
+    m_pass->setGpuProgram(gsvc().resourceMgr.getFactory().createColoredGpuProgram());
 }
 
 ParticleSystemRenderer::~ParticleSystemRenderer()
@@ -234,7 +241,7 @@ SPK::RenderBuffer* QuadParticleSystemRenderer::attachRenderBuffer(const SPK::Gro
     buffer->positionAtStart();
 
     // Initialize the index array.
-    for (size_t i = 0; i < group.getCapacity(); ++i)
+    for (size_t i = 0; i < totalParticles; ++i)
     {
         buffer->setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 0);
         buffer->setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 1);
@@ -243,6 +250,11 @@ SPK::RenderBuffer* QuadParticleSystemRenderer::attachRenderBuffer(const SPK::Gro
         buffer->setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 2);
         buffer->setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 3);
     }
+
+    // Initialize GPU storage of index array.
+    buffer->m_ib->update(totalParticles * QUAD_INDICES_PER_PARTICLE, buffer->m_indexData.data());
+    // Clear main storage indices copy.
+    buffer->m_indexData.clear();
 
     // Initialize the texture array (CCW order).
     for (size_t i = 0; i < group.getCapacity(); ++i)
@@ -303,7 +315,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
             m_renderParticle = &QuadParticleSystemRenderer::render2D;
     }
 
-    auto camMatr = g_sceneManager->getCamera()->getViewMatrix() * *m_currentTransformation;
+    auto camMatr = gsvc().sceneMgr.getCamera()->getViewMatrix() * *m_currentTransformation;
     camMatr = glm::inverse(camMatr);
 
     bool globalOrientation = precomputeOrientation3D(group,
@@ -375,8 +387,11 @@ SPK::RenderBuffer* LineParticleSystemRenderer::attachRenderBuffer(const SPK::Gro
     buffer->positionAtStart();
 
     // Initialize the index array.
-    for (size_t i = 0; i < group.getCapacity() * LINE_INDICES_PER_PARTICLE; ++i)
+    for (size_t i = 0; i < totalParticles * LINE_INDICES_PER_PARTICLE; ++i)
         buffer->setNextIndex(i);
+
+    buffer->m_ib->update(totalParticles * LINE_INDICES_PER_PARTICLE, buffer->m_indexData.data());
+    buffer->m_indexData.clear();
 
     return buffer;
 }

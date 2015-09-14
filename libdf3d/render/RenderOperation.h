@@ -17,15 +17,13 @@ public:
     };
 
     Type type = Type::TRIANGLES;
-
     glm::mat4 worldTransform;
-
     shared_ptr<IndexBuffer> indexData;
     shared_ptr<VertexBuffer> vertexData;
     shared_ptr<RenderPass> passProps;
 
-    RenderOperation();
-    ~RenderOperation();
+    RenderOperation() = default;
+    ~RenderOperation() = default;
 
     bool isEmpty() const;
 };

@@ -48,7 +48,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/SystemsMacro.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/Service.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/ThreadPool.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/AudioComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/DebugDrawComponent.h
@@ -87,8 +87,8 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/OpenGLCommon.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Renderer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderingCapabilities.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/RendererBackend.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderOperation.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderPass.h
@@ -98,7 +98,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetScreen.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetTexture.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Shader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/SubMesh.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Technique.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture2D.h
@@ -109,15 +108,14 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/FileDataSource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/FileSystem.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceDecoder.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderDFMesh.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTexture.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderMTL.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOBJ.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOGG.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTerrain.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderWAV.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoader_dfmesh.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoader_obj.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/AudioLoaders.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MaterialLibLoaders.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoaders.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/TextureLoaders.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.h
@@ -132,7 +130,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonHelpers.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshIndexer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshUtils.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/NonCopyable.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.h
@@ -148,6 +146,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/Service.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/ThreadPool.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/AudioComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/DebugDrawComponent.cpp
@@ -183,8 +182,8 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/OpenGLCommon.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Renderer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderingCapabilities.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/RendererBackend.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderCommon.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderOperation.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderPass.cpp
@@ -192,7 +191,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetScreen.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetTexture.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Shader.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/SubMesh.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Technique.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture2D.cpp
@@ -202,15 +200,14 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Viewport.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/FileSystem.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceDecoder.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderDFMesh.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTexture.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderMTL.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOBJ.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderOGG.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderTerrain.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/decoders/DecoderWAV.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoader_dfmesh.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoader_obj.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/AudioLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MaterialLibLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/TextureLoaders.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.cpp
@@ -222,7 +219,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/OBB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonHelpers.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshIndexer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshUtils.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.cpp
 )

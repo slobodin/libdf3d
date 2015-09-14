@@ -1,39 +1,32 @@
 #pragma once
 
-FWD_MODULE_CLASS(resources, DecoderMTL)
-FWD_MODULE_CLASS(resources, DecoderOBJ)
+#include "Technique.h"
 
 namespace df3d { namespace render {
 
-class Technique;
-class RenderManager;
-
 //! Material is a collection of rendering techniques.
-class DF3D_DLL Material : utils::NonCopyable
+class DF3D_DLL Material
 {
-    friend class resources::DecoderMTL;
-    friend class resources::DecoderOBJ;
-    friend class RenderManager;
-
     //! Material name.
     std::string m_name;
     //! A list of techniques.
     std::vector<shared_ptr<Technique>> m_techniques;
 
     //! Current technique being used by this material.
-    shared_ptr<Technique> m_currentTechnique;
+    shared_ptr<Technique> m_currentTechnique = nullptr;
 
     //! Helper function.
-    shared_ptr<Technique> findTechnique(const std::string &name) const;
-
-    void appendTechnique(shared_ptr<Technique> technique);
-
-    Material(const std::string &name);
+    shared_ptr<Technique> findTechnique(const std::string &name);
 
 public:
+    Material(const std::string &name = "");
+    Material(const Material &other);
+    Material& operator= (Material other);
     ~Material();
 
     const std::string &getName() const;
+
+    void appendTechnique(const Technique &technique);
 
     void setCurrentTechnique(const std::string &name);
     shared_ptr<Technique> getCurrentTechnique();

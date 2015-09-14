@@ -1,13 +1,11 @@
 #include "df3d_pch.h"
 #include "Resource.h"
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 
 namespace df3d { namespace resources {
 
 Resource::Resource()
-    : m_initialized(false),
-    m_resident(false)
 {
     // guid = g_resmgr->getGuid()??
     static unsigned long resourcesCount = 0;
@@ -33,14 +31,19 @@ const ResourceGUID &Resource::getGUID() const
     return m_guid; 
 }
 
+const std::string &Resource::getFilePath() const
+{
+    return m_guid;
+}
+
 bool IsGUIDValid(const ResourceGUID &guid)
 {
     return !guid.empty();
 }
 
-ResourceGUID createGUIDFromPath(const std::string &path)
+ResourceGUID CreateGUIDFromPath(const std::string &path)
 {
-    return g_fileSystem->fullPath(path);
+    return gsvc().filesystem.fullPath(path);
 }
 
 } }

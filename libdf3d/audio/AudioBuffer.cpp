@@ -5,9 +5,11 @@
 
 namespace df3d { namespace audio {
 
-AudioBuffer::AudioBuffer(unsigned bufferId)
-    : m_alBufferId(bufferId)
+AudioBuffer::AudioBuffer()
 {
+    alGenBuffers(1, &m_alBufferId);
+
+    printOpenALError();
 }
 
 AudioBuffer::~AudioBuffer()

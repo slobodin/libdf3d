@@ -18,15 +18,11 @@ class DF3D_DLL MeshComponent : public NodeComponent
     void onDraw(render::RenderQueue *ops) override;
     void onUpdate(float dt) override;
 
-    shared_ptr<render::MeshData> m_geometry;
+    shared_ptr<render::MeshData> m_meshData;
 
-    // AABB in model space.
-    scene::AABB m_aabb;
     // Transformed AABB.
     scene::AABB m_transformedAABB;
-    bool m_aabbDirty = true;
     bool m_transformedAabbDirty = true;
-    void constructAABB();
     void constructTransformedAABB();
 
     // Bounding sphere.
@@ -37,9 +33,8 @@ class DF3D_DLL MeshComponent : public NodeComponent
 
     // Oriented bb.
     scene::OBB m_obb;
-    bool m_obbDirty = true;
     bool m_obbTransformationDirty = true;
-    void constructOBB();
+    void updateOBB();
 
     bool m_visible = true;
     bool m_frustumCullingDisabled = false;
@@ -55,25 +50,17 @@ public:
     MeshComponent(const std::string &meshFilePath, ResourceLoadingMode lm = ResourceLoadingMode::ASYNC);
     ~MeshComponent();
 
-    void setGeometry(shared_ptr<render::MeshData> geometry);
-    shared_ptr<render::MeshData> getGeometry() { return m_geometry; }
-    bool isGeometryValid() const;
-    df3d::ResourceGUID getGeometryResourceGuid() const;
-
-    void setMaterial(shared_ptr<render::Material> material, size_t submeshIdx);
-    shared_ptr<render::Material> getMaterial(size_t submeshIdx);
-
-    size_t getSubmeshesCount() const;
+    void setMeshData(shared_ptr<render::MeshData> meshData);
+    shared_ptr<render::MeshData> getMeshData() const;
 
     scene::AABB getAABB();
     scene::BoundingSphere getBoundingSphere();
     scene::OBB getOBB();
 
-    std::string getMeshFilePath() const;
     void setVisible(bool visible) { m_visible = visible; }
     void disableFrustumCulling(bool disable) { m_frustumCullingDisabled = disable; }
 
-    virtual shared_ptr<NodeComponent> clone() const override;
+    shared_ptr<NodeComponent> clone() const override;
 };
 
 } }

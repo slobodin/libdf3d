@@ -28,7 +28,7 @@ public:
 
     glm::vec3 getCenter() const;
     // Must be size of 8.
-    void getCorners(std::vector<glm::vec3> &output);
+    void getCorners(std::vector<glm::vec3> &output) const;
 };
 
 } }

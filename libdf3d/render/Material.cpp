@@ -5,9 +5,9 @@
 
 namespace df3d { namespace render {
 
-shared_ptr<Technique> Material::findTechnique(const std::string &name) const
+shared_ptr<Technique> Material::findTechnique(const std::string &name)
 {
-    auto findFn = [&](const shared_ptr<Technique> tech)
+    auto findFn = [&name](const shared_ptr<Technique> &tech)
     {
         return tech->getName() == name;
     };
@@ -19,27 +19,30 @@ shared_ptr<Technique> Material::findTechnique(const std::string &name) const
     return *found;
 }
 
-void Material::appendTechnique(shared_ptr<Technique> technique)
-{
-    if (!technique)
-    {
-        base::glog << "Trying to add empty technique to material" << m_name << base::logwarn;
-        return;
-    }
-
-    if (findTechnique(technique->getName()))
-    {
-        base::glog << "Trying to add duplicate technique" << technique->getName() << "to material" << m_name << base::logwarn;
-        return;
-    }
-
-    m_techniques.push_back(technique);
-}
-
 Material::Material(const std::string &name)
     : m_name(name)
 {
+    if (name.empty())
+        base::glog << "Creating material with empty name" << base::logwarn;
+}
 
+Material::Material(const Material &other)
+    : m_name(other.m_name)
+{
+    for (const auto &tech : other.m_techniques)
+        m_techniques.push_back(make_shared<Technique>(*tech));
+
+    if (other.m_currentTechnique)
+        m_currentTechnique = findTechnique(other.m_currentTechnique->getName());
+}
+
+Material& Material::operator= (Material other)
+{
+    std::swap(m_name, other.m_name);
+    std::swap(m_techniques, other.m_techniques);
+    std::swap(m_currentTechnique, other.m_currentTechnique);
+
+    return *this;
 }
 
 Material::~Material()
@@ -50,6 +53,17 @@ Material::~Material()
 const std::string &Material::getName() const
 {
     return m_name;
+}
+
+void Material::appendTechnique(const Technique &technique)
+{
+    if (findTechnique(technique.getName()))
+    {
+        base::glog << "Trying to add duplicate technique" << technique.getName() << "to material" << m_name << base::logwarn;
+        return;
+    }
+
+    m_techniques.push_back(make_shared<Technique>(technique));
 }
 
 void Material::setCurrentTechnique(const std::string &name)

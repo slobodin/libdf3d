@@ -9,7 +9,7 @@
 #include <resources/FileSystem.h>
 #include <components/TransformComponent.h>
 #include <scene/Node.h>
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 
 // TODO:
 
@@ -24,7 +24,7 @@ shared_ptr<render::RenderPass> TextMeshComponent::createRenderPass()
     pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
     pass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 
-    pass->setGpuProgram(g_resourceManager->createColoredGpuProgram());
+    pass->setGpuProgram(gsvc().resourceMgr.createColoredGpuProgram());
 
     return pass;
 }
@@ -88,7 +88,7 @@ TextMeshComponent::TextMeshComponent(const char *fontPath, int size)
 {
     // FIXME:
     // For now without resource manager.
-    auto path = g_fileSystem->fullPath(fontPath);
+    auto path = gsvc().filesystem.fullPath(fontPath);
     //m_font = TTF_OpenFont(path.c_str(), size);
     //if (!m_font)
     //{

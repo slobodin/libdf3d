@@ -7,7 +7,7 @@
 #include <render/Texture2D.h>
 #include <components/TransformComponent.h>
 #include <scene/Node.h>
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 
 namespace df3d { namespace components {
 
@@ -37,18 +37,14 @@ void Sprite2DComponent::onDraw(render::RenderQueue *ops)
 Sprite2DComponent::Sprite2DComponent(const std::string &pathToTexture)
     : NodeComponent(SPRITE_2D)
 {
-    auto sprite2dPass = make_shared<render::RenderPass>();
-    sprite2dPass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
-    sprite2dPass->setGpuProgram(g_resourceManager->createColoredGpuProgram());
-    sprite2dPass->enableDepthTest(false);
-    sprite2dPass->enableDepthWrite(false);
-    sprite2dPass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
+    m_op.passProps = make_shared<render::RenderPass>();
+    m_op.passProps->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
+    m_op.passProps->setGpuProgram(gsvc().resourceMgr.getFactory().createColoredGpuProgram());
+    m_op.passProps->enableDepthTest(false);
+    m_op.passProps->enableDepthWrite(false);
+    m_op.passProps->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 
-    auto quadVb = render::createQuad2(render::VertexFormat::create("p:3, tx:2, c:4"), 0.0f, 0.0f, 1.0, 1.0f);
-    quadVb->setUsageType(render::GpuBufferUsageType::STATIC);
-
-    m_op.passProps = sprite2dPass;
-    m_op.vertexData = quadVb;
+    m_op.vertexData = render::createQuad2(render::VertexFormat::create("p:3, tx:2, c:4"), 0.0f, 0.0f, 1.0, 1.0f, render::GpuBufferUsageType::STATIC);
 
     useTexture(pathToTexture);
 }
@@ -112,8 +108,13 @@ glm::vec2 Sprite2DComponent::getScreenPosition() const
 
 void Sprite2DComponent::useTexture(const std::string &pathToTexture)
 {
-    auto texture = g_resourceManager->createTexture(pathToTexture, ResourceLoadingMode::IMMEDIATE);
-    if (!texture || !texture->valid())
+    render::TextureCreationParams params;
+    params.setFiltering(render::TextureFiltering::BILINEAR);
+    params.setMipmapped(false);
+    params.setAnisotropyLevel(render::NO_ANISOTROPY);
+
+    auto texture = gsvc().resourceMgr.getFactory().createTexture(pathToTexture, params, ResourceLoadingMode::IMMEDIATE);
+    if (!texture || !texture->isInitialized())
     {
         base::glog << "Failed to init Sprite2DComponent with texture" << pathToTexture << base::logwarn;
         return;
@@ -121,10 +122,6 @@ void Sprite2DComponent::useTexture(const std::string &pathToTexture)
 
     if (m_textureGuid == texture->getGUID())
         return;
-
-    texture->setFilteringMode(render::TextureFiltering::BILINEAR);
-    texture->setMipmapped(false);
-    texture->setMaxAnisotropy(render::NO_ANISOTROPY);
 
     m_op.passProps->setSampler("diffuseMap", texture);
     m_textureOriginalSize = { texture->getOriginalWidth(), texture->getOriginalHeight() };

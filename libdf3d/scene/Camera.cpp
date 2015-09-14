@@ -1,9 +1,9 @@
 #include "df3d_pch.h"
 #include "Camera.h"
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <components/TransformComponent.h>
-#include <render/Renderer.h>
+#include <render/RendererBackend.h>
 #include <render/Viewport.h>
 #include <render/RenderTargetScreen.h>
 
@@ -23,7 +23,7 @@ void Camera::buildViewMatrix()
 
 void Camera::buildProjectionMatrix()
 {
-    const auto &vp = g_renderManager->getScreenRenderTarget()->getViewport();
+    const auto &vp = gsvc().renderMgr.getScreenRenderTarget()->getViewport();
 
     if (m_currentViewport != vp)
     {
@@ -129,11 +129,11 @@ const Frustum &Camera::getFrustum()
 
 glm::vec3 Camera::screenToViewPoint(float x, float y, float z)
 {
-    const auto &vp = g_renderManager->getScreenRenderTarget()->getViewport();
+    const auto &vp = gsvc().renderMgr.getScreenRenderTarget()->getViewport();
 
     float w = (float)vp.width();
     float h = (float)vp.height();
-    //float z = g_renderManager->getRenderer()->readDepthBuffer(x, h - y - 1);
+    //float z = gsvc().renderMgr.getRenderer()->readDepthBuffer(x, h - y - 1);
 
     glm::vec4 viewport = glm::vec4(0.0f, 0.0f, w, h);
     auto viewPos = glm::unProject(glm::vec3(x, h - y - 1, z), getViewMatrix(), getProjectionMatrix(), viewport);
@@ -143,7 +143,7 @@ glm::vec3 Camera::screenToViewPoint(float x, float y, float z)
 
 glm::vec3 Camera::worldToScreenPoint(const glm::vec3 &world)
 {
-    const auto &vp = g_renderManager->getScreenRenderTarget()->getViewport();
+    const auto &vp = gsvc().renderMgr.getScreenRenderTarget()->getViewport();
 
     float w = (float)vp.width();
     float h = (float)vp.height();

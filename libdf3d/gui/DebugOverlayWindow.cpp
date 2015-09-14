@@ -27,13 +27,13 @@ namespace df3d { namespace gui {
 //    // Just for test:
 //    // TODO:
 //    // Embed rml and rcss.
-//    auto file = g_fileSystem->openFile(rml);
+//    auto file = gsvc().filesystem.openFile(rml);
 //    std::string buffer(file->getSize(), 0);
 //    file->getRaw(&buffer[0], file->getSize());
 //
 //    document->SetInnerRML(buffer.c_str());
 //
-//    file = g_fileSystem->openFile(rcss);
+//    file = gsvc().filesystem.openFile(rcss);
 //    buffer.resize(file->getSize());
 //    file->getRaw(&buffer[0], file->getSize());
 //
@@ -51,7 +51,7 @@ namespace df3d { namespace gui {
 //
 //    void OnRender()
 //    {
-//        auto stats = g_engineController->getLastRenderStats();
+//        auto stats = base::EngineController::instance().getLastRenderStats();
 //
 //        std::string triangles = "Triangles: ";
 //        triangles += utils::to_string(stats.totalTriangles);
@@ -74,7 +74,7 @@ namespace df3d { namespace gui {
 //        m_psValue->SetInnerRML(psNodes.c_str());
 //        m_particlesValue->SetInnerRML(particles.c_str());
 //
-//        auto cam = g_sceneManager->getCamera();
+//        auto cam = gsvc().sceneMgr.getCamera();
 //        if (cam)
 //        {
 //            auto camPos = cam->getPosition();
@@ -374,19 +374,19 @@ namespace df3d { namespace gui {
 //    Rocket::Core::Factory::RegisterElementInstancer("__debug_scene_tree_window", new Rocket::Core::ElementInstancerGeneric<impl::SceneTreeWindow>())->RemoveReference();
 //    m_sceneTreeWnd = dynamic_cast<impl::SceneTreeWindow *>(context->CreateDocument("__debug_scene_tree_window"));
 //
-//    g_sceneManager->registerListener(m_sceneTreeWnd);
+//    gsvc().sceneMgr.registerListener(m_sceneTreeWnd);
 //
 //    m_sceneTreeWnd->SetProperty("visibility", "hidden");
 //}
 //
 //void DebugOverlayWindow::onCommandInvoked(const std::string &command, std::string &result)
 //{
-//    g_engineController->consoleCommandInvoked(command, result);
+//    base::EngineController::instance().consoleCommandInvoked(command, result);
 //}
 //
 //DebugOverlayWindow::DebugOverlayWindow()
 //{
-//    Rocket::Core::Context *context = g_guiManager->getRocketContext();
+//    Rocket::Core::Context *context = gsvc().guiMgr.getRocketContext();
 //
 //    createDebugMenu(context);
 //    createDebugStatsWindow(context);
@@ -414,7 +414,7 @@ namespace df3d { namespace gui {
 //
 //void DebugOverlayWindow::onRocketShutdown()
 //{
-//    g_sceneManager->unregisterListener(m_sceneTreeWnd);
+//    gsvc().sceneMgr.unregisterListener(m_sceneTreeWnd);
 //
 //    if (m_debugMenu)
 //        m_debugMenu->RemoveReference();

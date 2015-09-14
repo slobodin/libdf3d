@@ -26,7 +26,7 @@ private:
     GpuProgramUniform *m_uniform = nullptr;
 };
 
-class DF3D_DLL RenderPass : utils::NonCopyable
+class DF3D_DLL RenderPass
 {
 public:
     enum class WindingOrder
@@ -95,6 +95,8 @@ private:
 public:
     //! Creates a pass with default parameters.
     RenderPass(const std::string &name = "");
+    RenderPass(const RenderPass& other) = default;
+    RenderPass& operator= (const RenderPass& other) = default;
     ~RenderPass();
 
     void setGpuProgram(shared_ptr<GpuProgram> newProgram);
@@ -143,7 +145,7 @@ public:
     PolygonMode getPolygonDrawMode() const { return m_polygonMode; }
     BlendingMode getBlendingMode() const { return m_blendMode; }
 
-    static shared_ptr<RenderPass> createDebugDrawPass();
+    static RenderPass createDebugDrawPass();
 };
 
 } }

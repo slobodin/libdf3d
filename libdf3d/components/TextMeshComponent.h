@@ -3,8 +3,6 @@
 #include "MeshComponent.h"
 #include <render/RenderOperation.h>
 
-FWD_MODULE_CLASS(render, RenderPass)
-
 namespace df3d { namespace components {
 /*
 class DF3D_DLL TextMeshComponent : public MeshComponent

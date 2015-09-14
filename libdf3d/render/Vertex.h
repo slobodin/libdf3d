@@ -38,8 +38,6 @@ class DF3D_DLL VertexFormat
     std::vector<VertexComponent> m_components;
     size_t m_vertexSize = 0;    // bytes
 
-    VertexFormat() { }
-
     void addComponent(const VertexComponent &component);
 
 public:
@@ -64,6 +62,7 @@ static_assert(std::is_same<glm::vec3::value_type, float>::value, "glm: only floa
 
 struct DF3D_DLL Vertex_3p3n2tx4c3t3b
 {
+    // FIXME: order here matters.
     glm::vec3 p;
     glm::vec3 n;
     glm::vec2 tx;

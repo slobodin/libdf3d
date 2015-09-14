@@ -7,10 +7,9 @@
 #include <components/MeshComponent.h>
 #include <components/TransformComponent.h>
 #include <components/serializers/PhysicsComponentSerializer.h>
-#include <render/SubMesh.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/MeshData.h>
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <utils/Utils.h>
 
 namespace df3d { namespace components {
@@ -22,7 +21,7 @@ void PhysicsComponent::initFromCreationParams()
 
     auto mesh = getHolder()->mesh();
 
-    assert(mesh && mesh->isGeometryValid());
+    assert(mesh && mesh->getMeshData()->isInitialized());
 
     btCollisionShape *colShape = nullptr;
     switch (m_creationParams.type)
@@ -55,10 +54,14 @@ void PhysicsComponent::initFromCreationParams()
         break;
     case CollisionShapeType::CONVEX_HULL:
     {
+        // TODO:
+        assert(false);
+        /*
+
         auto convexHull = new btConvexHullShape();
 
         auto geometry = mesh->getGeometry();
-        if (!geometry->valid())
+        if (!geometry->isValid())
         {
             base::glog << "Can not create convex hull for not valid geometry" << base::logwarn;
             return;
@@ -96,6 +99,7 @@ void PhysicsComponent::initFromCreationParams()
         delete convexHull;
 
         colShape->setLocalScaling(physics::glmTobt(getHolder()->transform()->getScale()));
+        */
     }
         break;
     default:
@@ -120,9 +124,9 @@ void PhysicsComponent::initFromCreationParams()
     body = new btRigidBody(rbInfo);
 
     if (m_creationParams.group != -1 && m_creationParams.mask != -1)
-        g_physicsWorld->addRigidBody(body, m_creationParams.group, m_creationParams.mask);
+        gsvc().physicsWorld.addRigidBody(body, m_creationParams.group, m_creationParams.mask);
     else
-        g_physicsWorld->addRigidBody(body);
+        gsvc().physicsWorld.addRigidBody(body);
 
     // FIXME: remove this. Not needed.
     body->setUserPointer(m_holder);
@@ -140,7 +144,7 @@ void PhysicsComponent::onAttached()
         return;
     }
 
-    if (mesh->isGeometryValid())
+    if (mesh->getMeshData()->isInitialized())
         initFromCreationParams();
     // If geometry is not valid - wait till mesh being loaded.
 }
@@ -151,7 +155,7 @@ void PhysicsComponent::onDetached()
     {
         // FIXME:
         // Here we assuming that body was added to the world.
-        g_physicsWorld->removeRigidBody(body);
+        gsvc().physicsWorld.removeRigidBody(body);
         auto motionState = body->getMotionState();
         delete motionState;
         auto shape = body->getCollisionShape();

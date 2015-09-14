@@ -10,7 +10,7 @@ namespace df3d { namespace render {
 
 static bool sort_by_material_pred(const RenderOperation &a, const RenderOperation &b)
 {
-    return a.passProps.get() < b.passProps.get();
+    return a.passProps < b.passProps;
 }
 
 static bool sort_by_z_pred(const RenderOperation2D &a, const RenderOperation2D &b)

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "RenderOperation.h"
 #include "RenderStats.h"
-#include "RenderingCapabilities.h"
+#include "RenderCommon.h"
 
 FWD_MODULE_CLASS(scene, Scene)
 FWD_MODULE_CLASS(scene, Node)
@@ -11,7 +10,7 @@ FWD_MODULE_CLASS(base, EngineController)
 
 namespace df3d { namespace render {
 
-class Renderer;
+class RendererBackend;
 class VertexBuffer;
 class GpuProgram;
 class RenderTarget;
@@ -20,6 +19,8 @@ class RenderTargetTexture;
 class Viewport;
 class Material;
 class RenderQueue;
+class RenderPass;
+class RenderOperation;
 
 struct RenderManagerInitParams
 {
@@ -36,11 +37,11 @@ class RenderManager
 
     friend class base::EngineController;
 
-    unique_ptr<Renderer> m_renderer;
-    RenderingCapabilities m_renderingCaps;
+    unique_ptr<RendererBackend> m_renderer;
+    RenderManagerInitParams m_initParams;
 
     // Ambient pass support.
-    shared_ptr<RenderPass> m_ambientPassProps;
+    unique_ptr<RenderPass> m_ambientPassProps;
 
     // For postfx support.
     shared_ptr<RenderTargetScreen> m_screenRt;
@@ -62,6 +63,8 @@ class RenderManager
     RenderStats m_stats;
     RenderStats m_lastStats;
 
+    void loadEmbedResources();
+
     RenderManager(RenderManagerInitParams params);
     ~RenderManager();
 
@@ -79,7 +82,7 @@ public:
 
     const RenderingCapabilities &getRenderingCapabilities() const;
 
-    Renderer *getRenderer() const;
+    RendererBackend *getRenderer() const;
 };
 
 } }

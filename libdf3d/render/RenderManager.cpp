@@ -1,11 +1,11 @@
 #include "df3d_pch.h"
 #include "RenderManager.h"
 
-#include <base/SystemsMacro.h>
+#include <base/Service.h>
 #include <base/DebugConsole.h>
 #include <scene/Scene.h>
 #include <scene/Camera.h>
-#include "Renderer.h"
+#include "RendererBackend.h"
 #include "VertexIndexBuffer.h"
 #include "RenderOperation.h"
 #include "MeshData.h"
@@ -17,28 +17,27 @@
 #include "RenderTargetTexture.h"
 #include "GpuProgram.h"
 #include "Viewport.h"
-#include "SubMesh.h"
 #include "RenderQueue.h"
 
 namespace df3d { namespace render {
 
 void RenderManager::createQuadRenderOperation()
 {
-    auto passThrough = make_shared<RenderPass>();
-    passThrough->setFrontFaceWinding(RenderPass::WindingOrder::CCW);
-    passThrough->setFaceCullMode(RenderPass::FaceCullMode::BACK);
-    passThrough->setGpuProgram(g_resourceManager->createRttQuadProgram());
-    passThrough->setBlendMode(RenderPass::BlendingMode::NONE);
-    passThrough->enableDepthTest(false);
-    passThrough->enableDepthWrite(false);
+    RenderPass passThrough;
+    passThrough.setFrontFaceWinding(RenderPass::WindingOrder::CCW);
+    passThrough.setFaceCullMode(RenderPass::FaceCullMode::BACK);
+    passThrough.setGpuProgram(gsvc().resourceMgr.getFactory().createRttQuadProgram());
+    passThrough.setBlendMode(RenderPass::BlendingMode::NONE);
+    passThrough.enableDepthTest(false);
+    passThrough.enableDepthWrite(false);
 
-    m_quadVb = render::createQuad(VertexFormat::create("p:3, tx:2"), 0.0f, 0.0f, 2.0, 2.0f);
-    m_quadVb->setUsageType(GpuBufferUsageType::STATIC);
+    m_quadVb = render::createQuad(VertexFormat::create("p:3, tx:2"), 0.0f, 0.0f, 2.0, 2.0f, GpuBufferUsageType::STATIC);
 
     m_defaultPostProcessMaterial = shared_ptr<render::Material>(new render::Material("default_postprocess_material"));
-    auto defaultTech = shared_ptr<render::Technique>(new render::Technique("default_technique"));
 
-    defaultTech->appendPass(passThrough);
+    Technique defaultTech("default_technique");
+    defaultTech.appendPass(passThrough);
+
     m_defaultPostProcessMaterial->appendTechnique(defaultTech);
     m_defaultPostProcessMaterial->setCurrentTechnique("default_technique");
 }
@@ -57,14 +56,14 @@ void RenderManager::createRenderTargets(const Viewport &vp)
 
 void RenderManager::createAmbientPassProps()
 {
-    m_ambientPassProps = make_shared<RenderPass>();
+    m_ambientPassProps = make_unique<RenderPass>();
 
-    m_ambientPassProps->setGpuProgram(g_resourceManager->createAmbientPassProgram());
+    m_ambientPassProps->setGpuProgram(gsvc().resourceMgr.getFactory().createAmbientPassProgram());
 }
 
 void RenderManager::debugDrawPass()
 {
-    if (auto console = g_engineController->getConsole())
+    if (auto console = gsvc().console)
     {
         if (!console->getCVars().get<bool>(base::CVAR_DEBUG_DRAW))
             return;
@@ -75,7 +74,7 @@ void RenderManager::debugDrawPass()
         drawOperation(op);
 
     // Draw bullet physics debug.
-    g_engineController->getPhysicsManager()->drawDebug();
+    gsvc().physicsMgr.drawDebug();
 }
 
 void RenderManager::postProcessPass(shared_ptr<Material> material)
@@ -124,16 +123,21 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
     }
 }
 
-RenderManager::RenderManager(RenderManagerInitParams params)
-    : m_renderQueue(make_unique<RenderQueue>())
+void RenderManager::loadEmbedResources()
 {
-    m_renderingCaps = params.renderingCaps;
-    m_renderer = make_unique<Renderer>();
-    m_renderer->setRenderStatsLocation(&m_stats);
+    m_renderer->loadResources();
 
-    createRenderTargets(Viewport(0, 0, params.viewportWidth, params.viewportHeight));
+    createRenderTargets(Viewport(0, 0, m_initParams.viewportWidth, m_initParams.viewportHeight));
     createQuadRenderOperation();
     createAmbientPassProps();
+}
+
+RenderManager::RenderManager(RenderManagerInitParams params)
+    : m_renderQueue(make_unique<RenderQueue>()),
+    m_initParams(params)
+{
+    m_renderer = make_unique<RendererBackend>();
+    m_renderer->setRenderStatsLocation(&m_stats);
 }
 
 RenderManager::~RenderManager()
@@ -198,9 +202,9 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
         m_ambientPassProps->setAmbientColor(op.passProps->getAmbientColor());
         m_ambientPassProps->setEmissiveColor(op.passProps->getEmissiveColor());
 
-        m_renderer->bindPass(m_ambientPassProps);
+        m_renderer->bindPass(m_ambientPassProps.get());
 
-        m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);
+        m_renderer->drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
     }
 
     // Opaque pass with lights on.
@@ -219,8 +223,8 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
             m_renderer->setLight(lights[lightIdx]);
 
             // TODO: update ONLY light uniforms.
-            m_renderer->bindPass(op.passProps);
-            m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);
+            m_renderer->bindPass(op.passProps.get());
+            m_renderer->drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
         }
     }
 
@@ -264,8 +268,8 @@ void RenderManager::drawOperation(const RenderOperation &op)
         return;
 
     m_renderer->setWorldMatrix(op.worldTransform);
-    m_renderer->bindPass(op.passProps);
-    m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);
+    m_renderer->bindPass(op.passProps.get());
+    m_renderer->drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
 }
 
 void RenderManager::drawGUI()
@@ -275,7 +279,7 @@ void RenderManager::drawGUI()
     m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)m_screenRt->getViewport().width(), (float)m_screenRt->getViewport().height(), 0.0f));
     m_renderer->setCameraMatrix(glm::mat4(1.0f));
 
-    g_guiManager->render();
+    gsvc().guiMgr.render();
 }
 
 void RenderManager::onFrameBegin()
@@ -303,10 +307,10 @@ shared_ptr<RenderTargetScreen> RenderManager::getScreenRenderTarget() const
 
 const RenderingCapabilities &RenderManager::getRenderingCapabilities() const
 {
-    return m_renderingCaps;
+    return m_initParams.renderingCaps;
 }
 
-Renderer *RenderManager::getRenderer() const
+RendererBackend *RenderManager::getRenderer() const
 {
     return m_renderer.get();
 }

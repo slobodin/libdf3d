@@ -5,7 +5,7 @@ namespace df3d { namespace utils {
 template<typename T>
 class ConcurrentQueue : public NonCopyable
 {
-    std::mutex m_lock;
+    mutable std::mutex m_lock;
     std::queue<T> m_queue;
 
 public:
@@ -34,6 +34,16 @@ public:
         m_queue.pop();
 
         return true;
+    }
+
+    T pop()
+    {
+        std::lock_guard<decltype(m_lock)> lock(m_lock);
+        
+        T result = m_queue.front();
+        m_queue.pop();
+
+        return result;
     }
 
     bool empty() const
