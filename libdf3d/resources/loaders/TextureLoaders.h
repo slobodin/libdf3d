@@ -31,4 +31,10 @@ public:
     void onDecoded(Resource *resource) override;
 };
 
+class TextureCubeFSLoader : public FSResourceLoader
+{
+public:
+
+};
+
 } }

@@ -8,4 +8,9 @@ void indexize();
 void computeNormals(render::SubMesh &submesh);
 void computeTangentBasis(render::SubMesh &submesh);
 
+class Builder
+{
+public:
+};
+
 } } }
