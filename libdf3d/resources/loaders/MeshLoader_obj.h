@@ -19,6 +19,7 @@ class MeshLoader_obj
     std::map<std::string, unique_ptr<render::SubMesh>> m_submeshes;
 
     render::SubMesh* m_currentSubmesh;
+    std::unordered_map<render::SubMesh*, std::string> m_materialNameLookup;
     unique_ptr<render::SubMesh> createSubmesh(const std::string &materialName);
 
     void processLine_v(std::istream &is);

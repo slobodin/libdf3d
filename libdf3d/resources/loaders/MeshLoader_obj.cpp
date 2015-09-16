@@ -27,9 +27,13 @@ unique_ptr<render::SubMesh> MeshLoader_obj::createSubmesh(const std::string &mat
                                                render::VertexFormat::TX_2, render::VertexFormat::COLOR_4, 
                                                render::VertexFormat::TANGENT_3, render::VertexFormat::BITANGENT_3 });
     auto submesh = make_unique<render::SubMesh>(vertexFormat);
-    submesh->setMtlName(materialName);
     submesh->setVertexBufferUsageHint(render::GpuBufferUsageType::STATIC);
     submesh->setIndexBufferUsageHint(render::GpuBufferUsageType::STATIC);
+
+    // Sanity check.
+    assert(m_materialNameLookup.find(submesh.get()) == m_materialNameLookup.end());
+
+    m_materialNameLookup[submesh.get()] = materialName;     // Store the material name in order to load it on the next stage.
 
     return submesh;
 }
@@ -209,10 +213,6 @@ std::unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileData
         }
     }
 
-    // Set material lib path for all the submeshes.
-    for (const auto &submesh : m_submeshes)
-        submesh.second->setMtlLibPath(m_materialLibPath);
-
     bool computeNormals = m_normals.size() > 0 ? false : true;
 
     // Do post init.
@@ -228,7 +228,13 @@ std::unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileData
 
         utils::mesh::computeTangentBasis(*s.second);
 
+        auto mtlFound = m_materialNameLookup.find(s.second.get());
+        unique_ptr<std::string> materialName;
+        if (mtlFound != m_materialNameLookup.end())
+            materialName = make_unique<std::string>(mtlFound->second);
+
         result->submeshes.push_back(*s.second);     // FIXME: invokes copy ctor, consider move semantics.
+        result->materialNames.push_back(std::move(materialName));
     }
 
     // Compute all the bounding volumes.
@@ -237,12 +243,15 @@ std::unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileData
     result->obb.constructFromGeometry(result->submeshes);
     // TODO: create convex hull.
 
+    result->materialLibName = m_materialLibPath;
+
     // TODO: can also unload materiallib from resource manager.
 
     // Clear all the state.
     m_materialLibPath.clear();
     m_meshDataFileName.clear();
     m_submeshes.clear();
+    m_materialNameLookup.clear();
     m_currentSubmesh = nullptr;
 
     return result;

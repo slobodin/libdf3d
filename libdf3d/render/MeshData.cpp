@@ -30,12 +30,9 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
         m_submeshes.push_back(HardwareSubMesh());
         HardwareSubMesh &hs = m_submeshes.back();
 
-        // Loading materials here, is it ok?
-        auto mtlLib = gsvc().resourceMgr.getFactory().createMaterialLib(s.getMtlLibPath());
-        auto material = mtlLib ? mtlLib->getMaterial(s.getMtlName()) : nullptr;
-        if (material)
+        if (auto mtl = s.getMaterial())
         {
-            hs.material = make_unique<Material>(*material);
+            hs.material = make_unique<Material>(*mtl);
         }
         else
         {

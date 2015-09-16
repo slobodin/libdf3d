@@ -3,6 +3,7 @@
 
 #include <base/Service.h>
 #include <resources/FileDataSource.h>
+#include <render/MaterialLib.h>
 
 #include "MeshLoader_obj.h"
 #include "MeshLoader_dfmesh.h"
@@ -51,6 +52,22 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
     meshdata->m_aabb = m_mesh->aabb;
     meshdata->m_obb = m_mesh->obb;
     meshdata->m_sphere = m_mesh->sphere;
+
+    // Load all the materials.
+    auto mtlLib = gsvc().resourceMgr.getFactory().createMaterialLib(m_mesh->materialLibName);
+
+    if (mtlLib)     // Leaving null material in submesh, do not set default as it will be set later. mb it's wrong design?
+    {
+        assert(m_mesh->submeshes.size() == m_mesh->materialNames.size());
+
+        for (size_t i = 0; i < m_mesh->submeshes.size(); i++)
+        {
+            auto &submesh = m_mesh->submeshes[i];
+
+            if (m_mesh->materialNames[i])
+                submesh.setMaterial(mtlLib->getMaterial(*m_mesh->materialNames[i]));
+        }
+    }
 
     meshdata->doInitMesh(m_mesh->submeshes);
 

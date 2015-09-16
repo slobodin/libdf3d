@@ -20,9 +20,7 @@ class RenderQueue;
 //! Non GPU representation of a mesh surface.
 class DF3D_DLL SubMesh
 {
-    std::string m_mtlLibPath;
-    std::string m_mtlName;
-    
+    shared_ptr<Material> m_material;
     VertexData m_vertexData;
     IndexArray m_indexData;
     GpuBufferUsageType m_vbufferUsageType = GpuBufferUsageType::STATIC;
@@ -34,15 +32,13 @@ public:
     SubMesh(const VertexFormat &format);
     ~SubMesh();
 
-    void setMtlLibPath(const std::string &mtlLibPath) { m_mtlLibPath = mtlLibPath; }
-    void setMtlName(const std::string &mtlName) { m_mtlName = mtlName; }
+    void setMaterial(const Material &material) { m_material = make_shared<Material>(material); }
+    void setMaterial(shared_ptr<Material> material) { m_material = material; }
     void setVertexBufferUsageHint(GpuBufferUsageType usageType) { m_vbufferUsageType = usageType; }
     void setIndexBufferUsageHint(GpuBufferUsageType usageType) { m_ibufferUsageType = usageType; }
 
-    //! Returns material lib path associated with this submesh.
-    const std::string& getMtlLibPath() const { return m_mtlLibPath; }
-    //! Returns material name in the material lib.
-    const std::string& getMtlName() const { return m_mtlName; }
+    //! Returns submesh material.
+    shared_ptr<Material> getMaterial() const { return m_material; }
     //! Returns vertex format of this submesh.
     const VertexFormat& getVertexFormat() const { return m_vertexData.getFormat(); }
     //! Returns vertex buffer usage hint.
