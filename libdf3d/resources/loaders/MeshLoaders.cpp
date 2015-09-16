@@ -18,6 +18,9 @@ MeshDataManualLoader::MeshDataManualLoader(std::vector<render::SubMesh> &&geomet
 
 render::MeshData* MeshDataManualLoader::load()
 {
+    // FIXME: calculate BBs.
+    assert(false);
+
     return new render::MeshData(m_geometry);
 }
 
@@ -74,7 +77,7 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
     /*
     size_t meshTotalBytes = 0;
     for (const auto &s : m_mesh->submeshes)
-        meshTotalBytes += s.getVerticesCount() * s.getVertexFormat().getVertexSize();
+        meshTotalBytes += s.getVertexData().getVerticesCount() * s.getVertexData().getFormat().getVertexSize();
     base::glog << "Cleaning up" << meshTotalBytes / 1024.0f << "KB of CPU copy of mesh data" << base::logdebug;
     */
 

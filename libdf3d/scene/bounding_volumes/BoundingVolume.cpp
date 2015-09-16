@@ -13,10 +13,9 @@ void BoundingVolume::constructFromGeometry(const std::vector<render::SubMesh> &s
     for (const auto &submesh : submeshes)
     {
         const auto &vertexData = submesh.getVertexData();
-        const auto &vertexFormat = submesh.getVertexFormat();
 
         // Some sanity checks.
-        if (!vertexFormat.hasAttribute(render::VertexFormat::POSITION_3))
+        if (!vertexData.getFormat().hasAttribute(render::VertexFormat::POSITION_3))
             continue;
 
         for (size_t i = 0; i < vertexData.getVerticesCount(); i++)

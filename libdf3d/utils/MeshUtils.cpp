@@ -48,7 +48,7 @@ void indexize()
 
 void computeNormals(render::SubMesh &submesh)
 {
-    const auto &vformat = submesh.getVertexFormat();
+    const auto &vformat = submesh.getVertexData().getFormat();
 
     if (!vformat.hasAttribute(render::VertexFormat::NORMAL_3) || !vformat.hasAttribute(render::VertexFormat::POSITION_3))
         return;
@@ -135,7 +135,7 @@ void computeNormals(render::SubMesh &submesh)
 
 void computeTangentBasis(render::SubMesh &submesh)
 {
-    const auto &format = submesh.getVertexFormat();
+    const auto &format = submesh.getVertexData().getFormat();
     if (!format.hasAttribute(render::VertexFormat::TANGENT_3) ||
         !format.hasAttribute(render::VertexFormat::BITANGENT_3) ||
         !format.hasAttribute(render::VertexFormat::POSITION_3) ||

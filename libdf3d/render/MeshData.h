@@ -39,8 +39,6 @@ public:
 
     //! Returns submesh material.
     shared_ptr<Material> getMaterial() const { return m_material; }
-    //! Returns vertex format of this submesh.
-    const VertexFormat& getVertexFormat() const { return m_vertexData.getFormat(); }
     //! Returns vertex buffer usage hint.
     GpuBufferUsageType getVertexBufferUsageHint() const { return m_vbufferUsageType; }
     //! Returns index buffer usage hint.

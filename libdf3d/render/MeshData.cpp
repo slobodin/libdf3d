@@ -40,7 +40,7 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
             hs.material = make_unique<Material>(getFilePath());
         }
 
-        hs.vb = make_shared<VertexBuffer>(s.getVertexFormat());
+        hs.vb = make_shared<VertexBuffer>(s.getVertexData().getFormat());
         hs.vb->alloc(s.getVertexData(), s.getVertexBufferUsageHint());
 
         if (s.hasIndices())
