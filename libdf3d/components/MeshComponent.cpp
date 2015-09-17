@@ -156,6 +156,21 @@ void MeshComponent::updateOBB()
     m_obbTransformationDirty = false;
 }
 
+void MeshComponent::setMeshData(shared_ptr<render::MeshData> geometry)
+{
+    if (!geometry)
+    {
+        base::glog << "Can not set null geometry to a mesh node" << base::logwarn;
+        return;
+    }
+
+    m_meshData = geometry;
+    m_meshWasLoaded = false;
+    m_transformedAabbDirty = true;
+    m_boundingSphereDirty = true;
+    m_obbTransformationDirty = true;
+}
+
 MeshComponent::MeshComponent()
     : NodeComponent(MESH),
       m_rmgrListener(make_unique<ResourceMgrListenerImpl>(this))
@@ -171,24 +186,15 @@ MeshComponent::MeshComponent(const std::string &meshFilePath, ResourceLoadingMod
     setMeshData(gsvc().resourceMgr.getFactory().createMeshData(meshFilePath, lm));
 }
 
+MeshComponent::MeshComponent(shared_ptr<render::MeshData> meshData)
+    : MeshComponent()
+{
+    setMeshData(meshData);
+}
+
 MeshComponent::~MeshComponent()
 {
 
-}
-
-void MeshComponent::setMeshData(shared_ptr<render::MeshData> geometry)
-{
-    if (!geometry)
-    {
-        base::glog << "Can not set null geometry to a mesh node" << base::logwarn;
-        return;
-    }
-
-    m_meshData = geometry;
-    m_meshWasLoaded = false;
-    m_transformedAabbDirty = true;
-    m_boundingSphereDirty = true;
-    m_obbTransformationDirty = true;
 }
 
 shared_ptr<render::MeshData> MeshComponent::getMeshData() const

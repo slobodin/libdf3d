@@ -43,14 +43,16 @@ class DF3D_DLL MeshComponent : public NodeComponent
     unique_ptr<ResourceMgrListenerImpl> m_rmgrListener;
     bool m_meshWasLoaded = false;   // little workaround
 
+    void setMeshData(shared_ptr<render::MeshData> meshData);
+
 protected:
     MeshComponent();
 
 public:
     MeshComponent(const std::string &meshFilePath, ResourceLoadingMode lm = ResourceLoadingMode::ASYNC);
+    MeshComponent(shared_ptr<render::MeshData> meshData);
     ~MeshComponent();
 
-    void setMeshData(shared_ptr<render::MeshData> meshData);
     shared_ptr<render::MeshData> getMeshData() const;
 
     scene::AABB getAABB();
