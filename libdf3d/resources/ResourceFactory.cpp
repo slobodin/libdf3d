@@ -80,6 +80,15 @@ shared_ptr<render::MeshData> ResourceFactory::createMeshData(const std::string &
     return static_pointer_cast<render::MeshData>(m_holder->loadFromFS(meshDataPath, loader));
 }
 
+shared_ptr<render::MeshData> ResourceFactory::createMeshData(std::vector<render::SubMesh> &&submeshes)
+{
+    // TODO: mb guid?
+
+    auto loader = make_shared<MeshDataManualLoader>(std::move(submeshes));
+
+    return static_pointer_cast<render::MeshData>(m_holder->loadManual(loader));
+}
+
 shared_ptr<render::Texture2D> ResourceFactory::createTexture(const std::string &imagePath, ResourceLoadingMode lm)
 {
     return createTexture(imagePath, render::TextureCreationParams(), lm);

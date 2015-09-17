@@ -8,6 +8,7 @@ FWD_MODULE_CLASS(render, MeshData)
 FWD_MODULE_CLASS(render, MaterialLib)
 FWD_MODULE_CLASS(render, TextureCreationParams)
 FWD_MODULE_CLASS(render, PixelBuffer)
+FWD_MODULE_CLASS(render, SubMesh)
 
 namespace df3d { namespace resources {
 
@@ -34,6 +35,7 @@ public:
     shared_ptr<render::GpuProgram> createRttQuadProgram();
     shared_ptr<render::GpuProgram> createAmbientPassProgram();
     shared_ptr<render::MeshData> createMeshData(const std::string &meshDataPath, ResourceLoadingMode lm);
+    shared_ptr<render::MeshData> createMeshData(std::vector<render::SubMesh> &&submeshes);
     shared_ptr<render::Texture2D> createTexture(const std::string &imagePath, ResourceLoadingMode lm);
     shared_ptr<render::Texture2D> createTexture(const std::string &imagePath, render::TextureCreationParams params, ResourceLoadingMode lm);
     shared_ptr<render::Texture2D> createTexture(unique_ptr<render::PixelBuffer> pixelBuffer, render::TextureCreationParams params);

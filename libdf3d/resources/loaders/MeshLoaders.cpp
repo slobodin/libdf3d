@@ -19,6 +19,7 @@ MeshDataManualLoader::MeshDataManualLoader(std::vector<render::SubMesh> &&geomet
 render::MeshData* MeshDataManualLoader::load()
 {
     // FIXME: calculate BBs.
+    // Compute tangent basis
     assert(false);
 
     return new render::MeshData(m_geometry);
