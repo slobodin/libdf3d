@@ -89,6 +89,8 @@ public:
     //! Sets given material for a particular submesh.
     void setMaterial(const Material &newMaterial, size_t submeshIdx);
 
+    Material& getMaterial(size_t submeshIdx);
+
     size_t getSubMeshesCount() const;
     size_t getTrianglesCount() const;
 

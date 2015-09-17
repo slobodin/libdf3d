@@ -114,6 +114,13 @@ void MeshData::setMaterial(const Material &newMaterial, size_t submeshIdx)
     *m_submeshes[submeshIdx].material = newMaterial;
 }
 
+Material& MeshData::getMaterial(size_t submeshIdx)
+{
+    assert(isInitialized());
+
+    return *m_submeshes.at(submeshIdx).material;
+}
+
 size_t MeshData::getSubMeshesCount() const
 {
     if (!isInitialized())
