@@ -14,6 +14,17 @@ SubMesh::SubMesh(const VertexFormat &format)
 
 }
 
+SubMesh::SubMesh(SubMesh &&other)
+    : m_material(std::move(other.m_material)),
+    m_vertexData(std::move(other.m_vertexData)),
+    m_indexData(std::move(other.m_indexData)),
+    m_vbufferUsageType(other.m_vbufferUsageType),
+    m_ibufferUsageType(other.m_ibufferUsageType),
+    m_verticesCount(other.m_verticesCount)
+{
+
+}
+
 SubMesh::~SubMesh()
 {
 

@@ -18,7 +18,7 @@ class IndexBuffer;
 class RenderQueue;
 
 //! Non GPU representation of a mesh surface.
-class DF3D_DLL SubMesh
+class DF3D_DLL SubMesh : utils::NonCopyable
 {
     shared_ptr<Material> m_material;
     VertexData m_vertexData;
@@ -30,6 +30,7 @@ class DF3D_DLL SubMesh
 
 public:
     SubMesh(const VertexFormat &format);
+    SubMesh(SubMesh &&other);
     ~SubMesh();
 
     void setMaterial(const Material &material) { m_material = make_shared<Material>(material); }
