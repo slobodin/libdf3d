@@ -43,6 +43,8 @@
 #include <render/RenderPass.h>
 #include <render/RenderStats.h>
 #include <render/Viewport.h>
+#include <render/Vertex.h>
+#include <render/MeshData.h>
 
 #include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
