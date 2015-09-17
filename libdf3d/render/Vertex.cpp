@@ -119,6 +119,13 @@ Vertex::Vertex(const VertexFormat &format, float *vertexData)
     m_vertexData = vertexData;
 }
 
+Vertex::Vertex(const Vertex &other)
+    : m_format(other.m_format),
+    m_vertexData(other.m_vertexData)
+{
+
+}
+
 template<typename T>
 T* getPointer(float *base, size_t bytesOffset)
 {

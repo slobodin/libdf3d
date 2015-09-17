@@ -5,7 +5,7 @@ namespace df3d { namespace render {
 // Silly assert but we support only floats.
 static_assert(std::is_same<glm::vec3::value_type, float>::value, "glm: only floats are supported");
 
-class VertexFormat
+class DF3D_DLL VertexFormat
 {
 public:
     enum VertexAttribute
@@ -47,13 +47,14 @@ public:
     bool operator!= (const VertexFormat &other) const;
 };
 
-class Vertex
+class DF3D_DLL Vertex
 {
     float *m_vertexData;
     const VertexFormat &m_format;
 
 public:
     Vertex(const VertexFormat &format, float *vertexData);
+    Vertex(const Vertex &other);
 
     void setPosition(const glm::vec3 &pos);
     void setTx(const glm::vec2 &tx);
@@ -70,7 +71,7 @@ public:
     void getBitangent(glm::vec3 *bitangent);
 };
 
-class VertexData
+class DF3D_DLL VertexData
 {
     std::vector<float> m_data;
     VertexFormat m_format;
