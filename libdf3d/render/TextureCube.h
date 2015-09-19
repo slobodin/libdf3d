@@ -13,7 +13,7 @@ class TextureCube : public Texture
     bool createGLTexture(unique_ptr<PixelBuffer> images[CUBE_FACES_COUNT]);
     void deleteGLTexture();
 
-    TextureCube();
+    TextureCube(TextureCreationParams params);
 
 public:
     ~TextureCube();

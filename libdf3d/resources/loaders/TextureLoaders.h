@@ -35,10 +35,12 @@ public:
 class TextureCubeFSLoader : public FSResourceLoader
 {
     std::string m_jsonPath;
+    render::TextureCreationParams m_params;
+
     unique_ptr<render::PixelBuffer> m_pixelBuffers[render::CUBE_FACES_COUNT];
 
 public:
-    TextureCubeFSLoader(const std::string &path, ResourceLoadingMode lm);
+    TextureCubeFSLoader(const std::string &path, const render::TextureCreationParams &params, ResourceLoadingMode lm);
 
     render::TextureCube* createDummy() override;
     void decode(shared_ptr<FileDataSource> source) override;

@@ -107,9 +107,9 @@ shared_ptr<render::Texture2D> ResourceFactory::createTexture(unique_ptr<render::
     return static_pointer_cast<render::Texture2D>(m_holder->loadManual(loader));
 }
 
-shared_ptr<render::TextureCube> ResourceFactory::createCubeTexture(const std::string &jsonPath, ResourceLoadingMode lm)
+shared_ptr<render::TextureCube> ResourceFactory::createCubeTexture(const std::string &jsonPath, render::TextureCreationParams params, ResourceLoadingMode lm)
 {
-    auto loader = make_shared<TextureCubeFSLoader>(jsonPath, lm);
+    auto loader = make_shared<TextureCubeFSLoader>(jsonPath, params, lm);
     return static_pointer_cast<render::TextureCube>(m_holder->loadFromFS(jsonPath, loader));
 }
 

@@ -478,7 +478,7 @@ class MaterialLibParser
         {
             std::string path = node.keyValues.find("path")->second;
 
-            return gsvc().resourceMgr.getFactory().createCubeTexture(path, ResourceLoadingMode::ASYNC);
+            return gsvc().resourceMgr.getFactory().createCubeTexture(path, creationParams, ResourceLoadingMode::ASYNC);
         }
 
         base::glog << "Unknown texture type" << type << base::logwarn;

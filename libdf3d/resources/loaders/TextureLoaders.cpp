@@ -132,8 +132,9 @@ void Texture2DFSLoader::onDecoded(Resource *resource)
     m_pixelBuffer.reset();
 }
 
-TextureCubeFSLoader::TextureCubeFSLoader(const std::string &path, ResourceLoadingMode lm)
+TextureCubeFSLoader::TextureCubeFSLoader(const std::string &path, const render::TextureCreationParams &params, ResourceLoadingMode lm)
     : FSResourceLoader(lm),
+    m_params(params),
     m_jsonPath(path)
 {
 
@@ -141,7 +142,7 @@ TextureCubeFSLoader::TextureCubeFSLoader(const std::string &path, ResourceLoadin
 
 render::TextureCube* TextureCubeFSLoader::createDummy()
 {
-    return new render::TextureCube();
+    return new render::TextureCube(m_params);
 }
 
 void TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)

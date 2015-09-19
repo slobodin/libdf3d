@@ -72,8 +72,8 @@ void TextureCube::deleteGLTexture()
     }
 }
 
-TextureCube::TextureCube()
-    : Texture(TextureCreationParams())
+TextureCube::TextureCube(TextureCreationParams params)
+    : Texture(params)
 {
 
 }
