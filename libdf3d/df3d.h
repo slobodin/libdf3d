@@ -36,6 +36,7 @@
 #include <scene/bounding_volumes/AABB.h>
 #include <scene/bounding_volumes/BoundingSphere.h>
 #include <scene/bounding_volumes/OBB.h>
+#include <scene/bounding_volumes/ConvexHull.h>
 
 #include <render/Material.h>
 #include <render/MaterialLib.h>
