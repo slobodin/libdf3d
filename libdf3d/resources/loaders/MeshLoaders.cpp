@@ -4,6 +4,7 @@
 #include <base/Service.h>
 #include <resources/FileDataSource.h>
 #include <render/MaterialLib.h>
+#include <utils/MeshUtils.h>
 
 #include "MeshLoader_obj.h"
 #include "MeshLoader_dfmesh.h"
@@ -18,9 +19,13 @@ MeshDataManualLoader::MeshDataManualLoader(std::vector<render::SubMesh> &&geomet
 
 render::MeshData* MeshDataManualLoader::load()
 {
-    // FIXME: calculate BBs.
-    // Compute tangent basis
-    assert(false);
+    auto result = new render::MeshData(m_geometry);
+    result->m_aabb.constructFromGeometry(m_geometry);
+    result->m_obb.constructFromGeometry(m_geometry);
+    result->m_sphere.constructFromGeometry(m_geometry);
+
+    for (auto &s : m_geometry)
+        utils::mesh::computeTangentBasis(s);
 
     return new render::MeshData(m_geometry);
 }
