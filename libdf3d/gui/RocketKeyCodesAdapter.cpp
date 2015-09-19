@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "RocketKeyCodesAdapter.h"
 
 namespace df3d {namespace gui {

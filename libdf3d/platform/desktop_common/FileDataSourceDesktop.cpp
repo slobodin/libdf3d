@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "FileDataSourceDesktop.h"
 
 namespace df3d { namespace platform {

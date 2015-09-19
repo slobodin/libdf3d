@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "ThreadPool.h"
 
 namespace df3d { namespace base {

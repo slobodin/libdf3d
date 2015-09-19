@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 
 const char *ConsoleRml = "<div>\n"
     "<div id=\"previous_commands\"></div>\n"

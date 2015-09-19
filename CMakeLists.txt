@@ -126,6 +126,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/AABB.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingSphere.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingVolume.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/ConvexHull.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/OBB.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.h
@@ -216,6 +217,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/AABB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingSphere.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingVolume.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/ConvexHull.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/OBB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonHelpers.cpp
@@ -325,7 +327,7 @@ if(MSVC)
     set(PRECOMPILED_CPP ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.cpp)
 
     set_source_files_properties(${PRECOMPILED_CPP} PROPERTIES COMPILE_FLAGS "/Ycdf3d_pch.h" OBJECT_OUTPUTS "${CMAKE_CURRENT_BINARY_DIR}/df3d_pch.pch")
-    set_source_files_properties(${libdf3d_SRC_LIST} PROPERTIES COMPILE_FLAGS "/Yudf3d_pch.h" OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/df3d_pch.pch")
+    set_source_files_properties(${libdf3d_SRC_LIST} PROPERTIES COMPILE_FLAGS "/Yudf3d_pch.h /FIdf3d_pch.h" OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/df3d_pch.pch")
 endif()
 
 if (DF3D_BUILD_SHARED_LIB)

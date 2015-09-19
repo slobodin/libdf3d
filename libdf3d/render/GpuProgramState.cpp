@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "GpuProgramState.h"
 
 #include "GpuProgramUniform.h"

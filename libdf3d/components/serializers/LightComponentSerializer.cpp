@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "LightComponentSerializer.h"
 
 #include <components/LightComponent.h>

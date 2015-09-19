@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "BoundingSphere.h"
 
 namespace df3d { namespace scene {

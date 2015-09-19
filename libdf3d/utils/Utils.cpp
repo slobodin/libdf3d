@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "Utils.h"
 
 namespace df3d { namespace utils { namespace math {

@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "Texture2D.h"
 
 #include <base/Service.h>

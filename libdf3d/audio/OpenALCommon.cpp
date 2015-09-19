@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "OpenALCommon.h"
 
 namespace df3d { namespace audio {

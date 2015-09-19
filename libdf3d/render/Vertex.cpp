@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "Vertex.h"
 
 #include "OpenGLCommon.h"

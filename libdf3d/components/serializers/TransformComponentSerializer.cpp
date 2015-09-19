@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "TransformComponentSerializer.h"
 
 #include <components/TransformComponent.h>

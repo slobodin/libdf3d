@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "SparkInterface.h"
 
 #include <render/RenderPass.h>

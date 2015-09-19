@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "MeshLoader_dfmesh.h"
 
 namespace df3d { namespace resources {

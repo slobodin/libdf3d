@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "AABB.h"
 
 #include <scene/WorldSize.h>

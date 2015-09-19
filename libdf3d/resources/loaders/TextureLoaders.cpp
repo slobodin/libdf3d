@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "TextureLoaders.h"
 
 #include <resources/FileDataSource.h>

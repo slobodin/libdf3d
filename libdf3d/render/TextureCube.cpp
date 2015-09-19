@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "TextureCube.h"
 
 #include <base/Service.h>

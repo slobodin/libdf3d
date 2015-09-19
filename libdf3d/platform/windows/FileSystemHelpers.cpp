@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "../FileSystemHelpers.h"
 
 #include <platform/desktop_common/FileDataSourceDesktop.h>

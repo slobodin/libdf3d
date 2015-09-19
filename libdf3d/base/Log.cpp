@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "Log.h"
 
 #ifdef DF3D_ANDROID

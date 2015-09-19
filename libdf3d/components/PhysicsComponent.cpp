@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "PhysicsComponent.h"
 
 #include <BulletCollision/CollisionShapes/btShapeHull.h>

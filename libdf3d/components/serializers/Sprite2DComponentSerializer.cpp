@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "Sprite2DComponentSerializer.h"
 
 #include <components/Sprite2DComponent.h>

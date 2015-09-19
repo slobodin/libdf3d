@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "MeshLoader_obj.h"
 
 #include <boost/algorithm/string.hpp>

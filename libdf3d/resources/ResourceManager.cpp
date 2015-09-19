@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "ResourceManager.h"
 
 #include <base/Service.h>

@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "GpuProgramUniform.h"
 
 #include "OpenGLCommon.h"

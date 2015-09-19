@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "VertexIndexBuffer.h"
 
 #include "OpenGLCommon.h"

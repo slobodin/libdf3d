@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "Scene.h"
 
 #include <utils/SceneSerializer.h>
