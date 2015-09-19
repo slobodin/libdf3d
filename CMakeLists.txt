@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.1)
 project(libdf3d)
 
 include(${PROJECT_SOURCE_DIR}/cmake/libdf3d.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/cotire.cmake)
 
 if (WINDOWS AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_win32" CACHE PATH "third-party")
@@ -322,12 +323,6 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200 /wd\"4251\" /wd\"4457\" /wd\"4458\"")
 
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -DGLEW_STATIC)
-
-    set(PRECOMPILED_H ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.h)
-    set(PRECOMPILED_CPP ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.cpp)
-
-    set_source_files_properties(${PRECOMPILED_CPP} PROPERTIES COMPILE_FLAGS "/Ycdf3d_pch.h" OBJECT_OUTPUTS "${CMAKE_CURRENT_BINARY_DIR}/df3d_pch.pch")
-    set_source_files_properties(${libdf3d_SRC_LIST} PROPERTIES COMPILE_FLAGS "/Yudf3d_pch.h /FIdf3d_pch.h" OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/df3d_pch.pch")
 endif()
 
 if (DF3D_BUILD_SHARED_LIB)
@@ -341,7 +336,6 @@ add_library(libdf3d ${DF3D_LIBRARY_TYPE}
     ${libdf3d_HEADER_LIST}
     ${libdf3d_SRC_LIST}
     ${third_party_SRC_FILES}
-    ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.cpp
 )
 
 target_link_libraries(libdf3d
@@ -368,3 +362,6 @@ endif()
 if (ANDROID)
     target_link_libraries(libdf3d OpenSLES ${OPENAL_LIBRARY} GLESv2 log android)
 endif()
+
+set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "$(PROJECT_SOURCE_DIR)/libdf3d/df3d_pch.h")
+cotire(libdf3d)
