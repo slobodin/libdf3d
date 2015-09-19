@@ -154,8 +154,6 @@ public:
 
     void onKey(int key, int scancode, int action, int mods)
     {
-        auto keyCode = convertGlfwKeyCode(key);
-
         int keyModifiers = 0;
         if (mods & GLFW_MOD_SHIFT)
             keyModifiers |= base::KeyboardEvent::KM_SHIFT;

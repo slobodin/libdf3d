@@ -15,7 +15,6 @@ const int QUAD_VERTICES_PER_PARTICLE = 4;
 const int QUAD_INDICES_PER_PARTICLE = 6;
 const int LINE_VERTICES_PER_PARTICLE = 2;
 const int LINE_INDICES_PER_PARTICLE = 2;
-const int STRIDE_BETWEEN_VERTICES = 9;  // p:3, tx:2, c:4 vertex format
 
 class MyRenderBuffer : public SPK::RenderBuffer
 {
