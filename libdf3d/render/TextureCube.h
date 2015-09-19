@@ -2,22 +2,20 @@
 
 #include "Texture.h"
 
-namespace df3d { namespace render {
+FWD_MODULE_CLASS(resources, TextureCubeFSLoader)
 
-class Texture2D;
+namespace df3d { namespace render {
 
 class TextureCube : public Texture
 {
-    shared_ptr<Texture2D> m_images[6];
+    friend class resources::TextureCubeFSLoader;
 
-    bool imagesValid() const;
-    bool createGLTexture();
+    bool createGLTexture(unique_ptr<PixelBuffer> images[CUBE_FACES_COUNT]);
     void deleteGLTexture();
 
+    TextureCube();
+
 public:
-    TextureCube(shared_ptr<Texture2D> positiveX, shared_ptr<Texture2D> negativeX,
-                shared_ptr<Texture2D> positiveY, shared_ptr<Texture2D> negativeY,
-                shared_ptr<Texture2D> positiveZ, shared_ptr<Texture2D> negativeZ);
     ~TextureCube();
 
     bool bind(size_t unit) override;

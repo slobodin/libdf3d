@@ -1,6 +1,8 @@
 #include "TextureLoaders.h"
 
+#include <base/Service.h>
 #include <resources/FileDataSource.h>
+#include <utils/JsonHelpers.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #ifndef STB_DO_ERROR_PRINT
@@ -42,6 +44,12 @@ namespace
 
     unique_ptr<render::PixelBuffer> loadPixelBuffer(shared_ptr<FileDataSource> source)
     {
+        if (!source)
+        {
+            base::glog << "Failed to load pixel buffer from file source. Source is null." << base::logwarn;
+            return nullptr;
+        }
+
         stbi_io_callbacks callbacks;
         callbacks.read = read;
         callbacks.skip = skip;
@@ -122,6 +130,63 @@ void Texture2DFSLoader::onDecoded(Resource *resource)
     // Explicitly remove CPU copy of pixel buffer in order to prevent caching.
     // Instead, will load new copy from FS when rebinding occurs.
     m_pixelBuffer.reset();
+}
+
+TextureCubeFSLoader::TextureCubeFSLoader(const std::string &path, ResourceLoadingMode lm)
+    : FSResourceLoader(lm),
+    m_jsonPath(path)
+{
+
+}
+
+render::TextureCube* TextureCubeFSLoader::createDummy()
+{
+    return new render::TextureCube();
+}
+
+void TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
+{
+    std::string buffer(source->getSize(), 0);
+    source->getRaw(&buffer[0], source->getSize());
+
+    auto jsonRoot = utils::jsonLoadFromSource(buffer);
+    if (jsonRoot.empty())
+        return;
+
+    auto srcPathDir = gsvc().filesystem.getFileDirectory(source->getPath());
+
+    auto getSource = [&srcPathDir](const std::string &texturePath)
+    {
+        auto fullPath = gsvc().filesystem.pathConcatenate(srcPathDir, texturePath);
+        return gsvc().filesystem.openFile(fullPath);
+    };
+
+    m_pixelBuffers[render::CUBE_FACE_POSITIVE_X] = loadPixelBuffer(getSource(jsonRoot["positive_x"].asString()));
+    m_pixelBuffers[render::CUBE_FACE_NEGATIVE_X] = loadPixelBuffer(getSource(jsonRoot["negative_x"].asString()));
+    m_pixelBuffers[render::CUBE_FACE_POSITIVE_Y] = loadPixelBuffer(getSource(jsonRoot["positive_y"].asString()));
+    m_pixelBuffers[render::CUBE_FACE_NEGATIVE_Y] = loadPixelBuffer(getSource(jsonRoot["negative_y"].asString()));
+    m_pixelBuffers[render::CUBE_FACE_POSITIVE_Z] = loadPixelBuffer(getSource(jsonRoot["positive_z"].asString()));
+    m_pixelBuffers[render::CUBE_FACE_NEGATIVE_Z] = loadPixelBuffer(getSource(jsonRoot["negative_z"].asString()));
+}
+
+void TextureCubeFSLoader::onDecoded(Resource *resource)
+{
+    for (const auto &pb : m_pixelBuffers)
+    {
+        if (!pb)
+        {
+            base::glog << "Failed to decode cube texture. Image(s) invalid." << base::logwarn;
+            return;
+        }
+    }
+
+    auto texture = static_cast<render::TextureCube*>(resource);
+
+    texture->createGLTexture(m_pixelBuffers);
+
+    // Clean up main memory.
+    for (int i = 0; i < render::CUBE_FACES_COUNT; i++)
+        m_pixelBuffers[i].reset();
 }
 
 } }

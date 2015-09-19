@@ -107,31 +107,10 @@ shared_ptr<render::Texture2D> ResourceFactory::createTexture(unique_ptr<render::
     return static_pointer_cast<render::Texture2D>(m_holder->loadManual(loader));
 }
 
-shared_ptr<render::TextureCube> ResourceFactory::createCubeTexture(const std::string &positiveXImage, const std::string &negativeXImage,
-                                                                   const std::string &positiveYImage, const std::string &negativeYImage,
-                                                                   const std::string &positiveZImage, const std::string &negativeZImage,
-                                                                   ResourceLoadingMode lm)
+shared_ptr<render::TextureCube> ResourceFactory::createCubeTexture(const std::string &jsonPath, ResourceLoadingMode lm)
 {
-    // TODO_REFACTO
-    return nullptr;
-    /*
-    auto positiveX = createTexture(positiveXImage, lm);
-    auto negativeX = createTexture(negativeXImage, lm);
-    auto positiveY = createTexture(positiveYImage, lm);
-    auto negativeY = createTexture(negativeYImage, lm);
-    auto positiveZ = createTexture(positiveZImage, lm);
-    auto negativeZ = createTexture(negativeZImage, lm);
-
-    auto textureCube = make_shared<render::TextureCube>(positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ);
-    textureCube->setInitialized();
-    textureCube->setGUID(positiveX->getGUID() + ";" + negativeX->getGUID() + ";" +
-                         positiveY->getGUID() + ";" + negativeY->getGUID() + ";" +
-                         positiveZ->getGUID() + ";" + negativeZ->getGUID() + ";");
-
-    appendResource(textureCube);
-
-    return textureCube;
-    */
+    auto loader = make_shared<TextureCubeFSLoader>(jsonPath, lm);
+    return static_pointer_cast<render::TextureCube>(m_holder->loadFromFS(jsonPath, loader));
 }
 
 shared_ptr<render::MaterialLib> ResourceFactory::createMaterialLib(const std::string &mtlLibPath)

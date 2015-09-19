@@ -164,7 +164,7 @@ void MeshLoader_obj::processLine_s(std::istream &is)
     utils::skip_line(is);
 }
 
-std::unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSource> source)
+unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSource> source)
 {
     m_meshDataFileName = source->getPath();
 

@@ -31,6 +31,18 @@ enum class GpuBufferUsageType
     STREAM      /*!< The data store contents will be modified once and used at most a few times. */
 };
 
+enum CubeFace
+{
+    CUBE_FACE_POSITIVE_X,
+    CUBE_FACE_NEGATIVE_X,
+    CUBE_FACE_POSITIVE_Y,
+    CUBE_FACE_NEGATIVE_Y,
+    CUBE_FACE_POSITIVE_Z,
+    CUBE_FACE_NEGATIVE_Z,
+
+    CUBE_FACES_COUNT
+};
+
 extern const DF3D_DLL int ANISOTROPY_LEVEL_MAX;
 extern const DF3D_DLL int NO_ANISOTROPY;
 

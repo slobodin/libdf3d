@@ -2,6 +2,7 @@
 
 #include <resources/Resource.h>
 #include <render/Texture2D.h>
+#include <render/TextureCube.h>
 
 namespace df3d { namespace resources {
 
@@ -33,8 +34,15 @@ public:
 
 class TextureCubeFSLoader : public FSResourceLoader
 {
-public:
+    std::string m_jsonPath;
+    unique_ptr<render::PixelBuffer> m_pixelBuffers[render::CUBE_FACES_COUNT];
 
+public:
+    TextureCubeFSLoader(const std::string &path, ResourceLoadingMode lm);
+
+    render::TextureCube* createDummy() override;
+    void decode(shared_ptr<FileDataSource> source) override;
+    void onDecoded(Resource *resource) override;
 };
 
 } }

@@ -39,10 +39,7 @@ public:
     shared_ptr<render::Texture2D> createTexture(const std::string &imagePath, ResourceLoadingMode lm);
     shared_ptr<render::Texture2D> createTexture(const std::string &imagePath, render::TextureCreationParams params, ResourceLoadingMode lm);
     shared_ptr<render::Texture2D> createTexture(unique_ptr<render::PixelBuffer> pixelBuffer, render::TextureCreationParams params);
-    shared_ptr<render::TextureCube> createCubeTexture(const std::string &positiveXImage, const std::string &negativeXImage,
-                                                      const std::string &positiveYImage, const std::string &negativeYImage,
-                                                      const std::string &positiveZImage, const std::string &negativeZImage,
-                                                      ResourceLoadingMode lm);
+    shared_ptr<render::TextureCube> createCubeTexture(const std::string &jsonPath, ResourceLoadingMode lm);
     shared_ptr<render::MaterialLib> createMaterialLib(const std::string &mtlLibPath);
 };
 

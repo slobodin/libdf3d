@@ -36,7 +36,7 @@ class MeshLoader_obj
     std::string m_meshDataFileName;
 
 public:
-    std::unique_ptr<MeshDataFSLoader::Mesh> load(shared_ptr<FileDataSource> source);
+    unique_ptr<MeshDataFSLoader::Mesh> load(shared_ptr<FileDataSource> source);
 };
 
 } }

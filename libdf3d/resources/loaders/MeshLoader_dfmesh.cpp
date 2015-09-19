@@ -45,7 +45,7 @@ struct SubmeshHeader
 
 #pragma pack(pop)
 
-std::unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<FileDataSource> source)
+unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<FileDataSource> source)
 {
     return nullptr;
 }

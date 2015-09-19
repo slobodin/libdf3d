@@ -28,7 +28,7 @@ class DF3D_DLL Log
 
     std::string m_logData;
 
-    std::unique_ptr<LoggerImpl> m_impl;
+    unique_ptr<LoggerImpl> m_impl;
 
     Log();
     ~Log();

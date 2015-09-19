@@ -7,55 +7,29 @@
 
 namespace df3d { namespace render {
 
-static const std::vector<GLenum> MapSidesToGl = 
+static const std::map<CubeFace, GLenum> MapSidesToGl = 
 {
-    GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+    { CUBE_FACE_POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_X },
+    { CUBE_FACE_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X },
+    { CUBE_FACE_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Y },
+    { CUBE_FACE_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y },
+    { CUBE_FACE_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_POSITIVE_Z },
+    { CUBE_FACE_NEGATIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z }
 };
 
-bool TextureCube::imagesValid() const
+bool TextureCube::createGLTexture(unique_ptr<PixelBuffer> images[CUBE_FACES_COUNT])
 {
-    for (int i = 0; i < 6; i++)
-        if (!m_images[i] || !m_images[i]->isInitialized())
-            return false;
-
-    return true;
-}
-
-bool TextureCube::createGLTexture()
-{
-    // TODO_REFACTO
-
-    assert(false);
-
-    return false;
-
-    /*
-
-    if (m_glid)
-        return true;
-
     glGenTextures(1, &m_glid);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_glid);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    const auto &defaultCaps = gsvc().renderMgr.getRenderingCapabilities();
-    if (!m_filtering)
-        m_filtering = defaultCaps.textureFiltering;
-    if (!m_mipmapped)
-        m_mipmapped = defaultCaps.mipmaps;
+    setupGlWrapMode(GL_TEXTURE_CUBE_MAP, m_params.getWrapMode());
+    setupGlTextureFiltering(GL_TEXTURE_CUBE_MAP, m_params.getFiltering(), m_params.isMipmapped());
 
-    setupGlWrapMode(GL_TEXTURE_CUBE_MAP, m_wrapMode);
-    setupGlTextureFiltering(GL_TEXTURE_CUBE_MAP, getFilteringMode(), isMipmapped());
-
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < CUBE_FACES_COUNT; i++)
     {
         GLint glPixelFormat = 0;
-        switch (m_images[i]->getPixelFormat())
+        switch (images[i]->getFormat())
         {
         case PixelFormat::RGB:
         case PixelFormat::BGR:
@@ -69,27 +43,22 @@ bool TextureCube::createGLTexture()
             return false;
         }
 
-        auto data = m_images[i]->getPixelBufferData();
-        auto width = m_images[i]->getOriginalWidth();
-        auto height = m_images[i]->getOriginalHeight();
-        glTexImage2D(MapSidesToGl[i], 0, glPixelFormat, width, height, 0, glPixelFormat, GL_UNSIGNED_BYTE, data);
+        auto data = images[i]->getData();
+        auto width = images[i]->getWidth();
+        auto height = images[i]->getHeight();
+        glTexImage2D(MapSidesToGl.find((CubeFace)i)->second, 0, glPixelFormat, width, height, 0, glPixelFormat, GL_UNSIGNED_BYTE, data);
     }
 
-    if (isMipmapped())
+    if (m_params.isMipmapped())
         glGenerateMipmap(GL_TEXTURE_2D);
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-    for (auto i = 0; i < 6; i++)
-    {
-        gsvc().resourceMgr.unloadResource(m_images[i]);
-        m_images[i].reset();
-    }
-
     printOpenGLError();
 
-    return true;
-    */
+    m_initialized = true;
+
+    return m_initialized;
 }
 
 void TextureCube::deleteGLTexture()
@@ -103,17 +72,10 @@ void TextureCube::deleteGLTexture()
     }
 }
 
-TextureCube::TextureCube(shared_ptr<Texture2D> positiveX, shared_ptr<Texture2D> negativeX,
-                         shared_ptr<Texture2D> positiveY, shared_ptr<Texture2D> negativeY,
-                         shared_ptr<Texture2D> positiveZ, shared_ptr<Texture2D> negativeZ)
-    : Texture(TextureCreationParams())  // TODO_REFACTO
+TextureCube::TextureCube()
+    : Texture(TextureCreationParams())
 {
-    m_images[0] = positiveX;
-    m_images[1] = negativeX;
-    m_images[2] = positiveY;
-    m_images[3] = negativeY;
-    m_images[4] = positiveZ;
-    m_images[5] = negativeZ;
+
 }
 
 TextureCube::~TextureCube()
@@ -123,7 +85,7 @@ TextureCube::~TextureCube()
 
 bool TextureCube::bind(size_t unit)
 {
-    if (!imagesValid())
+    if (!isInitialized())
         return false;
 
     assert(m_glid);

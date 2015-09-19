@@ -23,7 +23,7 @@ class MeshDataFSLoader : public FSResourceLoader
     struct Mesh
     {
         std::vector<render::SubMesh> submeshes;
-        std::vector<std::unique_ptr<std::string>> materialNames;
+        std::vector<unique_ptr<std::string>> materialNames;
         std::string materialLibName;
         scene::AABB aabb;
         scene::BoundingSphere sphere;
@@ -32,7 +32,7 @@ class MeshDataFSLoader : public FSResourceLoader
     };
 
     std::string m_path;
-    std::unique_ptr<Mesh> m_mesh;
+    unique_ptr<Mesh> m_mesh;
 
 public:
     MeshDataFSLoader(const std::string &path, ResourceLoadingMode lm);

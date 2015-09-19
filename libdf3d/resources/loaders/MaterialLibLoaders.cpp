@@ -476,14 +476,9 @@ class MaterialLibParser
         }
         else if (type == "TEXTURE_CUBE")
         {
-            std::string negativex = node.keyValues.find("negative_x")->second;
-            std::string positivex = node.keyValues.find("positive_x")->second;
-            std::string negativey = node.keyValues.find("negative_y")->second;
-            std::string positivey = node.keyValues.find("positive_y")->second;
-            std::string negativez = node.keyValues.find("negative_z")->second;
-            std::string positivez = node.keyValues.find("positive_z")->second;
+            std::string path = node.keyValues.find("path")->second;
 
-            return gsvc().resourceMgr.getFactory().createCubeTexture(positivex, negativex, positivey, negativey, positivez, negativez, ResourceLoadingMode::ASYNC);
+            return gsvc().resourceMgr.getFactory().createCubeTexture(path, ResourceLoadingMode::ASYNC);
         }
 
         base::glog << "Unknown texture type" << type << base::logwarn;
