@@ -78,4 +78,11 @@ glm::vec3 spherical::toCartesian()
     return { x, y, z };
 }
 
+float gaussian(float x, float mean, float stddev)
+{
+    auto a = 1.0f / (stddev * std::sqrt(glm::two_pi<float>()));
+
+    return a * std::exp(-((x - mean) * (x - mean) / 2.0f / stddev / stddev));
+}
+
 } } }

@@ -100,6 +100,8 @@ struct DF3D_DLL spherical
     glm::vec3 toCartesian();
 };
 
+DF3D_DLL float gaussian(float x, float mean, float stddev);
+
 }
 
 } }
