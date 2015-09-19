@@ -4,6 +4,7 @@
 #include <scene/bounding_volumes/AABB.h>
 #include <scene/bounding_volumes/BoundingSphere.h>
 #include <scene/bounding_volumes/OBB.h>
+#include <scene/bounding_volumes/ConvexHull.h>
 #include "Vertex.h"
 #include "Material.h"
 #include "RenderCommon.h"
@@ -75,6 +76,7 @@ class DF3D_DLL MeshData : public resources::Resource
     scene::AABB m_aabb;
     scene::BoundingSphere m_sphere;
     scene::OBB m_obb;
+    scene::ConvexHull m_convexHull;
 
     void doInitMesh(const std::vector<SubMesh> &geometry);
 
@@ -97,6 +99,7 @@ public:
     const scene::AABB* getAABB() const;
     const scene::BoundingSphere* getBoundingSphere() const;
     const scene::OBB* getOBB() const;
+    const scene::ConvexHull* getConvexHull() const;
 
     void populateRenderQueue(RenderQueue *ops, const glm::mat4 &transformation);
 };

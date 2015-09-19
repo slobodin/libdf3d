@@ -60,6 +60,7 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
     meshdata->m_aabb = m_mesh->aabb;
     meshdata->m_obb = m_mesh->obb;
     meshdata->m_sphere = m_mesh->sphere;
+    meshdata->m_convexHull = m_mesh->convexHull;
 
     // Load all the materials.
     auto mtlLib = gsvc().resourceMgr.getFactory().createMaterialLib(m_mesh->materialLibName);

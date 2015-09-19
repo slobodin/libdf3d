@@ -14,7 +14,7 @@ public:
 
     virtual bool isValid() const = 0;
 
-    void constructFromGeometry(const std::vector<render::SubMesh> &submeshes);
+    virtual void constructFromGeometry(const std::vector<render::SubMesh> &submeshes);
 };
 
 } }

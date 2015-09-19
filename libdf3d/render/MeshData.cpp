@@ -160,6 +160,14 @@ const scene::OBB* MeshData::getOBB() const
     return &m_obb;
 }
 
+const scene::ConvexHull* MeshData::getConvexHull() const
+{
+    if (!isInitialized())
+        return nullptr;
+
+    return &m_convexHull;
+}
+
 void MeshData::populateRenderQueue(RenderQueue *ops, const glm::mat4 &transformation)
 {
     // Include all the submeshes.

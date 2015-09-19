@@ -240,7 +240,7 @@ std::unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileData
     result->aabb.constructFromGeometry(result->submeshes);
     result->sphere.constructFromGeometry(result->submeshes);
     result->obb.constructFromGeometry(result->submeshes);
-    // TODO: create convex hull.
+    result->convexHull.constructFromGeometry(result->submeshes);
 
     result->materialLibName = m_materialLibPath;
 

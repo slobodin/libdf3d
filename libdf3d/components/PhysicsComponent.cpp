@@ -53,52 +53,22 @@ void PhysicsComponent::initFromCreationParams()
         break;
     case CollisionShapeType::CONVEX_HULL:
     {
-        // TODO:
-        assert(false);
-        /*
-
-        auto convexHull = new btConvexHullShape();
-
-        auto geometry = mesh->getGeometry();
-        if (!geometry->isValid())
+        auto convexHull = mesh->getMeshData()->getConvexHull();
+        if (!convexHull || !convexHull->isValid())
         {
-            base::glog << "Can not create convex hull for not valid geometry" << base::logwarn;
+            base::glog << "Can not create convex hull shape for rigid body. Hull is invalid" << base::logwarn;
             return;
         }
 
-        const auto &submeshes = geometry->getSubMeshes();
-        for (auto &submesh : submeshes)
-        {
-            auto vb = submesh->getVertexBuffer();
+        const auto &vertices = convexHull->getVertices();
+        std::vector<btVector3> tempPoints;
+        for (const auto &v : vertices)
+            tempPoints.push_back({ v.x, v.y, v.z });
 
-            const float *vertexData = vb->getVertexData(); use &
-            size_t stride = vb->getFormat().getVertexSize() / sizeof(float);
-            size_t posOffset = vb->getFormat().getOffsetTo(render::VertexComponent::POSITION) / sizeof(float);
+        colShape = new btConvexHullShape((btScalar*)tempPoints.data(), tempPoints.size());
 
-            for (size_t vertex = 0; vertex < vb->getVerticesCount(); vertex++)
-            {
-                const float *base = vertexData + stride * vertex + posOffset;
-                glm::vec3 p(base[0], base[1], base[2]);
-
-                convexHull->addPoint(physics::glmTobt(p));
-            }
-        }
-
-        // FIXME:
-        // Too slow for big meshes. Can preload this from a special asset.
-        // FIXME:
-        // Use cache of already created hulls.
-        // NOTE:
-        // Save timestamp or save convex hull in a special binary format together with mesh.
-
-        auto hull = new btShapeHull(convexHull);
-        btScalar margin = convexHull->getMargin();
-        hull->buildHull(margin);
-        colShape = new btConvexHullShape((btScalar*)hull->getVertexPointer(), hull->numVertices());
-        delete convexHull;
-
+        // FIXME: what to do if scale has changed?
         colShape->setLocalScaling(physics::glmTobt(getHolder()->transform()->getScale()));
-        */
     }
         break;
     default:
