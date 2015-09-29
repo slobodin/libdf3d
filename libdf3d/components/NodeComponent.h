@@ -41,8 +41,9 @@ class DF3D_DLL NodeComponent : utils::NonCopyable
 protected:
     scene::Node *m_holder = nullptr;
 
-public:
     NodeComponent(ComponentType t);
+
+public:
     const ComponentType type;
 
     virtual ~NodeComponent() { }
@@ -62,13 +63,15 @@ public:
 
     virtual shared_ptr<NodeComponent> clone() const = 0;
 
+    // TODO: move to factory.
+
     //! Creates node component from a file with json description.
     static shared_ptr<NodeComponent> fromJson(const std::string &jsonFile);
     //! Creates node component directly from json value.
     /*!
      * This function determines node component type from field in JSON description
      */
-    static shared_ptr<NodeComponent> fromJson(const Json::Value &root);
+    static shared_ptr<NodeComponent> fromJson(const Json::Value &root, TODO: excplicitly pass the type! Remove this func);
     //! Creates node component of given type from JSON value.
     static shared_ptr<NodeComponent> fromJson(ComponentType type, const Json::Value &root);
     //! 
