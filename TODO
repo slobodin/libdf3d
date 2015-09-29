@@ -2,3 +2,4 @@ Physics component refactor
 loaders minor fixes
 scene graph?
 node components refactor
+services - make all pointers (mb?)
