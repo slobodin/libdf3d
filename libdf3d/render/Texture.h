@@ -63,9 +63,9 @@ protected:
     static void setupGlTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped);
     static void setupGlWrapMode(GLenum glType, TextureWrapMode wrapMode);
 
-public:
     Texture(TextureCreationParams params);
-
+    
+public:
     unsigned getGLId() const { return m_glid; }
     const TextureCreationParams& getParams() const { return m_params; }
 
