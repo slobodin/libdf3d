@@ -53,7 +53,7 @@ Node::Node(const std::string &name)
     if (m_nodeName.empty())
         m_nodeName = std::string("unnamed_node_") + utils::to_string(nodesCount++);
 
-    attachComponent(make_shared<components::TransformComponent>());
+    createComponent<components::TransformComponent>();
 }
 
 Node::~Node()

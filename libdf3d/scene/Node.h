@@ -95,6 +95,12 @@ public:
 
     void attachComponent(shared_ptr<components::NodeComponent> component);
     void detachComponent(components::ComponentType type);
+
+    template<typename T, typename... Args>
+    void createComponent(Args&&... args)
+    {
+        attachComponent(make_shared<T>(std::forward<Args>(args)...));
+    }
 };
 
 } }
