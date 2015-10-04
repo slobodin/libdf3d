@@ -115,7 +115,7 @@ void MeshLoader_obj::processLine_f(std::istream &is)
             is >> vertexidx >> temp >> uvidx >> temp >> normalidx;
         }
 
-        auto v = m_currentSubmesh->getVertexData().getNextVertex();
+        auto v = m_currentSubmesh->getVertexData().allocVertex();
         v.setPosition(m_vertices.at(vertexidx - 1));
         v.setColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 

@@ -152,7 +152,7 @@ shared_ptr<VertexBuffer> createQuad(const VertexFormat &vf, float x, float y, fl
 
     for (int i = 0; i < 6; i++)
     {
-        auto v = vertexData.getNextVertex();
+        auto v = vertexData.allocVertex();
 
         v.setPosition({ quad_pos[i][0], quad_pos[i][1], 0.0f });
         v.setTx({ quad_uv[i][0], quad_uv[i][1] });
@@ -194,7 +194,7 @@ shared_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, f
 
     for (int i = 0; i < 6; i++)
     {
-        auto v = vertexData.getNextVertex();
+        auto v = vertexData.allocVertex();
 
         v.setPosition({ quad_pos[i][0], quad_pos[i][1], 0.0f });
         v.setTx({ quad_uv[i][0], quad_uv[i][1] });

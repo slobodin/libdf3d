@@ -21,11 +21,11 @@ BulletDebugDraw::~BulletDebugDraw()
 void BulletDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)
 {
     // FIXME: map directly to GPU.
-    auto v1 = m_vertexData.getNextVertex();
+    auto v1 = m_vertexData.allocVertex();
     v1.setColor({ color.x(), color.y(), color.z(), 1.0f });
     v1.setPosition({ from.x(), from.y(), from.z() });
 
-    auto v2 = m_vertexData.getNextVertex();
+    auto v2 = m_vertexData.allocVertex();
     v2.setColor({ color.x(), color.y(), color.z(), 1.0f });
     v2.setPosition({ to.x(), to.y(), to.z() });
 }

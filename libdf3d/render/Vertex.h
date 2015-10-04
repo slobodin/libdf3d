@@ -52,6 +52,12 @@ class DF3D_DLL Vertex
     float *m_vertexData;
     const VertexFormat &m_format;
 
+    template<typename T>
+    T* getPointer(VertexFormat::VertexAttribute attrib)
+    {
+        return reinterpret_cast<T*>(m_vertexData + m_format.getOffsetTo(attrib) / sizeof(float));
+    }
+
 public:
     Vertex(const VertexFormat &format, float *vertexData);
     Vertex(const Vertex &other);
@@ -81,9 +87,9 @@ public:
     VertexData(const VertexFormat &format);
 
     //! Allocates memory for given number of vertices.
-    void alloc(size_t verticesCount);
+    void allocVertices(size_t verticesCount);
     //! Allocates memory for a new vertex and returns vertex proxy.
-    Vertex getNextVertex();
+    Vertex allocVertex();
     //! Returns vertex proxy for ith vertex [0, n).
     Vertex getVertex(size_t idx);
     //! Returns this data vertex format.

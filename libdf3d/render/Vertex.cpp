@@ -125,70 +125,64 @@ Vertex::Vertex(const Vertex &other)
 
 }
 
-template<typename T>
-T* getPointer(float *base, size_t bytesOffset)
-{
-    return reinterpret_cast<T*>(base + bytesOffset / sizeof(float));
-}
-
 void Vertex::setPosition(const glm::vec3 &pos)
 {
-    *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::POSITION_3)) = pos;
+    *getPointer<glm::vec3>(VertexFormat::POSITION_3) = pos;
 }
 
 void Vertex::setTx(const glm::vec2 &tx)
 {
-    *getPointer<glm::vec2>(m_vertexData, m_format.getOffsetTo(VertexFormat::TX_2)) = tx;
+    *getPointer<glm::vec2>(VertexFormat::TX_2) = tx;
 }
 
 void Vertex::setColor(const glm::vec4 &color)
 {
-    *getPointer<glm::vec4>(m_vertexData, m_format.getOffsetTo(VertexFormat::COLOR_4)) = color;
+    *getPointer<glm::vec4>(VertexFormat::COLOR_4) = color;
 }
 
 void Vertex::setNormal(const glm::vec3 &normal)
 {
-    *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::NORMAL_3)) = normal;
+    *getPointer<glm::vec3>(VertexFormat::NORMAL_3) = normal;
 }
 
 void Vertex::setTangent(const glm::vec3 &tangent)
 {
-    *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::TANGENT_3)) = tangent;
+    *getPointer<glm::vec3>(VertexFormat::TANGENT_3) = tangent;
 }
 
 void Vertex::setBitangent(const glm::vec3 &bitangent)
 {
-    *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::BITANGENT_3)) = bitangent;
+    *getPointer<glm::vec3>(VertexFormat::BITANGENT_3) = bitangent;
 }
 
 void Vertex::getPosition(glm::vec3 *pos)
 {
-    *pos = *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::POSITION_3));
+    *pos = *getPointer<glm::vec3>(VertexFormat::POSITION_3);
 }
 
 void Vertex::getTx(glm::vec2 *tx)
 {
-    *tx = *getPointer<glm::vec2>(m_vertexData, m_format.getOffsetTo(VertexFormat::TX_2));
+    *tx = *getPointer<glm::vec2>(VertexFormat::TX_2);
 }
 
 void Vertex::getColor(glm::vec4 *color)
 {
-    *color = *getPointer<glm::vec4>(m_vertexData, m_format.getOffsetTo(VertexFormat::COLOR_4));
+    *color = *getPointer<glm::vec4>(VertexFormat::COLOR_4);
 }
 
 void Vertex::getNormal(glm::vec3 *normal)
 {
-    *normal = *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::NORMAL_3));
+    *normal = *getPointer<glm::vec3>(VertexFormat::NORMAL_3);
 }
 
 void Vertex::getTangent(glm::vec3 *tangent)
 {
-    *tangent = *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::TANGENT_3));
+    *tangent = *getPointer<glm::vec3>(VertexFormat::TANGENT_3);
 }
 
 void Vertex::getBitangent(glm::vec3 *bitangent)
 {
-    *bitangent = *getPointer<glm::vec3>(m_vertexData, m_format.getOffsetTo(VertexFormat::BITANGENT_3));
+    *bitangent = *getPointer<glm::vec3>(VertexFormat::BITANGENT_3);
 }
 
 VertexData::VertexData(const VertexFormat &format)
@@ -197,7 +191,7 @@ VertexData::VertexData(const VertexFormat &format)
 
 }
 
-void VertexData::alloc(size_t verticesCount)
+void VertexData::allocVertices(size_t verticesCount)
 {
     assert(verticesCount > 0);
 
@@ -206,7 +200,7 @@ void VertexData::alloc(size_t verticesCount)
     m_verticesCount = verticesCount;
 }
 
-Vertex VertexData::getNextVertex()
+Vertex VertexData::allocVertex()
 {
     // Allocate buffer for a new vertex.
     auto it = m_data.insert(m_data.end(), m_format.getVertexSize() / sizeof(float), 0.0f);

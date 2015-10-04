@@ -143,7 +143,7 @@ Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket:
     render::VertexData vertexData(vertexFormat);
     for (int i = 0; i < num_vertices; i++)
     {
-        auto v = vertexData.getNextVertex();
+        auto v = vertexData.allocVertex();
 
         v.setPosition({ vertices[i].position.x, vertices[i].position.y, 0.0f });
         v.setTx({ vertices[i].tex_coord.x, vertices[i].tex_coord.y });

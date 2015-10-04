@@ -41,7 +41,7 @@ public:
         m_ib->alloc(nbParticles * indicesPerParticle, nullptr, render::GpuBufferUsageType::STATIC);
 
         // Allocate main memory storage copy (no glMapBuffer on ES2.0)
-        m_vertexData.alloc(nbParticles * verticesPerParticle);
+        m_vertexData.allocVertices(nbParticles * verticesPerParticle);
         m_indexData.resize(nbParticles * indicesPerParticle);
 
         positionAtStart();

@@ -62,14 +62,14 @@ public:
 
         // FIXME: set color also.
 
-        vertexData.getNextVertex().setPosition({ minpt.x, maxpt.y, maxpt.z });
-        vertexData.getNextVertex().setPosition({ minpt.x, maxpt.y, minpt.z });
-        vertexData.getNextVertex().setPosition({ maxpt.x, maxpt.y, minpt.z });
-        vertexData.getNextVertex().setPosition({ maxpt.x, maxpt.y, maxpt.z });
-        vertexData.getNextVertex().setPosition({ minpt.x, minpt.y, maxpt.z });
-        vertexData.getNextVertex().setPosition({ minpt.x, minpt.y, minpt.z });
-        vertexData.getNextVertex().setPosition({ maxpt.x, minpt.y, minpt.z });
-        vertexData.getNextVertex().setPosition({ maxpt.x, minpt.y, maxpt.z });
+        vertexData.allocVertex().setPosition({ minpt.x, maxpt.y, maxpt.z });
+        vertexData.allocVertex().setPosition({ minpt.x, maxpt.y, minpt.z });
+        vertexData.allocVertex().setPosition({ maxpt.x, maxpt.y, minpt.z });
+        vertexData.allocVertex().setPosition({ maxpt.x, maxpt.y, maxpt.z });
+        vertexData.allocVertex().setPosition({ minpt.x, minpt.y, maxpt.z });
+        vertexData.allocVertex().setPosition({ minpt.x, minpt.y, minpt.z });
+        vertexData.allocVertex().setPosition({ maxpt.x, minpt.y, minpt.z });
+        vertexData.allocVertex().setPosition({ maxpt.x, minpt.y, maxpt.z });
 
         m_ro.vertexData = make_shared<render::VertexBuffer>(vertexFormat);
         m_ro.vertexData->alloc(vertexData, render::GpuBufferUsageType::STREAM);
