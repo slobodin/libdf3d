@@ -7,7 +7,7 @@ namespace df3d { namespace utils {
 
 Json::Value jsonLoadFromFile(const std::string &path)
 {
-    auto fileSource = gsvc().filesystem.openFile(path);
+    auto fileSource = svc().filesystem.openFile(path);
     if (!fileSource || !fileSource->valid())
     {
         base::glog << "Couldn't load json configs from" << path << base::logwarn;

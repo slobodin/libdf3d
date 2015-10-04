@@ -25,12 +25,12 @@ public:
     ResourceMgrListenerImpl(MeshComponent *holder)
         : m_holder(holder)
     {
-        gsvc().resourceMgr.addListener(this);
+        svc().resourceMgr.addListener(this);
     }
 
     ~ResourceMgrListenerImpl()
     {
-        gsvc().resourceMgr.removeListener(this);
+        svc().resourceMgr.removeListener(this);
     }
 
     void onLoadFromFileSystemRequest(ResourceGUID resourceId) override { }
@@ -49,7 +49,7 @@ bool MeshComponent::isInFov()
     if (m_frustumCullingDisabled)
         return true;
 
-    return gsvc().sceneMgr.getCamera()->getFrustum().sphereInFrustum(getBoundingSphere());
+    return svc().sceneMgr.getCamera()->getFrustum().sphereInFrustum(getBoundingSphere());
 }
 
 void MeshComponent::onComponentEvent(components::ComponentEvent ev)
@@ -182,7 +182,7 @@ MeshComponent::MeshComponent(const std::string &meshFilePath, ResourceLoadingMod
 {
     m_rmgrListener->m_guid = resources::CreateGUIDFromPath(meshFilePath);
 
-    setMeshData(gsvc().resourceMgr.getFactory().createMeshData(meshFilePath, lm));
+    setMeshData(svc().resourceMgr.getFactory().createMeshData(meshFilePath, lm));
 }
 
 MeshComponent::MeshComponent(shared_ptr<render::MeshData> meshData)

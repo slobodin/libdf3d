@@ -44,7 +44,7 @@ bool IsGUIDValid(const ResourceGUID &guid)
 
 ResourceGUID CreateGUIDFromPath(const std::string &path)
 {
-    return gsvc().filesystem.fullPath(path);
+    return svc().filesystem.fullPath(path);
 }
 
 } }

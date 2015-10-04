@@ -26,13 +26,13 @@ namespace df3d { namespace gui {
 //    // Just for test:
 //    // TODO:
 //    // Embed rml and rcss.
-//    auto file = gsvc().filesystem.openFile(rml);
+//    auto file = svc().filesystem.openFile(rml);
 //    std::string buffer(file->getSize(), 0);
 //    file->getRaw(&buffer[0], file->getSize());
 //
 //    document->SetInnerRML(buffer.c_str());
 //
-//    file = gsvc().filesystem.openFile(rcss);
+//    file = svc().filesystem.openFile(rcss);
 //    buffer.resize(file->getSize());
 //    file->getRaw(&buffer[0], file->getSize());
 //
@@ -73,7 +73,7 @@ namespace df3d { namespace gui {
 //        m_psValue->SetInnerRML(psNodes.c_str());
 //        m_particlesValue->SetInnerRML(particles.c_str());
 //
-//        auto cam = gsvc().sceneMgr.getCamera();
+//        auto cam = svc().sceneMgr.getCamera();
 //        if (cam)
 //        {
 //            auto camPos = cam->getPosition();
@@ -373,7 +373,7 @@ namespace df3d { namespace gui {
 //    Rocket::Core::Factory::RegisterElementInstancer("__debug_scene_tree_window", new Rocket::Core::ElementInstancerGeneric<impl::SceneTreeWindow>())->RemoveReference();
 //    m_sceneTreeWnd = dynamic_cast<impl::SceneTreeWindow *>(context->CreateDocument("__debug_scene_tree_window"));
 //
-//    gsvc().sceneMgr.registerListener(m_sceneTreeWnd);
+//    svc().sceneMgr.registerListener(m_sceneTreeWnd);
 //
 //    m_sceneTreeWnd->SetProperty("visibility", "hidden");
 //}
@@ -385,7 +385,7 @@ namespace df3d { namespace gui {
 //
 //DebugOverlayWindow::DebugOverlayWindow()
 //{
-//    Rocket::Core::Context *context = gsvc().guiMgr.getRocketContext();
+//    Rocket::Core::Context *context = svc().guiMgr.getRocketContext();
 //
 //    createDebugMenu(context);
 //    createDebugStatsWindow(context);
@@ -413,7 +413,7 @@ namespace df3d { namespace gui {
 //
 //void DebugOverlayWindow::onRocketShutdown()
 //{
-//    gsvc().sceneMgr.unregisterListener(m_sceneTreeWnd);
+//    svc().sceneMgr.unregisterListener(m_sceneTreeWnd);
 //
 //    if (m_debugMenu)
 //        m_debugMenu->RemoveReference();

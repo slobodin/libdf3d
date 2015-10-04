@@ -93,9 +93,9 @@ void PhysicsComponent::initFromCreationParams()
     body = new btRigidBody(rbInfo);
 
     if (m_creationParams.group != -1 && m_creationParams.mask != -1)
-        gsvc().physicsWorld.addRigidBody(body, m_creationParams.group, m_creationParams.mask);
+        svc().physicsWorld.addRigidBody(body, m_creationParams.group, m_creationParams.mask);
     else
-        gsvc().physicsWorld.addRigidBody(body);
+        svc().physicsWorld.addRigidBody(body);
 
     // FIXME: remove this. Not needed.
     body->setUserPointer(m_holder);
@@ -124,7 +124,7 @@ void PhysicsComponent::onDetached()
     {
         // FIXME:
         // Here we assuming that body was added to the world.
-        gsvc().physicsWorld.removeRigidBody(body);
+        svc().physicsWorld.removeRigidBody(body);
         auto motionState = body->getMotionState();
         delete motionState;
         auto shape = body->getCollisionShape();

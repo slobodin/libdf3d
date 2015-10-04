@@ -26,8 +26,10 @@
 #include <components/TransformComponent.h>
 #include <components/TextMeshComponent.h>
 #include <components/Sprite2DComponent.h>
+#include <components/ComponentFactory.h>
 
 #include <scene/Node.h>
+#include <scene/NodeFactory.h>
 #include <scene/Frustum.h>
 #include <scene/Camera.h>
 #include <scene/Scene.h>

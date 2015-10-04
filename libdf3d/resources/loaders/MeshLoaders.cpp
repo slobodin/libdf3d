@@ -43,7 +43,7 @@ render::MeshData* MeshDataFSLoader::createDummy()
 
 void MeshDataFSLoader::decode(shared_ptr<FileDataSource> source)
 {
-    auto extension = gsvc().filesystem.getFileExtension(source->getPath());
+    auto extension = svc().filesystem.getFileExtension(source->getPath());
 
     if (extension == ".obj")
         m_mesh = MeshLoader_obj().load(source);
@@ -63,7 +63,7 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
     meshdata->m_convexHull = m_mesh->convexHull;
 
     // Load all the materials.
-    auto mtlLib = gsvc().resourceMgr.getFactory().createMaterialLib(m_mesh->materialLibName);
+    auto mtlLib = svc().resourceMgr.getFactory().createMaterialLib(m_mesh->materialLibName);
 
     if (mtlLib)     // Leaving null material in submesh, do not set default as it will be set later. mb it's wrong design?
     {

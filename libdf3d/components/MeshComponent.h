@@ -10,6 +10,8 @@ FWD_MODULE_CLASS(render, Material)
 
 namespace df3d { namespace components {
 
+// TODO: this is static mesh, create animated mesh.
+
 class DF3D_DLL MeshComponent : public NodeComponent
 {
     bool isInFov();

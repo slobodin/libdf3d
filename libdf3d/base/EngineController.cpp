@@ -104,9 +104,9 @@ bool EngineController::init(EngineInitParams params)
         m_audioManager = new audio::AudioManager();
 
         // Init services.
-        m_svc = new df3dServices(*m_sceneManager, *m_resourceManager, *m_fileSystem,
-                                 *m_renderManager, *m_guiManager,
-                                 *m_physics, *m_physics->getWorld(), *m_audioManager);
+        m_svc = new Service(*m_sceneManager, *m_resourceManager, *m_fileSystem,
+                            *m_renderManager, *m_guiManager,
+                            *m_physics, *m_physics->getWorld(), *m_audioManager);
 
         m_initialized = true;
 
@@ -183,7 +183,7 @@ glm::vec2 EngineController::screenSize() const
     return glm::vec2(vp.width(), vp.height());
 }
 
-df3dServices& EngineController::svc()
+Service& EngineController::svc()
 {
     return *m_svc;
 }

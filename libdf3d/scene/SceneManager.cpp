@@ -66,7 +66,7 @@ void SceneManager::clearCurrentScene()
     m_currentScene.reset();
     m_nodesMarkedForRemoval.clear();
 
-    gsvc().resourceMgr.unloadUnused();
+    svc().resourceMgr.unloadUnused();
 
     m_paused = false;
 

@@ -26,7 +26,7 @@ void RenderPassParam::updateTo(GpuProgram *program)
 RenderPass::RenderPass(const std::string &name)
     : m_name(name)
 {
-    setGpuProgram(gsvc().resourceMgr.getFactory().createSimpleLightingGpuProgram());
+    setGpuProgram(svc().resourceMgr.getFactory().createSimpleLightingGpuProgram());
     setSampler("diffuseMap", nullptr);
 }
 
@@ -210,7 +210,7 @@ RenderPass RenderPass::createDebugDrawPass()
     pass.setDiffuseColor(1.0f, 1.0f, 1.0f, 0.2f);
     pass.setBlendMode(BlendingMode::ALPHA);
 
-    auto program = gsvc().resourceMgr.getFactory().createColoredGpuProgram();
+    auto program = svc().resourceMgr.getFactory().createColoredGpuProgram();
     pass.setGpuProgram(program);
 
     return pass;

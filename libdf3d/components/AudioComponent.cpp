@@ -30,7 +30,7 @@ void AudioComponent::onUpdate(float dt)
 AudioComponent::AudioComponent(const std::string &audioFilePath)
     : NodeComponent(AUDIO)
 {
-    m_buffer = gsvc().resourceMgr.getFactory().createAudioBuffer(audioFilePath);
+    m_buffer = svc().resourceMgr.getFactory().createAudioBuffer(audioFilePath);
     if (!m_buffer || !m_buffer->isInitialized())
     {
         base::glog << "Can not initialize audio component from" << audioFilePath << base::logwarn;

@@ -12,7 +12,7 @@ FWD_MODULE_CLASS(audio, AudioManager)
 
 #include "EngineInitParams.h"
 
-namespace df3d { class df3dServices; }
+namespace df3d { class Service; }
 
 namespace df3d { namespace base {
 
@@ -23,7 +23,7 @@ class DF3D_DLL EngineController : utils::NonCopyable
     EngineController();
     ~EngineController();
 
-    df3dServices *m_svc = nullptr;
+    Service *m_svc = nullptr;
     render::RenderManager *m_renderManager = nullptr;
     scene::SceneManager *m_sceneManager = nullptr;
     resources::ResourceManager *m_resourceManager = nullptr;
@@ -58,7 +58,7 @@ public:
     void setViewport(const render::Viewport &newvp);
     glm::vec2 screenSize() const;
 
-    df3dServices& svc();
+    Service& svc();
 };
 
 } }

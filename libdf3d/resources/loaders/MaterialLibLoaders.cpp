@@ -422,9 +422,9 @@ class MaterialLibParser
         {
             std::string embedProgramName = embedProgramFound->second;
             if (embedProgramName == "colored")
-                return gsvc().resourceMgr.getFactory().createColoredGpuProgram();
+                return svc().resourceMgr.getFactory().createColoredGpuProgram();
             else if (embedProgramName == "quad_render")
-                return gsvc().resourceMgr.getFactory().createRttQuadProgram();
+                return svc().resourceMgr.getFactory().createRttQuadProgram();
             else
             {
                 base::glog << "Invalid embed program name" << embedProgramName << base::logwarn;
@@ -442,7 +442,7 @@ class MaterialLibParser
             return nullptr;
         }
 
-        return gsvc().resourceMgr.getFactory().createGpuProgram(vshader->second, fshader->second);
+        return svc().resourceMgr.getFactory().createGpuProgram(vshader->second, fshader->second);
     }
 
     void parseShaderParamsNode(MaterialLibNode &node, shared_ptr<render::RenderPass> pass)
@@ -472,13 +472,13 @@ class MaterialLibParser
         {
             std::string path = node.keyValues.find("path")->second;
 
-            return gsvc().resourceMgr.getFactory().createTexture(path, creationParams, ResourceLoadingMode::ASYNC);
+            return svc().resourceMgr.getFactory().createTexture(path, creationParams, ResourceLoadingMode::ASYNC);
         }
         else if (type == "TEXTURE_CUBE")
         {
             std::string path = node.keyValues.find("path")->second;
 
-            return gsvc().resourceMgr.getFactory().createCubeTexture(path, creationParams, ResourceLoadingMode::ASYNC);
+            return svc().resourceMgr.getFactory().createCubeTexture(path, creationParams, ResourceLoadingMode::ASYNC);
         }
 
         base::glog << "Unknown texture type" << type << base::logwarn;

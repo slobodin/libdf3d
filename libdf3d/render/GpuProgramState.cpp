@@ -127,8 +127,8 @@ void GpuProgramState::onFrameBegin()
     m_currentPass = nullptr;
     m_currentShader = nullptr;
 
-    if (gsvc().sceneMgr.getCamera())
-        m_cameraPosition = gsvc().sceneMgr.getCamera()->transform()->getPosition();
+    if (svc().sceneMgr.getCamera())
+        m_cameraPosition = svc().sceneMgr.getCamera()->transform()->getPosition();
 
     m_engineElapsedTime = base::EngineController::instance().getElapsedTime();
 }

@@ -7,7 +7,7 @@ namespace df3d { namespace components { namespace serializers {
 
 shared_ptr<NodeComponent> Sprite2DComponentSerializer::fromJson(const Json::Value &root)
 {
-    auto result = make_shared<Sprite2DComponent>(root["path"].asCString());
+    auto result = make_shared<Sprite2DComponent>(root["path"].asString());
 
     return result;
 }

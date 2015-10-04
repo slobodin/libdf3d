@@ -41,41 +41,29 @@ class DF3D_DLL NodeComponent : utils::NonCopyable
 protected:
     scene::Node *m_holder = nullptr;
 
+    void sendEvent(ComponentEvent ev);
+
     NodeComponent(ComponentType t);
 
 public:
     const ComponentType type;
 
-    virtual ~NodeComponent() { }
+    virtual ~NodeComponent() = default;
 
-    scene::Node *getHolder() { return m_holder; }
-    const std::string &getName() const;
-
-    void sendEvent(ComponentEvent ev);
+    scene::Node* getHolder() { return m_holder; }
+    const std::string& getName() const;
 
     virtual void onComponentEvent(ComponentEvent ev) { }
     virtual void onNodeEvent(NodeEvent ev) { }
-    virtual void onUpdate(float dt) { }
     virtual void onAttached() { }
     virtual void onDetached() { }
     virtual void onDraw(render::RenderQueue *ops) { }
-    // FIXME: maybe kind of updatable & renderable components?
+    virtual void onUpdate(float dt) { }
 
     virtual shared_ptr<NodeComponent> clone() const = 0;
 
-    // TODO: move to factory.
-
-    //! Creates node component from a file with json description.
-    static shared_ptr<NodeComponent> fromJson(const std::string &jsonFile);
-    //! Creates node component directly from json value.
-    /*!
-     * This function determines node component type from field in JSON description
-     */
-    static shared_ptr<NodeComponent> fromJson(const Json::Value &root, TODO: excplicitly pass the type! Remove this func);
-    //! Creates node component of given type from JSON value.
-    static shared_ptr<NodeComponent> fromJson(ComponentType type, const Json::Value &root);
-    //! 
-    static Json::Value toJson(shared_ptr<const NodeComponent> component);
+    static std::string typeToString(ComponentType type);
+    static ComponentType stringToType(const std::string &typeStr);
 };
 
 } }

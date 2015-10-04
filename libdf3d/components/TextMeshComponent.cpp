@@ -23,7 +23,7 @@ shared_ptr<render::RenderPass> TextMeshComponent::createRenderPass()
     pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
     pass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
 
-    pass->setGpuProgram(gsvc().resourceMgr.createColoredGpuProgram());
+    pass->setGpuProgram(svc().resourceMgr.createColoredGpuProgram());
 
     return pass;
 }
@@ -87,7 +87,7 @@ TextMeshComponent::TextMeshComponent(const char *fontPath, int size)
 {
     // FIXME:
     // For now without resource manager.
-    auto path = gsvc().filesystem.fullPath(fontPath);
+    auto path = svc().filesystem.fullPath(fontPath);
     //m_font = TTF_OpenFont(path.c_str(), size);
     //if (!m_font)
     //{

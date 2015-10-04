@@ -208,7 +208,7 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSourc
             std::string fileName;
             input >> fileName;
 
-            m_materialLibPath = gsvc().filesystem.fullPath(FileSystem::pathConcatenate(dir, fileName));
+            m_materialLibPath = svc().filesystem.fullPath(FileSystem::pathConcatenate(dir, fileName));
         }
     }
 

@@ -386,7 +386,7 @@ SPK::Ref<particlesys::ParticleSystemRenderer> createRenderer(const Json::Value &
         SPK::TextureMode textureMode = SPK::TEXTURE_MODE_NONE;
         if (!pathToTexture.empty())
         {
-            auto texture = gsvc().resourceMgr.getFactory().createTexture(pathToTexture, ResourceLoadingMode::ASYNC);
+            auto texture = svc().resourceMgr.getFactory().createTexture(pathToTexture, ResourceLoadingMode::ASYNC);
             if (texture)
             {
                 quadRenderer->setDiffuseMap(texture);

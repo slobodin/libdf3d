@@ -22,7 +22,7 @@ void Camera::buildViewMatrix()
 
 void Camera::buildProjectionMatrix()
 {
-    const auto &vp = gsvc().renderMgr.getScreenRenderTarget()->getViewport();
+    const auto &vp = svc().renderMgr.getScreenRenderTarget()->getViewport();
 
     if (m_currentViewport != vp)
     {
@@ -128,11 +128,11 @@ const Frustum &Camera::getFrustum()
 
 glm::vec3 Camera::screenToViewPoint(float x, float y, float z)
 {
-    const auto &vp = gsvc().renderMgr.getScreenRenderTarget()->getViewport();
+    const auto &vp = svc().renderMgr.getScreenRenderTarget()->getViewport();
 
     float w = (float)vp.width();
     float h = (float)vp.height();
-    //float z = gsvc().renderMgr.getRenderer()->readDepthBuffer(x, h - y - 1);
+    //float z = svc().renderMgr.getRenderer()->readDepthBuffer(x, h - y - 1);
 
     glm::vec4 viewport = glm::vec4(0.0f, 0.0f, w, h);
     auto viewPos = glm::unProject(glm::vec3(x, h - y - 1, z), getViewMatrix(), getProjectionMatrix(), viewport);
@@ -142,7 +142,7 @@ glm::vec3 Camera::screenToViewPoint(float x, float y, float z)
 
 glm::vec3 Camera::worldToScreenPoint(const glm::vec3 &world)
 {
-    const auto &vp = gsvc().renderMgr.getScreenRenderTarget()->getViewport();
+    const auto &vp = svc().renderMgr.getScreenRenderTarget()->getViewport();
 
     float w = (float)vp.width();
     float h = (float)vp.height();

@@ -52,7 +52,7 @@ std::string Shader::preprocess(const std::string &shaderData)
 
 std::string Shader::preprocessInclude(std::string shaderData, const std::string &shaderFilePath)
 {
-    const std::string shaderDirectory = gsvc().filesystem.getFileDirectory(shaderFilePath);
+    const std::string shaderDirectory = svc().filesystem.getFileDirectory(shaderFilePath);
     const std::string INCLUDE_DIRECTIVE = "#include";
     const size_t INCLUDE_DIRECTIVE_LEN = INCLUDE_DIRECTIVE.size();
 
@@ -76,7 +76,7 @@ std::string Shader::preprocessInclude(std::string shaderData, const std::string 
         }
 
         fileToInclude = resources::FileSystem::pathConcatenate(shaderDirectory, fileToInclude);
-        auto file = gsvc().filesystem.openFile(fileToInclude);
+        auto file = svc().filesystem.openFile(fileToInclude);
         if (!file || !file->valid())
         {
             base::glog << "Failed to preprocess shader: file" << fileToInclude << "not found" << base::logwarn;
@@ -155,14 +155,14 @@ Shader::~Shader()
 shared_ptr<Shader> Shader::createFromFile(const std::string &filePath)
 {
     auto shader = make_shared<Shader>();
-    auto file = gsvc().filesystem.openFile(filePath);
+    auto file = svc().filesystem.openFile(filePath);
     if (!file || !file->valid())
     {
         base::glog << "Can not create shader. File" << filePath << "doesn't exist" << base::logwarn;
         return nullptr;
     }
 
-    const std::string &ext = gsvc().filesystem.getFileExtension(filePath);
+    const std::string &ext = svc().filesystem.getFileExtension(filePath);
 
     if (ext == ".vert")
         shader->setType(Type::VERTEX);

@@ -4,6 +4,7 @@
 #include <scene/Scene.h>
 #include <scene/Node.h>
 #include <scene/Camera.h>
+#include <scene/NodeFactory.h>
 #include <components/TransformComponent.h>
 #include <base/Service.h>
 #include <render/MaterialLib.h>
@@ -27,20 +28,20 @@ Json::Value saveFog(shared_ptr<const scene::Scene> scene)
     return Json::Value();
 }
 
-void parseObjects(const Json::Value &objectsNode, shared_ptr<scene::Scene> scene)
+void parseObjects(const Json::Value &objectsNode, shared_ptr<scene::Scene> sc)
 {
     if (!objectsNode)
         return;
 
     for (Json::UInt objIdx = 0; objIdx < objectsNode.size(); ++objIdx)
-        scene->addChild(scene::Node::fromJson(objectsNode[objIdx]));
+        sc->addChild(scene::createNode(objectsNode[objIdx]));
 }
 
 Json::Value saveObjects(shared_ptr<const scene::Scene> scene)
 {
     Json::Value res(Json::arrayValue);
     for (auto ch : *scene->getRoot())
-        res.append(scene::Node::toJson(ch));
+        res.append(scene::nodeToJson(ch));
 
     return res;
 }
@@ -61,16 +62,16 @@ void parsePostProcessOption(const Json::Value &postFxNode, shared_ptr<scene::Sce
     if (postFxNode.empty())
         return;
 
-    auto mtlLib = postFxNode["materialLib"].asCString();
-    auto mtlName = postFxNode["materialName"].asCString();
+    auto mtlLib = postFxNode["materialLib"].asString();
+    auto mtlName = postFxNode["materialName"].asString();
 
-    if (!mtlLib || !mtlName)
+    if (mtlLib.empty() || mtlName.empty())
     {
         base::glog << "Invalid postprocess option. Either materialName or materialLib field is empty." << base::logwarn;
         return;
     }
 
-    auto materialLibrary = gsvc().resourceMgr.getFactory().createMaterialLib(mtlLib);
+    auto materialLibrary = svc().resourceMgr.getFactory().createMaterialLib(mtlLib);
     auto material = materialLibrary->getMaterial(mtlName);
     if (!material)
         return;

@@ -13,18 +13,18 @@
 
 namespace df3d {
 
-class DF3D_DLL df3dServices
+class DF3D_DLL Service
 {
     friend class base::EngineController;
 
-    df3dServices(scene::SceneManager &sceneMgr,
-                 resources::ResourceManager &resourceMgr,
-                 resources::FileSystem &filesystem,
-                 render::RenderManager &renderMgr,
-                 gui::GuiManager &guiMgr,
-                 physics::PhysicsManager &physicsMgr,
-                 btDynamicsWorld &physicsWorld,
-                 audio::AudioManager &audioManager);
+    Service(scene::SceneManager &sceneMgr,
+            resources::ResourceManager &resourceMgr,
+            resources::FileSystem &filesystem,
+            render::RenderManager &renderMgr,
+            gui::GuiManager &guiMgr,
+            physics::PhysicsManager &physicsMgr,
+            btDynamicsWorld &physicsWorld,
+            audio::AudioManager &audioManager);
 
 public:
     scene::SceneManager &sceneMgr;
@@ -39,6 +39,6 @@ public:
     base::DebugConsole *console;
 };
 
-DF3D_DLL df3dServices& gsvc();
+DF3D_DLL Service& svc();
 
 }

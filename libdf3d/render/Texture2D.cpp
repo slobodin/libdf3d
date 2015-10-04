@@ -13,7 +13,7 @@ bool Texture2D::createGLTexture(const PixelBuffer &buffer)
     auto actWidth = /*getNextPot(*/buffer.getWidth();
     auto actHeight = /*getNextPot(*/buffer.getHeight();
 
-    auto maxSize = gsvc().renderMgr.getRenderer()->getMaxTextureSize();
+    auto maxSize = svc().renderMgr.getRenderer()->getMaxTextureSize();
     if (actWidth > maxSize || actHeight > maxSize)
     {
         base::glog << "Failed to create texture. Size is too big." << base::logwarn;
@@ -63,7 +63,7 @@ bool Texture2D::createGLTexture(const PixelBuffer &buffer)
 
     if (m_params.getAnisotropyLevel() != 1)
     {
-        float aniso = gsvc().renderMgr.getRenderer()->getMaxAnisotropy();
+        float aniso = svc().renderMgr.getRenderer()->getMaxAnisotropy();
         if (m_params.getAnisotropyLevel() != ANISOTROPY_LEVEL_MAX)
         { 
             aniso = (float)m_params.getAnisotropyLevel();

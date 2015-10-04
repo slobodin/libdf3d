@@ -2,14 +2,14 @@
 
 namespace df3d {
 
-df3dServices::df3dServices(scene::SceneManager &sceneMgr,
-                           resources::ResourceManager &resourceMgr,
-                           resources::FileSystem &filesystem,
-                           render::RenderManager &renderMgr,
-                           gui::GuiManager &guiMgr,
-                           physics::PhysicsManager &physicsMgr,
-                           btDynamicsWorld &physicsWorld,
-                           audio::AudioManager &audioManager)
+Service::Service(scene::SceneManager &sceneMgr,
+                 resources::ResourceManager &resourceMgr,
+                 resources::FileSystem &filesystem,
+                 render::RenderManager &renderMgr,
+                 gui::GuiManager &guiMgr,
+                 physics::PhysicsManager &physicsMgr,
+                 btDynamicsWorld &physicsWorld,
+                 audio::AudioManager &audioManager)
     : sceneMgr(sceneMgr),
     resourceMgr(resourceMgr),
     filesystem(filesystem),
@@ -22,7 +22,7 @@ df3dServices::df3dServices(scene::SceneManager &sceneMgr,
 
 }
 
-df3dServices& gsvc()
+Service& svc()
 {
     assert(base::EngineController::instance().initialized());
     return base::EngineController::instance().svc();

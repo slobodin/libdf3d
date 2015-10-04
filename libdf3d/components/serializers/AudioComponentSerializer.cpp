@@ -8,7 +8,7 @@ namespace df3d { namespace components { namespace serializers {
 
 shared_ptr<NodeComponent> AudioComponentSerializer::fromJson(const Json::Value &root)
 {
-    auto result = make_shared<AudioComponent>(root["path"].asCString());
+    auto result = make_shared<AudioComponent>(root["path"].asString());
 
     result->setPitch(utils::jsonGetValueWithDefault(root["pitch"], result->getPitch()));
     result->setGain(utils::jsonGetValueWithDefault(root["gain"], result->getGain()));

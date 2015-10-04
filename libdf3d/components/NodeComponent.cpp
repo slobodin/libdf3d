@@ -1,8 +1,6 @@
 #include "NodeComponent.h"
 
 #include <scene/Node.h>
-#include <utils/JsonHelpers.h>
-#include "serializers/ComponentSerializer.h"
 
 namespace df3d { namespace components {
 
@@ -30,6 +28,11 @@ static const std::map<ComponentType, std::string> TypeName =
     { SPRITE_2D, "sprite_2d" }
 };
 
+void NodeComponent::sendEvent(ComponentEvent ev)
+{
+    getHolder()->broadcastComponentEvent(this, ev);
+}
+
 NodeComponent::NodeComponent(ComponentType t)
     : type(t)
 {
@@ -38,88 +41,21 @@ NodeComponent::NodeComponent(ComponentType t)
 
 const std::string &NodeComponent::getName() const
 {
+    return typeToString(type);
+}
+
+std::string NodeComponent::typeToString(ComponentType type)
+{
     return TypeName.find(type)->second;
 }
 
-void NodeComponent::sendEvent(ComponentEvent ev)
+ComponentType NodeComponent::stringToType(const std::string &typeStr)
 {
-    getHolder()->broadcastComponentEvent(this, ev);
-}
-
-shared_ptr<NodeComponent> NodeComponent::fromJson(const std::string &jsonFile)
-{
-    return fromJson(utils::jsonLoadFromFile(jsonFile));
-}
-
-shared_ptr<NodeComponent> NodeComponent::fromJson(const Json::Value &root)
-{
-    if (root.empty())
-    {
-        base::glog << "Failed to create a component. Json root is empty" << base::logwarn;
-        return nullptr;
-    }
-
-    if (root["type"].empty())
-    {
-        base::glog << "Failed to create a component. Missing \"type\" field" << base::logwarn;
-        return nullptr;
-    }
-
-    auto typeStr = root["type"].asCString();
-    auto type = NameType.find(typeStr);
-    if (type == NameType.end())
-    {
-        base::glog << "Failed to create a component of type" << typeStr << ". Unknown type" << base::logwarn;
-        return nullptr;
-    }
-
-    const Json::Value &dataJson = root["data"];
-    const Json::Value &externalDataJson = root["external_data"];
-    if (dataJson.empty() && externalDataJson.empty())
-    {
-        base::glog << "Failed to init component" << typeStr << ". Empty \"data\" or \"external_data\" field" << base::logwarn;
-        return nullptr;
-    }
-
-    if (dataJson.empty())
-        return fromJson(type->second, utils::jsonLoadFromFile(externalDataJson.asCString()));
+    auto found = NameType.find(typeStr);
+    if (found == NameType.end())
+        return ComponentType::COUNT;
     else
-        return fromJson(type->second, dataJson);
-}
-
-shared_ptr<NodeComponent> NodeComponent::fromJson(ComponentType type, const Json::Value &root)
-{
-    auto serializer = serializers::create(type);
-    if (!serializer)
-    {
-        base::glog << "Can not create component from json definition. Unsupported component type" << base::logwarn;
-        return nullptr;
-    }
-
-    return serializer->fromJson(root);
-}
-
-Json::Value NodeComponent::toJson(shared_ptr<const NodeComponent> component)
-{
-    Json::Value result;
-    if (!component)
-    {
-        base::glog << "Failed to serialize a null component" << base::logwarn;
-        return result;
-    }
-
-    result["type"] = component->getName();
-
-    auto serializer = serializers::create(component->type);
-    if (!serializer)
-    {
-        base::glog << "Failed to serialize a component: unsupported type" << base::logwarn;
-        return nullptr;
-    }
-
-    result["data"] = serializer->toJson(component);
-
-    return result;
+        return found->second;
 }
 
 } }

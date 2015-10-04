@@ -26,7 +26,7 @@ GuiFileInterface::~GuiFileInterface()
 
 Rocket::Core::FileHandle GuiFileInterface::Open(const Rocket::Core::String& path)
 {
-    auto file = gsvc().filesystem.openFile(path.CString());
+    auto file = svc().filesystem.openFile(path.CString());
     if (!file)
         return 0;
 
@@ -180,7 +180,7 @@ void GuiRenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHa
         m_guipass = make_shared<render::RenderPass>();
 
         m_guipass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
-        m_guipass->setGpuProgram(gsvc().resourceMgr.getFactory().createColoredGpuProgram());
+        m_guipass->setGpuProgram(svc().resourceMgr.getFactory().createColoredGpuProgram());
         m_guipass->enableDepthTest(false);
         m_guipass->enableDepthWrite(false);
         m_guipass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
@@ -196,7 +196,7 @@ void GuiRenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHa
     op.passProps = m_guipass;
     op.worldTransform = glm::translate(glm::vec3(translation.x, translation.y, 0.0f));
 
-    gsvc().renderMgr.drawOperation(op);
+    svc().renderMgr.drawOperation(op);
 }
 
 void GuiRenderInterface::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry)
@@ -207,13 +207,13 @@ void GuiRenderInterface::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryH
 
 void GuiRenderInterface::EnableScissorRegion(bool enable)
 {
-    gsvc().renderMgr.getRenderer()->enableScissorTest(enable);
+    svc().renderMgr.getRenderer()->enableScissorTest(enable);
 }
 
 void GuiRenderInterface::SetScissorRegion(int x, int y, int width, int height)
 {
     auto vp = base::EngineController::instance().getViewport();
-    gsvc().renderMgr.getRenderer()->setScissorRegion(x, vp.height() - (y + height), width, height);
+    svc().renderMgr.getRenderer()->setScissorRegion(x, vp.height() - (y + height), width, height);
 }
 
 bool GuiRenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle, 
@@ -225,7 +225,7 @@ bool GuiRenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle
     params.setMipmapped(false);
     params.setAnisotropyLevel(render::NO_ANISOTROPY);
 
-    auto texture = gsvc().resourceMgr.getFactory().createTexture(source.CString(), params, ResourceLoadingMode::IMMEDIATE);
+    auto texture = svc().resourceMgr.getFactory().createTexture(source.CString(), params, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->isInitialized())
         return false;
 
@@ -249,7 +249,7 @@ bool GuiRenderInterface::GenerateTexture(Rocket::Core::TextureHandle& texture_ha
 
     auto pb = make_unique<render::PixelBuffer>(source_dimensions.x, source_dimensions.y, source, PixelFormat::RGBA);
 
-    auto texture = gsvc().resourceMgr.getFactory().createTexture(std::move(pb), params);
+    auto texture = svc().resourceMgr.getFactory().createTexture(std::move(pb), params);
 
     m_textures[++m_textureId] = texture;
     texture_handle = m_textureId;
@@ -264,7 +264,7 @@ void GuiRenderInterface::ReleaseTexture(Rocket::Core::TextureHandle texture_hand
     // Erase from internal buffer.
     m_textures.erase(texture_handle);
     // Unload from resource manager.
-    gsvc().resourceMgr.unloadResource(guid);
+    svc().resourceMgr.unloadResource(guid);
 }
 
 } }

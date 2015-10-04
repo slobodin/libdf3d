@@ -23,6 +23,7 @@ class DF3D_DLL Node : public std::enable_shared_from_this<Node>, utils::NonCopya
 
 public:
     using NodeChildren = std::vector<shared_ptr<Node>>;
+    using Component = shared_ptr<components::NodeComponent>;
 
 protected:
     std::string m_nodeName;
@@ -31,7 +32,7 @@ protected:
     double m_lifeTime = 0.0;
     double m_maxLifeTime = -1.0;
 
-    shared_ptr<components::NodeComponent> m_components[components::COUNT];
+    Component m_components[components::COUNT];
 
     // TODO:
     // List of active components.
@@ -55,7 +56,7 @@ public:
     bool isVisible() const { return m_visible; }
 
     void setUserPointer(void *userPointer) { m_userPointer = userPointer; }
-    void *getUserPointer() const { return m_userPointer; }
+    void* getUserPointer() const { return m_userPointer; }
 
     void setMaxLifeTime(double lifeTime) { m_maxLifeTime = lifeTime; }
     double getMaxLifeTime() const { return m_maxLifeTime; }
@@ -82,22 +83,18 @@ public:
 
     shared_ptr<Node> clone() const;
 
-    const shared_ptr<components::NodeComponent> getComponent(components::ComponentType type) const { return m_components[type]; }
-    const shared_ptr<components::TransformComponent> transform();
-    const shared_ptr<components::MeshComponent> mesh();
-    const shared_ptr<components::LightComponent> light();
-    const shared_ptr<components::AudioComponent> audio();
-    const shared_ptr<components::ParticleSystemComponent> vfx();
-    const shared_ptr<components::PhysicsComponent> physics();
-    const shared_ptr<components::Sprite2DComponent> sprite2d();
+    shared_ptr<components::NodeComponent> getComponent(components::ComponentType type) const { return m_components[type]; }
+    shared_ptr<components::TransformComponent> transform();
+    shared_ptr<components::MeshComponent> mesh();
+    shared_ptr<components::LightComponent> light();
+    shared_ptr<components::AudioComponent> audio();
+    shared_ptr<components::ParticleSystemComponent> vfx();
+    shared_ptr<components::PhysicsComponent> physics();
+    shared_ptr<components::Sprite2DComponent> sprite2d();
     size_t attachedComponentsCount() const;
 
     void attachComponent(shared_ptr<components::NodeComponent> component);
     void detachComponent(components::ComponentType type);
-
-    static shared_ptr<Node> fromFile(const std::string &jsonDefinition);
-    static shared_ptr<Node> fromJson(const Json::Value &root);
-    static Json::Value toJson(shared_ptr<const Node> node);
 };
 
 } }

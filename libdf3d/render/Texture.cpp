@@ -66,7 +66,7 @@ void TextureCreationParams::setMipmapped(bool mipmapped)
 
 void TextureCreationParams::setAnisotropyLevel(int anisotropy)
 {
-    float maxSupportedAniso = gsvc().renderMgr.getRenderer()->getMaxAnisotropy();
+    float maxSupportedAniso = svc().renderMgr.getRenderer()->getMaxAnisotropy();
     if (anisotropy > maxSupportedAniso)
     {
         base::glog << "Anisotropy level is bigger than supported. Setting maximum." << base::logwarn;

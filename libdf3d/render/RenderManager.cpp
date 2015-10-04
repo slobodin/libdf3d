@@ -25,7 +25,7 @@ void RenderManager::createQuadRenderOperation()
     RenderPass passThrough;
     passThrough.setFrontFaceWinding(RenderPass::WindingOrder::CCW);
     passThrough.setFaceCullMode(RenderPass::FaceCullMode::BACK);
-    passThrough.setGpuProgram(gsvc().resourceMgr.getFactory().createRttQuadProgram());
+    passThrough.setGpuProgram(svc().resourceMgr.getFactory().createRttQuadProgram());
     passThrough.setBlendMode(RenderPass::BlendingMode::NONE);
     passThrough.enableDepthTest(false);
     passThrough.enableDepthWrite(false);
@@ -57,12 +57,12 @@ void RenderManager::createAmbientPassProps()
 {
     m_ambientPassProps = make_unique<RenderPass>();
 
-    m_ambientPassProps->setGpuProgram(gsvc().resourceMgr.getFactory().createAmbientPassProgram());
+    m_ambientPassProps->setGpuProgram(svc().resourceMgr.getFactory().createAmbientPassProgram());
 }
 
 void RenderManager::debugDrawPass()
 {
-    if (auto console = gsvc().console)
+    if (auto console = svc().console)
     {
         if (!console->getCVars().get<bool>(base::CVAR_DEBUG_DRAW))
             return;
@@ -73,7 +73,7 @@ void RenderManager::debugDrawPass()
         drawOperation(op);
 
     // Draw bullet physics debug.
-    gsvc().physicsMgr.drawDebug();
+    svc().physicsMgr.drawDebug();
 }
 
 void RenderManager::postProcessPass(shared_ptr<Material> material)
@@ -278,7 +278,7 @@ void RenderManager::drawGUI()
     m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)m_screenRt->getViewport().width(), (float)m_screenRt->getViewport().height(), 0.0f));
     m_renderer->setCameraMatrix(glm::mat4(1.0f));
 
-    gsvc().guiMgr.render();
+    svc().guiMgr.render();
 }
 
 void RenderManager::onFrameBegin()

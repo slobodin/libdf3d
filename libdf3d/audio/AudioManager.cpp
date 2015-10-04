@@ -57,7 +57,7 @@ AudioManager::~AudioManager()
 
 void AudioManager::update(float dt)
 {
-    auto cam = gsvc().sceneMgr.getCamera();
+    auto cam = svc().sceneMgr.getCamera();
     if (cam)
     {
         alListenerfv(AL_POSITION, glm::value_ptr(cam->transform()->getPosition()));

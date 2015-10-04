@@ -121,7 +121,7 @@ void DebugConsole::updateHistory(const std::string &commandResult)
 DebugConsole::DebugConsole()
 {
     Rocket::Core::Factory::RegisterElementInstancer("__debug_console_window", new Rocket::Core::ElementInstancerGeneric<ConsoleWindow>())->RemoveReference();
-    m_menu = dynamic_cast<ConsoleWindow *>(gsvc().guiMgr.getContext()->CreateDocument("__debug_console_window"));
+    m_menu = dynamic_cast<ConsoleWindow *>(svc().guiMgr.getContext()->CreateDocument("__debug_console_window"));
     m_menu->m_parent = this;
     m_menu->Hide();
 

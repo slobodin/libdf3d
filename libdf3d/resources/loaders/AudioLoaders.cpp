@@ -236,7 +236,7 @@ audio::AudioBuffer* AudioBufferFSLoader::createDummy()
 
 void AudioBufferFSLoader::decode(shared_ptr<FileDataSource> source)
 {
-    auto extension = gsvc().filesystem.getFileExtension(source->getPath());
+    auto extension = svc().filesystem.getFileExtension(source->getPath());
 
     if (extension == ".wav")
         m_pcmData = wav::loadPCM(source);

@@ -30,7 +30,7 @@ void RendererBackend::createWhiteTexture()
 
     auto pb = make_unique<render::PixelBuffer>(w, h, data, pf);
 
-    m_whiteTexture = gsvc().resourceMgr.getFactory().createTexture(std::move(pb), params);
+    m_whiteTexture = svc().resourceMgr.getFactory().createTexture(std::move(pb), params);
     m_whiteTexture->setResident(true);
 
     delete [] data;
@@ -63,7 +63,7 @@ void RendererBackend::loadResidentGpuPrograms()
 #include "render/embed_glsl/ambient_frag.h"
         ;
 
-    auto &factory = gsvc().resourceMgr.getFactory();
+    auto &factory = svc().resourceMgr.getFactory();
 
     using namespace resources;
 

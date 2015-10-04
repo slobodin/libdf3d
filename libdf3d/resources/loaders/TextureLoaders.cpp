@@ -154,12 +154,12 @@ void TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
     if (jsonRoot.empty())
         return;
 
-    auto srcPathDir = gsvc().filesystem.getFileDirectory(source->getPath());
+    auto srcPathDir = svc().filesystem.getFileDirectory(source->getPath());
 
     auto getSource = [&srcPathDir](const std::string &texturePath)
     {
-        auto fullPath = gsvc().filesystem.pathConcatenate(srcPathDir, texturePath);
-        return gsvc().filesystem.openFile(fullPath);
+        auto fullPath = svc().filesystem.pathConcatenate(srcPathDir, texturePath);
+        return svc().filesystem.openFile(fullPath);
     };
 
     m_pixelBuffers[render::CUBE_FACE_POSITIVE_X] = loadPixelBuffer(getSource(jsonRoot["positive_x"].asString()));

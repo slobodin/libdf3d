@@ -5,5 +5,11 @@ node components refactor
 services - make all pointers (mb?)
 rename df3dServices to Services
 tests for utils
-json utils separate
+json utils separate (namespace)
 separate utils!
+
+
+Tests for gram shcmidt ortogonolization
+
+
+attachdetach component -> createcomponent

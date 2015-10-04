@@ -80,7 +80,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
     DecodeRequest req;
     req.loader = loader;
     req.resource = resource;
-    req.source = gsvc().filesystem.openFile(guid);
+    req.source = svc().filesystem.openFile(guid);
 
     if (loader->loadingMode == ResourceLoadingMode::ASYNC)
         m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, req));

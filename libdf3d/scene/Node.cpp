@@ -8,7 +8,6 @@
 #include <components/PhysicsComponent.h>
 #include <components/Sprite2DComponent.h>
 #include <utils/Utils.h>
-#include <utils/JsonHelpers.h>
 
 namespace df3d { namespace scene {
 
@@ -204,37 +203,37 @@ shared_ptr<Node> Node::clone() const
     return result;
 }
 
-const shared_ptr<components::TransformComponent> Node::transform()
+shared_ptr<components::TransformComponent> Node::transform()
 {
     return static_pointer_cast<components::TransformComponent>(getComponent(components::TRANSFORM));
 }
 
-const shared_ptr<components::MeshComponent> Node::mesh()
+shared_ptr<components::MeshComponent> Node::mesh()
 {
     return static_pointer_cast<components::MeshComponent>(getComponent(components::MESH));
 }
 
-const shared_ptr<components::LightComponent> Node::light()
+shared_ptr<components::LightComponent> Node::light()
 {
     return static_pointer_cast<components::LightComponent>(getComponent(components::LIGHT));
 }
 
-const shared_ptr<components::AudioComponent> Node::audio()
+shared_ptr<components::AudioComponent> Node::audio()
 {
     return static_pointer_cast<components::AudioComponent>(getComponent(components::AUDIO));
 }
 
-const shared_ptr<components::ParticleSystemComponent> Node::vfx()
+shared_ptr<components::ParticleSystemComponent> Node::vfx()
 {
     return static_pointer_cast<components::ParticleSystemComponent>(getComponent(components::PARTICLE_EFFECT));
 }
 
-const shared_ptr<components::PhysicsComponent> Node::physics()
+shared_ptr<components::PhysicsComponent> Node::physics()
 {
     return static_pointer_cast<components::PhysicsComponent>(getComponent(components::PHYSICS));
 }
 
-const shared_ptr<components::Sprite2DComponent> Node::sprite2d()
+shared_ptr<components::Sprite2DComponent> Node::sprite2d()
 {
     return static_pointer_cast<components::Sprite2DComponent>(getComponent(components::SPRITE_2D));
 }
@@ -285,69 +284,6 @@ void Node::detachComponent(components::ComponentType type)
 
     component->onDetached();
     m_components[type].reset();
-}
-
-shared_ptr<Node> Node::fromFile(const std::string &jsonDefinition)
-{
-    auto root = utils::jsonLoadFromFile(jsonDefinition);
-
-    return fromJson(root);
-}
-
-shared_ptr<Node> Node::fromJson(const Json::Value &root)
-{
-    if (root.empty())
-    {
-        base::glog << "Failed to init scene node from json node" << base::logwarn;
-        return nullptr;
-    }
-
-    auto externalDataJson = root["external_data"];
-    if (!externalDataJson.empty())
-        return fromJson(utils::jsonLoadFromFile(externalDataJson.asCString()));
-
-    auto objName = root["name"].asString();
-    const auto &componentsJson = root["components"];
-
-    auto result = make_shared<scene::Node>(objName);
-    // FIXME: first attach transform, then other componets!
-    for (const auto &component : componentsJson)
-        result->attachComponent(components::NodeComponent::fromJson(component));
-
-    const auto &childrenJson = root["children"];
-    for (Json::UInt objIdx = 0; objIdx < childrenJson.size(); ++objIdx)
-    {
-        const auto &childJson = childrenJson[objIdx];
-        result->addChild(fromJson(childJson));
-    }
-
-    return result;
-}
-
-Json::Value Node::toJson(shared_ptr<const Node> node)
-{
-    Json::Value result(Json::objectValue);
-    Json::Value componentsJson(Json::arrayValue);
-    Json::Value childrenJson(Json::arrayValue);
-
-    result["name"] = node->getName();
-
-    for (size_t i = 0; i < components::COUNT; i++)
-    {
-        auto comp = node->getComponent(static_cast<components::ComponentType>(i));
-        if (!comp)
-            continue;
-
-        componentsJson.append(components::NodeComponent::toJson(comp));
-    }
-
-    for (auto it = node->cbegin(); it != node->cend(); it++)
-        childrenJson.append(toJson(*it));
-
-    result["components"] = componentsJson;
-    result["children"] = childrenJson;
-
-    return result;
 }
 
 } }

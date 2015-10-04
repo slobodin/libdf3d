@@ -38,7 +38,7 @@ Sprite2DComponent::Sprite2DComponent(const std::string &pathToTexture)
 {
     m_op.passProps = make_shared<render::RenderPass>();
     m_op.passProps->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
-    m_op.passProps->setGpuProgram(gsvc().resourceMgr.getFactory().createColoredGpuProgram());
+    m_op.passProps->setGpuProgram(svc().resourceMgr.getFactory().createColoredGpuProgram());
     m_op.passProps->enableDepthTest(false);
     m_op.passProps->enableDepthWrite(false);
     m_op.passProps->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
@@ -113,7 +113,7 @@ void Sprite2DComponent::useTexture(const std::string &pathToTexture)
     params.setMipmapped(false);
     params.setAnisotropyLevel(render::NO_ANISOTROPY);
 
-    auto texture = gsvc().resourceMgr.getFactory().createTexture(pathToTexture, params, ResourceLoadingMode::IMMEDIATE);
+    auto texture = svc().resourceMgr.getFactory().createTexture(pathToTexture, params, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->isInitialized())
     {
         base::glog << "Failed to init Sprite2DComponent with texture" << pathToTexture << base::logwarn;

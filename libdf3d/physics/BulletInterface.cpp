@@ -71,7 +71,7 @@ void BulletDebugDraw::flushRenderOperations()
     op.vertexData->alloc(m_vertexData, render::GpuBufferUsageType::STREAM);
     m_vertexData.clear();
 
-    gsvc().renderMgr.drawOperation(op);
+    svc().renderMgr.drawOperation(op);
 }
 
 } }

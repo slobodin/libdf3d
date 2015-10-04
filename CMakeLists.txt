@@ -52,6 +52,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Service.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/ThreadPool.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/AudioComponent.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/components/ComponentFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/DebugDrawComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/LightComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/MeshComponent.h
@@ -120,6 +121,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/NodeFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManagerListener.h
@@ -151,6 +153,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Service.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/ThreadPool.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/AudioComponent.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/components/ComponentFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/DebugDrawComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/LightComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/MeshComponent.cpp
@@ -213,6 +216,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/NodeFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/AABB.cpp
@@ -320,7 +324,7 @@ include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${OPENAL_INCLUDE_DIR})
 
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200 /wd\"4251\" /wd\"4457\" /wd\"4458\"")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd\"4251\" /wd\"4457\" /wd\"4458\"")
 
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -DGLEW_STATIC)
 endif()

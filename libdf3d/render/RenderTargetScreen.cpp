@@ -14,7 +14,7 @@ RenderTargetScreen::RenderTargetScreen(const Viewport &vp)
 
 void RenderTargetScreen::bind()
 {
-    gsvc().renderMgr.getRenderer()->setViewport(m_viewport);
+    svc().renderMgr.getRenderer()->setViewport(m_viewport);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
