@@ -5,6 +5,7 @@ node components refactor
 services - make all pointers (mb?)
 rename df3dServices to Services
 tests for utils
+
 json utils separate (namespace)
 separate utils!
 math utils into a file
@@ -20,4 +21,13 @@ attachdetach component -> createcomponent
 group sorted geometry into batches in order to check state changes and to support instancing.
 
 app_startup.exe + gamemodule + df3d.dll
+
+Tests:
+utils
+filesystem
+
+m_initialized in resourcemgr
+
+
+binding params in shader, all generalized, no emissive etc.
 

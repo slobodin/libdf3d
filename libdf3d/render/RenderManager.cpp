@@ -48,6 +48,7 @@ void RenderManager::createRenderTargets(const Viewport &vp)
 
     m_textureRt = make_shared<RenderTargetTexture>(vp);
 
+    // FIXME: use buffer pingponging.
     for (size_t i = 0; i < MAX_POSPROCESS_PASSES; i++)
         // Doesn't actually create gpu buffer. Created when it's being used.
         m_postProcessPassBuffers[i] = make_shared<RenderTargetTexture>(vp);
