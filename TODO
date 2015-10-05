@@ -31,3 +31,8 @@ m_initialized in resourcemgr
 
 binding params in shader, all generalized, no emissive etc.
 
+buffer pingponging
+scene rendering policy
+
+update libRocket
+
