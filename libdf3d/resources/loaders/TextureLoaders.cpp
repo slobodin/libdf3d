@@ -110,16 +110,14 @@ render::Texture2D* Texture2DFSLoader::createDummy()
     return new render::Texture2D(m_params);
 }
 
-void Texture2DFSLoader::decode(shared_ptr<FileDataSource> source)
+bool Texture2DFSLoader::decode(shared_ptr<FileDataSource> source)
 {
     m_pixelBuffer = loadPixelBuffer(source);
+    return m_pixelBuffer != nullptr;
 }
 
 void Texture2DFSLoader::onDecoded(Resource *resource)
 {
-    if (!m_pixelBuffer)
-        return;
-
     auto texture = static_cast<render::Texture2D*>(resource);
     texture->createGLTexture(*m_pixelBuffer);
 
@@ -145,14 +143,14 @@ render::TextureCube* TextureCubeFSLoader::createDummy()
     return new render::TextureCube(m_params);
 }
 
-void TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
+bool TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
 {
     std::string buffer(source->getSize(), 0);
     source->getRaw(&buffer[0], source->getSize());
 
     auto jsonRoot = utils::jsonLoadFromSource(buffer);
     if (jsonRoot.empty())
-        return;
+        return false;
 
     auto srcPathDir = svc().filesystem.getFileDirectory(source->getPath());
 
@@ -168,6 +166,14 @@ void TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
     m_pixelBuffers[render::CUBE_FACE_NEGATIVE_Y] = loadPixelBuffer(getSource(jsonRoot["negative_y"].asString()));
     m_pixelBuffers[render::CUBE_FACE_POSITIVE_Z] = loadPixelBuffer(getSource(jsonRoot["positive_z"].asString()));
     m_pixelBuffers[render::CUBE_FACE_NEGATIVE_Z] = loadPixelBuffer(getSource(jsonRoot["negative_z"].asString()));
+
+    for (auto &pb : m_pixelBuffers)
+    {
+        if (!pb)
+            return false;
+    }
+
+    return true;
 }
 
 void TextureCubeFSLoader::onDecoded(Resource *resource)

@@ -65,8 +65,6 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
             m_trianglesCount += s.getVertexData().getVerticesCount() / 3;
         }
     }
-
-    m_initialized = true;
 }
 
 MeshData::MeshData()

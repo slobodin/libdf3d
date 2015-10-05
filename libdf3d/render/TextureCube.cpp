@@ -56,9 +56,7 @@ bool TextureCube::createGLTexture(unique_ptr<PixelBuffer> images[CUBE_FACES_COUN
 
     printOpenGLError();
 
-    m_initialized = true;
-
-    return m_initialized;
+    return true;
 }
 
 void TextureCube::deleteGLTexture()

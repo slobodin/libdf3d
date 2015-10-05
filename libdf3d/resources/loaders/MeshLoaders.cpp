@@ -41,7 +41,7 @@ render::MeshData* MeshDataFSLoader::createDummy()
     return new render::MeshData();
 }
 
-void MeshDataFSLoader::decode(shared_ptr<FileDataSource> source)
+bool MeshDataFSLoader::decode(shared_ptr<FileDataSource> source)
 {
     auto extension = svc().filesystem.getFileExtension(source->getPath());
 
@@ -49,6 +49,8 @@ void MeshDataFSLoader::decode(shared_ptr<FileDataSource> source)
         m_mesh = MeshLoader_obj().load(source);
     else if (extension == ".dfmesh")
         m_mesh = MeshLoader_dfmesh().load(source);
+
+    return m_mesh != nullptr;
 }
 
 void MeshDataFSLoader::onDecoded(Resource *resource)

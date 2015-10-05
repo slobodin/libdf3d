@@ -3,9 +3,12 @@
 namespace df3d { namespace resources {
 
 class FileDataSource;
+class ResourceManager;
 
 class DF3D_DLL Resource : utils::NonCopyable
 {
+    friend class ResourceManager;
+
 protected:
     ResourceGUID m_guid;
 
@@ -48,9 +51,8 @@ public:
     //! Creates resource stub which can be immediately used while the resource is actually being decoded.
     virtual Resource* createDummy() = 0;
     //! Performs resource decoding from given source. Must be thread safe.
-    virtual void decode(shared_ptr<FileDataSource> source) = 0;
+    virtual bool decode(shared_ptr<FileDataSource> source) = 0;
     //! Resource manager calls this when decoding is complete. Called from main thread only. 
-    //! Must set m_initialized when initialization was succeed.
     virtual void onDecoded(Resource *resource) = 0;
 };
 

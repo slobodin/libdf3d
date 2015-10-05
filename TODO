@@ -23,8 +23,6 @@ Tests:
 utils
 filesystem
 
-m_initialized in resourcemgr
-
 
 binding params in shader, all generalized, no emissive etc.
 

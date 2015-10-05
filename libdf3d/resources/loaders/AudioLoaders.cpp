@@ -234,7 +234,7 @@ audio::AudioBuffer* AudioBufferFSLoader::createDummy()
     return new audio::AudioBuffer();
 }
 
-void AudioBufferFSLoader::decode(shared_ptr<FileDataSource> source)
+bool AudioBufferFSLoader::decode(shared_ptr<FileDataSource> source)
 {
     auto extension = svc().filesystem.getFileExtension(source->getPath());
 
@@ -242,6 +242,8 @@ void AudioBufferFSLoader::decode(shared_ptr<FileDataSource> source)
         m_pcmData = wav::loadPCM(source);
     else if (extension == ".ogg")
         m_pcmData = ogg::loadPCM(source);
+
+    return m_pcmData != nullptr;
 }
 
 void AudioBufferFSLoader::onDecoded(Resource *resource)
@@ -252,8 +254,6 @@ void AudioBufferFSLoader::onDecoded(Resource *resource)
 
     // Explicitly remove PCM buffer in order to prevent caching.
     m_pcmData.reset();
-
-    audioBuffer->m_initialized = true;
 
     printOpenALError();
 }

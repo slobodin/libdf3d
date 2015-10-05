@@ -533,14 +533,14 @@ render::MaterialLib* MaterialLibFSLoader::createDummy()
     return new render::MaterialLib();
 }
 
-void MaterialLibFSLoader::decode(shared_ptr<FileDataSource> source)
+bool MaterialLibFSLoader::decode(shared_ptr<FileDataSource> source)
 {
     std::string filedata(source->getSize(), 0);
     source->getRaw(&filedata[0], source->getSize());
 
     std::istringstream input(std::move(filedata));
 
-    MaterialLibParser(m_path).parse(input, m_materials);
+    return MaterialLibParser(m_path).parse(input, m_materials);
 }
 
 void MaterialLibFSLoader::onDecoded(Resource *resource)
@@ -549,8 +549,6 @@ void MaterialLibFSLoader::onDecoded(Resource *resource)
 
     for (const auto &material : m_materials)
         mtlLib->appendMaterial(material);
-
-    mtlLib->m_initialized = !m_materials.empty();
 }
 
 } }

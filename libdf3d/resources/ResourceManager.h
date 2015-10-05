@@ -34,6 +34,8 @@ private:
         shared_ptr<FileDataSource> source;
         shared_ptr<Resource> resource;
         shared_ptr<FSResourceLoader> loader;
+
+        bool result = false;
     };
 
     // Thread pool for resources decoding.

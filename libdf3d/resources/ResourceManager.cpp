@@ -17,7 +17,9 @@ void ResourceManager::doRequest(DecodeRequest req)
 {
     base::glog << "ASYNC decoding" << req.source->getPath() << base::logdebug;
 
-    req.loader->decode(req.source);
+    req.result = req.loader->decode(req.source);
+    if (!req.result)
+        base::glog << "ASYNC decoding failed" << base::logwarn;
 
     m_decodedResources.push(req);
 }
@@ -38,6 +40,13 @@ shared_ptr<Resource> ResourceManager::loadManual(shared_ptr<ManualResourceLoader
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     auto resource = shared_ptr<Resource>(loader->load());
+    if (!resource)
+    {
+        base::glog << "Failed to manual load a resource" << base::logwarn;
+        return nullptr;
+    }
+
+    resource->m_initialized = true;
 
     // FIXME: maybe check in cache and return existing instead?
 #ifdef _DEBUG
@@ -88,9 +97,16 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
     {
         base::glog << "Decoding" << req.source->getPath() << base::logdebug;
 
-        loader->decode(req.source);
-
-        loader->onDecoded(resource.get());
+        req.result = loader->decode(req.source);
+        if (req.result)
+        {
+            loader->onDecoded(resource.get());
+            resource->m_initialized = true;
+        }
+        else
+        {
+            base::glog << "Failed to decode a resource" << base::logwarn;
+        }
 
         for (auto listener : m_listeners)
             listener->onLoadFromFileSystemRequestComplete(resource->getGUID());
@@ -118,8 +134,11 @@ void ResourceManager::poll()
     while (!m_decodedResources.empty())
     {
         auto request = m_decodedResources.pop();
-
-        request.loader->onDecoded(request.resource.get());
+        if (request.result)
+        {
+            request.loader->onDecoded(request.resource.get());
+            request.resource->m_initialized = true;
+        }
 
         for (auto listener : m_listeners)
             listener->onLoadFromFileSystemRequestComplete(request.resource->getGUID());

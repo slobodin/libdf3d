@@ -115,7 +115,7 @@ GpuProgram::GpuProgram(const std::vector<shared_ptr<Shader>> &shaders)
     assert(!shaders.empty());
 
     if (compileShaders())
-        m_initialized = attachShaders();
+        attachShaders();
 }
 
 GpuProgram::~GpuProgram()
