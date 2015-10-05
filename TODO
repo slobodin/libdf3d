@@ -15,3 +15,6 @@ Tests for gram shcmidt ortogonolization
 
 
 attachdetach component -> createcomponent
+
+
+group sorted geometry into batches in order to check state changes and to support instancing.
