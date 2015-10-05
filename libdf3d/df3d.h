@@ -7,7 +7,9 @@
 
 #include <utils/ConcurrentQueue.h>
 #include <utils/Utils.h>
-#include <utils/JsonHelpers.h>
+#include <utils/JsonUtils.h>
+#include <utils/MathUtils.h>
+#include <utils/MeshUtils.h>
 #include <utils/SceneSerializer.h>
 #include <utils/Dict.h>
 

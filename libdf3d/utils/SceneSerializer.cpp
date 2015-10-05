@@ -1,6 +1,6 @@
 #include "SceneSerializer.h"
 
-#include "JsonHelpers.h"
+#include "JsonUtils.h"
 #include <scene/Scene.h>
 #include <scene/Node.h>
 #include <scene/Camera.h>

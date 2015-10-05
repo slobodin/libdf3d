@@ -1,7 +1,7 @@
 #include "LightComponentSerializer.h"
 
 #include <components/LightComponent.h>
-#include <utils/JsonHelpers.h>
+#include <utils/JsonUtils.h>
 
 namespace df3d { namespace components { namespace serializers {
 

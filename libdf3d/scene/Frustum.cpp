@@ -1,7 +1,7 @@
 #include "Frustum.h"
 
 #include "bounding_volumes/BoundingSphere.h"
-#include <utils/Utils.h>
+#include <utils/MathUtils.h>
 
 namespace df3d { namespace scene {
 
@@ -36,7 +36,7 @@ bool Frustum::sphereInFrustum(const BoundingSphere &sphere) const
     auto center = sphere.getCenter();
     auto radius = sphere.getRadius();
 
-    for (int i = 0; i < 6; i++) 
+    for (int i = 0; i < 6; i++)
     {
         auto dist = utils::math::signedDistanceToPlane(m_planes[i], center);
         if (dist < -radius)

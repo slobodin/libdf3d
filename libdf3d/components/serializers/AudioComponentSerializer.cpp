@@ -2,7 +2,7 @@
 
 #include <components/AudioComponent.h>
 #include <audio/AudioBuffer.h>
-#include <utils/JsonHelpers.h>
+#include <utils/JsonUtils.h>
 
 namespace df3d { namespace components { namespace serializers {
 

@@ -1,6 +1,6 @@
 #include "PhysicsComponentSerializer.h"
 
-#include <utils/JsonHelpers.h>
+#include <utils/JsonUtils.h>
 #include <components/PhysicsComponent.h>
 
 namespace df3d { namespace components { namespace serializers {

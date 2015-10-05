@@ -2,7 +2,7 @@
 
 #include <components/ComponentFactory.h>
 #include <scene/Node.h>
-#include <utils/JsonHelpers.h>
+#include <utils/JsonUtils.h>
 
 namespace df3d { namespace scene {
 

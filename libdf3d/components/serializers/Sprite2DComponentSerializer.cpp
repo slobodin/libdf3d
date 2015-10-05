@@ -1,7 +1,7 @@
 #include "Sprite2DComponentSerializer.h"
 
 #include <components/Sprite2DComponent.h>
-#include <utils/JsonHelpers.h>
+#include <utils/JsonUtils.h>
 
 namespace df3d { namespace components { namespace serializers {
 

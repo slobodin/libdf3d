@@ -2,7 +2,7 @@
 
 #include <base/Service.h>
 #include <resources/FileDataSource.h>
-#include <utils/JsonHelpers.h>
+#include <utils/JsonUtils.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #ifndef STB_DO_ERROR_PRINT

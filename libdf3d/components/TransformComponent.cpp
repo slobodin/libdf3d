@@ -1,7 +1,7 @@
 #include "TransformComponent.h"
 
 #include <scene/Node.h>
-#include <utils/JsonHelpers.h>
+#include <utils/JsonUtils.h>
 #include "serializers/TransformComponentSerializer.h"
 
 namespace df3d { namespace components {

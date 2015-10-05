@@ -1,6 +1,6 @@
 #include "LightComponent.h"
 
-#include <utils/JsonHelpers.h>
+#include <utils/JsonUtils.h>
 #include <render/RenderQueue.h>
 #include <scene/Node.h>
 #include <components/TransformComponent.h>

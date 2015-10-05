@@ -13,7 +13,7 @@
 #include <audio/AudioManager.h>
 #include <render/RenderStats.h>
 #include <render/RenderTargetScreen.h>
-#include <utils/JsonHelpers.h>
+#include <utils/JsonUtils.h>
 #include <particlesys/SparkInterface.h>
 
 #if defined(DF3D_WINDOWS)

@@ -1,7 +1,7 @@
 #include "Scene.h"
 
 #include <utils/SceneSerializer.h>
-#include <utils/JsonHelpers.h>
+#include <utils/JsonUtils.h>
 #include <utils/Utils.h>
 #include <scene/Node.h>
 #include <render/RenderStats.h>

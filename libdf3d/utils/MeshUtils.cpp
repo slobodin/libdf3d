@@ -1,9 +1,9 @@
 #include "MeshUtils.h"
 
-#include <utils/Utils.h>
+#include <utils/MathUtils.h>
 #include <render/MeshData.h>
 
-namespace df3d { namespace utils { namespace mesh { 
+namespace df3d { namespace utils { namespace mesh {
 
 void indexize()
 {
@@ -77,7 +77,7 @@ void computeNormals(render::SubMesh &submesh)
             auto v1 = vertexData.getVertex(vindex0);
             auto v2 = vertexData.getVertex(vindex1);
             auto v3 = vertexData.getVertex(vindex2);
-  
+
             polysTouchVertex[vindex0]++;
             polysTouchVertex[vindex1]++;
             polysTouchVertex[vindex2]++;

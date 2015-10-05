@@ -1,7 +1,7 @@
 #include "ParticleSystemComponentSerializer.h"
 
 #include <components/ParticleSystemComponent.h>
-#include <utils/JsonHelpers.h>
+#include <utils/JsonUtils.h>
 #include <utils/Utils.h>
 #include <particlesys/SparkInterface.h>
 #include <render/Texture2D.h>
