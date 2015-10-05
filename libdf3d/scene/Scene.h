@@ -7,13 +7,10 @@ FWD_MODULE_CLASS(render, RenderStats)
 namespace df3d { namespace scene {
 
 class Node;
-class SceneManager;
 class Camera;
 
 class DF3D_DLL Scene
 {
-    friend class SceneManager;
-
     shared_ptr<render::Material> m_postProcessMaterial;
     shared_ptr<Node> m_root;
     shared_ptr<Camera> m_camera;

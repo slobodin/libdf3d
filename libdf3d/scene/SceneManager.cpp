@@ -112,14 +112,14 @@ shared_ptr<Scene> SceneManager::getCurrentScene() const
 void SceneManager::setCamera(shared_ptr<Camera> camera)
 {
     if (m_currentScene)
-        m_currentScene->m_camera = camera;
+        m_currentScene->setCamera(camera);
     else
         base::glog << "Can not set camera to an empty scene" << base::logwarn;
 }
 
 shared_ptr<Camera> SceneManager::getCamera() const
 {
-    return m_currentScene ? m_currentScene->m_camera : nullptr;
+    return m_currentScene ? m_currentScene->getCamera() : nullptr;
 }
 
 void SceneManager::removeNodeFromScene(shared_ptr<Node> node)

@@ -15,9 +15,6 @@ SceneSerializzer - rename or delete
 Tests for gram shcmidt ortogonolization
 
 
-attachdetach component -> createcomponent
-
-
 group sorted geometry into batches in order to check state changes and to support instancing.
 
 app_startup.exe + gamemodule + df3d.dll
