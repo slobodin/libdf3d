@@ -34,3 +34,23 @@ serializers(node, scene, components loaders) into separate module
 
 
 remove unused code
+
+
+
+PBR + remove embed shaders
+https://seblagarde.wordpress.com/2011/08/17/hello-world/
+https://seblagarde.wordpress.com/2011/08/17/feeding-a-physical-based-lighting-mode/
+https://www.unrealengine.com/blog/physically-based-shading-on-mobile
+http://renderwonk.com/publications/s2010-shading-course/
+Artist: http://www.marmoset.co/toolbag/learn/pbr-practice
+http://www.codinglabs.net/article_physically_based_rendering.aspx
+http://www.merl.com/brdf/
+gamma correction: http://http.developer.nvidia.com/GPUGems3/gpugems3_ch24.html
+https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf
+http://blogs.unity3d.com/2015/02/18/working-with-physically-based-shading-a-practical-approach/
+https://docs.unrealengine.com/latest/INT/Engine/Rendering/Materials/PhysicallyBased/index.html
+unreal impl: http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
+
+
+
+
