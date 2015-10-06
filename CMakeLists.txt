@@ -52,7 +52,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Service.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/ThreadPool.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/AudioComponent.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/ComponentFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/DebugDrawComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/LightComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/MeshComponent.h
@@ -62,15 +61,18 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/Sprite2DComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TextMeshComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TransformComponent.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/AudioComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/DebugDrawComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/LightComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/MeshComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ParticleSystemComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/PhysicsComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/Sprite2DComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/TransformComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/AudioComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/ComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/DebugDrawComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/LightComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/MeshComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/ParticleSystemComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/PhysicsComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/Sprite2DComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/TransformComponentSerializer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/ComponentFactory.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/NodeFactory.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/SceneFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/DebugOverlayWindow.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.h
@@ -121,7 +123,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/NodeFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManagerListener.h
@@ -137,7 +138,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MathUtils.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshUtils.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/NonCopyable.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.h
 )
 
@@ -154,7 +154,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Service.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/ThreadPool.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/AudioComponent.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/ComponentFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/DebugDrawComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/LightComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/MeshComponent.cpp
@@ -164,15 +163,18 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/components/Sprite2DComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TextMeshComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/TransformComponent.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/AudioComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/DebugDrawComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/LightComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/MeshComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/ParticleSystemComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/PhysicsComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/Sprite2DComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/components/serializers/TransformComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/AudioComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/ComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/DebugDrawComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/LightComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/MeshComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/ParticleSystemComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/PhysicsComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/Sprite2DComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/TransformComponentSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/ComponentFactory.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/NodeFactory.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/SceneFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/DebugOverlayWindow.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.cpp
@@ -217,7 +219,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/NodeFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/AABB.cpp
@@ -229,7 +230,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MathUtils.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshUtils.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/SceneSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.cpp
 )
 

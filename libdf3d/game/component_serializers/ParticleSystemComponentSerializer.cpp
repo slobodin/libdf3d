@@ -9,7 +9,7 @@
 #include <render/RenderPass.h>
 #include <base/Service.h>
 
-namespace df3d { namespace components { namespace serializers {
+namespace df3d { namespace component_serializers {
 
 std::map<std::string, SPK::Param> StringToSparkParam =
 {
@@ -382,7 +382,7 @@ SPK::Ref<particlesys::ParticleSystemRenderer> createRenderer(const Json::Value &
 
         std::string pathToTexture;
         rendererJson["texture"] >> pathToTexture;
-        
+
         SPK::TextureMode textureMode = SPK::TEXTURE_MODE_NONE;
         if (!pathToTexture.empty())
         {
@@ -444,7 +444,7 @@ SPK::Ref<particlesys::ParticleSystemRenderer> createRenderer(const Json::Value &
     return renderer;
 }
 
-shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
+Component ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
 {
     using namespace utils;
 
@@ -539,7 +539,7 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
 
     auto worldTransformed = jsonGetValueWithDefault(root["worldTransformed"], true);
 
-    auto result = make_shared<ParticleSystemComponent>();
+    auto result = make_shared<components::ParticleSystemComponent>();
 
     result->setWorldTransformed(worldTransformed);
     result->setSystemLifeTime(jsonGetValueWithDefault(root["systemLifeTime"], -1.0f));
@@ -552,11 +552,11 @@ shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json
     return result;
 }
 
-Json::Value ParticleSystemComponentSerializer::toJson(shared_ptr<const NodeComponent> component)
+Json::Value ParticleSystemComponentSerializer::toJson(Component component)
 {
     assert(false);
     // TODO:
     return Json::Value();
 }
 
-} } }
+} }

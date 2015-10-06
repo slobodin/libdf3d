@@ -4,16 +4,16 @@
 #include <audio/AudioBuffer.h>
 #include <utils/JsonUtils.h>
 
-namespace df3d { namespace components { namespace serializers {
+namespace df3d { namespace component_serializers {
 
-shared_ptr<NodeComponent> AudioComponentSerializer::fromJson(const Json::Value &root)
+Component AudioComponentSerializer::fromJson(const Json::Value &root)
 {
-    auto result = make_shared<AudioComponent>(root["path"].asString());
+    auto result = make_shared<components::AudioComponent>(root["path"].asString());
 
     result->setPitch(utils::jsonGetValueWithDefault(root["pitch"], result->getPitch()));
     result->setGain(utils::jsonGetValueWithDefault(root["gain"], result->getGain()));
     result->setLooped(utils::jsonGetValueWithDefault(root["looped"], result->isLooped()));
-    
+
     auto startPlay = utils::jsonGetValueWithDefault(root["autoplay"], false);
     if (startPlay)
         result->play();
@@ -21,11 +21,11 @@ shared_ptr<NodeComponent> AudioComponentSerializer::fromJson(const Json::Value &
     return result;
 }
 
-Json::Value AudioComponentSerializer::toJson(shared_ptr<const NodeComponent> component)
+Json::Value AudioComponentSerializer::toJson(Component component)
 {
     Json::Value result;
 
-    auto comp = static_cast<const AudioComponent*>(component.get());
+    auto comp = static_cast<const components::AudioComponent*>(component.get());
 
     result["path"] = comp->getBuffer()->getFilePath();
     result["pitch"] = comp->getPitch();
@@ -36,4 +36,4 @@ Json::Value AudioComponentSerializer::toJson(shared_ptr<const NodeComponent> com
 }
 
 
-} } }
+} }

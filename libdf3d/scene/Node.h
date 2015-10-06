@@ -23,7 +23,6 @@ class DF3D_DLL Node : public std::enable_shared_from_this<Node>, utils::NonCopya
 
 public:
     using NodeChildren = std::vector<shared_ptr<Node>>;
-    using Component = shared_ptr<components::NodeComponent>;
 
 protected:
     std::string m_nodeName;

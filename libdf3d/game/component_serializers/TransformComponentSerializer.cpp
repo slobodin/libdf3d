@@ -3,11 +3,11 @@
 #include <components/TransformComponent.h>
 #include <utils/JsonUtils.h>
 
-namespace df3d { namespace components { namespace serializers {
+namespace df3d { namespace component_serializers {
 
-shared_ptr<NodeComponent> TransformComponentSerializer::fromJson(const Json::Value &root)
+Component TransformComponentSerializer::fromJson(const Json::Value &root)
 {
-    auto result = make_shared<TransformComponent>();
+    auto result = make_shared<components::TransformComponent>();
 
     result->setPosition(utils::jsonGetValueWithDefault(root["position"], glm::vec3()));
     result->setOrientation(utils::jsonGetValueWithDefault(root["rotation"], glm::vec3()));
@@ -16,11 +16,11 @@ shared_ptr<NodeComponent> TransformComponentSerializer::fromJson(const Json::Val
     return result;
 }
 
-Json::Value TransformComponentSerializer::toJson(shared_ptr<const NodeComponent> component)
+Json::Value TransformComponentSerializer::toJson(Component component)
 {
     Json::Value result;
 
-    auto comp = (TransformComponent*)component.get();
+    auto comp = (components::TransformComponent*)component.get();
 
     result["position"] = utils::glmToJson(comp->getPosition());
     result["rotation"] = utils::glmToJson(comp->getRotation());
@@ -29,4 +29,4 @@ Json::Value TransformComponentSerializer::toJson(shared_ptr<const NodeComponent>
     return result;
 }
 
-} } }
+} }

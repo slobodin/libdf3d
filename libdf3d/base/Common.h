@@ -69,6 +69,7 @@ namespace df3d {
 // Common typedefs.
 
 namespace scene { class Node; }
+namespace components { class NodeComponent; }
 
 enum class ResourceLoadingMode
 {
@@ -88,6 +89,7 @@ enum class PixelFormat
 using ResourceGUID = std::string;
 using SceneNode = shared_ptr<df3d::scene::Node>;
 using WeakSceneNode = weak_ptr<df3d::scene::Node>;
+using Component = shared_ptr<df3d::components::NodeComponent>;
 using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
 
 inline float IntervalBetween(const TimePoint &t1, const TimePoint &t2)

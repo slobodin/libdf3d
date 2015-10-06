@@ -9,27 +9,27 @@
 #include "DebugDrawComponentSerializer.h"
 #include "Sprite2DComponentSerializer.h"
 
-namespace df3d { namespace components { namespace serializers {
+namespace df3d { namespace component_serializers {
 
-unique_ptr<ComponentSerializer> create(ComponentType type)
+unique_ptr<ComponentSerializer> create(components::ComponentType type)
 {
     switch (type)
     {
-    case TRANSFORM:
+    case components::TRANSFORM:
         return make_unique<TransformComponentSerializer>();
-    case MESH:
+    case components::MESH:
         return make_unique<MeshComponentSerializer>();
-    case PARTICLE_EFFECT:
+    case components::PARTICLE_EFFECT:
         return make_unique<ParticleSystemComponentSerializer>();
-    case AUDIO:
+    case components::AUDIO:
         return make_unique<AudioComponentSerializer>();
-    case PHYSICS:
+    case components::PHYSICS:
         return make_unique<PhysicsComponentSerializer>();
-    case LIGHT:
+    case components::LIGHT:
         return make_unique<LightComponentSerializer>();
-    case DEBUG_DRAW:
+    case components::DEBUG_DRAW:
         return make_unique<DebugDrawComponentSerializer>();
-    case SPRITE_2D:
+    case components::SPRITE_2D:
         return make_unique<Sprite2DComponentSerializer>();
     default:
         break;
@@ -38,4 +38,4 @@ unique_ptr<ComponentSerializer> create(ComponentType type)
     return nullptr;
 }
 
-} } }
+} }

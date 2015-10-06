@@ -5,7 +5,6 @@
 #include <scene/Node.h>
 #include <components/MeshComponent.h>
 #include <components/TransformComponent.h>
-#include <components/serializers/PhysicsComponentSerializer.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/MeshData.h>
 #include <base/Service.h>

@@ -10,7 +10,6 @@
 #include <utils/JsonUtils.h>
 #include <utils/MathUtils.h>
 #include <utils/MeshUtils.h>
-#include <utils/SceneSerializer.h>
 #include <utils/Dict.h>
 
 #include <base/Service.h>
@@ -28,10 +27,8 @@
 #include <components/TransformComponent.h>
 #include <components/TextMeshComponent.h>
 #include <components/Sprite2DComponent.h>
-#include <components/ComponentFactory.h>
 
 #include <scene/Node.h>
-#include <scene/NodeFactory.h>
 #include <scene/Frustum.h>
 #include <scene/Camera.h>
 #include <scene/Scene.h>
@@ -61,3 +58,7 @@
 #include <btBulletDynamicsCommon.h>
 
 #include <audio/AudioManager.h>
+
+#include <game/ComponentFactory.h>
+#include <game/NodeFactory.h>
+#include <game/SceneFactory.h>

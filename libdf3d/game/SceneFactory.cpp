@@ -1,15 +1,15 @@
-#include "SceneSerializer.h"
+#include "SceneFactory.h"
 
-#include "JsonUtils.h"
+#include <utils/JsonUtils.h>
 #include <scene/Scene.h>
 #include <scene/Node.h>
 #include <scene/Camera.h>
-#include <scene/NodeFactory.h>
 #include <components/TransformComponent.h>
 #include <base/Service.h>
 #include <render/MaterialLib.h>
+#include <game/NodeFactory.h>
 
-namespace df3d { namespace utils { namespace serializers {
+namespace df3d {
 
 void parseFog(const Json::Value &fogNode, shared_ptr<scene::Scene> scene)
 {
@@ -17,7 +17,7 @@ void parseFog(const Json::Value &fogNode, shared_ptr<scene::Scene> scene)
         return;
 
     auto density = fogNode["density"].asFloat();
-    auto color = jsonGetValueWithDefault(fogNode["color"], scene->getFogColor());
+    auto color = utils::jsonGetValueWithDefault(fogNode["color"], scene->getFogColor());
 
     scene->setFog(density, color);
 }
@@ -34,27 +34,27 @@ void parseObjects(const Json::Value &objectsNode, shared_ptr<scene::Scene> sc)
         return;
 
     for (Json::UInt objIdx = 0; objIdx < objectsNode.size(); ++objIdx)
-        sc->addChild(scene::createNode(objectsNode[objIdx]));
+        sc->addChild(nodeFromJson(objectsNode[objIdx]));
 }
 
 Json::Value saveObjects(shared_ptr<const scene::Scene> scene)
 {
     Json::Value res(Json::arrayValue);
     for (auto ch : *scene->getRoot())
-        res.append(scene::nodeToJson(ch));
+        res.append(saveNode(ch));
 
     return res;
 }
 
 void parseAmbientLight(const Json::Value &root, shared_ptr<scene::Scene> scene)
 {
-    auto intensity = jsonGetValueWithDefault(root, scene->getAmbientLight());
+    auto intensity = utils::jsonGetValueWithDefault(root, scene->getAmbientLight());
     scene->setAmbientLight(intensity.x, intensity.y, intensity.z);
 }
 
 Json::Value saveAmbientLight(shared_ptr<const scene::Scene> scene)
 {
-    return glmToJson(scene->getAmbientLight());
+    return utils::glmToJson(scene->getAmbientLight());
 }
 
 void parsePostProcessOption(const Json::Value &postFxNode, shared_ptr<scene::Scene> scene)
@@ -97,9 +97,11 @@ void parseCamera(const Json::Value &cameraNode, shared_ptr<scene::Scene> scene)
     }
     else
     {
-        auto position = jsonGetValueWithDefault(cameraNode["position"], glm::vec3());
-        auto rotation = jsonGetValueWithDefault(cameraNode["rotation"], glm::vec3());
-        auto fov = jsonGetValueWithDefault(cameraNode["fov"], 60.0f);
+        glm::vec3 position, rotation;
+        float fov = 60.0f;
+        cameraNode["position"] >> position;
+        cameraNode["rotation"] >> rotation;
+        cameraNode["fov"] >> fov;
 
         camera->transform()->setPosition(position);
         camera->transform()->setOrientation(rotation);
@@ -116,9 +118,19 @@ Json::Value saveCamera(shared_ptr<const scene::Scene> scene)
     return Json::Value();
 }
 
-shared_ptr<scene::Scene> fromJson(const Json::Value &root)
+shared_ptr<scene::Scene> newScene()
 {
-    auto result = make_shared<scene::Scene>();
+    return make_shared<df3d::scene::Scene>();
+}
+
+shared_ptr<scene::Scene> sceneFromFile(const std::string &jsonFile)
+{
+    return sceneFromJson(utils::jsonLoadFromFile(jsonFile));
+}
+
+shared_ptr<scene::Scene> sceneFromJson(const Json::Value &root)
+{
+    auto result = newScene();
 
     parseObjects(root["objects"], result);
     parseFog(root["fog"], result);
@@ -129,7 +141,7 @@ shared_ptr<scene::Scene> fromJson(const Json::Value &root)
     return result;
 }
 
-Json::Value toJson(shared_ptr<const scene::Scene> scene)
+Json::Value saveScene(shared_ptr<const scene::Scene> scene)
 {
     if (!scene)
     {
@@ -148,4 +160,4 @@ Json::Value toJson(shared_ptr<const scene::Scene> scene)
     return result;
 }
 
-} } }
+}

@@ -79,11 +79,6 @@ void SceneManager::pauseSimulation(bool pause)
     m_paused = pause;
 }
 
-bool SceneManager::setCurrentScene(const std::string &filePath)
-{
-    return setCurrentScene(scene::Scene::fromJson(filePath));
-}
-
 bool SceneManager::setCurrentScene(shared_ptr<Scene> scene)
 {
     if (!scene)

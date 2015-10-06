@@ -4,7 +4,6 @@
 #include <render/RenderQueue.h>
 #include <scene/Node.h>
 #include <components/TransformComponent.h>
-#include "serializers/LightComponentSerializer.h"
 
 namespace df3d { namespace components {
 

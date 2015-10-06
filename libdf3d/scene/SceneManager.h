@@ -30,7 +30,6 @@ public:
     void clearCurrentScene();
     void pauseSimulation(bool pause);
 
-    bool setCurrentScene(const std::string &filePath);
     bool setCurrentScene(shared_ptr<Scene> scene);
     shared_ptr<Scene> getCurrentScene() const;
 

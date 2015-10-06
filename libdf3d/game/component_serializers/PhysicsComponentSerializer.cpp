@@ -3,10 +3,12 @@
 #include <utils/JsonUtils.h>
 #include <components/PhysicsComponent.h>
 
-namespace df3d { namespace components { namespace serializers {
+namespace df3d { namespace component_serializers {
 
-shared_ptr<NodeComponent> PhysicsComponentSerializer::fromJson(const Json::Value &root)
+Component PhysicsComponentSerializer::fromJson(const Json::Value &root)
 {
+    using namespace components;
+
     auto type = root["type"].asString();
     if (type != "StaticBody")
     {
@@ -38,18 +40,18 @@ shared_ptr<NodeComponent> PhysicsComponentSerializer::fromJson(const Json::Value
     params.angularDamping = utils::jsonGetValueWithDefault(root["angularDamping"], params.angularDamping);
     params.group = utils::jsonGetValueWithDefault(root["group"], params.group);
     params.mask = utils::jsonGetValueWithDefault(root["mask"], params.mask);
-    
+
     return make_shared<PhysicsComponent>(params);
 }
 
-Json::Value PhysicsComponentSerializer::toJson(shared_ptr<const NodeComponent> component)
+Json::Value PhysicsComponentSerializer::toJson(Component component)
 {
     // TODO:
     assert(false);
 
     Json::Value result;
-    
+
     return result;
 }
 
-} } }
+} }

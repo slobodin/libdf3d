@@ -47,10 +47,6 @@ public:
     void removeChild(shared_ptr<Node> child);
     void removeChild(const std::string &name);
     void removeAllChildren();
-
-    static shared_ptr<Scene> fromJson(const std::string &jsonFile);
-    static shared_ptr<Scene> fromJson(const Json::Value &root);
-    static Json::Value toJson(shared_ptr<const Scene> scene);
 };
 
 } }

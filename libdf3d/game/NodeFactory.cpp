@@ -1,10 +1,10 @@
 #include "NodeFactory.h"
 
-#include <components/ComponentFactory.h>
+#include "ComponentFactory.h"
 #include <scene/Node.h>
 #include <utils/JsonUtils.h>
 
-namespace df3d { namespace scene {
+namespace df3d {
 
 components::ComponentType componentTypeFromJson(const Json::Value &root)
 {
@@ -17,12 +17,17 @@ components::ComponentType componentTypeFromJson(const Json::Value &root)
     return components::NodeComponent::stringToType(root["type"].asString());
 }
 
-shared_ptr<Node> createNode(const std::string &jsonDefinitionFile)
+SceneNode newNode(const std::string &name)
 {
-    return createNode(utils::jsonLoadFromFile(jsonDefinitionFile));
+    return make_shared<scene::Node>(name);
 }
 
-shared_ptr<Node> createNode(const Json::Value &root)
+SceneNode nodeFromFile(const std::string &jsonDefinitionFile)
+{
+    return nodeFromJson(utils::jsonLoadFromFile(jsonDefinitionFile));
+}
+
+SceneNode nodeFromJson(const Json::Value &root)
 {
     if (root.empty())
     {
@@ -32,7 +37,7 @@ shared_ptr<Node> createNode(const Json::Value &root)
 
     auto externalDataJson = root["external_data"];
     if (!externalDataJson.empty())
-        return createNode(utils::jsonLoadFromFile(externalDataJson.asString()));
+        return nodeFromFile(externalDataJson.asString());
 
     auto objName = root["name"].asString();
     const auto &componentsJson = root["components"];
@@ -50,11 +55,11 @@ shared_ptr<Node> createNode(const Json::Value &root)
             return nullptr;
         }
 
-        Node::Component component;
+        Component component;
         if (!externalDataJson.empty())
-            component = components::create(componentType, utils::jsonLoadFromFile(externalDataJson.asString()));
+            component = componentFromFile(componentType, externalDataJson.asString());
         else
-            component = components::create(componentType, dataJson);
+            component = componentFromJson(componentType, dataJson);
 
         result->attachComponent(component);
     }
@@ -63,13 +68,13 @@ shared_ptr<Node> createNode(const Json::Value &root)
     for (Json::UInt objIdx = 0; objIdx < childrenJson.size(); ++objIdx)
     {
         const auto &childJson = childrenJson[objIdx];
-        result->addChild(createNode(childJson));
+        result->addChild(nodeFromJson(childJson));
     }
 
     return result;
 }
 
-Json::Value nodeToJson(shared_ptr<const Node> node)
+Json::Value saveNode(SceneNode node)
 {
     assert(false && "TODO: implement serializing");
 
@@ -100,4 +105,4 @@ Json::Value nodeToJson(shared_ptr<const Node> node)
     */
 }
 
-} }
+}

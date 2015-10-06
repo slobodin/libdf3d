@@ -1,7 +1,5 @@
 #include "Scene.h"
 
-#include <utils/SceneSerializer.h>
-#include <utils/JsonUtils.h>
 #include <utils/Utils.h>
 #include <scene/Node.h>
 #include <render/RenderStats.h>
@@ -105,21 +103,6 @@ void Scene::removeChild(const std::string &name)
 void Scene::removeAllChildren()
 {
     m_root->removeAllChildren();
-}
-
-shared_ptr<Scene> Scene::fromJson(const std::string &jsonFile)
-{
-    return fromJson(utils::jsonLoadFromFile(jsonFile));
-}
-
-shared_ptr<Scene> Scene::fromJson(const Json::Value &root)
-{
-    return utils::serializers::fromJson(root);
-}
-
-Json::Value Scene::toJson(shared_ptr<const Scene> scene)
-{
-    return utils::serializers::toJson(scene);
 }
 
 } }
