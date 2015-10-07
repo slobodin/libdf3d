@@ -10,7 +10,7 @@ public:
     WindowsStorage(const std::string &filename)
         : Storage(filename)
     {
-        auto root = utils::jsonLoadFromFile(filename);
+        auto root = utils::json::fromFile(filename);
         if (!!root)
         {
             df3d::base::glog << "Failed to init Storage. Can not open file" << df3d::base::logwarn;
