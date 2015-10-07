@@ -9,9 +9,9 @@ Component TransformComponentSerializer::fromJson(const Json::Value &root)
 {
     auto result = make_shared<components::TransformComponent>();
 
-    result->setPosition(utils::jsonGetValueWithDefault(root["position"], glm::vec3()));
-    result->setOrientation(utils::jsonGetValueWithDefault(root["rotation"], glm::vec3()));
-    result->setScale(utils::jsonGetValueWithDefault(root["scale"], glm::vec3(1.0f, 1.0f, 1.0f)));
+    result->setPosition(utils::json::getOrDefault(root["position"], glm::vec3()));
+    result->setOrientation(utils::json::getOrDefault(root["rotation"], glm::vec3()));
+    result->setScale(utils::json::getOrDefault(root["scale"], glm::vec3(1.0f, 1.0f, 1.0f)));
 
     return result;
 }
@@ -22,9 +22,9 @@ Json::Value TransformComponentSerializer::toJson(Component component)
 
     auto comp = (components::TransformComponent*)component.get();
 
-    result["position"] = utils::glmToJson(comp->getPosition());
-    result["rotation"] = utils::glmToJson(comp->getRotation());
-    result["scale"] = utils::glmToJson(comp->getScale());
+    result["position"] = utils::json::toJson(comp->getPosition());
+    result["rotation"] = utils::json::toJson(comp->getRotation());
+    result["scale"] = utils::json::toJson(comp->getScale());
 
     return result;
 }

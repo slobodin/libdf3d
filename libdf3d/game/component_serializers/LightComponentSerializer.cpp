@@ -9,9 +9,9 @@ Component LightComponentSerializer::fromJson(const Json::Value &root)
 {
     auto result = make_shared<components::LightComponent>(components::LightComponent::Type::DIRECTIONAL);
 
-    result->setDirection(utils::jsonGetValueWithDefault(root["direction"], result->getDirection()));
-    result->setDiffuseIntensity(utils::jsonGetValueWithDefault(root["diffuse"], result->getDiffuseColor()));
-    result->setSpecularIntensity(utils::jsonGetValueWithDefault(root["specular"], result->getSpecularColor()));
+    result->setDirection(utils::json::getOrDefault(root["direction"], result->getDirection()));
+    result->setDiffuseIntensity(utils::json::getOrDefault(root["diffuse"], result->getDiffuseColor()));
+    result->setSpecularIntensity(utils::json::getOrDefault(root["specular"], result->getSpecularColor()));
 
     return result;
 }
@@ -23,9 +23,9 @@ Json::Value LightComponentSerializer::toJson(Component component)
     auto comp = static_cast<const components::LightComponent*>(component.get());
 
     result["type"] = "directional"; // FIXME:
-    result["direction"] = utils::glmToJson(comp->getDirection());
-    result["diffuse"] = utils::glmToJson(comp->getDiffuseColor());
-    result["specular"] = utils::glmToJson(comp->getSpecularColor());
+    result["direction"] = utils::json::toJson(comp->getDirection());
+    result["diffuse"] = utils::json::toJson(comp->getDiffuseColor());
+    result["specular"] = utils::json::toJson(comp->getSpecularColor());
 
     return result;
 }

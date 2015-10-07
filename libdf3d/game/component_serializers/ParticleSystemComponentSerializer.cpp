@@ -176,8 +176,6 @@ SPK::Ref<SPK::FloatInterpolator> parseSparkParamInterpolator(const Json::Value &
 
 SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
 {
-    using namespace utils;
-
     const auto &zoneJson = emitterJson["Zone"];
     if (zoneJson.empty())
     {
@@ -446,8 +444,6 @@ SPK::Ref<particlesys::ParticleSystemRenderer> createRenderer(const Json::Value &
 
 Component ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
 {
-    using namespace utils;
-
     const auto &groupsJson = root["groups"];
     if (groupsJson.empty())
     {
@@ -537,12 +533,12 @@ Component ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
         return nullptr;
     }
 
-    auto worldTransformed = jsonGetValueWithDefault(root["worldTransformed"], true);
+    auto worldTransformed = utils::json::getOrDefault(root["worldTransformed"], true);
 
     auto result = make_shared<components::ParticleSystemComponent>();
 
     result->setWorldTransformed(worldTransformed);
-    result->setSystemLifeTime(jsonGetValueWithDefault(root["systemLifeTime"], -1.0f));
+    result->setSystemLifeTime(utils::json::getOrDefault(root["systemLifeTime"], -1.0f));
 
     for (auto group : systemGroups)
         result->addSPKGroup(group);

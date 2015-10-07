@@ -17,7 +17,8 @@ void parseFog(const Json::Value &fogNode, shared_ptr<scene::Scene> scene)
         return;
 
     auto density = fogNode["density"].asFloat();
-    auto color = utils::jsonGetValueWithDefault(fogNode["color"], scene->getFogColor());
+    auto color = scene->getFogColor();
+    fogNode["color"] >> color;
 
     scene->setFog(density, color);
 }
@@ -48,13 +49,13 @@ Json::Value saveObjects(shared_ptr<const scene::Scene> scene)
 
 void parseAmbientLight(const Json::Value &root, shared_ptr<scene::Scene> scene)
 {
-    auto intensity = utils::jsonGetValueWithDefault(root, scene->getAmbientLight());
+    auto intensity = utils::json::getOrDefault(root, scene->getAmbientLight());
     scene->setAmbientLight(intensity.x, intensity.y, intensity.z);
 }
 
 Json::Value saveAmbientLight(shared_ptr<const scene::Scene> scene)
 {
-    return utils::glmToJson(scene->getAmbientLight());
+    return utils::json::toJson(scene->getAmbientLight());
 }
 
 void parsePostProcessOption(const Json::Value &postFxNode, shared_ptr<scene::Scene> scene)
@@ -125,7 +126,7 @@ shared_ptr<scene::Scene> newScene()
 
 shared_ptr<scene::Scene> sceneFromFile(const std::string &jsonFile)
 {
-    return sceneFromJson(utils::jsonLoadFromFile(jsonFile));
+    return sceneFromJson(utils::json::fromFile(jsonFile));
 }
 
 shared_ptr<scene::Scene> sceneFromJson(const Json::Value &root)

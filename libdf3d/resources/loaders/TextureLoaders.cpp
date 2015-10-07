@@ -132,8 +132,8 @@ void Texture2DFSLoader::onDecoded(Resource *resource)
 
 TextureCubeFSLoader::TextureCubeFSLoader(const std::string &path, const render::TextureCreationParams &params, ResourceLoadingMode lm)
     : FSResourceLoader(lm),
-    m_params(params),
-    m_jsonPath(path)
+    m_jsonPath(path),
+    m_params(params)
 {
 
 }
@@ -148,7 +148,7 @@ bool TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
     std::string buffer(source->getSize(), 0);
     source->getRaw(&buffer[0], source->getSize());
 
-    auto jsonRoot = utils::jsonLoadFromSource(buffer);
+    auto jsonRoot = utils::json::fromFile(buffer);
     if (jsonRoot.empty())
         return false;
 

@@ -24,7 +24,7 @@ SceneNode newNode(const std::string &name)
 
 SceneNode nodeFromFile(const std::string &jsonDefinitionFile)
 {
-    return nodeFromJson(utils::jsonLoadFromFile(jsonDefinitionFile));
+    return nodeFromJson(utils::json::fromFile(jsonDefinitionFile));
 }
 
 SceneNode nodeFromJson(const Json::Value &root)

@@ -33,13 +33,13 @@ Component PhysicsComponentSerializer::fromJson(const Json::Value &root)
     }
 
     params.type = colShapeType;
-    params.mass = utils::jsonGetValueWithDefault(root["mass"], params.mass);
-    params.friction = utils::jsonGetValueWithDefault(root["friction"], params.friction);
-    params.restitution = utils::jsonGetValueWithDefault(root["restitution"], params.restitution);
-    params.linearDamping = utils::jsonGetValueWithDefault(root["linearDamping"], params.linearDamping);
-    params.angularDamping = utils::jsonGetValueWithDefault(root["angularDamping"], params.angularDamping);
-    params.group = utils::jsonGetValueWithDefault(root["group"], params.group);
-    params.mask = utils::jsonGetValueWithDefault(root["mask"], params.mask);
+    params.mass = utils::json::getOrDefault(root["mass"], params.mass);
+    params.friction = utils::json::getOrDefault(root["friction"], params.friction);
+    params.restitution = utils::json::getOrDefault(root["restitution"], params.restitution);
+    params.linearDamping = utils::json::getOrDefault(root["linearDamping"], params.linearDamping);
+    params.angularDamping = utils::json::getOrDefault(root["angularDamping"], params.angularDamping);
+    params.group = utils::json::getOrDefault(root["group"], params.group);
+    params.mask = utils::json::getOrDefault(root["mask"], params.mask);
 
     return make_shared<PhysicsComponent>(params);
 }

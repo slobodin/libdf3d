@@ -10,13 +10,22 @@ Component AudioComponentSerializer::fromJson(const Json::Value &root)
 {
     auto result = make_shared<components::AudioComponent>(root["path"].asString());
 
-    result->setPitch(utils::jsonGetValueWithDefault(root["pitch"], result->getPitch()));
-    result->setGain(utils::jsonGetValueWithDefault(root["gain"], result->getGain()));
-    result->setLooped(utils::jsonGetValueWithDefault(root["looped"], result->isLooped()));
+    float pitch = result->getPitch();
+    float gain = result->getGain();
+    bool looped = result->isLooped();
 
-    auto startPlay = utils::jsonGetValueWithDefault(root["autoplay"], false);
-    if (startPlay)
-        result->play();
+    root["pitch"] >> pitch;
+    root["gain"] >> gain;
+    root["looped"] >> looped;
+
+    result->setPitch(pitch);
+    result->setGain(gain);
+    result->setLooped(looped);
+
+    bool autoPlay = false;
+    root["autoplay"] >> autoPlay;
+    if (autoPlay)
+        result->play();     // FIXME: calling it here.
 
     return result;
 }

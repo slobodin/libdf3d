@@ -9,7 +9,7 @@ using namespace components;
 
 Component componentFromFile(ComponentType type, const std::string &jsonFile)
 {
-    return componentFromJson(type, utils::jsonLoadFromFile(jsonFile));
+    return componentFromJson(type, utils::json::fromFile(jsonFile));
 }
 
 Component componentFromJson(ComponentType type, const Json::Value &root)
