@@ -40,7 +40,7 @@ void GuiFileInterface::Close(Rocket::Core::FileHandle file)
 {
     auto erased = m_openedFiles.erase(file);
     if (erased != 1)
-        base::glog << "Rocket interface couldn't erase unused file" << base::logwarn;
+        glog << "Rocket interface couldn't erase unused file" << base::logwarn;
 }
 
 size_t GuiFileInterface::Read(void* buffer, size_t size, Rocket::Core::FileHandle file)
@@ -87,20 +87,20 @@ bool GuiSystemInterface::LogMessage(Rocket::Core::Log::Type type, const Rocket::
     {
     case Rocket::Core::Log::LT_ERROR:
     case Rocket::Core::Log::LT_ASSERT:
-        base::glog << message.CString() << base::logcritical;
+        glog << message.CString() << base::logcritical;
         break;
     case Rocket::Core::Log::LT_WARNING:
-        base::glog << message.CString() << base::logwarn;
+        glog << message.CString() << base::logwarn;
         break;
     case Rocket::Core::Log::LT_ALWAYS:
     case Rocket::Core::Log::LT_INFO:
     case Rocket::Core::Log::LT_DEBUG:
-        base::glog << message.CString() << base::logmess;
+        glog << message.CString() << base::logmess;
         break;
     default:
         break;
     }
-    
+
     return true;
 }
 
@@ -123,9 +123,9 @@ void GuiRenderInterface::SetViewport(int width, int height)
 
 }
 
-void GuiRenderInterface::RenderGeometry(Rocket::Core::Vertex *vertices, int num_vertices, 
-                                        int *indices, int num_indices, 
-                                        Rocket::Core::TextureHandle texture, 
+void GuiRenderInterface::RenderGeometry(Rocket::Core::Vertex *vertices, int num_vertices,
+                                        int *indices, int num_indices,
+                                        Rocket::Core::TextureHandle texture,
                                         const Rocket::Core::Vector2f &translation)
 {
     auto compiledGeometry = CompileGeometry(vertices, num_vertices, indices, num_indices, texture);
@@ -133,8 +133,8 @@ void GuiRenderInterface::RenderGeometry(Rocket::Core::Vertex *vertices, int num_
     ReleaseCompiledGeometry(compiledGeometry);
 }
 
-Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket::Core::Vertex *vertices, int num_vertices, 
-                                                                         int *indices, int num_indices, 
+Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket::Core::Vertex *vertices, int num_vertices,
+                                                                         int *indices, int num_indices,
                                                                          Rocket::Core::TextureHandle texture)
 {
     render::VertexFormat vertexFormat({ render::VertexFormat::POSITION_3, render::VertexFormat::TX_2, render::VertexFormat::COLOR_4 });
@@ -216,8 +216,8 @@ void GuiRenderInterface::SetScissorRegion(int x, int y, int width, int height)
     svc().renderMgr.getRenderer()->setScissorRegion(x, vp.height() - (y + height), width, height);
 }
 
-bool GuiRenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle, 
-                                     Rocket::Core::Vector2i &texture_dimensions, 
+bool GuiRenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle,
+                                     Rocket::Core::Vector2i &texture_dimensions,
                                      const Rocket::Core::String &source)
 {
     render::TextureCreationParams params;

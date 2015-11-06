@@ -18,7 +18,7 @@ int GetPixelSizeForFormat(PixelFormat format)
         return 1;
     case PixelFormat::INVALID:
     default:
-        base::glog << "Invalid pixel format. Can't get size." << base::logwarn;
+        glog << "Invalid pixel format. Can't get size." << base::logwarn;
     }
 
     return 0;
@@ -69,7 +69,7 @@ void TextureCreationParams::setAnisotropyLevel(int anisotropy)
     float maxSupportedAniso = svc().renderMgr.getRenderer()->getMaxAnisotropy();
     if (anisotropy > maxSupportedAniso)
     {
-        base::glog << "Anisotropy level is bigger than supported. Setting maximum." << base::logwarn;
+        glog << "Anisotropy level is bigger than supported. Setting maximum." << base::logwarn;
         m_anisotropyLevel = (int)maxSupportedAniso;
     }
     else

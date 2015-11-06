@@ -1,8 +1,8 @@
 #pragma once
 
-#include <render/RenderPass.h>
+namespace df3d {
 
-namespace df3d { namespace render {
+class RenderPass;
 
 class DF3D_DLL Technique
 {
@@ -32,4 +32,4 @@ public:
     const std::string& getName() const;
 };
 
-} }
+}

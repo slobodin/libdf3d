@@ -46,7 +46,7 @@ namespace
     {
         if (!source)
         {
-            base::glog << "Failed to load pixel buffer from file source. Source is null." << base::logwarn;
+            glog << "Failed to load pixel buffer from file source. Source is null." << base::logwarn;
             return nullptr;
         }
 
@@ -60,9 +60,9 @@ namespace
         auto pixels = stbi_load_from_callbacks(&callbacks, dataSource, &x, &y, &bpp, 0);
         if (!pixels)
         {
-            base::glog << "Can not load image" << source->getPath() << base::logwarn;
+            glog << "Can not load image" << source->getPath() << base::logwarn;
 #ifdef STB_DO_ERROR_PRINT
-            base::glog << stbi_failure_reason() << base::logwarn;
+            glog << stbi_failure_reason() << base::logwarn;
 #endif
             return nullptr;
         }
@@ -76,7 +76,7 @@ namespace
         else if (bpp == STBI_grey)
             fmt = PixelFormat::GRAYSCALE;
         else
-            base::glog << "Parsed image with an invalid bpp" << base::logwarn;
+            glog << "Parsed image with an invalid bpp" << base::logwarn;
 
         auto result = make_unique<render::PixelBuffer>(x, y, pixels, fmt);
 
@@ -122,7 +122,7 @@ void Texture2DFSLoader::onDecoded(Resource *resource)
     texture->createGLTexture(*m_pixelBuffer);
 
     /*
-    base::glog << "Cleaning up" << m_pixelBuffer->getSizeInBytes() / 1024.0f << "KB of CPU copy of pixel data" << base::logdebug;
+    glog << "Cleaning up" << m_pixelBuffer->getSizeInBytes() / 1024.0f << "KB of CPU copy of pixel data" << base::logdebug;
     */
 
     // Explicitly remove CPU copy of pixel buffer in order to prevent caching.
@@ -182,7 +182,7 @@ void TextureCubeFSLoader::onDecoded(Resource *resource)
     {
         if (!pb)
         {
-            base::glog << "Failed to decode cube texture. Image(s) invalid." << base::logwarn;
+            glog << "Failed to decode cube texture. Image(s) invalid." << base::logwarn;
             return;
         }
     }

@@ -116,7 +116,7 @@ void Sprite2DComponent::useTexture(const std::string &pathToTexture)
     auto texture = svc().resourceMgr.getFactory().createTexture(pathToTexture, params, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->isInitialized())
     {
-        base::glog << "Failed to init Sprite2DComponent with texture" << pathToTexture << base::logwarn;
+        glog << "Failed to init Sprite2DComponent with texture" << pathToTexture << base::logwarn;
         return;
     }
 

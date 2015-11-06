@@ -39,7 +39,7 @@ bool TextureCube::createGLTexture(unique_ptr<PixelBuffer> images[CUBE_FACES_COUN
             glPixelFormat = GL_RGBA;
             break;
         default:
-            base::glog << "Invalid GL texture pixel format" << base::logwarn;
+            glog << "Invalid GL texture pixel format" << base::logwarn;
             return false;
         }
 

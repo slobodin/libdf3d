@@ -13,7 +13,7 @@ public:
         auto root = utils::json::fromFile(filename);
         if (!!root)
         {
-            df3d::base::glog << "Failed to init Storage. Can not open file" << df3d::base::logwarn;
+            df3d::glog << "Failed to init Storage. Can not open file" << df3d::base::logwarn;
             return;
         }
     }

@@ -2,7 +2,7 @@
 
 #include "RenderPass.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 shared_ptr<RenderPass> Technique::findPass(const std::string &name)
 {
@@ -53,7 +53,7 @@ shared_ptr<RenderPass> Technique::getPass(int idx)
     {
         return m_passes.at(idx);
     }
-    catch (std::out_of_range &) { }
+    catch (std::out_of_range &) {}
 
     return nullptr;
 }
@@ -73,4 +73,4 @@ const std::string &Technique::getName() const
     return m_name;
 }
 
-} }
+}
