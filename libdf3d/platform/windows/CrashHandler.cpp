@@ -60,7 +60,7 @@ LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* excInfo)
 
 void CrashHandler::setup()
 {
-    base::glog << "Setting up exception handler" << base::logmess;
+    glog << "Setting up exception handler" << base::logmess;
     SetUnhandledExceptionFilter(UnhandledExceptionFilter);
 }
 

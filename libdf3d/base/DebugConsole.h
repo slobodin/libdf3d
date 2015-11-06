@@ -2,7 +2,7 @@
 
 #include <utils/Utils.h>
 
-namespace df3d { namespace base {
+namespace df3d {
 
 extern const DF3D_DLL std::string CVAR_DEBUG_DRAW;
 // TODO:
@@ -71,4 +71,4 @@ public:
     const CVarsContainer& getCVars() const { return m_cvars; }
 };
 
-} }
+}

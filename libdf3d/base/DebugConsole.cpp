@@ -9,7 +9,7 @@
 extern const char *ConsoleRml;
 extern const char *ConsoleRcss;
 
-namespace df3d { namespace base {
+namespace df3d {
 
 const std::string CVAR_DEBUG_DRAW = "df3d_debug_draw";
 
@@ -114,7 +114,7 @@ void DebugConsole::updateHistory(const std::string &commandResult)
         m_history += commandResult + "\n";
         m_menu->m_historyElement->SetInnerRML(Rocket::Core::String(m_history.c_str()));
     }
-    
+
     m_menu->m_inputText->SetAttribute("value", "");
 }
 
@@ -154,13 +154,13 @@ void DebugConsole::registerCommand(const ConsoleCommand &command)
 {
     if (command.name.empty())
     {
-        base::glog << "Command name should not be empty" << base::logwarn;
+        glog << "Command name should not be empty" << logwarn;
         return;
     }
 
     if (df3d::utils::contains_key(m_consoleCommands, command.name))
     {
-        base::glog << "Console command with name" << command.name << "already registered" << base::logwarn;
+        glog << "Console command with name" << command.name << "already registered" << logwarn;
         return;
     }
 
@@ -173,7 +173,7 @@ void DebugConsole::unregisterCommand(const ConsoleCommand &command)
     if (found != m_consoleCommands.end())
         m_consoleCommands.erase(found);
     else
-        base::glog << "DebugConsole::unregisterCommand failed. No such command" << command.name << base::logwarn;
+        glog << "DebugConsole::unregisterCommand failed. No such command" << command.name << logwarn;
 }
 
-} }
+}
