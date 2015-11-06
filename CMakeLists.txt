@@ -47,10 +47,10 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/DebugConsole.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineModule.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Service.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/ThreadPool.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/AudioComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/DebugDrawComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/LightComponent.h
@@ -138,6 +138,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MathUtils.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshUtils.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/NonCopyable.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/ThreadPool.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.h
 )
 
@@ -152,7 +153,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Service.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/ThreadPool.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/AudioComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/DebugDrawComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/LightComponent.cpp
@@ -230,6 +230,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MathUtils.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshUtils.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/ThreadPool.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.cpp
 )
 

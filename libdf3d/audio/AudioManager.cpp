@@ -5,9 +5,8 @@
 #include <components/TransformComponent.h>
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
-#include <utils/Utils.h>
 
-namespace df3d { namespace audio {
+namespace df3d {
 
 struct AudioManager::Impl
 {
@@ -18,7 +17,7 @@ struct AudioManager::Impl
 AudioManager::AudioManager()
     : m_pimpl(new AudioManager::Impl())
 {
-    base::glog << "Initializing OpenAL" << base::logmess;
+    glog << "Initializing OpenAL" << logmess;
 
     std::string devices;
     if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT") != AL_FALSE)
@@ -32,8 +31,8 @@ AudioManager::AudioManager()
     else
         defaultDevice = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 
-    base::glog << "Available playback devices:" << devices << base::logmess;
-    base::glog << "Default playback device:" << defaultDevice << base::logmess;
+    glog << "Available playback devices:" << devices << logmess;
+    glog << "Default playback device:" << defaultDevice << logmess;
 
     m_pimpl->m_device = alcOpenDevice(nullptr);
     if (!m_pimpl->m_device)
@@ -55,7 +54,7 @@ AudioManager::~AudioManager()
     alcCloseDevice(m_pimpl->m_device);
 }
 
-void AudioManager::update(float dt)
+void AudioManager::update(float systemDelta, float gameDelta)
 {
     auto cam = svc().sceneMgr.getCamera();
     if (cam)
@@ -70,4 +69,4 @@ void AudioManager::update(float dt)
     }
 }
 
-} }
+}

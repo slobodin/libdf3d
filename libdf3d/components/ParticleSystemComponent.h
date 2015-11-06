@@ -3,7 +3,7 @@
 #include "NodeComponent.h"
 #include <SPARK.h>
 
-namespace df3d { namespace components {
+namespace df3d {
 
 class DF3D_DLL ParticleSystemComponent : public NodeComponent
 {
@@ -18,7 +18,7 @@ private:
     void updateCameraPosition();
 
     void onUpdate(float dt) override;
-    void onDraw(render::RenderQueue *ops) override;
+    void onDraw(RenderQueue *ops) override;
 
 public:
     ParticleSystemComponent();
@@ -36,4 +36,4 @@ public:
     shared_ptr<NodeComponent> clone() const override;
 };
 
-} }
+}

@@ -3,7 +3,7 @@
 #include <scene/Node.h>
 #include <utils/JsonUtils.h>
 
-namespace df3d { namespace components {
+namespace df3d {
 
 void TransformComponent::updateTransformation()
 {
@@ -225,4 +225,4 @@ shared_ptr<NodeComponent> TransformComponent::clone() const
     return result;
 }
 
-} }
+}

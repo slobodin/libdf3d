@@ -3,7 +3,7 @@
 #include <resources/Resource.h>
 #include <audio/AudioBuffer.h>
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 class AudioBufferFSLoader : public FSResourceLoader
 {
@@ -36,9 +36,9 @@ private:
 public:
     AudioBufferFSLoader(const std::string &path);
 
-    audio::AudioBuffer* createDummy() override;
+    AudioBuffer* createDummy() override;
     bool decode(shared_ptr<FileDataSource> source) override;
     void onDecoded(Resource *resource) override;
 };
 
-} }
+}

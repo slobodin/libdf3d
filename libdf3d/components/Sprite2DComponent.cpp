@@ -8,7 +8,7 @@
 #include <scene/Node.h>
 #include <base/Service.h>
 
-namespace df3d { namespace components {
+namespace df3d {
 
 // TODO:
 // Camera transform.
@@ -151,4 +151,4 @@ shared_ptr<NodeComponent> Sprite2DComponent::clone() const
     return nullptr;
 }
 
-} }
+}

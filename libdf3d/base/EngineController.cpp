@@ -21,11 +21,10 @@
 #endif
 
 namespace df3d {
-namespace base {
 
 EngineController::EngineController()
 {
-    base::glog << "Engine controller created" << base::logmess;
+    glog << "Engine controller created" << logmess;
 
     m_timeStarted = std::chrono::system_clock::now();
 }
@@ -50,7 +49,7 @@ void EngineController::shutdown()
 
     particlesys::destroySparkEngine();
 
-    base::glog << "Shutdown success" << base::logmess;
+    glog << "Shutdown success" << base::logmess;
 
     //delete this;
 }
@@ -66,7 +65,7 @@ EngineController& EngineController::instance()
 
 bool EngineController::init(EngineInitParams params)
 {
-    base::glog << "Initializing engine" << base::logmess;
+    glog << "Initializing engine" << base::logmess;
 
     try
     {
@@ -80,7 +79,7 @@ bool EngineController::init(EngineInitParams params)
         m_fileSystem = new resources::FileSystem();
 
         // Init resource manager.
-        m_resourceManager = new resources::ResourceManager();
+        m_resourceManager = new ResourceManager();
 
         // Init render system.
         render::RenderManagerInitParams renderParams;
@@ -89,7 +88,7 @@ bool EngineController::init(EngineInitParams params)
         m_renderManager = new render::RenderManager(renderParams);
 
         // Init scene manager.
-        m_sceneManager = new scene::SceneManager();
+        m_sceneManager = new SceneManager();
 
         // Spark particle engine init.
         particlesys::initSparkEngine();
@@ -111,7 +110,7 @@ bool EngineController::init(EngineInitParams params)
         m_initialized = true;
 
         // Load embedded resources.
-        base::glog << "Loading embedded resources" << base::logdebug;
+        glog << "Loading embedded resources" << base::logdebug;
 
         m_resourceManager->loadEmbedResources();
         m_renderManager->loadEmbedResources();
@@ -123,11 +122,11 @@ bool EngineController::init(EngineInitParams params)
             m_svc->console = m_debugConsole;
         }
 
-        base::glog << "Engine initialized" << base::logmess;
+        glog << "Engine initialized" << base::logmess;
     }
     catch (std::exception &e)
     {
-        base::glog << "Engine initialization failed due to" << e.what() << base::logcritical;
+        glog << "Engine initialization failed due to" << e.what() << base::logcritical;
     }
 
     return m_initialized;
@@ -177,7 +176,7 @@ void EngineController::setViewport(const render::Viewport &newvp)
     m_renderManager->getScreenRenderTarget()->setViewport(newvp);
 }
 
-glm::vec2 EngineController::screenSize() const
+glm::vec2 EngineController::getScreenSize() const
 {
     auto vp = m_renderManager->getScreenRenderTarget()->getViewport();
     return glm::vec2(vp.width(), vp.height());
@@ -188,4 +187,4 @@ Service& EngineController::svc()
     return *m_svc;
 }
 
-} }
+}

@@ -17,7 +17,7 @@ namespace df3d { namespace gui {
 
 GuiManager::GuiManager(int contextWidth, int contextHeight)
 {
-    base::glog << "Initializing libRocket" << base::logmess;
+    glog << "Initializing libRocket" << base::logmess;
 
     using namespace Rocket;
 
@@ -42,7 +42,7 @@ GuiManager::GuiManager(int contextWidth, int contextHeight)
     // Initialize debugger.
 #ifdef ENABLE_ROCKET_DEBUGGER
     if (!Rocket::Debugger::Initialise(m_rocketContext))
-        base::glog << "Failed to initialize Rocket GUI debugger" << base::logwarn;
+        glog << "Failed to initialize Rocket GUI debugger" << base::logwarn;
 #endif
 }
 

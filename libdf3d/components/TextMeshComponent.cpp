@@ -12,7 +12,7 @@
 
 // TODO:
 
-namespace df3d { namespace components {
+namespace df3d {
 /*
 shared_ptr<render::RenderPass> TextMeshComponent::createRenderPass()
 {
@@ -150,4 +150,4 @@ shared_ptr<NodeComponent> TextMeshComponent::clone() const
     return nullptr;
 }
 */
-} }
+}

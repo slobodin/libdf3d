@@ -4,15 +4,14 @@
 #include "RenderPass.h"
 #include "RenderOperation.h"
 
-FWD_MODULE_CLASS(components, LightComponent)
-
-namespace df3d { namespace render {
+namespace df3d {
 
 class VertexBuffer;
 class IndexBuffer;
 class GpuProgramState;
 class Viewport;
 class Texture2D;
+class LightComponent;
 
 class RendererBackend
 {
@@ -92,7 +91,7 @@ public:
 
     void setAmbientLight(const glm::vec3 &ambient);
     void setAmbientLight(float ra, float ga, float ba);
-    void setLight(const components::LightComponent *light);
+    void setLight(const LightComponent *light);
 
     void bindPass(RenderPass *pass);
 
@@ -107,4 +106,4 @@ public:
     float getMaxAnisotropy();
 };
 
-} }
+}

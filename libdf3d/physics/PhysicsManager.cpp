@@ -65,7 +65,7 @@ struct PhysicsManager::Impl
 PhysicsManager::PhysicsManager()
     : m_pimpl(new Impl())
 {
-    base::glog << "Initializing bullet physics" << base::logmess;
+    glog << "Initializing bullet physics" << base::logmess;
     m_pimpl->init();
 }
 

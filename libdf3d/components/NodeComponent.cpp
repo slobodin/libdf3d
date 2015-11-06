@@ -2,7 +2,7 @@
 
 #include <scene/Node.h>
 
-namespace df3d { namespace components {
+namespace df3d {
 
 static const std::map<std::string, ComponentType> NameType =
 {
@@ -58,4 +58,4 @@ ComponentType NodeComponent::stringToType(const std::string &typeStr)
         return found->second;
 }
 
-} }
+}

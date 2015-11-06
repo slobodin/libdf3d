@@ -9,10 +9,10 @@ class ComponentSerializer
 public:
     virtual ~ComponentSerializer() { }
 
-    virtual Component fromJson(const Json::Value &root) = 0;
-    virtual Json::Value toJson(Component component) = 0;
+    virtual shared_ptr<NodeComponent> fromJson(const Json::Value &root) = 0;
+    virtual Json::Value toJson(shared_ptr<NodeComponent> component) = 0;
 };
 
-unique_ptr<ComponentSerializer> create(components::ComponentType type);
+unique_ptr<ComponentSerializer> create(ComponentType type);
 
 } }

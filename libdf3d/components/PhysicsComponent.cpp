@@ -10,7 +10,7 @@
 #include <base/Service.h>
 #include <utils/Utils.h>
 
-namespace df3d { namespace components {
+namespace df3d {
 
 void PhysicsComponent::initFromCreationParams()
 {
@@ -198,4 +198,4 @@ void PhysicsComponent::setOrientation(glm::vec3 rot, bool rads)
     body->setWorldTransform(tr);
 }
 
-} }
+}

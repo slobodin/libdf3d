@@ -1,22 +1,20 @@
 #pragma once
 
-FWD_MODULE_CLASS(render, RenderManager)
-FWD_MODULE_CLASS(render, RenderStats)
-FWD_MODULE_CLASS(render, Viewport)
-FWD_MODULE_CLASS(scene, SceneManager)
-FWD_MODULE_CLASS(resources, ResourceManager)
-FWD_MODULE_CLASS(resources, FileSystem)
-FWD_MODULE_CLASS(gui, GuiManager)
-FWD_MODULE_CLASS(physics, PhysicsManager)
-FWD_MODULE_CLASS(audio, AudioManager)
-
 #include "EngineInitParams.h"
 
-namespace df3d { class Service; }
+namespace df3d {
 
-namespace df3d { namespace base {
-
+class Service;
+class RenderManager;
+class SceneManager;
+class ResourceManager;
+class FileSystem;
+class GuiManager;
+class PhysicsManager;
+class AudioManager;
 class DebugConsole;
+class RenderStats;
+class Viewport;
 
 class DF3D_DLL EngineController : utils::NonCopyable
 {
@@ -24,13 +22,13 @@ class DF3D_DLL EngineController : utils::NonCopyable
     ~EngineController();
 
     Service *m_svc = nullptr;
-    render::RenderManager *m_renderManager = nullptr;
-    scene::SceneManager *m_sceneManager = nullptr;
-    resources::ResourceManager *m_resourceManager = nullptr;
-    resources::FileSystem *m_fileSystem = nullptr;
-    gui::GuiManager *m_guiManager = nullptr;
-    physics::PhysicsManager *m_physics = nullptr;
-    audio::AudioManager *m_audioManager = nullptr;
+    RenderManager *m_renderManager = nullptr;
+    SceneManager *m_sceneManager = nullptr;
+    ResourceManager *m_resourceManager = nullptr;
+    FileSystem *m_fileSystem = nullptr;
+    GuiManager *m_guiManager = nullptr;
+    PhysicsManager *m_physics = nullptr;
+    AudioManager *m_audioManager = nullptr;
 
     DebugConsole *m_debugConsole = nullptr;
 
@@ -50,15 +48,15 @@ public:
     void runFrame();
 
     float getElapsedTime() const { return m_timeElapsed; }
-    const render::RenderStats &getLastRenderStats() const;
+    const RenderStats& getLastRenderStats() const;
 
     bool initialized() const { return m_initialized; }
 
-    const render::Viewport &getViewport() const;
-    void setViewport(const render::Viewport &newvp);
-    glm::vec2 screenSize() const;
+    const Viewport& getViewport() const;
+    void setViewport(const Viewport &newvp);
+    glm::vec2 getScreenSize() const;
 
     Service& svc();
 };
 
-} }
+}

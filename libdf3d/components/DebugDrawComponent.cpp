@@ -8,7 +8,7 @@
 #include <render/RenderPass.h>
 #include <render/VertexIndexBuffer.h>
 
-namespace df3d { namespace components {
+namespace df3d {
 
 class DebugDrawAABBNode
 {
@@ -116,4 +116,4 @@ shared_ptr<NodeComponent> DebugDrawComponent::clone() const
     return nullptr;
 }
 
-} }
+}

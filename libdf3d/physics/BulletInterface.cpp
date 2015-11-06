@@ -5,10 +5,10 @@
 #include <render/RendererBackend.h>
 #include <render/VertexIndexBuffer.h>
 
-namespace df3d { namespace physics {
+namespace df3d {
 
 BulletDebugDraw::BulletDebugDraw()
-    : m_vertexData(render::VertexFormat({ render::VertexFormat::POSITION_3, render::VertexFormat::TX_2, render::VertexFormat::COLOR_4 }))
+    : m_vertexData(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 }))
 {
 
 }
@@ -37,7 +37,7 @@ void BulletDebugDraw::drawContactPoint(const btVector3 &PointOnB, const btVector
 
 void BulletDebugDraw::reportErrorWarning(const char *warningString)
 {
-    glog << "Bullet physics:" << warningString << base::logwarn;
+    glog << "Bullet physics:" << warningString << logwarn;
 }
 
 void BulletDebugDraw::draw3dText(const btVector3 &location, const char *textString)
@@ -59,19 +59,19 @@ void BulletDebugDraw::flushRenderOperations()
 {
     if (!m_pass)
     {
-        m_pass = make_shared<render::RenderPass>(render::RenderPass::createDebugDrawPass());
+        m_pass = make_shared<RenderPass>(RenderPass::createDebugDrawPass());
         m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 0.7f);
     }
 
-    render::RenderOperation op;
+    RenderOperation op;
     op.passProps = m_pass;
-    op.type = render::RenderOperation::Type::LINES;
+    op.type = RenderOperation::Type::LINES;
 
-    op.vertexData = make_shared<render::VertexBuffer>(m_vertexData.getFormat());
-    op.vertexData->alloc(m_vertexData, render::GpuBufferUsageType::STREAM);
+    op.vertexData = make_shared<VertexBuffer>(m_vertexData.getFormat());
+    op.vertexData->alloc(m_vertexData, GpuBufferUsageType::STREAM);
     m_vertexData.clear();
 
     svc().renderMgr.drawOperation(op);
 }
 
-} }
+}

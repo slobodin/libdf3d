@@ -1,27 +1,21 @@
 #pragma once
 
-FWD_MODULE_CLASS(base, EngineController)
+#include <base/EngineModule.h>
 
-namespace df3d { namespace audio {
+namespace df3d {
 
-class AudioNode;
-
-class DF3D_DLL AudioManager
+class DF3D_DLL AudioManager : public EngineModule
 {
-    friend class base::EngineController;
-    friend class AudioNode;
-
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
     AudioManager();
     ~AudioManager();
 
-    // Only for controller.
-    void update(float dt);
+    void update(float systemDelta, float gameDelta) override;
 
 public:
 
 };
 
-} }
+}

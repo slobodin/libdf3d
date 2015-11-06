@@ -2,13 +2,9 @@
 
 #include "RenderStats.h"
 #include "RenderCommon.h"
+#include <base/EngineModule.h>
 
-FWD_MODULE_CLASS(scene, Scene)
-FWD_MODULE_CLASS(scene, Node)
-FWD_MODULE_CLASS(scene, Camera)
-FWD_MODULE_CLASS(base, EngineController)
-
-namespace df3d { namespace render {
+namespace df3d {
 
 class RendererBackend;
 class VertexBuffer;
@@ -21,6 +17,10 @@ class Material;
 class RenderQueue;
 class RenderPass;
 class RenderOperation;
+class Scene;
+class Node;
+class Camera;
+class EngineController;
 
 struct RenderManagerInitParams
 {
@@ -31,11 +31,9 @@ struct RenderManagerInitParams
 };
 
 // Forward renderer.
-class RenderManager
+class RenderManager : public EngineModule
 {
     static const size_t MAX_POSPROCESS_PASSES = 4;
-
-    friend class base::EngineController;
 
     unique_ptr<RendererBackend> m_renderer;
     RenderManagerInitParams m_initParams;
@@ -69,8 +67,8 @@ class RenderManager
     ~RenderManager();
 
 public:
-    void update(shared_ptr<scene::Scene> renderableScene);
-    void drawScene(shared_ptr<scene::Scene> sc);
+    void update(shared_ptr<Scene> renderableScene);
+    void drawScene(shared_ptr<Scene> sc);
     void drawOperation(const RenderOperation &op);
     void drawGUI();
 
@@ -85,4 +83,4 @@ public:
     RendererBackend *getRenderer() const;
 };
 
-} }
+}

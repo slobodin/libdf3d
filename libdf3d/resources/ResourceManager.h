@@ -1,11 +1,11 @@
 #pragma once
 
+#include <base/EngineModule.h>
 #include <utils/ConcurrentQueue.h>
 
-FWD_MODULE_CLASS(base, ThreadPool)
-FWD_MODULE_CLASS(base, EngineController)
+namespace df3d {
 
-namespace df3d { namespace resources {
+namespace utils { class ThreadPool; }
 
 class Resource;
 class ResourceFactory;
@@ -13,7 +13,7 @@ class FileDataSource;
 class ManualResourceLoader;
 class FSResourceLoader;
 
-class DF3D_DLL ResourceManager : utils::NonCopyable
+class DF3D_DLL ResourceManager : public EngineModule
 {
 public:
     class Listener
@@ -26,7 +26,6 @@ public:
     };
 
 private:
-    friend class base::EngineController;
     friend class ResourceFactory;
 
     struct DecodeRequest
@@ -39,7 +38,7 @@ private:
     };
 
     // Thread pool for resources decoding.
-    unique_ptr<base::ThreadPool> m_threadPool;
+    unique_ptr<utils::ThreadPool> m_threadPool;
     // Resources for which should call onDecoded in the main thread.
     utils::ConcurrentQueue<DecodeRequest> m_decodedResources;
     mutable std::recursive_mutex m_lock;
@@ -91,4 +90,4 @@ public:
     void removeListener(Listener *listener);
 };
 
-} }
+}

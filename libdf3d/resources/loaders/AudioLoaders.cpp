@@ -8,7 +8,7 @@
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 namespace wav {
 
@@ -48,7 +48,7 @@ unique_ptr<AudioBufferFSLoader::PCMData> loadPCM(shared_ptr<FileDataSource> sour
 
     if (memcmp(header.chunkID, "RIFF", 4) || memcmp(header.format, "WAVE", 4))
     {
-        glog << "Invalid WAVE file header" << source->getPath() << base::logwarn;
+        glog << "Invalid WAVE file header" << source->getPath() << logwarn;
         return nullptr;
     }
 
@@ -57,7 +57,7 @@ unique_ptr<AudioBufferFSLoader::PCMData> loadPCM(shared_ptr<FileDataSource> sour
 
     if (memcmp(format.subChunkID, "fmt ", 4))
     {
-        glog << "Invalid WAVE format" << source->getPath() << base::logwarn;
+        glog << "Invalid WAVE format" << source->getPath() << logwarn;
         return nullptr;
     }
 
@@ -69,7 +69,7 @@ unique_ptr<AudioBufferFSLoader::PCMData> loadPCM(shared_ptr<FileDataSource> sour
 
     if (memcmp(data.subChunkID, "data", 4))
     {
-        glog << "Invalid WAVE data" << source->getPath() << base::logwarn;
+        glog << "Invalid WAVE data" << source->getPath() << logwarn;
         return nullptr;
     }
 
@@ -78,7 +78,7 @@ unique_ptr<AudioBufferFSLoader::PCMData> loadPCM(shared_ptr<FileDataSource> sour
     auto got = source->getRaw(sounddata, data.subChunk2Size);
     if (got != data.subChunk2Size)
     {
-        glog << "Error loading WAVE data" << source->getPath() << base::logwarn;
+        glog << "Error loading WAVE data" << source->getPath() << logwarn;
         return nullptr;
     }
 
@@ -168,7 +168,7 @@ unique_ptr<AudioBufferFSLoader::PCMData> loadPCM(shared_ptr<FileDataSource> sour
 
     if (ov_open_callbacks(source.get(), &oggVorbisFile, NULL, -1, ovCallbacks) < 0)
     {
-        glog << "Failed to open ogg file" << source->getPath() << base::logwarn;
+        glog << "Failed to open ogg file" << source->getPath() << logwarn;
         return nullptr;
     }
 
@@ -229,9 +229,9 @@ AudioBufferFSLoader::AudioBufferFSLoader(const std::string &path)
 
 }
 
-audio::AudioBuffer* AudioBufferFSLoader::createDummy()
+AudioBuffer* AudioBufferFSLoader::createDummy()
 {
-    return new audio::AudioBuffer();
+    return new AudioBuffer();
 }
 
 bool AudioBufferFSLoader::decode(shared_ptr<FileDataSource> source)
@@ -248,7 +248,7 @@ bool AudioBufferFSLoader::decode(shared_ptr<FileDataSource> source)
 
 void AudioBufferFSLoader::onDecoded(Resource *resource)
 {
-    auto audioBuffer = static_cast<audio::AudioBuffer*>(resource);
+    auto audioBuffer = static_cast<AudioBuffer*>(resource);
 
     alBufferData(audioBuffer->getALId(), convertALFormat(m_pcmData->format), m_pcmData->data, m_pcmData->dataSize, m_pcmData->sampleRate);
 
@@ -258,4 +258,4 @@ void AudioBufferFSLoader::onDecoded(Resource *resource)
     printOpenALError();
 }
 
-} }
+}

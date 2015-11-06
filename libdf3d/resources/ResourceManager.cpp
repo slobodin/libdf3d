@@ -15,11 +15,11 @@ void ResourceManager::loadEmbedResources()
 
 void ResourceManager::doRequest(DecodeRequest req)
 {
-    base::glog << "ASYNC decoding" << req.source->getPath() << base::logdebug;
+    glog << "ASYNC decoding" << req.source->getPath() << base::logdebug;
 
     req.result = req.loader->decode(req.source);
     if (!req.result)
-        base::glog << "ASYNC decoding failed" << base::logwarn;
+        glog << "ASYNC decoding failed" << base::logwarn;
 
     m_decodedResources.push(req);
 }
@@ -42,7 +42,7 @@ shared_ptr<Resource> ResourceManager::loadManual(shared_ptr<ManualResourceLoader
     auto resource = shared_ptr<Resource>(loader->load());
     if (!resource)
     {
-        base::glog << "Failed to manual load a resource" << base::logwarn;
+        glog << "Failed to manual load a resource" << base::logwarn;
         return nullptr;
     }
 
@@ -70,7 +70,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
     auto guid = CreateGUIDFromPath(path);
     if (!IsGUIDValid(guid))
     {
-        base::glog << "Can't load resource. The path" << path << "doesn't exist or it's a directory." << base::logwarn;
+        glog << "Can't load resource. The path" << path << "doesn't exist or it's a directory." << base::logwarn;
         return nullptr;
     }
 
@@ -95,7 +95,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
         m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, req));
     else
     {
-        base::glog << "Decoding" << req.source->getPath() << base::logdebug;
+        glog << "Decoding" << req.source->getPath() << base::logdebug;
 
         req.result = loader->decode(req.source);
         if (req.result)
@@ -105,7 +105,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
         }
         else
         {
-            base::glog << "Failed to decode a resource" << base::logwarn;
+            glog << "Failed to decode a resource" << base::logwarn;
         }
 
         for (auto listener : m_listeners)
@@ -206,7 +206,7 @@ void ResourceManager::addListener(Listener *listener)
 
     if (utils::contains(m_listeners, listener))
     {
-        base::glog << "Trying to add duplicate ResourceManager listener" << base::logwarn;
+        glog << "Trying to add duplicate ResourceManager listener" << base::logwarn;
         return;
     }
 
@@ -221,7 +221,7 @@ void ResourceManager::removeListener(Listener *listener)
     if (found != m_listeners.end())
         m_listeners.erase(found);
     else
-        base::glog << "ResourceManager::removeListener failed: listener doesn't exist" << base::logwarn;
+        glog << "ResourceManager::removeListener failed: listener doesn't exist" << base::logwarn;
 }
 
 } }

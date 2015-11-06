@@ -5,15 +5,15 @@
 
 #include <render/Vertex.h>
 
-FWD_MODULE_CLASS(render, RenderPass)
+namespace df3d {
 
-namespace df3d { namespace physics {
+class RenderPass;
 
 class BulletDebugDraw : public btIDebugDraw
 {
-    shared_ptr<render::RenderPass> m_pass;
+    shared_ptr<RenderPass> m_pass;
 
-    render::VertexData m_vertexData;
+    VertexData m_vertexData;
 
 public:
     BulletDebugDraw();
@@ -29,4 +29,4 @@ public:
     void flushRenderOperations();
 };
 
-} }
+}

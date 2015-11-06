@@ -4,7 +4,7 @@
 
 class btRigidBody;
 
-namespace df3d { namespace components {
+namespace df3d {
 
 class DF3D_DLL PhysicsComponent : public NodeComponent
 {
@@ -67,4 +67,4 @@ public:
     void setOrientation(glm::vec3 rot, bool rads = false);
 };
 
-} }
+}

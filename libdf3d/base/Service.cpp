@@ -2,8 +2,8 @@
 
 namespace df3d {
 
-Service::Service(scene::SceneManager &sceneMgr,
-                 resources::ResourceManager &resourceMgr,
+Service::Service(SceneManager &sceneMgr,
+                 ResourceManager &resourceMgr,
                  resources::FileSystem &filesystem,
                  render::RenderManager &renderMgr,
                  gui::GuiManager &guiMgr,

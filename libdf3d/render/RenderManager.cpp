@@ -84,14 +84,14 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
     auto tech = material->getCurrentTechnique();
     if (!tech)
     {
-        base::glog << "Post process technique was not set. Use default." << base::logdebug;
+        glog << "Post process technique was not set. Use default." << base::logdebug;
         tech = m_defaultPostProcessMaterial->getCurrentTechnique();
     }
 
     size_t passCount = tech->getPassCount();
     if (passCount > MAX_POSPROCESS_PASSES)
     {
-        base::glog << "Too many post process passes" << base::logdebug;
+        glog << "Too many post process passes" << base::logdebug;
         return;
     }
 
@@ -162,7 +162,7 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
     auto camera = sc->getCamera();
     if (!camera)
     {
-        base::glog << "Can not draw scene. Camera is invalid." << base::logwarn;
+        glog << "Can not draw scene. Camera is invalid." << base::logwarn;
         return;
     }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 // TODO:
 // Implements DataSource.
@@ -40,4 +40,5 @@ public:
     const std::string &getPath() const { return m_filePath; }
 };
 
-} }
+}
+

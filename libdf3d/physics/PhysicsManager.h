@@ -1,19 +1,14 @@
 #pragma once
 
-FWD_MODULE_CLASS(base, EngineController)
-FWD_MODULE_CLASS(render, RenderManager)
-FWD_MODULE_CLASS(scene, Node)
+#include <base/EngineModule.h>
 
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 
-namespace df3d { namespace physics {
+namespace df3d {
 
-class DF3D_DLL PhysicsManager
+class DF3D_DLL PhysicsManager : public EngineModule
 {
-    friend class base::EngineController;
-    friend class render::RenderManager;
-
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
@@ -33,11 +28,11 @@ private:
 
 class NodeMotionState : public btMotionState
 {
-    scene::Node *m_node;
+    Node *m_node;
     btTransform m_transform;
 
 public:
-    NodeMotionState(scene::Node *node);
+    NodeMotionState(Node *node);
     ~NodeMotionState();
 
     void getWorldTransform(btTransform &worldTrans) const;
@@ -54,4 +49,4 @@ inline glm::vec3 btToGlm(const btVector3 &v)
     return glm::vec3(v.x(), v.y(), v.z());
 }
 
-} }
+}

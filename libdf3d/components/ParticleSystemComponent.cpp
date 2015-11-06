@@ -8,7 +8,7 @@
 #include <render/RenderQueue.h>
 #include <base/Service.h>
 
-namespace df3d { namespace components {
+namespace df3d {
 
 void ParticleSystemComponent::updateCameraPosition()
 {
@@ -26,7 +26,7 @@ void ParticleSystemComponent::updateCameraPosition()
                 pos = glm::vec3((invWorldTransform * glm::vec4(pos, 1.0f)));
             }
 
-            SPKSystem->setCameraPosition(particlesys::glmToSpk(pos));
+            SPKSystem->setCameraPosition(glmToSpk(pos));
             break;
         }
     }
@@ -55,12 +55,12 @@ void ParticleSystemComponent::onUpdate(float dt)
         m_systemAge += dt;
         if (m_systemAge > m_systemLifeTime)
         {
-            m_holder->detachComponent(PARTICLE_EFFECT);
+            m_holder->detachComponent(ComponentType::PARTICLE_EFFECT);
         }
     }
 }
 
-void ParticleSystemComponent::onDraw(render::RenderQueue *ops)
+void ParticleSystemComponent::onDraw(RenderQueue *ops)
 {
     glm::mat4 transf;
     if (!m_worldTransformed)
@@ -69,7 +69,7 @@ void ParticleSystemComponent::onDraw(render::RenderQueue *ops)
     // Prepare drawing of spark system.
     for (size_t i = 0; i < getNbSPKGroups(); i++)
     {
-        auto renderer = static_cast<particlesys::ParticleSystemRenderer*>(SPKSystem->getGroup(i)->getRenderer().get());
+        auto renderer = static_cast<ParticleSystemRenderer*>(SPKSystem->getGroup(i)->getRenderer().get());
         renderer->m_currentRenderQueue = ops;
         renderer->m_currentTransformation = &transf;
     }
@@ -79,13 +79,13 @@ void ParticleSystemComponent::onDraw(render::RenderQueue *ops)
     // FIXME: do we need this?
     for (size_t i = 0; i < getNbSPKGroups(); i++)
     {
-        auto renderer = static_cast<particlesys::ParticleSystemRenderer*>(SPKSystem->getGroup(i)->getRenderer().get());
+        auto renderer = static_cast<ParticleSystemRenderer*>(SPKSystem->getGroup(i)->getRenderer().get());
         renderer->m_currentRenderQueue = nullptr;
     }
 }
 
 ParticleSystemComponent::ParticleSystemComponent()
-    : NodeComponent(PARTICLE_EFFECT),
+    : NodeComponent(ComponentType::PARTICLE_EFFECT),
     SPKSystem(SPK::System::create(false))
 {
     //m_worldTransformed = false;
@@ -124,4 +124,4 @@ shared_ptr<NodeComponent> ParticleSystemComponent::clone() const
     return retRes;
 }
 
-} }
+}

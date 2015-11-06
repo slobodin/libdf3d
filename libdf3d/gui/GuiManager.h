@@ -1,26 +1,21 @@
 #pragma once
 
 #include "RocketIntrusivePtr.h"
+#include <base/EngineModule.h>
 #include <base/InputEvents.h>
 #include <Rocket/Core.h>
 
-FWD_MODULE_CLASS(base, EngineController)
-FWD_MODULE_CLASS(render, RenderManager)
-
 namespace Rocket { namespace Core { class Context; } }
 
-namespace df3d { namespace gui {
+namespace df3d {
 
 class GuiFileInterface;
 class GuiSystemInterface;
 class GuiRenderInterface;
 
-class DF3D_DLL GuiManager
+class DF3D_DLL GuiManager : public EngineModule
 {
     // Update, render, init and shutdown should be called only by EngineController and RenderManager.
-    friend class base::EngineController;
-    friend class render::RenderManager;
-
     unique_ptr<GuiFileInterface> m_fileInterface;
     unique_ptr<GuiSystemInterface> m_systemInterface;
     unique_ptr<GuiRenderInterface> m_renderInterface;
@@ -39,8 +34,8 @@ public:
     bool processMouseButtonUp(int buttonIdx);
     bool processMouseMotion(int x, int y);
     bool processMouseWheel(float delta);
-    bool processKeyDownEvent(const base::KeyboardEvent &keyEv);
-    bool processKeyUpEvent(const base::KeyboardEvent &keyEv);
+    bool processKeyDownEvent(const KeyboardEvent &keyEv);
+    bool processKeyUpEvent(const KeyboardEvent &keyEv);
     bool processTextInput(unsigned int codepoint);
 
     RocketDocument loadDocument(const std::string &name);
@@ -57,4 +52,4 @@ public:
     }
 };
 
-} }
+}

@@ -4,7 +4,7 @@
 #include <render/RenderOperation.h>
 #include <render/RenderPass.h>
 
-namespace df3d { namespace components {
+namespace df3d {
 
 class DF3D_DLL Sprite2DComponent : public NodeComponent
 {
@@ -44,4 +44,4 @@ public:
     virtual shared_ptr<NodeComponent> clone() const override;
 };
 
-} }
+}
