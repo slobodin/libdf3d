@@ -167,7 +167,7 @@ namespace df3d { namespace gui {
 //    }
 //};
 //
-//class SceneTreeWindow : public Rocket::Core::ElementDocument, public scene::SceneManagerListener, public Rocket::Core::EventListener
+//class SceneTreeWindow : public Rocket::Core::ElementDocument, public SceneManagerListener, public Rocket::Core::EventListener
 //{
 //public:
 //    const scene::Node *m_currentNode = nullptr;

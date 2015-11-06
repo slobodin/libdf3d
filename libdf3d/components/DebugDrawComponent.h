@@ -2,7 +2,7 @@
 
 #include "NodeComponent.h"
 
-namespace df3d { namespace components {
+namespace df3d {
 
 class DebugDrawAABBNode;
 
@@ -18,8 +18,8 @@ public:
 private:
     unique_ptr<DebugDrawAABBNode> m_debugDraw;
 
-    void onComponentEvent(components::ComponentEvent ev) override;
-    void onDraw(render::RenderQueue *ops) override;
+    void onComponentEvent(ComponentEvent ev) override;
+    void onDraw(RenderQueue *ops) override;
 
     DebugDrawComponent();
 
@@ -30,4 +30,4 @@ public:
     shared_ptr<NodeComponent> clone() const override;
 };
 
-} }
+}

@@ -13,19 +13,19 @@ namespace df3d { namespace components {
 class DebugDrawAABBNode
 {
 public:
-    render::RenderOperation m_ro;
-    shared_ptr<render::RenderPass> m_pass;
+    RenderOperation m_ro;
+    shared_ptr<RenderPass> m_pass;
 
     DebugDrawAABBNode()
     {
-        m_pass = make_shared<render::RenderPass>(render::RenderPass::createDebugDrawPass());
+        m_pass = make_shared<RenderPass>(RenderPass::createDebugDrawPass());
 
         m_ro.worldTransform = glm::mat4();
         m_ro.passProps = m_pass;
 
         // Fill index buffer.
-        m_ro.indexData = make_shared<render::IndexBuffer>();
-        render::IndexArray indices;
+        m_ro.indexData = make_shared<IndexBuffer>();
+        IndexArray indices;
         indices.push_back(0); indices.push_back(2); indices.push_back(1);
         indices.push_back(0); indices.push_back(3); indices.push_back(2);
         indices.push_back(0); indices.push_back(1); indices.push_back(5);

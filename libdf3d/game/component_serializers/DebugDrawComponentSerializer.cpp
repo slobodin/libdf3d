@@ -14,7 +14,7 @@ Component DebugDrawComponentSerializer::fromJson(const Json::Value &root)
     else if (typeStr == "obb")
         result = make_shared<components::DebugDrawComponent>(components::DebugDrawComponent::Type::OBB);
     else
-        base::glog << "Unknown debug draw component type" << typeStr << base::logwarn;
+        glog << "Unknown debug draw component type" << typeStr << base::logwarn;
 
     return result;
 }
