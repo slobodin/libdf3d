@@ -4,7 +4,7 @@
 #include <BulletCollision/CollisionShapes/btConvexHullShape.h>
 #include <BulletCollision/CollisionShapes/btShapeHull.h>
 
-namespace df3d { namespace scene {
+namespace df3d {
 
 ConvexHull::ConvexHull()
 {
@@ -31,7 +31,7 @@ bool ConvexHull::isValid() const
     return m_vertices.size() > 0;
 }
 
-void ConvexHull::constructFromGeometry(const std::vector<render::SubMesh> &submeshes)
+void ConvexHull::constructFromGeometry(const std::vector<SubMesh> &submeshes)
 {
     reset();
 
@@ -43,12 +43,12 @@ void ConvexHull::constructFromGeometry(const std::vector<render::SubMesh> &subme
         const auto &vertexData = submesh.getVertexData();
 
         // Some sanity checks.
-        if (!vertexData.getFormat().hasAttribute(render::VertexFormat::POSITION_3))
+        if (!vertexData.getFormat().hasAttribute(VertexFormat::POSITION_3))
             continue;
 
         for (size_t i = 0; i < vertexData.getVerticesCount(); i++)
         {
-            auto v = const_cast<render::VertexData&>(vertexData).getVertex(i);      // sorry, but it's really const...
+            auto v = const_cast<VertexData&>(vertexData).getVertex(i);      // sorry, but it's really const...
             glm::vec3 p;
             v.getPosition(&p);
 
@@ -73,4 +73,4 @@ void ConvexHull::constructFromGeometry(const std::vector<render::SubMesh> &subme
     delete tempHull;
 }
 
-} }
+}
