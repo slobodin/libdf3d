@@ -2,16 +2,16 @@
 
 #include <components/NodeComponent.h>
 
-FWD_MODULE_CLASS(components, TransformComponent)
-FWD_MODULE_CLASS(components, MeshComponent)
-FWD_MODULE_CLASS(components, LightComponent)
-FWD_MODULE_CLASS(components, AudioComponent)
-FWD_MODULE_CLASS(components, ParticleSystemComponent)
-FWD_MODULE_CLASS(components, PhysicsComponent)
-FWD_MODULE_CLASS(components, Sprite2DComponent)
-FWD_MODULE_CLASS(render, RenderQueue)
+namespace df3d {
 
-namespace df3d { namespace scene {
+class TransformComponent;
+class MeshComponent;
+class LightComponent;
+class AudioComponent;
+class ParticleSystemComponent;
+class PhysicsComponent;
+class Sprite2DComponent;
+class RenderQueue;
 
 // A node in a scene graph.
 // FIXME:
@@ -19,7 +19,7 @@ namespace df3d { namespace scene {
 
 class DF3D_DLL Node : public std::enable_shared_from_this<Node>, utils::NonCopyable
 {
-    friend class components::NodeComponent;
+    friend class NodeComponent;
 
 public:
     using NodeChildren = std::vector<shared_ptr<Node>>;
@@ -31,7 +31,7 @@ protected:
     double m_lifeTime = 0.0;
     double m_maxLifeTime = -1.0;
 
-    Component m_components[components::COUNT];
+    std::shared_ptr<NodeComponent> m_components[(int)ComponentType::COUNT];
 
     // TODO:
     // List of active components.
@@ -39,10 +39,10 @@ protected:
     weak_ptr<Node> m_parent;
     NodeChildren m_children;
 
-    void broadcastNodeEvent(components::NodeEvent ev);
-    void broadcastComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev);
+    void broadcastNodeEvent(NodeEvent ev);
+    void broadcastComponentEvent(const NodeComponent *who, ComponentEvent ev);
 
-    virtual void onComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev) { }
+    virtual void onComponentEvent(const NodeComponent *who, ComponentEvent ev) { }
 
 public:
     Node(const std::string &name = "");
@@ -62,7 +62,7 @@ public:
     double getLifeTime() const { return m_lifeTime; }
 
     void update(float dt);
-    void draw(render::RenderQueue *ops);
+    void draw(RenderQueue *ops);
     void traverse(std::function<void(shared_ptr<Node>)> fn);
 
     void addChild(shared_ptr<Node> child);
@@ -82,18 +82,18 @@ public:
 
     shared_ptr<Node> clone() const;
 
-    shared_ptr<components::NodeComponent> getComponent(components::ComponentType type) const { return m_components[type]; }
-    shared_ptr<components::TransformComponent> transform();
-    shared_ptr<components::MeshComponent> mesh();
-    shared_ptr<components::LightComponent> light();
-    shared_ptr<components::AudioComponent> audio();
-    shared_ptr<components::ParticleSystemComponent> vfx();
-    shared_ptr<components::PhysicsComponent> physics();
-    shared_ptr<components::Sprite2DComponent> sprite2d();
+    shared_ptr<NodeComponent> getComponent(ComponentType type) const { return m_components[(int)type]; }
+    shared_ptr<TransformComponent> transform();
+    shared_ptr<MeshComponent> mesh();
+    shared_ptr<LightComponent> light();
+    shared_ptr<AudioComponent> audio();
+    shared_ptr<ParticleSystemComponent> vfx();
+    shared_ptr<PhysicsComponent> physics();
+    shared_ptr<Sprite2DComponent> sprite2d();
     size_t attachedComponentsCount() const;
 
-    void attachComponent(shared_ptr<components::NodeComponent> component);
-    void detachComponent(components::ComponentType type);
+    void attachComponent(shared_ptr<NodeComponent> component);
+    void detachComponent(ComponentType type);
 
     template<typename T, typename... Args>
     void createComponent(Args&&... args)
@@ -102,4 +102,4 @@ public:
     }
 };
 
-} }
+}

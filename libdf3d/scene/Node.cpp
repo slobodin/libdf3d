@@ -65,13 +65,13 @@ void Node::setName(const std::string &newName)
 {
     if (m_parent.lock())
     {
-        base::glog << "Can not set name. SHOULD FIX THAT." << base::logwarn;
+        glog << "Can not set name. SHOULD FIX THAT." << base::logwarn;
         return;
     }
 
     if (newName.empty())
     {
-        base::glog << "Can not set invalid name for a node." << base::logwarn;
+        glog << "Can not set invalid name for a node." << base::logwarn;
         return;
     }
 
@@ -125,19 +125,19 @@ void Node::addChild(shared_ptr<Node> child)
 {
     if (!child)
     {
-        base::glog << "NULL child append attempt occurred" << base::logwarn;
+        glog << "NULL child append attempt occurred" << base::logwarn;
         return;
     }
 
     if (child->m_parent.lock())
     {
-        base::glog << "Node" << child->m_nodeName << "already has a parent" << child->m_parent.lock()->m_nodeName << base::logwarn;
+        glog << "Node" << child->m_nodeName << "already has a parent" << child->m_parent.lock()->m_nodeName << base::logwarn;
         return;
     }
 
     if (getChildByName(child->m_nodeName))
     {
-        base::glog << "Node" << m_nodeName << "already has child with name" << child->m_nodeName << base::logwarn;
+        glog << "Node" << m_nodeName << "already has child with name" << child->m_nodeName << base::logwarn;
         return;
     }
 
@@ -254,7 +254,7 @@ void Node::attachComponent(shared_ptr<components::NodeComponent> component)
 {
     if (!component)
     {
-        base::glog << "Failed to attach a null component to a node" << base::logwarn;
+        glog << "Failed to attach a null component to a node" << base::logwarn;
         return;
     }
 
@@ -278,7 +278,7 @@ void Node::detachComponent(components::ComponentType type)
     auto component = m_components[type];
     if (!component)
     {
-        base::glog << "Trying to detach non existing node component" << base::logwarn;
+        glog << "Trying to detach non existing node component" << base::logwarn;
         return;
     }
 
