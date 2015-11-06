@@ -4,7 +4,7 @@
 #include "Frustum.h"
 #include <render/Viewport.h>
 
-namespace df3d { namespace scene {
+namespace df3d {
 
 class DF3D_DLL Camera : public Node
 {
@@ -31,7 +31,7 @@ class DF3D_DLL Camera : public Node
     void buildProjectionMatrix();
     void buildFrustum();
 
-    void onComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev) override;
+    void onComponentEvent(const NodeComponent *who, ComponentEvent ev) override;
 
 public:
     /** 
@@ -63,4 +63,4 @@ public:
     glm::vec3 worldToScreenPoint(const glm::vec3 &world);
 };
 
-} }
+}
