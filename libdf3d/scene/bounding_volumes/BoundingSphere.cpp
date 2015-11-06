@@ -1,6 +1,6 @@
 #include "BoundingSphere.h"
 
-namespace df3d { namespace scene {
+namespace df3d {
 
 BoundingSphere::BoundingSphere()
 {
@@ -66,4 +66,4 @@ const float BoundingSphere::getRadius() const
     return m_radius;
 }
 
-} }
+}

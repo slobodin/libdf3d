@@ -1,8 +1,8 @@
 #pragma once
 
-FWD_MODULE_CLASS(render, SubMesh)
+namespace df3d {
 
-namespace df3d { namespace scene {
+class SubMesh;
 
 class DF3D_DLL BoundingVolume
 {
@@ -14,7 +14,7 @@ public:
 
     virtual bool isValid() const = 0;
 
-    virtual void constructFromGeometry(const std::vector<render::SubMesh> &submeshes);
+    virtual void constructFromGeometry(const std::vector<SubMesh> &submeshes);
 };
 
-} }
+}

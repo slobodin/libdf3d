@@ -2,7 +2,7 @@
 
 #include "BoundingVolume.h"
 
-namespace df3d { namespace scene {
+namespace df3d {
 
 class AABB;
 
@@ -30,4 +30,4 @@ public:
     const float getRadius() const;
 };
 
-} }
+}
