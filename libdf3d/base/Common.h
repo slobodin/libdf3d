@@ -53,9 +53,6 @@ using std::static_pointer_cast;
 #define SAFE_DELETE(x) { delete x; x = nullptr; }
 #define SAFE_ARRAY_DELETE(x) { delete [] x; x = nullptr; }
 
-#define FWD_MODULE_CLASS(_namespace, _class) namespace df3d { namespace _namespace { class _class; } }
-#define FWD_MODULE_STRUCT(_namespace, _struct) namespace df3d { namespace _namespace { struct _struct; } }
-
 #if defined(max)
 #undef max
 #endif
@@ -66,10 +63,8 @@ using std::static_pointer_cast;
 
 namespace df3d {
 
-// Common typedefs.
-
-namespace scene { class Node; }
-namespace components { class NodeComponent; }
+class Node;
+class Component;
 
 enum class ResourceLoadingMode
 {
@@ -87,9 +82,8 @@ enum class PixelFormat
 };
 
 using ResourceGUID = std::string;
-using SceneNode = shared_ptr<df3d::scene::Node>;
-using WeakSceneNode = weak_ptr<df3d::scene::Node>;
-using Component = shared_ptr<df3d::components::NodeComponent>;
+using SceneNode = shared_ptr<df3d::Node>;
+using WeakSceneNode = weak_ptr<df3d::Node>;
 using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
 
 inline float IntervalBetween(const TimePoint &t1, const TimePoint &t2)
