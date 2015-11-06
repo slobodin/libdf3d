@@ -48,7 +48,7 @@ unique_ptr<AudioBufferFSLoader::PCMData> loadPCM(shared_ptr<FileDataSource> sour
 
     if (memcmp(header.chunkID, "RIFF", 4) || memcmp(header.format, "WAVE", 4))
     {
-        base::glog << "Invalid WAVE file header" << source->getPath() << base::logwarn;
+        glog << "Invalid WAVE file header" << source->getPath() << base::logwarn;
         return nullptr;
     }
 
@@ -57,7 +57,7 @@ unique_ptr<AudioBufferFSLoader::PCMData> loadPCM(shared_ptr<FileDataSource> sour
 
     if (memcmp(format.subChunkID, "fmt ", 4))
     {
-        base::glog << "Invalid WAVE format" << source->getPath() << base::logwarn;
+        glog << "Invalid WAVE format" << source->getPath() << base::logwarn;
         return nullptr;
     }
 
@@ -69,7 +69,7 @@ unique_ptr<AudioBufferFSLoader::PCMData> loadPCM(shared_ptr<FileDataSource> sour
 
     if (memcmp(data.subChunkID, "data", 4))
     {
-        base::glog << "Invalid WAVE data" << source->getPath() << base::logwarn;
+        glog << "Invalid WAVE data" << source->getPath() << base::logwarn;
         return nullptr;
     }
 
@@ -78,7 +78,7 @@ unique_ptr<AudioBufferFSLoader::PCMData> loadPCM(shared_ptr<FileDataSource> sour
     auto got = source->getRaw(sounddata, data.subChunk2Size);
     if (got != data.subChunk2Size)
     {
-        base::glog << "Error loading WAVE data" << source->getPath() << base::logwarn;
+        glog << "Error loading WAVE data" << source->getPath() << base::logwarn;
         return nullptr;
     }
 
@@ -168,7 +168,7 @@ unique_ptr<AudioBufferFSLoader::PCMData> loadPCM(shared_ptr<FileDataSource> sour
 
     if (ov_open_callbacks(source.get(), &oggVorbisFile, NULL, -1, ovCallbacks) < 0)
     {
-        base::glog << "Failed to open ogg file" << source->getPath() << base::logwarn;
+        glog << "Failed to open ogg file" << source->getPath() << base::logwarn;
         return nullptr;
     }
 
