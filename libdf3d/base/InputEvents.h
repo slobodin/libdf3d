@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace base {
+namespace df3d {
 
 class DF3D_DLL MouseMotionEvent
 {
@@ -167,4 +167,4 @@ public:
     State state;
 };
 
-} }
+}
