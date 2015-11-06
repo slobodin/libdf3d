@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace render {
+namespace df3d {
 
 // FIXME:
 // Make setting.
@@ -57,4 +57,4 @@ public:
     static RenderingCapabilities getDefaults();
 };
 
-} }
+}

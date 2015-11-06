@@ -226,14 +226,14 @@ RendererBackend::RendererBackend()
 #endif
 
     const char *ver = (const char *)glGetString(GL_VERSION);
-    base::glog << "OpenGL version" << ver << base::logmess;
+    glog << "OpenGL version" << ver << base::logmess;
 
     const char *card = (const char *)glGetString(GL_RENDERER);
     const char *vendor = (const char *)glGetString(GL_VENDOR);
-    base::glog << "Using" << card << vendor << base::logmess;
+    glog << "Using" << card << vendor << base::logmess;
 
     const char *shaderVer = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
-    base::glog << "Shaders version" << shaderVer << base::logmess;
+    glog << "Shaders version" << shaderVer << base::logmess;
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
@@ -538,7 +538,7 @@ int RendererBackend::getMaxTextureSize()
 {
     if (!m_initialized)
     {
-        base::glog << "Failed to get max texture size. RendererBackend is not initialized" << base::logwarn;
+        glog << "Failed to get max texture size. RendererBackend is not initialized" << base::logwarn;
         return -1;
     }
 
@@ -549,7 +549,7 @@ float RendererBackend::getMaxAnisotropy()
 {
     if (!m_initialized)
     {
-        base::glog << "Failed to get max anisotropy level. RendererBackend is not initialized" << base::logwarn;
+        glog << "Failed to get max anisotropy level. RendererBackend is not initialized" << base::logwarn;
         return 1.0f;
     }
 
