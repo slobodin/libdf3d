@@ -8,17 +8,17 @@
 #include "MeshLoader_obj.h"
 #include "MeshLoader_dfmesh.h"
 
-namespace df3d { namespace resources {
+namespace df3d {
 
-MeshDataManualLoader::MeshDataManualLoader(std::vector<render::SubMesh> &&geometry)
+MeshDataManualLoader::MeshDataManualLoader(std::vector<SubMesh> &&geometry)
     : m_geometry(std::move(geometry))
 {
 
 }
 
-render::MeshData* MeshDataManualLoader::load()
+MeshData* MeshDataManualLoader::load()
 {
-    auto result = new render::MeshData(m_geometry);
+    auto result = new MeshData(m_geometry);
     result->m_aabb.constructFromGeometry(m_geometry);
     result->m_obb.constructFromGeometry(m_geometry);
     result->m_sphere.constructFromGeometry(m_geometry);
@@ -26,7 +26,7 @@ render::MeshData* MeshDataManualLoader::load()
     for (auto &s : m_geometry)
         utils::mesh::computeTangentBasis(s);
 
-    return new render::MeshData(m_geometry);
+    return new MeshData(m_geometry);
 }
 
 MeshDataFSLoader::MeshDataFSLoader(const std::string &path, ResourceLoadingMode lm)
@@ -36,9 +36,9 @@ MeshDataFSLoader::MeshDataFSLoader(const std::string &path, ResourceLoadingMode 
 
 }
 
-render::MeshData* MeshDataFSLoader::createDummy()
+MeshData* MeshDataFSLoader::createDummy()
 {
-    return new render::MeshData();
+    return new MeshData();
 }
 
 bool MeshDataFSLoader::decode(shared_ptr<FileDataSource> source)
@@ -55,7 +55,7 @@ bool MeshDataFSLoader::decode(shared_ptr<FileDataSource> source)
 
 void MeshDataFSLoader::onDecoded(Resource *resource)
 {
-    auto meshdata = static_cast<render::MeshData*>(resource);
+    auto meshdata = static_cast<MeshData*>(resource);
 
     assert(m_mesh);
 
@@ -92,4 +92,4 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
     m_mesh.reset();     // Cleanup main memory.
 }
 
-} }
+}

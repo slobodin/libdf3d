@@ -19,7 +19,7 @@ void ResourceManager::doRequest(DecodeRequest req)
 
     req.result = req.loader->decode(req.source);
     if (!req.result)
-        glog << "ASYNC decoding failed" << base::logwarn;
+        glog << "ASYNC decoding failed" << logwarn;
 
     m_decodedResources.push(req);
 }
@@ -42,7 +42,7 @@ shared_ptr<Resource> ResourceManager::loadManual(shared_ptr<ManualResourceLoader
     auto resource = shared_ptr<Resource>(loader->load());
     if (!resource)
     {
-        glog << "Failed to manual load a resource" << base::logwarn;
+        glog << "Failed to manual load a resource" << logwarn;
         return nullptr;
     }
 
@@ -70,7 +70,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
     auto guid = CreateGUIDFromPath(path);
     if (!IsGUIDValid(guid))
     {
-        glog << "Can't load resource. The path" << path << "doesn't exist or it's a directory." << base::logwarn;
+        glog << "Can't load resource. The path" << path << "doesn't exist or it's a directory." << logwarn;
         return nullptr;
     }
 
@@ -105,7 +105,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
         }
         else
         {
-            glog << "Failed to decode a resource" << base::logwarn;
+            glog << "Failed to decode a resource" << logwarn;
         }
 
         for (auto listener : m_listeners)
@@ -206,7 +206,7 @@ void ResourceManager::addListener(Listener *listener)
 
     if (utils::contains(m_listeners, listener))
     {
-        glog << "Trying to add duplicate ResourceManager listener" << base::logwarn;
+        glog << "Trying to add duplicate ResourceManager listener" << logwarn;
         return;
     }
 
@@ -221,7 +221,7 @@ void ResourceManager::removeListener(Listener *listener)
     if (found != m_listeners.end())
         m_listeners.erase(found);
     else
-        glog << "ResourceManager::removeListener failed: listener doesn't exist" << base::logwarn;
+        glog << "ResourceManager::removeListener failed: listener doesn't exist" << logwarn;
 }
 
 } }

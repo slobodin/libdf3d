@@ -68,7 +68,7 @@ void parsePostProcessOption(const Json::Value &postFxNode, shared_ptr<scene::Sce
 
     if (mtlLib.empty() || mtlName.empty())
     {
-        glog << "Invalid postprocess option. Either materialName or materialLib field is empty." << base::logwarn;
+        glog << "Invalid postprocess option. Either materialName or materialLib field is empty." << logwarn;
         return;
     }
 
@@ -146,7 +146,7 @@ Json::Value saveScene(shared_ptr<const scene::Scene> scene)
 {
     if (!scene)
     {
-        glog << "Failed to serialize null scene" << base::logwarn;
+        glog << "Failed to serialize null scene" << logwarn;
         return Json::Value();
     }
 

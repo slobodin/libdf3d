@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace render {
+namespace df3d {
 
 class GpuProgram;
 
@@ -45,4 +45,4 @@ public:
     static shared_ptr<Shader> createFromString(const std::string &shaderData, Type type);
 };
 
-} }
+}

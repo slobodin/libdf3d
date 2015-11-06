@@ -162,7 +162,7 @@ void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
     auto camera = sc->getCamera();
     if (!camera)
     {
-        glog << "Can not draw scene. Camera is invalid." << base::logwarn;
+        glog << "Can not draw scene. Camera is invalid." << logwarn;
         return;
     }
 

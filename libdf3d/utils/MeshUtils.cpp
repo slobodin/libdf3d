@@ -45,11 +45,11 @@ void indexize()
     //return ib;
 }
 
-void computeNormals(render::SubMesh &submesh)
+void computeNormals(SubMesh &submesh)
 {
     const auto &vformat = submesh.getVertexData().getFormat();
 
-    if (!vformat.hasAttribute(render::VertexFormat::NORMAL_3) || !vformat.hasAttribute(render::VertexFormat::POSITION_3))
+    if (!vformat.hasAttribute(VertexFormat::NORMAL_3) || !vformat.hasAttribute(VertexFormat::POSITION_3))
         return;
 
     auto &vertexData = submesh.getVertexData();
@@ -128,18 +128,18 @@ void computeNormals(render::SubMesh &submesh)
     }
     else
     {
-        glog << "Cannot compute normals for triangle list mesh type." << base::logwarn;
+        glog << "Cannot compute normals for triangle list mesh type." << logwarn;
     }
 }
 
-void computeTangentBasis(render::SubMesh &submesh)
+void computeTangentBasis(SubMesh &submesh)
 {
     const auto &format = submesh.getVertexData().getFormat();
-    if (!format.hasAttribute(render::VertexFormat::TANGENT_3) ||
-        !format.hasAttribute(render::VertexFormat::BITANGENT_3) ||
-        !format.hasAttribute(render::VertexFormat::POSITION_3) ||
-        !format.hasAttribute(render::VertexFormat::TX_2) ||
-        !format.hasAttribute(render::VertexFormat::NORMAL_3))
+    if (!format.hasAttribute(VertexFormat::TANGENT_3) ||
+        !format.hasAttribute(VertexFormat::BITANGENT_3) ||
+        !format.hasAttribute(VertexFormat::POSITION_3) ||
+        !format.hasAttribute(VertexFormat::TX_2) ||
+        !format.hasAttribute(VertexFormat::NORMAL_3))
         return;
 
     // Indexed.
@@ -194,7 +194,7 @@ void computeTangentBasis(render::SubMesh &submesh)
         //    else
         //        v.tangent.w = 1.0f;
         //}
-        glog << "Can not compute tangent space basis for indexed mesh." << base::logwarn;
+        glog << "Can not compute tangent space basis for indexed mesh." << logwarn;
     }
     else
     {

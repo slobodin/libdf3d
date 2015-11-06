@@ -8,7 +8,7 @@
 #include <utils/MeshUtils.h>
 #include <utils/Utils.h>
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 bool MeshLoader_obj::hasNormals() const
 {
@@ -256,4 +256,4 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSourc
     return result;
 }
 
-} }
+}

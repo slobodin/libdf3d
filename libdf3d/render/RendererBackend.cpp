@@ -538,7 +538,7 @@ int RendererBackend::getMaxTextureSize()
 {
     if (!m_initialized)
     {
-        glog << "Failed to get max texture size. RendererBackend is not initialized" << base::logwarn;
+        glog << "Failed to get max texture size. RendererBackend is not initialized" << logwarn;
         return -1;
     }
 
@@ -549,7 +549,7 @@ float RendererBackend::getMaxAnisotropy()
 {
     if (!m_initialized)
     {
-        glog << "Failed to get max anisotropy level. RendererBackend is not initialized" << base::logwarn;
+        glog << "Failed to get max anisotropy level. RendererBackend is not initialized" << logwarn;
         return 1.0f;
     }
 

@@ -83,7 +83,7 @@ bool SceneManager::setCurrentScene(shared_ptr<Scene> scene)
 {
     if (!scene)
     {
-        df3d::glog << "Failed to set up scene manager with null scene" << df3d::base::logwarn;
+        df3d::glog << "Failed to set up scene manager with null scene" << df3d::logwarn;
         return false;
     }
 
@@ -109,7 +109,7 @@ void SceneManager::setCamera(shared_ptr<Camera> camera)
     if (m_currentScene)
         m_currentScene->setCamera(camera);
     else
-        glog << "Can not set camera to an empty scene" << base::logwarn;
+        glog << "Can not set camera to an empty scene" << logwarn;
 }
 
 shared_ptr<Camera> SceneManager::getCamera() const
@@ -141,7 +141,7 @@ void SceneManager::registerListener(SceneManagerListener *listener)
 {
     if (utils::contains(m_listeners, listener))
     {
-        glog << "Trying to add duplicate scene manager listener" << base::logwarn;
+        glog << "Trying to add duplicate scene manager listener" << logwarn;
         return;
     }
 
@@ -154,7 +154,7 @@ void SceneManager::unregisterListener(SceneManagerListener *listener)
 
     if (found == m_listeners.cend())
     {
-        glog << "Trying to remove not existing scene manager listener" << base::logwarn;
+        glog << "Trying to remove not existing scene manager listener" << logwarn;
         return;
     }
 

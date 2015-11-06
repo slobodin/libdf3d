@@ -39,7 +39,7 @@ public:
         indices.push_back(0); indices.push_back(4); indices.push_back(3);
         indices.push_back(4); indices.push_back(7); indices.push_back(3);
 
-        m_ro.indexData->alloc(indices.size(), indices.data(), render::GpuBufferUsageType::STATIC);
+        m_ro.indexData->alloc(indices.size(), indices.data(), GpuBufferUsageType::STATIC);
     }
 
     ~DebugDrawAABBNode()
@@ -47,13 +47,13 @@ public:
 
     }
 
-    void recreate(const scene::AABB &aabb)
+    void recreate(const AABB &aabb)
     {
         if (!aabb.isValid())
             return;
 
-        render::VertexFormat vertexFormat({ render::VertexFormat::POSITION_3, render::VertexFormat::TX_2, render::VertexFormat::COLOR_4 });
-        render::VertexData vertexData(vertexFormat);
+        VertexFormat vertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
+        VertexData vertexData(vertexFormat);
 
         // Create debug visual for AABB.
         // FIXME: This happens even if AABB is the same as was on the last frame.
@@ -71,17 +71,17 @@ public:
         vertexData.allocVertex().setPosition({ maxpt.x, minpt.y, minpt.z });
         vertexData.allocVertex().setPosition({ maxpt.x, minpt.y, maxpt.z });
 
-        m_ro.vertexData = make_shared<render::VertexBuffer>(vertexFormat);
-        m_ro.vertexData->alloc(vertexData, render::GpuBufferUsageType::STREAM);
+        m_ro.vertexData = make_shared<VertexBuffer>(vertexFormat);
+        m_ro.vertexData->alloc(vertexData, GpuBufferUsageType::STREAM);
     }
 };
 
-void DebugDrawComponent::onComponentEvent(components::ComponentEvent ev)
+void DebugDrawComponent::onComponentEvent(ComponentEvent ev)
 {
 
 }
 
-void DebugDrawComponent::onDraw(render::RenderQueue *ops)
+void DebugDrawComponent::onDraw(RenderQueue *ops)
 {
     assert(false);  // TODO: check it works.
 
@@ -96,7 +96,7 @@ void DebugDrawComponent::onDraw(render::RenderQueue *ops)
 }
 
 DebugDrawComponent::DebugDrawComponent()
-    : NodeComponent(DEBUG_DRAW)
+    : NodeComponent(ComponentType::DEBUG_DRAW)
 {
 }
 

@@ -3,13 +3,13 @@
 #include "resources/Resource.h"
 #include "Material.h"
 
-FWD_MODULE_CLASS(resources, MaterialLibFSLoader)
+namespace df3d {
 
-namespace df3d { namespace render {
+class MaterialLibFSLoader;
 
-class DF3D_DLL MaterialLib : public resources::Resource
+class DF3D_DLL MaterialLib : public Resource
 {
-    friend class resources::MaterialLibFSLoader;
+    friend class MaterialLibFSLoader;
 
     std::unordered_map<std::string, shared_ptr<Material>> m_materials;
 
@@ -27,4 +27,4 @@ public:
     size_t materialsCount() const;
 };
 
-} }
+}

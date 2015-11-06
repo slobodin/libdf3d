@@ -4,7 +4,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-namespace df3d { namespace platform {
+namespace df3d {
 
 bool FileSystemHelpers::isPathAbsolute(const std::string &path)
 {
@@ -21,9 +21,9 @@ bool FileSystemHelpers::pathExists(const std::string &path)
     return (attrs != INVALID_FILE_ATTRIBUTES && !(attrs & FILE_ATTRIBUTE_DIRECTORY));
 }
 
-shared_ptr<resources::FileDataSource> FileSystemHelpers::openFile(const std::string &path)
+shared_ptr<FileDataSource> FileSystemHelpers::openFile(const std::string &path)
 {
     return make_shared<platform::FileDataSourceDesktop>(path.c_str());
 }
 
-} }
+}

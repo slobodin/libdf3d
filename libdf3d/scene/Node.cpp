@@ -9,7 +9,7 @@
 #include <components/Sprite2DComponent.h>
 #include <utils/Utils.h>
 
-namespace df3d { namespace scene {
+namespace df3d {
 
 static long nodesCount = 0;
 
@@ -18,7 +18,7 @@ bool findNodeByName(const std::string &name, shared_ptr<Node> node)
     return node->getName() == name;
 }
 
-void Node::broadcastNodeEvent(components::NodeEvent ev)
+void Node::broadcastNodeEvent(NodeEvent ev)
 {
     for (auto c : m_components)
     {
@@ -30,7 +30,7 @@ void Node::broadcastNodeEvent(components::NodeEvent ev)
         c->broadcastNodeEvent(ev);
 }
 
-void Node::broadcastComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev)
+void Node::broadcastComponentEvent(const NodeComponent *who, ComponentEvent ev)
 {
     // Send event to components.
     for (auto c : m_components)
@@ -53,7 +53,7 @@ Node::Node(const std::string &name)
     if (m_nodeName.empty())
         m_nodeName = std::string("unnamed_node_") + utils::to_string(nodesCount++);
 
-    createComponent<components::TransformComponent>();
+    createComponent<TransformComponent>();
 }
 
 Node::~Node()
@@ -65,13 +65,13 @@ void Node::setName(const std::string &newName)
 {
     if (m_parent.lock())
     {
-        glog << "Can not set name. SHOULD FIX THAT." << base::logwarn;
+        glog << "Can not set name. SHOULD FIX THAT." << logwarn;
         return;
     }
 
     if (newName.empty())
     {
-        glog << "Can not set invalid name for a node." << base::logwarn;
+        glog << "Can not set invalid name for a node." << logwarn;
         return;
     }
 
@@ -86,7 +86,7 @@ void Node::update(float dt)
     m_lifeTime += dt;
 
     // Update all components.
-    for (size_t i = 0; i < components::COUNT; i++)
+    for (size_t i = 0; i < ComponentType::COUNT; i++)
     {
         auto c = m_components[i];
         if (c)
@@ -97,12 +97,12 @@ void Node::update(float dt)
         child->update(dt);
 }
 
-void Node::draw(render::RenderQueue *ops)
+void Node::draw(RenderQueue *ops)
 {
     if (!isVisible())
         return;
 
-    for (size_t i = 0; i < components::COUNT; i++)
+    for (size_t i = 0; i < ComponentType::COUNT; i++)
     {
         auto c = m_components[i];
         if (c)
@@ -125,19 +125,19 @@ void Node::addChild(shared_ptr<Node> child)
 {
     if (!child)
     {
-        glog << "NULL child append attempt occurred" << base::logwarn;
+        glog << "NULL child append attempt occurred" << logwarn;
         return;
     }
 
     if (child->m_parent.lock())
     {
-        glog << "Node" << child->m_nodeName << "already has a parent" << child->m_parent.lock()->m_nodeName << base::logwarn;
+        glog << "Node" << child->m_nodeName << "already has a parent" << child->m_parent.lock()->m_nodeName << logwarn;
         return;
     }
 
     if (getChildByName(child->m_nodeName))
     {
-        glog << "Node" << m_nodeName << "already has child with name" << child->m_nodeName << base::logwarn;
+        glog << "Node" << m_nodeName << "already has child with name" << child->m_nodeName << logwarn;
         return;
     }
 
@@ -254,7 +254,7 @@ void Node::attachComponent(shared_ptr<components::NodeComponent> component)
 {
     if (!component)
     {
-        glog << "Failed to attach a null component to a node" << base::logwarn;
+        glog << "Failed to attach a null component to a node" << logwarn;
         return;
     }
 
@@ -278,7 +278,7 @@ void Node::detachComponent(components::ComponentType type)
     auto component = m_components[type];
     if (!component)
     {
-        glog << "Trying to detach non existing node component" << base::logwarn;
+        glog << "Trying to detach non existing node component" << logwarn;
         return;
     }
 
@@ -286,4 +286,4 @@ void Node::detachComponent(components::ComponentType type)
     m_components[type].reset();
 }
 
-} }
+}

@@ -2,7 +2,7 @@
 
 #include "OpenGLCommon.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 SharedUniformType getSharedTypeForUniform(const std::string &name)
 {
@@ -106,4 +106,4 @@ void GpuProgramUniform::update(const void *data) const
     }
 }
 
-} }
+}

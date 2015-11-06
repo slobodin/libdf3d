@@ -4,7 +4,7 @@
 #include <base/Service.h>
 #include <resources/FileDataSource.h>
 
-namespace df3d { namespace render {
+namespace df3d {
 
 void shaderLog(unsigned int shader)
 {
@@ -15,7 +15,7 @@ void shaderLog(unsigned int shader)
     infoLog = new char[infologLen + 1];
 
     glGetShaderInfoLog(shader, infologLen, nullptr, infoLog);
-    glog << "Shader info log:" << infoLog << base::logmess;
+    glog << "Shader info log:" << infoLog << logmess;
 
     delete [] infoLog;
 }
@@ -64,14 +64,14 @@ std::string Shader::preprocessInclude(std::string shaderData, const std::string 
 
         if (start == end || start == std::string::npos || end == std::string::npos)
         {
-            glog << "Failed to preprocess shader: invalid include directive" << base::logwarn;
+            glog << "Failed to preprocess shader: invalid include directive" << logwarn;
             return shaderData;
         }
 
         auto fileToInclude = shaderData.substr(start + 1, end - start - 1);
         if (fileToInclude.empty())
         {
-            glog << "Failed to preprocess shader: empty include path" << base::logwarn;
+            glog << "Failed to preprocess shader: empty include path" << logwarn;
             return shaderData;
         }
 
@@ -79,7 +79,7 @@ std::string Shader::preprocessInclude(std::string shaderData, const std::string 
         auto file = svc().filesystem.openFile(fileToInclude);
         if (!file || !file->valid())
         {
-            glog << "Failed to preprocess shader: file" << fileToInclude << "not found" << base::logwarn;
+            glog << "Failed to preprocess shader: file" << fileToInclude << "not found" << logwarn;
             return shaderData;
         }
 
@@ -105,13 +105,13 @@ bool Shader::compile()
 
     if (m_shaderDescriptor == 0 || m_type == Type::UNDEFINED)
     {
-        glog << "Can not compile GLSL shader due to undefined type" << base::logwarn;
+        glog << "Can not compile GLSL shader due to undefined type" << logwarn;
         return false;
     }
 
     if (m_shaderData.empty())
     {
-        glog << "Empty shader data" << base::logwarn;
+        glog << "Empty shader data" << logwarn;
         return false;
     }
 
@@ -123,7 +123,7 @@ bool Shader::compile()
     glGetShaderiv(m_shaderDescriptor, GL_COMPILE_STATUS, &compileOk);
     if (compileOk == GL_FALSE)
     {
-        glog << "Failed to compile a shader" << base::logwarn;
+        glog << "Failed to compile a shader" << logwarn;
         glog << "\n" << m_shaderData << base::logmess;
         shaderLog(m_shaderDescriptor);
 
@@ -158,7 +158,7 @@ shared_ptr<Shader> Shader::createFromFile(const std::string &filePath)
     auto file = svc().filesystem.openFile(filePath);
     if (!file || !file->valid())
     {
-        glog << "Can not create shader. File" << filePath << "doesn't exist" << base::logwarn;
+        glog << "Can not create shader. File" << filePath << "doesn't exist" << logwarn;
         return nullptr;
     }
 
@@ -170,7 +170,7 @@ shared_ptr<Shader> Shader::createFromFile(const std::string &filePath)
         shader->setType(Type::FRAGMENT);
     else
     {
-        glog << "Can not decode GLSL shader because it's type is undefined" << filePath << base::logwarn;
+        glog << "Can not decode GLSL shader because it's type is undefined" << filePath << logwarn;
         return nullptr;
     }
 
@@ -186,7 +186,7 @@ shared_ptr<Shader> Shader::createFromString(const std::string &shaderData, Type 
 {
     if (type == Type::UNDEFINED)
     {
-        glog << "Failed to create shader of UNDEFINED type" << base::logwarn;
+        glog << "Failed to create shader of UNDEFINED type" << logwarn;
         return nullptr;
     }
 
@@ -195,4 +195,4 @@ shared_ptr<Shader> Shader::createFromString(const std::string &shaderData, Type 
     return shader;
 }
 
-} }
+}

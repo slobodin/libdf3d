@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace render {
+namespace df3d {
 
 class GpuProgramUniform;
 class RenderPass;
@@ -61,15 +61,15 @@ public:
     GpuProgramState() = default;
     ~GpuProgramState() = default;
 
-    const glm::mat4 &getWorldMatrix();
-    const glm::mat4 &getViewMatrix();
-    const glm::mat4 &getProjectionMatrix();
-    const glm::mat4 &getWorldViewProjectionMatrix();
-    const glm::mat4 &getWorldViewMatrix();
-    const glm::mat3 &getWorldView3x3Matrix();
-    const glm::mat3 &getNormalMatrix();
-    const glm::mat4 &getViewMatrixInverse();
-    const glm::mat4 &getWorldMatrixInverse();
+    const glm::mat4& getWorldMatrix();
+    const glm::mat4& getViewMatrix();
+    const glm::mat4& getProjectionMatrix();
+    const glm::mat4& getWorldViewProjectionMatrix();
+    const glm::mat4& getWorldViewMatrix();
+    const glm::mat3& getWorldView3x3Matrix();
+    const glm::mat3& getNormalMatrix();
+    const glm::mat4& getViewMatrixInverse();
+    const glm::mat4& getWorldMatrixInverse();
 
     void setWorldMatrix(const glm::mat4 &worldm);
     void setViewMatrix(const glm::mat4 &viewm);
@@ -91,4 +91,4 @@ public:
 // for each uniform in pass
 // uniform->bind to program
 
-} }
+}

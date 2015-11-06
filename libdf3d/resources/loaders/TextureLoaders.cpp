@@ -46,7 +46,7 @@ namespace
     {
         if (!source)
         {
-            glog << "Failed to load pixel buffer from file source. Source is null." << base::logwarn;
+            glog << "Failed to load pixel buffer from file source. Source is null." << logwarn;
             return nullptr;
         }
 
@@ -60,9 +60,9 @@ namespace
         auto pixels = stbi_load_from_callbacks(&callbacks, dataSource, &x, &y, &bpp, 0);
         if (!pixels)
         {
-            glog << "Can not load image" << source->getPath() << base::logwarn;
+            glog << "Can not load image" << source->getPath() << logwarn;
 #ifdef STB_DO_ERROR_PRINT
-            glog << stbi_failure_reason() << base::logwarn;
+            glog << stbi_failure_reason() << logwarn;
 #endif
             return nullptr;
         }
@@ -76,7 +76,7 @@ namespace
         else if (bpp == STBI_grey)
             fmt = PixelFormat::GRAYSCALE;
         else
-            glog << "Parsed image with an invalid bpp" << base::logwarn;
+            glog << "Parsed image with an invalid bpp" << logwarn;
 
         auto result = make_unique<render::PixelBuffer>(x, y, pixels, fmt);
 
@@ -182,7 +182,7 @@ void TextureCubeFSLoader::onDecoded(Resource *resource)
     {
         if (!pb)
         {
-            glog << "Failed to decode cube texture. Image(s) invalid." << base::logwarn;
+            glog << "Failed to decode cube texture. Image(s) invalid." << logwarn;
             return;
         }
     }

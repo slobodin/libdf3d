@@ -16,7 +16,7 @@
 #include <components/ParticleSystemComponent.h>
 #include <physics/PhysicsManager.h>
 
-namespace df3d { namespace gui {
+namespace df3d {
 
 //namespace impl
 //{
@@ -439,4 +439,4 @@ namespace df3d { namespace gui {
 //    //    return;
 //}
 
-} }
+}

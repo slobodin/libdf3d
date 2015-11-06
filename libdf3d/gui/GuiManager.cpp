@@ -13,7 +13,7 @@
 #define ENABLE_ROCKET_DEBUGGER
 #endif
 
-namespace df3d { namespace gui {
+namespace df3d {
 
 GuiManager::GuiManager(int contextWidth, int contextHeight)
 {
@@ -42,7 +42,7 @@ GuiManager::GuiManager(int contextWidth, int contextHeight)
     // Initialize debugger.
 #ifdef ENABLE_ROCKET_DEBUGGER
     if (!Rocket::Debugger::Initialise(m_rocketContext))
-        glog << "Failed to initialize Rocket GUI debugger" << base::logwarn;
+        glog << "Failed to initialize Rocket GUI debugger" << logwarn;
 #endif
 }
 
@@ -121,4 +121,4 @@ bool GuiManager::isDebuggerVisible() const
     return Rocket::Debugger::IsVisible();
 }
 
-} }
+}

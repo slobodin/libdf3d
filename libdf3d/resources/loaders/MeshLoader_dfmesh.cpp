@@ -1,6 +1,6 @@
 #include "MeshLoader_dfmesh.h"
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 // File format
 // HEADER
@@ -50,4 +50,4 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<FileDataSo
     return nullptr;
 }
 
-} }
+}

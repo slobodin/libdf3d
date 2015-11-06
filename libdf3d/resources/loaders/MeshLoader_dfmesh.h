@@ -2,7 +2,7 @@
 
 #include "MeshLoaders.h"
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 //! DFMesh file format decoder.
 /*!
@@ -17,4 +17,4 @@ public:
     unique_ptr<MeshDataFSLoader::Mesh> load(shared_ptr<FileDataSource> source);
 };
 
-} }
+}

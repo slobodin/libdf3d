@@ -1,17 +1,16 @@
 #pragma once
 
-FWD_MODULE_CLASS(render, Material)
-FWD_MODULE_CLASS(render, RenderQueue)
-FWD_MODULE_CLASS(render, RenderStats)
-
-namespace df3d { namespace scene {
+namespace df3d {
 
 class Node;
 class Camera;
+class Material;
+class RenderQueue;
+class RenderStats;
 
 class DF3D_DLL Scene
 {
-    shared_ptr<render::Material> m_postProcessMaterial;
+    shared_ptr<Material> m_postProcessMaterial;
     shared_ptr<Node> m_root;
     shared_ptr<Camera> m_camera;
 
@@ -34,13 +33,13 @@ public:
     void setCamera(shared_ptr<Camera> camera) { m_camera = camera; }
     shared_ptr<Camera> getCamera() const { return m_camera; }
 
-    void setPostProcessMaterial(shared_ptr<render::Material> material);
-    shared_ptr<render::Material> getPostProcessMaterial() const { return m_postProcessMaterial; }
+    void setPostProcessMaterial(shared_ptr<Material> material);
+    shared_ptr<Material> getPostProcessMaterial() const { return m_postProcessMaterial; }
 
     shared_ptr<Node> getRoot() const { return m_root; }
 
-    void collectStats(render::RenderStats *stats);
-    void collectRenderOperations(render::RenderQueue *ops);
+    void collectStats(RenderStats *stats);
+    void collectRenderOperations(RenderQueue *ops);
 
     shared_ptr<Node> getChildByName(const std::string &name) const;
     void addChild(shared_ptr<Node> child);
@@ -49,4 +48,4 @@ public:
     void removeAllChildren();
 };
 
-} }
+}

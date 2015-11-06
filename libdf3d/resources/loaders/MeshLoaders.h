@@ -3,16 +3,16 @@
 #include <resources/Resource.h>
 #include <render/MeshData.h>
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 class MeshDataManualLoader : public ManualResourceLoader
 {
-    std::vector<render::SubMesh> m_geometry;
+    std::vector<SubMesh> m_geometry;
 
 public:
-    MeshDataManualLoader(std::vector<render::SubMesh> &&geometry);
+    MeshDataManualLoader(std::vector<SubMesh> &&geometry);
 
-    render::MeshData* load() override;
+    MeshData* load() override;
 };
 
 class MeshDataFSLoader : public FSResourceLoader
@@ -22,13 +22,13 @@ class MeshDataFSLoader : public FSResourceLoader
 
     struct Mesh
     {
-        std::vector<render::SubMesh> submeshes;
+        std::vector<SubMesh> submeshes;
         std::vector<unique_ptr<std::string>> materialNames;
         std::string materialLibName;
-        scene::AABB aabb;
-        scene::BoundingSphere sphere;
-        scene::OBB obb;
-        scene::ConvexHull convexHull;
+        AABB aabb;
+        BoundingSphere sphere;
+        OBB obb;
+        ConvexHull convexHull;
     };
 
     std::string m_path;
@@ -37,9 +37,9 @@ class MeshDataFSLoader : public FSResourceLoader
 public:
     MeshDataFSLoader(const std::string &path, ResourceLoadingMode lm);
 
-    render::MeshData* createDummy() override;
+    MeshData* createDummy() override;
     bool decode(shared_ptr<FileDataSource> source) override;
     void onDecoded(Resource *resource) override;
 };
 
-} }
+}

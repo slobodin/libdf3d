@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace render {
+namespace df3d {
 
 enum class SharedUniformType
 {
@@ -67,4 +67,4 @@ public:
     const std::string &getName() const { return m_name; }
 };
 
-} }
+}

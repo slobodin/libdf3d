@@ -2,9 +2,9 @@
 
 #include "MeshLoaders.h"
 
-FWD_MODULE_CLASS(render, MaterialLib)
+namespace df3d {
 
-namespace df3d { namespace resources {
+class MaterialLib;
 
 class MeshLoader_obj
 {
@@ -16,11 +16,11 @@ class MeshLoader_obj
     bool hasTxCoords() const;
 
     // Merged (by material) submeshes.
-    std::map<std::string, unique_ptr<render::SubMesh>> m_submeshes;
+    std::map<std::string, unique_ptr<SubMesh>> m_submeshes;
 
-    render::SubMesh* m_currentSubmesh;
-    std::unordered_map<render::SubMesh*, std::string> m_materialNameLookup;
-    unique_ptr<render::SubMesh> createSubmesh(const std::string &materialName);
+    SubMesh* m_currentSubmesh;
+    std::unordered_map<SubMesh*, std::string> m_materialNameLookup;
+    unique_ptr<SubMesh> createSubmesh(const std::string &materialName);
 
     void processLine_v(std::istream &is);
     void processLine_vt(std::istream &is);
@@ -39,4 +39,4 @@ public:
     unique_ptr<MeshDataFSLoader::Mesh> load(shared_ptr<FileDataSource> source);
 };
 
-} }
+}

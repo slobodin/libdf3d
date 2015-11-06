@@ -7,7 +7,7 @@
 #include <scene/Camera.h>
 #include <components/TransformComponent.h>
 
-namespace df3d { namespace render {
+namespace df3d {
 
 void GpuProgramState::resetFlags()
 {
@@ -130,7 +130,7 @@ void GpuProgramState::onFrameBegin()
     if (svc().sceneMgr.getCamera())
         m_cameraPosition = svc().sceneMgr.getCamera()->transform()->getPosition();
 
-    m_engineElapsedTime = base::EngineController::instance().getElapsedTime();
+    m_engineElapsedTime = EngineController::instance().getElapsedTime();
 }
 
 void GpuProgramState::onFrameEnd()
@@ -223,9 +223,9 @@ void GpuProgramState::updateSharedUniform(const GpuProgramUniform &uniform)
         break;
     case SharedUniformType::COUNT:
     default:
-        glog << "Can not set shared value to not shared uniform" << base::logwarn;
+        glog << "Can not set shared value to not shared uniform" << logwarn;
         break;
     }
 }
 
-} }
+}

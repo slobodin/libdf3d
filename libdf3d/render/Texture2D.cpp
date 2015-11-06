@@ -16,7 +16,7 @@ bool Texture2D::createGLTexture(const PixelBuffer &buffer)
     auto maxSize = svc().renderMgr.getRenderer()->getMaxTextureSize();
     if (actWidth > maxSize || actHeight > maxSize)
     {
-        glog << "Failed to create texture. Size is too big." << base::logwarn;
+        glog << "Failed to create texture. Size is too big." << logwarn;
         return false;
     }
 
@@ -34,7 +34,7 @@ bool Texture2D::createGLTexture(const PixelBuffer &buffer)
         glPixelFormat = GL_LUMINANCE;   // FIXME: is it valid on ES?
         break;
     default:
-        glog << "Invalid GL texture pixel format" << base::logwarn;
+        glog << "Invalid GL texture pixel format" << logwarn;
         return false;
     }
 

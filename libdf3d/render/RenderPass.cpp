@@ -15,7 +15,7 @@ void RenderPassParam::updateTo(GpuProgram *program)
         m_uniform = program->getCustomUniform(name);
         if (!m_uniform)
         {
-            glog << "Uniform" << name << "was not found in shader" << program->getFilePath() << base::logwarn;
+            glog << "Uniform" << name << "was not found in shader" << program->getFilePath() << logwarn;
             return;
         }
     }
@@ -38,7 +38,7 @@ void RenderPass::setGpuProgram(shared_ptr<GpuProgram> newProgram)
 {
     if (!newProgram)
     {
-        glog << "Failed to set empty gpu program to a render pass" << base::logwarn;
+        glog << "Failed to set empty gpu program to a render pass" << logwarn;
         return;
     }
     m_gpuProgram = newProgram;
@@ -82,14 +82,14 @@ void RenderPass::addPassParam(const RenderPassParam &param)
 {
     if (param.name.empty())
     {
-        glog << "Invalid shader parameter name" << base::logwarn;
+        glog << "Invalid shader parameter name" << logwarn;
         return;
     }
 
     auto found = std::find_if(m_passParams.cbegin(), m_passParams.cend(), [&](const RenderPassParam &p) -> bool { return p.name == param.name; });
     if (found != m_passParams.cend())
     {
-        glog << "Render pass" << m_name << "already have shader parameter" << param.name << base::logwarn;
+        glog << "Render pass" << m_name << "already have shader parameter" << param.name << logwarn;
         return;
     }
 
@@ -101,7 +101,7 @@ RenderPassParam *RenderPass::getPassParam(const std::string &name)
     auto found = std::find_if(m_passParams.begin(), m_passParams.end(), [&name](const RenderPassParam &p) -> bool { return p.name == name; });
     if (found == m_passParams.end())
     {
-        glog << "Couldn't find pass param" << name << "in render pass" << getName() << base::logwarn;
+        glog << "Couldn't find pass param" << name << "in render pass" << getName() << logwarn;
         return nullptr;
     }
 

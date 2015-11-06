@@ -73,7 +73,7 @@ SPK::Ref<SPK::ColorInterpolator> parseSparkColorInterpolator(const Json::Value &
     const auto &dataJson = interpolatorJson["data"];
     if (dataJson.empty())
     {
-        glog << "Failed to parse spark color interpolator. Empty data field" << base::logwarn;
+        glog << "Failed to parse spark color interpolator. Empty data field" << logwarn;
         return SPK_NULL_REF;
     }
 
@@ -83,7 +83,7 @@ SPK::Ref<SPK::ColorInterpolator> parseSparkColorInterpolator(const Json::Value &
     else if (typeStr == "graph")
         return parseSparkGraphColorInterpolator(dataJson);
 
-    glog << "Unknown spark color interpolator type" << typeStr << base::logwarn;
+    glog << "Unknown spark color interpolator type" << typeStr << logwarn;
     return SPK_NULL_REF;
 }
 
@@ -154,7 +154,7 @@ SPK::Ref<SPK::FloatInterpolator> parseSparkParamInterpolator(const Json::Value &
     const auto &dataJson = interpolatorJson["data"];
     if (dataJson.empty())
     {
-        glog << "Failed to parse spark float interpolator. Empty data field" << base::logwarn;
+        glog << "Failed to parse spark float interpolator. Empty data field" << logwarn;
         return SPK_NULL_REF;
     }
 
@@ -170,7 +170,7 @@ SPK::Ref<SPK::FloatInterpolator> parseSparkParamInterpolator(const Json::Value &
     else if (typeStr == "randomInitializer")
         return parseSparkRandomInitializer(dataJson);
 
-    glog << "Unknown spark float interpolator type" << typeStr << base::logwarn;
+    glog << "Unknown spark float interpolator type" << typeStr << logwarn;
     return SPK_NULL_REF;
 }
 
@@ -179,7 +179,7 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
     const auto &zoneJson = emitterJson["Zone"];
     if (zoneJson.empty())
     {
-        glog << "Emitter has no zone" << base::logwarn;
+        glog << "Emitter has no zone" << logwarn;
         return SPK_NULL_REF;
     }
 
@@ -249,7 +249,7 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
     }
     else
     {
-        glog << "Unknown zone type" << zoneType << base::logwarn;
+        glog << "Unknown zone type" << zoneType << logwarn;
         return SPK_NULL_REF;
     }
 
@@ -295,7 +295,7 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
     }
     else
     {
-        glog << "Unknown emitter type" << emitterType << base::logwarn;
+        glog << "Unknown emitter type" << emitterType << logwarn;
     }
 
     // Check for valid emitter.
@@ -341,7 +341,7 @@ void parseSparkModifiers(SPK::Ref<SPK::Group> group, const Json::Value &modifier
         }
         else
         {
-            df3d::glog << "Unknown particle system modifier" << type << df3d::base::logwarn;
+            df3d::glog << "Unknown particle system modifier" << type << df3d::logwarn;
         }
     }
 }
@@ -350,7 +350,7 @@ SPK::Ref<particlesys::ParticleSystemRenderer> createRenderer(const Json::Value &
 {
     if (rendererJson.empty())
     {
-        df3d::glog << "No renderer description in JSON particle system. Crashing" << df3d::base::logwarn;
+        df3d::glog << "No renderer description in JSON particle system. Crashing" << df3d::logwarn;
         return SPK_NULL_REF;
     }
 
@@ -375,7 +375,7 @@ SPK::Ref<particlesys::ParticleSystemRenderer> createRenderer(const Json::Value &
             if (found != StringToSparkDirection.end())
                 quadRenderer->setOrientation(found->second);
             else
-                glog << "Unknown spark particle system orientation" << base::logwarn;
+                glog << "Unknown spark particle system orientation" << logwarn;
         }
 
         std::string pathToTexture;
@@ -412,7 +412,7 @@ SPK::Ref<particlesys::ParticleSystemRenderer> createRenderer(const Json::Value &
     }
     else
     {
-        glog << "Failed to init particle system: unknown renderer type. Crashing." << base::logwarn;
+        glog << "Failed to init particle system: unknown renderer type. Crashing." << logwarn;
         return SPK_NULL_REF;
     }
 
@@ -432,7 +432,7 @@ SPK::Ref<particlesys::ParticleSystemRenderer> createRenderer(const Json::Value &
     else if (blending == "alpha")
         spkBlending = SPK::BLEND_MODE_ALPHA;
     else
-        glog << "Unknown blending mode" << blending << base::logwarn;
+        glog << "Unknown blending mode" << blending << logwarn;
 
     // FIXME: can share renderer.
     renderer->enableRenderingOption(SPK::RENDERING_OPTION_DEPTH_WRITE, depthWrite);
@@ -447,7 +447,7 @@ Component ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
     const auto &groupsJson = root["groups"];
     if (groupsJson.empty())
     {
-        glog << "Failed to parse particle system configs. Groups node wasn't found" << base::logwarn;
+        glog << "Failed to parse particle system configs. Groups node wasn't found" << logwarn;
         return nullptr;
     }
 
@@ -465,12 +465,12 @@ Component ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
             if (emitter)
                 emitters.push_back(emitter);
             else
-                glog << "Failed to parse particle system group emitter" << base::logwarn;
+                glog << "Failed to parse particle system group emitter" << logwarn;
         }
 
         if (emitters.empty())
         {
-            glog << "Particle system group has no emitters" << base::logwarn;
+            glog << "Particle system group has no emitters" << logwarn;
             continue;
         }
 
@@ -513,7 +513,7 @@ Component ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
             auto key = it.key().asString();
             if (!utils::contains_key(StringToSparkParam, key))
             {
-                glog << "Unknown spark param interpolator" << key << base::logwarn;
+                glog << "Unknown spark param interpolator" << key << logwarn;
                 continue;
             }
 
@@ -529,7 +529,7 @@ Component ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
 
     if (systemGroups.empty())
     {
-        glog << "Particle system has no groups" << base::logwarn;
+        glog << "Particle system has no groups" << logwarn;
         return nullptr;
     }
 

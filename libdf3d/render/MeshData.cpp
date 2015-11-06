@@ -3,6 +3,8 @@
 #include "MaterialLib.h"
 #include "VertexIndexBuffer.h"
 #include "RenderQueue.h"
+#include "Technique.h"
+#include "RenderPass.h"
 #include <base/Service.h>
 
 namespace df3d {
@@ -56,7 +58,7 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
         }
         else
         {
-            glog << "Setting up default material in" << getFilePath() << base::logwarn;
+            glog << "Setting up default material in" << getFilePath() << logwarn;
             hs.material = make_unique<Material>(getFilePath());
         }
 
@@ -96,7 +98,7 @@ void MeshData::setMaterial(const Material &newMaterial)
 {
     if (!isInitialized())
     {
-        glog << "Can't set material because mesh is not initialized" << base::logwarn;
+        glog << "Can't set material because mesh is not initialized" << logwarn;
         return;
     }
 
@@ -108,13 +110,13 @@ void MeshData::setMaterial(const Material &newMaterial, size_t submeshIdx)
 {
     if (!isInitialized())
     {
-        glog << "Can't set material because mesh is not initialized" << base::logwarn;
+        glog << "Can't set material because mesh is not initialized" << logwarn;
         return;
     }
 
     if (submeshIdx >= getSubMeshesCount())
     {
-        glog << "Failed to set material to submesh" << submeshIdx << "because it does not exist" << base::logwarn;
+        glog << "Failed to set material to submesh" << submeshIdx << "because it does not exist" << logwarn;
         return;
     }
 
@@ -144,7 +146,7 @@ size_t MeshData::getTrianglesCount() const
     return m_trianglesCount;
 }
 
-const scene::AABB* MeshData::getAABB() const
+const AABB* MeshData::getAABB() const
 {
     if (!isInitialized())
         return nullptr;
@@ -152,7 +154,7 @@ const scene::AABB* MeshData::getAABB() const
     return &m_aabb;
 }
 
-const scene::BoundingSphere* MeshData::getBoundingSphere() const
+const BoundingSphere* MeshData::getBoundingSphere() const
 {
     if (!isInitialized())
         return nullptr;
@@ -160,7 +162,7 @@ const scene::BoundingSphere* MeshData::getBoundingSphere() const
     return &m_sphere;
 }
 
-const scene::OBB* MeshData::getOBB() const
+const OBB* MeshData::getOBB() const
 {
     if (!isInitialized())
         return nullptr;
@@ -168,7 +170,7 @@ const scene::OBB* MeshData::getOBB() const
     return &m_obb;
 }
 
-const scene::ConvexHull* MeshData::getConvexHull() const
+const ConvexHull* MeshData::getConvexHull() const
 {
     if (!isInitialized())
         return nullptr;

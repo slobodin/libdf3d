@@ -40,7 +40,7 @@ void GuiFileInterface::Close(Rocket::Core::FileHandle file)
 {
     auto erased = m_openedFiles.erase(file);
     if (erased != 1)
-        glog << "Rocket interface couldn't erase unused file" << base::logwarn;
+        glog << "Rocket interface couldn't erase unused file" << logwarn;
 }
 
 size_t GuiFileInterface::Read(void* buffer, size_t size, Rocket::Core::FileHandle file)
@@ -90,7 +90,7 @@ bool GuiSystemInterface::LogMessage(Rocket::Core::Log::Type type, const Rocket::
         glog << message.CString() << base::logcritical;
         break;
     case Rocket::Core::Log::LT_WARNING:
-        glog << message.CString() << base::logwarn;
+        glog << message.CString() << logwarn;
         break;
     case Rocket::Core::Log::LT_ALWAYS:
     case Rocket::Core::Log::LT_INFO:

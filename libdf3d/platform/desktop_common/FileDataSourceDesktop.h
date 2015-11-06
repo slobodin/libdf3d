@@ -4,7 +4,7 @@
 
 namespace df3d { namespace platform {
 
-class DF3D_DLL FileDataSourceDesktop : public resources::FileDataSource
+class DF3D_DLL FileDataSourceDesktop : public FileDataSource
 {
     FILE *m_file = nullptr;
 

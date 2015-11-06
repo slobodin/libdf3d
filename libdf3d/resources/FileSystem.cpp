@@ -6,7 +6,7 @@
 #include <platform/FileSystemHelpers.h>
 #include <utils/Utils.h>
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 FileSystem::FileSystem()
 {
@@ -26,7 +26,7 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
     // NOTE:
     // Can't AAssetManager_open from paths like 'foo1/../bar1/foo/'
 #ifndef DF3D_ANDROID
-    if (!platform::FileSystemHelpers::pathExists(rawPath))
+    if (!FileSystemHelpers::pathExists(rawPath))
         return "";
 #endif
 
@@ -77,7 +77,7 @@ shared_ptr<FileDataSource> FileSystem::openFile(const std::string &filePath)
     if (fullP.empty())
         return nullptr;
 
-    auto fileSource = platform::FileSystemHelpers::openFile(fullP);
+    auto fileSource = FileSystemHelpers::openFile(fullP);
     if (!fileSource->valid())
         return nullptr;
 
@@ -91,7 +91,7 @@ void FileSystem::addSearchPath(const std::string &path)
     auto found = std::find_if(m_searchPaths.cbegin(), m_searchPaths.cend(), [&path](const std::string &it) { return it == path; });
     if (found != m_searchPaths.cend())
     {
-        glog << "Trying to add duplicate search path" << path << base::logwarn;
+        glog << "Trying to add duplicate search path" << path << logwarn;
         return;
     }
 
@@ -149,7 +149,7 @@ std::string FileSystem::pathConcatenate(const std::string &fp1, const std::strin
     if (fp2.empty())
         return fp1;
 
-    if (platform::FileSystemHelpers::isPathAbsolute(fp2))
+    if (FileSystemHelpers::isPathAbsolute(fp2))
         return "";
 
     if (fp2[0] == '\\' || fp2[0] == '/')
@@ -196,4 +196,4 @@ std::string FileSystem::getFilenameWithoutExtension(const std::string &filePath)
     return std::string(filename.cbegin(), filename.cbegin() + dotPos);
 }
 
-} }
+}

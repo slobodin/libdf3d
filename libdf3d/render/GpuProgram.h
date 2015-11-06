@@ -3,11 +3,11 @@
 #include <resources/Resource.h>
 #include "GpuProgramUniform.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 class Shader;
 
-class GpuProgram : public resources::Resource
+class GpuProgram : public Resource
 {
     friend class GpuProgramManualLoader;
 
@@ -37,7 +37,7 @@ public:
     unsigned int descriptor() const { return m_programDescriptor; }
 };
 
-class GpuProgramManualLoader : public resources::ManualResourceLoader
+class GpuProgramManualLoader : public ManualResourceLoader
 {
     std::string m_resourceGuid;
     std::string m_vertexData;
@@ -52,4 +52,4 @@ public:
     GpuProgram* load() override;
 };
 
-} }
+}

@@ -3,19 +3,19 @@
 #include <resources/Resource.h>
 #include <render/MaterialLib.h>
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 class MaterialLibFSLoader : public FSResourceLoader
 {
     std::string m_path;
-    std::vector<shared_ptr<render::Material>> m_materials;
+    std::vector<shared_ptr<Material>> m_materials;
 
 public:
     MaterialLibFSLoader(const std::string &path);
 
-    render::MaterialLib* createDummy() override;
+    MaterialLib* createDummy() override;
     bool decode(shared_ptr<FileDataSource> source) override;
     void onDecoded(Resource *resource) override;
 };
 
-} }
+}

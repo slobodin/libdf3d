@@ -7,7 +7,6 @@
 #include "Vertex.h"
 
 namespace df3d {
-namespace render {
 
 void gpuProgramLog(unsigned int program)
 {
@@ -18,7 +17,7 @@ void gpuProgramLog(unsigned int program)
     infoLog = new char[infologLen + 1];
 
     glGetProgramInfoLog(program, infologLen, nullptr, infoLog);
-    glog << "GPU program info log:" << infoLog << base::logmess;
+    glog << "GPU program info log:" << infoLog << logmess;
 
     delete [] infoLog;
 }
@@ -42,7 +41,7 @@ bool GpuProgram::compileShaders()
     {
         if (!shader || !shader->compile())
         {
-            glog << "Failed to compile shaders in" << getGUID() << base::logwarn;
+            glog << "Failed to compile shaders in" << getGUID() << logwarn;
             return false;
         }
     }
@@ -71,7 +70,7 @@ bool GpuProgram::attachShaders()
     glGetProgramiv(m_programDescriptor, GL_LINK_STATUS, &linkOk);
     if (linkOk == GL_FALSE)
     {
-        glog << "GPU program linkage failed" << base::logwarn;
+        glog << "GPU program linkage failed" << logwarn;
         gpuProgramLog(m_programDescriptor);
         return false;
     }
@@ -198,4 +197,4 @@ GpuProgram* GpuProgramManualLoader::load()
     return program;
 }
 
-} }
+}

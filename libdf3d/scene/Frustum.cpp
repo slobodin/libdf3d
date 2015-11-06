@@ -3,7 +3,7 @@
 #include "bounding_volumes/BoundingSphere.h"
 #include <utils/MathUtils.h>
 
-namespace df3d { namespace scene {
+namespace df3d {
 
 Frustum::Frustum()
 {
@@ -46,4 +46,4 @@ bool Frustum::sphereInFrustum(const BoundingSphere &sphere) const
     return true;
 }
 
-} }
+}

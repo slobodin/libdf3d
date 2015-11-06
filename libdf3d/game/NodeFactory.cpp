@@ -31,7 +31,7 @@ SceneNode nodeFromJson(const Json::Value &root)
 {
     if (root.empty())
     {
-        glog << "Failed to init scene node from JSON node" << base::logwarn;
+        glog << "Failed to init scene node from JSON node" << logwarn;
         return nullptr;
     }
 
@@ -51,7 +51,7 @@ SceneNode nodeFromJson(const Json::Value &root)
         const auto &externalDataJson = componentJson["external_data"];
         if (dataJson.empty() && externalDataJson.empty())
         {
-            glog << "Failed to init a component. Empty \"data\" or \"external_data\" field" << base::logwarn;
+            glog << "Failed to init a component. Empty \"data\" or \"external_data\" field" << logwarn;
             return nullptr;
         }
 
