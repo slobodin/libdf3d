@@ -1,6 +1,6 @@
 #include "OpenALCommon.h"
 
-namespace df3d { namespace audio {
+namespace df3d { namespace audio_impl {
 
 std::string checkALError()
 {
@@ -24,7 +24,7 @@ void checkAndPrintALError(const char *file, int line)
 #ifdef _DEBUG
     auto err = checkALError();
     if (!err.empty())
-        base::glog << "OpenAL error:" << err << ". File:" << file << ". Line:" << line << base::logwarn;
+        glog << "OpenAL error:" << err << ". File:" << file << ". Line:" << line << logwarn;
 #endif
 }
 

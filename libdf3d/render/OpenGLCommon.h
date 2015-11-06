@@ -27,7 +27,7 @@
 #error "Unsupported platform"
 #endif
 
-namespace df3d { namespace render {
+namespace df3d {
 
 //! Check OpenGL for errors.
 /**
@@ -42,4 +42,4 @@ void checkAndPrintGLError(const char *file, int line);
 #define printOpenGLError()
 #endif
 
-} }
+}

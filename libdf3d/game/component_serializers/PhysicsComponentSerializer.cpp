@@ -12,7 +12,7 @@ Component PhysicsComponentSerializer::fromJson(const Json::Value &root)
     auto type = root["type"].asString();
     if (type != "StaticBody")
     {
-        base::glog << "Unsupported rigid body type" << type << base::logwarn;
+        glog << "Unsupported rigid body type" << type << base::logwarn;
         return nullptr;
     }
 
@@ -28,7 +28,7 @@ Component PhysicsComponentSerializer::fromJson(const Json::Value &root)
         colShapeType = PhysicsComponent::CollisionShapeType::CONVEX_HULL;
     else
     {
-        base::glog << "Unsupported rigid body box shape" << shape << base::logwarn;
+        glog << "Unsupported rigid body box shape" << shape << base::logwarn;
         return nullptr;
     }
 

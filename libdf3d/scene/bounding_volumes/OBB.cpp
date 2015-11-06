@@ -2,7 +2,7 @@
 
 #include <scene/WorldSize.h>
 
-namespace df3d { namespace scene {
+namespace df3d {
 
 OBB::OBB()
 {
@@ -73,4 +73,4 @@ const glm::mat4 &OBB::getTransformation() const
     return m_transformation;
 }
 
-} }
+}

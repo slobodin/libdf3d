@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace utils { 
+namespace df3d { namespace utils {
 
 class NonCopyable
 {
@@ -12,4 +12,4 @@ protected:
     NonCopyable& operator= (const NonCopyable &other) = delete;
 };
 
-} } 
+} }

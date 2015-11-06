@@ -1,6 +1,6 @@
 #include "OpenGLCommon.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 std::string checkGLError()
 {
@@ -9,9 +9,7 @@ std::string checkGLError()
 
     GLenum errCode = glGetError();
     if (errCode != GL_NO_ERROR)
-    {
         errString = (char *)gluErrorString(errCode);
-    }
 
     return errString;
 #else
@@ -40,8 +38,8 @@ void checkAndPrintGLError(const char *file, int line)
 #ifdef _DEBUG
     auto err = checkGLError();
     if (!err.empty())
-        base::glog << "OpenGL error:" << err << ". File:" << file << ". Line:" << line << base::logwarn;
+        glog << "OpenGL error:" << err << ". File:" << file << ". Line:" << line << logwarn;
 #endif
 }
 
-} }
+}

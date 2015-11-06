@@ -2,7 +2,7 @@
 
 #include "BoundingVolume.h"
 
-namespace df3d { namespace scene {
+namespace df3d {
 
 class DF3D_DLL OBB : public BoundingVolume
 {
@@ -29,4 +29,4 @@ public:
     const glm::mat4 &getTransformation() const;
 };
 
-} }
+}

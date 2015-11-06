@@ -1,11 +1,11 @@
 #pragma once
 
-FWD_MODULE_CLASS(scene, Node)
-FWD_MODULE_CLASS(render, RenderQueue)
+namespace df3d {
 
-namespace df3d { namespace components {
+class Node;
+class RenderQueue;
 
-enum ComponentType
+enum class ComponentType
 {
     TRANSFORM,
     MESH,
@@ -36,10 +36,10 @@ enum class NodeEvent
 
 class DF3D_DLL NodeComponent : utils::NonCopyable
 {
-    friend class scene::Node;
+    friend class Node;
 
 protected:
-    scene::Node *m_holder = nullptr;
+    Node *m_holder = nullptr;
 
     void sendEvent(ComponentEvent ev);
 
@@ -50,14 +50,14 @@ public:
 
     virtual ~NodeComponent() = default;
 
-    scene::Node* getHolder() { return m_holder; }
+    Node* getHolder() { return m_holder; }
     const std::string& getName() const;
 
     virtual void onComponentEvent(ComponentEvent ev) { }
     virtual void onNodeEvent(NodeEvent ev) { }
     virtual void onAttached() { }
     virtual void onDetached() { }
-    virtual void onDraw(render::RenderQueue *ops) { }
+    virtual void onDraw(RenderQueue *ops) { }
     virtual void onUpdate(float dt) { }
 
     virtual shared_ptr<NodeComponent> clone() const = 0;
@@ -66,4 +66,4 @@ public:
     static ComponentType stringToType(const std::string &typeStr);
 };
 
-} }
+}

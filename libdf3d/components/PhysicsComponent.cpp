@@ -29,7 +29,7 @@ void PhysicsComponent::initFromCreationParams()
         auto aabb = mesh->getAABB();
         if (!aabb.isValid())
         {
-            base::glog << "Can not create box shape for rigid body. AABB is invalid" << base::logwarn;
+            glog << "Can not create box shape for rigid body. AABB is invalid" << base::logwarn;
             return;
         }
 
@@ -42,7 +42,7 @@ void PhysicsComponent::initFromCreationParams()
         auto sphere = mesh->getBoundingSphere();
         if (!sphere.isValid())
         {
-            base::glog << "Can not create sphere shape for rigid body. Bounding sphere is invalid" << base::logwarn;
+            glog << "Can not create sphere shape for rigid body. Bounding sphere is invalid" << base::logwarn;
             return;
         }
 
@@ -55,7 +55,7 @@ void PhysicsComponent::initFromCreationParams()
         auto convexHull = mesh->getMeshData()->getConvexHull();
         if (!convexHull || !convexHull->isValid())
         {
-            base::glog << "Can not create convex hull shape for rigid body. Hull is invalid" << base::logwarn;
+            glog << "Can not create convex hull shape for rigid body. Hull is invalid" << base::logwarn;
             return;
         }
 
@@ -108,7 +108,7 @@ void PhysicsComponent::onAttached()
     auto mesh = getHolder()->mesh();
     if (!mesh)
     {
-        base::glog << "PhysicsComponent::onAttached failed: PhysicsComponent requires mesh component" << base::logwarn;
+        glog << "PhysicsComponent::onAttached failed: PhysicsComponent requires mesh component" << base::logwarn;
         return;
     }
 
@@ -156,7 +156,7 @@ void PhysicsComponent::addListener(Listener *listener)
 {
     if (utils::contains(m_listeners, listener))
     {
-        base::glog << "Trying to add duplicate PhysicsComponent listener" << base::logwarn;
+        glog << "Trying to add duplicate PhysicsComponent listener" << base::logwarn;
         return;
     }
 
@@ -169,7 +169,7 @@ void PhysicsComponent::removeListener(Listener *listener)
     if (found != m_listeners.end())
         m_listeners.erase(found);
     else
-        base::glog << "PhysicsComponent::removeListener failed: listener doesn't exist" << base::logwarn;
+        glog << "PhysicsComponent::removeListener failed: listener doesn't exist" << base::logwarn;
 }
 
 shared_ptr<NodeComponent> PhysicsComponent::clone() const
