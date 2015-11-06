@@ -2,7 +2,7 @@
 
 #include <scene/WorldSize.h>
 
-namespace df3d { namespace scene {
+namespace df3d {
 
 AABB::AABB()
 {
@@ -88,7 +88,7 @@ void AABB::getCorners(std::vector<glm::vec3> &output) const
 {
     if (output.size() != 8)
     {
-        base::glog << "Can not get corners of an AABB. Invalid input." << base::logwarn;
+        glog << "Can not get corners of an AABB. Invalid input." << logwarn;
         return;
     }
 
@@ -102,4 +102,4 @@ void AABB::getCorners(std::vector<glm::vec3> &output) const
     output[7] = glm::vec3(m_min.x, m_max.y, m_min.z);
 }
 
-} }
+}

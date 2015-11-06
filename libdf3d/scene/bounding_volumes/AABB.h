@@ -2,7 +2,7 @@
 
 #include "BoundingVolume.h"
 
-namespace df3d { namespace scene {
+namespace df3d {
 
 class BoundingSphere;
 
@@ -31,4 +31,4 @@ public:
     void getCorners(std::vector<glm::vec3> &output) const;
 };
 
-} }
+}

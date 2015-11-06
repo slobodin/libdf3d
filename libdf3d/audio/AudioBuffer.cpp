@@ -2,7 +2,7 @@
 
 #include "OpenALCommon.h"
 
-namespace df3d { namespace audio {
+namespace df3d {
 
 AudioBuffer::AudioBuffer()
 {
@@ -17,4 +17,4 @@ AudioBuffer::~AudioBuffer()
         alDeleteBuffers(1, &m_alBufferId);
 }
 
-} }
+}

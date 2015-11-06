@@ -2,21 +2,22 @@
 
 #include <resources/Resource.h>
 
-FWD_MODULE_CLASS(resources, AudioBufferFSLoader)
+namespace df3d {
 
-namespace df3d { namespace audio {
+class AudioBufferFSLoader;
 
-class AudioBuffer : public resources::Resource
+class AudioBuffer : public Resource
 {
-    friend class resources::AudioBufferFSLoader;
+    friend class AudioBufferFSLoader;
 
     unsigned m_alBufferId = 0;
 
-public:
     AudioBuffer();
+
+public:
     ~AudioBuffer();
 
     unsigned getALId() const { return m_alBufferId; }
 };
 
-} }
+}
