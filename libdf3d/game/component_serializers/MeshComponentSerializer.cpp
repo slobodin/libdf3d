@@ -5,16 +5,16 @@
 
 namespace df3d { namespace component_serializers {
 
-Component MeshComponentSerializer::fromJson(const Json::Value &root)
+shared_ptr<NodeComponent> MeshComponentSerializer::fromJson(const Json::Value &root)
 {
-    return make_shared<components::MeshComponent>(root["path"].asString());
+    return make_shared<MeshComponent>(root["path"].asString());
 }
 
-Json::Value MeshComponentSerializer::toJson(Component component)
+Json::Value MeshComponentSerializer::toJson(shared_ptr<NodeComponent> component)
 {
     Json::Value result;
 
-    auto comp = static_cast<const components::MeshComponent*>(component.get());
+    auto comp = static_cast<const MeshComponent*>(component.get());
     result["path"] = "XZ";  // FIXME:
 
     return result;

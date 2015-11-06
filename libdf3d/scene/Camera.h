@@ -19,7 +19,7 @@ class DF3D_DLL Camera : public Node
     float m_farZ;
 
     //! Cached copy of the current screen viewport.
-    render::Viewport m_currentViewport;
+    Viewport m_currentViewport;
 
     //! View frustum.
     Frustum m_frustum;

@@ -5,21 +5,21 @@
 
 namespace df3d { namespace component_serializers {
 
-Component DebugDrawComponentSerializer::fromJson(const Json::Value &root)
+shared_ptr<NodeComponent> DebugDrawComponentSerializer::fromJson(const Json::Value &root)
 {
-    shared_ptr<components::DebugDrawComponent> result;
+    shared_ptr<DebugDrawComponent> result;
     auto typeStr = root["type"].asString();
     if (typeStr == "aabb")
-        result = make_shared<components::DebugDrawComponent>(components::DebugDrawComponent::Type::AABB);
+        result = make_shared<DebugDrawComponent>(DebugDrawComponent::Type::AABB);
     else if (typeStr == "obb")
-        result = make_shared<components::DebugDrawComponent>(components::DebugDrawComponent::Type::OBB);
+        result = make_shared<DebugDrawComponent>(DebugDrawComponent::Type::OBB);
     else
-        glog << "Unknown debug draw component type" << typeStr << base::logwarn;
+        glog << "Unknown debug draw component type" << typeStr << logwarn;
 
     return result;
 }
 
-Json::Value DebugDrawComponentSerializer::toJson(Component component)
+Json::Value DebugDrawComponentSerializer::toJson(shared_ptr<NodeComponent> component)
 {
     Json::Value result;
 

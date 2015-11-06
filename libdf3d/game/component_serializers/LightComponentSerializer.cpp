@@ -5,9 +5,9 @@
 
 namespace df3d { namespace component_serializers {
 
-Component LightComponentSerializer::fromJson(const Json::Value &root)
+shared_ptr<NodeComponent> LightComponentSerializer::fromJson(const Json::Value &root)
 {
-    auto result = make_shared<components::LightComponent>(components::LightComponent::Type::DIRECTIONAL);
+    auto result = make_shared<LightComponent>(LightComponent::Type::DIRECTIONAL);
 
     result->setDirection(utils::json::getOrDefault(root["direction"], result->getDirection()));
     result->setDiffuseIntensity(utils::json::getOrDefault(root["diffuse"], result->getDiffuseColor()));
@@ -16,11 +16,11 @@ Component LightComponentSerializer::fromJson(const Json::Value &root)
     return result;
 }
 
-Json::Value LightComponentSerializer::toJson(Component component)
+Json::Value LightComponentSerializer::toJson(shared_ptr<NodeComponent> component)
 {
     Json::Value result;
 
-    auto comp = static_cast<const components::LightComponent*>(component.get());
+    auto comp = static_cast<const LightComponent*>(component.get());
 
     result["type"] = "directional"; // FIXME:
     result["direction"] = utils::json::toJson(comp->getDirection());

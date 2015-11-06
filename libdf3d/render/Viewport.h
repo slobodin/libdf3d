@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace render {
+namespace df3d {
 
 class DF3D_DLL Viewport
 {
@@ -22,4 +22,4 @@ public:
     bool operator!= (const Viewport &other) const;
 };
 
-} }
+}

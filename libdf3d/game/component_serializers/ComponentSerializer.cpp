@@ -11,25 +11,25 @@
 
 namespace df3d { namespace component_serializers {
 
-unique_ptr<ComponentSerializer> create(components::ComponentType type)
+unique_ptr<ComponentSerializer> create(ComponentType type)
 {
     switch (type)
     {
-    case components::TRANSFORM:
+	case ComponentType::TRANSFORM:
         return make_unique<TransformComponentSerializer>();
-    case components::MESH:
+    case ComponentType::MESH:
         return make_unique<MeshComponentSerializer>();
-    case components::PARTICLE_EFFECT:
+    case ComponentType::PARTICLE_EFFECT:
         return make_unique<ParticleSystemComponentSerializer>();
-    case components::AUDIO:
+    case ComponentType::AUDIO:
         return make_unique<AudioComponentSerializer>();
-    case components::PHYSICS:
+    case ComponentType::PHYSICS:
         return make_unique<PhysicsComponentSerializer>();
-    case components::LIGHT:
+    case ComponentType::LIGHT:
         return make_unique<LightComponentSerializer>();
-    case components::DEBUG_DRAW:
+    case ComponentType::DEBUG_DRAW:
         return make_unique<DebugDrawComponentSerializer>();
-    case components::SPRITE_2D:
+    case ComponentType::SPRITE_2D:
         return make_unique<Sprite2DComponentSerializer>();
     default:
         break;

@@ -8,7 +8,7 @@ namespace df3d {
 
 class DF3D_DLL Sprite2DComponent : public NodeComponent
 {
-    render::RenderOperation2D m_op;
+    RenderOperation2D m_op;
 
     glm::vec2 m_anchor = glm::vec2(0.5f, 0.5f);
     glm::vec2 m_textureOriginalSize;
@@ -16,7 +16,7 @@ class DF3D_DLL Sprite2DComponent : public NodeComponent
 
     ResourceGUID m_textureGuid;
     
-    virtual void onDraw(render::RenderQueue *ops) override;
+    virtual void onDraw(RenderQueue *ops) override;
 
 public:
     Sprite2DComponent(const std::string &pathToTexture);
@@ -38,7 +38,7 @@ public:
     void useTexture(const std::string &pathToTexture);
     glm::vec2 getTextureSize() const;
 
-    void setBlendMode(render::RenderPass::BlendingMode bm);
+    void setBlendMode(RenderPass::BlendingMode bm);
     void setDiffuseColor(const glm::vec4 &diffuseColor);
 
     virtual shared_ptr<NodeComponent> clone() const override;

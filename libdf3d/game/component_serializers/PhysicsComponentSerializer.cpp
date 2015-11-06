@@ -5,14 +5,12 @@
 
 namespace df3d { namespace component_serializers {
 
-Component PhysicsComponentSerializer::fromJson(const Json::Value &root)
+shared_ptr<NodeComponent> PhysicsComponentSerializer::fromJson(const Json::Value &root)
 {
-    using namespace components;
-
     auto type = root["type"].asString();
     if (type != "StaticBody")
     {
-        glog << "Unsupported rigid body type" << type << base::logwarn;
+        glog << "Unsupported rigid body type" << type << logwarn;
         return nullptr;
     }
 
@@ -28,7 +26,7 @@ Component PhysicsComponentSerializer::fromJson(const Json::Value &root)
         colShapeType = PhysicsComponent::CollisionShapeType::CONVEX_HULL;
     else
     {
-        glog << "Unsupported rigid body box shape" << shape << base::logwarn;
+        glog << "Unsupported rigid body box shape" << shape << logwarn;
         return nullptr;
     }
 
@@ -44,7 +42,7 @@ Component PhysicsComponentSerializer::fromJson(const Json::Value &root)
     return make_shared<PhysicsComponent>(params);
 }
 
-Json::Value PhysicsComponentSerializer::toJson(Component component)
+Json::Value PhysicsComponentSerializer::toJson(shared_ptr<NodeComponent> component)
 {
     // TODO:
     assert(false);

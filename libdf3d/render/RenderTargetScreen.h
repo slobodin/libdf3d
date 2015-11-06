@@ -2,7 +2,7 @@
 
 #include "RenderTarget.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 class RenderTargetScreen : public RenderTarget
 {
@@ -13,4 +13,4 @@ public:
     void unbind() override;
 };
 
-} }
+}

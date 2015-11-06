@@ -5,7 +5,7 @@
 #include "OpenGLCommon.h"
 #include "RendererBackend.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 RenderTargetScreen::RenderTargetScreen(const Viewport &vp)
 {
@@ -24,4 +24,4 @@ void RenderTargetScreen::unbind()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-} }
+}

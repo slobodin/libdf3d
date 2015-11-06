@@ -1,6 +1,6 @@
 #include "Viewport.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 Viewport::Viewport(int x, int y, int w, int h)
     : m_x(x),
@@ -15,7 +15,7 @@ void Viewport::setDimensions(int x, int y, int w, int h)
 {
     if (x < 0 || y < 0 || x >= w || y >= h)
     {
-        glog << "Trying to set invalid viewport dimensions" << base::logwarn;
+        glog << "Trying to set invalid viewport dimensions" << logwarn;
         return;
     }
 
@@ -55,4 +55,4 @@ bool Viewport::operator!= (const Viewport &other) const
     return !(*this == other);
 }
 
-} }
+}

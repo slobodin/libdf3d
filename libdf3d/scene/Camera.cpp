@@ -6,7 +6,7 @@
 #include <render/Viewport.h>
 #include <render/RenderTargetScreen.h>
 
-namespace df3d { namespace scene {
+namespace df3d {
 
 void Camera::buildViewMatrix()
 {
@@ -48,11 +48,11 @@ void Camera::buildFrustum()
     m_frustumDirty = false;
 }
 
-void Camera::onComponentEvent(const components::NodeComponent *who, components::ComponentEvent ev)
+void Camera::onComponentEvent(const NodeComponent *who, ComponentEvent ev)
 {
-    if (ev == components::ComponentEvent::POSITION_CHANGED ||
-        ev == components::ComponentEvent::ORIENTATION_CHANGED ||
-        ev == components::ComponentEvent::SCALE_CHANGED)
+    if (ev == ComponentEvent::POSITION_CHANGED ||
+        ev == ComponentEvent::ORIENTATION_CHANGED ||
+        ev == ComponentEvent::SCALE_CHANGED)
     {
         m_viewMatrixDirty = true;
         m_frustumDirty = true;
@@ -153,4 +153,4 @@ glm::vec3 Camera::worldToScreenPoint(const glm::vec3 &world)
     return screenPt;
 }
 
-} }
+}
