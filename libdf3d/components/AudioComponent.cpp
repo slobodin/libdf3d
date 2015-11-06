@@ -6,7 +6,7 @@
 #include <audio/AudioBuffer.h>
 #include <audio/OpenALCommon.h>
 
-namespace df3d { namespace components {
+namespace df3d {
 
 void AudioComponent::onUpdate(float dt)
 {
@@ -21,29 +21,24 @@ void AudioComponent::onUpdate(float dt)
 
     // If it has stopped, then remove from the holder.
     if (getState() == State::STOPPED)
-    {
-        m_holder->detachComponent(AUDIO);
-    }
+        m_holder->detachComponent(ComponentType::AUDIO);
 }
 
 AudioComponent::AudioComponent(const std::string &audioFilePath)
-    : NodeComponent(AUDIO)
+    : NodeComponent(ComponentType::AUDIO)
 {
     m_buffer = svc().resourceMgr.getFactory().createAudioBuffer(audioFilePath);
     if (!m_buffer || !m_buffer->isInitialized())
     {
-        base::glog << "Can not initialize audio component from" << audioFilePath << base::logwarn;
+        glog << "Can not initialize audio component from" << audioFilePath << logwarn;
         return;
     }
 
-    ALuint sourceId = 0;
-    alGenSources(1, &sourceId);
+    alGenSources(1, &m_audioSourceId);
 
-    alSourcef(sourceId, AL_PITCH, 1.0f);
-    alSourcef(sourceId, AL_GAIN, 1.0f);
-    alSourcei(sourceId, AL_BUFFER, m_buffer->getALId());
-
-    m_audioSourceId = sourceId;
+    alSourcef(m_audioSourceId, AL_PITCH, 1.0f);
+    alSourcef(m_audioSourceId, AL_GAIN, 1.0f);
+    alSourcei(m_audioSourceId, AL_BUFFER, m_buffer->getALId());
 
     printOpenALError();
 }
@@ -127,4 +122,4 @@ shared_ptr<NodeComponent> AudioComponent::clone() const
     return nullptr;
 }
 
-} }
+}
