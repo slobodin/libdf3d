@@ -13,7 +13,7 @@
 #include <Windows.h>
 #endif
 
-namespace df3d { namespace base {
+namespace df3d {
 
 const size_t MAX_LOG_SIZE = 2 << 18;
 
@@ -182,14 +182,14 @@ Log::~Log()
 
 }
 
-Log &Log::instance()
+Log& Log::instance()
 {
     static Log m_instance;
 
     return m_instance;
 }
 
-Log &Log::operator<< (const LoggerManipulator &man)
+Log& Log::operator<< (const LoggerManipulator &man)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
@@ -199,7 +199,7 @@ Log &Log::operator<< (const LoggerManipulator &man)
     std::cerr << std::ctime(&now);
 #endif
 
-    m_impl->writeBuffer(m_buffer.str(), man.m_type);
+    m_impl->writeBuffer(m_buffer.str(), man.getMessageType());
 
     m_logData += m_buffer.str();
     m_logData += "\n";
@@ -225,12 +225,12 @@ const std::string &Log::logData() const
     return m_logData;
 }
 
-Log &glog = Log::instance();
-const LoggerManipulator logdebug(MessageType::DEBUG);
-const LoggerManipulator logmess(MessageType::MESSAGE);
-const LoggerManipulator logwarn(MessageType::WARNING);
-const LoggerManipulator logcritical(MessageType::CRITICAL);
-const LoggerManipulator loggame(MessageType::GAME);
-const LoggerManipulator logscript(MessageType::SCRIPT);
+Log& glog = Log::instance();
+const LoggerManipulator logdebug = LoggerManipulator(MessageType::DEBUG);
+const LoggerManipulator logmess = LoggerManipulator(MessageType::MESSAGE);
+const LoggerManipulator logwarn = LoggerManipulator(MessageType::WARNING);
+const LoggerManipulator logcritical = LoggerManipulator(MessageType::CRITICAL);
+const LoggerManipulator loggame = LoggerManipulator(MessageType::GAME);
+const LoggerManipulator logscript = LoggerManipulator(MessageType::SCRIPT);
 
-} }
+}

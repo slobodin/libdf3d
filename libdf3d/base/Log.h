@@ -3,21 +3,21 @@
 #include <iostream>
 #include <sstream>
 
-namespace df3d { namespace base {
+namespace df3d {
 
 enum class MessageType;
 class LoggerImpl;
 
 class LoggerManipulator
 {
-    friend class Log;
-
     MessageType m_type;
 
 public:
     LoggerManipulator(const MessageType type)
         : m_type(type)
     { }
+
+    MessageType getMessageType() const { return m_type; }
 };
 
 //! Simple log support.
@@ -34,7 +34,7 @@ class DF3D_DLL Log
     ~Log();
 
 public:
-    static Log &instance();
+    static Log& instance();
 
     template<typename T>
     Log& operator<< (const T &t)
@@ -73,11 +73,11 @@ public:
         return *this;
     }
 
-    Log &operator<< (const LoggerManipulator &man);
+    Log& operator<< (const LoggerManipulator &man);
 
     void printWithoutFormat(const char *str);
 
-    const std::string &logData() const;
+    const std::string& logData() const;
 };
 
 extern DF3D_DLL Log &glog;
@@ -88,4 +88,4 @@ extern const DF3D_DLL LoggerManipulator logcritical;
 extern const DF3D_DLL LoggerManipulator loggame;
 extern const DF3D_DLL LoggerManipulator logscript;
 
-} }
+}
