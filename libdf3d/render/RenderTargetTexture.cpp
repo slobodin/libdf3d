@@ -35,7 +35,7 @@ void RenderTargetTexture::createGLFramebuffer()
     {
         // TODO:
         // Error message.
-        base::glog << "Framebuffer initialization error:" << base::logwarn;
+        glog << "Framebuffer initialization error:" << base::logwarn;
     }
 
     unbind();

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 class FileDataSource;
 class ResourceManager;
@@ -20,9 +20,9 @@ public:
     virtual ~Resource() = default;
 
     void setGUID(const ResourceGUID &guid);
-    const ResourceGUID &getGUID() const;
+    const ResourceGUID& getGUID() const;
 
-    const std::string &getFilePath() const;
+    const std::string& getFilePath() const;
 
     bool isInitialized() const { return m_initialized; }
     bool isResident() const { return m_resident; }
@@ -59,4 +59,4 @@ public:
 bool IsGUIDValid(const ResourceGUID &guid);
 ResourceGUID CreateGUIDFromPath(const std::string &path);
 
-} }
+}

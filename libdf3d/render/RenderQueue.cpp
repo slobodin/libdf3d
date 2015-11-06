@@ -2,7 +2,7 @@
 
 #include "RenderOperation.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 // TODO:
 // Kinda radix sort, when material is encoded in int.
@@ -36,4 +36,4 @@ void RenderQueue::clear()
     lights.clear();
 }
 
-} }
+}

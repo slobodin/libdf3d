@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace render {
+namespace df3d {
 
 class DF3D_DLL RenderStats
 {
@@ -18,4 +18,4 @@ public:
     }
 };
 
-} }
+}

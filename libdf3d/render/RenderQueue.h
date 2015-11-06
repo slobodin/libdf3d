@@ -2,9 +2,9 @@
 
 #include "RenderOperation.h"
 
-FWD_MODULE_CLASS(components, LightComponent)
+namespace df3d {
 
-namespace df3d { namespace render {
+class LightComponent;
 
 class RenderQueue
 {
@@ -17,10 +17,10 @@ public:
     std::vector<RenderOperation> transparentOperations;
     std::vector<RenderOperation2D> sprite2DOperations;
     std::vector<RenderOperation> debugDrawOperations;
-    std::vector<components::LightComponent *> lights;
+    std::vector<LightComponent *> lights;
 
     void sort();
     void clear();
 };
 
-} }
+}

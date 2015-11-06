@@ -2,13 +2,12 @@
 
 #include <base/Service.h>
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 Resource::Resource()
     : m_initialized(false),
     m_resident(false)
 {
-    // guid = g_resmgr->getGuid()??
     static unsigned long resourcesCount = 0;
 
     std::ostringstream ss;
@@ -20,7 +19,7 @@ void Resource::setGUID(const ResourceGUID &guid)
 { 
     if (!IsGUIDValid(guid))
     {
-        base::glog << "Trying to set invalid guid" << guid << base::logwarn;
+        glog << "Trying to set invalid guid" << guid << logwarn;
         return;
     }
 
@@ -47,4 +46,4 @@ ResourceGUID CreateGUIDFromPath(const std::string &path)
     return svc().filesystem.fullPath(path);
 }
 
-} }
+}
