@@ -5,32 +5,32 @@
 #include <scene/Node.h>
 #include <components/TransformComponent.h>
 
-namespace df3d { namespace components {
+namespace df3d {
 
 const size_t LightComponent::MAX_LIGHTS = 8;
 size_t LightComponent::NumLights = 0;
 
-void LightComponent::onDraw(render::RenderQueue *ops)
+void LightComponent::onDraw(RenderQueue *ops)
 {
     if (enabled())
         ops->lights.push_back(this);
 }
 
 LightComponent::LightComponent(Type type)
-    : NodeComponent(LIGHT)
+    : NodeComponent(ComponentType::LIGHT)
 {
     if (NumLights >= MAX_LIGHTS)
     {
-        base::glog << "Light limit is reached" << base::logwarn;
-        throw std::runtime_error("light limit reached");
+        glog << "Light limit is reached" << logwarn;
+        return;
     }
 
     if (type != Type::DIRECTIONAL)
     {
         // FIXME:
         // Support other light types!
-        base::glog << "Can not create light component. Unsupported light type" << base::logwarn;
-        throw std::runtime_error("Unsupported light type");
+        glog << "Can not create light component. Unsupported light type" << logwarn;
+        return;
     }
 
     m_type = type;
@@ -53,7 +53,7 @@ void LightComponent::setDirection(const glm::vec3 &dir)
 {
     if (m_type != Type::DIRECTIONAL)
     {
-        base::glog << "Trying to set direction to not directional light" << base::logwarn;
+        glog << "Trying to set direction to not directional light" << logwarn;
         return;
     }
 
@@ -112,4 +112,4 @@ shared_ptr<NodeComponent> LightComponent::clone() const
     return nullptr;
 }
 
-} }
+}

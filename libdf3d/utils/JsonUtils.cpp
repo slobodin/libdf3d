@@ -10,7 +10,7 @@ Json::Value fromFile(const std::string &path)
     auto fileSource = svc().filesystem.openFile(path);
     if (!fileSource || !fileSource->valid())
     {
-        base::glog << "Couldn't load json configs from" << path << base::logwarn;
+        glog << "Couldn't load json configs from" << path << base::logwarn;
         return Json::Value();
     }
 
@@ -22,7 +22,7 @@ Json::Value fromFile(const std::string &path)
 
     if (!reader.parse(buffer.c_str(), root))
     {
-        base::glog << "Failed to parse json from" << path << ". Error:" << reader.getFormattedErrorMessages() << base::logwarn;
+        glog << "Failed to parse json from" << path << ". Error:" << reader.getFormattedErrorMessages() << base::logwarn;
         return Json::Value();
     }
 
@@ -36,7 +36,7 @@ Json::Value fromSource(const std::string &data)
 
     if (!reader.parse(data, root))
     {
-        base::glog << "Failed to parse json. Error:" << reader.getFormattedErrorMessages() << base::logwarn;
+        glog << "Failed to parse json. Error:" << reader.getFormattedErrorMessages() << base::logwarn;
         return Json::Value();
     }
 

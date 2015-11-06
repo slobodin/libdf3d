@@ -2,7 +2,7 @@
 
 #include "NodeComponent.h"
 
-namespace df3d { namespace components {
+namespace df3d {
 
 class DF3D_DLL LightComponent : public NodeComponent
 {
@@ -36,7 +36,7 @@ private:
 
     glm::vec3 m_direction;     // Only for directional light.
 
-    void onDraw(render::RenderQueue *ops) override;
+    void onDraw(RenderQueue *ops) override;
 
 public:
     LightComponent(Type type);
@@ -71,4 +71,4 @@ public:
     shared_ptr<NodeComponent> clone() const override;
 };
 
-} }
+}
