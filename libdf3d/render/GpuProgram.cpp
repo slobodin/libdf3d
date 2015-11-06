@@ -18,7 +18,7 @@ void gpuProgramLog(unsigned int program)
     infoLog = new char[infologLen + 1];
 
     glGetProgramInfoLog(program, infologLen, nullptr, infoLog);
-    base::glog << "GPU program info log:" << infoLog << base::logmess;
+    glog << "GPU program info log:" << infoLog << base::logmess;
 
     delete [] infoLog;
 }
@@ -42,7 +42,7 @@ bool GpuProgram::compileShaders()
     {
         if (!shader || !shader->compile())
         {
-            base::glog << "Failed to compile shaders in" << getGUID() << base::logwarn;
+            glog << "Failed to compile shaders in" << getGUID() << base::logwarn;
             return false;
         }
     }
@@ -71,7 +71,7 @@ bool GpuProgram::attachShaders()
     glGetProgramiv(m_programDescriptor, GL_LINK_STATUS, &linkOk);
     if (linkOk == GL_FALSE)
     {
-        base::glog << "GPU program linkage failed" << base::logwarn;
+        glog << "GPU program linkage failed" << base::logwarn;
         gpuProgramLog(m_programDescriptor);
         return false;
     }

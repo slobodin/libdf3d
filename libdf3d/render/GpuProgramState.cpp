@@ -223,7 +223,7 @@ void GpuProgramState::updateSharedUniform(const GpuProgramUniform &uniform)
         break;
     case SharedUniformType::COUNT:
     default:
-        base::glog << "Can not set shared value to not shared uniform" << base::logwarn;
+        glog << "Can not set shared value to not shared uniform" << base::logwarn;
         break;
     }
 }
