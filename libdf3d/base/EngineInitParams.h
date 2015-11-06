@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace base { 
+namespace df3d {
 
 struct DF3D_DLL EngineInitParams
 {
@@ -17,4 +17,4 @@ struct DF3D_DLL EngineInitParams
     // windowed, fullscreen mode
 };
 
-} }
+}
