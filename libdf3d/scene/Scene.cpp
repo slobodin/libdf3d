@@ -5,9 +5,9 @@
 #include <render/RenderStats.h>
 #include <components/ParticleSystemComponent.h>
 
-namespace df3d { namespace scene {
+namespace df3d {
 
-void statsCollector(render::RenderStats *stats, shared_ptr<Node> n)
+void statsCollector(RenderStats *stats, shared_ptr<Node> n)
 {
     stats->totalNodes++;
     //if (n->mesh())
@@ -61,12 +61,12 @@ glm::vec3 Scene::getFogColor() const
     return m_fogColor;
 }
 
-void Scene::setPostProcessMaterial(shared_ptr<render::Material> material)
+void Scene::setPostProcessMaterial(shared_ptr<Material> material)
 {
     m_postProcessMaterial = material;
 }
 
-void Scene::collectStats(render::RenderStats *stats)
+void Scene::collectStats(RenderStats *stats)
 {
     //auto fn = [&](shared_ptr<Node> n) 
     //{
@@ -75,7 +75,7 @@ void Scene::collectStats(render::RenderStats *stats)
     m_root->traverse(std::bind(statsCollector, stats, std::placeholders::_1));
 }
 
-void Scene::collectRenderOperations(render::RenderQueue *ops)
+void Scene::collectRenderOperations(RenderQueue *ops)
 {
     m_root->draw(ops);
 }
@@ -105,4 +105,4 @@ void Scene::removeAllChildren()
     m_root->removeAllChildren();
 }
 
-} }
+}

@@ -86,12 +86,12 @@ bool GuiManager::processMouseWheel(float delta)
     return true;
 }
 
-bool GuiManager::processKeyDownEvent(const base::KeyboardEvent &keyEv)
+bool GuiManager::processKeyDownEvent(const KeyboardEvent &keyEv)
 {
     return m_rocketContext->ProcessKeyDown(convertToRocketKeyCode(keyEv.keycode), convertToRocketModifier(keyEv.modifiers));
 }
 
-bool GuiManager::processKeyUpEvent(const base::KeyboardEvent &keyEv)
+bool GuiManager::processKeyUpEvent(const KeyboardEvent &keyEv)
 {
     return m_rocketContext->ProcessKeyUp(convertToRocketKeyCode(keyEv.keycode), convertToRocketModifier(keyEv.modifiers));
 }

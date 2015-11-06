@@ -1,8 +1,8 @@
 #pragma once
 
-FWD_MODULE_CLASS(scene, Node)
-
 namespace df3d {
+
+class Node;
 
 DF3D_DLL SceneNode newNode(const std::string &name = "");
 DF3D_DLL SceneNode nodeFromFile(const std::string &jsonDefinitionFile);

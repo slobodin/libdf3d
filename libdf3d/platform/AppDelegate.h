@@ -24,8 +24,8 @@ public:
     virtual void onMouseButtonEvent(const base::MouseButtonEvent &mouseButtonEvent) = 0;
     virtual void onMouseMotionEvent(const base::MouseMotionEvent &mouseMotionEvent) = 0;
     virtual void onMouseWheelEvent(const base::MouseWheelEvent &mouseWheelEvent) = 0;
-    virtual void onKeyUp(const base::KeyboardEvent &keyboardEvent) = 0;
-    virtual void onKeyDown(const base::KeyboardEvent &keyboardEvent) = 0;
+    virtual void onKeyUp(const KeyboardEvent &keyboardEvent) = 0;
+    virtual void onKeyDown(const KeyboardEvent &keyboardEvent) = 0;
     virtual void onTextInput(unsigned int codepoint) = 0;
 };
 

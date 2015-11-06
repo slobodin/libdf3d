@@ -2,15 +2,15 @@
 
 #include "Texture.h"
 
-FWD_MODULE_CLASS(resources, Texture2DManualLoader)
-FWD_MODULE_CLASS(resources, Texture2DFSLoader)
+namespace df3d {
 
-namespace df3d { namespace render {
+class Texture2DManualLoader;
+class Texture2DFSLoader;
 
 class Texture2D : public Texture
 {
-    friend class resources::Texture2DManualLoader;
-    friend class resources::Texture2DFSLoader;
+    friend class Texture2DManualLoader;
+    friend class Texture2DFSLoader;
 
     size_t m_originalWidth = 0, m_originalHeight = 0;
     size_t m_actualWidth = 0, m_actualHeight = 0;
@@ -33,4 +33,4 @@ public:
     void unbind() override;
 };
 
-} }
+}

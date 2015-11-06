@@ -9,6 +9,6 @@ DF3D_DLL shared_ptr<NodeComponent> componentFromFile(ComponentType type, const s
 //! Creates node component of given type from JSON value.
 DF3D_DLL shared_ptr<NodeComponent> componentFromJson(ComponentType type, const Json::Value &root);
 //! Serializes given component to a JSON value.
-DF3D_DLL Json::Value saveComponent(Component component);
+DF3D_DLL Json::Value saveComponent(shared_ptr<NodeComponent> component);
 
 }

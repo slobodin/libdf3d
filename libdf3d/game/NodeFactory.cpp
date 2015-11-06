@@ -6,20 +6,20 @@
 
 namespace df3d {
 
-components::ComponentType componentTypeFromJson(const Json::Value &root)
+ComponentType componentTypeFromJson(const Json::Value &root)
 {
     if (root.empty())
-        return components::ComponentType::COUNT;
+        return ComponentType::COUNT;
 
     if (root["type"].empty())
-        return components::ComponentType::COUNT;
+        return ComponentType::COUNT;
 
-    return components::NodeComponent::stringToType(root["type"].asString());
+    return NodeComponent::stringToType(root["type"].asString());
 }
 
 SceneNode newNode(const std::string &name)
 {
-    return make_shared<scene::Node>(name);
+    return make_shared<Node>(name);
 }
 
 SceneNode nodeFromFile(const std::string &jsonDefinitionFile)
@@ -42,7 +42,7 @@ SceneNode nodeFromJson(const Json::Value &root)
     auto objName = root["name"].asString();
     const auto &componentsJson = root["components"];
 
-    auto result = make_shared<scene::Node>(objName);
+    auto result = make_shared<Node>(objName);
     // FIXME: first attach transform, then other components!
     for (const auto &componentJson : componentsJson)
     {
@@ -55,7 +55,7 @@ SceneNode nodeFromJson(const Json::Value &root)
             return nullptr;
         }
 
-        Component component;
+        shared_ptr<NodeComponent> component;
         if (!externalDataJson.empty())
             component = componentFromFile(componentType, externalDataJson.asString());
         else

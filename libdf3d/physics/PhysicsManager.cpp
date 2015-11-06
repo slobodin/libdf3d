@@ -4,7 +4,7 @@
 #include <scene/Node.h>
 #include <components/TransformComponent.h>
 
-namespace df3d { namespace physics {
+namespace df3d {
 
 struct PhysicsManager::Impl
 {
@@ -128,4 +128,4 @@ void NodeMotionState::setWorldTransform(const btTransform &worldTrans)
     m_transform = worldTrans;
 }
 
-} }
+}

@@ -156,15 +156,15 @@ public:
     {
         int keyModifiers = 0;
         if (mods & GLFW_MOD_SHIFT)
-            keyModifiers |= base::KeyboardEvent::KM_SHIFT;
+            keyModifiers |= KeyboardEvent::KM_SHIFT;
         if (mods & GLFW_MOD_ALT)
-            keyModifiers |= base::KeyboardEvent::KM_ALT;
+            keyModifiers |= KeyboardEvent::KM_ALT;
         if (mods & GLFW_MOD_CONTROL)
-            keyModifiers |= base::KeyboardEvent::KM_CTRL;
+            keyModifiers |= KeyboardEvent::KM_CTRL;
 
-        base::KeyboardEvent ev;
+        KeyboardEvent ev;
         ev.keycode = convertGlfwKeyCode(key);
-        ev.modifiers = static_cast<base::KeyboardEvent::KeyModifier>(keyModifiers);
+        ev.modifiers = static_cast<KeyboardEvent::KeyModifier>(keyModifiers);
 
         if (action == GLFW_PRESS)
             m_appDelegate->onKeyDown(ev);

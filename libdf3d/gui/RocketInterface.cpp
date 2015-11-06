@@ -14,7 +14,7 @@
 
 #include <Rocket/Core.h>
 
-namespace df3d { namespace gui {
+namespace df3d {
 
 GuiFileInterface::GuiFileInterface()
 {
@@ -267,4 +267,4 @@ void GuiRenderInterface::ReleaseTexture(Rocket::Core::TextureHandle texture_hand
     svc().resourceMgr.unloadResource(guid);
 }
 
-} }
+}

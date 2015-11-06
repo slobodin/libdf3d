@@ -6,26 +6,26 @@ namespace df3d {
 
 static const std::map<std::string, ComponentType> NameType =
 {
-    { "transform", TRANSFORM },
-    { "mesh", MESH },
-    { "vfx", PARTICLE_EFFECT },
-    { "audio", AUDIO },
-    { "physics", PHYSICS },
-    { "light", LIGHT },
-    { "debug_draw", DEBUG_DRAW },
-    { "sprite_2d", SPRITE_2D }
+    { "transform", ComponentType::TRANSFORM },
+    { "mesh", ComponentType::MESH },
+    { "vfx", ComponentType::PARTICLE_EFFECT },
+    { "audio", ComponentType::AUDIO },
+    { "physics", ComponentType::PHYSICS },
+    { "light", ComponentType::LIGHT },
+    { "debug_draw", ComponentType::DEBUG_DRAW },
+    { "sprite_2d", ComponentType::SPRITE_2D }
 };
 
 static const std::map<ComponentType, std::string> TypeName =
 {
-    { TRANSFORM, "transform"},
-    { MESH, "mesh" },
-    { PARTICLE_EFFECT, "vfx" },
-    { AUDIO, "audio" },
-    { PHYSICS, "physics" },
-    { LIGHT, "light" },
-    { DEBUG_DRAW, "debug_draw" },
-    { SPRITE_2D, "sprite_2d" }
+    { ComponentType::TRANSFORM, "transform"},
+    { ComponentType::MESH, "mesh" },
+    { ComponentType::PARTICLE_EFFECT, "vfx" },
+    { ComponentType::AUDIO, "audio" },
+    { ComponentType::PHYSICS, "physics" },
+    { ComponentType::LIGHT, "light" },
+    { ComponentType::DEBUG_DRAW, "debug_draw" },
+    { ComponentType::SPRITE_2D, "sprite_2d" }
 };
 
 void NodeComponent::sendEvent(ComponentEvent ev)
@@ -44,7 +44,7 @@ const std::string &NodeComponent::getName() const
     return typeToString(type);
 }
 
-std::string NodeComponent::typeToString(ComponentType type)
+const std::string& NodeComponent::typeToString(ComponentType type)
 {
     return TypeName.find(type)->second;
 }

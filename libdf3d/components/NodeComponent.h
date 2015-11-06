@@ -62,7 +62,7 @@ public:
 
     virtual shared_ptr<NodeComponent> clone() const = 0;
 
-    static std::string typeToString(ComponentType type);
+    static const std::string& typeToString(ComponentType type);
     static ComponentType stringToType(const std::string &typeStr);
 };
 

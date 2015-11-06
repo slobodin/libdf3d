@@ -1,12 +1,12 @@
 #include "ResourceManager.h"
 
 #include <base/Service.h>
-#include <base/ThreadPool.h>
+#include <utils/ThreadPool.h>
 #include <utils/Utils.h>
 #include "Resource.h"
 #include "FileDataSource.h"
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 void ResourceManager::loadEmbedResources()
 {
@@ -15,7 +15,7 @@ void ResourceManager::loadEmbedResources()
 
 void ResourceManager::doRequest(DecodeRequest req)
 {
-    glog << "ASYNC decoding" << req.source->getPath() << base::logdebug;
+    glog << "ASYNC decoding" << req.source->getPath() << logdebug;
 
     req.result = req.loader->decode(req.source);
     if (!req.result)
@@ -95,7 +95,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
         m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, req));
     else
     {
-        glog << "Decoding" << req.source->getPath() << base::logdebug;
+        glog << "Decoding" << req.source->getPath() << logdebug;
 
         req.result = loader->decode(req.source);
         if (req.result)
@@ -117,7 +117,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
 
 ResourceManager::ResourceManager()
 {
-    m_threadPool = make_unique<base::ThreadPool>(2);
+    m_threadPool = make_unique<utils::ThreadPool>(2);
     m_factory = make_unique<ResourceFactory>(this);
 }
 
@@ -224,4 +224,4 @@ void ResourceManager::removeListener(Listener *listener)
         glog << "ResourceManager::removeListener failed: listener doesn't exist" << logwarn;
 }
 
-} }
+}

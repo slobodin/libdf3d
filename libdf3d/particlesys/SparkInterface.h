@@ -4,34 +4,33 @@
 
 #include <render/RenderOperation.h>
 
-FWD_MODULE_CLASS(render, RenderQueue)
-FWD_MODULE_CLASS(render, Texture)
-FWD_MODULE_CLASS(render, RenderPass)
-
-namespace df3d { namespace particlesys {
+namespace df3d {
 
 class MyRenderBuffer;
+class RenderQueue;
+class Texture;
+class RenderPass;
 
 class ParticleSystemRenderer : public SPK::Renderer
 {
     spark_description(ParticleSystemRenderer, SPK::Renderer)();
 
 protected:
-    void addToRenderQueue(MyRenderBuffer &buffer, size_t nbOfParticles, int verticesPerParticle, int indicesPerParticle, render::RenderOperation::Type type) const;
+    void addToRenderQueue(MyRenderBuffer &buffer, size_t nbOfParticles, int verticesPerParticle, int indicesPerParticle, RenderOperation::Type type) const;
 
 public:
-    shared_ptr<render::RenderPass> m_pass;
+    shared_ptr<RenderPass> m_pass;
 
     // This is a workaround.
     // We need to pass RenderQueue in order to populate it when renderParticles called.
-    render::RenderQueue *m_currentRenderQueue;
+    RenderQueue *m_currentRenderQueue;
     glm::mat4 *m_currentTransformation;
 
     ParticleSystemRenderer(bool NEEDS_DATASET);
     ~ParticleSystemRenderer();
 
     void setBlendMode(SPK::BlendMode blendMode) override;
-    void setDiffuseMap(shared_ptr<render::Texture> texture);
+    void setDiffuseMap(shared_ptr<Texture> texture);
     void enableFaceCulling(bool enable);
 };
 
@@ -102,4 +101,4 @@ inline glm::vec3 spkToGlm(const SPK::Vector3D &v)
 void initSparkEngine();
 void destroySparkEngine();
 
-} }
+}

@@ -2,15 +2,15 @@
 
 #include "Texture.h"
 
-FWD_MODULE_CLASS(resources, TextureCubeFSLoader)
+namespace df3d {
 
-namespace df3d { namespace render {
+class TextureCubeFSLoader;
 
 class TextureCube : public Texture
 {
-    friend class resources::TextureCubeFSLoader;
+    friend class TextureCubeFSLoader;
 
-    bool createGLTexture(unique_ptr<PixelBuffer> images[CUBE_FACES_COUNT]);
+    bool createGLTexture(unique_ptr<PixelBuffer> images[(int)CubeFace::COUNT]);
     void deleteGLTexture();
 
     TextureCube(TextureCreationParams params);
@@ -22,4 +22,4 @@ public:
     void unbind() override;
 };
 
-} }
+}

@@ -2,7 +2,7 @@
 
 #include "RenderTarget.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 class Texture2D;
 
@@ -27,4 +27,4 @@ public:
     shared_ptr<Texture2D> getTexture();
 };
 
-} }
+}

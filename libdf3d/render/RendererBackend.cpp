@@ -12,7 +12,7 @@
 #include "Texture2D.h"
 #include "Viewport.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 void RendererBackend::createWhiteTexture()
 {
@@ -28,7 +28,7 @@ void RendererBackend::createWhiteTexture()
     params.setMipmapped(false);
     params.setWrapMode(TextureWrapMode::WRAP);
 
-    auto pb = make_unique<render::PixelBuffer>(w, h, data, pf);
+    auto pb = make_unique<PixelBuffer>(w, h, data, pf);
 
     m_whiteTexture = svc().resourceMgr.getFactory().createTexture(std::move(pb), params);
     m_whiteTexture->setResident(true);
@@ -64,8 +64,6 @@ void RendererBackend::loadResidentGpuPrograms()
         ;
 
     auto &factory = svc().resourceMgr.getFactory();
-
-    using namespace resources;
 
     factory.createGpuProgram(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH, simple_lighting_vert, simple_lighting_frag)->setResident(true);
     factory.createGpuProgram(RTT_QUAD_PROGRAM_EMBED_PATH, rtt_quad_vert, rtt_quad_frag)->setResident(true);
@@ -226,14 +224,14 @@ RendererBackend::RendererBackend()
 #endif
 
     const char *ver = (const char *)glGetString(GL_VERSION);
-    glog << "OpenGL version" << ver << base::logmess;
+    glog << "OpenGL version" << ver << logmess;
 
     const char *card = (const char *)glGetString(GL_RENDERER);
     const char *vendor = (const char *)glGetString(GL_VENDOR);
-    glog << "Using" << card << vendor << base::logmess;
+    glog << "Using" << card << vendor << logmess;
 
     const char *shaderVer = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
-    glog << "Shaders version" << shaderVer << base::logmess;
+    glog << "Shaders version" << shaderVer << logmess;
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
@@ -424,7 +422,7 @@ void RendererBackend::setAmbientLight(float ra, float ga, float ba)
     setAmbientLight(glm::vec3(ra, ga, ba));
 }
 
-void RendererBackend::setLight(const components::LightComponent *light)
+void RendererBackend::setLight(const LightComponent *light)
 {
     auto &glslLight = m_programState->m_currentLight;
 
@@ -436,12 +434,12 @@ void RendererBackend::setLight(const components::LightComponent *light)
     glslLight.k2Param = light->getQuadraticAttenuation();
 
     // Since we calculate lighting in the view space we should translate position and direction.
-    if (light->type() == components::LightComponent::Type::DIRECTIONAL)
+    if (light->type() == LightComponent::Type::DIRECTIONAL)
     {
         auto dir = light->getDirection();
         glslLight.positionParam = m_programState->getViewMatrix() * glm::vec4(dir, 0.0f);
     }
-    else if (light->type() == components::LightComponent::Type::POINT)
+    else if (light->type() == LightComponent::Type::POINT)
     {
         auto pos = light->getPosition();
         glslLight.positionParam = m_programState->getViewMatrix() * glm::vec4(pos, 1.0f);
@@ -556,4 +554,4 @@ float RendererBackend::getMaxAnisotropy()
     return m_maxAnisotropyLevel;
 }
 
-} }
+}

@@ -67,7 +67,7 @@ void PhysicsComponent::initFromCreationParams()
         colShape = new btConvexHullShape((btScalar*)tempPoints.data(), tempPoints.size());
 
         // FIXME: what to do if scale has changed?
-        colShape->setLocalScaling(physics::glmTobt(getHolder()->transform()->getScale()));
+        colShape->setLocalScaling(glmTobt(getHolder()->transform()->getScale()));
     }
         break;
     default:
@@ -80,7 +80,7 @@ void PhysicsComponent::initFromCreationParams()
         colShape->calculateLocalInertia(m_creationParams.mass, localInertia);
 
     // Set motion state.
-    auto myMotionState = new physics::NodeMotionState(getHolder());
+    auto myMotionState = new NodeMotionState(getHolder());
 
     // Fill body properties.
     btRigidBody::btRigidBodyConstructionInfo rbInfo(m_creationParams.mass, myMotionState, colShape, localInertia);
@@ -141,7 +141,7 @@ void PhysicsComponent::onComponentEvent(ComponentEvent ev)
 }
 
 PhysicsComponent::PhysicsComponent(const CreationParams &params)
-    : NodeComponent(PHYSICS),
+    : NodeComponent(ComponentType::PHYSICS),
     m_creationParams(params)
 {
 
@@ -182,7 +182,7 @@ shared_ptr<NodeComponent> PhysicsComponent::clone() const
 void PhysicsComponent::setPosition(const glm::vec3 &pos)
 {
     auto tr = body->getWorldTransform();
-    tr.setOrigin(physics::glmTobt(pos));
+    tr.setOrigin(glmTobt(pos));
 
     body->setWorldTransform(tr);
 }

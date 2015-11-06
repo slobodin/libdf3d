@@ -5,7 +5,7 @@
 #include "Texture2D.h"
 #include "RendererBackend.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 void RenderTargetTexture::createGLFramebuffer()
 {
@@ -99,4 +99,4 @@ shared_ptr<Texture2D> RenderTargetTexture::getTexture()
     return m_texture;
 }
 
-} }
+}

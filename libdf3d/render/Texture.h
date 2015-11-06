@@ -4,7 +4,7 @@
 #include "OpenGLCommon.h"
 #include "RenderCommon.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 class PixelBuffer : utils::NonCopyable
 {
@@ -47,7 +47,7 @@ public:
     void setWrapMode(TextureWrapMode wrapMode);
 };
 
-class Texture : public resources::Resource
+class Texture : public Resource
 {
 protected:
     TextureCreationParams m_params;
@@ -73,4 +73,4 @@ public:
     virtual void unbind() = 0;
 };
 
-} }
+}

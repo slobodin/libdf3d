@@ -64,7 +64,6 @@ using std::static_pointer_cast;
 namespace df3d {
 
 class Node;
-class Component;
 
 enum class ResourceLoadingMode
 {

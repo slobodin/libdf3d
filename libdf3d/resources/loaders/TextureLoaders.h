@@ -4,30 +4,30 @@
 #include <render/Texture2D.h>
 #include <render/TextureCube.h>
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 class Texture2DManualLoader : public ManualResourceLoader
 {
-    unique_ptr<render::PixelBuffer> m_pixelBuffer;
-    render::TextureCreationParams m_params;
+    unique_ptr<PixelBuffer> m_pixelBuffer;
+    TextureCreationParams m_params;
 
 public:
-    Texture2DManualLoader(unique_ptr<render::PixelBuffer> pixelBuffer, render::TextureCreationParams params);
+    Texture2DManualLoader(unique_ptr<PixelBuffer> pixelBuffer, TextureCreationParams params);
 
-    render::Texture2D* load() override;
+    Texture2D* load() override;
 };
 
 class Texture2DFSLoader : public FSResourceLoader
 {
     std::string m_pathToTexture;
-    render::TextureCreationParams m_params;
+    TextureCreationParams m_params;
 
-    unique_ptr<render::PixelBuffer> m_pixelBuffer;
+    unique_ptr<PixelBuffer> m_pixelBuffer;
 
 public:
-    Texture2DFSLoader(const std::string &path, const render::TextureCreationParams &params, ResourceLoadingMode lm);
+    Texture2DFSLoader(const std::string &path, const TextureCreationParams &params, ResourceLoadingMode lm);
 
-    render::Texture2D* createDummy() override;
+    Texture2D* createDummy() override;
     bool decode(shared_ptr<FileDataSource> source) override;
     void onDecoded(Resource *resource) override;
 };
@@ -35,16 +35,16 @@ public:
 class TextureCubeFSLoader : public FSResourceLoader
 {
     std::string m_jsonPath;
-    render::TextureCreationParams m_params;
+    TextureCreationParams m_params;
 
-    unique_ptr<render::PixelBuffer> m_pixelBuffers[render::CUBE_FACES_COUNT];
+    unique_ptr<PixelBuffer> m_pixelBuffers[(int)CubeFace::COUNT];
 
 public:
-    TextureCubeFSLoader(const std::string &path, const render::TextureCreationParams &params, ResourceLoadingMode lm);
+    TextureCubeFSLoader(const std::string &path, const TextureCreationParams &params, ResourceLoadingMode lm);
 
-    render::TextureCube* createDummy() override;
+    TextureCube* createDummy() override;
     bool decode(shared_ptr<FileDataSource> source) override;
     void onDecoded(Resource *resource) override;
 };
 
-} }
+}
