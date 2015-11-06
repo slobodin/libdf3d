@@ -91,7 +91,7 @@ void FileSystem::addSearchPath(const std::string &path)
     auto found = std::find_if(m_searchPaths.cbegin(), m_searchPaths.cend(), [&path](const std::string &it) { return it == path; });
     if (found != m_searchPaths.cend())
     {
-        base::glog << "Trying to add duplicate search path" << path << base::logwarn;
+        glog << "Trying to add duplicate search path" << path << base::logwarn;
         return;
     }
 

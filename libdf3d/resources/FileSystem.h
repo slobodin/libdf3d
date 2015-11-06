@@ -1,15 +1,13 @@
 #pragma once
 
-FWD_MODULE_CLASS(base, EngineController)
+#include <base/EngineModule.h>
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 class FileDataSource;
 
-class DF3D_DLL FileSystem : utils::NonCopyable
+class DF3D_DLL FileSystem : public EngineModule
 {
-    friend class base::EngineController;
-
     FileSystem();
     ~FileSystem();
 
@@ -34,4 +32,4 @@ public:
     static std::string getFilenameWithoutExtension(const std::string &filePath);
 };
 
-} }
+}

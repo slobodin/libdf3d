@@ -8,7 +8,7 @@ FileDataSourceDesktop::FileDataSourceDesktop(const std::string &fileName)
 {
     m_file = fopen(fileName.c_str(), "rb");
     if (!m_file)
-        base::glog << "Can not open file" << fileName << base::logwarn;
+        glog << "Can not open file" << fileName << base::logwarn;
 }
 
 FileDataSourceDesktop::~FileDataSourceDesktop()
