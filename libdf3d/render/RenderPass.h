@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace render {
+namespace df3d {
 
 class Texture;
 class GpuProgram;
@@ -8,7 +8,7 @@ class GpuProgramUniform;
 
 struct DF3D_DLL Sampler
 {
-    shared_ptr<render::Texture> texture;
+    shared_ptr<Texture> texture;
     std::string name;
     // TODO:
     // texture unit.
@@ -107,8 +107,8 @@ public:
     shared_ptr<Texture> getSampler(const std::string &name);
 
     void addPassParam(const RenderPassParam &param);
-    std::vector<RenderPassParam> &getPassParams() { return m_passParams; }
-    RenderPassParam *getPassParam(const std::string &name);
+    std::vector<RenderPassParam>& getPassParams() { return m_passParams; }
+    RenderPassParam* getPassParam(const std::string &name);
 
     void setAmbientColor(float ra, float ga, float ba, float aa = 1.0f);
     void setAmbientColor(const glm::vec4 &ambient);
@@ -148,4 +148,4 @@ public:
     static RenderPass createDebugDrawPass();
 };
 
-} }
+}

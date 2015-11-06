@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace render {
+namespace df3d {
 
 class VertexBuffer;
 class IndexBuffer;
@@ -34,4 +34,4 @@ public:
     float z = 0.0f;
 };
 
-} }
+}

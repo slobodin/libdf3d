@@ -6,7 +6,7 @@
 #include "RendererBackend.h"
 #include <base/Service.h>
 
-namespace df3d { namespace render {
+namespace df3d {
 
 void RenderPassParam::updateTo(GpuProgram *program)
 {
@@ -15,7 +15,7 @@ void RenderPassParam::updateTo(GpuProgram *program)
         m_uniform = program->getCustomUniform(name);
         if (!m_uniform)
         {
-            base::glog << "Uniform" << name << "was not found in shader" << program->getFilePath() << base::logwarn;
+            glog << "Uniform" << name << "was not found in shader" << program->getFilePath() << base::logwarn;
             return;
         }
     }
@@ -38,7 +38,7 @@ void RenderPass::setGpuProgram(shared_ptr<GpuProgram> newProgram)
 {
     if (!newProgram)
     {
-        base::glog << "Failed to set empty gpu program to a render pass" << base::logwarn;
+        glog << "Failed to set empty gpu program to a render pass" << base::logwarn;
         return;
     }
     m_gpuProgram = newProgram;
@@ -82,14 +82,14 @@ void RenderPass::addPassParam(const RenderPassParam &param)
 {
     if (param.name.empty())
     {
-        base::glog << "Invalid shader parameter name" << base::logwarn;
+        glog << "Invalid shader parameter name" << base::logwarn;
         return;
     }
 
     auto found = std::find_if(m_passParams.cbegin(), m_passParams.cend(), [&](const RenderPassParam &p) -> bool { return p.name == param.name; });
     if (found != m_passParams.cend())
     {
-        base::glog << "Render pass" << m_name << "already have shader parameter" << param.name << base::logwarn;
+        glog << "Render pass" << m_name << "already have shader parameter" << param.name << base::logwarn;
         return;
     }
 
@@ -101,7 +101,7 @@ RenderPassParam *RenderPass::getPassParam(const std::string &name)
     auto found = std::find_if(m_passParams.begin(), m_passParams.end(), [&name](const RenderPassParam &p) -> bool { return p.name == name; });
     if (found == m_passParams.end())
     {
-        base::glog << "Couldn't find pass param" << name << "in render pass" << getName() << base::logwarn;
+        glog << "Couldn't find pass param" << name << "in render pass" << getName() << base::logwarn;
         return nullptr;
     }
 
@@ -216,4 +216,4 @@ RenderPass RenderPass::createDebugDrawPass()
     return pass;
 }
 
-} }
+}
