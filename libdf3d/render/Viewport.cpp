@@ -15,7 +15,7 @@ void Viewport::setDimensions(int x, int y, int w, int h)
 {
     if (x < 0 || y < 0 || x >= w || y >= h)
     {
-        base::glog << "Trying to set invalid viewport dimensions" << base::logwarn;
+        glog << "Trying to set invalid viewport dimensions" << base::logwarn;
         return;
     }
 

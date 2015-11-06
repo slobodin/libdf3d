@@ -1,6 +1,6 @@
 #include "ThreadPool.h"
 
-namespace df3d { namespace base {
+namespace df3d { namespace utils {
 
 struct ThreadPoolWorker
 {

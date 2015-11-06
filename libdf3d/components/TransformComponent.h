@@ -2,7 +2,7 @@
 
 #include "NodeComponent.h"
 
-namespace df3d { namespace components {
+namespace df3d {
 
 class DF3D_DLL TransformComponent : public NodeComponent
 {
@@ -58,4 +58,4 @@ public:
     shared_ptr<NodeComponent> clone() const override;
 };
 
-} }
+}

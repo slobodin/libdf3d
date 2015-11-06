@@ -1,8 +1,8 @@
 #pragma once
 
-namespace df3d { namespace base {
+namespace df3d { namespace utils {
 
-class ThreadPool : utils::NonCopyable
+class ThreadPool : NonCopyable
 {
     friend struct ThreadPoolWorker;
 

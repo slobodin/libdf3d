@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace render {
+namespace df3d {
 
 // Silly assert but we support only floats.
 static_assert(std::is_same<glm::vec3::value_type, float>::value, "glm: only floats are supported");
@@ -102,4 +102,4 @@ public:
     void clear();
 };
 
-} }
+}

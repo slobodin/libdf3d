@@ -3,7 +3,6 @@
 #include "OpenGLCommon.h"
 
 namespace df3d {
-namespace render {
 
 GLenum getGLUsageType(GpuBufferUsageType t)
 {
@@ -207,4 +206,4 @@ shared_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, f
     return result;
 }
 
-} }
+}

@@ -3,7 +3,7 @@
 #include "Vertex.h"
 #include "RenderCommon.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 //! GPU vertex buffer representation.
 class DF3D_DLL VertexBuffer : utils::NonCopyable
@@ -83,4 +83,4 @@ shared_ptr<VertexBuffer> createQuad(const VertexFormat &vf, float x, float y, fl
 // XXX: Valid only for vertex format Vertex_3p2tx4c!!!
 shared_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, float w, float h, GpuBufferUsageType usage);
 
-} }
+}

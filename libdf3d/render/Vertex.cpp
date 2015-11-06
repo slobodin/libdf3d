@@ -3,7 +3,7 @@
 #include "OpenGLCommon.h"
 #include <utils/Utils.h>
 
-namespace df3d { namespace render {
+namespace df3d {
 
 VertexFormat::VertexFormat(const std::vector<VertexAttribute> &attribs)
     : m_attribs(attribs)
@@ -226,4 +226,4 @@ void VertexData::clear()
     m_data.clear();
 }
 
-} }
+}
