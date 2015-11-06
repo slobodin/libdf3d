@@ -6,17 +6,16 @@
 #include <scene/bounding_volumes/OBB.h>
 #include <scene/bounding_volumes/ConvexHull.h>
 #include "Vertex.h"
-#include "Material.h"
 #include "RenderCommon.h"
 
-FWD_MODULE_CLASS(resources, MeshDataManualLoader)
-FWD_MODULE_CLASS(resources, MeshDataFSLoader)
-
-namespace df3d { namespace render {
+namespace df3d {
 
 class VertexBuffer;
 class IndexBuffer;
 class RenderQueue;
+class MeshDataManualLoader;
+class MeshDataFSLoader;
+class Material;
 
 //! Non GPU representation of a mesh surface.
 class DF3D_DLL SubMesh : utils::NonCopyable
@@ -34,8 +33,8 @@ public:
     SubMesh(SubMesh &&other);
     ~SubMesh();
 
-    void setMaterial(const Material &material) { m_material = make_shared<Material>(material); }
-    void setMaterial(shared_ptr<Material> material) { m_material = material; }
+    void setMaterial(const Material &material);
+    void setMaterial(shared_ptr<Material> material);
     void setVertexBufferUsageHint(GpuBufferUsageType usageType) { m_vbufferUsageType = usageType; }
     void setIndexBufferUsageHint(GpuBufferUsageType usageType) { m_ibufferUsageType = usageType; }
 
@@ -54,10 +53,10 @@ public:
     bool hasIndices() const { return !m_indexData.empty(); }
 };
 
-class DF3D_DLL MeshData : public resources::Resource
+class DF3D_DLL MeshData : public Resource
 {
-    friend class resources::MeshDataManualLoader;
-    friend class resources::MeshDataFSLoader;
+    friend class MeshDataManualLoader;
+    friend class MeshDataFSLoader;
 
     size_t m_trianglesCount = 0;
 
@@ -73,10 +72,10 @@ class DF3D_DLL MeshData : public resources::Resource
     std::vector<HardwareSubMesh> m_submeshes;
 
     // Bounding volumes in model space.
-    scene::AABB m_aabb;
-    scene::BoundingSphere m_sphere;
-    scene::OBB m_obb;
-    scene::ConvexHull m_convexHull;
+    AABB m_aabb;
+    BoundingSphere m_sphere;
+    OBB m_obb;
+    ConvexHull m_convexHull;
 
     void doInitMesh(const std::vector<SubMesh> &geometry);
 
@@ -96,12 +95,12 @@ public:
     size_t getSubMeshesCount() const;
     size_t getTrianglesCount() const;
 
-    const scene::AABB* getAABB() const;
-    const scene::BoundingSphere* getBoundingSphere() const;
-    const scene::OBB* getOBB() const;
-    const scene::ConvexHull* getConvexHull() const;
+    const AABB* getAABB() const;
+    const BoundingSphere* getBoundingSphere() const;
+    const OBB* getOBB() const;
+    const ConvexHull* getConvexHull() const;
 
     void populateRenderQueue(RenderQueue *ops, const glm::mat4 &transformation);
 };
 
-} }
+}

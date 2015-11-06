@@ -5,10 +5,10 @@
 #include <scene/bounding_volumes/BoundingSphere.h>
 #include <scene/bounding_volumes/OBB.h>
 
-FWD_MODULE_CLASS(render, MeshData)
-FWD_MODULE_CLASS(render, Material)
+namespace df3d {
 
-namespace df3d { namespace components {
+class MeshData;
+class Material;
 
 // TODO: this is static mesh, create animated mesh.
 
@@ -16,25 +16,25 @@ class DF3D_DLL MeshComponent : public NodeComponent
 {
     bool isInFov();
 
-    void onComponentEvent(components::ComponentEvent ev) override;
-    void onDraw(render::RenderQueue *ops) override;
+    void onComponentEvent(ComponentEvent ev) override;
+    void onDraw(RenderQueue *ops) override;
     void onUpdate(float dt) override;
 
-    shared_ptr<render::MeshData> m_meshData;
+    shared_ptr<MeshData> m_meshData;
 
     // Transformed AABB.
-    scene::AABB m_transformedAABB;
+    AABB m_transformedAABB;
     bool m_transformedAabbDirty = true;
     void constructTransformedAABB();
 
     // Bounding sphere.
-    scene::BoundingSphere m_sphere;
+    BoundingSphere m_sphere;
     bool m_boundingSphereDirty = true;
     void constructBoundingSphere();
     void updateBoundingSpherePosition();
 
     // Oriented bb.
-    scene::OBB m_obb;
+    OBB m_obb;
     bool m_obbTransformationDirty = true;
     void updateOBB();
 
@@ -45,21 +45,21 @@ class DF3D_DLL MeshComponent : public NodeComponent
     unique_ptr<ResourceMgrListenerImpl> m_rmgrListener;
     bool m_meshWasLoaded = false;   // little workaround
 
-    void setMeshData(shared_ptr<render::MeshData> meshData);
+    void setMeshData(shared_ptr<MeshData> meshData);
 
 protected:
     MeshComponent();
 
 public:
     MeshComponent(const std::string &meshFilePath, ResourceLoadingMode lm = ResourceLoadingMode::ASYNC);
-    MeshComponent(shared_ptr<render::MeshData> meshData);
+    MeshComponent(shared_ptr<MeshData> meshData);
     ~MeshComponent();
 
-    shared_ptr<render::MeshData> getMeshData() const;
+    shared_ptr<MeshData> getMeshData() const;
 
-    scene::AABB getAABB();
-    scene::BoundingSphere getBoundingSphere();
-    scene::OBB getOBB();
+    AABB getAABB();
+    BoundingSphere getBoundingSphere();
+    OBB getOBB();
 
     void setVisible(bool visible) { m_visible = visible; }
     void disableFrustumCulling(bool disable) { m_frustumCullingDisabled = disable; }
@@ -67,4 +67,4 @@ public:
     shared_ptr<NodeComponent> clone() const override;
 };
 
-} }
+}

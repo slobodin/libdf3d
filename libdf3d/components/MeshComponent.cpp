@@ -12,9 +12,9 @@
 #include <render/Technique.h>
 #include <base/Service.h>
 
-namespace df3d { namespace components {
+namespace df3d {
 
-struct MeshComponent::ResourceMgrListenerImpl : public resources::ResourceManager::Listener
+struct MeshComponent::ResourceMgrListenerImpl : public ResourceManager::Listener
 {
     std::recursive_mutex m_mutex;
     MeshComponent *m_holder;
@@ -52,16 +52,16 @@ bool MeshComponent::isInFov()
     return svc().sceneMgr.getCamera()->getFrustum().sphereInFrustum(getBoundingSphere());
 }
 
-void MeshComponent::onComponentEvent(components::ComponentEvent ev)
+void MeshComponent::onComponentEvent(ComponentEvent ev)
 {
     switch (ev)
     {
-    case components::ComponentEvent::POSITION_CHANGED:
-    case components::ComponentEvent::ORIENTATION_CHANGED:
+    case ComponentEvent::POSITION_CHANGED:
+    case ComponentEvent::ORIENTATION_CHANGED:
         m_transformedAabbDirty = true;
         m_obbTransformationDirty = true;
         break;
-    case components::ComponentEvent::SCALE_CHANGED:
+    case ComponentEvent::SCALE_CHANGED:
         m_transformedAabbDirty = true;
         m_obbTransformationDirty = true;
         m_boundingSphereDirty = true;
@@ -71,7 +71,7 @@ void MeshComponent::onComponentEvent(components::ComponentEvent ev)
     }
 }
 
-void MeshComponent::onDraw(render::RenderQueue *ops)
+void MeshComponent::onDraw(RenderQueue *ops)
 {
     if (!m_meshData || !m_meshData->isInitialized())
         return;
@@ -155,11 +155,11 @@ void MeshComponent::updateOBB()
     m_obbTransformationDirty = false;
 }
 
-void MeshComponent::setMeshData(shared_ptr<render::MeshData> geometry)
+void MeshComponent::setMeshData(shared_ptr<MeshData> geometry)
 {
     if (!geometry)
     {
-        base::glog << "Can not set null geometry to a mesh node" << base::logwarn;
+        glog << "Can not set null geometry to a mesh node" << logwarn;
         return;
     }
 
@@ -171,7 +171,7 @@ void MeshComponent::setMeshData(shared_ptr<render::MeshData> geometry)
 }
 
 MeshComponent::MeshComponent()
-    : NodeComponent(MESH),
+    : NodeComponent(ComponentType::MESH),
       m_rmgrListener(make_unique<ResourceMgrListenerImpl>(this))
 {
 
@@ -180,12 +180,12 @@ MeshComponent::MeshComponent()
 MeshComponent::MeshComponent(const std::string &meshFilePath, ResourceLoadingMode lm)
     : MeshComponent()
 {
-    m_rmgrListener->m_guid = resources::CreateGUIDFromPath(meshFilePath);
+    m_rmgrListener->m_guid = CreateGUIDFromPath(meshFilePath);
 
     setMeshData(svc().resourceMgr.getFactory().createMeshData(meshFilePath, lm));
 }
 
-MeshComponent::MeshComponent(shared_ptr<render::MeshData> meshData)
+MeshComponent::MeshComponent(shared_ptr<MeshData> meshData)
     : MeshComponent()
 {
     setMeshData(meshData);
@@ -196,12 +196,12 @@ MeshComponent::~MeshComponent()
 
 }
 
-shared_ptr<render::MeshData> MeshComponent::getMeshData() const
+shared_ptr<MeshData> MeshComponent::getMeshData() const
 {
     return m_meshData;
 }
 
-scene::AABB MeshComponent::getAABB()
+AABB MeshComponent::getAABB()
 {
     if (m_transformedAabbDirty)
         constructTransformedAABB();
@@ -209,7 +209,7 @@ scene::AABB MeshComponent::getAABB()
     return m_transformedAABB;
 }
 
-scene::BoundingSphere MeshComponent::getBoundingSphere()
+BoundingSphere MeshComponent::getBoundingSphere()
 {
     if (m_boundingSphereDirty)
         constructBoundingSphere();
@@ -219,7 +219,7 @@ scene::BoundingSphere MeshComponent::getBoundingSphere()
     return m_sphere;
 }
 
-scene::OBB MeshComponent::getOBB()
+OBB MeshComponent::getOBB()
 {
     if (m_obbTransformationDirty)
         updateOBB();
@@ -248,4 +248,4 @@ shared_ptr<NodeComponent> MeshComponent::clone() const
     return retRes;
 }
 
-} }
+}
