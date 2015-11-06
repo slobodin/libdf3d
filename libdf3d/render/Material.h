@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Technique.h"
+namespace df3d {
 
-namespace df3d { namespace render {
+class Technique;
 
 //! Material is a collection of rendering techniques.
 class DF3D_DLL Material
@@ -35,4 +35,4 @@ public:
     size_t getTechniquesCount() const;
 };
 
-} }
+}

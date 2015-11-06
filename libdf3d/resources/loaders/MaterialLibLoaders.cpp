@@ -82,7 +82,7 @@ void setPassParam(const std::string &param, const std::string &valueStr, const s
         acceptedString.pop_back();
         acceptedString.pop_back();
 
-        base::glog << "Invalid pass parameter" << param << "found while parsing" << libName << ". Accepted values are :" << acceptedString << base::logwarn;
+        glog << "Invalid pass parameter" << param << "found while parsing" << libName << ". Accepted values are :" << acceptedString << base::logwarn;
     }
 }
 
@@ -261,7 +261,7 @@ class MaterialLibParser
     {
         if (node.name.empty())
         {
-            base::glog << "Invalid material name found while parsing" << m_libPath << base::logwarn;
+            glog << "Invalid material name found while parsing" << m_libPath << base::logwarn;
             return nullptr;
         }
 
@@ -293,7 +293,7 @@ class MaterialLibParser
     {
         if (node.name.empty())
         {
-            base::glog << "Invalid technique name found while parsing" << m_libPath << base::logwarn;
+            glog << "Invalid technique name found while parsing" << m_libPath << base::logwarn;
             return nullptr;
         }
 
@@ -427,7 +427,7 @@ class MaterialLibParser
                 return svc().resourceMgr.getFactory().createRttQuadProgram();
             else
             {
-                base::glog << "Invalid embed program name" << embedProgramName << base::logwarn;
+                glog << "Invalid embed program name" << embedProgramName << base::logwarn;
                 return nullptr;
             }
         }
@@ -438,7 +438,7 @@ class MaterialLibParser
 
         if (vshader == node.keyValues.end() || fshader == node.keyValues.end())
         {
-            base::glog << "Invalid shader properties found while parsing" << m_libPath << base::logwarn;
+            glog << "Invalid shader properties found while parsing" << m_libPath << base::logwarn;
             return nullptr;
         }
 
@@ -461,7 +461,7 @@ class MaterialLibParser
     {
         if (!utils::contains_key(node.keyValues, "type"))
         {
-            base::glog << "Can not parse sampler. Missing texture type." << base::logwarn;
+            glog << "Can not parse sampler. Missing texture type." << base::logwarn;
             return nullptr;
         }
 
@@ -481,7 +481,7 @@ class MaterialLibParser
             return svc().resourceMgr.getFactory().createCubeTexture(path, creationParams, ResourceLoadingMode::ASYNC);
         }
 
-        base::glog << "Unknown texture type" << type << base::logwarn;
+        glog << "Unknown texture type" << type << base::logwarn;
         return nullptr;
 
         // TODO: other types are:
@@ -500,7 +500,7 @@ public:
         auto root = MaterialLibNode::createTree(input);
         if (!root)
         {
-            base::glog << "Can not parse material library" << m_libPath << base::logwarn;
+            glog << "Can not parse material library" << m_libPath << base::logwarn;
             return false;
         }
 

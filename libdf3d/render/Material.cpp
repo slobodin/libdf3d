@@ -2,7 +2,7 @@
 
 #include "Technique.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 shared_ptr<Technique> Material::findTechnique(const std::string &name)
 {
@@ -22,7 +22,7 @@ Material::Material(const std::string &name)
     : m_name(name)
 {
     if (name.empty())
-        base::glog << "Creating material with empty name" << base::logwarn;
+        glog << "Creating material with empty name" << logwarn;
 }
 
 Material::Material(const Material &other)
@@ -58,7 +58,7 @@ void Material::appendTechnique(const Technique &technique)
 {
     if (findTechnique(technique.getName()))
     {
-        base::glog << "Trying to add duplicate technique" << technique.getName() << "to material" << m_name << base::logwarn;
+        glog << "Trying to add duplicate technique" << technique.getName() << "to material" << m_name << logwarn;
         return;
     }
 
@@ -74,7 +74,7 @@ void Material::setCurrentTechnique(const std::string &name)
     if (found)
         m_currentTechnique = found;
     else
-        base::glog << "Trying to set empty technique" << name << "to material" << m_name << base::logwarn;
+        glog << "Trying to set empty technique" << name << "to material" << m_name << logwarn;
 }
 
 shared_ptr<Technique> Material::getCurrentTechnique()
@@ -92,4 +92,4 @@ size_t Material::getTechniquesCount() const
     return m_techniques.size();
 }
 
-} }
+}
