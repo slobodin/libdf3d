@@ -11,7 +11,7 @@ public:
     AppDelegate() { }
     virtual ~AppDelegate() { }
 
-    virtual base::EngineInitParams getInitParams() const = 0;
+    virtual EngineInitParams getInitParams() const = 0;
 
     virtual bool onAppStarted(int windowWidth, int windowHeight) = 0;
     virtual void onAppEnded() = 0;
@@ -20,10 +20,10 @@ public:
     virtual void onAppPaused() = 0;
     virtual void onAppResumed() = 0;
 
-    virtual void onTouchEvent(const base::TouchEvent &touchEvent) = 0;
-    virtual void onMouseButtonEvent(const base::MouseButtonEvent &mouseButtonEvent) = 0;
-    virtual void onMouseMotionEvent(const base::MouseMotionEvent &mouseMotionEvent) = 0;
-    virtual void onMouseWheelEvent(const base::MouseWheelEvent &mouseWheelEvent) = 0;
+    virtual void onTouchEvent(const TouchEvent &touchEvent) = 0;
+    virtual void onMouseButtonEvent(const MouseButtonEvent &mouseButtonEvent) = 0;
+    virtual void onMouseMotionEvent(const MouseMotionEvent &mouseMotionEvent) = 0;
+    virtual void onMouseWheelEvent(const MouseWheelEvent &mouseWheelEvent) = 0;
     virtual void onKeyUp(const KeyboardEvent &keyboardEvent) = 0;
     virtual void onKeyDown(const KeyboardEvent &keyboardEvent) = 0;
     virtual void onTextInput(unsigned int codepoint) = 0;

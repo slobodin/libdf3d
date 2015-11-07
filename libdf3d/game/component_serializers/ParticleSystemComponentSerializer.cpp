@@ -191,7 +191,7 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
     {
         glm::vec3 position;
         zoneJson["position"] >> position;
-        zone = SPK::Point::create(particlesys::glmToSpk(position));
+        zone = SPK::Point::create(glmToSpk(position));
     }
     else if (zoneType == "Box")
     {
@@ -202,7 +202,7 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
         zoneJson["front"] >> front;
         zoneJson["up"] >> up;
 
-        zone = SPK::Box::create(particlesys::glmToSpk(position), particlesys::glmToSpk(dimension), particlesys::glmToSpk(front), particlesys::glmToSpk(up));
+        zone = SPK::Box::create(glmToSpk(position), glmToSpk(dimension), glmToSpk(front), glmToSpk(up));
     }
     else if (zoneType == "Cylinder")
     {
@@ -214,7 +214,7 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
         zoneJson["radius"] >> radius;
         zoneJson["height"] >> height;
 
-        zone = SPK::Cylinder::create(particlesys::glmToSpk(position), height, radius, particlesys::glmToSpk(axis));
+        zone = SPK::Cylinder::create(glmToSpk(position), height, radius, glmToSpk(axis));
     }
     else if (zoneType == "Plane")
     {
@@ -223,7 +223,7 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
         zoneJson["position"] >> position;
         zoneJson["normal"] >> normal;
 
-        zone = SPK::Plane::create(particlesys::glmToSpk(position), particlesys::glmToSpk(normal));
+        zone = SPK::Plane::create(glmToSpk(position), glmToSpk(normal));
     }
     else if (zoneType == "Ring")
     {
@@ -235,7 +235,7 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
         zoneJson["minRadius"] >> minRadius;
         zoneJson["maxRadius"] >> maxRadius;
 
-        zone = SPK::Ring::create(particlesys::glmToSpk(position), particlesys::glmToSpk(normal), minRadius, maxRadius);
+        zone = SPK::Ring::create(glmToSpk(position), glmToSpk(normal), minRadius, maxRadius);
     }
     else if (zoneType == "Sphere")
     {
@@ -245,7 +245,7 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
         zoneJson["position"] >> position;
         zoneJson["radius"] >> radius;
 
-        zone = SPK::Sphere::create(particlesys::glmToSpk(position), radius);
+        zone = SPK::Sphere::create(glmToSpk(position), radius);
     }
     else
     {
@@ -267,7 +267,7 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
 
         emitterJson["direction"] >> dir;
 
-        emitter = SPK::StraightEmitter::create(particlesys::glmToSpk(dir));
+        emitter = SPK::StraightEmitter::create(glmToSpk(dir));
     }
     else if (emitterType == "Static")
     {
@@ -282,7 +282,7 @@ SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
         emitterJson["angleA"] >> angleA;
         emitterJson["angleB"] >> angleB;
 
-        emitter = SPK::SphericEmitter::create(particlesys::glmToSpk(dir), glm::radians(angleA), glm::radians(angleB));
+        emitter = SPK::SphericEmitter::create(glmToSpk(dir), glm::radians(angleA), glm::radians(angleB));
     }
     else if (emitterType == "Normal")
     {
@@ -346,7 +346,7 @@ void parseSparkModifiers(SPK::Ref<SPK::Group> group, const Json::Value &modifier
     }
 }
 
-SPK::Ref<particlesys::ParticleSystemRenderer> createRenderer(const Json::Value &rendererJson)
+SPK::Ref<ParticleSystemRenderer> createRenderer(const Json::Value &rendererJson)
 {
     if (rendererJson.empty())
     {
@@ -358,14 +358,14 @@ SPK::Ref<particlesys::ParticleSystemRenderer> createRenderer(const Json::Value &
     rendererJson["type"] >> rendererType;
 
     // Create particle system renderer.
-    SPK::Ref<particlesys::ParticleSystemRenderer> renderer;
+    SPK::Ref<ParticleSystemRenderer> renderer;
     if (rendererType == "quad")
     {
         float scaleX = 1.0f, scaleY = 1.0f;
         rendererJson["quadScaleX"] >> scaleX;
         rendererJson["quadScaleY"] >> scaleY;
 
-        auto quadRenderer = particlesys::QuadParticleSystemRenderer::create(scaleX, scaleY);
+        auto quadRenderer = QuadParticleSystemRenderer::create(scaleX, scaleY);
 
         // Setup special renderer params.
         if (!rendererJson["orientation"].empty())
@@ -408,7 +408,7 @@ SPK::Ref<particlesys::ParticleSystemRenderer> createRenderer(const Json::Value &
     }
     else if (rendererType == "line")
     {
-        renderer = particlesys::LineParticleSystemRenderer::create(100.0f, 100.0f);
+        renderer = LineParticleSystemRenderer::create(100.0f, 100.0f);
     }
     else
     {
@@ -442,7 +442,7 @@ SPK::Ref<particlesys::ParticleSystemRenderer> createRenderer(const Json::Value &
     return renderer;
 }
 
-Component ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
+shared_ptr<NodeComponent> ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
 {
     const auto &groupsJson = root["groups"];
     if (groupsJson.empty())
@@ -535,7 +535,7 @@ Component ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
 
     auto worldTransformed = utils::json::getOrDefault(root["worldTransformed"], true);
 
-    auto result = make_shared<components::ParticleSystemComponent>();
+    auto result = make_shared<ParticleSystemComponent>();
 
     result->setWorldTransformed(worldTransformed);
     result->setSystemLifeTime(utils::json::getOrDefault(root["systemLifeTime"], -1.0f));
@@ -548,7 +548,7 @@ Component ParticleSystemComponentSerializer::fromJson(const Json::Value &root)
     return result;
 }
 
-Json::Value ParticleSystemComponentSerializer::toJson(Component component)
+Json::Value ParticleSystemComponentSerializer::toJson(shared_ptr<NodeComponent> component)
 {
     assert(false);
     // TODO:

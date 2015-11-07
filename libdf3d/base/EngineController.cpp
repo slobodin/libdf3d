@@ -49,7 +49,7 @@ void EngineController::shutdown()
 
     particlesys::destroySparkEngine();
 
-    glog << "Shutdown success" << base::logmess;
+    glog << "Shutdown success" << logmess;
 
     //delete this;
 }
@@ -65,7 +65,7 @@ EngineController& EngineController::instance()
 
 bool EngineController::init(EngineInitParams params)
 {
-    glog << "Initializing engine" << base::logmess;
+    glog << "Initializing engine" << logmess;
 
     try
     {
@@ -122,7 +122,7 @@ bool EngineController::init(EngineInitParams params)
             m_svc->console = m_debugConsole;
         }
 
-        glog << "Engine initialized" << base::logmess;
+        glog << "Engine initialized" << logmess;
     }
     catch (std::exception &e)
     {

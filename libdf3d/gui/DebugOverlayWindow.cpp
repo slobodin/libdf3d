@@ -50,7 +50,7 @@ namespace df3d {
 //
 //    void OnRender()
 //    {
-//        auto stats = base::EngineController::instance().getLastRenderStats();
+//        auto stats = EngineController::instance().getLastRenderStats();
 //
 //        std::string triangles = "Triangles: ";
 //        triangles += utils::to_string(stats.totalTriangles);
@@ -170,11 +170,11 @@ namespace df3d {
 //class SceneTreeWindow : public Rocket::Core::ElementDocument, public SceneManagerListener, public Rocket::Core::EventListener
 //{
 //public:
-//    const scene::Node *m_currentNode = nullptr;
+//    const Node *m_currentNode = nullptr;
 //    std::string m_currentNodeName;
 //    const scene::Scene *m_scene = nullptr;
 //
-//    const char *getNodeType(const scene::Node *n)
+//    const char *getNodeType(const Node *n)
 //    {
 //        //if (dynamic_cast<const scene::Scene *>(n))
 //        //    return "Scene";
@@ -212,7 +212,7 @@ namespace df3d {
 //        recreateTree(sc->getRoot().get());
 //    }
 //
-//    void onNodeAddedToScene(const scene::Node *node)
+//    void onNodeAddedToScene(const Node *node)
 //    {
 //        recreateTree(m_currentNode);
 //    }
@@ -224,7 +224,7 @@ namespace df3d {
 //        recreateTree(m_scene->getRoot().get());
 //    }
 //
-//    void recreateTree(const scene::Node *node)
+//    void recreateTree(const Node *node)
 //    {
 //        if (!node)
 //            return;
@@ -282,7 +282,7 @@ namespace df3d {
 //        return result;
 //    }
 //
-//    void showProperties(const scene::Node *node)
+//    void showProperties(const Node *node)
 //    {
 //
 //    }
@@ -296,7 +296,7 @@ namespace df3d {
 //        if (name == m_currentNode->getName().c_str())
 //            return;
 //
-//        scene::Node *newNode = nullptr;
+//        Node *newNode = nullptr;
 //
 //        if (name == "back")
 //            newNode = m_currentNode->getParent().get();
@@ -380,7 +380,7 @@ namespace df3d {
 //
 //void DebugOverlayWindow::onCommandInvoked(const std::string &command, std::string &result)
 //{
-//    base::EngineController::instance().consoleCommandInvoked(command, result);
+//    EngineController::instance().consoleCommandInvoked(command, result);
 //}
 //
 //DebugOverlayWindow::DebugOverlayWindow()

@@ -17,7 +17,7 @@ class glfwApplication
     AppDelegate *m_appDelegate;
 
     // Touches emulation.
-    unique_ptr<base::MouseMotionEvent> m_prevTouch;
+    unique_ptr<MouseMotionEvent> m_prevTouch;
 
 public:
     glfwApplication(AppDelegate *appDelegate)
@@ -102,7 +102,7 @@ public:
 
     void onMouseMove(float xpos, float ypos)
     {
-        base::MouseMotionEvent ev;
+        MouseMotionEvent ev;
         ev.x = xpos;
         ev.y = ypos;
         ev.leftPressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
@@ -115,7 +115,7 @@ public:
         }
         else
         {
-            m_prevTouch = make_unique<base::MouseMotionEvent>();
+            m_prevTouch = make_unique<MouseMotionEvent>();
         }
 
         *m_prevTouch = ev;
@@ -125,21 +125,21 @@ public:
 
     void onMouseButton(int button, int action, int mods)
     {
-        base::MouseButtonEvent ev;
+        MouseButtonEvent ev;
 
         if (action == GLFW_PRESS)
-            ev.state = base::MouseButtonEvent::State::PRESSED;
+            ev.state = MouseButtonEvent::State::PRESSED;
         else if (action == GLFW_RELEASE)
-            ev.state = base::MouseButtonEvent::State::RELEASED;
+            ev.state = MouseButtonEvent::State::RELEASED;
         else
             return;
 
         if (button == GLFW_MOUSE_BUTTON_LEFT)
-            ev.button = base::MouseButtonEvent::Button::LEFT;
+            ev.button = MouseButtonEvent::Button::LEFT;
         else if (button == GLFW_MOUSE_BUTTON_RIGHT)
-            ev.button = base::MouseButtonEvent::Button::RIGHT;
+            ev.button = MouseButtonEvent::Button::RIGHT;
         else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
-            ev.button = base::MouseButtonEvent::Button::MIDDLE;
+            ev.button = MouseButtonEvent::Button::MIDDLE;
         else
             return;
 
@@ -179,7 +179,7 @@ public:
 
     void onScroll(double xoffset, double yoffset)
     {
-        base::MouseWheelEvent ev;
+        MouseWheelEvent ev;
         ev.delta = (float)-yoffset;
         m_appDelegate->onMouseWheelEvent(ev);
     }
