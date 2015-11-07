@@ -9,11 +9,11 @@
 #include <resources/Resource.h>
 #include <utils/Utils.h>
 
-namespace df3d { namespace scene {
+namespace df3d {
 
 SceneManager::SceneManager()
 {
-    glog << "Initializing scene manager" << base::logmess;
+    glog << "Initializing scene manager" << logmess;
 }
 
 SceneManager::~SceneManager()
@@ -21,12 +21,12 @@ SceneManager::~SceneManager()
 
 }
 
-void SceneManager::update(float dt)
+void SceneManager::update(float systemDelta, float gameDelta)
 {
     if (!m_currentScene || m_paused)
         return;
 
-    m_currentScene->getRoot()->update(dt);
+    m_currentScene->getRoot()->update(gameDelta);
 }
 
 void SceneManager::cleanStep()
@@ -94,7 +94,7 @@ bool SceneManager::setCurrentScene(shared_ptr<Scene> scene)
     for (auto listener : m_listeners)
         listener->onSceneCreated(m_currentScene.get());
 
-    glog << "Scene manager was set up for a new scene" << base::logdebug;
+    glog << "Scene manager was set up for a new scene" << logdebug;
 
     return true;
 }
@@ -161,4 +161,4 @@ void SceneManager::unregisterListener(SceneManagerListener *listener)
     m_listeners.erase(found);
 }
 
-} }
+}

@@ -110,7 +110,7 @@ bool EngineController::init(EngineInitParams params)
         m_initialized = true;
 
         // Load embedded resources.
-        glog << "Loading embedded resources" << base::logdebug;
+        glog << "Loading embedded resources" << logdebug;
 
         m_resourceManager->loadEmbedResources();
         m_renderManager->loadEmbedResources();

@@ -13,7 +13,7 @@ namespace df3d {
 // TODO:
 // Camera transform.
 
-void Sprite2DComponent::onDraw(render::RenderQueue *ops)
+void Sprite2DComponent::onDraw(RenderQueue *ops)
 {
     m_op.worldTransform = getHolder()->transform()->getTransformation();
     m_op.z = m_op.worldTransform[3][2];
@@ -34,7 +34,7 @@ void Sprite2DComponent::onDraw(render::RenderQueue *ops)
 }
 
 Sprite2DComponent::Sprite2DComponent(const std::string &pathToTexture)
-    : NodeComponent(SPRITE_2D)
+    : NodeComponent(ComponentType::SPRITE_2D)
 {
     m_op.passProps = make_shared<RenderPass>();
     m_op.passProps->setFaceCullMode(RenderPass::FaceCullMode::NONE);
@@ -43,8 +43,8 @@ Sprite2DComponent::Sprite2DComponent(const std::string &pathToTexture)
     m_op.passProps->enableDepthWrite(false);
     m_op.passProps->setBlendMode(RenderPass::BlendingMode::ALPHA);
 
-    auto format = render::VertexFormat({ render::VertexFormat::POSITION_3, render::VertexFormat::TX_2, render::VertexFormat::COLOR_4 });
-    m_op.vertexData = render::createQuad2(format, 0.0f, 0.0f, 1.0, 1.0f, render::GpuBufferUsageType::STATIC);
+    auto format = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
+    m_op.vertexData = createQuad2(format, 0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
 
     useTexture(pathToTexture);
 }
@@ -108,10 +108,10 @@ glm::vec2 Sprite2DComponent::getScreenPosition() const
 
 void Sprite2DComponent::useTexture(const std::string &pathToTexture)
 {
-    render::TextureCreationParams params;
-    params.setFiltering(render::TextureFiltering::BILINEAR);
+    TextureCreationParams params;
+    params.setFiltering(TextureFiltering::BILINEAR);
     params.setMipmapped(false);
-    params.setAnisotropyLevel(render::NO_ANISOTROPY);
+    params.setAnisotropyLevel(NO_ANISOTROPY);
 
     auto texture = svc().resourceMgr.getFactory().createTexture(pathToTexture, params, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->isInitialized())

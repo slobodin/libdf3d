@@ -3,7 +3,7 @@
 #include <base/Service.h>
 #include "RendererBackend.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 bool Texture2D::createGLTexture(const PixelBuffer &buffer)
 {
@@ -42,7 +42,7 @@ bool Texture2D::createGLTexture(const PixelBuffer &buffer)
     m_actualHeight = actHeight;
 
     if (!(m_actualWidth == buffer.getWidth() && m_actualHeight == buffer.getHeight()))
-        glog << "Texture with name" << getGUID() << "is not pot" << base::logdebug;
+        glog << "Texture with name" << getGUID() << "is not pot" << logdebug;
 
     glGenTextures(1, &m_glid);
     glBindTexture(GL_TEXTURE_2D, m_glid);
@@ -145,4 +145,4 @@ void Texture2D::unbind()
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-} }
+}

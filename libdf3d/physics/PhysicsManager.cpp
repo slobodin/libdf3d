@@ -65,7 +65,7 @@ struct PhysicsManager::Impl
 PhysicsManager::PhysicsManager()
     : m_pimpl(new Impl())
 {
-    glog << "Initializing bullet physics" << base::logmess;
+    glog << "Initializing bullet physics" << logmess;
     m_pimpl->init();
 }
 
@@ -98,7 +98,7 @@ void PhysicsManager::drawDebug()
     m_pimpl->m_debugDraw->flushRenderOperations();
 }
 
-NodeMotionState::NodeMotionState(scene::Node *node)
+NodeMotionState::NodeMotionState(Node *node)
     : m_node(node)
 {
     auto orientation = node->transform()->getOrientation();

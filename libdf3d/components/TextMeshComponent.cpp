@@ -52,7 +52,7 @@ shared_ptr<render::VertexBuffer> TextMeshComponent::createQuad(float x, float y,
         { 0.0, 0.0 }
     };
 
-    auto vf = render::VertexFormat::create("p:3, tx:2, c:4");       // FIXME: No need in c!
+    auto vf = VertexFormat::create("p:3, tx:2, c:4");       // FIXME: No need in c!
     auto result = make_shared<render::VertexBuffer>(vf);
 
     for (int i = 0; i < 6; i++)

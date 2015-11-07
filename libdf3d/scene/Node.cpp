@@ -86,7 +86,7 @@ void Node::update(float dt)
     m_lifeTime += dt;
 
     // Update all components.
-    for (size_t i = 0; i < ComponentType::COUNT; i++)
+    for (size_t i = 0; i < (size_t)ComponentType::COUNT; i++)
     {
         auto c = m_components[i];
         if (c)
@@ -102,7 +102,7 @@ void Node::draw(RenderQueue *ops)
     if (!isVisible())
         return;
 
-    for (size_t i = 0; i < ComponentType::COUNT; i++)
+    for (size_t i = 0; i < (size_t)ComponentType::COUNT; i++)
     {
         auto c = m_components[i];
         if (c)
@@ -144,7 +144,7 @@ void Node::addChild(shared_ptr<Node> child)
     child->m_parent = shared_from_this();
     m_children.push_back(child);
 
-    broadcastNodeEvent(components::NodeEvent::CHILD_ATTACHED);
+    broadcastNodeEvent(NodeEvent::CHILD_ATTACHED);
 }
 
 void Node::removeChild(shared_ptr<Node> child)
@@ -160,14 +160,14 @@ void Node::removeChild(const std::string &name)
 
     m_children.erase(found);
 
-    broadcastNodeEvent(components::NodeEvent::CHILD_REMOVED);
+    broadcastNodeEvent(NodeEvent::CHILD_REMOVED);
 }
 
 void Node::removeAllChildren()
 {
     m_children.clear();
 
-    broadcastNodeEvent(components::NodeEvent::ALL_CHILDREN_REMOVED);
+    broadcastNodeEvent(NodeEvent::ALL_CHILDREN_REMOVED);
 }
 
 shared_ptr<Node> Node::getChildByName(const std::string &name) const
@@ -203,39 +203,39 @@ shared_ptr<Node> Node::clone() const
     return result;
 }
 
-shared_ptr<components::TransformComponent> Node::transform()
+shared_ptr<TransformComponent> Node::transform()
 {
-    return static_pointer_cast<components::TransformComponent>(getComponent(components::TRANSFORM));
+    return static_pointer_cast<TransformComponent>(getComponent(ComponentType::TRANSFORM));
 }
 
-shared_ptr<components::MeshComponent> Node::mesh()
+shared_ptr<MeshComponent> Node::mesh()
 {
-    return static_pointer_cast<components::MeshComponent>(getComponent(components::MESH));
+    return static_pointer_cast<MeshComponent>(getComponent(ComponentType::MESH));
 }
 
-shared_ptr<components::LightComponent> Node::light()
+shared_ptr<LightComponent> Node::light()
 {
-    return static_pointer_cast<components::LightComponent>(getComponent(components::LIGHT));
+    return static_pointer_cast<LightComponent>(getComponent(ComponentType::LIGHT));
 }
 
-shared_ptr<components::AudioComponent> Node::audio()
+shared_ptr<AudioComponent> Node::audio()
 {
-    return static_pointer_cast<components::AudioComponent>(getComponent(components::AUDIO));
+    return static_pointer_cast<AudioComponent>(getComponent(ComponentType::AUDIO));
 }
 
-shared_ptr<components::ParticleSystemComponent> Node::vfx()
+shared_ptr<ParticleSystemComponent> Node::vfx()
 {
-    return static_pointer_cast<components::ParticleSystemComponent>(getComponent(components::PARTICLE_EFFECT));
+    return static_pointer_cast<ParticleSystemComponent>(getComponent(ComponentType::PARTICLE_EFFECT));
 }
 
-shared_ptr<components::PhysicsComponent> Node::physics()
+shared_ptr<PhysicsComponent> Node::physics()
 {
-    return static_pointer_cast<components::PhysicsComponent>(getComponent(components::PHYSICS));
+    return static_pointer_cast<PhysicsComponent>(getComponent(ComponentType::PHYSICS));
 }
 
-shared_ptr<components::Sprite2DComponent> Node::sprite2d()
+shared_ptr<Sprite2DComponent> Node::sprite2d()
 {
-    return static_pointer_cast<components::Sprite2DComponent>(getComponent(components::SPRITE_2D));
+    return static_pointer_cast<Sprite2DComponent>(getComponent(ComponentType::SPRITE_2D));
 }
 
 size_t Node::attachedComponentsCount() const
@@ -250,7 +250,7 @@ size_t Node::attachedComponentsCount() const
     return result;
 }
 
-void Node::attachComponent(shared_ptr<components::NodeComponent> component)
+void Node::attachComponent(shared_ptr<NodeComponent> component)
 {
     if (!component)
     {
@@ -258,7 +258,7 @@ void Node::attachComponent(shared_ptr<components::NodeComponent> component)
         return;
     }
 
-    auto idx = component->type;
+    auto idx = (size_t)component->type;
 
     auto currentComponent = m_components[idx];
     if (currentComponent)
@@ -273,9 +273,9 @@ void Node::attachComponent(shared_ptr<components::NodeComponent> component)
     component->onAttached();
 }
 
-void Node::detachComponent(components::ComponentType type)
+void Node::detachComponent(ComponentType type)
 {
-    auto component = m_components[type];
+    auto component = m_components[(size_t)type];
     if (!component)
     {
         glog << "Trying to detach non existing node component" << logwarn;
@@ -283,7 +283,7 @@ void Node::detachComponent(components::ComponentType type)
     }
 
     component->onDetached();
-    m_components[type].reset();
+    m_components[(size_t)type].reset();
 }
 
 }

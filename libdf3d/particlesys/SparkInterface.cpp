@@ -9,7 +9,7 @@
 #include <render/RenderOperation.h>
 #include <render/RenderQueue.h>
 
-namespace df3d { namespace particlesys {
+namespace df3d {
 
 const int QUAD_VERTICES_PER_PARTICLE = 4;
 const int QUAD_INDICES_PER_PARTICLE = 6;
@@ -24,21 +24,21 @@ class MyRenderBuffer : public SPK::RenderBuffer
     size_t m_currentTexCoordIndex;
 
 public:
-    shared_ptr<render::VertexBuffer> m_vb;
-    shared_ptr<render::IndexBuffer> m_ib;
+    shared_ptr<VertexBuffer> m_vb;
+    shared_ptr<IndexBuffer> m_ib;
 
-    render::VertexData m_vertexData;
-    render::IndexArray m_indexData;
+    VertexData m_vertexData;
+    IndexArray m_indexData;
 
     MyRenderBuffer(size_t nbParticles, int verticesPerParticle, int indicesPerParticle)
-        : m_vertexData(render::VertexFormat({ render::VertexFormat::POSITION_3, render::VertexFormat::TX_2, render::VertexFormat::COLOR_4 }))
+        : m_vertexData(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 }))
     {
-        m_vb = make_shared<render::VertexBuffer>(m_vertexData.getFormat());
-        m_ib = make_shared<render::IndexBuffer>();
+        m_vb = make_shared<VertexBuffer>(m_vertexData.getFormat());
+        m_ib = make_shared<IndexBuffer>();
 
         // Allocate GPU storage.
-        m_vb->alloc(nbParticles * verticesPerParticle, nullptr, render::GpuBufferUsageType::DYNAMIC);
-        m_ib->alloc(nbParticles * indicesPerParticle, nullptr, render::GpuBufferUsageType::STATIC);
+        m_vb->alloc(nbParticles * verticesPerParticle, nullptr, GpuBufferUsageType::DYNAMIC);
+        m_ib->alloc(nbParticles * indicesPerParticle, nullptr, GpuBufferUsageType::STATIC);
 
         // Allocate main memory storage copy (no glMapBuffer on ES2.0)
         m_vertexData.allocVertices(nbParticles * verticesPerParticle);
@@ -80,7 +80,7 @@ public:
     }
 };
 
-void ParticleSystemRenderer::addToRenderQueue(MyRenderBuffer &buffer, size_t nbOfParticles, int verticesPerParticle, int indicesPerParticle, render::RenderOperation::Type type) const
+void ParticleSystemRenderer::addToRenderQueue(MyRenderBuffer &buffer, size_t nbOfParticles, int verticesPerParticle, int indicesPerParticle, RenderOperation::Type type) const
 {
     // Refill GPU with new data (only vertices was changed).
     buffer.m_vb->update(nbOfParticles * verticesPerParticle, buffer.m_vertexData.getRawData());
@@ -88,7 +88,7 @@ void ParticleSystemRenderer::addToRenderQueue(MyRenderBuffer &buffer, size_t nbO
     buffer.m_vb->setVerticesUsed(nbOfParticles * verticesPerParticle);
     buffer.m_ib->setIndicesUsed(nbOfParticles * indicesPerParticle);
 
-    render::RenderOperation op;
+    RenderOperation op;
     op.type = type;
     op.indexData = buffer.m_ib;
     op.vertexData = buffer.m_vb;
@@ -135,7 +135,7 @@ void ParticleSystemRenderer::setBlendMode(SPK::BlendMode blendMode)
     }
 }
 
-void ParticleSystemRenderer::setDiffuseMap(shared_ptr<render::Texture> texture)
+void ParticleSystemRenderer::setDiffuseMap(shared_ptr<Texture> texture)
 {
     m_pass->setSampler("diffuseMap", texture);
 }
@@ -322,7 +322,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
         }
     }
 
-    addToRenderQueue(buffer, group.getNbParticles(), QUAD_VERTICES_PER_PARTICLE, QUAD_INDICES_PER_PARTICLE, render::RenderOperation::Type::TRIANGLES);
+    addToRenderQueue(buffer, group.getNbParticles(), QUAD_VERTICES_PER_PARTICLE, QUAD_INDICES_PER_PARTICLE, RenderOperation::Type::TRIANGLES);
 }
 
 void QuadParticleSystemRenderer::computeAABB(SPK::Vector3D &AABBMin, SPK::Vector3D &AABBMax, const SPK::Group &group, const SPK::DataSet *dataSet) const
@@ -396,7 +396,7 @@ void LineParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
         buffer.setNextColor(color);
     }
 
-    addToRenderQueue(buffer, group.getNbParticles(), LINE_VERTICES_PER_PARTICLE, LINE_INDICES_PER_PARTICLE, render::RenderOperation::Type::LINES);
+    addToRenderQueue(buffer, group.getNbParticles(), LINE_VERTICES_PER_PARTICLE, LINE_INDICES_PER_PARTICLE, RenderOperation::Type::LINES);
 }
 
 void LineParticleSystemRenderer::computeAABB(SPK::Vector3D &AABBMin, SPK::Vector3D &AABBMax, const SPK::Group &group, const SPK::DataSet *dataSet) const
@@ -423,4 +423,4 @@ void destroySparkEngine()
     SPK_DUMP_MEMORY
 }
 
-} }
+}

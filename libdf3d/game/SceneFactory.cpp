@@ -11,7 +11,7 @@
 
 namespace df3d {
 
-void parseFog(const Json::Value &fogNode, shared_ptr<scene::Scene> scene)
+void parseFog(const Json::Value &fogNode, shared_ptr<Scene> scene)
 {
     if (!fogNode)
         return;
@@ -23,13 +23,13 @@ void parseFog(const Json::Value &fogNode, shared_ptr<scene::Scene> scene)
     scene->setFog(density, color);
 }
 
-Json::Value saveFog(shared_ptr<const scene::Scene> scene)
+Json::Value saveFog(shared_ptr<const Scene> scene)
 {
     // TODO:
     return Json::Value();
 }
 
-void parseObjects(const Json::Value &objectsNode, shared_ptr<scene::Scene> sc)
+void parseObjects(const Json::Value &objectsNode, shared_ptr<Scene> sc)
 {
     if (!objectsNode)
         return;
@@ -38,7 +38,7 @@ void parseObjects(const Json::Value &objectsNode, shared_ptr<scene::Scene> sc)
         sc->addChild(nodeFromJson(objectsNode[objIdx]));
 }
 
-Json::Value saveObjects(shared_ptr<const scene::Scene> scene)
+Json::Value saveObjects(shared_ptr<const Scene> scene)
 {
     Json::Value res(Json::arrayValue);
     for (auto ch : *scene->getRoot())
@@ -47,18 +47,18 @@ Json::Value saveObjects(shared_ptr<const scene::Scene> scene)
     return res;
 }
 
-void parseAmbientLight(const Json::Value &root, shared_ptr<scene::Scene> scene)
+void parseAmbientLight(const Json::Value &root, shared_ptr<Scene> scene)
 {
     auto intensity = utils::json::getOrDefault(root, scene->getAmbientLight());
     scene->setAmbientLight(intensity.x, intensity.y, intensity.z);
 }
 
-Json::Value saveAmbientLight(shared_ptr<const scene::Scene> scene)
+Json::Value saveAmbientLight(shared_ptr<const Scene> scene)
 {
     return utils::json::toJson(scene->getAmbientLight());
 }
 
-void parsePostProcessOption(const Json::Value &postFxNode, shared_ptr<scene::Scene> scene)
+void parsePostProcessOption(const Json::Value &postFxNode, shared_ptr<Scene> scene)
 {
     if (postFxNode.empty())
         return;
@@ -77,19 +77,19 @@ void parsePostProcessOption(const Json::Value &postFxNode, shared_ptr<scene::Sce
     if (!material)
         return;
 
-    scene->setPostProcessMaterial(make_shared<render::Material>(*material));
+    scene->setPostProcessMaterial(make_shared<Material>(*material));
 }
 
-Json::Value savePostProcessOption(shared_ptr<const scene::Scene> scene)
+Json::Value savePostProcessOption(shared_ptr<const Scene> scene)
 {
     //auto material = scene->getPostProcessMaterial();
     // TODO:
     return Json::Value();
 }
 
-void parseCamera(const Json::Value &cameraNode, shared_ptr<scene::Scene> scene)
+void parseCamera(const Json::Value &cameraNode, shared_ptr<Scene> scene)
 {
-    auto camera = make_shared<scene::Camera>();
+    auto camera = make_shared<Camera>();
 
     if (cameraNode.empty())
     {
@@ -112,24 +112,24 @@ void parseCamera(const Json::Value &cameraNode, shared_ptr<scene::Scene> scene)
     scene->setCamera(camera);
 }
 
-Json::Value saveCamera(shared_ptr<const scene::Scene> scene)
+Json::Value saveCamera(shared_ptr<const Scene> scene)
 {
     auto cam = scene->getCamera();
     // TODO:
     return Json::Value();
 }
 
-shared_ptr<scene::Scene> newScene()
+shared_ptr<Scene> newScene()
 {
-    return make_shared<df3d::scene::Scene>();
+    return make_shared<df3d::Scene>();
 }
 
-shared_ptr<scene::Scene> sceneFromFile(const std::string &jsonFile)
+shared_ptr<Scene> sceneFromFile(const std::string &jsonFile)
 {
     return sceneFromJson(utils::json::fromFile(jsonFile));
 }
 
-shared_ptr<scene::Scene> sceneFromJson(const Json::Value &root)
+shared_ptr<Scene> sceneFromJson(const Json::Value &root)
 {
     auto result = newScene();
 
@@ -142,7 +142,7 @@ shared_ptr<scene::Scene> sceneFromJson(const Json::Value &root)
     return result;
 }
 
-Json::Value saveScene(shared_ptr<const scene::Scene> scene)
+Json::Value saveScene(shared_ptr<const Scene> scene)
 {
     if (!scene)
     {

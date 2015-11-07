@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace scene {
+namespace df3d {
 
 class Scene;
 class Node;
@@ -17,4 +17,4 @@ public:
     virtual void onSceneCreated(const Scene *sc) { }
 };
 
-} }
+}

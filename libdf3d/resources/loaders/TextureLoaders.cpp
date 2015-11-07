@@ -10,7 +10,7 @@
 #endif
 #include <stb/stb_image.h>
 
-namespace df3d { namespace resources {
+namespace df3d {
 
 // stb image loader helpers.
 namespace
@@ -42,7 +42,7 @@ namespace
         return dataSource->tell() >= dataSource->getSize();
     }
 
-    unique_ptr<render::PixelBuffer> loadPixelBuffer(shared_ptr<FileDataSource> source)
+    unique_ptr<PixelBuffer> loadPixelBuffer(shared_ptr<FileDataSource> source)
     {
         if (!source)
         {
@@ -78,7 +78,7 @@ namespace
         else
             glog << "Parsed image with an invalid bpp" << logwarn;
 
-        auto result = make_unique<render::PixelBuffer>(x, y, pixels, fmt);
+        auto result = make_unique<PixelBuffer>(x, y, pixels, fmt);
 
         stbi_image_free(pixels);
 
@@ -86,18 +86,18 @@ namespace
     }
 }
 
-Texture2DManualLoader::Texture2DManualLoader(unique_ptr<render::PixelBuffer> pixelBuffer, render::TextureCreationParams params)
+Texture2DManualLoader::Texture2DManualLoader(unique_ptr<PixelBuffer> pixelBuffer, TextureCreationParams params)
     : m_pixelBuffer(std::move(pixelBuffer)), m_params(params)
 {
 
 }
 
-render::Texture2D* Texture2DManualLoader::load()
+Texture2D* Texture2DManualLoader::load()
 {
-    return new render::Texture2D(*m_pixelBuffer, m_params);
+    return new Texture2D(*m_pixelBuffer, m_params);
 }
 
-Texture2DFSLoader::Texture2DFSLoader(const std::string &path, const render::TextureCreationParams &params, ResourceLoadingMode lm)
+Texture2DFSLoader::Texture2DFSLoader(const std::string &path, const TextureCreationParams &params, ResourceLoadingMode lm)
     : FSResourceLoader(lm),
     m_pathToTexture(path),
     m_params(params)
@@ -105,9 +105,9 @@ Texture2DFSLoader::Texture2DFSLoader(const std::string &path, const render::Text
 
 }
 
-render::Texture2D* Texture2DFSLoader::createDummy()
+Texture2D* Texture2DFSLoader::createDummy()
 {
-    return new render::Texture2D(m_params);
+    return new Texture2D(m_params);
 }
 
 bool Texture2DFSLoader::decode(shared_ptr<FileDataSource> source)
@@ -118,11 +118,11 @@ bool Texture2DFSLoader::decode(shared_ptr<FileDataSource> source)
 
 void Texture2DFSLoader::onDecoded(Resource *resource)
 {
-    auto texture = static_cast<render::Texture2D*>(resource);
+    auto texture = static_cast<Texture2D*>(resource);
     texture->createGLTexture(*m_pixelBuffer);
 
     /*
-    glog << "Cleaning up" << m_pixelBuffer->getSizeInBytes() / 1024.0f << "KB of CPU copy of pixel data" << base::logdebug;
+    glog << "Cleaning up" << m_pixelBuffer->getSizeInBytes() / 1024.0f << "KB of CPU copy of pixel data" << logdebug;
     */
 
     // Explicitly remove CPU copy of pixel buffer in order to prevent caching.
@@ -130,7 +130,7 @@ void Texture2DFSLoader::onDecoded(Resource *resource)
     m_pixelBuffer.reset();
 }
 
-TextureCubeFSLoader::TextureCubeFSLoader(const std::string &path, const render::TextureCreationParams &params, ResourceLoadingMode lm)
+TextureCubeFSLoader::TextureCubeFSLoader(const std::string &path, const TextureCreationParams &params, ResourceLoadingMode lm)
     : FSResourceLoader(lm),
     m_jsonPath(path),
     m_params(params)
@@ -138,9 +138,9 @@ TextureCubeFSLoader::TextureCubeFSLoader(const std::string &path, const render::
 
 }
 
-render::TextureCube* TextureCubeFSLoader::createDummy()
+TextureCube* TextureCubeFSLoader::createDummy()
 {
-    return new render::TextureCube(m_params);
+    return new TextureCube(m_params);
 }
 
 bool TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
@@ -160,12 +160,12 @@ bool TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
         return svc().filesystem.openFile(fullPath);
     };
 
-    m_pixelBuffers[render::CUBE_FACE_POSITIVE_X] = loadPixelBuffer(getSource(jsonRoot["positive_x"].asString()));
-    m_pixelBuffers[render::CUBE_FACE_NEGATIVE_X] = loadPixelBuffer(getSource(jsonRoot["negative_x"].asString()));
-    m_pixelBuffers[render::CUBE_FACE_POSITIVE_Y] = loadPixelBuffer(getSource(jsonRoot["positive_y"].asString()));
-    m_pixelBuffers[render::CUBE_FACE_NEGATIVE_Y] = loadPixelBuffer(getSource(jsonRoot["negative_y"].asString()));
-    m_pixelBuffers[render::CUBE_FACE_POSITIVE_Z] = loadPixelBuffer(getSource(jsonRoot["positive_z"].asString()));
-    m_pixelBuffers[render::CUBE_FACE_NEGATIVE_Z] = loadPixelBuffer(getSource(jsonRoot["negative_z"].asString()));
+    m_pixelBuffers[(size_t)CubeFace::POSITIVE_X] = loadPixelBuffer(getSource(jsonRoot["positive_x"].asString()));
+    m_pixelBuffers[(size_t)CubeFace::NEGATIVE_X] = loadPixelBuffer(getSource(jsonRoot["negative_x"].asString()));
+    m_pixelBuffers[(size_t)CubeFace::POSITIVE_Y] = loadPixelBuffer(getSource(jsonRoot["positive_y"].asString()));
+    m_pixelBuffers[(size_t)CubeFace::NEGATIVE_Y] = loadPixelBuffer(getSource(jsonRoot["negative_y"].asString()));
+    m_pixelBuffers[(size_t)CubeFace::POSITIVE_Z] = loadPixelBuffer(getSource(jsonRoot["positive_z"].asString()));
+    m_pixelBuffers[(size_t)CubeFace::NEGATIVE_Z] = loadPixelBuffer(getSource(jsonRoot["negative_z"].asString()));
 
     for (auto &pb : m_pixelBuffers)
     {
@@ -187,13 +187,13 @@ void TextureCubeFSLoader::onDecoded(Resource *resource)
         }
     }
 
-    auto texture = static_cast<render::TextureCube*>(resource);
+    auto texture = static_cast<TextureCube*>(resource);
 
     texture->createGLTexture(m_pixelBuffers);
 
     // Clean up main memory.
-    for (int i = 0; i < render::CUBE_FACES_COUNT; i++)
+    for (int i = 0; i < (size_t)CubeFace::COUNT; i++)
         m_pixelBuffers[i].reset();
 }
 
-} }
+}

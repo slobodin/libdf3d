@@ -10,7 +10,7 @@ class TextureCube : public Texture
 {
     friend class TextureCubeFSLoader;
 
-    bool createGLTexture(unique_ptr<PixelBuffer> images[(int)CubeFace::COUNT]);
+    bool createGLTexture(unique_ptr<PixelBuffer> images[(size_t)CubeFace::COUNT]);
     void deleteGLTexture();
 
     TextureCube(TextureCreationParams params);

@@ -3,7 +3,7 @@
 #include <base/Service.h>
 #include "RendererBackend.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 int GetPixelSizeForFormat(PixelFormat format)
 {
@@ -159,4 +159,4 @@ Texture::Texture(TextureCreationParams params)
 
 }
 
-} }
+}

@@ -8,7 +8,7 @@ namespace df3d {
 class DF3D_DLL TextMeshComponent : public MeshComponent
 {
     //int *m_font = nullptr;
-    render::RenderOperation m_op;
+    RenderOperation m_op;
 
     shared_ptr<RenderPass> createRenderPass();
     shared_ptr<render::VertexBuffer> createQuad(float x, float y, float w, float h);

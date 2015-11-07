@@ -4,12 +4,12 @@ namespace df3d {
 
 Service::Service(SceneManager &sceneMgr,
                  ResourceManager &resourceMgr,
-                 resources::FileSystem &filesystem,
-                 render::RenderManager &renderMgr,
-                 gui::GuiManager &guiMgr,
-                 physics::PhysicsManager &physicsMgr,
+                 FileSystem &filesystem,
+                 RenderManager &renderMgr,
+                 GuiManager &guiMgr,
+                 PhysicsManager &physicsMgr,
                  btDynamicsWorld &physicsWorld,
-                 audio::AudioManager &audioManager)
+                 AudioManager &audioManager)
     : sceneMgr(sceneMgr),
     resourceMgr(resourceMgr),
     filesystem(filesystem),
@@ -24,8 +24,8 @@ Service::Service(SceneManager &sceneMgr,
 
 Service& svc()
 {
-    assert(base::EngineController::instance().initialized());
-    return base::EngineController::instance().svc();
+    assert(EngineController::instance().initialized());
+    return EngineController::instance().svc();
 }
 
 }

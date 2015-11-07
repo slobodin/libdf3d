@@ -18,7 +18,7 @@
 #include "Viewport.h"
 #include "RenderQueue.h"
 
-namespace df3d { namespace render {
+namespace df3d { 
 
 void RenderManager::createQuadRenderOperation()
 {
@@ -30,9 +30,9 @@ void RenderManager::createQuadRenderOperation()
     passThrough.enableDepthTest(false);
     passThrough.enableDepthWrite(false);
 
-    m_quadVb = render::createQuad(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2 }), 0.0f, 0.0f, 2.0, 2.0f, GpuBufferUsageType::STATIC);
+    m_quadVb = createQuad(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2 }), 0.0f, 0.0f, 2.0, 2.0f, GpuBufferUsageType::STATIC);
 
-    m_defaultPostProcessMaterial = shared_ptr<render::Material>(new render::Material("default_postprocess_material"));
+    m_defaultPostProcessMaterial = shared_ptr<Material>(new Material("default_postprocess_material"));
 
     Technique defaultTech("default_technique");
     defaultTech.appendPass(passThrough);
@@ -65,7 +65,7 @@ void RenderManager::debugDrawPass()
 {
     if (auto console = svc().console)
     {
-        if (!console->getCVars().get<bool>(base::CVAR_DEBUG_DRAW))
+        if (!console->getCVars().get<bool>(CVAR_DEBUG_DRAW))
             return;
     }
 
@@ -84,14 +84,14 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
     auto tech = material->getCurrentTechnique();
     if (!tech)
     {
-        glog << "Post process technique was not set. Use default." << base::logdebug;
+        glog << "Post process technique was not set. Use default." << logdebug;
         tech = m_defaultPostProcessMaterial->getCurrentTechnique();
     }
 
     size_t passCount = tech->getPassCount();
     if (passCount > MAX_POSPROCESS_PASSES)
     {
-        glog << "Too many post process passes" << base::logdebug;
+        glog << "Too many post process passes" << logdebug;
         return;
     }
 
@@ -145,7 +145,7 @@ RenderManager::~RenderManager()
 
 }
 
-void RenderManager::update(shared_ptr<scene::Scene> renderableScene)
+void RenderManager::update(shared_ptr<Scene> renderableScene)
 {
     if (!renderableScene)
         return;
@@ -154,7 +154,7 @@ void RenderManager::update(shared_ptr<scene::Scene> renderableScene)
     renderableScene->collectRenderOperations(m_renderQueue.get());
 }
 
-void RenderManager::drawScene(shared_ptr<scene::Scene> sc)
+void RenderManager::drawScene(shared_ptr<Scene> sc)
 {
     if (!sc)
         return;
@@ -315,4 +315,4 @@ RendererBackend *RenderManager::getRenderer() const
     return m_renderer.get();
 }
 
-} }
+}

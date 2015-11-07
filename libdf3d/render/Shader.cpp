@@ -75,7 +75,7 @@ std::string Shader::preprocessInclude(std::string shaderData, const std::string 
             return shaderData;
         }
 
-        fileToInclude = resources::FileSystem::pathConcatenate(shaderDirectory, fileToInclude);
+        fileToInclude = FileSystem::pathConcatenate(shaderDirectory, fileToInclude);
         auto file = svc().filesystem.openFile(fileToInclude);
         if (!file || !file->valid())
         {
@@ -124,7 +124,7 @@ bool Shader::compile()
     if (compileOk == GL_FALSE)
     {
         glog << "Failed to compile a shader" << logwarn;
-        glog << "\n" << m_shaderData << base::logmess;
+        glog << "\n" << m_shaderData << logmess;
         shaderLog(m_shaderDescriptor);
 
         return false;

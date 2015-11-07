@@ -20,14 +20,14 @@ bool MeshLoader_obj::hasTxCoords() const
     return m_txCoords.size() > 0;
 }
 
-unique_ptr<render::SubMesh> MeshLoader_obj::createSubmesh(const std::string &materialName)
+unique_ptr<SubMesh> MeshLoader_obj::createSubmesh(const std::string &materialName)
 {
-    auto vertexFormat = render::VertexFormat({ render::VertexFormat::POSITION_3, render::VertexFormat::NORMAL_3,
-                                               render::VertexFormat::TX_2, render::VertexFormat::COLOR_4, 
-                                               render::VertexFormat::TANGENT_3, render::VertexFormat::BITANGENT_3 });
-    auto submesh = make_unique<render::SubMesh>(vertexFormat);
-    submesh->setVertexBufferUsageHint(render::GpuBufferUsageType::STATIC);
-    submesh->setIndexBufferUsageHint(render::GpuBufferUsageType::STATIC);
+    auto vertexFormat = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::NORMAL_3,
+                                               VertexFormat::TX_2, VertexFormat::COLOR_4, 
+                                               VertexFormat::TANGENT_3, VertexFormat::BITANGENT_3 });
+    auto submesh = make_unique<SubMesh>(vertexFormat);
+    submesh->setVertexBufferUsageHint(GpuBufferUsageType::STATIC);
+    submesh->setIndexBufferUsageHint(GpuBufferUsageType::STATIC);
 
     // Sanity check.
     assert(m_materialNameLookup.find(submesh.get()) == m_materialNameLookup.end());
@@ -221,7 +221,7 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSourc
     {
         if (computeNormals)
         {
-            glog << "Computing normals in" << source->getPath() << base::logdebug;
+            glog << "Computing normals in" << source->getPath() << logdebug;
             utils::mesh::computeNormals(*s.second);
         }
 

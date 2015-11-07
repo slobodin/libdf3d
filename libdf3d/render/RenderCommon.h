@@ -33,12 +33,12 @@ enum class GpuBufferUsageType
 
 enum class CubeFace
 {
-    CUBE_FACE_POSITIVE_X,
-    CUBE_FACE_NEGATIVE_X,
-    CUBE_FACE_POSITIVE_Y,
-    CUBE_FACE_NEGATIVE_Y,
-    CUBE_FACE_POSITIVE_Z,
-    CUBE_FACE_NEGATIVE_Z,
+    POSITIVE_X,
+    NEGATIVE_X,
+    POSITIVE_Y,
+    NEGATIVE_Y,
+    POSITIVE_Z,
+    NEGATIVE_Z,
 
     COUNT
 };

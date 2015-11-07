@@ -1,12 +1,12 @@
 #pragma once
 
-FWD_MODULE_CLASS(scene, Scene)
-
 namespace df3d {
 
-DF3D_DLL shared_ptr<scene::Scene> newScene();
-DF3D_DLL shared_ptr<scene::Scene> sceneFromFile(const std::string &jsonFile);
-DF3D_DLL shared_ptr<scene::Scene> sceneFromJson(const Json::Value &root);
-DF3D_DLL Json::Value saveScene(shared_ptr<const scene::Scene> scene);
+class Scene;
+
+DF3D_DLL shared_ptr<Scene> newScene();
+DF3D_DLL shared_ptr<Scene> sceneFromFile(const std::string &jsonFile);
+DF3D_DLL shared_ptr<Scene> sceneFromJson(const Json::Value &root);
+DF3D_DLL Json::Value saveScene(shared_ptr<const Scene> scene);
 
 }

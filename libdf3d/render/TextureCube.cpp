@@ -5,19 +5,19 @@
 #include "RendererBackend.h"
 #include "Texture2D.h"
 
-namespace df3d { namespace render {
+namespace df3d {
 
 static const std::map<CubeFace, GLenum> MapSidesToGl = 
 {
-    { CUBE_FACE_POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_X },
-    { CUBE_FACE_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X },
-    { CUBE_FACE_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Y },
-    { CUBE_FACE_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y },
-    { CUBE_FACE_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_POSITIVE_Z },
-    { CUBE_FACE_NEGATIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z }
+    { CubeFace::POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_X },
+    { CubeFace::NEGATIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X },
+    { CubeFace::POSITIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Y },
+    { CubeFace::NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y },
+    { CubeFace::POSITIVE_Z, GL_TEXTURE_CUBE_MAP_POSITIVE_Z },
+    { CubeFace::NEGATIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z }
 };
 
-bool TextureCube::createGLTexture(unique_ptr<PixelBuffer> images[CUBE_FACES_COUNT])
+bool TextureCube::createGLTexture(unique_ptr<PixelBuffer> images[(size_t)CubeFace::COUNT])
 {
     glGenTextures(1, &m_glid);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_glid);
@@ -26,7 +26,7 @@ bool TextureCube::createGLTexture(unique_ptr<PixelBuffer> images[CUBE_FACES_COUN
     setupGlWrapMode(GL_TEXTURE_CUBE_MAP, m_params.getWrapMode());
     setupGlTextureFiltering(GL_TEXTURE_CUBE_MAP, m_params.getFiltering(), m_params.isMipmapped());
 
-    for (int i = 0; i < CUBE_FACES_COUNT; i++)
+    for (int i = 0; i < (size_t)CubeFace::COUNT; i++)
     {
         GLint glPixelFormat = 0;
         switch (images[i]->getFormat())
@@ -99,4 +99,4 @@ void TextureCube::unbind()
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
-} }
+}

@@ -49,7 +49,7 @@ void TransformComponent::markDirty(int dirtyBits)
 }
 
 TransformComponent::TransformComponent()
-    : NodeComponent(TRANSFORM)
+    : NodeComponent(ComponentType::TRANSFORM)
 {
 
 }
