@@ -14,14 +14,14 @@
 
 namespace df3d {
 /*
-shared_ptr<render::RenderPass> TextMeshComponent::createRenderPass()
+shared_ptr<RenderPass> TextMeshComponent::createRenderPass()
 {
-    auto pass = make_shared<render::RenderPass>("text_mesh_render_pass");
-    pass->setFrontFaceWinding(render::RenderPass::WindingOrder::CCW);
-    pass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
-    pass->setPolygonDrawMode(render::RenderPass::PolygonMode::FILL);
+    auto pass = make_shared<RenderPass>("text_mesh_render_pass");
+    pass->setFrontFaceWinding(RenderPass::WindingOrder::CCW);
+    pass->setFaceCullMode(RenderPass::FaceCullMode::NONE);
+    pass->setPolygonDrawMode(RenderPass::PolygonMode::FILL);
     pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    pass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
+    pass->setBlendMode(RenderPass::BlendingMode::ALPHA);
 
     pass->setGpuProgram(svc().resourceMgr.createColoredGpuProgram());
 

@@ -25,8 +25,8 @@ class DF3D_DLL GuiManager : public EngineModule
     GuiManager(int contextWidth, int contextHeight);
     ~GuiManager();
 
-    void update(float dt);
-    void render();
+    void update(float systemDelta, float gameDelta) override;
+    void render() override;
 
 public:
     // Calls RocketContext.

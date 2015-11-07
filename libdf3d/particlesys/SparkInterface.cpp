@@ -103,10 +103,10 @@ void ParticleSystemRenderer::addToRenderQueue(MyRenderBuffer &buffer, size_t nbO
 
 ParticleSystemRenderer::ParticleSystemRenderer(bool NEEDS_DATASET)
     : SPK::Renderer(NEEDS_DATASET),
-    m_pass(make_shared<render::RenderPass>())
+    m_pass(make_shared<RenderPass>())
 {
-    m_pass->setFaceCullMode(render::RenderPass::FaceCullMode::BACK);
-    m_pass->setFrontFaceWinding(render::RenderPass::WindingOrder::CCW);
+    m_pass->setFaceCullMode(RenderPass::FaceCullMode::BACK);
+    m_pass->setFrontFaceWinding(RenderPass::WindingOrder::CCW);
     m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f);
 
     m_pass->setGpuProgram(svc().resourceMgr.getFactory().createColoredGpuProgram());
@@ -122,13 +122,13 @@ void ParticleSystemRenderer::setBlendMode(SPK::BlendMode blendMode)
     switch (blendMode)
     {
     case SPK::BLEND_MODE_NONE:
-        m_pass->setBlendMode(render::RenderPass::BlendingMode::NONE);
+        m_pass->setBlendMode(RenderPass::BlendingMode::NONE);
         break;
     case SPK::BLEND_MODE_ADD:
-        m_pass->setBlendMode(render::RenderPass::BlendingMode::ADDALPHA);
+        m_pass->setBlendMode(RenderPass::BlendingMode::ADDALPHA);
         break;
     case SPK::BLEND_MODE_ALPHA:
-        m_pass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
+        m_pass->setBlendMode(RenderPass::BlendingMode::ALPHA);
         break;
     default:
         break;
@@ -144,12 +144,12 @@ void ParticleSystemRenderer::enableFaceCulling(bool enable)
 {
     if (enable)
     {
-        m_pass->setFaceCullMode(render::RenderPass::FaceCullMode::BACK);
-        m_pass->setFrontFaceWinding(render::RenderPass::WindingOrder::CCW);
+        m_pass->setFaceCullMode(RenderPass::FaceCullMode::BACK);
+        m_pass->setFrontFaceWinding(RenderPass::WindingOrder::CCW);
     }
     else
     {
-        m_pass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
+        m_pass->setFaceCullMode(RenderPass::FaceCullMode::NONE);
     }
 }
 

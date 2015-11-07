@@ -10,7 +10,7 @@ class DF3D_DLL TextMeshComponent : public MeshComponent
     //int *m_font = nullptr;
     render::RenderOperation m_op;
 
-    shared_ptr<render::RenderPass> createRenderPass();
+    shared_ptr<RenderPass> createRenderPass();
     shared_ptr<render::VertexBuffer> createQuad(float x, float y, float w, float h);
     void onDraw(render::RenderQueue *ops) override;
 

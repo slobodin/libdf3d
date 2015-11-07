@@ -43,6 +43,8 @@ enum class CubeFace
     COUNT
 };
 
+// FIXME: move to namespace.
+
 extern const DF3D_DLL int ANISOTROPY_LEVEL_MAX;
 extern const DF3D_DLL int NO_ANISOTROPY;
 

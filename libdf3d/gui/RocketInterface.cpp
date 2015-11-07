@@ -87,7 +87,7 @@ bool GuiSystemInterface::LogMessage(Rocket::Core::Log::Type type, const Rocket::
     {
     case Rocket::Core::Log::LT_ERROR:
     case Rocket::Core::Log::LT_ASSERT:
-        glog << message.CString() << base::logcritical;
+        glog << message.CString() << logcritical;
         break;
     case Rocket::Core::Log::LT_WARNING:
         glog << message.CString() << logwarn;
@@ -95,7 +95,7 @@ bool GuiSystemInterface::LogMessage(Rocket::Core::Log::Type type, const Rocket::
     case Rocket::Core::Log::LT_ALWAYS:
     case Rocket::Core::Log::LT_INFO:
     case Rocket::Core::Log::LT_DEBUG:
-        glog << message.CString() << base::logmess;
+        glog << message.CString() << logmess;
         break;
     default:
         break;
@@ -107,9 +107,9 @@ bool GuiSystemInterface::LogMessage(Rocket::Core::Log::Type type, const Rocket::
 // Helper.
 struct CompiledGeometry
 {
-    shared_ptr<render::Texture> texture;
-    shared_ptr<render::VertexBuffer> vb;
-    shared_ptr<render::IndexBuffer> ib;
+    shared_ptr<Texture> texture;
+    shared_ptr<VertexBuffer> vb;
+    shared_ptr<IndexBuffer> ib;
 };
 
 GuiRenderInterface::GuiRenderInterface()
@@ -137,10 +137,10 @@ Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket:
                                                                          int *indices, int num_indices,
                                                                          Rocket::Core::TextureHandle texture)
 {
-    render::VertexFormat vertexFormat({ render::VertexFormat::POSITION_3, render::VertexFormat::TX_2, render::VertexFormat::COLOR_4 });
+    VertexFormat vertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
 
     // FIXME: can map directly to vertexBuffer if Rocket::Core::Vertex is the same layout as internal vertex buffer storage.
-    render::VertexData vertexData(vertexFormat);
+    VertexData vertexData(vertexFormat);
     for (int i = 0; i < num_vertices; i++)
     {
         auto v = vertexData.allocVertex();
@@ -151,15 +151,15 @@ Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket:
     }
 
     // Set up vertex buffer.
-    auto vertexBuffer = make_shared<render::VertexBuffer>(vertexFormat);
-    vertexBuffer->alloc(vertexData, render::GpuBufferUsageType::STATIC);
+    auto vertexBuffer = make_shared<VertexBuffer>(vertexFormat);
+    vertexBuffer->alloc(vertexData, GpuBufferUsageType::STATIC);
 
     // FIXME: this is not 64 bit
-    static_assert(sizeof(render::INDICES_TYPE) == sizeof(int), "rocket indices should be the same as render::INDICES_TYPE");
+    static_assert(sizeof(INDICES_TYPE) == sizeof(int), "rocket indices should be the same as render::INDICES_TYPE");
 
     // Set up index buffer
-    auto indexBuffer = make_shared<render::IndexBuffer>();
-    indexBuffer->alloc(num_indices, indices, render::GpuBufferUsageType::STATIC);
+    auto indexBuffer = make_shared<IndexBuffer>();
+    indexBuffer->alloc(num_indices, indices, GpuBufferUsageType::STATIC);
 
     CompiledGeometry *geom = new CompiledGeometry();
     geom->texture = m_textures[texture];        // NOTE: can be nullptr. It's okay.
@@ -177,20 +177,20 @@ void GuiRenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHa
 
     if (!m_guipass)
     {
-        m_guipass = make_shared<render::RenderPass>();
+        m_guipass = make_shared<RenderPass>();
 
-        m_guipass->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
+        m_guipass->setFaceCullMode(RenderPass::FaceCullMode::NONE);
         m_guipass->setGpuProgram(svc().resourceMgr.getFactory().createColoredGpuProgram());
         m_guipass->enableDepthTest(false);
         m_guipass->enableDepthWrite(false);
-        m_guipass->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
+        m_guipass->setBlendMode(RenderPass::BlendingMode::ALPHA);
     }
 
     auto geom = (CompiledGeometry *)geometry;
 
     m_guipass->setSampler("diffuseMap", geom->texture);
 
-    render::RenderOperation op;
+    RenderOperation op;
     op.vertexData = geom->vb;
     op.indexData = geom->ib;
     op.passProps = m_guipass;
@@ -212,7 +212,7 @@ void GuiRenderInterface::EnableScissorRegion(bool enable)
 
 void GuiRenderInterface::SetScissorRegion(int x, int y, int width, int height)
 {
-    auto vp = base::EngineController::instance().getViewport();
+    auto vp = EngineController::instance().getViewport();
     svc().renderMgr.getRenderer()->setScissorRegion(x, vp.height() - (y + height), width, height);
 }
 
@@ -220,10 +220,10 @@ bool GuiRenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle
                                      Rocket::Core::Vector2i &texture_dimensions,
                                      const Rocket::Core::String &source)
 {
-    render::TextureCreationParams params;
-    params.setFiltering(render::TextureFiltering::BILINEAR);
+    TextureCreationParams params;
+    params.setFiltering(TextureFiltering::BILINEAR);
     params.setMipmapped(false);
-    params.setAnisotropyLevel(render::NO_ANISOTROPY);
+    params.setAnisotropyLevel(NO_ANISOTROPY);
 
     auto texture = svc().resourceMgr.getFactory().createTexture(source.CString(), params, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->isInitialized())
@@ -242,12 +242,12 @@ bool GuiRenderInterface::GenerateTexture(Rocket::Core::TextureHandle& texture_ha
                                          const Rocket::Core::byte *source,
                                          const Rocket::Core::Vector2i &source_dimensions)
 {
-    render::TextureCreationParams params;
+    TextureCreationParams params;
     params.setMipmapped(false);
-    params.setAnisotropyLevel(render::NO_ANISOTROPY);
-    params.setFiltering(render::TextureFiltering::BILINEAR);
+    params.setAnisotropyLevel(NO_ANISOTROPY);
+    params.setFiltering(TextureFiltering::BILINEAR);
 
-    auto pb = make_unique<render::PixelBuffer>(source_dimensions.x, source_dimensions.y, source, PixelFormat::RGBA);
+    auto pb = make_unique<PixelBuffer>(source_dimensions.x, source_dimensions.y, source, PixelFormat::RGBA);
 
     auto texture = svc().resourceMgr.getFactory().createTexture(std::move(pb), params);
 

@@ -1,6 +1,6 @@
 #include "RocketKeyCodesAdapter.h"
 
-namespace df3d {namespace gui {
+namespace df3d {
 
 Rocket::Core::Input::KeyIdentifier convertToRocketKeyCode(KeyboardEvent::KeyCode keycode)
 {
@@ -189,4 +189,4 @@ Rocket::Core::Input::KeyModifier convertToRocketModifier(KeyboardEvent::KeyModif
     return static_cast<Rocket::Core::Input::KeyModifier>(res);
 }
 
-} }
+}

@@ -17,7 +17,7 @@ namespace df3d {
 
 GuiManager::GuiManager(int contextWidth, int contextHeight)
 {
-    glog << "Initializing libRocket" << base::logmess;
+    glog << "Initializing libRocket" << logmess;
 
     using namespace Rocket;
 
@@ -52,7 +52,7 @@ GuiManager::~GuiManager()
     Rocket::Core::Shutdown();
 }
 
-void GuiManager::update(float dt)
+void GuiManager::update(float systemDelta, float gameDelta)
 {
     m_rocketContext->Update();
 }

@@ -36,12 +36,12 @@ void Sprite2DComponent::onDraw(render::RenderQueue *ops)
 Sprite2DComponent::Sprite2DComponent(const std::string &pathToTexture)
     : NodeComponent(SPRITE_2D)
 {
-    m_op.passProps = make_shared<render::RenderPass>();
-    m_op.passProps->setFaceCullMode(render::RenderPass::FaceCullMode::NONE);
+    m_op.passProps = make_shared<RenderPass>();
+    m_op.passProps->setFaceCullMode(RenderPass::FaceCullMode::NONE);
     m_op.passProps->setGpuProgram(svc().resourceMgr.getFactory().createColoredGpuProgram());
     m_op.passProps->enableDepthTest(false);
     m_op.passProps->enableDepthWrite(false);
-    m_op.passProps->setBlendMode(render::RenderPass::BlendingMode::ALPHA);
+    m_op.passProps->setBlendMode(RenderPass::BlendingMode::ALPHA);
 
     auto format = render::VertexFormat({ render::VertexFormat::POSITION_3, render::VertexFormat::TX_2, render::VertexFormat::COLOR_4 });
     m_op.vertexData = render::createQuad2(format, 0.0f, 0.0f, 1.0, 1.0f, render::GpuBufferUsageType::STATIC);
@@ -133,7 +133,7 @@ glm::vec2 Sprite2DComponent::getTextureSize() const
     return m_textureOriginalSize;
 }
 
-void Sprite2DComponent::setBlendMode(render::RenderPass::BlendingMode bm)
+void Sprite2DComponent::setBlendMode(RenderPass::BlendingMode bm)
 {
     m_op.passProps->setBlendMode(bm);
 }

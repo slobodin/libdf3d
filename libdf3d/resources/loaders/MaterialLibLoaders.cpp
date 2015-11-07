@@ -21,38 +21,38 @@ std::map<std::string, RenderPass::WindingOrder> woValues =
     { "CCW", RenderPass::WindingOrder::CCW }
 };
 
-std::map<std::string, render::RenderPass::PolygonMode> polygonModeValues =
+std::map<std::string, RenderPass::PolygonMode> polygonModeValues =
 {
-    { "FILL", render::RenderPass::PolygonMode::FILL },
-    { "WIRE", render::RenderPass::PolygonMode::WIRE }
+    { "FILL", RenderPass::PolygonMode::FILL },
+    { "WIRE", RenderPass::PolygonMode::WIRE }
 };
 
-std::map<std::string, render::RenderPass::FaceCullMode> faceCullModeValues =
+std::map<std::string, RenderPass::FaceCullMode> faceCullModeValues =
 {
-    { "NONE", render::RenderPass::FaceCullMode::NONE },
-    { "BACK", render::RenderPass::FaceCullMode::BACK },
-    { "FRONT", render::RenderPass::FaceCullMode::FRONT },
-    { "FRONT_AND_BACK", render::RenderPass::FaceCullMode::FRONT_AND_BACK }
+    { "NONE", RenderPass::FaceCullMode::NONE },
+    { "BACK", RenderPass::FaceCullMode::BACK },
+    { "FRONT", RenderPass::FaceCullMode::FRONT },
+    { "FRONT_AND_BACK", RenderPass::FaceCullMode::FRONT_AND_BACK }
 };
 
-std::map<std::string, render::TextureFiltering> textureFilteringValues =
+std::map<std::string, TextureFiltering> textureFilteringValues =
 {
-    { "NEAREST", render::TextureFiltering::NEAREST },
-    { "BILINEAR", render::TextureFiltering::BILINEAR },
-    { "TRILINEAR", render::TextureFiltering::TRILINEAR }
+    { "NEAREST", TextureFiltering::NEAREST },
+    { "BILINEAR", TextureFiltering::BILINEAR },
+    { "TRILINEAR", TextureFiltering::TRILINEAR }
 };
 
-std::map<std::string, render::TextureWrapMode> textureWrapValues =
+std::map<std::string, TextureWrapMode> textureWrapValues =
 {
-    { "WRAP", render::TextureWrapMode::WRAP },
-    { "CLAMP", render::TextureWrapMode::CLAMP }
+    { "WRAP", TextureWrapMode::WRAP },
+    { "CLAMP", TextureWrapMode::CLAMP }
 };
 
-std::map<std::string, render::RenderPass::BlendingMode> blendModeValues =
+std::map<std::string, RenderPass::BlendingMode> blendModeValues =
 {
-    { "NONE", render::RenderPass::BlendingMode::NONE },
-    { "ALPHA", render::RenderPass::BlendingMode::ALPHA },
-    { "ADDALPHA", render::RenderPass::BlendingMode::ADDALPHA }
+    { "NONE", RenderPass::BlendingMode::NONE },
+    { "ALPHA", RenderPass::BlendingMode::ALPHA },
+    { "ADDALPHA", RenderPass::BlendingMode::ADDALPHA }
 };
 
 std::map<std::string, bool> boolValues =
@@ -86,31 +86,31 @@ void setPassParam(const std::string &param, const std::string &valueStr, const s
     }
 }
 
-render::TextureCreationParams getTextureCreationParams(const std::map<std::string, std::string> &keyValues, const std::string &libName)
+static TextureCreationParams getTextureCreationParams(const std::map<std::string, std::string> &keyValues, const std::string &libName)
 {
-    render::TextureCreationParams retRes;
+    TextureCreationParams retRes;
 
     for (const auto &keyval : keyValues)
     {
         if (keyval.first == "filtering")
         {
-            std::function<void(render::TextureFiltering)> fn = std::bind(&render::TextureCreationParams::setFiltering, &retRes, std::placeholders::_1);
+            std::function<void(TextureFiltering)> fn = std::bind(&TextureCreationParams::setFiltering, &retRes, std::placeholders::_1);
             setPassParam(keyval.first, keyval.second, textureFilteringValues, fn, libName);
         }
         else if (keyval.first == "wrap_mode")
         {
-            std::function<void(render::TextureWrapMode)> fn = std::bind(&render::TextureCreationParams::setWrapMode, &retRes, std::placeholders::_1);
+            std::function<void(TextureWrapMode)> fn = std::bind(&TextureCreationParams::setWrapMode, &retRes, std::placeholders::_1);
             setPassParam(keyval.first, keyval.second, textureWrapValues, fn, libName);
         }
         else if (keyval.first == "mipmaps")
         {
-            std::function<void(bool)> fn = std::bind(&render::TextureCreationParams::setMipmapped, &retRes, std::placeholders::_1);
+            std::function<void(bool)> fn = std::bind(&TextureCreationParams::setMipmapped, &retRes, std::placeholders::_1);
             setPassParam(keyval.first, keyval.second, boolValues, fn, libName);
         }
         else if (keyval.first == "anisotropy")
         {
             if (keyval.second == "max")
-                retRes.setAnisotropyLevel(render::ANISOTROPY_LEVEL_MAX);
+                retRes.setAnisotropyLevel(ANISOTROPY_LEVEL_MAX);
             else
                 retRes.setAnisotropyLevel(utils::from_string<int>(keyval.second));
         }
@@ -194,7 +194,7 @@ public:
                 std::string define;
                 is >> define;
 
-                skippingLines = !utils::contains(render::MaterialLib::Defines, define);
+                skippingLines = !utils::contains(MaterialLib::Defines, define);
                 continue;
             }
 
@@ -257,7 +257,7 @@ class MaterialLibParser
 {
     std::string m_libPath;    // For logging.
 
-    shared_ptr<render::Material> parseMaterialNode(const MaterialLibNode &node)
+    shared_ptr<Material> parseMaterialNode(const MaterialLibNode &node)
     {
         if (node.name.empty())
         {
@@ -265,7 +265,7 @@ class MaterialLibParser
             return nullptr;
         }
 
-        auto material = make_shared<render::Material>(node.name);
+        auto material = make_shared<Material>(node.name);
 
         std::string defaultTechniqueName;
         for (const auto &n : node.children)
@@ -289,7 +289,7 @@ class MaterialLibParser
         return material;
     }
 
-    shared_ptr<render::Technique> parseTechniqueNode(const MaterialLibNode &node)
+    shared_ptr<Technique> parseTechniqueNode(const MaterialLibNode &node)
     {
         if (node.name.empty())
         {
@@ -297,7 +297,7 @@ class MaterialLibParser
             return nullptr;
         }
 
-        auto technique = make_shared<render::Technique>(node.name);
+        auto technique = make_shared<Technique>(node.name);
 
         for (const auto &n : node.children)
         {
@@ -312,9 +312,9 @@ class MaterialLibParser
         return technique;
     }
 
-    shared_ptr<render::RenderPass> parsePassNode(const MaterialLibNode &node)
+    shared_ptr<RenderPass> parsePassNode(const MaterialLibNode &node)
     {
-        auto pass = shared_ptr<render::RenderPass>(new render::RenderPass(node.name));
+        auto pass = shared_ptr<RenderPass>(new RenderPass(node.name));
 
         // Get material params.
         for (auto &keyval : node.keyValues)
@@ -352,37 +352,37 @@ class MaterialLibParser
             }
             else if (keyval.first == "cull_face")
             {
-                std::function<void(render::RenderPass::FaceCullMode)> fn = std::bind(&render::RenderPass::setFaceCullMode, pass.get(), std::placeholders::_1);
+                std::function<void(RenderPass::FaceCullMode)> fn = std::bind(&RenderPass::setFaceCullMode, pass.get(), std::placeholders::_1);
                 setPassParam(keyval.first, keyval.second, faceCullModeValues, fn, m_libPath);
             }
             else if (keyval.first == "front_face")
             {
-                std::function<void(render::RenderPass::WindingOrder)> fn = std::bind(&render::RenderPass::setFrontFaceWinding, pass.get(), std::placeholders::_1);
+                std::function<void(RenderPass::WindingOrder)> fn = std::bind(&RenderPass::setFrontFaceWinding, pass.get(), std::placeholders::_1);
                 setPassParam(keyval.first, keyval.second, woValues, fn, m_libPath);
             }
             else if (keyval.first == "polygon_mode")
             {
-                std::function<void(render::RenderPass::PolygonMode)> fn = std::bind(&render::RenderPass::setPolygonDrawMode, pass.get(), std::placeholders::_1);
+                std::function<void(RenderPass::PolygonMode)> fn = std::bind(&RenderPass::setPolygonDrawMode, pass.get(), std::placeholders::_1);
                 setPassParam(keyval.first, keyval.second, polygonModeValues, fn, m_libPath);
             }
             else if (keyval.first == "depth_test")
             {
-                std::function<void(bool)> fn = std::bind(&render::RenderPass::enableDepthTest, pass.get(), std::placeholders::_1);
+                std::function<void(bool)> fn = std::bind(&RenderPass::enableDepthTest, pass.get(), std::placeholders::_1);
                 setPassParam(keyval.first, keyval.second, boolValues, fn, m_libPath);
             }
             else if (keyval.first == "depth_write")
             {
-                std::function<void(bool)> fn = std::bind(&render::RenderPass::enableDepthWrite, pass.get(), std::placeholders::_1);
+                std::function<void(bool)> fn = std::bind(&RenderPass::enableDepthWrite, pass.get(), std::placeholders::_1);
                 setPassParam(keyval.first, keyval.second, boolValues, fn, m_libPath);
             }
             else if (keyval.first == "is_lit")
             {
-                std::function<void(bool)> fn = std::bind(&render::RenderPass::enableLighting, pass.get(), std::placeholders::_1);
+                std::function<void(bool)> fn = std::bind(&RenderPass::enableLighting, pass.get(), std::placeholders::_1);
                 setPassParam(keyval.first, keyval.second, boolValues, fn, m_libPath);
             }
             else if (keyval.first == "blend")
             {
-                std::function<void(render::RenderPass::BlendingMode)> fn = std::bind(&render::RenderPass::setBlendMode, pass.get(), std::placeholders::_1);
+                std::function<void(RenderPass::BlendingMode)> fn = std::bind(&RenderPass::setBlendMode, pass.get(), std::placeholders::_1);
                 setPassParam(keyval.first, keyval.second, blendModeValues, fn, m_libPath);
             }
         }
@@ -414,7 +414,7 @@ class MaterialLibParser
         return pass;
     }
 
-    shared_ptr<render::GpuProgram> parseShaderNode(const MaterialLibNode &node)
+    shared_ptr<GpuProgram> parseShaderNode(const MaterialLibNode &node)
     {
         // First, check for embed program usage.
         auto embedProgramFound = node.keyValues.find("embed");
@@ -445,11 +445,11 @@ class MaterialLibParser
         return svc().resourceMgr.getFactory().createGpuProgram(vshader->second, fshader->second);
     }
 
-    void parseShaderParamsNode(MaterialLibNode &node, shared_ptr<render::RenderPass> pass)
+    void parseShaderParamsNode(MaterialLibNode &node, shared_ptr<RenderPass> pass)
     {
         for (auto it : node.keyValues)
         {
-            render::RenderPassParam param;
+            RenderPassParam param;
             param.name = it.first;
             param.value = utils::from_string<float>(it.second);
 
@@ -457,7 +457,7 @@ class MaterialLibParser
         }
     }
 
-    shared_ptr<render::Texture> parseSamplerNode(const MaterialLibNode &node)
+    shared_ptr<Texture> parseSamplerNode(const MaterialLibNode &node)
     {
         if (!utils::contains_key(node.keyValues, "type"))
         {
@@ -495,7 +495,7 @@ public:
 
     }
 
-    bool parse(std::istringstream &input, std::vector<shared_ptr<render::Material>> &output)
+    bool parse(std::istringstream &input, std::vector<shared_ptr<Material>> &output)
     {
         auto root = MaterialLibNode::createTree(input);
         if (!root)
@@ -528,9 +528,9 @@ MaterialLibFSLoader::MaterialLibFSLoader(const std::string &path)
 
 }
 
-render::MaterialLib* MaterialLibFSLoader::createDummy()
+MaterialLib* MaterialLibFSLoader::createDummy()
 {
-    return new render::MaterialLib();
+    return new MaterialLib();
 }
 
 bool MaterialLibFSLoader::decode(shared_ptr<FileDataSource> source)
@@ -545,7 +545,7 @@ bool MaterialLibFSLoader::decode(shared_ptr<FileDataSource> source)
 
 void MaterialLibFSLoader::onDecoded(Resource *resource)
 {
-    auto mtlLib = static_cast<render::MaterialLib*>(resource);
+    auto mtlLib = static_cast<MaterialLib*>(resource);
 
     for (const auto &material : m_materials)
         mtlLib->appendMaterial(material);

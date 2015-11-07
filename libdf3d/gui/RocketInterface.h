@@ -5,16 +5,17 @@
 #include <Rocket/Core/SystemInterface.h>
 #include <Rocket/Core/RenderInterface.h>
 
-FWD_MODULE_CLASS(resources, FileDataSource)
-FWD_MODULE_CLASS(render, Texture)
-FWD_MODULE_CLASS(render, RenderPass)
+namespace df3d {
 
-namespace df3d { namespace gui {
+class FileDataSource;
+class Texture;
+class RenderPass;
 
 //! Interface to Rocket GUI library.
 class GuiFileInterface : public Rocket::Core::FileInterface
 {
-    std::unordered_map<Rocket::Core::FileHandle, shared_ptr<resources::FileDataSource>> m_openedFiles;
+    std::unordered_map<Rocket::Core::FileHandle, shared_ptr<FileDataSource>> m_openedFiles;
+
 public:
     GuiFileInterface();
     ~GuiFileInterface();
@@ -38,6 +39,7 @@ public:
 class GuiSystemInterface : public Rocket::Core::SystemInterface
 {
     TimePoint m_appStarted;
+
 public:
     GuiSystemInterface();
 
@@ -52,9 +54,9 @@ public:
 class GuiRenderInterface : public Rocket::Core::RenderInterface
 {
     //! Gui rendering pass properties.
-    shared_ptr<render::RenderPass> m_guipass;
+    shared_ptr<RenderPass> m_guipass;
     
-    std::unordered_map<uint32_t, shared_ptr<render::Texture>> m_textures;
+    std::unordered_map<uint32_t, shared_ptr<Texture>> m_textures;
     uint32_t m_textureId;
 public:
     GuiRenderInterface();
@@ -63,14 +65,14 @@ public:
 
     //! Called by Rocket when it wants to render geometry that it does not wish to optimize.
     void RenderGeometry(Rocket::Core::Vertex *vertices, int num_vertices, 
-        int *indices, int num_indices, 
-        Rocket::Core::TextureHandle texture, 
-        const Rocket::Core::Vector2f &translation);
+                        int *indices, int num_indices, 
+                        Rocket::Core::TextureHandle texture, 
+                        const Rocket::Core::Vector2f &translation);
 
     //! Called by Rocket when it wants to compile geometry it believes will be static for the foreseeable future.
     Rocket::Core::CompiledGeometryHandle CompileGeometry(Rocket::Core::Vertex *vertices, int num_vertices, 
-        int *indices, int num_indices, 
-        Rocket::Core::TextureHandle texture);
+                                                         int *indices, int num_indices, 
+                                                         Rocket::Core::TextureHandle texture);
 
     //! Called by Rocket when it wants to render application-compiled geometry.
     void RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry, 
@@ -93,4 +95,4 @@ public:
     void ReleaseTexture(Rocket::Core::TextureHandle texture_handle);
 }; 
 
-} }
+}
