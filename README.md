@@ -44,7 +44,7 @@ More documentation will be added soon.
 * gui should block touches
 * locking vertex buffer (glMapBuffer, glUnmapBuffer)
 * use 16bit indices when possible
-* remove unnessesary unbinds.
+* remove unnecessary unbinds.
 * pvrtc, etc1
 * LOTS OF STUFF!!!
 
