@@ -47,7 +47,7 @@ void EngineController::shutdown()
 
     SAFE_DELETE(m_svc);
 
-    particlesys::destroySparkEngine();
+    destroySparkEngine();
 
     glog << "Shutdown success" << logmess;
 
@@ -76,31 +76,31 @@ bool EngineController::init(EngineInitParams params)
 #endif
 
         // Init filesystem.
-        m_fileSystem = new resources::FileSystem();
+        m_fileSystem = new FileSystem();
 
         // Init resource manager.
         m_resourceManager = new ResourceManager();
 
         // Init render system.
-        render::RenderManagerInitParams renderParams;
+        RenderManagerInitParams renderParams;
         renderParams.viewportWidth = params.windowWidth;
         renderParams.viewportHeight = params.windowHeight;
-        m_renderManager = new render::RenderManager(renderParams);
+        m_renderManager = new RenderManager(renderParams);
 
         // Init scene manager.
         m_sceneManager = new SceneManager();
 
         // Spark particle engine init.
-        particlesys::initSparkEngine();
+        initSparkEngine();
 
         // Init GUI.
-        m_guiManager = new gui::GuiManager(params.windowWidth, params.windowHeight);
+        m_guiManager = new GuiManager(params.windowWidth, params.windowHeight);
 
         // Init physics.
-        m_physics = new physics::PhysicsManager();
+        m_physics = new PhysicsManager();
 
         // Init audio subsystem.
-        m_audioManager = new audio::AudioManager();
+        m_audioManager = new AudioManager();
 
         // Init services.
         m_svc = new Service(*m_sceneManager, *m_resourceManager, *m_fileSystem,
@@ -126,7 +126,7 @@ bool EngineController::init(EngineInitParams params)
     }
     catch (std::exception &e)
     {
-        glog << "Engine initialization failed due to" << e.what() << base::logcritical;
+        glog << "Engine initialization failed due to" << e.what() << logcritical;
     }
 
     return m_initialized;
@@ -138,10 +138,10 @@ void EngineController::update(float systemDelta, float gameDelta)
     m_timeElapsed = IntervalBetweenNowAnd(m_timeStarted);
 
     m_resourceManager->poll();
-    m_audioManager->update(systemDelta);
-    m_physics->update(gameDelta);
-    m_sceneManager->update(gameDelta);
-    m_guiManager->update(systemDelta);
+    m_audioManager->update(systemDelta, gameDelta);
+    m_physics->update(systemDelta, gameDelta);
+    m_sceneManager->update(systemDelta, gameDelta);
+    m_guiManager->update(systemDelta, gameDelta);
     m_renderManager->update(m_sceneManager->getCurrentScene());
 }
 
@@ -161,17 +161,17 @@ void EngineController::runFrame()
     m_renderManager->onFrameEnd();
 }
 
-const render::RenderStats &EngineController::getLastRenderStats() const
+const RenderStats &EngineController::getLastRenderStats() const
 {
     return m_renderManager->getLastRenderStats();
 }
 
-const render::Viewport &EngineController::getViewport() const
+const Viewport &EngineController::getViewport() const
 {
     return m_renderManager->getScreenRenderTarget()->getViewport();
 }
 
-void EngineController::setViewport(const render::Viewport &newvp)
+void EngineController::setViewport(const Viewport &newvp)
 {
     m_renderManager->getScreenRenderTarget()->setViewport(newvp);
 }

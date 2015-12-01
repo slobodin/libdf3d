@@ -47,7 +47,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/DebugConsole.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineModule.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Service.h

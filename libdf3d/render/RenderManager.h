@@ -2,7 +2,6 @@
 
 #include "RenderStats.h"
 #include "RenderCommon.h"
-#include <base/EngineModule.h>
 
 namespace df3d {
 
@@ -31,8 +30,10 @@ struct RenderManagerInitParams
 };
 
 // Forward renderer.
-class RenderManager : public EngineModule
+class RenderManager : utils::NonCopyable
 {
+    friend class EngineController;
+
     static const size_t MAX_POSPROCESS_PASSES = 4;
 
     unique_ptr<RendererBackend> m_renderer;

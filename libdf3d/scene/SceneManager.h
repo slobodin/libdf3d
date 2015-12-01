@@ -1,16 +1,17 @@
 #pragma once
 
-#include <base/EngineModule.h>
-
 namespace df3d {
 
 class Scene;
 class Node;
 class Camera;
 class SceneManagerListener;
+class EngineController;
 
-class DF3D_DLL SceneManager : public EngineModule
+class DF3D_DLL SceneManager : utils::NonCopyable
 {
+    friend class EngineController;
+
     SceneManager();
     ~SceneManager();
 
@@ -21,7 +22,7 @@ class DF3D_DLL SceneManager : public EngineModule
     std::list<shared_ptr<Node>> m_nodesMarkedForRemoval;
     std::list<SceneManagerListener *> m_listeners;
 
-    void update(float systemDelta, float gameDelta) override;
+    void update(float systemDelta, float gameDelta);
     void cleanStep();
 
 public:

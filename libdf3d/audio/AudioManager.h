@@ -1,18 +1,20 @@
 #pragma once
 
-#include <base/EngineModule.h>
-
 namespace df3d {
 
-class DF3D_DLL AudioManager : public EngineModule
+class EngineController;
+
+class DF3D_DLL AudioManager : utils::NonCopyable
 {
+    friend class EngineController;
+
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
     AudioManager();
     ~AudioManager();
 
-    void update(float systemDelta, float gameDelta) override;
+    void update(float systemDelta, float gameDelta);
 
 public:
 

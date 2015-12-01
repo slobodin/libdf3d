@@ -84,10 +84,10 @@ void PhysicsManager::pauseSimulation(bool pause)
     m_paused = pause;
 }
 
-void PhysicsManager::update(float dt)
+void PhysicsManager::update(float systemDelta, float gameDelta)
 {
     if (!m_paused)
-        m_pimpl->m_dynamicsWorld->stepSimulation(dt, 10);
+        m_pimpl->m_dynamicsWorld->stepSimulation(gameDelta, 10);
 }
 
 void PhysicsManager::drawDebug()

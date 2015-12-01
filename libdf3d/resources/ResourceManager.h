@@ -1,6 +1,5 @@
 #pragma once
 
-#include <base/EngineModule.h>
 #include <utils/ConcurrentQueue.h>
 
 namespace df3d {
@@ -13,8 +12,10 @@ class FileDataSource;
 class ManualResourceLoader;
 class FSResourceLoader;
 
-class DF3D_DLL ResourceManager : public EngineModule
+class DF3D_DLL ResourceManager : utils::NonCopyable
 {
+    friend class EngineController;
+
 public:
     class Listener
     {

@@ -1,14 +1,15 @@
 #pragma once
 
-#include <base/EngineModule.h>
-
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 
 namespace df3d {
 
-class DF3D_DLL PhysicsManager : public EngineModule
+class DF3D_DLL PhysicsManager : utils::NonCopyable
 {
+    friend class EngineController;
+    friend class RenderManager;
+
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
@@ -22,7 +23,7 @@ public:
     void pauseSimulation(bool pause);
 
 private:
-    void update(float dt);
+    void update(float systemDelta, float gameDelta);
     void drawDebug();
 };
 

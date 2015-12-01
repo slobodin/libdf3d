@@ -1,13 +1,14 @@
 #pragma once
 
-#include <base/EngineModule.h>
-
 namespace df3d {
 
 class FileDataSource;
+class EngineController;
 
-class DF3D_DLL FileSystem : public EngineModule
+class DF3D_DLL FileSystem : utils::NonCopyable
 {
+    friend class EngineController;
+
     FileSystem();
     ~FileSystem();
 

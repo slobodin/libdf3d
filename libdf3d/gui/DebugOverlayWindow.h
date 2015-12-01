@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace gui {
+namespace df3d {
 
 //namespace impl { class ConsoleWindow; class StatsWindow; class SceneTreeWindow; }
 
@@ -42,4 +42,4 @@ public:
     void toggle() { }
 };
 
-} }
+}
