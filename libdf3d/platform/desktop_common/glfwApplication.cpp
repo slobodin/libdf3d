@@ -1,4 +1,4 @@
-
+#include "glfwApplication.h"
 #include "../AppDelegate.h"
 #include "glfwKeyCodes.h"
 #include <GLFW/glfw3.h>
@@ -227,8 +227,10 @@ void setupDelegate(AppDelegate *appDelegate)
     g_application = new glfwApplication(appDelegate);
 }
 
-void run()
+void glfwAppRun()
 {
+    assert(g_application && "App must be initialized first!");
+
     g_application->run();
 
     delete g_application;

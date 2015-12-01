@@ -43,11 +43,6 @@ void setupDelegate(df3d::platform::AppDelegate *appDelegate)
     df3d::base::glog << "App delegate was set up" << df3d::base::logmess;
 }
 
-void run()
-{
-
-}
-
 } }
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
@@ -65,6 +60,8 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
     df3d::base::glog << "JNI_OnLoad success" << df3d::base::logmess;
 
     df3dInitialized();
+
+    assert(g_appState->appDelegate && "Game code must set up application delegate");
 
     return JNI_VERSION_1_6;
 }
