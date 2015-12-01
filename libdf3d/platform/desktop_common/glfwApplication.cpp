@@ -1,6 +1,7 @@
 #include "glfwApplication.h"
 #include "../AppDelegate.h"
 #include "glfwKeyCodes.h"
+#include <base/EngineController.h>
 #include <GLFW/glfw3.h>
 
 namespace df3d { namespace platform {
@@ -58,6 +59,9 @@ public:
         glfwSetCharCallback(window, textInputCallback);
         glfwSetScrollCallback(window, scrollCallback);
 
+        if (!EngineController::instance().init(params))
+            throw std::runtime_error("Engine initialization failed.");
+
         // Init user code.
         if (!m_appDelegate->onAppStarted(params.windowWidth, params.windowHeight))
             throw std::runtime_error("Game code initialization failed.");
@@ -83,7 +87,7 @@ public:
         {
             currtime = system_clock::now();
 
-            m_appDelegate->onAppUpdate(IntervalBetween(currtime, prevtime));
+            m_appDelegate->onUpdate(IntervalBetween(currtime, prevtime));
 
             glfwSwapBuffers(window);
 
@@ -93,6 +97,7 @@ public:
         }
 
         m_appDelegate->onAppEnded();
+        df3d::EngineController::instance().shutdown();
     }
 
     void setTitle(const std::string &title)

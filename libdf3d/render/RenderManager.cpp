@@ -127,12 +127,12 @@ void RenderManager::loadEmbedResources()
 {
     m_renderer->loadResources();
 
-    createRenderTargets(Viewport(0, 0, m_initParams.viewportWidth, m_initParams.viewportHeight));
+    createRenderTargets(Viewport(0, 0, m_initParams.windowWidth, m_initParams.windowHeight));
     createQuadRenderOperation();
     createAmbientPassProps();
 }
 
-RenderManager::RenderManager(RenderManagerInitParams params)
+RenderManager::RenderManager(EngineInitParams params)
     : m_renderQueue(make_unique<RenderQueue>()),
     m_initParams(params)
 {

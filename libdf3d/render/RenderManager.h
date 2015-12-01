@@ -2,6 +2,7 @@
 
 #include "RenderStats.h"
 #include "RenderCommon.h"
+#include <base/EngineInitParams.h>
 
 namespace df3d {
 
@@ -21,14 +22,6 @@ class Node;
 class Camera;
 class EngineController;
 
-struct RenderManagerInitParams
-{
-    int viewportWidth = DEFAULT_WINDOW_WIDTH;
-    int viewportHeight = DEFAULT_WINDOW_HEIGHT;
-
-    RenderingCapabilities renderingCaps = RenderingCapabilities::getDefaults();
-};
-
 // Forward renderer.
 class RenderManager : utils::NonCopyable
 {
@@ -37,7 +30,7 @@ class RenderManager : utils::NonCopyable
     static const size_t MAX_POSPROCESS_PASSES = 4;
 
     unique_ptr<RendererBackend> m_renderer;
-    RenderManagerInitParams m_initParams;
+    EngineInitParams m_initParams;
 
     // Ambient pass support.
     unique_ptr<RenderPass> m_ambientPassProps;
@@ -64,7 +57,7 @@ class RenderManager : utils::NonCopyable
 
     void loadEmbedResources();
 
-    RenderManager(RenderManagerInitParams params);
+    RenderManager(EngineInitParams params);
     ~RenderManager();
 
 public:

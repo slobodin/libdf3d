@@ -82,10 +82,7 @@ bool EngineController::init(EngineInitParams params)
         m_resourceManager = new ResourceManager();
 
         // Init render system.
-        RenderManagerInitParams renderParams;
-        renderParams.viewportWidth = params.windowWidth;
-        renderParams.viewportHeight = params.windowHeight;
-        m_renderManager = new RenderManager(renderParams);
+        m_renderManager = new RenderManager(params);
 
         // Init scene manager.
         m_sceneManager = new SceneManager();
