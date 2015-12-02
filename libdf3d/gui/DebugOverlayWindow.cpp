@@ -26,13 +26,13 @@ namespace df3d {
 //    // Just for test:
 //    // TODO:
 //    // Embed rml and rcss.
-//    auto file = svc().filesystem.openFile(rml);
+//    auto file = svc().fileSystem().openFile(rml);
 //    std::string buffer(file->getSize(), 0);
 //    file->getRaw(&buffer[0], file->getSize());
 //
 //    document->SetInnerRML(buffer.c_str());
 //
-//    file = svc().filesystem.openFile(rcss);
+//    file = svc().fileSystem().openFile(rcss);
 //    buffer.resize(file->getSize());
 //    file->getRaw(&buffer[0], file->getSize());
 //
@@ -50,7 +50,7 @@ namespace df3d {
 //
 //    void OnRender()
 //    {
-//        auto stats = EngineController::instance().getLastRenderStats();
+//        auto stats = svc().getLastRenderStats();
 //
 //        std::string triangles = "Triangles: ";
 //        triangles += utils::to_string(stats.totalTriangles);
@@ -73,7 +73,7 @@ namespace df3d {
 //        m_psValue->SetInnerRML(psNodes.c_str());
 //        m_particlesValue->SetInnerRML(particles.c_str());
 //
-//        auto cam = svc().sceneMgr.getCamera();
+//        auto cam = svc().sceneManager().getCamera();
 //        if (cam)
 //        {
 //            auto camPos = cam->getPosition();
@@ -373,19 +373,19 @@ namespace df3d {
 //    Rocket::Core::Factory::RegisterElementInstancer("__debug_scene_tree_window", new Rocket::Core::ElementInstancerGeneric<impl::SceneTreeWindow>())->RemoveReference();
 //    m_sceneTreeWnd = dynamic_cast<impl::SceneTreeWindow *>(context->CreateDocument("__debug_scene_tree_window"));
 //
-//    svc().sceneMgr.registerListener(m_sceneTreeWnd);
+//    svc().sceneManager().registerListener(m_sceneTreeWnd);
 //
 //    m_sceneTreeWnd->SetProperty("visibility", "hidden");
 //}
 //
 //void DebugOverlayWindow::onCommandInvoked(const std::string &command, std::string &result)
 //{
-//    EngineController::instance().consoleCommandInvoked(command, result);
+//    svc().consoleCommandInvoked(command, result);
 //}
 //
 //DebugOverlayWindow::DebugOverlayWindow()
 //{
-//    Rocket::Core::Context *context = svc().guiMgr.getRocketContext();
+//    Rocket::Core::Context *context = svc().guiManager().getRocketContext();
 //
 //    createDebugMenu(context);
 //    createDebugStatsWindow(context);
@@ -413,7 +413,7 @@ namespace df3d {
 //
 //void DebugOverlayWindow::onRocketShutdown()
 //{
-//    svc().sceneMgr.unregisterListener(m_sceneTreeWnd);
+//    svc().sceneManager().unregisterListener(m_sceneTreeWnd);
 //
 //    if (m_debugMenu)
 //        m_debugMenu->RemoveReference();
