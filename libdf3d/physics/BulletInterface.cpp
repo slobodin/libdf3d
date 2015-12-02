@@ -1,6 +1,7 @@
 #include "BulletInterface.h"
 
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <render/RenderManager.h>
 #include <render/RenderPass.h>
 #include <render/RendererBackend.h>
 #include <render/VertexIndexBuffer.h>
@@ -71,7 +72,7 @@ void BulletDebugDraw::flushRenderOperations()
     op.vertexData->alloc(m_vertexData, GpuBufferUsageType::STREAM);
     m_vertexData.clear();
 
-    svc().renderMgr.drawOperation(op);
+    svc().renderManager().drawOperation(op);
 }
 
 }
