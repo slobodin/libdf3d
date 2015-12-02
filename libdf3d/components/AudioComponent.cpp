@@ -1,6 +1,8 @@
 #include "AudioComponent.h"
 
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <resources/ResourceManager.h>
+#include <resources/ResourceFactory.h>
 #include <scene/Node.h>
 #include <components/TransformComponent.h>
 #include <audio/AudioBuffer.h>
@@ -27,7 +29,7 @@ void AudioComponent::onUpdate(float dt)
 AudioComponent::AudioComponent(const std::string &audioFilePath)
     : NodeComponent(ComponentType::AUDIO)
 {
-    m_buffer = svc().resourceMgr.getFactory().createAudioBuffer(audioFilePath);
+    m_buffer = svc().resourceManager().getFactory().createAudioBuffer(audioFilePath);
     if (!m_buffer || !m_buffer->isInitialized())
     {
         glog << "Can not initialize audio component from" << audioFilePath << logwarn;

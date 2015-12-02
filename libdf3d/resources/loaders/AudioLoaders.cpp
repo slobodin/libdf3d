@@ -1,7 +1,7 @@
 #include "AudioLoaders.h"
 
 #include <audio/OpenALCommon.h>
-#include <base/Service.h>
+#include <base/EngineController.h>
 #include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
 #include <ogg/ogg.h>
@@ -236,7 +236,7 @@ AudioBuffer* AudioBufferFSLoader::createDummy()
 
 bool AudioBufferFSLoader::decode(shared_ptr<FileDataSource> source)
 {
-    auto extension = svc().filesystem.getFileExtension(source->getPath());
+    auto extension = svc().fileSystem().getFileExtension(source->getPath());
 
     if (extension == ".wav")
         m_pcmData = wav::loadPCM(source);
