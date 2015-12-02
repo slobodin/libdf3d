@@ -1,7 +1,8 @@
 #include "Shader.h"
 
 #include "OpenGLCommon.h"
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
 
 namespace df3d {
@@ -52,7 +53,7 @@ std::string Shader::preprocess(const std::string &shaderData)
 
 std::string Shader::preprocessInclude(std::string shaderData, const std::string &shaderFilePath)
 {
-    const std::string shaderDirectory = svc().filesystem.getFileDirectory(shaderFilePath);
+    const std::string shaderDirectory = svc().fileSystem().getFileDirectory(shaderFilePath);
     const std::string INCLUDE_DIRECTIVE = "#include";
     const size_t INCLUDE_DIRECTIVE_LEN = INCLUDE_DIRECTIVE.size();
 
@@ -76,7 +77,7 @@ std::string Shader::preprocessInclude(std::string shaderData, const std::string 
         }
 
         fileToInclude = FileSystem::pathConcatenate(shaderDirectory, fileToInclude);
-        auto file = svc().filesystem.openFile(fileToInclude);
+        auto file = svc().fileSystem().openFile(fileToInclude);
         if (!file || !file->valid())
         {
             glog << "Failed to preprocess shader: file" << fileToInclude << "not found" << logwarn;
@@ -155,14 +156,14 @@ Shader::~Shader()
 shared_ptr<Shader> Shader::createFromFile(const std::string &filePath)
 {
     auto shader = make_shared<Shader>();
-    auto file = svc().filesystem.openFile(filePath);
+    auto file = svc().fileSystem().openFile(filePath);
     if (!file || !file->valid())
     {
         glog << "Can not create shader. File" << filePath << "doesn't exist" << logwarn;
         return nullptr;
     }
 
-    const std::string &ext = svc().filesystem.getFileExtension(filePath);
+    const std::string &ext = svc().fileSystem().getFileExtension(filePath);
 
     if (ext == ".vert")
         shader->setType(Type::VERTEX);

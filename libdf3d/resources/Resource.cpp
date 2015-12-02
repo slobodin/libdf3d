@@ -1,6 +1,7 @@
 #include "Resource.h"
 
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <resources/FileSystem.h>
 
 namespace df3d {
 
@@ -43,7 +44,7 @@ bool IsGUIDValid(const ResourceGUID &guid)
 
 ResourceGUID CreateGUIDFromPath(const std::string &path)
 {
-    return svc().filesystem.fullPath(path);
+    return svc().fileSystem().fullPath(path);
 }
 
 }

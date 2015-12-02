@@ -6,15 +6,9 @@ class Scene;
 class Node;
 class Camera;
 class SceneManagerListener;
-class EngineController;
 
 class DF3D_DLL SceneManager : utils::NonCopyable
 {
-    friend class EngineController;
-
-    SceneManager();
-    ~SceneManager();
-
     shared_ptr<Scene> m_currentScene;
 
     bool m_paused = false;
@@ -22,10 +16,13 @@ class DF3D_DLL SceneManager : utils::NonCopyable
     std::list<shared_ptr<Node>> m_nodesMarkedForRemoval;
     std::list<SceneManagerListener *> m_listeners;
 
+public:
+    SceneManager();
+    ~SceneManager();
+
     void update(float systemDelta, float gameDelta);
     void cleanStep();
 
-public:
     void clearCurrentScene();
     void pauseSimulation(bool pause);
 

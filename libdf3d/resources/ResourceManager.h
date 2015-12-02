@@ -14,8 +14,6 @@ class FSResourceLoader;
 
 class DF3D_DLL ResourceManager : utils::NonCopyable
 {
-    friend class EngineController;
-
 public:
     class Listener
     {
@@ -50,19 +48,18 @@ private:
 
     unique_ptr<ResourceFactory> m_factory;
 
-    void loadEmbedResources();
     void doRequest(DecodeRequest req);
 
     shared_ptr<Resource> findResource(const std::string &guid) const;
     shared_ptr<Resource> loadManual(shared_ptr<ManualResourceLoader> loader);
     shared_ptr<Resource> loadFromFS(const std::string &path, shared_ptr<FSResourceLoader> loader);
 
+public:
     ResourceManager();
     ~ResourceManager();
 
     void poll();
 
-public:
     //! All resources creation is going through this factory.
     ResourceFactory& getFactory() { return *m_factory; }
 

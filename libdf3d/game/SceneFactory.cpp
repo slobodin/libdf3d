@@ -5,7 +5,9 @@
 #include <scene/Node.h>
 #include <scene/Camera.h>
 #include <components/TransformComponent.h>
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <resources/ResourceManager.h>
+#include <resources/ResourceFactory.h>
 #include <render/MaterialLib.h>
 #include <game/NodeFactory.h>
 
@@ -72,7 +74,7 @@ void parsePostProcessOption(const Json::Value &postFxNode, shared_ptr<Scene> sce
         return;
     }
 
-    auto materialLibrary = svc().resourceMgr.getFactory().createMaterialLib(mtlLib);
+    auto materialLibrary = svc().resourceManager().getFactory().createMaterialLib(mtlLib);
     auto material = materialLibrary->getMaterial(mtlName);
     if (!material)
         return;

@@ -6,7 +6,9 @@
 #include <render/Texture2D.h>
 #include <components/TransformComponent.h>
 #include <scene/Node.h>
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <resources/ResourceManager.h>
+#include <resources/ResourceFactory.h>
 
 namespace df3d {
 
@@ -38,7 +40,7 @@ Sprite2DComponent::Sprite2DComponent(const std::string &pathToTexture)
 {
     m_op.passProps = make_shared<RenderPass>();
     m_op.passProps->setFaceCullMode(RenderPass::FaceCullMode::NONE);
-    m_op.passProps->setGpuProgram(svc().resourceMgr.getFactory().createColoredGpuProgram());
+    m_op.passProps->setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
     m_op.passProps->enableDepthTest(false);
     m_op.passProps->enableDepthWrite(false);
     m_op.passProps->setBlendMode(RenderPass::BlendingMode::ALPHA);
@@ -113,7 +115,7 @@ void Sprite2DComponent::useTexture(const std::string &pathToTexture)
     params.setMipmapped(false);
     params.setAnisotropyLevel(NO_ANISOTROPY);
 
-    auto texture = svc().resourceMgr.getFactory().createTexture(pathToTexture, params, ResourceLoadingMode::IMMEDIATE);
+    auto texture = svc().resourceManager().getFactory().createTexture(pathToTexture, params, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->isInitialized())
     {
         glog << "Failed to init Sprite2DComponent with texture" << pathToTexture << logwarn;

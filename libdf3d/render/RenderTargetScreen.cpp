@@ -1,6 +1,6 @@
 #include "RenderTargetScreen.h"
 
-#include <base/Service.h>
+#include <base/EngineController.h>
 #include "RenderManager.h"
 #include "OpenGLCommon.h"
 #include "RendererBackend.h"
@@ -14,7 +14,7 @@ RenderTargetScreen::RenderTargetScreen(const Viewport &vp)
 
 void RenderTargetScreen::bind()
 {
-    svc().renderMgr.getRenderer()->setViewport(m_viewport);
+    svc().renderManager().getRenderer()->setViewport(m_viewport);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

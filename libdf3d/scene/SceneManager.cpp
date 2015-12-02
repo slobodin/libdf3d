@@ -4,7 +4,8 @@
 #include "Node.h"
 #include "Camera.h"
 #include "SceneManagerListener.h"
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <resources/ResourceManager.h>
 #include <resources/FileDataSource.h>
 #include <resources/Resource.h>
 #include <utils/Utils.h>
@@ -66,7 +67,7 @@ void SceneManager::clearCurrentScene()
     m_currentScene.reset();
     m_nodesMarkedForRemoval.clear();
 
-    svc().resourceMgr.unloadUnused();
+    svc().resourceManager().unloadUnused();
 
     m_paused = false;
 

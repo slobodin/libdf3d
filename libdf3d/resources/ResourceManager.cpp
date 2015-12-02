@@ -1,17 +1,14 @@
 #include "ResourceManager.h"
 
-#include <base/Service.h>
+#include <base/EngineController.h>
 #include <utils/ThreadPool.h>
 #include <utils/Utils.h>
 #include "Resource.h"
+#include "ResourceFactory.h"
+#include "FileSystem.h"
 #include "FileDataSource.h"
 
 namespace df3d {
-
-void ResourceManager::loadEmbedResources()
-{
-
-}
 
 void ResourceManager::doRequest(DecodeRequest req)
 {
@@ -89,7 +86,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
     DecodeRequest req;
     req.loader = loader;
     req.resource = resource;
-    req.source = svc().filesystem.openFile(guid);
+    req.source = svc().fileSystem().openFile(guid);
 
     if (loader->loadingMode == ResourceLoadingMode::ASYNC)
         m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, req));
