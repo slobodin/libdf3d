@@ -1,6 +1,7 @@
 #include "Texture2D.h"
 
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <render/RenderManager.h>
 #include "RendererBackend.h"
 
 namespace df3d {
@@ -13,7 +14,7 @@ bool Texture2D::createGLTexture(const PixelBuffer &buffer)
     auto actWidth = /*getNextPot(*/buffer.getWidth();
     auto actHeight = /*getNextPot(*/buffer.getHeight();
 
-    auto maxSize = svc().renderMgr.getRenderer()->getMaxTextureSize();
+    auto maxSize = svc().renderManager().getRenderer()->getMaxTextureSize();
     if (actWidth > maxSize || actHeight > maxSize)
     {
         glog << "Failed to create texture. Size is too big." << logwarn;
@@ -63,7 +64,7 @@ bool Texture2D::createGLTexture(const PixelBuffer &buffer)
 
     if (m_params.getAnisotropyLevel() != 1)
     {
-        float aniso = svc().renderMgr.getRenderer()->getMaxAnisotropy();
+        float aniso = svc().renderManager().getRenderer()->getMaxAnisotropy();
         if (m_params.getAnisotropyLevel() != ANISOTROPY_LEVEL_MAX)
         { 
             aniso = (float)m_params.getAnisotropyLevel();

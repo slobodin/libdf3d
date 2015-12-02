@@ -1,6 +1,7 @@
 #include "TextureLoaders.h"
 
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
 #include <utils/JsonUtils.h>
 
@@ -152,12 +153,12 @@ bool TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
     if (jsonRoot.empty())
         return false;
 
-    auto srcPathDir = svc().filesystem.getFileDirectory(source->getPath());
+    auto srcPathDir = svc().fileSystem().getFileDirectory(source->getPath());
 
     auto getSource = [&srcPathDir](const std::string &texturePath)
     {
-        auto fullPath = svc().filesystem.pathConcatenate(srcPathDir, texturePath);
-        return svc().filesystem.openFile(fullPath);
+        auto fullPath = svc().fileSystem().pathConcatenate(srcPathDir, texturePath);
+        return svc().fileSystem().openFile(fullPath);
     };
 
     m_pixelBuffers[(size_t)CubeFace::POSITIVE_X] = loadPixelBuffer(getSource(jsonRoot["positive_x"].asString()));
