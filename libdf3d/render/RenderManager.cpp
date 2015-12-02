@@ -1,9 +1,13 @@
 #include "RenderManager.h"
 
-#include <base/Service.h>
+#include <base/EngineController.h>
 #include <base/DebugConsole.h>
+#include <resources/ResourceManager.h>
+#include <resources/ResourceFactory.h>
 #include <scene/Scene.h>
 #include <scene/Camera.h>
+#include <gui/GuiManager.h>
+#include <physics/PhysicsManager.h>
 #include "RendererBackend.h"
 #include "VertexIndexBuffer.h"
 #include "RenderOperation.h"
@@ -25,7 +29,7 @@ void RenderManager::createQuadRenderOperation()
     RenderPass passThrough;
     passThrough.setFrontFaceWinding(RenderPass::WindingOrder::CCW);
     passThrough.setFaceCullMode(RenderPass::FaceCullMode::BACK);
-    passThrough.setGpuProgram(svc().resourceMgr.getFactory().createRttQuadProgram());
+    passThrough.setGpuProgram(svc().resourceManager().getFactory().createRttQuadProgram());
     passThrough.setBlendMode(RenderPass::BlendingMode::NONE);
     passThrough.enableDepthTest(false);
     passThrough.enableDepthWrite(false);
@@ -58,12 +62,12 @@ void RenderManager::createAmbientPassProps()
 {
     m_ambientPassProps = make_unique<RenderPass>();
 
-    m_ambientPassProps->setGpuProgram(svc().resourceMgr.getFactory().createAmbientPassProgram());
+    m_ambientPassProps->setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
 }
 
 void RenderManager::debugDrawPass()
 {
-    if (auto console = svc().console)
+    if (auto console = svc().debugConsole())
     {
         if (!console->getCVars().get<bool>(CVAR_DEBUG_DRAW))
             return;
@@ -74,7 +78,7 @@ void RenderManager::debugDrawPass()
         drawOperation(op);
 
     // Draw bullet physics debug.
-    svc().physicsMgr.drawDebug();
+    svc().physicsManager().drawDebug();
 }
 
 void RenderManager::postProcessPass(shared_ptr<Material> material)
@@ -279,7 +283,7 @@ void RenderManager::drawGUI()
     m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)m_screenRt->getViewport().width(), (float)m_screenRt->getViewport().height(), 0.0f));
     m_renderer->setCameraMatrix(glm::mat4(1.0f));
 
-    svc().guiMgr.render();
+    svc().guiManager().render();
 }
 
 void RenderManager::onFrameBegin()

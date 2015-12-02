@@ -4,7 +4,9 @@
 #include "Texture.h"
 #include "RenderManager.h"
 #include "RendererBackend.h"
-#include <base/Service.h>
+#include <resources/ResourceManager.h>
+#include <resources/ResourceFactory.h>
+#include <base/EngineController.h>
 
 namespace df3d {
 
@@ -26,7 +28,7 @@ void RenderPassParam::updateTo(GpuProgram *program)
 RenderPass::RenderPass(const std::string &name)
     : m_name(name)
 {
-    setGpuProgram(svc().resourceMgr.getFactory().createSimpleLightingGpuProgram());
+    setGpuProgram(svc().resourceManager().getFactory().createSimpleLightingGpuProgram());
     setSampler("diffuseMap", nullptr);
 }
 
@@ -210,7 +212,7 @@ RenderPass RenderPass::createDebugDrawPass()
     pass.setDiffuseColor(1.0f, 1.0f, 1.0f, 0.2f);
     pass.setBlendMode(BlendingMode::ALPHA);
 
-    auto program = svc().resourceMgr.getFactory().createColoredGpuProgram();
+    auto program = svc().resourceManager().getFactory().createColoredGpuProgram();
     pass.setGpuProgram(program);
 
     return pass;

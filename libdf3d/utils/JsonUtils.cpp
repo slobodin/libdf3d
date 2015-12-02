@@ -1,13 +1,14 @@
 #include "JsonUtils.h"
 
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
 
 namespace df3d { namespace utils { namespace json {
 
 Json::Value fromFile(const std::string &path)
 {
-    auto fileSource = svc().filesystem.openFile(path);
+    auto fileSource = svc().fileSystem().openFile(path);
     if (!fileSource || !fileSource->valid())
     {
         glog << "Couldn't load json configs from" << path << logwarn;

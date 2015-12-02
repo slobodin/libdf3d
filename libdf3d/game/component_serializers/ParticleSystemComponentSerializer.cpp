@@ -7,7 +7,9 @@
 #include <render/Texture2D.h>
 #include <render/RenderOperation.h>
 #include <render/RenderPass.h>
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <resources/ResourceManager.h>
+#include <resources/ResourceFactory.h>
 
 namespace df3d { namespace component_serializers {
 
@@ -384,7 +386,7 @@ SPK::Ref<ParticleSystemRenderer> createRenderer(const Json::Value &rendererJson)
         SPK::TextureMode textureMode = SPK::TEXTURE_MODE_NONE;
         if (!pathToTexture.empty())
         {
-            auto texture = svc().resourceMgr.getFactory().createTexture(pathToTexture, ResourceLoadingMode::ASYNC);
+            auto texture = svc().resourceManager().getFactory().createTexture(pathToTexture, ResourceLoadingMode::ASYNC);
             if (texture)
             {
                 quadRenderer->setDiffuseMap(texture);

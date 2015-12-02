@@ -1,6 +1,8 @@
 #include "RendererBackend.h"
 
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <resources/ResourceManager.h>
+#include <resources/ResourceFactory.h>
 #include <components/LightComponent.h>
 #include "OpenGLCommon.h"
 #include "GpuProgramState.h"
@@ -30,7 +32,7 @@ void RendererBackend::createWhiteTexture()
 
     auto pb = make_unique<PixelBuffer>(w, h, data, pf);
 
-    m_whiteTexture = svc().resourceMgr.getFactory().createTexture(std::move(pb), params);
+    m_whiteTexture = svc().resourceManager().getFactory().createTexture(std::move(pb), params);
     m_whiteTexture->setResident(true);
 
     delete [] data;
@@ -63,7 +65,7 @@ void RendererBackend::loadResidentGpuPrograms()
 #include "render/embed_glsl/ambient_frag.h"
         ;
 
-    auto &factory = svc().resourceMgr.getFactory();
+    auto &factory = svc().resourceManager().getFactory();
 
     factory.createGpuProgram(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH, simple_lighting_vert, simple_lighting_frag)->setResident(true);
     factory.createGpuProgram(RTT_QUAD_PROGRAM_EMBED_PATH, rtt_quad_vert, rtt_quad_frag)->setResident(true);

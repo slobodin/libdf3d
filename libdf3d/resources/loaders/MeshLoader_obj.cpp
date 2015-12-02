@@ -2,7 +2,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include <base/Service.h>
+#include <base/EngineController.h>
 #include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
 #include <utils/MeshUtils.h>
@@ -208,7 +208,7 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSourc
             std::string fileName;
             input >> fileName;
 
-            m_materialLibPath = svc().filesystem.fullPath(FileSystem::pathConcatenate(dir, fileName));
+            m_materialLibPath = svc().fileSystem().fullPath(FileSystem::pathConcatenate(dir, fileName));
         }
     }
 

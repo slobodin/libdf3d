@@ -11,27 +11,22 @@ namespace df3d {
 class GuiFileInterface;
 class GuiSystemInterface;
 class GuiRenderInterface;
-class EngineController;
 
 class DF3D_DLL GuiManager : utils::NonCopyable
 {
-    friend class EngineController;
-    friend class RenderManager;
-
-    // Update, render, init and shutdown should be called only by EngineController and RenderManager.
     unique_ptr<GuiFileInterface> m_fileInterface;
     unique_ptr<GuiSystemInterface> m_systemInterface;
     unique_ptr<GuiRenderInterface> m_renderInterface;
 
     Rocket::Core::Context *m_rocketContext = nullptr;
 
+public:
     GuiManager(int contextWidth, int contextHeight);
     ~GuiManager();
 
     void update(float systemDelta, float gameDelta);
     void render();
 
-public:
     // Calls RocketContext.
     bool processMouseButtonDown(int buttonIdx);
     bool processMouseButtonUp(int buttonIdx);

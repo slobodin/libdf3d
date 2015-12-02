@@ -3,6 +3,7 @@
 #include <scene/Node.h>
 #include <scene/Frustum.h>
 #include <scene/Camera.h>
+#include <scene/SceneManager.h>
 #include <components/TransformComponent.h>
 #include <render/MeshData.h>
 #include <render/VertexIndexBuffer.h>
@@ -10,7 +11,9 @@
 #include <render/Material.h>
 #include <render/RenderPass.h>
 #include <render/Technique.h>
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <resources/ResourceManager.h>
+#include <resources/ResourceFactory.h>
 
 namespace df3d {
 
@@ -25,12 +28,12 @@ public:
     ResourceMgrListenerImpl(MeshComponent *holder)
         : m_holder(holder)
     {
-        svc().resourceMgr.addListener(this);
+        svc().resourceManager().addListener(this);
     }
 
     ~ResourceMgrListenerImpl()
     {
-        svc().resourceMgr.removeListener(this);
+        svc().resourceManager().removeListener(this);
     }
 
     void onLoadFromFileSystemRequest(ResourceGUID resourceId) override { }
@@ -49,7 +52,7 @@ bool MeshComponent::isInFov()
     if (m_frustumCullingDisabled)
         return true;
 
-    return svc().sceneMgr.getCamera()->getFrustum().sphereInFrustum(getBoundingSphere());
+    return svc().sceneManager().getCamera()->getFrustum().sphereInFrustum(getBoundingSphere());
 }
 
 void MeshComponent::onComponentEvent(ComponentEvent ev)
@@ -182,7 +185,7 @@ MeshComponent::MeshComponent(const std::string &meshFilePath, ResourceLoadingMod
 {
     m_rmgrListener->m_guid = CreateGUIDFromPath(meshFilePath);
 
-    setMeshData(svc().resourceMgr.getFactory().createMeshData(meshFilePath, lm));
+    setMeshData(svc().resourceManager().getFactory().createMeshData(meshFilePath, lm));
 }
 
 MeshComponent::MeshComponent(shared_ptr<MeshData> meshData)

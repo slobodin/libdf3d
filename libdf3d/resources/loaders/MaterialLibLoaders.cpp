@@ -2,7 +2,9 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <resources/ResourceFactory.h>
+#include <resources/ResourceManager.h>
 #include <resources/FileDataSource.h>
 #include <render/MaterialLib.h>
 #include <render/Material.h>
@@ -422,9 +424,9 @@ class MaterialLibParser
         {
             std::string embedProgramName = embedProgramFound->second;
             if (embedProgramName == "colored")
-                return svc().resourceMgr.getFactory().createColoredGpuProgram();
+                return svc().resourceManager().getFactory().createColoredGpuProgram();
             else if (embedProgramName == "quad_render")
-                return svc().resourceMgr.getFactory().createRttQuadProgram();
+                return svc().resourceManager().getFactory().createRttQuadProgram();
             else
             {
                 glog << "Invalid embed program name" << embedProgramName << logwarn;
@@ -442,7 +444,7 @@ class MaterialLibParser
             return nullptr;
         }
 
-        return svc().resourceMgr.getFactory().createGpuProgram(vshader->second, fshader->second);
+        return svc().resourceManager().getFactory().createGpuProgram(vshader->second, fshader->second);
     }
 
     void parseShaderParamsNode(MaterialLibNode &node, shared_ptr<RenderPass> pass)
@@ -472,13 +474,13 @@ class MaterialLibParser
         {
             std::string path = node.keyValues.find("path")->second;
 
-            return svc().resourceMgr.getFactory().createTexture(path, creationParams, ResourceLoadingMode::ASYNC);
+            return svc().resourceManager().getFactory().createTexture(path, creationParams, ResourceLoadingMode::ASYNC);
         }
         else if (type == "TEXTURE_CUBE")
         {
             std::string path = node.keyValues.find("path")->second;
 
-            return svc().resourceMgr.getFactory().createCubeTexture(path, creationParams, ResourceLoadingMode::ASYNC);
+            return svc().resourceManager().getFactory().createCubeTexture(path, creationParams, ResourceLoadingMode::ASYNC);
         }
 
         glog << "Unknown texture type" << type << logwarn;

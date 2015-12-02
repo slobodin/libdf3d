@@ -7,22 +7,18 @@ namespace df3d {
 
 class DF3D_DLL PhysicsManager : utils::NonCopyable
 {
-    friend class EngineController;
-    friend class RenderManager;
-
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
     bool m_paused = false;
 
+public:
     PhysicsManager();
     ~PhysicsManager();
 
-public:
-    btDynamicsWorld *getWorld();
+    btDynamicsWorld* getWorld();
     void pauseSimulation(bool pause);
 
-private:
     void update(float systemDelta, float gameDelta);
     void drawDebug();
 };

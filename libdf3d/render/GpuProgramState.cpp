@@ -3,7 +3,8 @@
 #include "GpuProgramUniform.h"
 #include "RenderPass.h"
 #include "OpenGLCommon.h"
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <scene/SceneManager.h>
 #include <scene/Camera.h>
 #include <components/TransformComponent.h>
 
@@ -127,10 +128,10 @@ void GpuProgramState::onFrameBegin()
     m_currentPass = nullptr;
     m_currentShader = nullptr;
 
-    if (svc().sceneMgr.getCamera())
-        m_cameraPosition = svc().sceneMgr.getCamera()->transform()->getPosition();
+    if (svc().sceneManager().getCamera())
+        m_cameraPosition = svc().sceneManager().getCamera()->transform()->getPosition();
 
-    m_engineElapsedTime = EngineController::instance().getElapsedTime();
+    m_engineElapsedTime = svc().getElapsedTime();
 }
 
 void GpuProgramState::onFrameEnd()

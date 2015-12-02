@@ -2,12 +2,13 @@
 
 #include <BulletCollision/CollisionShapes/btShapeHull.h>
 
+#include <physics/PhysicsManager.h>
 #include <scene/Node.h>
 #include <components/MeshComponent.h>
 #include <components/TransformComponent.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/MeshData.h>
-#include <base/Service.h>
+#include <base/EngineController.h>
 #include <utils/Utils.h>
 
 namespace df3d {
@@ -92,9 +93,9 @@ void PhysicsComponent::initFromCreationParams()
     body = new btRigidBody(rbInfo);
 
     if (m_creationParams.group != -1 && m_creationParams.mask != -1)
-        svc().physicsWorld.addRigidBody(body, m_creationParams.group, m_creationParams.mask);
+        svc().physicsManager().getWorld()->addRigidBody(body, m_creationParams.group, m_creationParams.mask);
     else
-        svc().physicsWorld.addRigidBody(body);
+        svc().physicsManager().getWorld()->addRigidBody(body);
 
     // FIXME: remove this. Not needed.
     body->setUserPointer(m_holder);
@@ -123,7 +124,7 @@ void PhysicsComponent::onDetached()
     {
         // FIXME:
         // Here we assuming that body was added to the world.
-        svc().physicsWorld.removeRigidBody(body);
+        svc().physicsManager().getWorld()->removeRigidBody(body);
         auto motionState = body->getMotionState();
         delete motionState;
         auto shape = body->getCollisionShape();

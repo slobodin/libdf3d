@@ -4,9 +4,10 @@
 #include <particlesys/SparkInterface.h>
 #include <scene/Camera.h>
 #include <scene/Node.h>
+#include <scene/SceneManager.h>
 #include <render/RenderOperation.h>
 #include <render/RenderQueue.h>
-#include <base/Service.h>
+#include <base/EngineController.h>
 
 namespace df3d {
 
@@ -16,7 +17,7 @@ void ParticleSystemComponent::updateCameraPosition()
     {
         if (SPKSystem->getGroup(i)->isDistanceComputationEnabled())
         {
-            auto pos = svc().sceneMgr.getCamera()->transform()->getPosition();
+            auto pos = svc().sceneManager().getCamera()->transform()->getPosition();
             if (!m_worldTransformed)
             {
                 // Transform camera position into this node space.

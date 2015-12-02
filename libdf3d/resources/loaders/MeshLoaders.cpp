@@ -1,6 +1,9 @@
 #include "MeshLoaders.h"
 
-#include <base/Service.h>
+#include <base/EngineController.h>
+#include <resources/ResourceManager.h>
+#include <resources/ResourceFactory.h>
+#include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
 #include <render/MaterialLib.h>
 #include <utils/MeshUtils.h>
@@ -43,7 +46,7 @@ MeshData* MeshDataFSLoader::createDummy()
 
 bool MeshDataFSLoader::decode(shared_ptr<FileDataSource> source)
 {
-    auto extension = svc().filesystem.getFileExtension(source->getPath());
+    auto extension = svc().fileSystem().getFileExtension(source->getPath());
 
     if (extension == ".obj")
         m_mesh = MeshLoader_obj().load(source);
@@ -65,7 +68,7 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
     meshdata->m_convexHull = m_mesh->convexHull;
 
     // Load all the materials.
-    auto mtlLib = svc().resourceMgr.getFactory().createMaterialLib(m_mesh->materialLibName);
+    auto mtlLib = svc().resourceManager().getFactory().createMaterialLib(m_mesh->materialLibName);
 
     if (mtlLib)     // Leaving null material in submesh, do not set default as it will be set later. mb it's wrong design?
     {

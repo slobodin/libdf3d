@@ -20,7 +20,6 @@ class RenderOperation;
 class Scene;
 class Node;
 class Camera;
-class EngineController;
 
 // Forward renderer.
 class RenderManager : utils::NonCopyable
@@ -57,10 +56,10 @@ class RenderManager : utils::NonCopyable
 
     void loadEmbedResources();
 
+public:
     RenderManager(EngineInitParams params);
     ~RenderManager();
 
-public:
     void update(shared_ptr<Scene> renderableScene);
     void drawScene(shared_ptr<Scene> sc);
     void drawOperation(const RenderOperation &op);
