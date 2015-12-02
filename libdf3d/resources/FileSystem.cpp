@@ -8,16 +8,6 @@
 
 namespace df3d {
 
-FileSystem::FileSystem()
-{
-    m_searchPaths.push_back("");
-}
-
-FileSystem::~FileSystem()
-{
-
-}
-
 std::string FileSystem::canonicalPath(const std::string &rawPath)
 {
     if (rawPath.empty())
@@ -67,6 +57,16 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
         result.erase(0, 1);
 
     return result;
+}
+
+FileSystem::FileSystem()
+{
+    m_searchPaths.push_back("");
+}
+
+FileSystem::~FileSystem()
+{
+
 }
 
 shared_ptr<FileDataSource> FileSystem::openFile(const std::string &filePath)

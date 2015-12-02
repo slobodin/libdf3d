@@ -3,15 +3,9 @@
 namespace df3d {
 
 class FileDataSource;
-class EngineController;
 
 class DF3D_DLL FileSystem : utils::NonCopyable
 {
-    friend class EngineController;
-
-    FileSystem();
-    ~FileSystem();
-
     mutable std::recursive_mutex m_lock;
     std::vector<std::string> m_searchPaths;
 
@@ -20,6 +14,9 @@ class DF3D_DLL FileSystem : utils::NonCopyable
     static std::string canonicalPath(const std::string &rawPath);
 
 public:
+    FileSystem();
+    ~FileSystem();
+
     shared_ptr<FileDataSource> openFile(const std::string &filePath);
 
     void addSearchPath(const std::string &path);
