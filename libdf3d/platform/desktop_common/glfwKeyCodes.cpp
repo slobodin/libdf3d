@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
-namespace df3d { namespace platform {
+namespace df3d { namespace platform_impl {
 
 KeyboardEvent::KeyCode convertGlfwKeyCode(int keycode)
 {

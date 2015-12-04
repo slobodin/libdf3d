@@ -4,7 +4,6 @@
 
 namespace df3d {
 
-class Service;
 class RenderManager;
 class SceneManager;
 class ResourceManager;
@@ -15,32 +14,29 @@ class AudioManager;
 class DebugConsole;
 class RenderStats;
 class Viewport;
+class AppDelegate;
 
 class DF3D_DLL EngineController : utils::NonCopyable
 {
-    EngineController();
-    ~EngineController();
+    unique_ptr<RenderManager> m_renderManager;
+    unique_ptr<SceneManager> m_sceneManager;
+    unique_ptr<ResourceManager> m_resourceManager;
+    unique_ptr<FileSystem> m_fileSystem;
+    unique_ptr<GuiManager> m_guiManager;
+    unique_ptr<PhysicsManager> m_physics;
+    unique_ptr<AudioManager> m_audioManager;
 
-    Service *m_svc = nullptr;
-    RenderManager *m_renderManager = nullptr;
-    SceneManager *m_sceneManager = nullptr;
-    ResourceManager *m_resourceManager = nullptr;
-    FileSystem *m_fileSystem = nullptr;
-    GuiManager *m_guiManager = nullptr;
-    PhysicsManager *m_physics = nullptr;
-    AudioManager *m_audioManager = nullptr;
-
-    DebugConsole *m_debugConsole = nullptr;
-
-    bool m_initialized = false;
+    unique_ptr<DebugConsole> m_debugConsole;
 
     TimePoint m_timeStarted;
     float m_timeElapsed = 0;
 
 public:
-    static EngineController& instance();
+    EngineController();
+    ~EngineController();
 
-    bool init(EngineInitParams params);
+    // FIXME: using these instead ctor and dtor because of svc() access all over the engine code.
+    void initialize(EngineInitParams params);
     void shutdown();
 
     void update(float systemDelta, float gameDelta);
@@ -50,13 +46,20 @@ public:
     float getElapsedTime() const { return m_timeElapsed; }
     const RenderStats& getLastRenderStats() const;
 
-    bool initialized() const { return m_initialized; }
-
     const Viewport& getViewport() const;
     void setViewport(const Viewport &newvp);
     glm::vec2 getScreenSize() const;
 
-    Service& svc();
+    RenderManager& renderManager() { return *m_renderManager; }
+    SceneManager& sceneManager() { return *m_sceneManager; }
+    ResourceManager& resourceManager() { return *m_resourceManager; }
+    FileSystem& fileSystem() { return *m_fileSystem; }
+    GuiManager& guiManager() { return *m_guiManager; }
+    PhysicsManager& physicsManager() { return *m_physics; }
+    AudioManager& audioManager() { return *m_audioManager; }
+    DebugConsole* debugConsole() { return m_debugConsole.get(); }
 };
+
+DF3D_DLL EngineController& svc();
 
 }

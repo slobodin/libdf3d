@@ -2,7 +2,7 @@
 
 #include <utils/JsonUtils.h>
 
-namespace df3d { namespace platform { 
+namespace df3d {
 
 class WindowsStorage : public Storage
 {
@@ -29,4 +29,4 @@ Storage *Storage::create(const std::string &filename)
     return new WindowsStorage(filename);
 }
 
-} }
+}

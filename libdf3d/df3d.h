@@ -12,7 +12,7 @@
 #include <utils/MeshUtils.h>
 #include <utils/Dict.h>
 
-#include <base/Service.h>
+#include <base/EngineController.h>
 #include <base/InputEvents.h>
 #include <base/DebugConsole.h>
 
@@ -50,6 +50,8 @@
 
 #include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>
+#include <resources/ResourceManager.h>
+#include <resources/ResourceFactory.h>
 
 #include <gui/GuiManager.h>
 

@@ -3,7 +3,9 @@
 #include <base/InputEvents.h>
 #include <base/EngineInitParams.h>
 
-namespace df3d { namespace platform {
+namespace df3d {
+
+class EngineController;
 
 class DF3D_DLL AppDelegate
 {
@@ -13,7 +15,7 @@ public:
 
     virtual EngineInitParams getInitParams() const = 0;
 
-    virtual bool onAppStarted(int windowWidth, int windowHeight) = 0;
+    virtual bool onAppStarted() = 0;
     virtual void onAppEnded() = 0;
     virtual void onUpdate(float dt) = 0;
 
@@ -29,7 +31,14 @@ public:
     virtual void onTextInput(unsigned int codepoint) = 0;
 };
 
-void DF3D_DLL setupDelegate(AppDelegate *appDelegate);
-void DF3D_DLL setTitle(const std::string &itle);
+class DF3D_DLL Application final
+{
+public:
+    static void setupDelegate(unique_ptr<AppDelegate> appDelegate);
+    static void setTitle(const std::string &title);
+};
 
-} }
+}
+
+// Client code must call Application::setupDelegate here.
+extern "C" void df3dInitialized();

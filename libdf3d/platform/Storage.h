@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace platform {
+namespace df3d {
 
 class DF3D_DLL Storage : utils::NonCopyable
 {
@@ -26,4 +26,4 @@ public:
     virtual void save() = 0;
 };
 
-} }
+}

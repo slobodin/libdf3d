@@ -2,7 +2,6 @@
 
 #include "InputEvents.h"
 #include "DebugConsole.h"
-#include "Service.h"
 #include <render/RenderManager.h>
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
@@ -13,6 +12,7 @@
 #include <audio/AudioManager.h>
 #include <render/RenderStats.h>
 #include <render/RenderTargetScreen.h>
+#include <platform/AppDelegate.h>
 #include <utils/JsonUtils.h>
 #include <particlesys/SparkInterface.h>
 
@@ -24,9 +24,7 @@ namespace df3d {
 
 EngineController::EngineController()
 {
-    glog << "Engine controller created" << logmess;
 
-    m_timeStarted = std::chrono::system_clock::now();
 }
 
 EngineController::~EngineController()
@@ -34,38 +32,11 @@ EngineController::~EngineController()
 
 }
 
-void EngineController::shutdown()
+void EngineController::initialize(EngineInitParams params)
 {
-    SAFE_DELETE(m_debugConsole);
-    SAFE_DELETE(m_sceneManager);
-    SAFE_DELETE(m_physics);
-    SAFE_DELETE(m_guiManager);
-    SAFE_DELETE(m_renderManager);
-    SAFE_DELETE(m_resourceManager);
-    SAFE_DELETE(m_fileSystem);
-    SAFE_DELETE(m_audioManager);
+    m_timeStarted = std::chrono::system_clock::now();
 
-    SAFE_DELETE(m_svc);
-
-    destroySparkEngine();
-
-    glog << "Shutdown success" << logmess;
-
-    //delete this;
-}
-
-EngineController& EngineController::instance()
-{
-    static EngineController *controller = nullptr;
-    if (!controller)
-        controller = new EngineController();
-
-    return *controller;
-}
-
-bool EngineController::init(EngineInitParams params)
-{
-    glog << "Initializing engine" << logmess;
+    glog << "Initializing df3d engine" << logmess;
 
     try
     {
@@ -76,57 +47,59 @@ bool EngineController::init(EngineInitParams params)
 #endif
 
         // Init filesystem.
-        m_fileSystem = new FileSystem();
+        m_fileSystem = make_unique<FileSystem>();
 
         // Init resource manager.
-        m_resourceManager = new ResourceManager();
+        m_resourceManager = make_unique<ResourceManager>();
 
         // Init render system.
-        m_renderManager = new RenderManager(params);
+        m_renderManager = make_unique<RenderManager>(params);
 
         // Init scene manager.
-        m_sceneManager = new SceneManager();
+        m_sceneManager = make_unique<SceneManager>();
 
         // Spark particle engine init.
         initSparkEngine();
 
         // Init GUI.
-        m_guiManager = new GuiManager(params.windowWidth, params.windowHeight);
+        m_guiManager = make_unique<GuiManager>(params.windowWidth, params.windowHeight);
 
         // Init physics.
-        m_physics = new PhysicsManager();
+        m_physics = make_unique<PhysicsManager>();
 
         // Init audio subsystem.
-        m_audioManager = new AudioManager();
-
-        // Init services.
-        m_svc = new Service(*m_sceneManager, *m_resourceManager, *m_fileSystem,
-                            *m_renderManager, *m_guiManager,
-                            *m_physics, *m_physics->getWorld(), *m_audioManager);
-
-        m_initialized = true;
+        m_audioManager = make_unique<AudioManager>();
 
         // Load embedded resources.
         glog << "Loading embedded resources" << logdebug;
 
-        m_resourceManager->loadEmbedResources();
         m_renderManager->loadEmbedResources();
 
         // Create console.
         if (params.createConsole)
-        {
-            m_debugConsole = new DebugConsole();
-            m_svc->console = m_debugConsole;
-        }
+            m_debugConsole = make_unique<DebugConsole>();
 
         glog << "Engine initialized" << logmess;
     }
     catch (std::exception &e)
     {
         glog << "Engine initialization failed due to" << e.what() << logcritical;
+        throw;
     }
+}
 
-    return m_initialized;
+void EngineController::shutdown()
+{
+    m_debugConsole.reset();
+    m_sceneManager.reset();
+    m_physics.reset();
+    m_guiManager.reset();
+    m_renderManager.reset();
+    m_resourceManager.reset();
+    m_fileSystem.reset();
+    m_audioManager.reset();
+
+    destroySparkEngine();
 }
 
 void EngineController::update(float systemDelta, float gameDelta)
@@ -177,11 +150,6 @@ glm::vec2 EngineController::getScreenSize() const
 {
     auto vp = m_renderManager->getScreenRenderTarget()->getViewport();
     return glm::vec2(vp.width(), vp.height());
-}
-
-Service& EngineController::svc()
-{
-    return *m_svc;
 }
 
 }

@@ -23,7 +23,7 @@ bool FileSystemHelpers::pathExists(const std::string &path)
 
 shared_ptr<FileDataSource> FileSystemHelpers::openFile(const std::string &path)
 {
-    return make_shared<platform::FileDataSourceDesktop>(path.c_str());
+    return make_shared<platform_impl::FileDataSourceDesktop>(path.c_str());
 }
 
 }

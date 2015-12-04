@@ -1,6 +1,6 @@
 #include "FileDataSourceDesktop.h"
 
-namespace df3d { namespace platform {
+namespace df3d { namespace platform_impl {
 
 FileDataSourceDesktop::FileDataSourceDesktop(const std::string &fileName)
     : FileDataSource(fileName),

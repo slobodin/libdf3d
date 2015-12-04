@@ -4,7 +4,7 @@
 #include <base/EngineController.h>
 #include <GLFW/glfw3.h>
 
-namespace df3d { namespace platform {
+namespace df3d { namespace platform_impl {
 
 static void cursorPositionCallback(GLFWwindow *window, double xpos, double ypos);
 static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
@@ -15,14 +15,27 @@ static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 class glfwApplication
 {
     GLFWwindow *window = nullptr;
-    AppDelegate *m_appDelegate;
+    unique_ptr<AppDelegate> m_appDelegate = nullptr;
+    unique_ptr<EngineController> m_engine = nullptr;
 
     // Touches emulation.
     unique_ptr<MouseMotionEvent> m_prevTouch;
 
 public:
-    glfwApplication(AppDelegate *appDelegate)
-        : m_appDelegate(appDelegate)
+    glfwApplication(unique_ptr<AppDelegate> appDelegate)
+        : m_appDelegate(std::move(appDelegate))
+    {
+
+    }
+
+    ~glfwApplication()
+    {
+        if (window)
+            glfwDestroyWindow(window);
+        glfwTerminate();
+    }
+
+    void init()
     {
         // Create window and OpenGL context.
         if (!glfwInit())
@@ -59,21 +72,10 @@ public:
         glfwSetCharCallback(window, textInputCallback);
         glfwSetScrollCallback(window, scrollCallback);
 
-        if (!EngineController::instance().init(params))
-            throw std::runtime_error("Engine initialization failed.");
-
-        // Init user code.
-        if (!m_appDelegate->onAppStarted(params.windowWidth, params.windowHeight))
+        m_engine.reset(new EngineController());
+        m_engine->initialize(params);
+        if (!m_appDelegate->onAppStarted())
             throw std::runtime_error("Game code initialization failed.");
-    }
-
-    ~glfwApplication()
-    {
-        if (window)
-            glfwDestroyWindow(window);
-        glfwTerminate();
-
-        delete m_appDelegate;
     }
 
     void run()
@@ -97,7 +99,8 @@ public:
         }
 
         m_appDelegate->onAppEnded();
-        df3d::EngineController::instance().shutdown();
+        m_engine->shutdown();
+        m_engine.reset();
     }
 
     void setTitle(const std::string &title)
@@ -188,6 +191,8 @@ public:
         ev.delta = (float)-yoffset;
         m_appDelegate->onMouseWheelEvent(ev);
     }
+
+    EngineController& getEngine() { return *m_engine; }
 };
 
 static void cursorPositionCallback(GLFWwindow *window, double xpos, double ypos)
@@ -227,11 +232,6 @@ void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
 
 glfwApplication *g_application = nullptr;
 
-void setupDelegate(AppDelegate *appDelegate)
-{
-    g_application = new glfwApplication(appDelegate);
-}
-
 void glfwAppRun()
 {
     assert(g_application && "App must be initialized first!");
@@ -241,9 +241,22 @@ void glfwAppRun()
     delete g_application;
 }
 
-void setTitle(const std::string &title)
+} }
+
+namespace df3d {
+
+void Application::setupDelegate(unique_ptr<AppDelegate> appDelegate)
 {
-    g_application->setTitle(title);
+    platform_impl::g_application = new platform_impl::glfwApplication(std::move(appDelegate));
+    platform_impl::g_application->init();
 }
 
-} }
+void Application::setTitle(const std::string &title)
+{
+    assert(platform_impl::g_application);
+    platform_impl::g_application->setTitle(title);
+}
+
+EngineController& svc() { return platform_impl::g_application->getEngine(); }
+
+}
