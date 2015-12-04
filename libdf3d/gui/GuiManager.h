@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RocketIntrusivePtr.h"
+#include "impl/RocketIntrusivePtr.h"
 #include <input/InputEvents.h>
 #include <Rocket/Core.h>
 

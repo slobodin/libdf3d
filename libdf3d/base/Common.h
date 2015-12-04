@@ -15,7 +15,7 @@
 #include <chrono>
 
 #ifndef MSVC
-#include <gui/RocketIntrusivePtr.h>
+#include <gui/impl/RocketIntrusivePtr.h>
 #endif
 
 #include <boost/intrusive_ptr.hpp>

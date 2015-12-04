@@ -33,13 +33,4 @@ namespace df3d {
 //    void onMouseButtonEvent(const SDL_MouseButtonEvent &mouseButtonEvent);
 //};
 
-class DebugOverlayWindow
-{
-public:
-    DebugOverlayWindow() { }
-    ~DebugOverlayWindow() { }
-
-    void toggle() { }
-};
-
 }

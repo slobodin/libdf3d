@@ -70,11 +70,10 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/ComponentFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/NodeFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/SceneFactory.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/DebugOverlayWindow.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketIntrusivePtr.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketKeyCodesAdapter.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketIntrusivePtr.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketKeyCodesAdapter.h
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileDataSource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.h
@@ -173,11 +172,10 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/ComponentFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/NodeFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/SceneFactory.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/DebugOverlayWindow.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketIntrusivePtr.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketKeyCodesAdapter.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketIntrusivePtr.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketKeyCodesAdapter.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.cpp

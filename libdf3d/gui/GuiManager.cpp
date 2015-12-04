@@ -1,7 +1,7 @@
 #include "GuiManager.h"
 
-#include "RocketInterface.h"
-#include "RocketKeyCodesAdapter.h"
+#include "impl/RocketInterface.h"
+#include "impl/RocketKeyCodesAdapter.h"
 #include <base/EngineController.h>
 #include <input/InputEvents.h>
 
