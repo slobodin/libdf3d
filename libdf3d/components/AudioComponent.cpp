@@ -6,7 +6,7 @@
 #include <scene/Node.h>
 #include <components/TransformComponent.h>
 #include <audio/AudioBuffer.h>
-#include <audio/OpenALCommon.h>
+#include <audio/impl/OpenALCommon.h>
 
 namespace df3d {
 

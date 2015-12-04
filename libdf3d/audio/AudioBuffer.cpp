@@ -1,6 +1,6 @@
 #include "AudioBuffer.h"
 
-#include "OpenALCommon.h"
+#include "impl/OpenALCommon.h"
 
 namespace df3d {
 

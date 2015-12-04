@@ -1,6 +1,6 @@
 #include "AudioLoaders.h"
 
-#include <audio/OpenALCommon.h>
+#include <audio/impl/OpenALCommon.h>
 #include <base/EngineController.h>
 #include <resources/FileSystem.h>
 #include <resources/FileDataSource.h>

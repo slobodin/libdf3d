@@ -1,6 +1,6 @@
 #include "AudioManager.h"
 
-#include "OpenALCommon.h"
+#include "impl/OpenALCommon.h"
 #include <base/EngineController.h>
 #include <components/TransformComponent.h>
 #include <scene/SceneManager.h>
