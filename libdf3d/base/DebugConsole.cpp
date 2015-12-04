@@ -4,7 +4,6 @@
 #include <gui/GuiManager.h>
 #include <utils/Utils.h>
 
-#include <boost/algorithm/string.hpp>
 #include <Rocket/Core.h>
 
 extern const char *ConsoleRml;
@@ -103,7 +102,7 @@ void DebugConsole::onConsoleInput(const std::string &str)
     if (space != std::string::npos)
         params = str.substr(space, std::string::npos);
 
-    boost::trim(params);
+    utils::trim(params);
 
     updateHistory(found->second.handler(utils::split(params, ' ')));
 }

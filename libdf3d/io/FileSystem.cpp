@@ -169,7 +169,7 @@ std::string FileSystem::getFileExtension(const std::string &rawPath)
         return "";
 
     auto ext = std::string(rawPath.begin() + dotPos, rawPath.end());
-    boost::algorithm::to_lower(ext);
+    utils::to_lower(ext);
 
     return ext;
 }

@@ -1,7 +1,5 @@
 #include "MaterialLibLoaders.h"
 
-#include <boost/algorithm/string.hpp>
-
 #include <base/EngineController.h>
 #include <resources/ResourceFactory.h>
 #include <resources/ResourceManager.h>
@@ -180,7 +178,7 @@ public:
             }
 
             // Skip empty lines.
-            boost::trim_left(tok);
+            utils::trim_left(tok);
             if (tok.empty())
                 continue;
 
@@ -236,7 +234,7 @@ public:
             std::string value;
             std::getline(is, value);
 
-            boost::trim(value);
+            utils::trim(value);
 
             last->keyValues[tok] = value;
         }

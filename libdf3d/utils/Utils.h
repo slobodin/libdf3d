@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cctype>
+#include <string>
 #include <sstream>
 
 namespace df3d { namespace utils {
@@ -73,6 +75,28 @@ template<typename T>
 inline T clamp(const T &val, const T &min, const T &max)
 {
     return std::min(std::max(val, min), max);
+}
+
+inline void trim_left(std::string &str)
+{
+    str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](char ch) { return !std::isspace(ch); }));
+}
+
+inline void trim_right(std::string &str)
+{
+    str.erase(std::find_if(str.rbegin(), str.rend(), [](char ch) { return !std::isspace(ch); }).base(), str.end());
+}
+
+inline void trim(std::string &str)
+{
+    trim_right(str);
+    trim_left(str);
+}
+
+inline void to_lower(std::string &str)
+{
+    for (auto &c : str)
+        c = std::tolower(c);
 }
 
 } }

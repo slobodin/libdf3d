@@ -1,7 +1,5 @@
 #include "MeshLoader_obj.h"
 
-#include <boost/algorithm/string.hpp>
-
 #include <base/EngineController.h>
 #include <io/FileSystem.h>
 #include <io/FileDataSource.h>
@@ -176,7 +174,7 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSourc
     std::string tok;
     while (input >> tok)
     {
-        boost::trim_left(tok);
+        utils::trim_left(tok);
 
         if (tok.empty() || tok[0] == '#')
         {
