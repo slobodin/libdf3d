@@ -18,17 +18,17 @@
 
 #include <Rocket/Core.h>
 
-namespace df3d {
+namespace df3d { namespace gui_impl {
 
-GuiFileInterface::GuiFileInterface()
+FileInterface::FileInterface()
 {
 }
 
-GuiFileInterface::~GuiFileInterface()
+FileInterface::~FileInterface()
 {
 }
 
-Rocket::Core::FileHandle GuiFileInterface::Open(const Rocket::Core::String& path)
+Rocket::Core::FileHandle FileInterface::Open(const Rocket::Core::String& path)
 {
     auto file = svc().fileSystem().openFile(path.CString());
     if (!file)
@@ -40,19 +40,19 @@ Rocket::Core::FileHandle GuiFileInterface::Open(const Rocket::Core::String& path
     return handle;
 }
 
-void GuiFileInterface::Close(Rocket::Core::FileHandle file)
+void FileInterface::Close(Rocket::Core::FileHandle file)
 {
     auto erased = m_openedFiles.erase(file);
     if (erased != 1)
         glog << "Rocket interface couldn't erase unused file" << logwarn;
 }
 
-size_t GuiFileInterface::Read(void* buffer, size_t size, Rocket::Core::FileHandle file)
+size_t FileInterface::Read(void* buffer, size_t size, Rocket::Core::FileHandle file)
 {
     return m_openedFiles[file]->getRaw(buffer, size);
 }
 
-bool GuiFileInterface::Seek(Rocket::Core::FileHandle file, long offset, int origin)
+bool FileInterface::Seek(Rocket::Core::FileHandle file, long offset, int origin)
 {
     std::ios_base::seekdir orig;
     if (origin == SEEK_CUR)
@@ -67,17 +67,17 @@ bool GuiFileInterface::Seek(Rocket::Core::FileHandle file, long offset, int orig
     return m_openedFiles[file]->seek(offset, orig);
 }
 
-size_t GuiFileInterface::Tell(Rocket::Core::FileHandle file)
+size_t FileInterface::Tell(Rocket::Core::FileHandle file)
 {
     return static_cast<size_t>(m_openedFiles[file]->tell());
 }
 
-GuiSystemInterface::GuiSystemInterface()
+SystemInterface::SystemInterface()
 {
     m_appStarted = std::chrono::system_clock::now();
 }
 
-float GuiSystemInterface::GetElapsedTime()
+float SystemInterface::GetElapsedTime()
 {
     auto now = std::chrono::system_clock::now();
     auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_appStarted).count();
@@ -85,7 +85,7 @@ float GuiSystemInterface::GetElapsedTime()
     return dt / 1000.f;
 }
 
-bool GuiSystemInterface::LogMessage(Rocket::Core::Log::Type type, const Rocket::Core::String &message)
+bool SystemInterface::LogMessage(Rocket::Core::Log::Type type, const Rocket::Core::String &message)
 {
     switch (type)
     {
@@ -116,18 +116,18 @@ struct CompiledGeometry
     shared_ptr<IndexBuffer> ib;
 };
 
-GuiRenderInterface::GuiRenderInterface()
+RenderInterface::RenderInterface()
     : m_textureId(0)
 {
 
 }
 
-void GuiRenderInterface::SetViewport(int width, int height)
+void RenderInterface::SetViewport(int width, int height)
 {
 
 }
 
-void GuiRenderInterface::RenderGeometry(Rocket::Core::Vertex *vertices, int num_vertices,
+void RenderInterface::RenderGeometry(Rocket::Core::Vertex *vertices, int num_vertices,
                                         int *indices, int num_indices,
                                         Rocket::Core::TextureHandle texture,
                                         const Rocket::Core::Vector2f &translation)
@@ -137,7 +137,7 @@ void GuiRenderInterface::RenderGeometry(Rocket::Core::Vertex *vertices, int num_
     ReleaseCompiledGeometry(compiledGeometry);
 }
 
-Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket::Core::Vertex *vertices, int num_vertices,
+Rocket::Core::CompiledGeometryHandle RenderInterface::CompileGeometry(Rocket::Core::Vertex *vertices, int num_vertices,
                                                                          int *indices, int num_indices,
                                                                          Rocket::Core::TextureHandle texture)
 {
@@ -173,7 +173,7 @@ Rocket::Core::CompiledGeometryHandle GuiRenderInterface::CompileGeometry(Rocket:
     return (Rocket::Core::CompiledGeometryHandle)geom;
 }
 
-void GuiRenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry,
+void RenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry,
                                                 const Rocket::Core::Vector2f &translation)
 {
     if (!geometry)
@@ -203,23 +203,23 @@ void GuiRenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHa
     svc().renderManager().drawOperation(op);
 }
 
-void GuiRenderInterface::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry)
+void RenderInterface::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry)
 {
     auto geom = (CompiledGeometry *)geometry;
     delete geom;
 }
 
-void GuiRenderInterface::EnableScissorRegion(bool enable)
+void RenderInterface::EnableScissorRegion(bool enable)
 {
     svc().renderManager().getRenderer()->enableScissorTest(enable);
 }
 
-void GuiRenderInterface::SetScissorRegion(int x, int y, int width, int height)
+void RenderInterface::SetScissorRegion(int x, int y, int width, int height)
 {
     svc().renderManager().getRenderer()->setScissorRegion(x, svc().getViewport().height() - (y + height), width, height);
 }
 
-bool GuiRenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle,
+bool RenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle,
                                      Rocket::Core::Vector2i &texture_dimensions,
                                      const Rocket::Core::String &source)
 {
@@ -241,7 +241,7 @@ bool GuiRenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle
     return true;
 }
 
-bool GuiRenderInterface::GenerateTexture(Rocket::Core::TextureHandle& texture_handle,
+bool RenderInterface::GenerateTexture(Rocket::Core::TextureHandle& texture_handle,
                                          const Rocket::Core::byte *source,
                                          const Rocket::Core::Vector2i &source_dimensions)
 {
@@ -260,7 +260,7 @@ bool GuiRenderInterface::GenerateTexture(Rocket::Core::TextureHandle& texture_ha
     return true;
 }
 
-void GuiRenderInterface::ReleaseTexture(Rocket::Core::TextureHandle texture_handle)
+void RenderInterface::ReleaseTexture(Rocket::Core::TextureHandle texture_handle)
 {
     auto guid = m_textures[texture_handle]->getGUID();
 
@@ -270,4 +270,4 @@ void GuiRenderInterface::ReleaseTexture(Rocket::Core::TextureHandle texture_hand
     svc().resourceManager().unloadResource(guid);
 }
 
-}
+} }

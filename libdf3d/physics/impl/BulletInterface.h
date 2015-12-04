@@ -5,9 +5,11 @@
 
 #include <render/Vertex.h>
 
-namespace df3d {
+namespace df3d { 
 
 class RenderPass;
+
+namespace physics_impl {
 
 class BulletDebugDraw : public btIDebugDraw
 {
@@ -29,4 +31,4 @@ public:
     void flushRenderOperations();
 };
 
-}
+} }

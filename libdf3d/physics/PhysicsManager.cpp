@@ -14,7 +14,7 @@ struct PhysicsManager::Impl
     btSequentialImpulseConstraintSolver *m_solver = nullptr;
     btDiscreteDynamicsWorld *m_dynamicsWorld = nullptr;
 
-    BulletDebugDraw *m_debugDraw;
+    physics_impl::BulletDebugDraw *m_debugDraw;
 
     ~Impl()
     {
@@ -31,7 +31,7 @@ struct PhysicsManager::Impl
 
         m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 
-        m_debugDraw = new BulletDebugDraw();
+        m_debugDraw = new physics_impl::BulletDebugDraw();
         m_dynamicsWorld->setDebugDrawer(m_debugDraw);
     }
 

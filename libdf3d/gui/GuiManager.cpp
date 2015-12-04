@@ -21,9 +21,9 @@ GuiManager::GuiManager(int contextWidth, int contextHeight)
 
     using namespace Rocket;
 
-    m_renderInterface.reset(new GuiRenderInterface());
-    m_systemInterface.reset(new GuiSystemInterface());
-    m_fileInterface.reset(new GuiFileInterface());
+    m_renderInterface.reset(new gui_impl::RenderInterface());
+    m_systemInterface.reset(new gui_impl::SystemInterface());
+    m_fileInterface.reset(new gui_impl::FileInterface());
 
     SetRenderInterface(m_renderInterface.get());
     SetSystemInterface(m_systemInterface.get());
@@ -88,12 +88,12 @@ bool GuiManager::processMouseWheel(float delta)
 
 bool GuiManager::processKeyDownEvent(const KeyboardEvent &keyEv)
 {
-    return m_rocketContext->ProcessKeyDown(convertToRocketKeyCode(keyEv.keycode), convertToRocketModifier(keyEv.modifiers));
+    return m_rocketContext->ProcessKeyDown(gui_impl::convertToRocketKeyCode(keyEv.keycode), gui_impl::convertToRocketModifier(keyEv.modifiers));
 }
 
 bool GuiManager::processKeyUpEvent(const KeyboardEvent &keyEv)
 {
-    return m_rocketContext->ProcessKeyUp(convertToRocketKeyCode(keyEv.keycode), convertToRocketModifier(keyEv.modifiers));
+    return m_rocketContext->ProcessKeyUp(gui_impl::convertToRocketKeyCode(keyEv.keycode), gui_impl::convertToRocketModifier(keyEv.modifiers));
 }
 
 bool GuiManager::processTextInput(unsigned int codepoint)

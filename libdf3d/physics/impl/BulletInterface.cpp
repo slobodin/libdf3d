@@ -6,7 +6,7 @@
 #include <render/RendererBackend.h>
 #include <render/VertexIndexBuffer.h>
 
-namespace df3d {
+namespace df3d { namespace physics_impl {
 
 BulletDebugDraw::BulletDebugDraw()
     : m_vertexData(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 }))
@@ -75,4 +75,4 @@ void BulletDebugDraw::flushRenderOperations()
     svc().renderManager().drawOperation(op);
 }
 
-}
+} }

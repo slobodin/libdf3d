@@ -8,15 +8,19 @@ namespace Rocket { namespace Core { class Context; } }
 
 namespace df3d {
 
-class GuiFileInterface;
-class GuiSystemInterface;
-class GuiRenderInterface;
+namespace gui_impl {
+
+class FileInterface;
+class SystemInterface;
+class RenderInterface;
+
+}
 
 class DF3D_DLL GuiManager : utils::NonCopyable
 {
-    unique_ptr<GuiFileInterface> m_fileInterface;
-    unique_ptr<GuiSystemInterface> m_systemInterface;
-    unique_ptr<GuiRenderInterface> m_renderInterface;
+    unique_ptr<gui_impl::FileInterface> m_fileInterface;
+    unique_ptr<gui_impl::SystemInterface> m_systemInterface;
+    unique_ptr<gui_impl::RenderInterface> m_renderInterface;
 
     Rocket::Core::Context *m_rocketContext = nullptr;
 
