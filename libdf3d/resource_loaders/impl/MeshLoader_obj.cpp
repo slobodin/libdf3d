@@ -8,7 +8,7 @@
 #include <utils/MeshUtils.h>
 #include <utils/Utils.h>
 
-namespace df3d {
+namespace df3d { namespace resource_loaders_impl {
 
 bool MeshLoader_obj::hasNormals() const
 {
@@ -23,7 +23,7 @@ bool MeshLoader_obj::hasTxCoords() const
 unique_ptr<SubMesh> MeshLoader_obj::createSubmesh(const std::string &materialName)
 {
     auto vertexFormat = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::NORMAL_3,
-                                               VertexFormat::TX_2, VertexFormat::COLOR_4, 
+                                               VertexFormat::TX_2, VertexFormat::COLOR_4,
                                                VertexFormat::TANGENT_3, VertexFormat::BITANGENT_3 });
     auto submesh = make_unique<SubMesh>(vertexFormat);
     submesh->setVertexBufferUsageHint(GpuBufferUsageType::STATIC);
@@ -256,4 +256,4 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSourc
     return result;
 }
 
-}
+} }

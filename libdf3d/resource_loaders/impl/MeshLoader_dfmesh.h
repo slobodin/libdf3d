@@ -1,8 +1,8 @@
 #pragma once
 
-#include "MeshLoaders.h"
+#include "../MeshLoaders.h"
 
-namespace df3d {
+namespace df3d { namespace resource_loaders_impl {
 
 //! DFMesh file format decoder.
 /*!
@@ -17,4 +17,4 @@ public:
     unique_ptr<MeshDataFSLoader::Mesh> load(shared_ptr<FileDataSource> source);
 };
 
-}
+} }

@@ -8,8 +8,8 @@
 #include <render/MaterialLib.h>
 #include <utils/MeshUtils.h>
 
-#include "MeshLoader_obj.h"
-#include "MeshLoader_dfmesh.h"
+#include "impl/MeshLoader_obj.h"
+#include "impl/MeshLoader_dfmesh.h"
 
 namespace df3d {
 
@@ -49,9 +49,9 @@ bool MeshDataFSLoader::decode(shared_ptr<FileDataSource> source)
     auto extension = svc().fileSystem().getFileExtension(source->getPath());
 
     if (extension == ".obj")
-        m_mesh = MeshLoader_obj().load(source);
+        m_mesh = resource_loaders_impl::MeshLoader_obj().load(source);
     else if (extension == ".dfmesh")
-        m_mesh = MeshLoader_dfmesh().load(source);
+        m_mesh = resource_loaders_impl::MeshLoader_dfmesh().load(source);
 
     return m_mesh != nullptr;
 }

@@ -5,6 +5,8 @@
 
 namespace df3d {
 
+namespace resource_loaders_impl { class MeshLoader_obj; class MeshLoader_dfmesh; }
+
 class MeshDataManualLoader : public ManualResourceLoader
 {
     std::vector<SubMesh> m_geometry;
@@ -17,8 +19,8 @@ public:
 
 class MeshDataFSLoader : public FSResourceLoader
 {
-    friend class MeshLoader_obj;
-    friend class MeshLoader_dfmesh;
+    friend class resource_loaders_impl::MeshLoader_obj;
+    friend class resource_loaders_impl::MeshLoader_dfmesh;
 
     struct Mesh
     {

@@ -112,12 +112,14 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoader_dfmesh.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoader_obj.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/AudioLoaders.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MaterialLibLoaders.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoaders.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/TextureLoaders.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/AudioLoaders.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/MaterialLibLoaders.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/MeshLoaders.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/TextureLoaders.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/AudioLoader_ogg.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/AudioLoader_wav.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.h
@@ -207,12 +209,14 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoader_dfmesh.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoader_obj.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/AudioLoaders.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MaterialLibLoaders.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/MeshLoaders.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/loaders/TextureLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/AudioLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/MaterialLibLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/MeshLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/TextureLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/AudioLoader_ogg.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/AudioLoader_wav.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.cpp

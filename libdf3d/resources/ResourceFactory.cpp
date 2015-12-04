@@ -1,10 +1,10 @@
 #include "ResourceFactory.h"
 
 #include "ResourceManager.h"
-#include "loaders/TextureLoaders.h"
-#include "loaders/AudioLoaders.h"
-#include "loaders/MaterialLibLoaders.h"
-#include "loaders/MeshLoaders.h"
+#include <resource_loaders/TextureLoaders.h>
+#include <resource_loaders/AudioLoaders.h>
+#include <resource_loaders/MaterialLibLoaders.h>
+#include <resource_loaders/MeshLoaders.h>
 #include <render/Texture2D.h>
 #include <render/GpuProgram.h>
 
