@@ -3,7 +3,7 @@
 #include "RocketInterface.h"
 #include "RocketKeyCodesAdapter.h"
 #include <base/EngineController.h>
-#include <base/InputEvents.h>
+#include <input/InputEvents.h>
 
 #include <Rocket/Core.h>
 #include <Rocket/Controls.h>

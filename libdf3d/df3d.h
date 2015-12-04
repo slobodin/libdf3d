@@ -13,7 +13,7 @@
 #include <utils/Dict.h>
 
 #include <base/EngineController.h>
-#include <base/InputEvents.h>
+#include <input/InputEvents.h>
 #include <base/DebugConsole.h>
 
 #include <platform/AppDelegate.h>

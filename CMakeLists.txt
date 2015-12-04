@@ -47,7 +47,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/DebugConsole.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/AudioComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/DebugDrawComponent.h
@@ -76,6 +75,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketIntrusivePtr.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketKeyCodesAdapter.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileDataSource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystemHelpers.h
@@ -150,7 +150,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/DebugConsole.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/ConsoleWindowRmlSource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/AudioComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/DebugDrawComponent.cpp
@@ -179,6 +178,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketIntrusivePtr.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketKeyCodesAdapter.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.cpp

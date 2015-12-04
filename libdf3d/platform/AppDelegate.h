@@ -1,6 +1,6 @@
 #pragma once
 
-#include <base/InputEvents.h>
+#include <input/InputEvents.h>
 #include <base/EngineInitParams.h>
 
 namespace df3d {

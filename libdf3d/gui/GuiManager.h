@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RocketIntrusivePtr.h"
-#include <base/InputEvents.h>
+#include <input/InputEvents.h>
 #include <Rocket/Core.h>
 
 namespace Rocket { namespace Core { class Context; } }
