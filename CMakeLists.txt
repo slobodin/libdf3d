@@ -79,6 +79,11 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystemHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/Storage.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/math/AABB.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingSphere.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingVolume.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/math/ConvexHull.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.h
@@ -126,11 +131,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManagerListener.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldSize.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/AABB.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingSphere.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingVolume.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/ConvexHull.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/OBB.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.h
@@ -178,6 +178,11 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketKeyCodesAdapter.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/math/AABB.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingSphere.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingVolume.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/math/ConvexHull.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.cpp
@@ -220,11 +225,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/AABB.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingSphere.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/BoundingVolume.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/ConvexHull.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/bounding_volumes/OBB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MathUtils.cpp

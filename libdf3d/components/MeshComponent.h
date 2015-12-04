@@ -1,9 +1,9 @@
 #pragma once
 
 #include "NodeComponent.h"
-#include <scene/bounding_volumes/AABB.h>
-#include <scene/bounding_volumes/BoundingSphere.h>
-#include <scene/bounding_volumes/OBB.h>
+#include <math/AABB.h>
+#include <math/BoundingSphere.h>
+#include <math/OBB.h>
 
 namespace df3d {
 
