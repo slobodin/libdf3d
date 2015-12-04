@@ -3,8 +3,8 @@
 #include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>
-#include <resources/FileSystem.h>
-#include <resources/FileDataSource.h>
+#include <io/FileSystem.h>
+#include <io/FileDataSource.h>
 #include <render/MaterialLib.h>
 #include <utils/MeshUtils.h>
 

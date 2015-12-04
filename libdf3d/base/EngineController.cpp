@@ -6,7 +6,7 @@
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
 #include <resources/ResourceManager.h>
-#include <resources/FileSystem.h>
+#include <io/FileSystem.h>
 #include <gui/GuiManager.h>
 #include <physics/PhysicsManager.h>
 #include <audio/AudioManager.h>
@@ -43,7 +43,7 @@ void EngineController::initialize(EngineInitParams params)
         srand((unsigned int)time(0));
 
 #ifdef DF3D_WINDOWS
-        platform::CrashHandler::setup();
+        platform_impl::CrashHandler::setup();
 #endif
 
         // Init filesystem.

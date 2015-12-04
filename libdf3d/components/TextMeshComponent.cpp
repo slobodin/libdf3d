@@ -5,7 +5,7 @@
 #include <render/GpuProgram.h>
 #include <render/VertexIndexBuffer.h>
 #include <render/RenderQueue.h>
-#include <resources/FileSystem.h>
+#include <io/FileSystem.h>
 #include <components/TransformComponent.h>
 #include <scene/Node.h>
 #include <base/EngineController.h>

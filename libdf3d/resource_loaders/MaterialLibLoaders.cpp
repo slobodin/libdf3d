@@ -5,7 +5,7 @@
 #include <base/EngineController.h>
 #include <resources/ResourceFactory.h>
 #include <resources/ResourceManager.h>
-#include <resources/FileDataSource.h>
+#include <io/FileDataSource.h>
 #include <render/MaterialLib.h>
 #include <render/Material.h>
 #include <render/Technique.h>

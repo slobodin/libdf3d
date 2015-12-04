@@ -6,7 +6,7 @@
 #include "SceneManagerListener.h"
 #include <base/EngineController.h>
 #include <resources/ResourceManager.h>
-#include <resources/FileDataSource.h>
+#include <io/FileDataSource.h>
 #include <resources/Resource.h>
 #include <utils/Utils.h>
 

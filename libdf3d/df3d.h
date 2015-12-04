@@ -17,7 +17,6 @@
 #include <base/DebugConsole.h>
 
 #include <platform/AppDelegate.h>
-#include <platform/Storage.h>
 
 #include <components/AudioComponent.h>
 #include <components/LightComponent.h>
@@ -48,8 +47,10 @@
 #include <render/Vertex.h>
 #include <render/MeshData.h>
 
-#include <resources/FileSystem.h>
-#include <resources/FileDataSource.h>
+#include <io/FileSystem.h>
+#include <io/FileDataSource.h>
+#include <io/Storage.h>
+
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>
 

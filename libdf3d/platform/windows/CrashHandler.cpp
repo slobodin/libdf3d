@@ -3,7 +3,7 @@
 #include <Windows.h>
 #include <DbgHelp.h>
 
-namespace df3d { namespace platform {
+namespace df3d { namespace platform_impl {
 
 static const std::string dumpFileName = "df3d_crash.dmp";
 

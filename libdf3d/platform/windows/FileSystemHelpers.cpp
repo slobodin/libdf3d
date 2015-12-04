@@ -1,4 +1,4 @@
-#include "../FileSystemHelpers.h"
+#include <io/FileSystemHelpers.h>
 
 #include <platform/desktop_common/FileDataSourceDesktop.h>
 #define WIN32_LEAN_AND_MEAN

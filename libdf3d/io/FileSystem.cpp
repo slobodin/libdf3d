@@ -3,7 +3,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "FileDataSource.h"
-#include <platform/FileSystemHelpers.h>
+#include <io/FileSystemHelpers.h>
 #include <utils/Utils.h>
 
 namespace df3d {

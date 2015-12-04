@@ -2,8 +2,8 @@
 
 #include <audio/impl/OpenALCommon.h>
 #include <base/EngineController.h>
-#include <resources/FileSystem.h>
-#include <resources/FileDataSource.h>
+#include <io/FileSystem.h>
+#include <io/FileDataSource.h>
 #include "impl/AudioLoader_wav.h"
 #include "impl/AudioLoader_ogg.h"
 

@@ -3,10 +3,10 @@
 #include <base/EngineController.h>
 #include <utils/ThreadPool.h>
 #include <utils/Utils.h>
+#include <io/FileSystem.h>
+#include <io/FileDataSource.h>
 #include "Resource.h"
 #include "ResourceFactory.h"
-#include "FileSystem.h"
-#include "FileDataSource.h"
 
 namespace df3d {
 

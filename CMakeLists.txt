@@ -76,12 +76,14 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketIntrusivePtr.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketKeyCodesAdapter.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/io/FileDataSource.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystemHelpers.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/io/Storage.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/Storage.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/FileSystemHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.h
@@ -107,8 +109,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Vertex.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/VertexIndexBuffer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Viewport.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/FileDataSource.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/FileSystem.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.h
@@ -179,6 +179,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketIntrusivePtr.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketKeyCodesAdapter.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.cpp
@@ -205,7 +206,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Vertex.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/VertexIndexBuffer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Viewport.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/FileSystem.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.cpp

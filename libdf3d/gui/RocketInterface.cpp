@@ -3,8 +3,8 @@
 #include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>
-#include <resources/FileSystem.h>
-#include <resources/FileDataSource.h>
+#include <io/FileSystem.h>
+#include <io/FileDataSource.h>
 #include <render/RenderManager.h>
 #include <render/GpuProgram.h>
 #include <render/Texture.h>

@@ -9,8 +9,8 @@
 #include <scene/SceneManagerListener.h>
 #include <scene/Scene.h>
 #include <utils/Utils.h>
-#include <resources/FileSystem.h>
-#include <resources/FileDataSource.h>
+#include <io/FileSystem.h>
+#include <io/FileDataSource.h>
 #include <components/MeshComponent.h>
 #include <components/LightComponent.h>
 #include <components/ParticleSystemComponent.h>

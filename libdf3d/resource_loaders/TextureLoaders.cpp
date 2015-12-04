@@ -1,8 +1,8 @@
 #include "TextureLoaders.h"
 
 #include <base/EngineController.h>
-#include <resources/FileSystem.h>
-#include <resources/FileDataSource.h>
+#include <io/FileSystem.h>
+#include <io/FileDataSource.h>
 #include <utils/JsonUtils.h>
 
 #define STB_IMAGE_IMPLEMENTATION

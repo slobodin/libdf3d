@@ -3,8 +3,8 @@
 #include <boost/algorithm/string.hpp>
 
 #include <base/EngineController.h>
-#include <resources/FileSystem.h>
-#include <resources/FileDataSource.h>
+#include <io/FileSystem.h>
+#include <io/FileDataSource.h>
 #include <utils/MeshUtils.h>
 #include <utils/Utils.h>
 

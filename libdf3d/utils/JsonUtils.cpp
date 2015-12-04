@@ -1,8 +1,8 @@
 #include "JsonUtils.h"
 
 #include <base/EngineController.h>
-#include <resources/FileSystem.h>
-#include <resources/FileDataSource.h>
+#include <io/FileSystem.h>
+#include <io/FileDataSource.h>
 
 namespace df3d { namespace utils { namespace json {
 

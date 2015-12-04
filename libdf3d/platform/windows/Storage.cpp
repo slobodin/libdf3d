@@ -1,8 +1,8 @@
-#include "../Storage.h"
+#include <io/Storage.h>
 
 #include <utils/JsonUtils.h>
 
-namespace df3d {
+namespace df3d { namespace platform_impl {
 
 class WindowsStorage : public Storage
 {
@@ -24,9 +24,11 @@ public:
     }
 };
 
+}
+
 Storage *Storage::create(const std::string &filename)
 {
-    return new WindowsStorage(filename);
+    return new platform_impl::WindowsStorage(filename);
 }
 
 }
