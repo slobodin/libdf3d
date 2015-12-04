@@ -80,8 +80,8 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystemHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/Storage.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
@@ -179,8 +179,8 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/physics/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.cpp

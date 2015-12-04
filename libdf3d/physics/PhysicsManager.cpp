@@ -1,6 +1,6 @@
 #include "PhysicsManager.h"
 
-#include "BulletInterface.h"
+#include "impl/BulletInterface.h"
 #include <scene/Node.h>
 #include <components/TransformComponent.h>
 
