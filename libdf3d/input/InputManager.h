@@ -28,6 +28,8 @@ public:
     void registerInputListener(InputListener *listener);
     void unregisterInputListener(InputListener *listener);
 
+    void pauseInput(bool pause);
+
     // This should be called by the platform code only.
     // TODO: improve encapsulation!
     void onTouchEvent(const TouchEvent &touchEvent);

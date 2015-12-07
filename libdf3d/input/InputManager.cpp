@@ -41,6 +41,11 @@ void InputManager::unregisterInputListener(InputListener *listener)
         glog << "Trying to remove nonexistent input listener." << logwarn;
 }
 
+void InputManager::pauseInput(bool pause)
+{
+    glog << "Not implemented" << logwarn;
+}
+
 void InputManager::onTouchEvent(const TouchEvent &touchEvent)
 {
     // Force move event in order to pass coords to libRocket. wtf?
