@@ -1,7 +1,9 @@
 #include "glfwApplication.h"
-#include "../AppDelegate.h"
+
 #include "glfwKeyCodes.h"
+#include <platform/AppDelegate.h>
 #include <base/EngineController.h>
+#include <input/InputManager.h>
 #include <GLFW/glfw3.h>
 
 namespace df3d { namespace platform_impl {
@@ -128,7 +130,7 @@ public:
 
         *m_prevTouch = ev;
 
-        m_appDelegate->onMouseMotionEvent(ev);
+        svc().inputManager().onMouseMotionEvent(ev);
     }
 
     void onMouseButton(int button, int action, int mods)
@@ -156,8 +158,8 @@ public:
 
         ev.x = (int)xpos;
         ev.y = (int)ypos;
-
-        m_appDelegate->onMouseButtonEvent(ev);
+        
+        svc().inputManager().onMouseButtonEvent(ev);
     }
 
     void onKey(int key, int scancode, int action, int mods)
@@ -175,21 +177,21 @@ public:
         ev.modifiers = static_cast<KeyboardEvent::KeyModifier>(keyModifiers);
 
         if (action == GLFW_PRESS)
-            m_appDelegate->onKeyDown(ev);
+            svc().inputManager().onKeyDown(ev);
         else if (action == GLFW_RELEASE)
-            m_appDelegate->onKeyUp(ev);
+            svc().inputManager().onKeyUp(ev);
     }
 
     void onTextInput(unsigned int codepoint)
     {
-        m_appDelegate->onTextInput(codepoint);
+        svc().inputManager().onTextInput(codepoint);
     }
 
     void onScroll(double xoffset, double yoffset)
     {
         MouseWheelEvent ev;
         ev.delta = (float)-yoffset;
-        m_appDelegate->onMouseWheelEvent(ev);
+        svc().inputManager().onMouseWheelEvent(ev);
     }
 
     EngineController& getEngine() { return *m_engine; }

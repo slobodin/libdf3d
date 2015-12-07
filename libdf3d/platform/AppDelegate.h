@@ -21,14 +21,6 @@ public:
 
     virtual void onAppPaused() = 0;
     virtual void onAppResumed() = 0;
-
-    virtual void onTouchEvent(const TouchEvent &touchEvent) = 0;
-    virtual void onMouseButtonEvent(const MouseButtonEvent &mouseButtonEvent) = 0;
-    virtual void onMouseMotionEvent(const MouseMotionEvent &mouseMotionEvent) = 0;
-    virtual void onMouseWheelEvent(const MouseWheelEvent &mouseWheelEvent) = 0;
-    virtual void onKeyUp(const KeyboardEvent &keyboardEvent) = 0;
-    virtual void onKeyDown(const KeyboardEvent &keyboardEvent) = 0;
-    virtual void onTextInput(unsigned int codepoint) = 0;
 };
 
 class DF3D_DLL Application final

@@ -52,55 +52,6 @@ GuiManager::~GuiManager()
     Rocket::Core::Shutdown();
 }
 
-void GuiManager::update(float systemDelta, float gameDelta)
-{
-    m_rocketContext->Update();
-}
-
-void GuiManager::render()
-{
-    m_rocketContext->Render();
-}
-
-bool GuiManager::processMouseButtonDown(int buttonIdx)
-{
-    m_rocketContext->ProcessMouseButtonDown(buttonIdx, 0);
-    return true;
-}
-
-bool GuiManager::processMouseButtonUp(int buttonIdx)
-{
-    m_rocketContext->ProcessMouseButtonUp(buttonIdx, 0);
-    return true;
-}
-
-bool GuiManager::processMouseMotion(int x, int y)
-{
-    m_rocketContext->ProcessMouseMove(x, y, 0);
-    return true;
-}
-
-bool GuiManager::processMouseWheel(float delta)
-{
-    m_rocketContext->ProcessMouseWheel(static_cast<int>(delta), 0);
-    return true;
-}
-
-bool GuiManager::processKeyDownEvent(const KeyboardEvent &keyEv)
-{
-    return m_rocketContext->ProcessKeyDown(gui_impl::convertToRocketKeyCode(keyEv.keycode), gui_impl::convertToRocketModifier(keyEv.modifiers));
-}
-
-bool GuiManager::processKeyUpEvent(const KeyboardEvent &keyEv)
-{
-    return m_rocketContext->ProcessKeyUp(gui_impl::convertToRocketKeyCode(keyEv.keycode), gui_impl::convertToRocketModifier(keyEv.modifiers));
-}
-
-bool GuiManager::processTextInput(unsigned int codepoint)
-{
-    return m_rocketContext->ProcessTextInput(codepoint);
-}
-
 RocketDocument GuiManager::loadDocument(const std::string &name)
 {
     auto doc = m_rocketContext->LoadDocument(name.c_str());

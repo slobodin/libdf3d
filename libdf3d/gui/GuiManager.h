@@ -28,24 +28,12 @@ public:
     GuiManager(int contextWidth, int contextHeight);
     ~GuiManager();
 
-    void update(float systemDelta, float gameDelta);
-    void render();
-
-    // Calls RocketContext.
-    bool processMouseButtonDown(int buttonIdx);
-    bool processMouseButtonUp(int buttonIdx);
-    bool processMouseMotion(int x, int y);
-    bool processMouseWheel(float delta);
-    bool processKeyDownEvent(const KeyboardEvent &keyEv);
-    bool processKeyUpEvent(const KeyboardEvent &keyEv);
-    bool processTextInput(unsigned int codepoint);
-
     RocketDocument loadDocument(const std::string &name);
 
     void showDebugger(bool show);
     bool isDebuggerVisible() const;
 
-    Rocket::Core::Context *getContext() { return m_rocketContext; }
+    Rocket::Core::Context* getContext() { return m_rocketContext; }
 
     template<typename T>
     T* createDocument(const std::string &id)

@@ -13,7 +13,6 @@
 #include <utils/Dict.h>
 
 #include <base/EngineController.h>
-#include <input/InputEvents.h>
 #include <base/DebugConsole.h>
 
 #include <platform/AppDelegate.h>
@@ -32,6 +31,7 @@
 #include <scene/Camera.h>
 #include <scene/Scene.h>
 #include <scene/SceneManager.h>
+
 #include <math/BoundingVolume.h>
 #include <math/AABB.h>
 #include <math/BoundingSphere.h>
@@ -46,6 +46,9 @@
 #include <render/Viewport.h>
 #include <render/Vertex.h>
 #include <render/MeshData.h>
+
+#include <input/InputEvents.h>
+#include <input/InputManager.h>
 
 #include <io/FileSystem.h>
 #include <io/FileDataSource.h>

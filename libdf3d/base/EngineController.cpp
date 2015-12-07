@@ -5,6 +5,7 @@
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
 #include <resources/ResourceManager.h>
+#include <input/InputManager.h>
 #include <io/FileSystem.h>
 #include <gui/GuiManager.h>
 #include <physics/PhysicsManager.h>
@@ -33,6 +34,8 @@ EngineController::~EngineController()
 
 void EngineController::initialize(EngineInitParams params)
 {
+    assert(!m_initialized);
+
     m_timeStarted = std::chrono::system_clock::now();
 
     glog << "Initializing df3d engine" << logmess;
@@ -78,6 +81,10 @@ void EngineController::initialize(EngineInitParams params)
         if (params.createConsole)
             m_debugConsole = make_unique<DebugConsole>();
 
+        // Create input subsystem.
+        m_inputManager = make_unique<InputManager>();
+
+        m_initialized = true;
         glog << "Engine initialized" << logmess;
     }
     catch (std::exception &e)
@@ -89,6 +96,8 @@ void EngineController::initialize(EngineInitParams params)
 
 void EngineController::shutdown()
 {
+    assert(m_initialized);
+
     m_debugConsole.reset();
     m_sceneManager.reset();
     m_physics.reset();
@@ -97,6 +106,7 @@ void EngineController::shutdown()
     m_resourceManager.reset();
     m_fileSystem.reset();
     m_audioManager.reset();
+    m_inputManager.reset();
 
     destroySparkEngine();
 }
@@ -110,7 +120,7 @@ void EngineController::update(float systemDelta, float gameDelta)
     m_audioManager->update(systemDelta, gameDelta);
     m_physics->update(systemDelta, gameDelta);
     m_sceneManager->update(systemDelta, gameDelta);
-    m_guiManager->update(systemDelta, gameDelta);
+    m_guiManager->getContext()->Update();
     m_renderManager->update(m_sceneManager->getCurrentScene());
 }
 
@@ -118,6 +128,7 @@ void EngineController::postUpdate()
 {
     // Clean up.
     m_sceneManager->cleanStep();
+    m_inputManager->cleanInvalidListeners();
 }
 
 void EngineController::runFrame()

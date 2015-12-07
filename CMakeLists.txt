@@ -75,6 +75,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketIntrusivePtr.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketKeyCodesAdapter.h
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/input/InputManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileDataSource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystemHelpers.h
@@ -177,6 +178,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketIntrusivePtr.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketKeyCodesAdapter.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/input/InputManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/math/AABB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingSphere.cpp

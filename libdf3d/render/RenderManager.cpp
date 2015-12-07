@@ -283,7 +283,7 @@ void RenderManager::drawGUI()
     m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)m_screenRt->getViewport().width(), (float)m_screenRt->getViewport().height(), 0.0f));
     m_renderer->setCameraMatrix(glm::mat4(1.0f));
 
-    svc().guiManager().render();
+    svc().guiManager().getContext()->Render();
 }
 
 void RenderManager::onFrameBegin()
