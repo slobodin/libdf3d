@@ -124,8 +124,6 @@ void EngineController::step()
     auto systemDelta = m_timeManager->getSystemFrameTimeDuration();
     auto gameDelta = m_timeManager->getGameFrameTimeDuration();
 
-    glog << gameDelta << logdebug;
-
     m_resourceManager->poll();
     m_audioManager->update(systemDelta, gameDelta);
     m_physics->update(systemDelta, gameDelta);
