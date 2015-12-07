@@ -4,8 +4,6 @@
 
 namespace df3d {
 
-class Viewport;
-
 class RenderTarget : utils::NonCopyable
 {
 protected:

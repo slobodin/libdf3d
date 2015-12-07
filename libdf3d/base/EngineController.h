@@ -16,7 +16,6 @@ class TimeManager;
 class DebugConsole;
 class RenderStats;
 class Viewport;
-class AppDelegate;
 
 class DF3D_DLL EngineController : utils::NonCopyable
 {

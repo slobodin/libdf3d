@@ -5,8 +5,6 @@
 
 namespace df3d {
 
-class EngineController;
-
 class DF3D_DLL AppDelegate
 {
 public:

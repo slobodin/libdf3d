@@ -1,8 +1,5 @@
 #pragma once
 
-#include "MeshComponent.h"
-#include <render/RenderOperation.h>
-
 namespace df3d {
 /*
 class DF3D_DLL TextMeshComponent : public MeshComponent
