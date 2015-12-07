@@ -12,6 +12,7 @@ class GuiManager;
 class PhysicsManager;
 class AudioManager;
 class InputManager;
+class TimeManager;
 class DebugConsole;
 class RenderStats;
 class Viewport;
@@ -27,6 +28,7 @@ class DF3D_DLL EngineController : utils::NonCopyable
     unique_ptr<PhysicsManager> m_physics;
     unique_ptr<AudioManager> m_audioManager;
     unique_ptr<InputManager> m_inputManager;
+    unique_ptr<TimeManager> m_timeManager;
 
     unique_ptr<DebugConsole> m_debugConsole;
 
@@ -62,6 +64,7 @@ public:
     PhysicsManager& physicsManager() { return *m_physics; }
     AudioManager& audioManager() { return *m_audioManager; }
     InputManager& inputManager() { return *m_inputManager; }
+    TimeManager& timeManager() { return *m_timeManager; }
     DebugConsole* debugConsole() { return m_debugConsole.get(); }
 };
 

@@ -48,6 +48,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/AudioComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/DebugDrawComponent.h
     ${PROJECT_SOURCE_DIR}/libdf3d/components/LightComponent.h
@@ -151,6 +152,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/ConsoleWindowRmlSource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/AudioComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/DebugDrawComponent.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/components/LightComponent.cpp

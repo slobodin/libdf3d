@@ -10,7 +10,7 @@ class MouseMotionEvent;
 class MouseButtonEvent;
 class KeyboardEvent;
 
-class DF3D_DLL InputManager
+class DF3D_DLL InputManager : utils::NonCopyable
 {
     struct InputSubscriber
     {

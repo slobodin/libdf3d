@@ -1,6 +1,7 @@
 #include "EngineController.h"
 
 #include "DebugConsole.h"
+#include "TimeManager.h"
 #include <render/RenderManager.h>
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
@@ -43,6 +44,9 @@ void EngineController::initialize(EngineInitParams params)
     try
     {
         srand((unsigned int)time(0));
+
+        // Create time manager.
+        m_timeManager = make_unique<TimeManager>();
 
 #ifdef DF3D_WINDOWS
         platform_impl::CrashHandler::setup();
@@ -107,6 +111,7 @@ void EngineController::shutdown()
     m_fileSystem.reset();
     m_audioManager.reset();
     m_inputManager.reset();
+    m_timeManager.reset();
 
     destroySparkEngine();
 }
