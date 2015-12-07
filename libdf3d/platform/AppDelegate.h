@@ -17,7 +17,6 @@ public:
 
     virtual bool onAppStarted() = 0;
     virtual void onAppEnded() = 0;
-    virtual void onUpdate(float dt) = 0;
 
     virtual void onAppPaused() = 0;
     virtual void onAppResumed() = 0;

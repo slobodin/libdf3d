@@ -14,6 +14,7 @@
 
 #include <base/EngineController.h>
 #include <base/DebugConsole.h>
+#include <base/TimeManager.h>
 
 #include <platform/AppDelegate.h>
 

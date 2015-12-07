@@ -84,19 +84,11 @@ public:
     {
         using namespace std::chrono;
 
-        TimePoint currtime, prevtime;
-        currtime = prevtime = system_clock::now();
-
         while (!glfwWindowShouldClose(window))
         {
-            currtime = system_clock::now();
-
-            m_appDelegate->onUpdate(IntervalBetween(currtime, prevtime));
+            m_engine->step();
 
             glfwSwapBuffers(window);
-
-            prevtime = currtime;
-
             glfwPollEvents();
         }
 

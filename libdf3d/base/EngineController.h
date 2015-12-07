@@ -34,24 +34,17 @@ class DF3D_DLL EngineController : utils::NonCopyable
 
     bool m_initialized = false;
 
-    TimePoint m_timeStarted;
-    float m_timeElapsed = 0;
-
 public:
     EngineController();
     ~EngineController();
 
     // FIXME: using these instead ctor and dtor because of svc() access all over the engine code.
+    // These stuff should be called only by platform code. TODO: encapsulation improve.
     void initialize(EngineInitParams params);
     void shutdown();
+    void step();
 
-    void update(float systemDelta, float gameDelta);
-    void postUpdate();
-    void runFrame();
-
-    float getElapsedTime() const { return m_timeElapsed; }
     const RenderStats& getLastRenderStats() const;
-
     const Viewport& getViewport() const;
     void setViewport(const Viewport &newvp);
     glm::vec2 getScreenSize() const;

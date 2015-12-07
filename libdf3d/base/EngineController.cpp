@@ -37,8 +37,6 @@ void EngineController::initialize(EngineInitParams params)
 {
     assert(!m_initialized);
 
-    m_timeStarted = std::chrono::system_clock::now();
-
     glog << "Initializing df3d engine" << logmess;
 
     try
@@ -90,6 +88,9 @@ void EngineController::initialize(EngineInitParams params)
 
         m_initialized = true;
         glog << "Engine initialized" << logmess;
+
+        // FIXME: may have big delta. Client code is initilized next.
+        m_timeManager->updateFrameTime();
     }
     catch (std::exception &e)
     {
@@ -116,10 +117,14 @@ void EngineController::shutdown()
     destroySparkEngine();
 }
 
-void EngineController::update(float systemDelta, float gameDelta)
+void EngineController::step()
 {
     // Update engine.
-    m_timeElapsed = IntervalBetweenNowAnd(m_timeStarted);
+    m_timeManager->updateFrameTime();
+    auto systemDelta = m_timeManager->getSystemFrameTimeDuration();
+    auto gameDelta = m_timeManager->getGameFrameTimeDuration();
+
+    glog << gameDelta << logdebug;
 
     m_resourceManager->poll();
     m_audioManager->update(systemDelta, gameDelta);
@@ -127,22 +132,21 @@ void EngineController::update(float systemDelta, float gameDelta)
     m_sceneManager->update(systemDelta, gameDelta);
     m_guiManager->getContext()->Update();
     m_renderManager->update(m_sceneManager->getCurrentScene());
-}
 
-void EngineController::postUpdate()
-{
-    // Clean up.
+    // Update client code.
+    m_timeManager->flushPendingWorkers();
+    m_timeManager->updateListeners();
+
+    // Clean step.
+    // TODO: clean up each n secs.
     m_sceneManager->cleanStep();
     m_inputManager->cleanInvalidListeners();
-}
+    m_timeManager->cleanInvalidListeners();
 
-void EngineController::runFrame()
-{
+    // Run frame.
     m_renderManager->onFrameBegin();
-
     m_renderManager->drawScene(m_sceneManager->getCurrentScene());
     m_renderManager->drawGUI();
-
     m_renderManager->onFrameEnd();
 }
 

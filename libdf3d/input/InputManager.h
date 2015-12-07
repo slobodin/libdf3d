@@ -12,14 +12,19 @@ class KeyboardEvent;
 
 class DF3D_DLL InputManager : utils::NonCopyable
 {
+    friend class EngineController;
+
     struct InputSubscriber
     {
         bool valid = true;
         InputListener *listener = nullptr;
     };
 
+    // NOTE: using list because no iterators or references are invalidated when push_back'ing.
     std::list<InputSubscriber> m_inputListeners;
     InputSubscriber* findSubscriber(InputListener *l);
+
+    void cleanInvalidListeners();
 
 public:
     InputManager() = default;
@@ -39,7 +44,6 @@ public:
     void onKeyUp(const KeyboardEvent &keyUpEvent);
     void onKeyDown(const KeyboardEvent &keyDownEvent);
     void onTextInput(unsigned int codepoint);
-    void cleanInvalidListeners();
 };
 
 //! Subclasses will be automatically listening input manager.

@@ -17,6 +17,17 @@ InputManager::InputSubscriber* InputManager::findSubscriber(InputListener *l)
     return nullptr;
 }
 
+void InputManager::cleanInvalidListeners()
+{
+    for (auto it = m_inputListeners.cbegin(); it != m_inputListeners.cend(); )
+    {
+        if (!it->valid)
+            it = m_inputListeners.erase(it);
+        else
+            it++;
+    }
+}
+
 void InputManager::registerInputListener(InputListener *listener)
 {
     auto found = findSubscriber(listener);
@@ -150,17 +161,6 @@ void InputManager::onKeyDown(const KeyboardEvent &keyDownEvent)
 void InputManager::onTextInput(unsigned int codepoint)
 {
     svc().guiManager().getContext()->ProcessTextInput(codepoint);
-}
-
-void InputManager::cleanInvalidListeners()
-{
-    for (auto it = m_inputListeners.cbegin(); it != m_inputListeners.cend(); )
-    {
-        if (!it->valid)
-            it = m_inputListeners.erase(it);
-        else
-            it++;
-    }
 }
 
 InputListener::InputListener()
