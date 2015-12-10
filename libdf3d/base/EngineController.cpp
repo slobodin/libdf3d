@@ -148,12 +148,12 @@ void EngineController::step()
     m_renderManager->onFrameEnd();
 }
 
-const RenderStats &EngineController::getLastRenderStats() const
+const RenderStats& EngineController::getLastRenderStats() const
 {
     return m_renderManager->getLastRenderStats();
 }
 
-const Viewport &EngineController::getViewport() const
+const Viewport& EngineController::getViewport() const
 {
     return m_renderManager->getScreenRenderTarget()->getViewport();
 }
