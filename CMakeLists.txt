@@ -41,6 +41,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d_config.h
     ${PROJECT_SOURCE_DIR}/libdf3d/libdf3d_dll.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioBuffer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioComponentSystem.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/impl/OpenALCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Common.h
@@ -127,11 +128,14 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/Entity.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/EntityManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManagerListener.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/World.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldSize.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.h
@@ -145,6 +149,7 @@ set(libdf3d_HEADER_LIST
 
 set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioBuffer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioComponentSystem.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/impl/OpenALCommon.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Common.cpp
@@ -225,10 +230,12 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/EntityManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/World.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MathUtils.cpp
