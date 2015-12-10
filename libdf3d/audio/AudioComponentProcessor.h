@@ -4,11 +4,11 @@
 
 namespace df3d {
 
-class DF3D_DLL AudioComponentSystem : utils::NonCopyable
+class DF3D_DLL AudioComponentProcessor : utils::NonCopyable
 {
 public:
-    AudioComponentSystem();
-    ~AudioComponentSystem();
+    AudioComponentProcessor();
+    ~AudioComponentProcessor();
 
     void play(ComponentInstance comp);
     void stop(ComponentInstance comp);

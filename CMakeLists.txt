@@ -40,8 +40,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.h
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d_config.h
     ${PROJECT_SOURCE_DIR}/libdf3d/libdf3d_dll.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/2d/Sprite2DComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioBuffer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioComponentSystem.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/impl/OpenALCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Common.h
@@ -87,15 +88,19 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingVolume.h
     ${PROJECT_SOURCE_DIR}/libdf3d/math/ConvexHull.h
     ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/DebugDrawComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/OpenGLCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RendererBackend.h
@@ -135,6 +140,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManagerListener.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/TransformComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/World.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldSize.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
@@ -148,8 +154,9 @@ set(libdf3d_HEADER_LIST
 )
 
 set(libdf3d_SRC_LIST
+    ${PROJECT_SOURCE_DIR}/libdf3d/2d/Sprite2DComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioBuffer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioComponentSystem.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/impl/OpenALCommon.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Common.cpp
@@ -192,14 +199,18 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingVolume.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/math/ConvexHull.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/DebugDrawComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/OpenGLCommon.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RendererBackend.cpp
@@ -235,6 +246,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/TransformComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/World.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.cpp
