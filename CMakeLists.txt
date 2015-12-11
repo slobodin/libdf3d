@@ -100,7 +100,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshComponentProcessor.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/StaticMeshComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/OpenGLCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RendererBackend.h
@@ -210,7 +210,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshComponentProcessor.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/StaticMeshComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/OpenGLCommon.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RendererBackend.cpp
