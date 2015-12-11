@@ -4,14 +4,20 @@ namespace df3d {
 
 struct Entity
 {
-    uint32_t id = 0;
+    using IdType = int32_t;
+
+    IdType id;
+
+    Entity(uint32_t id = -1) : id(id) { }
 };
 
 struct ComponentInstance
 {
-    uint32_t id = 0;
+    int32_t id;
 
-    bool valid() const { return id != 0; }
+    ComponentInstance(uint32_t id = -1) : id(id) { }
+
+    bool valid() const { return id != -1; }
 };
 
 }
