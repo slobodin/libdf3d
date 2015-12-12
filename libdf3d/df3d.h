@@ -32,6 +32,8 @@
 #include <scene/Camera.h>
 #include <scene/Scene.h>
 #include <scene/SceneManager.h>
+#include <scene/Entity.h>
+#include <scene/World.h>
 
 #include <math/BoundingVolume.h>
 #include <math/AABB.h>

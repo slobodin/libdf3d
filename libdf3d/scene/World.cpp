@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "World.h"
 
-#include "EntityManager.h"
+#include "impl/EntityManager.h"
 
 namespace df3d {
 

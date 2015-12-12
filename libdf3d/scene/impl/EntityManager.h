@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entity.h"
+#include <scene/Entity.h>
 
 namespace df3d {
 
