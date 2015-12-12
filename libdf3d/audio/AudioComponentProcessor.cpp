@@ -3,6 +3,7 @@
 
 #include "AudioBuffer.h"
 #include "impl/OpenALCommon.h"
+#include <scene/impl/ComponentDataHolder.h>
 #include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>
@@ -32,14 +33,18 @@ static AudioComponentProcessor::State getAudioState(unsigned audioSourceId)
     return  AudioComponentProcessor::State::INITIAL;
 }
 
-ComponentInstance AudioComponentProcessor::get(Entity e) const
+struct AudioComponentProcessor::Impl
 {
-    auto found = m_lookup.find(e.id);
-    if (found == m_lookup.end())
-        return ComponentInstance();
+    struct Data
+    {
+        unsigned audioSourceId = 0;
+        float pitch = 1.0f;
+        float gain = 1.0f;
+        bool looped = false;
+    };
 
-    return found->second;
-}
+    ComponentDataHolder<Data> data;
+};
 
 void AudioComponentProcessor::update(float systemDelta, float gameDelta)
 {
@@ -60,6 +65,7 @@ void AudioComponentProcessor::update(float systemDelta, float gameDelta)
 }
 
 AudioComponentProcessor::AudioComponentProcessor()
+    : m_pimpl(new Impl())
 {
 
 }
@@ -69,66 +75,89 @@ AudioComponentProcessor::~AudioComponentProcessor()
 
 }
 
-void AudioComponentProcessor::play(Entity e)
+void AudioComponentProcessor::play(ComponentInstance comp)
 {
-    const auto &compData = m_components.at(get(e).id);
+    assert(comp.valid());
+
+    const auto &compData = m_pimpl->data.getData(comp);
 
     if (getAudioState(compData.audioSourceId) != AudioComponentProcessor::State::PLAYING)
         alSourcePlay(compData.audioSourceId);
 }
 
-void AudioComponentProcessor::stop(Entity e)
+void AudioComponentProcessor::stop(ComponentInstance comp)
 {
-    const auto &compData = m_components.at(get(e).id);
+    assert(comp.valid());
+
+    const auto &compData = m_pimpl->data.getData(comp);
 
     if (getAudioState(compData.audioSourceId) != AudioComponentProcessor::State::STOPPED)
         alSourceStop(compData.audioSourceId);
 }
 
-void AudioComponentProcessor::pause(Entity e)
+void AudioComponentProcessor::pause(ComponentInstance comp)
 {
-    const auto &compData = m_components.at(get(e).id);
+    assert(comp.valid());
+
+    const auto &compData = m_pimpl->data.getData(comp);
 
     if (getAudioState(compData.audioSourceId) != AudioComponentProcessor::State::PAUSED)
         alSourcePause(compData.audioSourceId);
 }
 
-void AudioComponentProcessor::setPitch(Entity e, float pitch)
+void AudioComponentProcessor::setPitch(ComponentInstance comp, float pitch)
 {
-    m_components.at(get(e).id).pitch = pitch;
-    alSourcef(m_components.at(get(e).id).audioSourceId, AL_PITCH, pitch);
+    assert(comp.valid());
+
+    auto &compData = m_pimpl->data.getData(comp);
+
+    compData.pitch = pitch;
+    alSourcef(compData.audioSourceId, AL_PITCH, pitch);
 }
 
-void AudioComponentProcessor::setGain(Entity e, float gain)
+void AudioComponentProcessor::setGain(ComponentInstance comp, float gain)
 {
-    m_components.at(get(e).id).gain = gain;
-    alSourcef(m_components.at(get(e).id).audioSourceId, AL_GAIN, gain);
+    assert(comp.valid());
+
+    auto &compData = m_pimpl->data.getData(comp);
+
+    compData.gain = gain;
+    alSourcef(compData.audioSourceId, AL_GAIN, gain);
 }
 
-void AudioComponentProcessor::setLooped(Entity e, bool looped)
+void AudioComponentProcessor::setLooped(ComponentInstance comp, bool looped)
 {
-    m_components.at(get(e).id).looped = looped;
-    alSourcei(m_components.at(get(e).id).audioSourceId, AL_LOOPING, looped);
+    assert(comp.valid());
+
+    auto &compData = m_pimpl->data.getData(comp);
+    compData.looped = looped;
+    alSourcei(compData.audioSourceId, AL_LOOPING, looped);
 }
 
-float AudioComponentProcessor::getPitch(Entity e) const
+float AudioComponentProcessor::getPitch(ComponentInstance comp) const
 {
-    return m_components.at(get(e).id).pitch;
+    assert(comp.valid());
+
+    return m_pimpl->data.getData(comp).pitch;
 }
 
-float AudioComponentProcessor::getGain(Entity e) const
+float AudioComponentProcessor::getGain(ComponentInstance comp) const
 {
-    return m_components.at(get(e).id).gain;
+    assert(comp.valid());
+
+    return m_pimpl->data.getData(comp).gain;
 }
 
-bool AudioComponentProcessor::isLooped(Entity e) const
+bool AudioComponentProcessor::isLooped(ComponentInstance comp) const
 {
-    return m_components.at(get(e).id).looped;
+    assert(comp.valid());
+
+    return m_pimpl->data.getData(comp).looped;
 }
 
 void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
 {
-    if (utils::contains_key(m_lookup, e.id))
+    if (m_pimpl->data.contains(e))
     {
         glog << "An entity already has an audio component" << logwarn;
         return;
@@ -141,7 +170,7 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
         return;
     }
 
-    ComponentData data;
+    Impl::Data data;
 
     alGenSources(1, &data.audioSourceId);
     alSourcef(data.audioSourceId, AL_PITCH, data.pitch);
@@ -155,24 +184,27 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
         return;
     }
 
-    ComponentInstance inst(m_components.size());
-    m_components.push_back(data);
-    m_lookup[e.id] = inst;
+    m_pimpl->data.add(e, data);
 }
 
 void AudioComponentProcessor::remove(Entity e)
 {
-    if (!utils::contains_key(m_lookup, e.id))
+    if (!m_pimpl->data.contains(e))
     {
         glog << "Failed to remove audio component from an entity. Component is not attached" << logwarn;
         return;
     }
 
-    const auto &data = m_components.at(get(e).id);
+    auto compInst = m_pimpl->data.lookup(e);
+    const auto &data = m_pimpl->data.getData(compInst);
     alDeleteSources(1, &data.audioSourceId);
 
-    // TODO_ecs
-    assert(false);
+    m_pimpl->data.remove(e);
+}
+
+ComponentInstance AudioComponentProcessor::lookup(Entity e)
+{
+    return m_pimpl->data.lookup(e);
 }
 
 }
