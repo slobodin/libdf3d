@@ -143,6 +143,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/TransformComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/World.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldSize.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/ComponentDataHolder.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.h
