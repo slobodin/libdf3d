@@ -5,6 +5,7 @@
 #include <render/RenderManager.h>
 #include <scene/SceneManager.h>
 #include <scene/Camera.h>
+#include <scene/World.h>
 #include <resources/ResourceManager.h>
 #include <input/InputManager.h>
 #include <io/FileSystem.h>
@@ -86,6 +87,9 @@ void EngineController::initialize(EngineInitParams params)
         // Create input subsystem.
         m_inputManager = make_unique<InputManager>();
 
+        // Create blank world.
+        m_world = make_unique<World>();
+
         m_initialized = true;
         glog << "Engine initialized" << logmess;
 
@@ -103,6 +107,7 @@ void EngineController::shutdown()
 {
     assert(m_initialized);
 
+    m_world.reset();
     m_debugConsole.reset();
     m_sceneManager.reset();
     m_physics.reset();
@@ -167,6 +172,11 @@ glm::vec2 EngineController::getScreenSize() const
 {
     auto vp = m_renderManager->getScreenRenderTarget()->getViewport();
     return glm::vec2(vp.width(), vp.height());
+}
+
+void EngineController::replaceWorld(unique_ptr<World> w)
+{
+    m_world = std::move(w);
 }
 
 }

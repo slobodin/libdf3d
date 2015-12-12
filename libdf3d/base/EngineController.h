@@ -16,6 +16,7 @@ class TimeManager;
 class DebugConsole;
 class RenderStats;
 class Viewport;
+class World;
 
 class DF3D_DLL EngineController : utils::NonCopyable
 {
@@ -30,6 +31,8 @@ class DF3D_DLL EngineController : utils::NonCopyable
     unique_ptr<TimeManager> m_timeManager;
 
     unique_ptr<DebugConsole> m_debugConsole;
+
+    unique_ptr<World> m_world;
 
     bool m_initialized = false;
 
@@ -58,6 +61,9 @@ public:
     InputManager& inputManager() { return *m_inputManager; }
     TimeManager& timeManager() { return *m_timeManager; }
     DebugConsole* debugConsole() { return m_debugConsole.get(); }
+
+    World& world() { return *m_world; }
+    void replaceWorld(unique_ptr<World> w);
 };
 
 DF3D_DLL EngineController& svc();

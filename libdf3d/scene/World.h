@@ -4,8 +4,12 @@
 
 namespace df3d {
 
+class EntityManager;
+
 class DF3D_DLL World : utils::NonCopyable
 {
+    unique_ptr<EntityManager> m_entityManager;
+
 public:
     World();
     World(const std::string &worldResource);
