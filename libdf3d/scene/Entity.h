@@ -9,6 +9,8 @@ struct Entity
     IdType id;
 
     Entity(uint32_t id = -1) : id(id) { }
+
+    bool valid() const { return id != -1; }
 };
 
 struct ComponentInstance

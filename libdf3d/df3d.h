@@ -67,6 +67,7 @@
 #include <btBulletDynamicsCommon.h>
 
 #include <audio/AudioManager.h>
+#include <audio/AudioComponentProcessor.h>
 
 #include <game/ComponentFactory.h>
 #include <game/NodeFactory.h>
