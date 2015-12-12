@@ -14,6 +14,8 @@ class ComponentDataHolder : utils::NonCopyable
 public:
     ComponentInstance lookup(Entity e)
     {
+        assert(e.valid());
+
         auto found = m_lookup.find(e.id);
         if (found == m_lookup.end())
             return ComponentInstance();
@@ -21,17 +23,21 @@ public:
         return found->second;
     }
 
-    void add(Entity e, const T &componentData)
+    ComponentInstance add(Entity e, const T &componentData)
     {
+        assert(e.valid());
         assert(!contains(e));
 
         ComponentInstance inst(m_data.size());
         m_data.push_back(componentData);
         m_lookup[e.id] = inst;
+
+        return inst;
     }
 
     void remove(Entity e)
     {
+        assert(e.valid());
         assert(contains(e));
 
         // TODO_ecs
@@ -40,6 +46,7 @@ public:
 
     bool contains(Entity e)
     {
+        assert(e.valid());
         return utils::contains_key(m_lookup, e.id);
     }
 

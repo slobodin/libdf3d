@@ -39,7 +39,7 @@ public:
     float getGain(ComponentInstance comp) const;
     bool isLooped(ComponentInstance comp) const;
 
-    void add(Entity e, const std::string &audioFilePath);
+    ComponentInstance add(Entity e, const std::string &audioFilePath);
     void remove(Entity e);
     ComponentInstance lookup(Entity e);
 };

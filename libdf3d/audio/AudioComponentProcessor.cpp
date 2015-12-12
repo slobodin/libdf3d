@@ -72,7 +72,8 @@ AudioComponentProcessor::AudioComponentProcessor()
 
 AudioComponentProcessor::~AudioComponentProcessor()
 {
-
+    assert(false);
+    // TODO_ecs: remove all entities first.
 }
 
 void AudioComponentProcessor::play(ComponentInstance comp)
@@ -155,19 +156,19 @@ bool AudioComponentProcessor::isLooped(ComponentInstance comp) const
     return m_pimpl->data.getData(comp).looped;
 }
 
-void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
+ComponentInstance AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
 {
     if (m_pimpl->data.contains(e))
     {
         glog << "An entity already has an audio component" << logwarn;
-        return;
+        return ComponentInstance();
     }
 
     auto buffer = svc().resourceManager().getFactory().createAudioBuffer(audioFilePath);
     if (!buffer || !buffer->isInitialized())
     {
         glog << "Can not add audio component to an entity. Audio path:" << audioFilePath << logwarn;
-        return;
+        return ComponentInstance();
     }
 
     Impl::Data data;
@@ -181,10 +182,10 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
     if (!data.audioSourceId)
     {
         glog << "Failed to create audio source" << logwarn;
-        return;
+        return ComponentInstance();
     }
 
-    m_pimpl->data.add(e, data);
+    return m_pimpl->data.add(e, data);
 }
 
 void AudioComponentProcessor::remove(Entity e)
