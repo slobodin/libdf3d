@@ -2,11 +2,13 @@
 #include "World.h"
 
 #include "impl/EntityManager.h"
+#include <audio/AudioComponentProcessor.h>
 
 namespace df3d {
 
 World::World()
-    : m_entityManager(new EntityManager())
+    : m_entityManager(new EntityManager()),
+    m_audio(new AudioComponentProcessor())
 {
 
 }

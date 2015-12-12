@@ -4,6 +4,7 @@
 
 namespace df3d {
 
+// TODO_ecs : add test suits.
 class DF3D_DLL EntityManager : utils::NonCopyable
 {
 public:

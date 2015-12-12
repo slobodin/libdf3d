@@ -5,10 +5,13 @@
 namespace df3d {
 
 class EntityManager;
+class AudioComponentProcessor;
 
 class DF3D_DLL World : utils::NonCopyable
 {
     unique_ptr<EntityManager> m_entityManager;
+
+    unique_ptr<AudioComponentProcessor> m_audio;
 
 public:
     World();
@@ -21,6 +24,8 @@ public:
     //Entity spawn(const std::string &entityResource /* transformation */);
 
     // TODO: get processors.
+
+    AudioComponentProcessor& audio() { return *m_audio; }
 };
 
 }

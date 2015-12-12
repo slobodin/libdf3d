@@ -15,7 +15,7 @@ EntityManager::~EntityManager()
 
 Entity EntityManager::create()
 {
-    return Entity();
+    return Entity(32);
 }
 
 void EntityManager::destroy(Entity e)
