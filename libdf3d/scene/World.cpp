@@ -3,12 +3,14 @@
 
 #include "impl/EntityManager.h"
 #include <audio/AudioComponentProcessor.h>
+#include <render/StaticMeshComponentProcessor.h>
 
 namespace df3d {
 
 World::World()
     : m_entityManager(new EntityManager()),
-    m_audio(new AudioComponentProcessor())
+    m_audio(new AudioComponentProcessor()),
+    m_staticMeshes(new StaticMeshComponentProcessor())
 {
 
 }

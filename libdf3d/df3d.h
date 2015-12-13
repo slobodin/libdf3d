@@ -49,6 +49,7 @@
 #include <render/Viewport.h>
 #include <render/Vertex.h>
 #include <render/MeshData.h>
+#include <render/StaticMeshComponentProcessor.h>
 
 #include <input/InputEvents.h>
 #include <input/InputManager.h>
@@ -72,3 +73,5 @@
 #include <game/ComponentFactory.h>
 #include <game/NodeFactory.h>
 #include <game/SceneFactory.h>
+
+#include <particlesys/ParticleSystemComponentProcessor.h>

@@ -6,12 +6,14 @@ namespace df3d {
 
 class EntityManager;
 class AudioComponentProcessor;
+class StaticMeshComponentProcessor;
 
 class DF3D_DLL World : utils::NonCopyable
 {
     unique_ptr<EntityManager> m_entityManager;
 
     unique_ptr<AudioComponentProcessor> m_audio;
+    unique_ptr<StaticMeshComponentProcessor> m_staticMeshes;
 
 public:
     World();
@@ -26,6 +28,7 @@ public:
     // TODO: get processors.
 
     AudioComponentProcessor& audio() { return *m_audio; }
+    StaticMeshComponentProcessor& staticMesh() { return *m_staticMeshes; }
 };
 
 }
