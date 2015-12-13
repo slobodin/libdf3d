@@ -68,4 +68,8 @@ public:
 
 DF3D_DLL EngineController& svc();
 
+// Shortcuts.
+DF3D_DLL World& world();
+DF3D_DLL void replaceWorld(unique_ptr<World> w);
+
 }

@@ -179,4 +179,14 @@ void EngineController::replaceWorld(unique_ptr<World> w)
     m_world = std::move(w);
 }
 
+World& world()
+{
+    return svc().world();
+}
+
+void replaceWorld(unique_ptr<World> w)
+{
+    svc().replaceWorld(std::move(w));
+}
+
 }
