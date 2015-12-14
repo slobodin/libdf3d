@@ -37,7 +37,6 @@ public:
     void setScale(float uniform);
     void setOrientation(const glm::quat &newOrientation);
     void setOrientation(const glm::vec3 &eulerAngles, bool rads = false);
-    void setTransformation(const glm::mat4 &tr);
 
     void translate(const glm::vec3 &v);
     void translate(float x, float y, float z);

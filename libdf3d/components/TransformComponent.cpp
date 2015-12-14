@@ -98,23 +98,6 @@ void TransformComponent::setOrientation(const glm::vec3 &eulerAngles, bool rads)
     setOrientation(glm::quat(v));
 }
 
-void TransformComponent::setTransformation(const glm::mat4 &tr)
-{
-    // FIXME:
-    //auto parent = m_holder->getParent();
-    //if (parent)
-    //    m_transformation = parent->transform()->getTransformation() * tr;
-    //else
-    //    m_transformation = tr;
-
-    m_transformation = tr;
-    markDirty(0);
-
-    sendEvent(ComponentEvent::POSITION_CHANGED);
-    sendEvent(ComponentEvent::SCALE_CHANGED);
-    sendEvent(ComponentEvent::ORIENTATION_CHANGED);
-}
-
 void TransformComponent::translate(const glm::vec3 &v)
 {
     m_position += v;
