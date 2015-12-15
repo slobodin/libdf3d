@@ -39,29 +39,21 @@ void ParticleSystemComponentProcessor::stop(ComponentInstance comp)
 
 void ParticleSystemComponentProcessor::pause(ComponentInstance comp, bool paused)
 {
-    assert(comp.valid());
-
     m_pimpl->data.getData(comp).paused = paused;
 }
 
 void ParticleSystemComponentProcessor::setSystemLifeTime(ComponentInstance comp, float lifeTime)
 {
-    assert(comp.valid());
-
     m_pimpl->data.getData(comp).systemLifeTime = lifeTime;
 }
 
 void ParticleSystemComponentProcessor::setWorldTransformed(ComponentInstance comp, bool worldTransformed)
 {
-    assert(comp.valid());
-
     m_pimpl->data.getData(comp).worldTransformed = worldTransformed;
 }
 
 float ParticleSystemComponentProcessor::getSystemLifeTime(ComponentInstance comp) const
 {
-    assert(comp.valid());
-
     return m_pimpl->data.getData(comp).systemLifeTime;
 }
 
