@@ -34,6 +34,7 @@
 #include <scene/SceneManager.h>
 #include <scene/Entity.h>
 #include <scene/World.h>
+#include <scene/TransformComponentProcessor.h>
 
 #include <math/BoundingVolume.h>
 #include <math/AABB.h>
@@ -64,6 +65,7 @@
 #include <gui/GuiManager.h>
 
 #include <physics/PhysicsManager.h>
+#include <physics/PhysicsComponentProcessor.h>
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 
