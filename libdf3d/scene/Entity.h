@@ -8,16 +8,18 @@ struct Entity
 
     IdType id;
 
-    Entity(uint32_t id = -1) : id(id) { }
+    Entity(IdType id = -1) : id(id) { }
 
     bool valid() const { return id != -1; }
 };
 
 struct ComponentInstance
 {
-    int32_t id;
+    using IdType = int32_t;
 
-    ComponentInstance(uint32_t id = -1) : id(id) { }
+    IdType id;
+
+    ComponentInstance(IdType id = -1) : id(id) { }
 
     bool valid() const { return id != -1; }
 };
