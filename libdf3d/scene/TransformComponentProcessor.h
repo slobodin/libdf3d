@@ -8,6 +8,9 @@ namespace df3d {
 
 class DF3D_DLL TransformComponentProcessor : utils::NonCopyable
 {
+    struct Impl;
+    unique_ptr<Impl> m_pimpl;
+
 public:
     TransformComponentProcessor();
     ~TransformComponentProcessor();
@@ -19,7 +22,6 @@ public:
     void setScale(ComponentInstance comp, float uniform);
     void setOrientation(ComponentInstance comp, const glm::quat &newOrientation);
     void setOrientation(ComponentInstance comp, const glm::vec3 &eulerAngles, bool rads = false);
-    void setTransformation(ComponentInstance comp, const glm::mat4 &tr);
 
     void translate(ComponentInstance comp, const glm::vec3 &v);
     void translate(ComponentInstance comp, float x, float y, float z);
