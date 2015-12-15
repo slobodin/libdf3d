@@ -51,6 +51,17 @@ struct AudioComponentProcessor::Impl
 
 void AudioComponentProcessor::update(float systemDelta, float gameDelta)
 {
+    for (auto &compData : m_pimpl->data.rawData())
+    {
+        /*
+        if (getAudioState(compData.audioSourceId) == State::STOPPED)
+        {
+
+        }
+        */
+    }
+
+
     /*
     if (!m_audioSourceId)
         return;
