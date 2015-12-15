@@ -15,12 +15,25 @@ EntityManager::~EntityManager()
 
 Entity EntityManager::create()
 {
-    return Entity(32);
+    m_next.id++;
+
+    m_entities.insert(m_next.id);
+
+    return m_next;
 }
 
 void EntityManager::destroy(Entity e)
 {
+    assert(e.valid());
 
+    m_entities.erase(e.id);
+}
+
+bool EntityManager::alive(Entity e)
+{
+    assert(e.valid());
+
+    return m_entities.find(e.id) != m_entities.end();
 }
 
 }
