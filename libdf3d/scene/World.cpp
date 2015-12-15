@@ -40,4 +40,9 @@ bool World::alive(Entity e)
     return m_entityManager->alive(e);
 }
 
+void World::destroy(Entity e)
+{
+    m_entityManager->destroy(e);
+}
+
 }

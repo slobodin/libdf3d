@@ -25,6 +25,7 @@ public:
     //Entity spawn(const std::string &entityResource /* position */);
     //Entity spawn(const std::string &entityResource /* transformation */);
     bool alive(Entity e);
+    void destroy(Entity e);
 
     // TODO: get processors.
 
