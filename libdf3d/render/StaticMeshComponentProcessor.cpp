@@ -47,8 +47,6 @@ StaticMeshComponentProcessor::~StaticMeshComponentProcessor()
 
 shared_ptr<MeshData> StaticMeshComponentProcessor::getMeshData(ComponentInstance comp) const
 {
-    assert(comp.valid());
-
     return m_pimpl->data.getData(comp).meshData;
 }
 
@@ -69,15 +67,11 @@ OBB StaticMeshComponentProcessor::getOBB(ComponentInstance comp)
 
 void StaticMeshComponentProcessor::setVisible(ComponentInstance comp, bool visible)
 {
-    assert(comp.valid());
-
     m_pimpl->data.getData(comp).visible = visible;
 }
 
 void StaticMeshComponentProcessor::disableFrustumCulling(ComponentInstance comp, bool disable)
 {
-    assert(comp.valid());
-
     m_pimpl->data.getData(comp).frustumCullingDisabled = disable;
 }
 

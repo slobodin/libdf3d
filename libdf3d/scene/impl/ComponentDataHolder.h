@@ -51,8 +51,19 @@ public:
         return utils::contains_key(m_lookup, e.id);
     }
 
-    const T& getData(ComponentInstance inst) const { return m_data[inst.id]; }
-    T& getData(ComponentInstance inst) { return m_data[inst.id]; }
+    const T& getData(ComponentInstance inst) const 
+    { 
+        assert(inst.valid());
+
+        return m_data[inst.id]; 
+    }
+
+    T& getData(ComponentInstance inst) 
+    {
+        assert(inst.valid());
+
+        return m_data[inst.id]; 
+    }
 
     const T* rawData() const { return m_data.data(); }
     T* rawData() { return m_data.data(); }

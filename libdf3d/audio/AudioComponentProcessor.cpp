@@ -78,8 +78,6 @@ AudioComponentProcessor::~AudioComponentProcessor()
 
 void AudioComponentProcessor::play(ComponentInstance comp)
 {
-    assert(comp.valid());
-
     const auto &compData = m_pimpl->data.getData(comp);
 
     if (getAudioState(compData.audioSourceId) != AudioComponentProcessor::State::PLAYING)
@@ -88,8 +86,6 @@ void AudioComponentProcessor::play(ComponentInstance comp)
 
 void AudioComponentProcessor::stop(ComponentInstance comp)
 {
-    assert(comp.valid());
-
     const auto &compData = m_pimpl->data.getData(comp);
 
     if (getAudioState(compData.audioSourceId) != AudioComponentProcessor::State::STOPPED)
@@ -98,8 +94,6 @@ void AudioComponentProcessor::stop(ComponentInstance comp)
 
 void AudioComponentProcessor::pause(ComponentInstance comp)
 {
-    assert(comp.valid());
-
     const auto &compData = m_pimpl->data.getData(comp);
 
     if (getAudioState(compData.audioSourceId) != AudioComponentProcessor::State::PAUSED)
@@ -108,8 +102,6 @@ void AudioComponentProcessor::pause(ComponentInstance comp)
 
 void AudioComponentProcessor::setPitch(ComponentInstance comp, float pitch)
 {
-    assert(comp.valid());
-
     auto &compData = m_pimpl->data.getData(comp);
 
     compData.pitch = pitch;
@@ -118,8 +110,6 @@ void AudioComponentProcessor::setPitch(ComponentInstance comp, float pitch)
 
 void AudioComponentProcessor::setGain(ComponentInstance comp, float gain)
 {
-    assert(comp.valid());
-
     auto &compData = m_pimpl->data.getData(comp);
 
     compData.gain = gain;
@@ -128,8 +118,6 @@ void AudioComponentProcessor::setGain(ComponentInstance comp, float gain)
 
 void AudioComponentProcessor::setLooped(ComponentInstance comp, bool looped)
 {
-    assert(comp.valid());
-
     auto &compData = m_pimpl->data.getData(comp);
     compData.looped = looped;
     alSourcei(compData.audioSourceId, AL_LOOPING, looped);
@@ -137,22 +125,16 @@ void AudioComponentProcessor::setLooped(ComponentInstance comp, bool looped)
 
 float AudioComponentProcessor::getPitch(ComponentInstance comp) const
 {
-    assert(comp.valid());
-
     return m_pimpl->data.getData(comp).pitch;
 }
 
 float AudioComponentProcessor::getGain(ComponentInstance comp) const
 {
-    assert(comp.valid());
-
     return m_pimpl->data.getData(comp).gain;
 }
 
 bool AudioComponentProcessor::isLooped(ComponentInstance comp) const
 {
-    assert(comp.valid());
-
     return m_pimpl->data.getData(comp).looped;
 }
 
