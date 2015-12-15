@@ -20,7 +20,7 @@ struct TransformComponentProcessor::Impl
         //! Node local scale.
         glm::vec3 scaling = glm::vec3(1.0f, 1.0f, 1.0f);
 
-        ComponentInstance *parent = nullptr;
+        ComponentInstance parent;
         std::vector<ComponentInstance> children;
 
         std::string nodeName;
@@ -33,8 +33,8 @@ struct TransformComponentProcessor::Impl
         // Scale -> Rotation -> Translation
         auto tr = glm::translate(component.position) * glm::toMat4(component.orientation) * glm::scale(component.scaling);
 
-        if (component.parent)
-            component.transformation = data.getData(*component.parent).transformation * tr; // tr = parent * me
+        if (component.parent.valid())
+            component.transformation = data.getData(component.parent).transformation * tr; // tr = parent * me
         else
             component.transformation = tr;
 
@@ -178,12 +178,12 @@ glm::vec3 TransformComponentProcessor::getPosition(ComponentInstance comp, bool 
         return glm::vec3(compData.transformation[3]);
 }
 
-glm::vec3 TransformComponentProcessor::getScale(ComponentInstance comp, bool includeParent)
+glm::vec3 TransformComponentProcessor::getScale(ComponentInstance comp)
 {
     return m_pimpl->data.getData(comp).scaling;
 }
 
-glm::quat TransformComponentProcessor::getOrientation(ComponentInstance comp, bool includeParent)
+glm::quat TransformComponentProcessor::getOrientation(ComponentInstance comp)
 {
     return m_pimpl->data.getData(comp).orientation;
 }
@@ -193,7 +193,7 @@ glm::mat4 TransformComponentProcessor::getTransformation(ComponentInstance comp)
     return m_pimpl->data.getData(comp).transformation;
 }
 
-glm::vec3 TransformComponentProcessor::getRotation(ComponentInstance comp, bool rads, bool includeParent)
+glm::vec3 TransformComponentProcessor::getRotation(ComponentInstance comp, bool rads)
 {
     const auto &compData = m_pimpl->data.getData(comp);
 
@@ -203,19 +203,76 @@ glm::vec3 TransformComponentProcessor::getRotation(ComponentInstance comp, bool 
         return glm::degrees(glm::eulerAngles(compData.orientation));
 }
 
-ComponentInstance TransformComponentProcessor::add(Entity e)
+void TransformComponentProcessor::addChild(ComponentInstance parent, ComponentInstance child)
 {
-    return ComponentInstance();
+    if (getParent(child).valid())
+    {
+        glog << "Can not add child entity. An entity already has a parent" << logwarn;
+        return;
+    }
+
+    auto &parentCompData = m_pimpl->data.getData(parent);
+    auto &childCompData = m_pimpl->data.getData(child);
+
+    parentCompData.children.push_back(child);
+    childCompData.parent = parent;
+}
+
+void TransformComponentProcessor::removeChild(ComponentInstance parent, ComponentInstance child)
+{
+    // TODO_ecs:
+    assert(false);
+}
+
+void TransformComponentProcessor::removeAllChildren(ComponentInstance comp)
+{
+    // TODO_ecs:
+    assert(false);
+}
+
+ComponentInstance TransformComponentProcessor::getParent(ComponentInstance comp)
+{
+    return m_pimpl->data.getData(comp).parent;
+}
+
+ComponentInstance TransformComponentProcessor::add(Entity e, const std::string &name)
+{
+    if (m_pimpl->data.contains(e))
+    {
+        glog << "An entity already has an scene graph component" << logwarn;
+        return ComponentInstance();
+    }
+
+    Impl::Data data;
+    data.nodeName = name;
+    if (data.nodeName.empty())
+    {
+        static uint32_t nodesCount;
+        data.nodeName = std::string("unnamed_node_") + utils::to_string(nodesCount++);
+    }
+
+    return m_pimpl->data.add(e, data);
 }
 
 void TransformComponentProcessor::remove(Entity e)
 {
+    if (!m_pimpl->data.contains(e))
+    {
+        glog << "Failed to remove scene graph component from an entity. Component is not attached" << logwarn;
+        return;
+    }
 
+    auto compInst = m_pimpl->data.lookup(e);
+
+    // TODO_ecs: parent & children
+    assert(false);
+
+    m_pimpl->data.remove(e);
 }
 
 ComponentInstance TransformComponentProcessor::lookup(Entity e)
 {
-    return ComponentInstance();
+    return m_pimpl->data.lookup(e);
 }
 
 }

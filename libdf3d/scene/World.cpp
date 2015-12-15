@@ -35,4 +35,9 @@ Entity World::spawn(const std::string &entityResource)
     return m_entityManager->create();
 }
 
+bool World::alive(Entity e)
+{
+    return m_entityManager->alive(e);
+}
+
 }

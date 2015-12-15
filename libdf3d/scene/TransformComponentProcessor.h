@@ -35,12 +35,17 @@ public:
 
     // TODO_ecs: make getWorldPosition & getLocalPosition instead.
     glm::vec3 getPosition(ComponentInstance comp, bool includeParent = false);
-    glm::vec3 getScale(ComponentInstance comp, bool includeParent = false);
-    glm::quat getOrientation(ComponentInstance comp, bool includeParent = false);
+    glm::vec3 getScale(ComponentInstance comp);
+    glm::quat getOrientation(ComponentInstance comp);
     glm::mat4 getTransformation(ComponentInstance comp);
-    glm::vec3 getRotation(ComponentInstance comp, bool rads = false, bool includeParent = false);
+    glm::vec3 getRotation(ComponentInstance comp, bool rads = false);
 
-    ComponentInstance add(Entity e);
+    void addChild(ComponentInstance parent, ComponentInstance child);
+    void removeChild(ComponentInstance parent, ComponentInstance child);
+    void removeAllChildren(ComponentInstance comp);
+    ComponentInstance getParent(ComponentInstance comp);
+
+    ComponentInstance add(Entity e, const std::string &name = "");
     void remove(Entity e);
     ComponentInstance lookup(Entity e);
 };
