@@ -65,8 +65,7 @@ public:
         return m_data[inst.id]; 
     }
 
-    const T* rawData() const { return m_data.data(); }
-    T* rawData() { return m_data.data(); }
+    std::vector<T> rawData() { return m_data; }
 };
 
 }
