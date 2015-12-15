@@ -5,6 +5,7 @@
 namespace df3d {
 
 class AudioBuffer;
+class World;
 
 class DF3D_DLL AudioComponentProcessor : utils::NonCopyable
 {
@@ -22,6 +23,7 @@ private:
     unique_ptr<Impl> m_pimpl;
 
     void update(float systemDelta, float gameDelta);
+    void cleanStep(World &world);
 
 public:
     AudioComponentProcessor();

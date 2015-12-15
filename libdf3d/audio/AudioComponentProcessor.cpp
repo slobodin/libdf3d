@@ -4,6 +4,7 @@
 #include "AudioBuffer.h"
 #include "impl/OpenALCommon.h"
 #include <scene/impl/ComponentDataHolder.h>
+#include <scene/World.h>
 #include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>
@@ -37,6 +38,8 @@ struct AudioComponentProcessor::Impl
 {
     struct Data
     {
+        Entity holder;
+
         unsigned audioSourceId = 0;
         float pitch = 1.0f;
         float gain = 1.0f;
@@ -62,6 +65,21 @@ void AudioComponentProcessor::update(float systemDelta, float gameDelta)
     if (getState() == State::STOPPED)
         m_holder->detachComponent(ComponentType::AUDIO);
     */
+}
+
+void AudioComponentProcessor::cleanStep(World &world)
+{
+    // TODO_ecs:
+    assert(false);
+    // TODO_ecs: more efficient removing.
+    /*
+    for (auto it = m_pimpl->data.rawData().begin(); it != m_pimpl->data.rawData().end(); )
+    {
+        if (!m_pimpl->world.alive(it->holder))
+            it = m_pimpl->data.rawData().erase(it);
+        else
+            it++;
+    }*/
 }
 
 AudioComponentProcessor::AudioComponentProcessor()
@@ -166,6 +184,8 @@ ComponentInstance AudioComponentProcessor::add(Entity e, const std::string &audi
         glog << "Failed to create audio source" << logwarn;
         return ComponentInstance();
     }
+
+    data.holder = e;
 
     return m_pimpl->data.add(e, data);
 }
