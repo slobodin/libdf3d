@@ -4,6 +4,7 @@
 #include <scene/EntityComponentProcessor.h>
 
 class btRigidBody;
+class btDynamicsWorld;
 
 namespace df3d {
 
@@ -26,6 +27,11 @@ public:
     };
 
 private:
+    struct Impl;
+    unique_ptr<Impl> m_pimpl;
+
+    void update(float systemDelta, float gameDelta) override;
+    void draw(RenderQueue *ops) override;
 
 public:
     PhysicsComponentProcessor();
@@ -38,6 +44,9 @@ public:
     ComponentInstance add(Entity e, const CreationParams &params, const ConvexHull &hull);
     void remove(Entity e);
     ComponentInstance lookup(Entity e);
+
+    btDynamicsWorld* getPhysicsWorld();
+    void pauseSimulation(bool paused);
 };
 
 }
