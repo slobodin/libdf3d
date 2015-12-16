@@ -65,7 +65,7 @@ void AudioComponentProcessor::update(float systemDelta, float gameDelta)
     }
 }
 
-void AudioComponentProcessor::cleanStep(World &world)
+void AudioComponentProcessor::cleanStep(World &w)
 {
     // TODO_ecs:
     assert(false);

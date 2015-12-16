@@ -1,11 +1,12 @@
 #pragma once
 
 #include <scene/Entity.h>
+#include <scene/EntityComponentProcessor.h>
 #include <SPARK.h>
 
 namespace df3d {
 
-class DF3D_DLL ParticleSystemComponentProcessor : utils::NonCopyable
+class DF3D_DLL ParticleSystemComponentProcessor : public EntityComponentProcessor
 {
     struct Impl;
     unique_ptr<Impl> m_pimpl;

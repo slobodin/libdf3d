@@ -1,12 +1,13 @@
 #pragma once
 
 #include <scene/Entity.h>
+#include <scene/EntityComponentProcessor.h>
 
 namespace df3d {
 
 // TODO_ecs: rename to scenegraph component mb?
 
-class DF3D_DLL TransformComponentProcessor : utils::NonCopyable
+class DF3D_DLL TransformComponentProcessor : public EntityComponentProcessor
 {
     struct Impl;
     unique_ptr<Impl> m_pimpl;

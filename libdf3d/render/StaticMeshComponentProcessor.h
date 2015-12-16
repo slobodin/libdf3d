@@ -1,6 +1,7 @@
 #pragma once
 
 #include <scene/Entity.h>
+#include <scene/EntityComponentProcessor.h>
 #include <math/AABB.h>
 #include <math/BoundingSphere.h>
 #include <math/OBB.h>
@@ -8,11 +9,15 @@
 namespace df3d {
 
 class MeshData;
+class RenderQueue;
 
-class DF3D_DLL StaticMeshComponentProcessor : utils::NonCopyable
+class DF3D_DLL StaticMeshComponentProcessor : public EntityComponentProcessor
 {
     struct Impl;
     unique_ptr<Impl> m_pimpl;
+
+    void draw(RenderQueue *ops) override;
+    void cleanStep(World &w) override;
 
 public:
     StaticMeshComponentProcessor();

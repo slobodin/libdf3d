@@ -10,6 +10,28 @@
 
 namespace df3d {
 
+void World::update(float systemDelta, float gameDelta)
+{
+    // TODO: Update client processors.
+    // TODO_ecs: ordering.
+
+    m_physics->update(systemDelta, gameDelta);
+    m_tranform->update(systemDelta, gameDelta);
+    m_vfx->update(systemDelta, gameDelta);
+    m_staticMeshes->update(systemDelta, gameDelta);
+    m_audio->update(systemDelta, gameDelta);
+}
+
+void World::draw(RenderQueue *ops)
+{
+    m_staticMeshes->draw(ops);
+}
+
+void World::cleanStep()
+{
+
+}
+
 World::World()
     : m_entityManager(new EntityManager()),
     m_audio(new AudioComponentProcessor()),
@@ -36,7 +58,7 @@ Entity World::spawn()
     auto entity = m_entityManager->create();
     // NOTE: forcing have transform component, otherwise have some problems (especially performance)
     // with systems that require transform component.
-    m_tranform->add(entity);
+    ((TransformComponentProcessor*)m_tranform.get())->add(entity);
 
     return entity;
 }
@@ -56,6 +78,31 @@ bool World::alive(Entity e)
 void World::destroy(Entity e)
 {
     m_entityManager->destroy(e);
+}
+
+AudioComponentProcessor& World::audio() 
+{ 
+    return static_cast<AudioComponentProcessor&>(*m_audio); 
+}
+
+StaticMeshComponentProcessor& World::staticMesh()
+{
+    return static_cast<StaticMeshComponentProcessor&>(*m_staticMeshes); 
+}
+
+ParticleSystemComponentProcessor& World::vfx()
+{
+    return static_cast<ParticleSystemComponentProcessor&>(*m_vfx); 
+}
+
+PhysicsComponentProcessor& World::physics()
+{ 
+    return static_cast<PhysicsComponentProcessor&>(*m_physics); 
+}
+
+TransformComponentProcessor& World::transform()
+{ 
+    return static_cast<TransformComponentProcessor&>(*m_tranform);
 }
 
 }

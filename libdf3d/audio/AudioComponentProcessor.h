@@ -1,13 +1,14 @@
 #pragma once
 
 #include <scene/Entity.h>
+#include <scene/EntityComponentProcessor.h>
 
 namespace df3d {
 
 class AudioBuffer;
 class World;
 
-class DF3D_DLL AudioComponentProcessor : utils::NonCopyable
+class DF3D_DLL AudioComponentProcessor : public EntityComponentProcessor
 {
 public:
     enum class State
@@ -22,8 +23,8 @@ private:
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
-    void update(float systemDelta, float gameDelta);
-    void cleanStep(World &world);
+    void update(float systemDelta, float gameDelta) override;
+    void cleanStep(World &w) override;
 
 public:
     AudioComponentProcessor();

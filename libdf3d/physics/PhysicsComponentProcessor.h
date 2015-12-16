@@ -1,6 +1,7 @@
 #pragma once
 
 #include <scene/Entity.h>
+#include <scene/EntityComponentProcessor.h>
 
 class btRigidBody;
 
@@ -10,7 +11,7 @@ class AABB;
 class BoundingSphere;
 class ConvexHull;
 
-class DF3D_DLL PhysicsComponentProcessor : utils::NonCopyable
+class DF3D_DLL PhysicsComponentProcessor : public EntityComponentProcessor
 {
 public:
     struct CreationParams

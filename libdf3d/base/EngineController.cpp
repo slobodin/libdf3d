@@ -129,6 +129,7 @@ void EngineController::step()
     auto systemDelta = m_timeManager->getSystemFrameTimeDuration();
     auto gameDelta = m_timeManager->getGameFrameTimeDuration();
 
+    // TODO_ecs: this will be removed completely!!!
     m_resourceManager->poll();
     m_audioManager->update(systemDelta, gameDelta);
     m_physics->update(systemDelta, gameDelta);
@@ -139,6 +140,9 @@ void EngineController::step()
     // Update client code.
     m_timeManager->flushPendingWorkers();
     m_timeManager->updateListeners();
+
+    m_world->update(systemDelta, gameDelta);
+    m_world->cleanStep();
 
     // Clean step.
     // TODO: clean up each n secs.

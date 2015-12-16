@@ -134,6 +134,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Entity.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/EntityComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.h

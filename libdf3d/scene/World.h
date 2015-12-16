@@ -10,16 +10,24 @@ class StaticMeshComponentProcessor;
 class ParticleSystemComponentProcessor;
 class PhysicsComponentProcessor;
 class TransformComponentProcessor;
+class RenderQueue;
+class EntityComponentProcessor;
 
 class DF3D_DLL World : utils::NonCopyable
 {
+    friend class EngineController;
+
     unique_ptr<EntityManager> m_entityManager;
 
-    unique_ptr<AudioComponentProcessor> m_audio;
-    unique_ptr<StaticMeshComponentProcessor> m_staticMeshes;
-    unique_ptr<ParticleSystemComponentProcessor> m_vfx;
-    unique_ptr<PhysicsComponentProcessor> m_physics;
-    unique_ptr<TransformComponentProcessor> m_tranform;
+    unique_ptr<EntityComponentProcessor> m_audio;
+    unique_ptr<EntityComponentProcessor> m_staticMeshes;
+    unique_ptr<EntityComponentProcessor> m_vfx;
+    unique_ptr<EntityComponentProcessor> m_physics;
+    unique_ptr<EntityComponentProcessor> m_tranform;
+
+    void update(float systemDelta, float gameDelta);
+    void draw(RenderQueue *ops);
+    void cleanStep();
 
 public:
     World();
@@ -33,11 +41,11 @@ public:
     bool alive(Entity e);
     void destroy(Entity e);
 
-    AudioComponentProcessor& audio() { return *m_audio; }
-    StaticMeshComponentProcessor& staticMesh() { return *m_staticMeshes; }
-    ParticleSystemComponentProcessor& vfx() { return *m_vfx; }
-    PhysicsComponentProcessor& physics() { return *m_physics; }
-    TransformComponentProcessor& transform() { return *m_tranform; }
+    AudioComponentProcessor& audio();
+    StaticMeshComponentProcessor& staticMesh();
+    ParticleSystemComponentProcessor& vfx();
+    PhysicsComponentProcessor& physics();
+    TransformComponentProcessor& transform();
 };
 
 }
