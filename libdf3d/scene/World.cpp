@@ -80,6 +80,12 @@ void World::destroy(Entity e)
     m_entityManager->destroy(e);
 }
 
+void World::pauseSimulation(bool paused)
+{
+    // TODO_ecs:
+    assert(false);
+}
+
 AudioComponentProcessor& World::audio() 
 { 
     return static_cast<AudioComponentProcessor&>(*m_audio); 

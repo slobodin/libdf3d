@@ -41,6 +41,8 @@ public:
     bool alive(Entity e);
     void destroy(Entity e);
 
+    void pauseSimulation(bool paused);
+
     AudioComponentProcessor& audio();
     StaticMeshComponentProcessor& staticMesh();
     ParticleSystemComponentProcessor& vfx();
