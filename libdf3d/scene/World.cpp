@@ -4,13 +4,19 @@
 #include "impl/EntityManager.h"
 #include <audio/AudioComponentProcessor.h>
 #include <render/StaticMeshComponentProcessor.h>
+#include <particlesys/ParticleSystemComponentProcessor.h>
+#include <physics/PhysicsComponentProcessor.h>
+#include <scene/TransformComponentProcessor.h>
 
 namespace df3d {
 
 World::World()
     : m_entityManager(new EntityManager()),
     m_audio(new AudioComponentProcessor()),
-    m_staticMeshes(new StaticMeshComponentProcessor())
+    m_staticMeshes(new StaticMeshComponentProcessor()),
+    m_vfx(new ParticleSystemComponentProcessor()),
+    m_physics(new PhysicsComponentProcessor()),
+    m_tranform(new TransformComponentProcessor())
 {
 
 }
