@@ -5,6 +5,7 @@ namespace df3d { namespace utils { namespace math {
 extern const DF3D_DLL glm::vec4 XAxis;
 extern const DF3D_DLL glm::vec4 YAxis;
 extern const DF3D_DLL glm::vec4 ZAxis;
+extern const DF3D_DLL glm::vec3 UnitVec3;
 
 // Creates rotation which rotates from v1 to v2.
 DF3D_DLL glm::quat fromToRotation(const glm::vec3 &v1, const glm::vec3 &v2);

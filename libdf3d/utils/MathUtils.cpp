@@ -5,6 +5,7 @@ namespace df3d { namespace utils { namespace math {
 const glm::vec4 XAxis = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
 const glm::vec4 YAxis = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
 const glm::vec4 ZAxis = glm::vec4(0.0f, 0.0f, 1.0f, 0.0f);
+const glm::vec3 UnitVec3 = glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f));
 
 glm::quat fromToRotation(const glm::vec3 &v1, const glm::vec3 &v2)
 {
