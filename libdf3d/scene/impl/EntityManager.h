@@ -4,7 +4,6 @@
 
 namespace df3d {
 
-// TODO_ecs : add test suits.
 class EntityManager : utils::NonCopyable
 {
     std::unordered_set<Entity::IdType> m_entities;

@@ -4,6 +4,7 @@
 #include "AudioBuffer.h"
 #include "impl/OpenALCommon.h"
 #include <scene/impl/ComponentDataHolder.h>
+#include <scene/TransformComponentProcessor.h>
 #include <scene/World.h>
 #include <base/EngineController.h>
 #include <resources/ResourceManager.h>
@@ -31,14 +32,14 @@ static AudioComponentProcessor::State getAudioState(unsigned audioSourceId)
         return AudioComponentProcessor::State::INITIAL;
     }
 
-    return  AudioComponentProcessor::State::INITIAL;
+    return AudioComponentProcessor::State::INITIAL;
 }
 
 struct AudioComponentProcessor::Impl
 {
     struct Data
     {
-        Entity holder;
+        ComponentInstance transformComponent;
 
         unsigned audioSourceId = 0;
         float pitch = 1.0f;
@@ -51,31 +52,17 @@ struct AudioComponentProcessor::Impl
 
 void AudioComponentProcessor::update(float systemDelta, float gameDelta)
 {
+    auto &transformSystem = world().transform();
+
     for (auto &compData : m_pimpl->data.rawData())
     {
-        /*
+        // If it has stopped, then do not update it.
         if (getAudioState(compData.audioSourceId) == State::STOPPED)
-        {
+            continue;
 
-        }
-        */
+        auto pos = transformSystem.getPosition(compData.transformComponent, true);
+        alSourcefv(compData.audioSourceId, AL_POSITION, glm::value_ptr(pos));
     }
-
-
-    /*
-    if (!m_audioSourceId)
-        return;
-
-    if (m_holder->transform())
-    {
-        auto pos = m_holder->transform()->getPosition();
-        alSourcefv(m_audioSourceId, AL_POSITION, glm::value_ptr(pos));
-    }
-
-    // If it has stopped, then remove from the holder.
-    if (getState() == State::STOPPED)
-        m_holder->detachComponent(ComponentType::AUDIO);
-    */
 }
 
 void AudioComponentProcessor::cleanStep(World &world)
@@ -196,7 +183,8 @@ ComponentInstance AudioComponentProcessor::add(Entity e, const std::string &audi
         return ComponentInstance();
     }
 
-    data.holder = e;
+    data.transformComponent = world().transform().lookup(e);
+    assert(data.transformComponent.valid());
 
     return m_pimpl->data.add(e, data);
 }
