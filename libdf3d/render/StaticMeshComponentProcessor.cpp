@@ -3,6 +3,8 @@
 
 #include <base/EngineController.h>
 #include <scene/World.h>
+#include <scene/Camera.h>
+#include <scene/SceneManager.h>
 #include <scene/TransformComponentProcessor.h>
 #include <scene/impl/ComponentDataHolder.h>
 #include <resources/ResourceManager.h>
@@ -25,12 +27,59 @@ struct StaticMeshComponentProcessor::Impl
     };
 
     ComponentDataHolder<Data> data;
+
+    static BoundingSphere getBoundingSphere(const Data &compData)
+    {
+        // TODO_ecs: mb move this to helpers.
+        auto meshDataSphere = compData.meshData->getBoundingSphere();
+        if (!meshDataSphere || !meshDataSphere->isValid())
+            return BoundingSphere();
+
+        BoundingSphere sphere = *meshDataSphere;
+
+        // Update transformation.
+        auto pos = world().transform().getPosition(compData.transformComponent, true);
+        auto scale = world().transform().getScale(compData.transformComponent);
+        sphere.setPosition(pos);
+
+        // FIXME: absolutely incorrect!!! Should take into account children.
+        // TODO_ecs: 
+
+        // FIXME: wtf is this??? Why can't just scale radius?
+        auto rad = sphere.getRadius() * utils::math::UnitVec3;
+        rad.x *= scale.x;
+        rad.y *= scale.y;
+        rad.z *= scale.z;
+        sphere.setRadius(glm::length(rad));
+
+        return sphere;
+    }
 };
 
 void StaticMeshComponentProcessor::draw(RenderQueue *ops)
 {
+    auto &transformProcessor = world().transform();
 
+    for (const auto &compData : m_pimpl->data.rawData())
+    {
+        if (!compData.meshData->isInitialized())
+            continue;
+
+        if (!compData.visible)
+            continue;
+
+        if (!compData.frustumCullingDisabled)
+        {
+            const auto &frustum = svc().sceneManager().getCamera()->getFrustum();
+            if (!frustum.sphereInFrustum(Impl::getBoundingSphere(compData)))
+                continue;
+        }
+
+        // TODO_ecs: remove this method.
+        compData.meshData->populateRenderQueue(ops, transformProcessor.getTransformation(compData.transformComponent));
+    }
 }
+
 void StaticMeshComponentProcessor::cleanStep(World &w)
 {
 
@@ -82,29 +131,7 @@ BoundingSphere StaticMeshComponentProcessor::getBoundingSphere(ComponentInstance
 {
     // FIXME: mb cache if transformation hasn't been changed?
     const auto &compData = m_pimpl->data.getData(comp);
-
-    auto meshDataSphere = compData.meshData->getBoundingSphere();
-    if (!meshDataSphere || !meshDataSphere->isValid())
-        return BoundingSphere();
-
-    BoundingSphere sphere = *meshDataSphere;
-
-    // Update transformation.
-    auto pos = world().transform().getPosition(compData.transformComponent, true);
-    auto scale = world().transform().getScale(compData.transformComponent);
-    sphere.setPosition(pos);
-
-    // FIXME: absolutely incorrect!!! Should take into account children.
-    // TODO_ecs: 
-
-    // FIXME: wtf is this??? Why can't just scale radius?
-    auto rad = sphere.getRadius() * utils::math::UnitVec3;
-    rad.x *= scale.x;
-    rad.y *= scale.y;
-    rad.z *= scale.z;
-    sphere.setRadius(glm::length(rad));
-
-    return sphere;
+    return Impl::getBoundingSphere(compData);
 }
 
 OBB StaticMeshComponentProcessor::getOBB(ComponentInstance comp)
