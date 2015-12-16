@@ -12,7 +12,7 @@
 #include <render/RenderOperation.h>
 #include <render/RenderQueue.h>
 
-namespace df3d {
+namespace df3d { namespace particlesys_impl {
 
 const int QUAD_VERTICES_PER_PARTICLE = 4;
 const int QUAD_INDICES_PER_PARTICLE = 6;
@@ -427,4 +427,4 @@ void destroySparkEngine()
     SPK_DUMP_MEMORY
 }
 
-}
+} }

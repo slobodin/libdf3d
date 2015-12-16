@@ -64,7 +64,7 @@ void EngineController::initialize(EngineInitParams params)
         m_sceneManager = make_unique<SceneManager>();
 
         // Spark particle engine init.
-        initSparkEngine();
+        particlesys_impl::initSparkEngine();
 
         // Init GUI.
         m_guiManager = make_unique<GuiManager>(params.windowWidth, params.windowHeight);
@@ -119,7 +119,7 @@ void EngineController::shutdown()
     m_inputManager.reset();
     m_timeManager.reset();
 
-    destroySparkEngine();
+    particlesys_impl::destroySparkEngine();
 }
 
 void EngineController::step()

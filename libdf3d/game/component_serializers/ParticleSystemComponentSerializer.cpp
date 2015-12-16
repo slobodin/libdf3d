@@ -13,6 +13,8 @@
 
 namespace df3d { namespace component_serializers {
 
+using namespace particlesys_impl;
+
 std::map<std::string, SPK::Param> StringToSparkParam =
 {
     { "angle", SPK::PARAM_ANGLE },

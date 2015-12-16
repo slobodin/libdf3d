@@ -4,12 +4,15 @@
 
 #include <render/RenderOperation.h>
 
-namespace df3d {
+namespace df3d { 
 
-class MyRenderBuffer;
 class RenderQueue;
 class Texture;
 class RenderPass;
+
+namespace particlesys_impl {
+
+class MyRenderBuffer;
 
 class ParticleSystemRenderer : public SPK::Renderer
 {
@@ -101,4 +104,4 @@ inline glm::vec3 spkToGlm(const SPK::Vector3D &v)
 void initSparkEngine();
 void destroySparkEngine();
 
-}
+} }

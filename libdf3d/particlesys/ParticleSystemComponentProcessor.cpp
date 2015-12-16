@@ -45,7 +45,7 @@ struct ParticleSystemComponentProcessor::Impl
                     pos = glm::vec3((invWorldTransform * glm::vec4(pos, 1.0f)));
                 }
 
-                spkSystem->setCameraPosition(glmToSpk(pos));
+                spkSystem->setCameraPosition(particlesys_impl::glmToSpk(pos));
                 break;
             }
         }
@@ -98,7 +98,7 @@ void ParticleSystemComponentProcessor::draw(RenderQueue *ops)
         // Prepare drawing of spark system.
         for (size_t i = 0; i < spkSystem->getNbGroups(); i++)
         {
-            auto renderer = static_cast<ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
+            auto renderer = static_cast<particlesys_impl::ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
             renderer->m_currentRenderQueue = ops;
             renderer->m_currentTransformation = &transf;
         }
@@ -108,7 +108,7 @@ void ParticleSystemComponentProcessor::draw(RenderQueue *ops)
         // FIXME: do we need this?
         for (size_t i = 0; i < spkSystem->getNbGroups(); i++)
         {
-            auto renderer = static_cast<ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
+            auto renderer = static_cast<particlesys_impl::ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
             renderer->m_currentRenderQueue = nullptr;
         }
     }
