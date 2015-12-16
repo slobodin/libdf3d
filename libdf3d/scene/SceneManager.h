@@ -5,7 +5,6 @@ namespace df3d {
 class Scene;
 class Node;
 class Camera;
-class SceneManagerListener;
 
 class DF3D_DLL SceneManager : utils::NonCopyable
 {
@@ -14,7 +13,6 @@ class DF3D_DLL SceneManager : utils::NonCopyable
     bool m_paused = false;
 
     std::list<shared_ptr<Node>> m_nodesMarkedForRemoval;
-    std::list<SceneManagerListener *> m_listeners;
 
 public:
     SceneManager();
@@ -38,9 +36,6 @@ public:
     void removeNodeFromScene(const std::string &name);
 
     void addNodeToScene(shared_ptr<Node> node);
-
-    void registerListener(SceneManagerListener *listener);
-    void unregisterListener(SceneManagerListener *listener);
 };
 
 }

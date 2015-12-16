@@ -3,7 +3,6 @@
 #include "Scene.h"
 #include "Node.h"
 #include "Camera.h"
-#include "SceneManagerListener.h"
 #include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include <io/FileDataSource.h>
@@ -35,9 +34,6 @@ void SceneManager::cleanStep()
     for (auto it : m_nodesMarkedForRemoval)
     {
         m_currentScene->removeChild(it);
-
-        for (auto listener : m_listeners)
-            listener->onNodeRemovedFromScene();
     }
 
     m_nodesMarkedForRemoval.clear();
@@ -70,9 +66,6 @@ void SceneManager::clearCurrentScene()
     svc().resourceManager().unloadUnused();
 
     m_paused = false;
-
-    for (auto listener : m_listeners)
-        listener->onSceneCleared();
 }
 
 void SceneManager::pauseSimulation(bool pause)
@@ -91,9 +84,6 @@ bool SceneManager::setCurrentScene(shared_ptr<Scene> scene)
     clearCurrentScene();
 
     m_currentScene = scene;
-
-    for (auto listener : m_listeners)
-        listener->onSceneCreated(m_currentScene.get());
 
     glog << "Scene manager was set up for a new scene" << logdebug;
 
@@ -133,33 +123,6 @@ void SceneManager::removeNodeFromScene(const std::string &name)
 void SceneManager::addNodeToScene(shared_ptr<Node> node)
 {
     m_currentScene->addChild(node);
-
-    for (auto listener : m_listeners)
-        listener->onNodeAddedToScene(node.get());
-}
-
-void SceneManager::registerListener(SceneManagerListener *listener)
-{
-    if (utils::contains(m_listeners, listener))
-    {
-        glog << "Trying to add duplicate scene manager listener" << logwarn;
-        return;
-    }
-
-    m_listeners.push_back(listener);
-}
-
-void SceneManager::unregisterListener(SceneManagerListener *listener)
-{
-    auto found = std::find(m_listeners.cbegin(), m_listeners.cend(), listener);
-
-    if (found == m_listeners.cend())
-    {
-        glog << "Trying to remove not existing scene manager listener" << logwarn;
-        return;
-    }
-
-    m_listeners.erase(found);
 }
 
 }

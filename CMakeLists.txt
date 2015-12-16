@@ -139,7 +139,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManagerListener.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/TransformComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/World.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldSize.h
