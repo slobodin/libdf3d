@@ -3,7 +3,7 @@
 #include <components/ParticleSystemComponent.h>
 #include <utils/JsonUtils.h>
 #include <utils/Utils.h>
-#include <particlesys/SparkInterface.h>
+#include <particlesys/impl/SparkInterface.h>
 #include <render/Texture2D.h>
 #include <render/RenderOperation.h>
 #include <render/RenderPass.h>

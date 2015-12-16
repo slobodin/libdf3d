@@ -414,6 +414,7 @@ void LineParticleSystemRenderer::computeAABB(SPK::Vector3D &AABBMin, SPK::Vector
     }
 }
 
+// TODO_ecs: remove this!!!!
 void initSparkEngine()
 {
     // Clamp the step to 100 ms.

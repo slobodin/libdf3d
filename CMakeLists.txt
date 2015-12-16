@@ -89,7 +89,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/math/ConvexHull.h
     ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.h
@@ -202,7 +202,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/math/ConvexHull.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/SparkInterface.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.cpp

@@ -9,7 +9,7 @@
 #include <scene/TransformComponentProcessor.h>
 #include <base/EngineController.h>
 // TODO_ecs: move to impl folder.
-#include <particlesys/SparkInterface.h>
+#include <particlesys/impl/SparkInterface.h>
 
 namespace df3d {
 
@@ -117,12 +117,14 @@ void ParticleSystemComponentProcessor::draw(RenderQueue *ops)
 ParticleSystemComponentProcessor::ParticleSystemComponentProcessor()
     : m_pimpl(new Impl())
 {
-
+    // Clamp the step to 100 ms.
+    SPK::System::setClampStep(true, 0.1f);
+    SPK::System::useRealStep();
 }
 
 ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor()
 {
-
+    SPK_DUMP_MEMORY
 }
 
 void ParticleSystemComponentProcessor::stop(ComponentInstance comp)

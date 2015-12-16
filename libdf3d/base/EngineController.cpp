@@ -16,7 +16,7 @@
 #include <render/RenderTargetScreen.h>
 #include <platform/AppDelegate.h>
 #include <utils/JsonUtils.h>
-#include <particlesys/SparkInterface.h>
+#include <particlesys/impl/SparkInterface.h>
 
 #if defined(DF3D_WINDOWS)
 #include <platform/windows/CrashHandler.h>

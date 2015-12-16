@@ -1,7 +1,7 @@
 #include "ParticleSystemComponent.h"
 
 #include <components/TransformComponent.h>
-#include <particlesys/SparkInterface.h>
+#include <particlesys/impl/SparkInterface.h>
 #include <scene/Camera.h>
 #include <scene/Node.h>
 #include <scene/SceneManager.h>
