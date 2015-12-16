@@ -11,6 +11,9 @@ class DF3D_DLL ParticleSystemComponentProcessor : public EntityComponentProcesso
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
+    void update(float systemDelta, float gameDelta) override;
+    void draw(RenderQueue *ops) override;
+
 public:
     ParticleSystemComponentProcessor();
     ~ParticleSystemComponentProcessor();
@@ -22,7 +25,7 @@ public:
 
     float getSystemLifeTime(ComponentInstance comp) const;
 
-    ComponentInstance add(Entity e, const std::string &jsonResource);
+    ComponentInstance add(Entity e, const std::string &vfxResource);
     void remove(Entity e);
     ComponentInstance lookup(Entity e);
 };

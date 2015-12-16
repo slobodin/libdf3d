@@ -2,6 +2,14 @@
 #include "ParticleSystemComponentProcessor.h"
 
 #include <scene/impl/ComponentDataHolder.h>
+#include <scene/World.h>
+#include <scene/Camera.h>
+#include <scene/SceneManager.h>
+#include <components/TransformComponent.h>
+#include <scene/TransformComponentProcessor.h>
+#include <base/EngineController.h>
+// TODO_ecs: move to impl folder.
+#include <particlesys/SparkInterface.h>
 
 namespace df3d {
 
@@ -11,6 +19,7 @@ struct ParticleSystemComponentProcessor::Impl
     {
         SPK::Ref<SPK::System> system;
 
+        ComponentInstance transformComponent;
         bool paused = false;
         bool worldTransformed = true;
         float systemLifeTime = -1.0f;
@@ -18,7 +27,92 @@ struct ParticleSystemComponentProcessor::Impl
     };
 
     ComponentDataHolder<Data> data;
+
+    static void updateCameraPosition(Data &compData)
+    {
+        auto spkSystem = compData.system;
+        for (size_t i = 0; i < spkSystem->getNbGroups(); ++i)
+        {
+            if (spkSystem->getGroup(i)->isDistanceComputationEnabled())
+            {
+                auto pos = svc().sceneManager().getCamera()->transform()->getPosition();
+                if (!compData.worldTransformed)
+                {
+                    // Transform camera position into this node space.
+                    auto invWorldTransform = world().transform().getTransformation(compData.transformComponent);
+                    invWorldTransform = glm::inverse(invWorldTransform);
+
+                    pos = glm::vec3((invWorldTransform * glm::vec4(pos, 1.0f)));
+                }
+
+                spkSystem->setCameraPosition(glmToSpk(pos));
+                break;
+            }
+        }
+    }
 };
+
+void ParticleSystemComponentProcessor::update(float systemDelta, float gameDelta)
+{
+    for (auto &compData : m_pimpl->data.rawData())
+    {
+        auto spkSystem = compData.system;
+        //bool visible = world().transform().vi
+
+        // TODO_ecs: visibility.
+        //if (compData.paused || !m_holder->isVisible())
+            return;
+
+        if (compData.worldTransformed)
+        {
+            auto tr = world().transform().getTransformation(compData.transformComponent);
+
+            spkSystem->getTransform().set(glm::value_ptr(tr));
+        }
+
+        Impl::updateCameraPosition(compData);
+        spkSystem->updateParticles(gameDelta);
+
+        if (compData.systemLifeTime > 0.0f)
+        {
+            compData.systemAge += gameDelta;
+            if (compData.systemAge > compData.systemLifeTime)
+            {
+                // TODO_ecs:
+                assert(false);
+                //m_holder->detachComponent(ComponentType::PARTICLE_EFFECT);
+            }
+        }
+    }
+}
+
+void ParticleSystemComponentProcessor::draw(RenderQueue *ops)
+{
+    for (const auto &compData : m_pimpl->data.rawData())
+    {
+        glm::mat4 transf;
+        if (!compData.worldTransformed)
+            transf = world().transform().getTransformation(compData.transformComponent);
+
+        auto spkSystem = compData.system;
+        // Prepare drawing of spark system.
+        for (size_t i = 0; i < spkSystem->getNbGroups(); i++)
+        {
+            auto renderer = static_cast<ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
+            renderer->m_currentRenderQueue = ops;
+            renderer->m_currentTransformation = &transf;
+        }
+
+        spkSystem->renderParticles();
+
+        // FIXME: do we need this?
+        for (size_t i = 0; i < spkSystem->getNbGroups(); i++)
+        {
+            auto renderer = static_cast<ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
+            renderer->m_currentRenderQueue = nullptr;
+        }
+    }
+}
 
 ParticleSystemComponentProcessor::ParticleSystemComponentProcessor()
     : m_pimpl(new Impl())
@@ -57,7 +151,7 @@ float ParticleSystemComponentProcessor::getSystemLifeTime(ComponentInstance comp
     return m_pimpl->data.getData(comp).systemLifeTime;
 }
 
-ComponentInstance ParticleSystemComponentProcessor::add(Entity e, const std::string &jsonResource)
+ComponentInstance ParticleSystemComponentProcessor::add(Entity e, const std::string &vfxResource)
 {
     if (m_pimpl->data.contains(e))
     {
@@ -68,6 +162,8 @@ ComponentInstance ParticleSystemComponentProcessor::add(Entity e, const std::str
     Impl::Data data;
 
     // TODO_ecs
+    data.transformComponent = world().transform().lookup(e);
+    assert(data.transformComponent.valid());
 
     return m_pimpl->data.add(e, data);
 }
