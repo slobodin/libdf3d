@@ -33,12 +33,19 @@ World::~World()
 
 Entity World::spawn()
 {
-    return m_entityManager->create();
+    auto entity = m_entityManager->create();
+    // NOTE: forcing have transform component, otherwise have some problems (especially performance)
+    // with systems that require transform component.
+    m_tranform->add(entity);
+
+    return entity;
 }
 
 Entity World::spawn(const std::string &entityResource)
 {
-    return m_entityManager->create();
+    auto entity = spawn();
+
+    return entity;
 }
 
 bool World::alive(Entity e)
