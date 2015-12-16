@@ -22,8 +22,6 @@ struct TransformComponentProcessor::Impl
 
         ComponentInstance parent;
         std::vector<ComponentInstance> children;
-
-        std::string nodeName;
     };
 
     ComponentDataHolder<Data> data;
@@ -43,7 +41,26 @@ struct TransformComponentProcessor::Impl
     }
 };
 
+void TransformComponentProcessor::remove(Entity e)
+{
+    // FIXME: only this system can remove transform component.
+
+    if (!m_pimpl->data.contains(e))
+    {
+        glog << "Failed to remove scene graph component from an entity. Component is not attached" << logwarn;
+        return;
+    }
+
+    auto compInst = m_pimpl->data.lookup(e);
+
+    // TODO_ecs: parent & children
+    assert(false);
+
+    m_pimpl->data.remove(e);
+}
+
 TransformComponentProcessor::TransformComponentProcessor()
+    : m_pimpl(new Impl())
 {
 
 }
@@ -235,7 +252,7 @@ ComponentInstance TransformComponentProcessor::getParent(ComponentInstance comp)
     return m_pimpl->data.getData(comp).parent;
 }
 
-ComponentInstance TransformComponentProcessor::add(Entity e, const std::string &name)
+ComponentInstance TransformComponentProcessor::add(Entity e)
 {
     if (m_pimpl->data.contains(e))
     {
@@ -243,31 +260,7 @@ ComponentInstance TransformComponentProcessor::add(Entity e, const std::string &
         return ComponentInstance();
     }
 
-    Impl::Data data;
-    data.nodeName = name;
-    if (data.nodeName.empty())
-    {
-        static uint32_t nodesCount;
-        data.nodeName = std::string("unnamed_node_") + utils::to_string(nodesCount++);
-    }
-
-    return m_pimpl->data.add(e, data);
-}
-
-void TransformComponentProcessor::remove(Entity e)
-{
-    if (!m_pimpl->data.contains(e))
-    {
-        glog << "Failed to remove scene graph component from an entity. Component is not attached" << logwarn;
-        return;
-    }
-
-    auto compInst = m_pimpl->data.lookup(e);
-
-    // TODO_ecs: parent & children
-    assert(false);
-
-    m_pimpl->data.remove(e);
+    return m_pimpl->data.add(e, Impl::Data());
 }
 
 ComponentInstance TransformComponentProcessor::lookup(Entity e)

@@ -11,6 +11,8 @@ class DF3D_DLL TransformComponentProcessor : utils::NonCopyable
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
+    void remove(Entity e);
+
 public:
     TransformComponentProcessor();
     ~TransformComponentProcessor();
@@ -45,8 +47,7 @@ public:
     void removeAllChildren(ComponentInstance comp);
     ComponentInstance getParent(ComponentInstance comp);
 
-    ComponentInstance add(Entity e, const std::string &name = "");
-    void remove(Entity e);
+    ComponentInstance add(Entity e);
     ComponentInstance lookup(Entity e);
 };
 
