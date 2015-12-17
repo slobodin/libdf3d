@@ -66,6 +66,12 @@ public:
     }
 
     std::vector<T>& rawData() { return m_data; }
+
+    void clear()
+    {
+        // TODO_ecs:
+        assert(false);
+    }
 };
 
 }

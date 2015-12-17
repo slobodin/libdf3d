@@ -7,6 +7,7 @@
 #include <math/BoundingSphere.h>
 #include <math/ConvexHull.h>
 #include "impl/BulletInterface.h"
+#include <scene/impl/ComponentDataHolder.h>
 
 namespace df3d {
 
@@ -60,6 +61,13 @@ struct PhysicsComponentProcessor::Impl
 
     physics_impl::BulletDebugDraw *debugDraw;
 
+    struct Data
+    {
+        btRigidBody *body = nullptr;
+    };
+
+    ComponentDataHolder<Data> data;
+
     Impl()
     {
         collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -76,6 +84,8 @@ struct PhysicsComponentProcessor::Impl
 
     ~Impl()
     {
+        data.clear();
+
         for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
         {
             btCollisionObject *obj = dynamicsWorld->getCollisionObjectArray()[i];

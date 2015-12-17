@@ -20,6 +20,7 @@ struct StaticMeshComponentProcessor::Impl
     struct Data
     {
         shared_ptr<MeshData> meshData;
+        Entity holder;
         ComponentInstance transformComponent;
 
         bool visible = true;
@@ -55,6 +56,16 @@ struct StaticMeshComponentProcessor::Impl
         return sphere;
     }
 };
+
+void StaticMeshComponentProcessor::update(float systemDelta, float gameDelta)
+{
+    // Update the transform component idx.
+    for (auto &compData : m_pimpl->data.rawData())
+    {
+        compData.transformComponent = world().transform().lookup(compData.holder);
+        assert(compData.transformComponent.valid());
+    }
+}
 
 void StaticMeshComponentProcessor::draw(RenderQueue *ops)
 {
@@ -161,6 +172,7 @@ ComponentInstance StaticMeshComponentProcessor::add(Entity e, const std::string 
 
     Impl::Data data;
     data.meshData = svc().resourceManager().getFactory().createMeshData(meshFilePath, lm);
+    data.holder = e;
     data.transformComponent = world().transform().lookup(e);
     assert(data.transformComponent.valid());
 

@@ -16,6 +16,7 @@ class DF3D_DLL StaticMeshComponentProcessor : public EntityComponentProcessor
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
+    void update(float systemDelta, float gameDelta) override;
     void draw(RenderQueue *ops) override;
     void cleanStep(World &w) override;
 
@@ -25,6 +26,7 @@ public:
 
     shared_ptr<MeshData> getMeshData(ComponentInstance comp) const;
 
+    // TODO_ecs: mb use just entity??
     AABB getAABB(ComponentInstance comp);
     BoundingSphere getBoundingSphere(ComponentInstance comp);
     OBB getOBB(ComponentInstance comp);

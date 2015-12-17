@@ -19,6 +19,7 @@ struct ParticleSystemComponentProcessor::Impl
     {
         SPK::Ref<SPK::System> system;
 
+        Entity holder;
         ComponentInstance transformComponent;
         bool paused = false;
         bool worldTransformed = true;
@@ -54,6 +55,13 @@ struct ParticleSystemComponentProcessor::Impl
 
 void ParticleSystemComponentProcessor::update(float systemDelta, float gameDelta)
 {
+    // Update the transform component idx.
+    for (auto &compData : m_pimpl->data.rawData())
+    {
+        compData.transformComponent = world().transform().lookup(compData.holder);
+        assert(compData.transformComponent.valid());
+    }
+
     for (auto &compData : m_pimpl->data.rawData())
     {
         auto spkSystem = compData.system;
@@ -164,6 +172,7 @@ ComponentInstance ParticleSystemComponentProcessor::add(Entity e, const std::str
     Impl::Data data;
 
     // TODO_ecs
+    data.holder = e;
     data.transformComponent = world().transform().lookup(e);
     assert(data.transformComponent.valid());
 

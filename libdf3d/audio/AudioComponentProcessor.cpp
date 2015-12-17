@@ -39,6 +39,7 @@ struct AudioComponentProcessor::Impl
 {
     struct Data
     {
+        Entity holder;
         ComponentInstance transformComponent;
 
         unsigned audioSourceId = 0;
@@ -52,6 +53,13 @@ struct AudioComponentProcessor::Impl
 
 void AudioComponentProcessor::update(float systemDelta, float gameDelta)
 {
+    // Update the transform component idx.
+    for (auto &compData : m_pimpl->data.rawData())
+    {
+        compData.transformComponent = world().transform().lookup(compData.holder);
+        assert(compData.transformComponent.valid());
+    }
+
     auto &transformSystem = world().transform();
 
     for (auto &compData : m_pimpl->data.rawData())
@@ -183,6 +191,7 @@ ComponentInstance AudioComponentProcessor::add(Entity e, const std::string &audi
         return ComponentInstance();
     }
 
+    data.holder = e;
     data.transformComponent = world().transform().lookup(e);
     assert(data.transformComponent.valid());
 
