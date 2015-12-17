@@ -17,7 +17,7 @@ void ParticleSystemComponent::updateCameraPosition()
     {
         if (SPKSystem->getGroup(i)->isDistanceComputationEnabled())
         {
-            auto pos = svc().sceneManager().getCamera()->transform()->getPosition();
+            auto pos = svc().sceneManager().getCamera()->getPosition();
             if (!m_worldTransformed)
             {
                 // Transform camera position into this node space.

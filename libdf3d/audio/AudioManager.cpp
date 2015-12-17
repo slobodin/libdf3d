@@ -59,7 +59,7 @@ void AudioManager::update(float systemDelta, float gameDelta)
     auto cam = svc().sceneManager().getCamera();
     if (cam)
     {
-        alListenerfv(AL_POSITION, glm::value_ptr(cam->transform()->getPosition()));
+        alListenerfv(AL_POSITION, glm::value_ptr(cam->getPosition()));
 
         const auto &dir = cam->getDir();
         const auto &up = cam->getUp();

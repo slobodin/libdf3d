@@ -114,11 +114,7 @@ void TransformComponentProcessor::setOrientation(ComponentInstance comp, const g
 
 void TransformComponentProcessor::setOrientation(ComponentInstance comp, const glm::vec3 &eulerAngles, bool rads)
 {
-    glm::vec3 v;
-    if (!rads)
-        v = glm::radians(eulerAngles);
-    else
-        v = eulerAngles;
+    glm::vec3 v = rads ? eulerAngles : glm::radians(eulerAngles);
 
     setOrientation(comp, glm::quat(v));
 }

@@ -106,8 +106,8 @@ void parseCamera(const Json::Value &cameraNode, shared_ptr<Scene> scene)
         cameraNode["rotation"] >> rotation;
         cameraNode["fov"] >> fov;
 
-        camera->transform()->setPosition(position);
-        camera->transform()->setOrientation(rotation);
+        camera->setPosition(position);
+        camera->setOrientation(rotation);
         camera->setFov(fov);
     }
 

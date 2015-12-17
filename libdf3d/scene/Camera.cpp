@@ -9,64 +9,45 @@
 
 namespace df3d {
 
-void Camera::buildViewMatrix()
-{
-    if (!m_viewMatrixDirty)
-        return;
-
-    // View matrix is the inverse of camera transformation matrix.
-    // FIXME:
-    // Could use transpose(rotation) and inverse translation vector instead computing inverse matrix.
-    m_worldToCamera = glm::inverse(transform()->getTransformation());
-    m_viewMatrixDirty = false;
-}
-
 void Camera::buildProjectionMatrix()
 {
     const auto &vp = svc().renderManager().getScreenRenderTarget()->getViewport();
-
-    if (m_currentViewport != vp)
-    {
-        m_projectionMatrixDirty = true;
-        m_frustumDirty = true;
-    }
-
-    if (!m_projectionMatrixDirty)
-        return;
 
     float w = (float)vp.width();
     float h = (float)vp.height();
 
     m_projectionMatrix = glm::perspective(glm::radians(m_fov), w / h, m_nearZ, m_farZ);
-    m_projectionMatrixDirty = false;
     m_currentViewport = vp;
+
+    buildFrustum();
 }
 
 void Camera::buildFrustum()
 {
     m_frustum = Frustum(getProjectionMatrix() * getViewMatrix());
-
-    m_frustumDirty = false;
 }
 
-void Camera::onComponentEvent(const NodeComponent *who, ComponentEvent ev)
+void Camera::buildCameraMatrix()
 {
-    if (ev == ComponentEvent::POSITION_CHANGED ||
-        ev == ComponentEvent::ORIENTATION_CHANGED ||
-        ev == ComponentEvent::SCALE_CHANGED)
-    {
-        m_viewMatrixDirty = true;
-        m_frustumDirty = true;
-    }
+    // Rotation -> Translation
+    m_transformation = glm::translate(m_position) * glm::toMat4(m_orientation);
+    // View matrix is the inverse of camera transformation matrix.
+    // FIXME:
+    // TODO_ecs:
+    // Could use transpose(rotation) and inverse translation vector instead computing inverse matrix.
+    m_worldToCamera = glm::inverse(m_transformation);
+
+    buildFrustum();
 }
 
 Camera::Camera(const glm::vec3 &position, float fov, float nearZ, float farZ)
-    : Node("__libdf3d_CameraNode"),
-    m_fov(fov),
+    : m_fov(fov),
     m_nearZ(nearZ),
-    m_farZ(farZ)
+    m_farZ(farZ),
+    m_position(position)
 {
-    transform()->setPosition(position);
+    buildCameraMatrix();
+    buildProjectionMatrix();
 }
 
 Camera::~Camera()
@@ -77,53 +58,72 @@ Camera::~Camera()
 void Camera::setFov(float fov)
 {
     m_fov = fov;
-    m_projectionMatrixDirty = true;
-    m_frustumDirty = true;
+    buildProjectionMatrix();
 }
 
-void Camera::setViewMatrix(const glm::mat4 &viewm)
+void Camera::setPosition(const glm::vec3 &newPosition)
 {
-    m_worldToCamera = viewm;
-    m_viewMatrixDirty = false;
-    m_frustumDirty = true;
+    m_position = newPosition;
+    buildCameraMatrix();
 }
 
-const glm::mat4 &Camera::getViewMatrix()
+void Camera::setOrientation(const glm::quat &q)
 {
-    buildViewMatrix();
+    m_orientation = q;
+    buildCameraMatrix();
+}
 
+void Camera::setOrientation(const glm::vec3 &eulerAngles, bool rads)
+{
+    glm::vec3 v = rads ? eulerAngles : glm::radians(eulerAngles);
+
+    setOrientation(glm::quat(v));
+}
+
+const glm::mat4 &Camera::getViewMatrix() const
+{
     return m_worldToCamera;
 }
 
-const glm::mat4 &Camera::getProjectionMatrix()
+const glm::mat4 &Camera::getProjectionMatrix() const
 {
-    buildProjectionMatrix();
-
     return m_projectionMatrix;
 }
 
-glm::vec3 Camera::getRight()
+const glm::vec3& Camera::getPosition() const
 {
-    return glm::normalize(glm::vec3(glm::column(transform()->getTransformation(), 0)));
+    return m_position;
 }
 
-glm::vec3 Camera::getUp()
+const glm::quat& Camera::getOrientation() const
 {
-    return glm::normalize(glm::vec3(glm::column(transform()->getTransformation(), 1)));
+    return m_orientation;
 }
 
-glm::vec3 Camera::getDir()
+const glm::mat4& Camera::getWorldTransform() const
+{
+    return m_transformation;
+}
+
+glm::vec3 Camera::getRight() const
+{
+    return glm::normalize(glm::vec3(glm::column(m_transformation, 0)));
+}
+
+glm::vec3 Camera::getUp() const
+{
+    return glm::normalize(glm::vec3(glm::column(m_transformation, 1)));
+}
+
+glm::vec3 Camera::getDir() const
 {
     // Could be this:
     //auto dir = glm::normalize(transform()->getTransformation() * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f));
-    return -glm::normalize(glm::vec3(glm::column(transform()->getTransformation(), 2)));
+    return -glm::normalize(glm::vec3(glm::column(m_transformation, 2)));
 }
 
 const Frustum &Camera::getFrustum()
 {
-    if (m_frustumDirty)
-        buildFrustum();
-
     return m_frustum;
 }
 

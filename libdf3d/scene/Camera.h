@@ -6,7 +6,7 @@
 
 namespace df3d {
 
-class DF3D_DLL Camera : public Node
+class DF3D_DLL Camera
 {
     glm::mat4 m_worldToCamera;
     glm::mat4 m_projectionMatrix;
@@ -24,14 +24,16 @@ class DF3D_DLL Camera : public Node
     //! View frustum.
     Frustum m_frustum;
 
-    bool m_viewMatrixDirty = true;
-    bool m_projectionMatrixDirty = true;
-    bool m_frustumDirty = true;
-    void buildViewMatrix();
+    //! Camera position.
+    glm::vec3 m_position;
+    //! Camera orientation.
+    glm::quat m_orientation;
+    //! World transformation.
+    glm::mat4 m_transformation;
+
     void buildProjectionMatrix();
     void buildFrustum();
-
-    void onComponentEvent(const NodeComponent *who, ComponentEvent ev) override;
+    void buildCameraMatrix();
 
 public:
     /** 
@@ -45,19 +47,24 @@ public:
     ~Camera();
 
     void setFov(float fov);
-    void setViewMatrix(const glm::mat4 &viewm);
-    
-    const glm::mat4 &getViewMatrix();
-    const glm::mat4 &getProjectionMatrix();
-    glm::vec3 getRight();
-    glm::vec3 getUp();
-    glm::vec3 getDir();
+    void setPosition(const glm::vec3 &newPosition);
+    void setOrientation(const glm::quat &q);
+    void setOrientation(const glm::vec3 &eulerAngles, bool rads = false);
+
+    const glm::mat4& getViewMatrix() const;
+    const glm::mat4& getProjectionMatrix() const;
+    const glm::vec3& getPosition() const;
+    const glm::quat& getOrientation() const;
+    const glm::mat4& getWorldTransform() const;
+    glm::vec3 getRight() const;
+    glm::vec3 getUp() const;
+    glm::vec3 getDir() const;
 
     float getFov() const { return m_fov; }
     float getNearZ() const { return m_nearZ; }
     float getFarZ() const { return m_farZ; }
 
-    const Frustum &getFrustum();
+    const Frustum& getFrustum();
 
     glm::vec3 screenToViewPoint(float x, float y, float z = 0.0f);
     glm::vec3 worldToScreenPoint(const glm::vec3 &world);
