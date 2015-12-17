@@ -71,6 +71,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/Sprite2DComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/TransformComponentSerializer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/ComponentFactory.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/FPSCamera.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/NodeFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/SceneFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
@@ -186,6 +187,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/Sprite2DComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/TransformComponentSerializer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/ComponentFactory.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/FPSCamera.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/NodeFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/SceneFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.cpp
