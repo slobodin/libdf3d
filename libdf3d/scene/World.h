@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Entity.h"
+#include "Camera.h"
 
 namespace df3d {
 
@@ -25,6 +26,8 @@ class DF3D_DLL World : utils::NonCopyable
     unique_ptr<EntityComponentProcessor> m_physics;
     unique_ptr<EntityComponentProcessor> m_tranform;
 
+    Camera m_camera;
+
     void update(float systemDelta, float gameDelta);
     void draw(RenderQueue *ops);
     void cleanStep();
@@ -36,12 +39,14 @@ public:
 
     Entity spawn();
     Entity spawn(const std::string &entityResource);
-    //Entity spawn(const std::string &entityResource /* position */);
-    //Entity spawn(const std::string &entityResource /* transformation */);
     bool alive(Entity e);
     void destroy(Entity e);
 
     void pauseSimulation(bool paused);
+
+    void setCamera(const Camera &camera) { m_camera = camera; }
+    Camera& getCamera() { return m_camera; }
+    const Camera& getCamera() const { return m_camera; }
 
     AudioComponentProcessor& audio();
     StaticMeshComponentProcessor& staticMesh();
