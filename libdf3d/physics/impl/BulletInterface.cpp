@@ -72,7 +72,9 @@ void BulletDebugDraw::flushRenderOperations()
     op.vertexData->alloc(m_vertexData, GpuBufferUsageType::STREAM);
     m_vertexData.clear();
 
-    svc().renderManager().drawOperation(op);
+    // TODO_ecs: use render queue here!
+    assert(false);
+    //svc().renderManager().drawOperation(op);
 }
 
 } }

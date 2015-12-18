@@ -30,10 +30,9 @@
 #include <scene/Node.h>
 #include <scene/Frustum.h>
 #include <scene/Camera.h>
-#include <scene/Scene.h>
-#include <scene/SceneManager.h>
 #include <scene/Entity.h>
 #include <scene/World.h>
+#include <scene/WorldRenderingParams.h>
 #include <scene/TransformComponentProcessor.h>
 
 #include <math/BoundingVolume.h>
@@ -64,7 +63,7 @@
 
 #include <gui/GuiManager.h>
 
-#include <physics/PhysicsManager.h>
+#include <physics/PhysicsHelpers.h>
 #include <physics/PhysicsComponentProcessor.h>
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>

@@ -3,20 +3,17 @@
 #include "DebugConsole.h"
 #include "TimeManager.h"
 #include <render/RenderManager.h>
-#include <scene/SceneManager.h>
 #include <scene/Camera.h>
 #include <scene/World.h>
 #include <resources/ResourceManager.h>
 #include <input/InputManager.h>
 #include <io/FileSystem.h>
 #include <gui/GuiManager.h>
-#include <physics/PhysicsManager.h>
 #include <audio/AudioManager.h>
 #include <render/RenderStats.h>
 #include <render/RenderTargetScreen.h>
 #include <platform/AppDelegate.h>
 #include <utils/JsonUtils.h>
-#include <particlesys/impl/SparkInterface.h>
 
 #if defined(DF3D_WINDOWS)
 #include <platform/windows/CrashHandler.h>
@@ -60,17 +57,8 @@ void EngineController::initialize(EngineInitParams params)
         // Init render system.
         m_renderManager = make_unique<RenderManager>(params);
 
-        // Init scene manager.
-        m_sceneManager = make_unique<SceneManager>();
-
-        // Spark particle engine init.
-        particlesys_impl::initSparkEngine();
-
         // Init GUI.
         m_guiManager = make_unique<GuiManager>(params.windowWidth, params.windowHeight);
-
-        // Init physics.
-        m_physics = make_unique<PhysicsManager>();
 
         // Init audio subsystem.
         m_audioManager = make_unique<AudioManager>();
@@ -87,7 +75,7 @@ void EngineController::initialize(EngineInitParams params)
         // Create input subsystem.
         m_inputManager = make_unique<InputManager>();
 
-        // Create blank world.
+        // Create a blank world.
         m_world = make_unique<World>();
 
         m_initialized = true;
@@ -109,8 +97,6 @@ void EngineController::shutdown()
 
     m_world.reset();
     m_debugConsole.reset();
-    m_sceneManager.reset();
-    m_physics.reset();
     m_guiManager.reset();
     m_renderManager.reset();
     m_resourceManager.reset();
@@ -118,43 +104,32 @@ void EngineController::shutdown()
     m_audioManager.reset();
     m_inputManager.reset();
     m_timeManager.reset();
-
-    particlesys_impl::destroySparkEngine();
 }
 
 void EngineController::step()
 {
-    // Update engine.
     m_timeManager->updateFrameTime();
     auto systemDelta = m_timeManager->getSystemFrameTimeDuration();
     auto gameDelta = m_timeManager->getGameFrameTimeDuration();
 
+    // Update some engine subsystems.
     // TODO_ecs: this will be removed completely!!!
     m_resourceManager->poll();
-    m_audioManager->update(systemDelta, gameDelta);
-    m_physics->update(systemDelta, gameDelta);
-    m_sceneManager->update(systemDelta, gameDelta);
     m_guiManager->getContext()->Update();
-    m_renderManager->update(m_sceneManager->getCurrentScene());
 
     // Update client code.
     m_timeManager->flushPendingWorkers();
     m_timeManager->updateListeners();
-
     m_world->update(systemDelta, gameDelta);
-    m_world->cleanStep();
 
     // Clean step.
     // TODO: clean up each n secs.
-    m_sceneManager->cleanStep();
+    // TODO_ecs: cleaning up was here!
     m_inputManager->cleanInvalidListeners();
     m_timeManager->cleanInvalidListeners();
 
     // Run frame.
-    m_renderManager->onFrameBegin();
-    m_renderManager->drawScene(m_sceneManager->getCurrentScene());
-    m_renderManager->drawGUI();
-    m_renderManager->onFrameEnd();
+    m_renderManager->drawWorld(*m_world);
 }
 
 const RenderStats& EngineController::getLastRenderStats() const

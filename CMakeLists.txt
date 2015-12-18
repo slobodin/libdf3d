@@ -92,7 +92,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/DebugDrawComponentProcessor.h
@@ -138,10 +138,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/EntityComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/TransformComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/World.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldRenderingParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldSize.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/ComponentDataHolder.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/EntityManager.h
@@ -205,7 +204,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/DebugDrawComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.cpp
@@ -246,10 +244,9 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/Scene.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/SceneManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/TransformComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/World.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldRenderingParams.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/EntityManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.cpp
