@@ -17,9 +17,8 @@ class Material;
 class RenderQueue;
 class RenderPass;
 class RenderOperation;
-class Scene;
-class Node;
 class Camera;
+class World;
 
 // Forward renderer.
 class RenderManager : utils::NonCopyable
@@ -55,25 +54,22 @@ class RenderManager : utils::NonCopyable
     RenderStats m_lastStats;
 
     void loadEmbedResources();
+    void onFrameBegin();
+    void onFrameEnd();
+    void doRenderWorld(World &world);
 
 public:
     RenderManager(EngineInitParams params);
     ~RenderManager();
 
-    void update(shared_ptr<Scene> renderableScene);
-    void drawScene(shared_ptr<Scene> sc);
-    void drawOperation(const RenderOperation &op);
-    void drawGUI();
+    void drawWorld(World &world);
 
-    void onFrameBegin();
-    void onFrameEnd();
-
-    const RenderStats &getLastRenderStats() const;
+    const RenderStats& getLastRenderStats() const;
     shared_ptr<RenderTargetScreen> getScreenRenderTarget() const;
 
-    const RenderingCapabilities &getRenderingCapabilities() const;
+    const RenderingCapabilities& getRenderingCapabilities() const;
 
-    RendererBackend *getRenderer() const;
+    RendererBackend* getRenderer();
 };
 
 }

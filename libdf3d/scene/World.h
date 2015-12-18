@@ -2,6 +2,7 @@
 
 #include "Entity.h"
 #include "Camera.h"
+#include "WorldRenderingParams.h"
 
 namespace df3d {
 
@@ -17,6 +18,7 @@ class EntityComponentProcessor;
 class DF3D_DLL World : utils::NonCopyable
 {
     friend class EngineController;
+    friend class RenderManager;
 
     unique_ptr<EntityManager> m_entityManager;
 
@@ -27,9 +29,12 @@ class DF3D_DLL World : utils::NonCopyable
     unique_ptr<EntityComponentProcessor> m_tranform;
 
     Camera m_camera;
+    WorldRenderingParams m_renderingParams;
+
+    bool m_paused = false;
 
     void update(float systemDelta, float gameDelta);
-    void draw(RenderQueue *ops);
+    void collectRenderOperations(RenderQueue *ops);
     void cleanStep();
 
 public:
@@ -45,8 +50,13 @@ public:
     void pauseSimulation(bool paused);
 
     void setCamera(const Camera &camera) { m_camera = camera; }
+    void setRenderingParams(const WorldRenderingParams &params) { m_renderingParams = params; }
+
     Camera& getCamera() { return m_camera; }
     const Camera& getCamera() const { return m_camera; }
+
+    WorldRenderingParams& getRenderingParams() { return m_renderingParams; }
+    const WorldRenderingParams& getRenderingParams() const { return m_renderingParams; }
 
     AudioComponentProcessor& audio();
     StaticMeshComponentProcessor& staticMesh();

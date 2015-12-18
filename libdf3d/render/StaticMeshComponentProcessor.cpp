@@ -4,7 +4,6 @@
 #include <base/EngineController.h>
 #include <scene/World.h>
 #include <scene/Camera.h>
-#include <scene/SceneManager.h>
 #include <scene/TransformComponentProcessor.h>
 #include <scene/impl/ComponentDataHolder.h>
 #include <resources/ResourceManager.h>
@@ -81,7 +80,7 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
 
         if (!compData.frustumCullingDisabled)
         {
-            const auto &frustum = svc().sceneManager().getCamera()->getFrustum();
+            const auto &frustum = svc().world().getCamera().getFrustum();
             if (!frustum.sphereInFrustum(Impl::getBoundingSphere(compData)))
                 continue;
         }

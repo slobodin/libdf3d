@@ -7,11 +7,15 @@
 #include <particlesys/ParticleSystemComponentProcessor.h>
 #include <physics/PhysicsComponentProcessor.h>
 #include <scene/TransformComponentProcessor.h>
+#include <render/RenderQueue.h>
 
 namespace df3d {
 
 void World::update(float systemDelta, float gameDelta)
 {
+    if (m_paused)
+        return;
+
     // TODO: Update client processors.
     // TODO_ecs: ordering.
 
@@ -20,11 +24,18 @@ void World::update(float systemDelta, float gameDelta)
     m_vfx->update(systemDelta, gameDelta);
     m_staticMeshes->update(systemDelta, gameDelta);
     m_audio->update(systemDelta, gameDelta);
+
+    cleanStep();
 }
 
-void World::draw(RenderQueue *ops)
+void World::collectRenderOperations(RenderQueue *ops)
 {
+    ops->clear();
+
+    // TODO_ecs: can do in parallel.
     m_staticMeshes->draw(ops);
+    m_vfx->draw(ops);
+    m_physics->draw(ops);
 }
 
 void World::cleanStep()
@@ -82,8 +93,7 @@ void World::destroy(Entity e)
 
 void World::pauseSimulation(bool paused)
 {
-    // TODO_ecs:
-    assert(false);
+    m_paused = paused;
 }
 
 AudioComponentProcessor& World::audio() 

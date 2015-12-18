@@ -3,7 +3,7 @@
 #include <render/RenderPass.h>
 #include <base/EngineController.h>
 #include <scene/Camera.h>
-#include <scene/SceneManager.h>
+#include <scene/World.h>
 #include <components/TransformComponent.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>
@@ -301,7 +301,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
             m_renderParticle = &QuadParticleSystemRenderer::render2D;
     }
 
-    auto camMatr = svc().sceneManager().getCamera()->getViewMatrix() * *m_currentTransformation;
+    auto camMatr = svc().world().getCamera().getViewMatrix() * *m_currentTransformation;
     camMatr = glm::inverse(camMatr);
 
     bool globalOrientation = precomputeOrientation3D(group,
@@ -412,19 +412,6 @@ void LineParticleSystemRenderer::computeAABB(SPK::Vector3D &AABBMin, SPK::Vector
         AABBMax.setMax(particleIt->position());
         AABBMax.setMax(v);
     }
-}
-
-// TODO_ecs: remove this!!!!
-void initSparkEngine()
-{
-    // Clamp the step to 100 ms.
-    SPK::System::setClampStep(true, 0.1f);
-    SPK::System::useRealStep();
-}
-
-void destroySparkEngine()
-{
-    SPK_DUMP_MEMORY
 }
 
 } }

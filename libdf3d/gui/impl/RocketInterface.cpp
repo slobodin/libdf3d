@@ -200,7 +200,9 @@ void RenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandl
     op.passProps = m_guipass;
     op.worldTransform = glm::translate(glm::vec3(translation.x, translation.y, 0.0f));
 
-    svc().renderManager().drawOperation(op);
+    // TODO_ecs: use render queue here!
+    assert(false);
+    //svc().renderManager().drawOperation(op);
 }
 
 void RenderInterface::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry)

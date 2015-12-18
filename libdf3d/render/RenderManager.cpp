@@ -4,10 +4,9 @@
 #include <base/DebugConsole.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>
-#include <scene/Scene.h>
 #include <scene/Camera.h>
+#include <scene/World.h>
 #include <gui/GuiManager.h>
-#include <physics/PhysicsManager.h>
 #include "RendererBackend.h"
 #include "VertexIndexBuffer.h"
 #include "RenderOperation.h"
@@ -75,10 +74,12 @@ void RenderManager::debugDrawPass()
 
     // Draw scene graph debug draw nodes.
     for (const auto &op : m_renderQueue->debugDrawOperations)
-        drawOperation(op);
+        m_renderer->drawOperation(op);
 
     // Draw bullet physics debug.
-    svc().physicsManager().drawDebug();
+    // TODO_ecs:
+    assert(false);
+    //svc().physicsManager().drawDebug();
 }
 
 void RenderManager::postProcessPass(shared_ptr<Material> material)
@@ -121,7 +122,7 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
         if (passidx != 0)
             quadRo.passProps->setSampler("prevPassBuffer", m_postProcessPassBuffers[passidx - 1]->getTexture());
 
-        drawOperation(quadRo);
+        m_renderer->drawOperation(quadRo);
 
         rt->unbind();
     }
@@ -136,41 +137,25 @@ void RenderManager::loadEmbedResources()
     createAmbientPassProps();
 }
 
-RenderManager::RenderManager(EngineInitParams params)
-    : m_renderQueue(make_unique<RenderQueue>()),
-    m_initParams(params)
+void RenderManager::onFrameBegin()
 {
-    m_renderer = make_unique<RendererBackend>();
-    m_renderer->setRenderStatsLocation(&m_stats);
+    m_renderer->beginFrame();
 }
 
-RenderManager::~RenderManager()
+void RenderManager::onFrameEnd()
 {
+    m_renderer->endFrame();
+    m_lastStats = m_stats;
 
+    m_stats.reset();
 }
 
-void RenderManager::update(shared_ptr<Scene> renderableScene)
+void RenderManager::doRenderWorld(World &world)
 {
-    if (!renderableScene)
-        return;
+    // TODO_ecs.
+    assert(false);
 
-    renderableScene->collectStats(&m_stats);
-    renderableScene->collectRenderOperations(m_renderQueue.get());
-}
-
-void RenderManager::drawScene(shared_ptr<Scene> sc)
-{
-    if (!sc)
-        return;
-
-    auto camera = sc->getCamera();
-    if (!camera)
-    {
-        glog << "Can not draw scene. Camera is invalid." << logwarn;
-        return;
-    }
-
-    auto postProcessingEnabled = sc->getPostProcessMaterial() != nullptr;
+    auto postProcessingEnabled = world.getRenderingParams().getPostProcessMaterial() != nullptr;
 
     shared_ptr<RenderTarget> rt;
     if (postProcessingEnabled)
@@ -180,17 +165,17 @@ void RenderManager::drawScene(shared_ptr<Scene> sc)
 
     // Draw whole scene to the texture or to the screen (depends on postprocess option).
     rt->bind();
-    m_renderer->setProjectionMatrix(camera->getProjectionMatrix());
+    m_renderer->setProjectionMatrix(world.getCamera().getProjectionMatrix());
 
     m_renderer->clearColorBuffer();
     m_renderer->clearDepthBuffer();
 
     m_stats.totalLights += m_renderQueue->lights.size();
 
-    m_renderer->setAmbientLight(sc->getAmbientLight());
-    m_renderer->enableFog(sc->getFogDensity(), sc->getFogColor());
+    m_renderer->setAmbientLight(world.getRenderingParams().getAmbientLight());
+    m_renderer->enableFog(world.getRenderingParams().getFogDensity(), world.getRenderingParams().getFogColor());
 
-    m_renderer->setCameraMatrix(camera->getViewMatrix());
+    m_renderer->setCameraMatrix(world.getCamera().getViewMatrix());
 
     m_renderQueue->sort();
 
@@ -239,12 +224,12 @@ void RenderManager::drawScene(shared_ptr<Scene> sc)
 
     // Opaque pass without lights.
     for (const auto &op : m_renderQueue->notLitOpaqueOperations)
-        drawOperation(op);
+        m_renderer->drawOperation(op);
 
     // Transparent pass.
     // TODO: sort by Z.
     for (const auto &op : m_renderQueue->transparentOperations)
-        drawOperation(op);
+        m_renderer->drawOperation(op);
 
     // Debug draw pass.
     debugDrawPass();
@@ -254,30 +239,16 @@ void RenderManager::drawScene(shared_ptr<Scene> sc)
 
     // 2D ops pass.
     for (const auto &op : m_renderQueue->sprite2DOperations)
-        drawOperation(op);
+        m_renderer->drawOperation(op);
 
     // Do post process if enabled.
     if (postProcessingEnabled)
     {
         rt->unbind();
-        postProcessPass(sc->getPostProcessMaterial());
+        postProcessPass(world.getRenderingParams().getPostProcessMaterial());
     }
 
-    m_renderQueue->clear();
-}
-
-void RenderManager::drawOperation(const RenderOperation &op)
-{
-    if (op.isEmpty())
-        return;
-
-    m_renderer->setWorldMatrix(op.worldTransform);
-    m_renderer->bindPass(op.passProps.get());
-    m_renderer->drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
-}
-
-void RenderManager::drawGUI()
-{
+    // Draw GUI.
     m_screenRt->bind();
 
     m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)m_screenRt->getViewport().width(), (float)m_screenRt->getViewport().height(), 0.0f));
@@ -286,20 +257,33 @@ void RenderManager::drawGUI()
     svc().guiManager().getContext()->Render();
 }
 
-void RenderManager::onFrameBegin()
+RenderManager::RenderManager(EngineInitParams params)
+    : m_renderQueue(make_unique<RenderQueue>()),
+    m_initParams(params)
 {
-    m_renderer->beginFrame();
+    m_renderer = make_unique<RendererBackend>();
+    m_renderer->setRenderStatsLocation(&m_stats);
 }
 
-void RenderManager::onFrameEnd()
+RenderManager::~RenderManager()
 {
-    m_renderer->endFrame();
-    m_lastStats = m_stats;
 
-    m_stats.reset();
 }
 
-const RenderStats &RenderManager::getLastRenderStats() const
+void RenderManager::drawWorld(World &world)
+{
+    // TODO_ecs: what if render queue becomes big???
+    m_renderQueue->clear();
+
+    onFrameBegin();
+
+    world.collectRenderOperations(m_renderQueue.get());
+    doRenderWorld(world);
+
+    onFrameEnd();
+}
+
+const RenderStats& RenderManager::getLastRenderStats() const
 {
     return m_lastStats;
 }
@@ -309,12 +293,12 @@ shared_ptr<RenderTargetScreen> RenderManager::getScreenRenderTarget() const
     return m_screenRt;
 }
 
-const RenderingCapabilities &RenderManager::getRenderingCapabilities() const
+const RenderingCapabilities& RenderManager::getRenderingCapabilities() const
 {
     return m_initParams.renderingCaps;
 }
 
-RendererBackend *RenderManager::getRenderer() const
+RendererBackend* RenderManager::getRenderer()
 {
     return m_renderer.get();
 }

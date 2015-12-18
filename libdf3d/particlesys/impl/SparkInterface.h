@@ -101,7 +101,4 @@ inline glm::vec3 spkToGlm(const SPK::Vector3D &v)
     return glm::vec3(v.x, v.y, v.z);
 }
 
-void initSparkEngine();
-void destroySparkEngine();
-
 } }

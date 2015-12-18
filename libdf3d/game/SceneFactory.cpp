@@ -1,7 +1,6 @@
 #include "SceneFactory.h"
 
 #include <utils/JsonUtils.h>
-#include <scene/Scene.h>
 #include <scene/Node.h>
 #include <scene/Camera.h>
 #include <components/TransformComponent.h>
@@ -12,6 +11,7 @@
 #include <game/NodeFactory.h>
 
 namespace df3d {
+/*
 
 void parseFog(const Json::Value &fogNode, shared_ptr<Scene> scene)
 {
@@ -161,6 +161,6 @@ Json::Value saveScene(shared_ptr<const Scene> scene)
     result["camera"] = saveCamera(scene);
 
     return result;
-}
+}*/
 
 }

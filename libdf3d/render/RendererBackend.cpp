@@ -35,7 +35,7 @@ void RendererBackend::createWhiteTexture()
     m_whiteTexture = svc().resourceManager().getFactory().createTexture(std::move(pb), params);
     m_whiteTexture->setResident(true);
 
-    delete [] data;
+    delete[] data;
 }
 
 void RendererBackend::loadResidentGpuPrograms()
@@ -193,7 +193,7 @@ void RendererBackend::updateTextureSamplers()
             texture = m_whiteTexture;
 
         auto bound = texture->bind(textureUnit);
-        if (!bound) 
+        if (!bound)
         {
             texture = m_whiteTexture;
             texture->bind(textureUnit);
@@ -554,6 +554,16 @@ float RendererBackend::getMaxAnisotropy()
     }
 
     return m_maxAnisotropyLevel;
+}
+
+void RendererBackend::drawOperation(const RenderOperation &op)
+{
+    if (op.isEmpty())
+        return;
+
+    setWorldMatrix(op.worldTransform);
+    bindPass(op.passProps.get());
+    drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
 }
 
 }

@@ -104,6 +104,8 @@ public:
 
     int getMaxTextureSize();
     float getMaxAnisotropy();
+
+    void drawOperation(const RenderOperation &op);
 };
 
 }
