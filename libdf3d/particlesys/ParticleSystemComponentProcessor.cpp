@@ -4,7 +4,6 @@
 #include <scene/impl/ComponentDataHolder.h>
 #include <scene/World.h>
 #include <scene/Camera.h>
-#include <scene/SceneManager.h>
 #include <components/TransformComponent.h>
 #include <scene/TransformComponentProcessor.h>
 #include <base/EngineController.h>
@@ -36,7 +35,7 @@ struct ParticleSystemComponentProcessor::Impl
         {
             if (spkSystem->getGroup(i)->isDistanceComputationEnabled())
             {
-                auto pos = svc().sceneManager().getCamera()->getPosition();
+                auto pos = svc().world().getCamera().getPosition();
                 if (!compData.worldTransformed)
                 {
                     // Transform camera position into this node space.

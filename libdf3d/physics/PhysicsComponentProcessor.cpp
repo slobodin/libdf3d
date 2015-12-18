@@ -51,8 +51,6 @@ public:
 
 struct PhysicsComponentProcessor::Impl
 {
-    bool paused = false;
-
     btDefaultCollisionConfiguration *collisionConfiguration = nullptr;
     btCollisionDispatcher *dispatcher = nullptr;
     btBroadphaseInterface *overlappingPairCache = nullptr;
@@ -110,8 +108,7 @@ struct PhysicsComponentProcessor::Impl
 
 void PhysicsComponentProcessor::update(float systemDelta, float gameDelta)
 {
-    if (!m_pimpl->paused)
-        m_pimpl->dynamicsWorld->stepSimulation(gameDelta, 10);
+    m_pimpl->dynamicsWorld->stepSimulation(gameDelta, 10);
 }
 
 void PhysicsComponentProcessor::draw(RenderQueue *ops)
@@ -169,11 +166,6 @@ ComponentInstance PhysicsComponentProcessor::lookup(Entity e)
 btDynamicsWorld* PhysicsComponentProcessor::getPhysicsWorld()
 {
     return m_pimpl->dynamicsWorld;
-}
-
-void PhysicsComponentProcessor::pauseSimulation(bool paused)
-{
-    m_pimpl->paused = paused;
 }
 
 }

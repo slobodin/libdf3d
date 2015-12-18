@@ -3,7 +3,7 @@
 #include <scene/Node.h>
 #include <scene/Frustum.h>
 #include <scene/Camera.h>
-#include <scene/SceneManager.h>
+#include <scene/World.h>
 #include <components/TransformComponent.h>
 #include <render/MeshData.h>
 #include <render/VertexIndexBuffer.h>
@@ -52,7 +52,7 @@ bool MeshComponent::isInFov()
     if (m_frustumCullingDisabled)
         return true;
 
-    return svc().sceneManager().getCamera()->getFrustum().sphereInFrustum(getBoundingSphere());
+    return svc().world().getCamera().getFrustum().sphereInFrustum(getBoundingSphere());
 }
 
 void MeshComponent::onComponentEvent(ComponentEvent ev)

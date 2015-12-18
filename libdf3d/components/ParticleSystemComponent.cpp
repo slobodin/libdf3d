@@ -3,8 +3,8 @@
 #include <components/TransformComponent.h>
 #include <particlesys/impl/SparkInterface.h>
 #include <scene/Camera.h>
+#include <scene/World.h>
 #include <scene/Node.h>
-#include <scene/SceneManager.h>
 #include <render/RenderOperation.h>
 #include <render/RenderQueue.h>
 #include <base/EngineController.h>
@@ -17,7 +17,7 @@ void ParticleSystemComponent::updateCameraPosition()
     {
         if (SPKSystem->getGroup(i)->isDistanceComputationEnabled())
         {
-            auto pos = svc().sceneManager().getCamera()->getPosition();
+            auto pos = svc().world().getCamera().getPosition();
             if (!m_worldTransformed)
             {
                 // Transform camera position into this node space.

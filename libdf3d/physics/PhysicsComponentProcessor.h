@@ -46,7 +46,6 @@ public:
     ComponentInstance lookup(Entity e);
 
     btDynamicsWorld* getPhysicsWorld();
-    void pauseSimulation(bool paused);
 };
 
 }

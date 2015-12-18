@@ -5,8 +5,8 @@
 #include "OpenGLCommon.h"
 #include <base/EngineController.h>
 #include <base/TimeManager.h>
-#include <scene/SceneManager.h>
 #include <scene/Camera.h>
+#include <scene/World.h>
 #include <components/TransformComponent.h>
 
 namespace df3d {
@@ -129,8 +129,7 @@ void GpuProgramState::onFrameBegin()
     m_currentPass = nullptr;
     m_currentShader = nullptr;
 
-    if (svc().sceneManager().getCamera())
-        m_cameraPosition = svc().sceneManager().getCamera()->getPosition();
+    m_cameraPosition = svc().world().getCamera().getPosition();
 
     m_engineElapsedTime = svc().timeManager().getElapsedTime();
 }

@@ -1,8 +1,10 @@
 #include "PhysicsComponent.h"
 
 #include <BulletCollision/CollisionShapes/btShapeHull.h>
+#include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
+#include <physics/PhysicsHelpers.h>
 
-#include <physics/PhysicsManager.h>
 #include <scene/Node.h>
 #include <components/MeshComponent.h>
 #include <components/TransformComponent.h>
@@ -80,6 +82,9 @@ void PhysicsComponent::initFromCreationParams()
     if (!glm::epsilonEqual(m_creationParams.mass, 0.0f, glm::epsilon<float>()))
         colShape->calculateLocalInertia(m_creationParams.mass, localInertia);
 
+    // TODO_ecs:
+    assert(false);
+    /*
     // Set motion state.
     auto myMotionState = new NodeMotionState(getHolder());
 
@@ -102,6 +107,7 @@ void PhysicsComponent::initFromCreationParams()
 
     for (auto listener : m_listeners)
         listener->onPhysicsComponentInitialized();
+        */
 }
 
 void PhysicsComponent::onAttached()
@@ -124,7 +130,9 @@ void PhysicsComponent::onDetached()
     {
         // FIXME:
         // Here we assuming that body was added to the world.
-        svc().physicsManager().getWorld()->removeRigidBody(body);
+        // TODO_ecs:
+        assert(false);
+        //svc().physicsManager().getWorld()->removeRigidBody(body);
         auto motionState = body->getMotionState();
         delete motionState;
         auto shape = body->getCollisionShape();
