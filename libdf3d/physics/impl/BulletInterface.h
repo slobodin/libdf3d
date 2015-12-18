@@ -8,6 +8,7 @@
 namespace df3d { 
 
 class RenderPass;
+class RenderQueue;
 
 namespace physics_impl {
 
@@ -28,7 +29,7 @@ public:
     void setDebugMode(int debugMode) override;
     int getDebugMode() const override;
 
-    void flushRenderOperations();
+    void flushRenderOperations(RenderQueue *ops);
 };
 
 } }

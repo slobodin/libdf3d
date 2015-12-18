@@ -52,19 +52,23 @@ void FPSCamera::onTouchEvent(const TouchEvent &touchEvent)
     if (!m_freeMove)
         return;
 
-    static int yaw, pitch;
-    static const float DAMPING = 0.3f;
+    static float yaw, pitch;
 
     if (touchEvent.state == TouchEvent::State::MOVING)
     {
-        yaw += int(touchEvent.dx * DAMPING);
-        pitch += int(touchEvent.dy * DAMPING);
+        yaw += int(touchEvent.dx);
+        pitch += int(touchEvent.dy);
 
-        if (abs(yaw) > 360) yaw %= 360;
-        if (pitch > 90) pitch = 90;
-        if (pitch < -90) pitch = -90;
+        while (yaw > 360.0f)
+            yaw -= 360.0f;
 
-        setOrientation(glm::vec3((float)-pitch, (float)-yaw, 0.0f));
+        while (yaw < -360.0f)
+            yaw += 360.0f;
+
+        if (pitch > 90.0f) pitch = 90.0f;
+        if (pitch < -90.0f) pitch = -90.0f;
+
+        setOrientation(glm::vec3(-pitch, -yaw, 0.0f));
     }
 }
 

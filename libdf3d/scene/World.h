@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Entity.h"
-#include "Camera.h"
 #include "WorldRenderingParams.h"
 
 namespace df3d {
@@ -14,6 +13,7 @@ class PhysicsComponentProcessor;
 class TransformComponentProcessor;
 class RenderQueue;
 class EntityComponentProcessor;
+class Camera;
 
 class DF3D_DLL World : utils::NonCopyable
 {
@@ -28,7 +28,7 @@ class DF3D_DLL World : utils::NonCopyable
     unique_ptr<EntityComponentProcessor> m_physics;
     unique_ptr<EntityComponentProcessor> m_tranform;
 
-    Camera m_camera;
+    shared_ptr<Camera> m_camera;
     WorldRenderingParams m_renderingParams;
 
     bool m_paused = false;
@@ -49,11 +49,11 @@ public:
 
     void pauseSimulation(bool paused);
 
-    void setCamera(const Camera &camera) { m_camera = camera; }
+    void setCamera(shared_ptr<Camera> camera) { m_camera = camera; }
     void setRenderingParams(const WorldRenderingParams &params) { m_renderingParams = params; }
 
-    Camera& getCamera() { return m_camera; }
-    const Camera& getCamera() const { return m_camera; }
+    Camera& getCamera() { return *m_camera; }
+    const Camera& getCamera() const { return *m_camera; }
 
     WorldRenderingParams& getRenderingParams() { return m_renderingParams; }
     const WorldRenderingParams& getRenderingParams() const { return m_renderingParams; }

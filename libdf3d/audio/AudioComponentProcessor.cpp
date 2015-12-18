@@ -6,6 +6,7 @@
 #include <scene/impl/ComponentDataHolder.h>
 #include <scene/TransformComponentProcessor.h>
 #include <scene/World.h>
+#include <scene/Camera.h>
 #include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>

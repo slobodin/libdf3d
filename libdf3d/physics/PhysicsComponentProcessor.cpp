@@ -113,12 +113,10 @@ void PhysicsComponentProcessor::update(float systemDelta, float gameDelta)
 
 void PhysicsComponentProcessor::draw(RenderQueue *ops)
 {
-    // TODO_ecs: collect to queue.
-    assert(false);
     // Collect render operations.
     m_pimpl->dynamicsWorld->debugDrawWorld();
-    // Flush.
-    m_pimpl->debugDraw->flushRenderOperations();
+    // Append to render queue.
+    m_pimpl->debugDraw->flushRenderOperations(ops);
 }
 
 PhysicsComponentProcessor::PhysicsComponentProcessor()

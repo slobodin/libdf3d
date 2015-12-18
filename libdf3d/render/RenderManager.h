@@ -47,7 +47,6 @@ class RenderManager : utils::NonCopyable
     void createRenderTargets(const Viewport &vp);
     void createAmbientPassProps();
 
-    void debugDrawPass();
     void postProcessPass(shared_ptr<Material> material);
 
     RenderStats m_stats;

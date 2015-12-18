@@ -64,24 +64,6 @@ void RenderManager::createAmbientPassProps()
     m_ambientPassProps->setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
 }
 
-void RenderManager::debugDrawPass()
-{
-    if (auto console = svc().debugConsole())
-    {
-        if (!console->getCVars().get<bool>(CVAR_DEBUG_DRAW))
-            return;
-    }
-
-    // Draw scene graph debug draw nodes.
-    for (const auto &op : m_renderQueue->debugDrawOperations)
-        m_renderer->drawOperation(op);
-
-    // Draw bullet physics debug.
-    // TODO_ecs:
-    assert(false);
-    //svc().physicsManager().drawDebug();
-}
-
 void RenderManager::postProcessPass(shared_ptr<Material> material)
 {
     //m_renderer->clearDepthBuffer();
@@ -152,9 +134,6 @@ void RenderManager::onFrameEnd()
 
 void RenderManager::doRenderWorld(World &world)
 {
-    // TODO_ecs.
-    assert(false);
-
     auto postProcessingEnabled = world.getRenderingParams().getPostProcessMaterial() != nullptr;
 
     shared_ptr<RenderTarget> rt;
@@ -232,7 +211,14 @@ void RenderManager::doRenderWorld(World &world)
         m_renderer->drawOperation(op);
 
     // Debug draw pass.
-    debugDrawPass();
+    if (auto console = svc().debugConsole())
+    {
+        if (console->getCVars().get<bool>(CVAR_DEBUG_DRAW))
+        {
+            for (const auto &op : m_renderQueue->debugDrawOperations)
+                m_renderer->drawOperation(op);
+        }
+    }
 
     m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)rt->getViewport().width(), (float)rt->getViewport().height(), 0.0f));
     m_renderer->setCameraMatrix(glm::mat4(1.0f));

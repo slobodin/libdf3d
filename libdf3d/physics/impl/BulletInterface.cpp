@@ -5,6 +5,7 @@
 #include <render/RenderPass.h>
 #include <render/RendererBackend.h>
 #include <render/VertexIndexBuffer.h>
+#include <render/RenderQueue.h>
 
 namespace df3d { namespace physics_impl {
 
@@ -56,8 +57,11 @@ int BulletDebugDraw::getDebugMode() const
     return btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawNormals | btIDebugDraw::DBG_DrawConstraints;
 }
 
-void BulletDebugDraw::flushRenderOperations()
+void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
 {
+    if (m_vertexData.getVerticesCount() == 0)
+        return;
+
     if (!m_pass)
     {
         m_pass = make_shared<RenderPass>(RenderPass::createDebugDrawPass());
@@ -72,9 +76,7 @@ void BulletDebugDraw::flushRenderOperations()
     op.vertexData->alloc(m_vertexData, GpuBufferUsageType::STREAM);
     m_vertexData.clear();
 
-    // TODO_ecs: use render queue here!
-    assert(false);
-    //svc().renderManager().drawOperation(op);
+    ops->debugDrawOperations.push_back(op);
 }
 
 } }

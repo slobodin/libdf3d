@@ -6,7 +6,7 @@
 
 namespace df3d {
 
-class DF3D_DLL Camera
+class DF3D_DLL Camera : utils::NonCopyable  // Should be polymorphic.
 {
     glm::mat4 m_worldToCamera;
     glm::mat4 m_projectionMatrix;
@@ -44,7 +44,7 @@ public:
            float fov = 60.f,
            float nearZ = 0.1f,
            float farZ = 5000.f);
-    ~Camera();
+    virtual ~Camera();
 
     void setFov(float fov);
     void setPosition(const glm::vec3 &newPosition);

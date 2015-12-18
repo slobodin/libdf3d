@@ -7,6 +7,7 @@
 #include <particlesys/ParticleSystemComponentProcessor.h>
 #include <physics/PhysicsComponentProcessor.h>
 #include <scene/TransformComponentProcessor.h>
+#include <scene/Camera.h>
 #include <render/RenderQueue.h>
 
 namespace df3d {
@@ -30,8 +31,6 @@ void World::update(float systemDelta, float gameDelta)
 
 void World::collectRenderOperations(RenderQueue *ops)
 {
-    ops->clear();
-
     // TODO_ecs: can do in parallel.
     m_staticMeshes->draw(ops);
     m_vfx->draw(ops);
