@@ -7,6 +7,8 @@
 #include <math/BoundingSphere.h>
 #include <math/ConvexHull.h>
 #include "impl/BulletInterface.h"
+#include <base/EngineController.h>
+#include <base/DebugConsole.h>
 #include <scene/impl/ComponentDataHolder.h>
 
 namespace df3d {
@@ -113,6 +115,9 @@ void PhysicsComponentProcessor::update(float systemDelta, float gameDelta)
 
 void PhysicsComponentProcessor::draw(RenderQueue *ops)
 {
+    if (!svc().debugConsole()->getCVars().get<bool>(CVAR_DEBUG_DRAW))
+        return;
+
     // Collect render operations.
     m_pimpl->dynamicsWorld->debugDrawWorld();
     // Append to render queue.
