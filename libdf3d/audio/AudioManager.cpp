@@ -3,7 +3,6 @@
 #include "impl/OpenALCommon.h"
 #include <base/EngineController.h>
 #include <components/TransformComponent.h>
-#include <scene/SceneManager.h>
 #include <scene/Camera.h>
 
 namespace df3d {
@@ -52,21 +51,6 @@ AudioManager::~AudioManager()
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(m_pimpl->m_context);
     alcCloseDevice(m_pimpl->m_device);
-}
-
-void AudioManager::update(float systemDelta, float gameDelta)
-{
-    auto cam = svc().sceneManager().getCamera();
-    if (cam)
-    {
-        alListenerfv(AL_POSITION, glm::value_ptr(cam->getPosition()));
-
-        const auto &dir = cam->getDir();
-        const auto &up = cam->getUp();
-
-        ALfloat listenerOrientation[] = { dir.x, dir.y, dir.z, up.x, up.y, up.z };
-        alListenerfv(AL_ORIENTATION, listenerOrientation);
-    }
 }
 
 }

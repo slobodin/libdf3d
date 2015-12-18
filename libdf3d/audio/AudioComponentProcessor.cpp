@@ -53,6 +53,16 @@ struct AudioComponentProcessor::Impl
 
 void AudioComponentProcessor::update(float systemDelta, float gameDelta)
 {
+    // Update camera position.
+    const auto &cam = svc().world().getCamera();
+    alListenerfv(AL_POSITION, glm::value_ptr(cam.getPosition()));
+
+    const auto &dir = cam.getDir();
+    const auto &up = cam.getUp();
+
+    ALfloat listenerOrientation[] = { dir.x, dir.y, dir.z, up.x, up.y, up.z };
+    alListenerfv(AL_ORIENTATION, listenerOrientation);
+
     // Update the transform component idx.
     for (auto &compData : m_pimpl->data.rawData())
     {
@@ -61,7 +71,6 @@ void AudioComponentProcessor::update(float systemDelta, float gameDelta)
     }
 
     auto &transformSystem = world().transform();
-
     for (auto &compData : m_pimpl->data.rawData())
     {
         // If it has stopped, then do not update it.
