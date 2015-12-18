@@ -10,8 +10,6 @@ class DF3D_DLL AudioManager : utils::NonCopyable
 public:
     AudioManager();
     ~AudioManager();
-
-    void update(float systemDelta, float gameDelta);
 };
 
 }
