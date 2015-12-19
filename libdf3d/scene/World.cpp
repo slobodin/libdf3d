@@ -51,7 +51,8 @@ World::World()
     m_staticMeshes(new StaticMeshComponentProcessor()),
     m_vfx(new ParticleSystemComponentProcessor()),
     m_physics(new PhysicsComponentProcessor()),
-    m_tranform(new TransformComponentProcessor())
+    m_tranform(new TransformComponentProcessor()),
+    m_camera(new Camera())
 {
 
 }
