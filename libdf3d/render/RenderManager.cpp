@@ -184,11 +184,9 @@ void RenderManager::doRenderWorld(World &world)
         m_renderer->setWorldMatrix(op.worldTransform);
         // TODO: bind pass only once
 
-        const auto &lights = m_renderQueue->lights;
-        size_t lightsSize = lights.size();
-        for (size_t lightIdx = 0; lightIdx < lightsSize; lightIdx++)
+        for (const auto &light : m_renderQueue->lights)
         {
-            m_renderer->setLight(lights[lightIdx]);
+            m_renderer->setLight(*light);
 
             // TODO: update ONLY light uniforms.
             m_renderer->bindPass(op.passProps.get());

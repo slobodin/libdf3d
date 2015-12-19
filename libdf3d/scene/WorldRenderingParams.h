@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Light.h"
+
 namespace df3d {
 
 class Material;
@@ -11,6 +13,8 @@ class DF3D_DLL WorldRenderingParams
     glm::vec3 m_ambientLight = glm::vec3(1.0f, 1.0f, 1.0f);
     float m_fogDensity = 0.0f;
     glm::vec3 m_fogColor;
+
+    std::vector<Light> m_lights;
 
 public:
     WorldRenderingParams();
@@ -26,6 +30,9 @@ public:
 
     void setPostProcessMaterial(shared_ptr<Material> material);
     shared_ptr<Material> getPostProcessMaterial() const;
+
+    void addLight(const Light &light) { m_lights.push_back(light); }
+    const std::vector<Light>& getLights() const { return m_lights; }
 };
 
 }

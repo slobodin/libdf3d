@@ -58,6 +58,7 @@ struct StaticMeshComponentProcessor::Impl
 
 void StaticMeshComponentProcessor::update(float systemDelta, float gameDelta)
 {
+    // TODO_ecs: get only changed components.
     // Update the transform component idx.
     for (auto &compData : m_pimpl->data.rawData())
     {

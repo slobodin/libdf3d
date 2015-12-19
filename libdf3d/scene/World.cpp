@@ -17,9 +17,7 @@ void World::update(float systemDelta, float gameDelta)
     if (m_paused)
         return;
 
-    // TODO: Update client processors.
     // TODO_ecs: ordering.
-
     m_physics->update(systemDelta, gameDelta);
     m_tranform->update(systemDelta, gameDelta);
     m_vfx->update(systemDelta, gameDelta);
@@ -31,6 +29,10 @@ void World::update(float systemDelta, float gameDelta)
 
 void World::collectRenderOperations(RenderQueue *ops)
 {
+    // TODO: refactor light system.
+    for (const auto& light : m_renderingParams.getLights())
+        ops->lights.push_back(&light);
+
     // TODO_ecs: can do in parallel.
     m_staticMeshes->draw(ops);
     m_vfx->draw(ops);
@@ -39,7 +41,7 @@ void World::collectRenderOperations(RenderQueue *ops)
 
 void World::cleanStep()
 {
-
+    // TODO_ecs:
 }
 
 World::World()

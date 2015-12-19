@@ -4,7 +4,7 @@
 
 namespace df3d {
 
-class LightComponent;
+class Light;
 
 class RenderQueue
 {
@@ -17,7 +17,7 @@ public:
     std::vector<RenderOperation> transparentOperations;
     std::vector<RenderOperation2D> sprite2DOperations;
     std::vector<RenderOperation> debugDrawOperations;
-    std::vector<LightComponent *> lights;
+    std::vector<const Light*> lights;
 
     void sort();
     void clear();

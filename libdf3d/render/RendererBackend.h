@@ -11,7 +11,7 @@ class IndexBuffer;
 class GpuProgramState;
 class Viewport;
 class Texture2D;
-class LightComponent;
+class Light;
 
 class RendererBackend
 {
@@ -91,7 +91,7 @@ public:
 
     void setAmbientLight(const glm::vec3 &ambient);
     void setAmbientLight(float ra, float ga, float ba);
-    void setLight(const LightComponent *light);
+    void setLight(const Light &light);
 
     void bindPass(RenderPass *pass);
 

@@ -137,6 +137,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Entity.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/EntityComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/Light.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/TransformComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/World.h
@@ -243,6 +244,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/Light.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Node.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/TransformComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/World.cpp

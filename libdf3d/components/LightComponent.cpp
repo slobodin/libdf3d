@@ -12,8 +12,7 @@ size_t LightComponent::NumLights = 0;
 
 void LightComponent::onDraw(RenderQueue *ops)
 {
-    if (enabled())
-        ops->lights.push_back(this);
+
 }
 
 LightComponent::LightComponent(Type type)
