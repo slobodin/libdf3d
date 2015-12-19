@@ -69,6 +69,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkInterface.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/ParticleSystemLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.h
@@ -161,6 +162,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkInterface.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/ParticleSystemLoader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/DebugDrawComponentProcessor.cpp
