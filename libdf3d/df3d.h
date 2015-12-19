@@ -61,9 +61,6 @@
 #include <audio/AudioManager.h>
 #include <audio/AudioComponentProcessor.h>
 
-#include <game/ComponentFactory.h>
-#include <game/NodeFactory.h>
-#include <game/SceneFactory.h>
 #include <game/FPSCamera.h>
 
 #include <particlesys/ParticleSystemComponentProcessor.h>

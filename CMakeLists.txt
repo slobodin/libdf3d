@@ -51,18 +51,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/AudioComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/ComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/DebugDrawComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/LightComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/MeshComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/ParticleSystemComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/PhysicsComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/Sprite2DComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/TransformComponentSerializer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/ComponentFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/FPSCamera.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/NodeFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketIntrusivePtr.h
@@ -157,18 +146,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/AudioComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/ComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/DebugDrawComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/LightComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/MeshComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/ParticleSystemComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/PhysicsComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/Sprite2DComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/component_serializers/TransformComponentSerializer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/ComponentFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/FPSCamera.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/NodeFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketIntrusivePtr.cpp

@@ -3,6 +3,7 @@
 
 #include "impl/EntityManager.h"
 #include "impl/WorldLoader.h"
+#include "impl/EntityLoader.h"
 #include <audio/AudioComponentProcessor.h>
 #include <render/StaticMeshComponentProcessor.h>
 #include <particlesys/ParticleSystemComponentProcessor.h>
@@ -74,9 +75,7 @@ Entity World::spawn()
 
 Entity World::spawn(const std::string &entityResource)
 {
-    auto entity = spawn();
-
-    return entity;
+    return scene_impl::EntityLoader::createEntity(entityResource, *this);
 }
 
 bool World::alive(Entity e)
