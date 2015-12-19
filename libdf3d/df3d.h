@@ -18,16 +18,6 @@
 
 #include <platform/AppDelegate.h>
 
-#include <components/AudioComponent.h>
-#include <components/LightComponent.h>
-#include <components/MeshComponent.h>
-#include <components/ParticleSystemComponent.h>
-#include <components/PhysicsComponent.h>
-#include <components/TransformComponent.h>
-#include <components/TextMeshComponent.h>
-#include <components/Sprite2DComponent.h>
-
-#include <scene/Node.h>
 #include <scene/Frustum.h>
 #include <scene/Camera.h>
 #include <scene/Entity.h>

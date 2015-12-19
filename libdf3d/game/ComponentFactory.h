@@ -1,7 +1,5 @@
 #pragma once
 
-#include <components/NodeComponent.h>
-
 namespace df3d {
 
 //! Creates node component from a file with json description.

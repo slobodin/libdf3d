@@ -63,8 +63,6 @@ using std::static_pointer_cast;
 
 namespace df3d {
 
-class Node;
-
 enum class ResourceLoadingMode
 {
     IMMEDIATE,
@@ -81,8 +79,6 @@ enum class PixelFormat
 };
 
 using ResourceGUID = std::string;
-using SceneNode = shared_ptr<df3d::Node>;
-using WeakSceneNode = weak_ptr<df3d::Node>;
 using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
 
 inline float IntervalBetween(const TimePoint &t1, const TimePoint &t2)

@@ -2,8 +2,6 @@
 
 namespace df3d {
 
-class Node;
-
 DF3D_DLL SceneNode newNode(const std::string &name = "");
 DF3D_DLL SceneNode nodeFromFile(const std::string &jsonDefinitionFile);
 DF3D_DLL SceneNode nodeFromJson(const Json::Value &root);

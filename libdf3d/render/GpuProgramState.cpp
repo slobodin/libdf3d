@@ -7,7 +7,6 @@
 #include <base/TimeManager.h>
 #include <scene/Camera.h>
 #include <scene/World.h>
-#include <components/TransformComponent.h>
 
 namespace df3d {
 

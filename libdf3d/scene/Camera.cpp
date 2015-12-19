@@ -1,7 +1,6 @@
 #include "Camera.h"
 
 #include <base/EngineController.h>
-#include <components/TransformComponent.h>
 #include <render/RendererBackend.h>
 #include <render/Viewport.h>
 #include <render/RenderTargetScreen.h>

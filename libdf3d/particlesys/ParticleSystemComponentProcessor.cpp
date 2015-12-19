@@ -4,10 +4,8 @@
 #include <scene/impl/ComponentDataHolder.h>
 #include <scene/World.h>
 #include <scene/Camera.h>
-#include <components/TransformComponent.h>
 #include <scene/TransformComponentProcessor.h>
 #include <base/EngineController.h>
-// TODO_ecs: move to impl folder.
 #include <particlesys/impl/SparkInterface.h>
 
 namespace df3d {

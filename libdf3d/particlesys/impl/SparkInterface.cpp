@@ -4,7 +4,6 @@
 #include <base/EngineController.h>
 #include <scene/Camera.h>
 #include <scene/World.h>
-#include <components/TransformComponent.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>
 #include <render/VertexIndexBuffer.h>

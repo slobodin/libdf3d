@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Node.h"
 #include "Frustum.h"
 #include <render/Viewport.h>
 
