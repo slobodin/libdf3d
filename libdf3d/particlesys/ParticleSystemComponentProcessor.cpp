@@ -24,7 +24,7 @@ struct ParticleSystemComponentProcessor::Impl
         float systemAge = 0.0f;
     };
 
-    ComponentDataHolder<Data> data;
+    scene_impl::ComponentDataHolder<Data> data;
 
     static void updateCameraPosition(Data &compData)
     {

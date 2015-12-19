@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "EntityManager.h"
 
-namespace df3d {
+namespace df3d { namespace scene_impl {
 
 EntityManager::EntityManager()
 {
@@ -36,4 +36,4 @@ bool EntityManager::alive(Entity e)
     return m_entities.find(e.id) != m_entities.end();
 }
 
-}
+} }

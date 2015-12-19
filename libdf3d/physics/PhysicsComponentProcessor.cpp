@@ -66,7 +66,7 @@ struct PhysicsComponentProcessor::Impl
         btRigidBody *body = nullptr;
     };
 
-    ComponentDataHolder<Data> data;
+    scene_impl::ComponentDataHolder<Data> data;
 
     Impl()
     {

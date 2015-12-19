@@ -133,7 +133,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldRenderingParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldSize.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/ComponentDataHolder.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/EntityLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/EntityManager.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/WorldLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.h
@@ -227,7 +229,9 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/TransformComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/World.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldRenderingParams.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/EntityLoader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/EntityManager.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/WorldLoader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MathUtils.cpp

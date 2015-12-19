@@ -76,7 +76,7 @@ void EngineController::initialize(EngineInitParams params)
         m_inputManager = make_unique<InputManager>();
 
         // Create a blank world.
-        m_world = make_unique<World>();
+        m_world = World::newWorld();
 
         m_initialized = true;
         glog << "Engine initialized" << logmess;

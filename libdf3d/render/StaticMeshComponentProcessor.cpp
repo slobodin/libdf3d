@@ -26,7 +26,7 @@ struct StaticMeshComponentProcessor::Impl
         bool frustumCullingDisabled = false;
     };
 
-    ComponentDataHolder<Data> data;
+    scene_impl::ComponentDataHolder<Data> data;
 
     static BoundingSphere getBoundingSphere(const Data &compData)
     {

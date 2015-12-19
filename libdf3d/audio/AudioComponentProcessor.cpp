@@ -49,7 +49,7 @@ struct AudioComponentProcessor::Impl
         bool looped = false;
     };
 
-    ComponentDataHolder<Data> data;
+    scene_impl::ComponentDataHolder<Data> data;
 };
 
 void AudioComponentProcessor::update(float systemDelta, float gameDelta)

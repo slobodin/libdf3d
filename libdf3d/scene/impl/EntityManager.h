@@ -2,7 +2,7 @@
 
 #include <scene/Entity.h>
 
-namespace df3d {
+namespace df3d { namespace scene_impl {
 
 class EntityManager : utils::NonCopyable
 {
@@ -18,4 +18,4 @@ public:
     bool alive(Entity e);
 };
 
-}
+} }

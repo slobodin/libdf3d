@@ -3,7 +3,7 @@
 #include <scene/Entity.h>
 #include <utils/Utils.h>
 
-namespace df3d {
+namespace df3d { namespace scene_impl {
 
 // TODO_ecs : add test suits.
 template<typename T>
@@ -74,4 +74,4 @@ public:
     }
 };
 
-}
+} }

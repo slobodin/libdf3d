@@ -24,7 +24,7 @@ struct TransformComponentProcessor::Impl
         std::vector<ComponentInstance> children;
     };
 
-    ComponentDataHolder<Data> data;
+    scene_impl::ComponentDataHolder<Data> data;
 
     void updateWorldTransformation(Data &component)
     {

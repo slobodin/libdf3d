@@ -5,7 +5,8 @@
 
 namespace df3d {
 
-class EntityManager;
+namespace scene_impl { class EntityManager; }
+
 class AudioComponentProcessor;
 class StaticMeshComponentProcessor;
 class ParticleSystemComponentProcessor;
@@ -20,7 +21,7 @@ class DF3D_DLL World : utils::NonCopyable
     friend class EngineController;
     friend class RenderManager;
 
-    unique_ptr<EntityManager> m_entityManager;
+    unique_ptr<scene_impl::EntityManager> m_entityManager;
 
     unique_ptr<EntityComponentProcessor> m_audio;
     unique_ptr<EntityComponentProcessor> m_staticMeshes;
@@ -37,9 +38,9 @@ class DF3D_DLL World : utils::NonCopyable
     void collectRenderOperations(RenderQueue *ops);
     void cleanStep();
 
-public:
     World();
-    World(const std::string &worldResource);
+
+public:
     ~World();
 
     Entity spawn();
@@ -63,6 +64,9 @@ public:
     ParticleSystemComponentProcessor& vfx();
     PhysicsComponentProcessor& physics();
     TransformComponentProcessor& transform();
+
+    static unique_ptr<World> newWorld();
+    static unique_ptr<World> newWorld(const std::string &worldResource);
 };
 
 }
