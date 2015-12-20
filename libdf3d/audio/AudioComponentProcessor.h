@@ -30,21 +30,20 @@ public:
     AudioComponentProcessor();
     ~AudioComponentProcessor();
 
-    void play(ComponentInstance comp);
-    void stop(ComponentInstance comp);
-    void pause(ComponentInstance comp);
+    void play(Entity e);
+    void stop(Entity e);
+    void pause(Entity e);
 
-    void setPitch(ComponentInstance comp, float pitch);
-    void setGain(ComponentInstance comp, float gain);
-    void setLooped(ComponentInstance comp, bool looped);
+    void setPitch(Entity e, float pitch);
+    void setGain(Entity e, float gain);
+    void setLooped(Entity e, bool looped);
 
-    float getPitch(ComponentInstance comp) const;
-    float getGain(ComponentInstance comp) const;
-    bool isLooped(ComponentInstance comp) const;
+    float getPitch(Entity e) const;
+    float getGain(Entity e) const;
+    bool isLooped(Entity e) const;
 
-    ComponentInstance add(Entity e, const std::string &audioFilePath);
+    void add(Entity e, const std::string &audioFilePath);
     void remove(Entity e);
-    ComponentInstance lookup(Entity e);
 };
 
 }

@@ -3,7 +3,7 @@
 
 #include "AudioBuffer.h"
 #include "impl/OpenALCommon.h"
-#include <scene/impl/ComponentDataHolder.h>
+#include <scene/ComponentDataHolder.h>
 #include <scene/TransformComponentProcessor.h>
 #include <scene/World.h>
 #include <scene/Camera.h>
@@ -41,7 +41,7 @@ struct AudioComponentProcessor::Impl
     struct Data
     {
         Entity holder;
-        ComponentInstance transformComponent;
+        glm::vec3 holderPos;
 
         unsigned audioSourceId = 0;
         float pitch = 1.0f;
@@ -49,7 +49,7 @@ struct AudioComponentProcessor::Impl
         bool looped = false;
     };
 
-    scene_impl::ComponentDataHolder<Data> data;
+    ComponentDataHolder<Data> data;
 };
 
 void AudioComponentProcessor::update(float systemDelta, float gameDelta)
@@ -64,12 +64,9 @@ void AudioComponentProcessor::update(float systemDelta, float gameDelta)
     ALfloat listenerOrientation[] = { dir.x, dir.y, dir.z, up.x, up.y, up.z };
     alListenerfv(AL_ORIENTATION, listenerOrientation);
 
-    // Update the transform component idx.
+    // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
-    {
-        compData.transformComponent = world().transform().lookup(compData.holder);
-        assert(compData.transformComponent.valid());
-    }
+        compData.holderPos = world().transform().getPosition(compData.holder, true);
 
     auto &transformSystem = world().transform();
     for (auto &compData : m_pimpl->data.rawData())
@@ -78,8 +75,7 @@ void AudioComponentProcessor::update(float systemDelta, float gameDelta)
         if (getAudioState(compData.audioSourceId) == State::STOPPED)
             continue;
 
-        auto pos = transformSystem.getPosition(compData.transformComponent, true);
-        alSourcefv(compData.audioSourceId, AL_POSITION, glm::value_ptr(pos));
+        alSourcefv(compData.audioSourceId, AL_POSITION, glm::value_ptr(compData.holderPos));
     }
 }
 
@@ -110,102 +106,102 @@ AudioComponentProcessor::~AudioComponentProcessor()
     // TODO_ecs: remove all entities first.
 }
 
-void AudioComponentProcessor::play(ComponentInstance comp)
+void AudioComponentProcessor::play(Entity e)
 {
-    const auto &compData = m_pimpl->data.getData(comp);
+    const auto &compData = m_pimpl->data.getData(e);
 
     if (getAudioState(compData.audioSourceId) != AudioComponentProcessor::State::PLAYING)
         alSourcePlay(compData.audioSourceId);
 }
 
-void AudioComponentProcessor::stop(ComponentInstance comp)
+void AudioComponentProcessor::stop(Entity e)
 {
-    const auto &compData = m_pimpl->data.getData(comp);
+    const auto &compData = m_pimpl->data.getData(e);
 
     if (getAudioState(compData.audioSourceId) != AudioComponentProcessor::State::STOPPED)
         alSourceStop(compData.audioSourceId);
 }
 
-void AudioComponentProcessor::pause(ComponentInstance comp)
+void AudioComponentProcessor::pause(Entity e)
 {
-    const auto &compData = m_pimpl->data.getData(comp);
+    const auto &compData = m_pimpl->data.getData(e);
 
     if (getAudioState(compData.audioSourceId) != AudioComponentProcessor::State::PAUSED)
         alSourcePause(compData.audioSourceId);
 }
 
-void AudioComponentProcessor::setPitch(ComponentInstance comp, float pitch)
+void AudioComponentProcessor::setPitch(Entity e, float pitch)
 {
-    auto &compData = m_pimpl->data.getData(comp);
+    auto &compData = m_pimpl->data.getData(e);
 
     compData.pitch = pitch;
     alSourcef(compData.audioSourceId, AL_PITCH, pitch);
 }
 
-void AudioComponentProcessor::setGain(ComponentInstance comp, float gain)
+void AudioComponentProcessor::setGain(Entity e, float gain)
 {
-    auto &compData = m_pimpl->data.getData(comp);
+    auto &compData = m_pimpl->data.getData(e);
 
     compData.gain = gain;
     alSourcef(compData.audioSourceId, AL_GAIN, gain);
 }
 
-void AudioComponentProcessor::setLooped(ComponentInstance comp, bool looped)
+void AudioComponentProcessor::setLooped(Entity e, bool looped)
 {
-    auto &compData = m_pimpl->data.getData(comp);
+    auto &compData = m_pimpl->data.getData(e);
     compData.looped = looped;
     alSourcei(compData.audioSourceId, AL_LOOPING, looped);
 }
 
-float AudioComponentProcessor::getPitch(ComponentInstance comp) const
+float AudioComponentProcessor::getPitch(Entity e) const
 {
-    return m_pimpl->data.getData(comp).pitch;
+    return m_pimpl->data.getData(e).pitch;
 }
 
-float AudioComponentProcessor::getGain(ComponentInstance comp) const
+float AudioComponentProcessor::getGain(Entity e) const
 {
-    return m_pimpl->data.getData(comp).gain;
+    return m_pimpl->data.getData(e).gain;
 }
 
-bool AudioComponentProcessor::isLooped(ComponentInstance comp) const
+bool AudioComponentProcessor::isLooped(Entity e) const
 {
-    return m_pimpl->data.getData(comp).looped;
+    return m_pimpl->data.getData(e).looped;
 }
 
-ComponentInstance AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
+void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
 {
     if (m_pimpl->data.contains(e))
     {
         glog << "An entity already has an audio component" << logwarn;
-        return ComponentInstance();
+        return;
     }
 
     auto buffer = svc().resourceManager().getFactory().createAudioBuffer(audioFilePath);
     if (!buffer || !buffer->isInitialized())
     {
         glog << "Can not add audio component to an entity. Audio path:" << audioFilePath << logwarn;
-        return ComponentInstance();
+        return;
     }
 
     Impl::Data data;
 
     alGenSources(1, &data.audioSourceId);
+    if (!data.audioSourceId)
+    {
+        glog << "Failed to create audio source" << logwarn;
+        return;
+    }
+
     alSourcef(data.audioSourceId, AL_PITCH, data.pitch);
     alSourcef(data.audioSourceId, AL_GAIN, data.gain);
     alSourcei(data.audioSourceId, AL_BUFFER, buffer->getALId());
 
     printOpenALError();
-    if (!data.audioSourceId)
-    {
-        glog << "Failed to create audio source" << logwarn;
-        return ComponentInstance();
-    }
 
     data.holder = e;
-    data.transformComponent = world().transform().lookup(e);
-    assert(data.transformComponent.valid());
+    data.holderPos = world().transform().getPosition(e, true);
 
-    return m_pimpl->data.add(e, data);
+    m_pimpl->data.add(e, data);
 }
 
 void AudioComponentProcessor::remove(Entity e)
@@ -216,16 +212,10 @@ void AudioComponentProcessor::remove(Entity e)
         return;
     }
 
-    auto compInst = m_pimpl->data.lookup(e);
-    const auto &data = m_pimpl->data.getData(compInst);
+    const auto &data = m_pimpl->data.getData(e);
     alDeleteSources(1, &data.audioSourceId);
 
     m_pimpl->data.remove(e);
-}
-
-ComponentInstance AudioComponentProcessor::lookup(Entity e)
-{
-    return m_pimpl->data.lookup(e);
 }
 
 }
