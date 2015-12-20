@@ -13,43 +13,44 @@ class DF3D_DLL TransformComponentProcessor : public EntityComponentProcessor
     unique_ptr<Impl> m_pimpl;
 
     void remove(Entity e);
+    void update(float systemDelta, float gameDelta) override;
+    void cleanStep(World &w) override;
 
 public:
     TransformComponentProcessor();
     ~TransformComponentProcessor();
 
-    void setPosition(ComponentInstance comp, const glm::vec3 &newPosition);
-    void setPosition(ComponentInstance comp, float x, float y, float z);
-    void setScale(ComponentInstance comp, const glm::vec3 &newScale);
-    void setScale(ComponentInstance comp, float x, float y, float z);
-    void setScale(ComponentInstance comp, float uniform);
-    void setOrientation(ComponentInstance comp, const glm::quat &newOrientation);
-    void setOrientation(ComponentInstance comp, const glm::vec3 &eulerAngles, bool rads = false);
+    void setPosition(Entity e, const glm::vec3 &newPosition);
+    void setPosition(Entity e, float x, float y, float z);
+    void setScale(Entity e, const glm::vec3 &newScale);
+    void setScale(Entity e, float x, float y, float z);
+    void setScale(Entity e, float uniform);
+    void setOrientation(Entity e, const glm::quat &newOrientation);
+    void setOrientation(Entity e, const glm::vec3 &eulerAngles, bool rads = false);
 
-    void translate(ComponentInstance comp, const glm::vec3 &v);
-    void translate(ComponentInstance comp, float x, float y, float z);
-    void scale(ComponentInstance comp, const glm::vec3 &v);
-    void scale(ComponentInstance comp, float x, float y, float z);
-    void scale(ComponentInstance comp, float uniform);
-    void rotateYaw(ComponentInstance comp, float yaw, bool rads = false);
-    void rotatePitch(ComponentInstance comp, float pitch, bool rads = false);
-    void rotateRoll(ComponentInstance comp, float roll, bool rads = false);
-    void rotateAxis(ComponentInstance comp, float angle, const glm::vec3 &axis, bool rads = false);
+    void translate(Entity e, const glm::vec3 &v);
+    void translate(Entity e, float x, float y, float z);
+    void scale(Entity e, const glm::vec3 &v);
+    void scale(Entity e, float x, float y, float z);
+    void scale(Entity e, float uniform);
+    void rotateYaw(Entity e, float yaw, bool rads = false);
+    void rotatePitch(Entity e, float pitch, bool rads = false);
+    void rotateRoll(Entity e, float roll, bool rads = false);
+    void rotateAxis(Entity e, float angle, const glm::vec3 &axis, bool rads = false);
 
     // TODO_ecs: make getWorldPosition & getLocalPosition instead.
-    glm::vec3 getPosition(ComponentInstance comp, bool includeParent = false);
-    glm::vec3 getScale(ComponentInstance comp);
-    glm::quat getOrientation(ComponentInstance comp);
-    glm::mat4 getTransformation(ComponentInstance comp);
-    glm::vec3 getRotation(ComponentInstance comp, bool rads = false);
+    glm::vec3 getPosition(Entity e, bool includeParent = false);
+    glm::vec3 getScale(Entity e);
+    glm::quat getOrientation(Entity e);
+    glm::mat4 getTransformation(Entity e);
+    glm::vec3 getRotation(Entity e, bool rads = false);
 
-    void addChild(ComponentInstance parent, ComponentInstance child);
-    void removeChild(ComponentInstance parent, ComponentInstance child);
-    void removeAllChildren(ComponentInstance comp);
-    ComponentInstance getParent(ComponentInstance comp);
+    void addChild(Entity parent, Entity child);
+    void removeChild(Entity parent, Entity child);
+    void removeAllChildren(Entity e);
+    Entity getParent(Entity e);
 
-    ComponentInstance add(Entity e);
-    ComponentInstance lookup(Entity e);
+    void add(Entity e);
 };
 
 }

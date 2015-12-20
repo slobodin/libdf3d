@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "TransformComponentProcessor.h"
 
-#include <scene/impl/ComponentDataHolder.h>
+#include <scene/ComponentDataHolder.h>
 
 namespace df3d {
 
@@ -20,11 +20,11 @@ struct TransformComponentProcessor::Impl
         //! Node local scale.
         glm::vec3 scaling = glm::vec3(1.0f, 1.0f, 1.0f);
 
-        ComponentInstance parent;
-        std::vector<ComponentInstance> children;
+        Entity parent;
+        std::vector<Entity> children;
     };
 
-    scene_impl::ComponentDataHolder<Data> data;
+    ComponentDataHolder<Data> data;
 
     void updateWorldTransformation(Data &component)
     {
@@ -59,6 +59,16 @@ void TransformComponentProcessor::remove(Entity e)
     m_pimpl->data.remove(e);
 }
 
+void TransformComponentProcessor::update(float systemDelta, float gameDelta)
+{
+
+}
+
+void TransformComponentProcessor::cleanStep(World &w)
+{
+
+}
+
 TransformComponentProcessor::TransformComponentProcessor()
     : m_pimpl(new Impl())
 {
@@ -70,104 +80,104 @@ TransformComponentProcessor::~TransformComponentProcessor()
 
 }
 
-void TransformComponentProcessor::setPosition(ComponentInstance comp, const glm::vec3 &newPosition)
+void TransformComponentProcessor::setPosition(Entity e, const glm::vec3 &newPosition)
 {
-    auto &compData = m_pimpl->data.getData(comp);
+    auto &compData = m_pimpl->data.getData(e);
 
     compData.position = newPosition;
 
     m_pimpl->updateWorldTransformation(compData);
 }
 
-void TransformComponentProcessor::setPosition(ComponentInstance comp, float x, float y, float z)
+void TransformComponentProcessor::setPosition(Entity e, float x, float y, float z)
 {
-    setPosition(comp, glm::vec3(x, y, z));
+    setPosition(e, glm::vec3(x, y, z));
 }
 
-void TransformComponentProcessor::setScale(ComponentInstance comp, const glm::vec3 &newScale)
+void TransformComponentProcessor::setScale(Entity e, const glm::vec3 &newScale)
 {
-    auto &compData = m_pimpl->data.getData(comp);
+    auto &compData = m_pimpl->data.getData(e);
 
     compData.scaling = newScale;
 
     m_pimpl->updateWorldTransformation(compData);
 }
 
-void TransformComponentProcessor::setScale(ComponentInstance comp, float x, float y, float z)
+void TransformComponentProcessor::setScale(Entity e, float x, float y, float z)
 {
-    setScale(comp, glm::vec3(x, y, z));
+    setScale(e, glm::vec3(x, y, z));
 }
 
-void TransformComponentProcessor::setScale(ComponentInstance comp, float uniform)
+void TransformComponentProcessor::setScale(Entity e, float uniform)
 {
-    setScale(comp, uniform, uniform, uniform);
+    setScale(e, uniform, uniform, uniform);
 }
 
-void TransformComponentProcessor::setOrientation(ComponentInstance comp, const glm::quat &newOrientation)
+void TransformComponentProcessor::setOrientation(Entity e, const glm::quat &newOrientation)
 {
-    auto &compData = m_pimpl->data.getData(comp);
+    auto &compData = m_pimpl->data.getData(e);
 
     compData.orientation = newOrientation;
 
     m_pimpl->updateWorldTransformation(compData);
 }
 
-void TransformComponentProcessor::setOrientation(ComponentInstance comp, const glm::vec3 &eulerAngles, bool rads)
+void TransformComponentProcessor::setOrientation(Entity e, const glm::vec3 &eulerAngles, bool rads)
 {
     glm::vec3 v = rads ? eulerAngles : glm::radians(eulerAngles);
 
-    setOrientation(comp, glm::quat(v));
+    setOrientation(e, glm::quat(v));
 }
 
-void TransformComponentProcessor::translate(ComponentInstance comp, const glm::vec3 &v)
+void TransformComponentProcessor::translate(Entity e, const glm::vec3 &v)
 {
-    auto &compData = m_pimpl->data.getData(comp);
+    auto &compData = m_pimpl->data.getData(e);
 
     compData.position += v;
 
     m_pimpl->updateWorldTransformation(compData);
 }
 
-void TransformComponentProcessor::translate(ComponentInstance comp, float x, float y, float z)
+void TransformComponentProcessor::translate(Entity e, float x, float y, float z)
 {
-    translate(comp, glm::vec3(x, y, z));
+    translate(e, glm::vec3(x, y, z));
 }
 
-void TransformComponentProcessor::scale(ComponentInstance comp, const glm::vec3 &v)
+void TransformComponentProcessor::scale(Entity e, const glm::vec3 &v)
 {
-    scale(comp, v.x, v.y, v.z);
+    scale(e, v.x, v.y, v.z);
 }
 
-void TransformComponentProcessor::scale(ComponentInstance comp, float x, float y, float z)
+void TransformComponentProcessor::scale(Entity e, float x, float y, float z)
 {
-    auto &compData = m_pimpl->data.getData(comp);
+    auto &compData = m_pimpl->data.getData(e);
 
     compData.scaling *= glm::vec3(x, y, z);
 
     m_pimpl->updateWorldTransformation(compData);
 }
 
-void TransformComponentProcessor::scale(ComponentInstance comp, float uniform)
+void TransformComponentProcessor::scale(Entity e, float uniform)
 {
-    scale(comp, uniform, uniform, uniform);
+    scale(e, uniform, uniform, uniform);
 }
 
-void TransformComponentProcessor::rotateYaw(ComponentInstance comp, float yaw, bool rads)
+void TransformComponentProcessor::rotateYaw(Entity e, float yaw, bool rads)
 {
-    rotateAxis(comp, yaw, glm::vec3(0.0f, 1.0f, 0.0f), rads);
+    rotateAxis(e, yaw, glm::vec3(0.0f, 1.0f, 0.0f), rads);
 }
 
-void TransformComponentProcessor::rotatePitch(ComponentInstance comp, float pitch, bool rads)
+void TransformComponentProcessor::rotatePitch(Entity e, float pitch, bool rads)
 {
-    rotateAxis(comp, pitch, glm::vec3(1.0f, 0.0f, 0.0f), rads);
+    rotateAxis(e, pitch, glm::vec3(1.0f, 0.0f, 0.0f), rads);
 }
 
-void TransformComponentProcessor::rotateRoll(ComponentInstance comp, float roll, bool rads)
+void TransformComponentProcessor::rotateRoll(Entity e, float roll, bool rads)
 {
-    rotateAxis(comp, roll, glm::vec3(0.0f, 0.0f, 1.0f), rads);
+    rotateAxis(e, roll, glm::vec3(0.0f, 0.0f, 1.0f), rads);
 }
 
-void TransformComponentProcessor::rotateAxis(ComponentInstance comp, float angle, const glm::vec3 &axis, bool rads)
+void TransformComponentProcessor::rotateAxis(Entity e, float angle, const glm::vec3 &axis, bool rads)
 {
     if (!rads)
         angle = glm::radians(angle);
@@ -175,15 +185,15 @@ void TransformComponentProcessor::rotateAxis(ComponentInstance comp, float angle
     auto q = glm::angleAxis(angle, axis);
     q = glm::normalize(q);
 
-    auto &compData = m_pimpl->data.getData(comp);
+    auto &compData = m_pimpl->data.getData(e);
     compData.orientation = q * compData.orientation;
 
     m_pimpl->updateWorldTransformation(compData);
 }
 
-glm::vec3 TransformComponentProcessor::getPosition(ComponentInstance comp, bool includeParent)
+glm::vec3 TransformComponentProcessor::getPosition(Entity e, bool includeParent)
 {
-    const auto &compData = m_pimpl->data.getData(comp);
+    const auto &compData = m_pimpl->data.getData(e);
 
     if (!includeParent)
         return compData.position;
@@ -191,24 +201,24 @@ glm::vec3 TransformComponentProcessor::getPosition(ComponentInstance comp, bool 
         return glm::vec3(compData.transformation[3]);
 }
 
-glm::vec3 TransformComponentProcessor::getScale(ComponentInstance comp)
+glm::vec3 TransformComponentProcessor::getScale(Entity e)
 {
-    return m_pimpl->data.getData(comp).scaling;
+    return m_pimpl->data.getData(e).scaling;
 }
 
-glm::quat TransformComponentProcessor::getOrientation(ComponentInstance comp)
+glm::quat TransformComponentProcessor::getOrientation(Entity e)
 {
-    return m_pimpl->data.getData(comp).orientation;
+    return m_pimpl->data.getData(e).orientation;
 }
 
-glm::mat4 TransformComponentProcessor::getTransformation(ComponentInstance comp)
+glm::mat4 TransformComponentProcessor::getTransformation(Entity e)
 {
-    return m_pimpl->data.getData(comp).transformation;
+    return m_pimpl->data.getData(e).transformation;
 }
 
-glm::vec3 TransformComponentProcessor::getRotation(ComponentInstance comp, bool rads)
+glm::vec3 TransformComponentProcessor::getRotation(Entity e, bool rads)
 {
-    const auto &compData = m_pimpl->data.getData(comp);
+    const auto &compData = m_pimpl->data.getData(e);
 
     if (rads)
         return glm::eulerAngles(compData.orientation);
@@ -216,7 +226,7 @@ glm::vec3 TransformComponentProcessor::getRotation(ComponentInstance comp, bool 
         return glm::degrees(glm::eulerAngles(compData.orientation));
 }
 
-void TransformComponentProcessor::addChild(ComponentInstance parent, ComponentInstance child)
+void TransformComponentProcessor::addChild(Entity parent, Entity child)
 {
     if (getParent(child).valid())
     {
@@ -231,37 +241,32 @@ void TransformComponentProcessor::addChild(ComponentInstance parent, ComponentIn
     childCompData.parent = parent;
 }
 
-void TransformComponentProcessor::removeChild(ComponentInstance parent, ComponentInstance child)
+void TransformComponentProcessor::removeChild(Entity parent, Entity child)
 {
     // TODO_ecs:
     assert(false);
 }
 
-void TransformComponentProcessor::removeAllChildren(ComponentInstance comp)
+void TransformComponentProcessor::removeAllChildren(Entity e)
 {
     // TODO_ecs:
     assert(false);
 }
 
-ComponentInstance TransformComponentProcessor::getParent(ComponentInstance comp)
+Entity TransformComponentProcessor::getParent(Entity e)
 {
-    return m_pimpl->data.getData(comp).parent;
+    return m_pimpl->data.getData(e).parent;
 }
 
-ComponentInstance TransformComponentProcessor::add(Entity e)
+void TransformComponentProcessor::add(Entity e)
 {
     if (m_pimpl->data.contains(e))
     {
         glog << "An entity already has an scene graph component" << logwarn;
-        return ComponentInstance();
+        return;
     }
 
-    return m_pimpl->data.add(e, Impl::Data());
-}
-
-ComponentInstance TransformComponentProcessor::lookup(Entity e)
-{
-    return m_pimpl->data.lookup(e);
+    m_pimpl->data.add(e, Impl::Data());
 }
 
 }

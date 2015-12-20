@@ -36,9 +36,9 @@ void World::collectRenderOperations(RenderQueue *ops)
         ops->lights.push_back(&light);
 
     // TODO_ecs: can do in parallel.
-    m_staticMeshes->draw(ops);
-    m_vfx->draw(ops);
-    m_physics->draw(ops);
+    staticMesh().draw(ops);
+    vfx().draw(ops);
+    physics().draw(ops);
 }
 
 void World::cleanStep()
