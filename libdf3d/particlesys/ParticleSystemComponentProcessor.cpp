@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "ParticleSystemComponentProcessor.h"
 
-#include <scene/impl/ComponentDataHolder.h>
+#include <scene/ComponentDataHolder.h>
 #include <scene/World.h>
 #include <scene/Camera.h>
 #include <scene/TransformComponentProcessor.h>
@@ -17,14 +17,14 @@ struct ParticleSystemComponentProcessor::Impl
         SPK::Ref<SPK::System> system;
 
         Entity holder;
-        ComponentInstance transformComponent;
+        glm::mat4 holderTransform;
         bool paused = false;
         bool worldTransformed = true;
         float systemLifeTime = -1.0f;
         float systemAge = 0.0f;
     };
 
-    scene_impl::ComponentDataHolder<Data> data;
+    ComponentDataHolder<Data> data;
 
     static void updateCameraPosition(Data &compData)
     {
@@ -37,8 +37,7 @@ struct ParticleSystemComponentProcessor::Impl
                 if (!compData.worldTransformed)
                 {
                     // Transform camera position into this node space.
-                    auto invWorldTransform = world().transform().getTransformation(compData.transformComponent);
-                    invWorldTransform = glm::inverse(invWorldTransform);
+                    auto invWorldTransform = glm::inverse(compData.holderTransform);
 
                     pos = glm::vec3((invWorldTransform * glm::vec4(pos, 1.0f)));
                 }
@@ -52,12 +51,9 @@ struct ParticleSystemComponentProcessor::Impl
 
 void ParticleSystemComponentProcessor::update(float systemDelta, float gameDelta)
 {
-    // Update the transform component idx.
+    // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
-    {
-        compData.transformComponent = world().transform().lookup(compData.holder);
-        assert(compData.transformComponent.valid());
-    }
+        compData.holderTransform = world().transform().getTransformation(compData.holder);
 
     for (auto &compData : m_pimpl->data.rawData())
     {
@@ -69,11 +65,7 @@ void ParticleSystemComponentProcessor::update(float systemDelta, float gameDelta
             return;
 
         if (compData.worldTransformed)
-        {
-            auto tr = world().transform().getTransformation(compData.transformComponent);
-
-            spkSystem->getTransform().set(glm::value_ptr(tr));
-        }
+            spkSystem->getTransform().set(glm::value_ptr(compData.holderTransform));
 
         Impl::updateCameraPosition(compData);
         spkSystem->updateParticles(gameDelta);
@@ -97,7 +89,7 @@ void ParticleSystemComponentProcessor::draw(RenderQueue *ops)
     {
         glm::mat4 transf;
         if (!compData.worldTransformed)
-            transf = world().transform().getTransformation(compData.transformComponent);
+            transf = compData.holderTransform;
 
         auto spkSystem = compData.system;
         // Prepare drawing of spark system.
@@ -119,6 +111,11 @@ void ParticleSystemComponentProcessor::draw(RenderQueue *ops)
     }
 }
 
+void ParticleSystemComponentProcessor::cleanStep(World &w)
+{
+
+}
+
 ParticleSystemComponentProcessor::ParticleSystemComponentProcessor()
     : m_pimpl(new Impl())
 {
@@ -132,48 +129,47 @@ ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor()
     SPK_DUMP_MEMORY
 }
 
-void ParticleSystemComponentProcessor::stop(ComponentInstance comp)
+void ParticleSystemComponentProcessor::stop(Entity e)
 {
     // TODO:
     assert(false);
 }
 
-void ParticleSystemComponentProcessor::pause(ComponentInstance comp, bool paused)
+void ParticleSystemComponentProcessor::pause(Entity e, bool paused)
 {
-    m_pimpl->data.getData(comp).paused = paused;
+    m_pimpl->data.getData(e).paused = paused;
 }
 
-void ParticleSystemComponentProcessor::setSystemLifeTime(ComponentInstance comp, float lifeTime)
+void ParticleSystemComponentProcessor::setSystemLifeTime(Entity e, float lifeTime)
 {
-    m_pimpl->data.getData(comp).systemLifeTime = lifeTime;
+    m_pimpl->data.getData(e).systemLifeTime = lifeTime;
 }
 
-void ParticleSystemComponentProcessor::setWorldTransformed(ComponentInstance comp, bool worldTransformed)
+void ParticleSystemComponentProcessor::setWorldTransformed(Entity e, bool worldTransformed)
 {
-    m_pimpl->data.getData(comp).worldTransformed = worldTransformed;
+    m_pimpl->data.getData(e).worldTransformed = worldTransformed;
 }
 
-float ParticleSystemComponentProcessor::getSystemLifeTime(ComponentInstance comp) const
+float ParticleSystemComponentProcessor::getSystemLifeTime(Entity e) const
 {
-    return m_pimpl->data.getData(comp).systemLifeTime;
+    return m_pimpl->data.getData(e).systemLifeTime;
 }
 
-ComponentInstance ParticleSystemComponentProcessor::add(Entity e, const std::string &vfxResource)
+void ParticleSystemComponentProcessor::add(Entity e, const std::string &vfxResource)
 {
     if (m_pimpl->data.contains(e))
     {
         glog << "An entity already has a particle system component" << logwarn;
-        return ComponentInstance();
+        return;
     }
 
     Impl::Data data;
 
     // TODO_ecs
     data.holder = e;
-    data.transformComponent = world().transform().lookup(e);
-    assert(data.transformComponent.valid());
+    data.holderTransform = world().transform().getTransformation(e);
 
-    return m_pimpl->data.add(e, data);
+    m_pimpl->data.add(e, data);
 }
 
 void ParticleSystemComponentProcessor::remove(Entity e)
@@ -185,11 +181,6 @@ void ParticleSystemComponentProcessor::remove(Entity e)
     }
 
     m_pimpl->data.remove(e);
-}
-
-ComponentInstance ParticleSystemComponentProcessor::lookup(Entity e)
-{
-    return m_pimpl->data.lookup(e);
 }
 
 }
