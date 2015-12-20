@@ -5,7 +5,7 @@
 #include <scene/World.h>
 #include <scene/Camera.h>
 #include <scene/TransformComponentProcessor.h>
-#include <scene/impl/ComponentDataHolder.h>
+#include <scene/ComponentDataHolder.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>
 #include <render/MeshData.h>
@@ -20,13 +20,15 @@ struct StaticMeshComponentProcessor::Impl
     {
         shared_ptr<MeshData> meshData;
         Entity holder;
-        ComponentInstance transformComponent;
+        glm::mat4 holderTransformation;
+        glm::vec3 holderPosition;
+        glm::vec3 holderScale;
 
         bool visible = true;
         bool frustumCullingDisabled = false;
     };
 
-    scene_impl::ComponentDataHolder<Data> data;
+    ComponentDataHolder<Data> data;
 
     static BoundingSphere getBoundingSphere(const Data &compData)
     {
@@ -38,18 +40,16 @@ struct StaticMeshComponentProcessor::Impl
         BoundingSphere sphere = *meshDataSphere;
 
         // Update transformation.
-        auto pos = world().transform().getPosition(compData.transformComponent, true);
-        auto scale = world().transform().getScale(compData.transformComponent);
-        sphere.setPosition(pos);
+        sphere.setPosition(compData.holderPosition);
 
         // FIXME: absolutely incorrect!!! Should take into account children.
         // TODO_ecs: 
 
         // FIXME: wtf is this??? Why can't just scale radius?
         auto rad = sphere.getRadius() * utils::math::UnitVec3;
-        rad.x *= scale.x;
-        rad.y *= scale.y;
-        rad.z *= scale.z;
+        rad.x *= compData.holderScale.x;
+        rad.y *= compData.holderScale.y;
+        rad.z *= compData.holderScale.z;
         sphere.setRadius(glm::length(rad));
 
         return sphere;
@@ -59,18 +59,17 @@ struct StaticMeshComponentProcessor::Impl
 void StaticMeshComponentProcessor::update(float systemDelta, float gameDelta)
 {
     // TODO_ecs: get only changed components.
-    // Update the transform component idx.
+    // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
     {
-        compData.transformComponent = world().transform().lookup(compData.holder);
-        assert(compData.transformComponent.valid());
+        compData.holderTransformation = world().transform().getTransformation(compData.holder);
+        compData.holderPosition = world().transform().getPosition(compData.holder, true);
+        compData.holderScale = world().transform().getScale(compData.holder);
     }
 }
 
 void StaticMeshComponentProcessor::draw(RenderQueue *ops)
 {
-    auto &transformProcessor = world().transform();
-
     for (const auto &compData : m_pimpl->data.rawData())
     {
         if (!compData.meshData->isInitialized())
@@ -87,7 +86,7 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
         }
 
         // TODO_ecs: remove this method.
-        compData.meshData->populateRenderQueue(ops, transformProcessor.getTransformation(compData.transformComponent));
+        compData.meshData->populateRenderQueue(ops, compData.holderTransformation);
     }
 }
 
@@ -107,15 +106,15 @@ StaticMeshComponentProcessor::~StaticMeshComponentProcessor()
 
 }
 
-shared_ptr<MeshData> StaticMeshComponentProcessor::getMeshData(ComponentInstance comp) const
+shared_ptr<MeshData> StaticMeshComponentProcessor::getMeshData(Entity e) const
 {
-    return m_pimpl->data.getData(comp).meshData;
+    return m_pimpl->data.getData(e).meshData;
 }
 
-AABB StaticMeshComponentProcessor::getAABB(ComponentInstance comp)
+AABB StaticMeshComponentProcessor::getAABB(Entity e)
 {
     // FIXME: mb cache if transformation hasn't been changed?
-    const auto &compData = m_pimpl->data.getData(comp);
+    const auto &compData = m_pimpl->data.getData(e);
 
     AABB transformedAABB;
 
@@ -128,55 +127,52 @@ AABB StaticMeshComponentProcessor::getAABB(ComponentInstance comp)
     modelSpaceAABB->getCorners(aabbCorners);
 
     // Create new AABB from the corners of the original also applying world transformation.
-    auto tr = world().transform().getTransformation(compData.transformComponent);
     for (auto &p : aabbCorners)
     {
-        auto trp = tr * glm::vec4(p, 1.0f);
+        auto trp = compData.holderTransformation * glm::vec4(p, 1.0f);
         transformedAABB.updateBounds(glm::vec3(trp));
     }
 
     return transformedAABB;
 }
 
-BoundingSphere StaticMeshComponentProcessor::getBoundingSphere(ComponentInstance comp)
+BoundingSphere StaticMeshComponentProcessor::getBoundingSphere(Entity e)
 {
     // FIXME: mb cache if transformation hasn't been changed?
-    const auto &compData = m_pimpl->data.getData(comp);
-    return Impl::getBoundingSphere(compData);
+    return Impl::getBoundingSphere(m_pimpl->data.getData(e));
 }
 
-OBB StaticMeshComponentProcessor::getOBB(ComponentInstance comp)
+OBB StaticMeshComponentProcessor::getOBB(Entity e)
 {
     // FIXME: mb cache if transformation hasn't been changed?
     assert(false && "Not implemented");
     return OBB();
 }
 
-void StaticMeshComponentProcessor::setVisible(ComponentInstance comp, bool visible)
+void StaticMeshComponentProcessor::setVisible(Entity e, bool visible)
 {
-    m_pimpl->data.getData(comp).visible = visible;
+    m_pimpl->data.getData(e).visible = visible;
 }
 
-void StaticMeshComponentProcessor::disableFrustumCulling(ComponentInstance comp, bool disable)
+void StaticMeshComponentProcessor::disableFrustumCulling(Entity e, bool disable)
 {
-    m_pimpl->data.getData(comp).frustumCullingDisabled = disable;
+    m_pimpl->data.getData(e).frustumCullingDisabled = disable;
 }
 
-ComponentInstance StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath, ResourceLoadingMode lm)
+void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath, ResourceLoadingMode lm)
 {
     if (m_pimpl->data.contains(e))
     {
         glog << "An entity already has a static mesh component" << logwarn;
-        return ComponentInstance();
+        return;
     }
 
     Impl::Data data;
     data.meshData = svc().resourceManager().getFactory().createMeshData(meshFilePath, lm);
     data.holder = e;
-    data.transformComponent = world().transform().lookup(e);
-    assert(data.transformComponent.valid());
+    data.holderTransformation = world().transform().getTransformation(e);
 
-    return m_pimpl->data.add(e, data);
+    m_pimpl->data.add(e, data);
 }
 
 void StaticMeshComponentProcessor::remove(Entity e)
@@ -188,11 +184,6 @@ void StaticMeshComponentProcessor::remove(Entity e)
     }
 
     m_pimpl->data.remove(e);
-}
-
-ComponentInstance StaticMeshComponentProcessor::lookup(Entity e)
-{
-    return m_pimpl->data.lookup(e);
 }
 
 }

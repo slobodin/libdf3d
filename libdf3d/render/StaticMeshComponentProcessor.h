@@ -13,30 +13,31 @@ class RenderQueue;
 
 class DF3D_DLL StaticMeshComponentProcessor : public EntityComponentProcessor
 {
+    friend class World;
+
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
     void update(float systemDelta, float gameDelta) override;
-    void draw(RenderQueue *ops) override;
+    void draw(RenderQueue *ops);
     void cleanStep(World &w) override;
 
 public:
     StaticMeshComponentProcessor();
     ~StaticMeshComponentProcessor();
 
-    shared_ptr<MeshData> getMeshData(ComponentInstance comp) const;
+    shared_ptr<MeshData> getMeshData(Entity e) const;
 
     // TODO_ecs: mb use just entity??
-    AABB getAABB(ComponentInstance comp);
-    BoundingSphere getBoundingSphere(ComponentInstance comp);
-    OBB getOBB(ComponentInstance comp);
+    AABB getAABB(Entity e);
+    BoundingSphere getBoundingSphere(Entity e);
+    OBB getOBB(Entity e);
 
-    void setVisible(ComponentInstance comp, bool visible);
-    void disableFrustumCulling(ComponentInstance comp, bool disable);
+    void setVisible(Entity e, bool visible);
+    void disableFrustumCulling(Entity e, bool disable);
 
-    ComponentInstance add(Entity e, const std::string &meshFilePath, ResourceLoadingMode lm = ResourceLoadingMode::ASYNC);
+    void add(Entity e, const std::string &meshFilePath, ResourceLoadingMode lm = ResourceLoadingMode::ASYNC);
     void remove(Entity e);
-    ComponentInstance lookup(Entity e);
 };
 
 }
