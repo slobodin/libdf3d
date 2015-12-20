@@ -14,6 +14,8 @@ class ConvexHull;
 
 class DF3D_DLL PhysicsComponentProcessor : public EntityComponentProcessor
 {
+    friend class World;
+
 public:
     struct CreationParams
     {
@@ -31,7 +33,8 @@ private:
     unique_ptr<Impl> m_pimpl;
 
     void update(float systemDelta, float gameDelta) override;
-    void draw(RenderQueue *ops) override;
+    void draw(RenderQueue *ops);
+    void cleanStep(World &w) override;
 
 public:
     PhysicsComponentProcessor();
@@ -39,11 +42,10 @@ public:
 
     btRigidBody* body(ComponentInstance comp);
 
-    ComponentInstance add(Entity e, const CreationParams &params, const AABB &box);
-    ComponentInstance add(Entity e, const CreationParams &params, const BoundingSphere &sphere);
-    ComponentInstance add(Entity e, const CreationParams &params, const ConvexHull &hull);
+    void add(Entity e, const CreationParams &params, const AABB &box);
+    void add(Entity e, const CreationParams &params, const BoundingSphere &sphere);
+    void add(Entity e, const CreationParams &params, const ConvexHull &hull);
     void remove(Entity e);
-    ComponentInstance lookup(Entity e);
 
     btDynamicsWorld* getPhysicsWorld();
 };

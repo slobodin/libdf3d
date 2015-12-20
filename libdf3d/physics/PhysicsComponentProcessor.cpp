@@ -9,7 +9,7 @@
 #include "impl/BulletInterface.h"
 #include <base/EngineController.h>
 #include <base/DebugConsole.h>
-#include <scene/impl/ComponentDataHolder.h>
+#include <scene/ComponentDataHolder.h>
 
 namespace df3d {
 
@@ -66,7 +66,7 @@ struct PhysicsComponentProcessor::Impl
         btRigidBody *body = nullptr;
     };
 
-    scene_impl::ComponentDataHolder<Data> data;
+    ComponentDataHolder<Data> data;
 
     Impl()
     {
@@ -113,6 +113,11 @@ void PhysicsComponentProcessor::update(float systemDelta, float gameDelta)
     m_pimpl->dynamicsWorld->stepSimulation(gameDelta, 10);
 }
 
+void PhysicsComponentProcessor::cleanStep(World &w)
+{
+
+}
+
 void PhysicsComponentProcessor::draw(RenderQueue *ops)
 {
     if (!svc().debugConsole()->getCVars().get<bool>(CVAR_DEBUG_DRAW))
@@ -141,29 +146,24 @@ btRigidBody* PhysicsComponentProcessor::body(ComponentInstance comp)
     return nullptr;
 }
 
-ComponentInstance PhysicsComponentProcessor::add(Entity e, const CreationParams &params, const AABB &box)
+void PhysicsComponentProcessor::add(Entity e, const CreationParams &params, const AABB &box)
 {
-    return ComponentInstance();
+    assert(false);
 }
 
-ComponentInstance PhysicsComponentProcessor::add(Entity e, const CreationParams &params, const BoundingSphere &sphere)
+void PhysicsComponentProcessor::add(Entity e, const CreationParams &params, const BoundingSphere &sphere)
 {
-    return ComponentInstance();
+    assert(false);
 }
 
-ComponentInstance PhysicsComponentProcessor::add(Entity e, const CreationParams &params, const ConvexHull &hull)
+void PhysicsComponentProcessor::add(Entity e, const CreationParams &params, const ConvexHull &hull)
 {
-    return ComponentInstance();
+    assert(false);
 }
 
 void PhysicsComponentProcessor::remove(Entity e)
 {
 
-}
-
-ComponentInstance PhysicsComponentProcessor::lookup(Entity e)
-{
-    return ComponentInstance();
 }
 
 btDynamicsWorld* PhysicsComponentProcessor::getPhysicsWorld()
