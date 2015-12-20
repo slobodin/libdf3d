@@ -1,13 +1,13 @@
 #pragma once
 
-#include <scene/Entity.h>
+#include "Entity.h"
 #include <utils/Utils.h>
 
-namespace df3d { namespace scene_impl {
+namespace df3d {
 
 // TODO_ecs : add test suits.
 template<typename T>
-class ComponentDataHolder : utils::NonCopyable
+class DF3D_DLL ComponentDataHolder : utils::NonCopyable
 {
     std::vector<T> m_data;
     std::unordered_map<Entity::IdType, ComponentInstance> m_lookup;
@@ -24,7 +24,7 @@ public:
         return found->second;
     }
 
-    ComponentInstance add(Entity e, const T &componentData)
+    void add(Entity e, const T &componentData)
     {
         assert(e.valid());
         assert(!contains(e));
@@ -32,8 +32,6 @@ public:
         ComponentInstance inst(m_data.size());
         m_data.push_back(componentData);
         m_lookup[e.id] = inst;
-
-        return inst;
     }
 
     void remove(Entity e)
@@ -51,18 +49,28 @@ public:
         return utils::contains_key(m_lookup, e.id);
     }
 
-    const T& getData(ComponentInstance inst) const 
-    { 
-        assert(inst.valid());
-
-        return m_data[inst.id]; 
-    }
-
-    T& getData(ComponentInstance inst) 
+    const T& getData(ComponentInstance inst) const
     {
         assert(inst.valid());
 
-        return m_data[inst.id]; 
+        return m_data[inst.id];
+    }
+
+    T& getData(ComponentInstance inst)
+    {
+        assert(inst.valid());
+
+        return m_data[inst.id];
+    }
+
+    const T& getData(Entity e) const
+    {
+        return getData(lookup(e));
+    }
+
+    T& getData(Entity e)
+    {
+        return getData(lookup(e));
     }
 
     std::vector<T>& rawData() { return m_data; }
@@ -74,4 +82,4 @@ public:
     }
 };
 
-} }
+}

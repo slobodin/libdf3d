@@ -113,6 +113,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/scene/ComponentDataHolder.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Entity.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/EntityComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.h
@@ -121,7 +122,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/World.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldRenderingParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldSize.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/ComponentDataHolder.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/EntityLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/EntityManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/WorldLoader.h
