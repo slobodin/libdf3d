@@ -4,8 +4,8 @@
 #include <base/DebugConsole.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>
-#include <scene/Camera.h>
-#include <scene/World.h>
+#include <3d/Camera.h>
+#include <game/World.h>
 #include <gui/GuiManager.h>
 #include "RendererBackend.h"
 #include "VertexIndexBuffer.h"

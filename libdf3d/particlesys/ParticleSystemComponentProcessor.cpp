@@ -1,10 +1,10 @@
 #include "df3d_pch.h"
 #include "ParticleSystemComponentProcessor.h"
 
-#include <scene/ComponentDataHolder.h>
-#include <scene/World.h>
-#include <scene/Camera.h>
-#include <scene/TransformComponentProcessor.h>
+#include <game/ComponentDataHolder.h>
+#include <game/World.h>
+#include <3d/Camera.h>
+#include <3d/TransformComponentProcessor.h>
 #include <base/EngineController.h>
 #include <particlesys/impl/SparkInterface.h>
 

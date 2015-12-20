@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "EntityLoader.h"
 
-#include <scene/World.h>
+#include <game/World.h>
 #include <utils/JsonUtils.h>
 
 namespace df3d { namespace scene_impl {
@@ -20,6 +20,18 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
         glog << "Failed to init an entity from Json node" << logwarn;
         return res;
     }
+
+    assert(false);
+
+    //auto result = make_shared<ParticleSystemComponent>();
+
+    //result->setWorldTransformed(utils::json::getOrDefault(root["worldTransformed"], true));
+    //result->setSystemLifeTime(utils::json::getOrDefault(root["systemLifeTime"], -1.0f));
+
+    //for (auto group : systemGroups)
+    //    result->addSPKGroup(group);
+
+    //result->initializeSPK();
 
     return res;
 }

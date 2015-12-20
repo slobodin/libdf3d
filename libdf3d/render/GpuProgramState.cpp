@@ -5,8 +5,8 @@
 #include "OpenGLCommon.h"
 #include <base/EngineController.h>
 #include <base/TimeManager.h>
-#include <scene/Camera.h>
-#include <scene/World.h>
+#include <3d/Camera.h>
+#include <game/World.h>
 
 namespace df3d {
 

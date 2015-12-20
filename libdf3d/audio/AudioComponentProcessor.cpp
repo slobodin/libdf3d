@@ -3,10 +3,10 @@
 
 #include "AudioBuffer.h"
 #include "impl/OpenALCommon.h"
-#include <scene/ComponentDataHolder.h>
-#include <scene/TransformComponentProcessor.h>
-#include <scene/World.h>
-#include <scene/Camera.h>
+#include <game/ComponentDataHolder.h>
+#include <3d/TransformComponentProcessor.h>
+#include <game/World.h>
+#include <3d/Camera.h>
 #include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <scene/Entity.h>
-#include <scene/EntityComponentProcessor.h>
+#include <game/Entity.h>
+#include <game/EntityComponentProcessor.h>
 
 class btRigidBody;
 class btDynamicsWorld;

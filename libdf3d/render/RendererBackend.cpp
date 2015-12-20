@@ -3,7 +3,7 @@
 #include <base/EngineController.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>
-#include <scene/Light.h>
+#include <3d/Light.h>
 #include "OpenGLCommon.h"
 #include "GpuProgramState.h"
 #include "RenderPass.h"

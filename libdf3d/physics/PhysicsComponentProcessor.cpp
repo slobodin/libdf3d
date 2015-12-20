@@ -9,7 +9,7 @@
 #include "impl/BulletInterface.h"
 #include <base/EngineController.h>
 #include <base/DebugConsole.h>
-#include <scene/ComponentDataHolder.h>
+#include <game/ComponentDataHolder.h>
 
 namespace df3d {
 

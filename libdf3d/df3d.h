@@ -18,12 +18,10 @@
 
 #include <platform/AppDelegate.h>
 
-#include <scene/Frustum.h>
-#include <scene/Camera.h>
-#include <scene/Entity.h>
-#include <scene/World.h>
-#include <scene/WorldRenderingParams.h>
-#include <scene/TransformComponentProcessor.h>
+#include <3d/Frustum.h>
+#include <3d/Camera.h>
+#include <3d/TransformComponentProcessor.h>
+#include <3d/StaticMeshComponentProcessor.h>
 
 #include <math/BoundingVolume.h>
 #include <math/AABB.h>
@@ -39,7 +37,6 @@
 #include <render/Viewport.h>
 #include <render/Vertex.h>
 #include <render/MeshData.h>
-#include <render/StaticMeshComponentProcessor.h>
 
 #include <input/InputEvents.h>
 #include <input/InputManager.h>
@@ -62,5 +59,8 @@
 #include <audio/AudioComponentProcessor.h>
 
 #include <game/FPSCamera.h>
+#include <game/Entity.h>
+#include <game/World.h>
+#include <game/WorldRenderingParams.h>
 
 #include <particlesys/ParticleSystemComponentProcessor.h>

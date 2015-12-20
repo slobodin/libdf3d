@@ -1,7 +1,7 @@
 #include "df3d_pch.h"
 #include "TransformComponentProcessor.h"
 
-#include <scene/ComponentDataHolder.h>
+#include <game/ComponentDataHolder.h>
 
 namespace df3d {
 

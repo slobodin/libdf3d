@@ -1,6 +1,6 @@
 #pragma once
 
-#include <scene/Camera.h>
+#include <3d/Camera.h>
 #include <base/TimeManager.h>
 #include <input/InputManager.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Light.h"
+#include <3d/Light.h>
 
 namespace df3d {
 

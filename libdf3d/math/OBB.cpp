@@ -1,6 +1,6 @@
 #include "OBB.h"
 
-#include <scene/WorldSize.h>
+#include <game/WorldSize.h>
 
 namespace df3d {
 

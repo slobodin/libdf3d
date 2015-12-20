@@ -41,6 +41,12 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d_config.h
     ${PROJECT_SOURCE_DIR}/libdf3d/libdf3d_dll.h
     ${PROJECT_SOURCE_DIR}/libdf3d/2d/Sprite2DComponentProcessor.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/3d/Camera.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/3d/DebugDrawComponentProcessor.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/3d/Frustum.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/3d/Light.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/3d/StaticMeshComponentProcessor.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/3d/TransformComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioBuffer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.h
@@ -51,7 +57,16 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/ComponentDataHolder.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/Entity.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/EntityComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/FPSCamera.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/World.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldRenderingParams.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldSize.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityLoader.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityManager.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/WorldLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketIntrusivePtr.h
@@ -74,13 +89,11 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/DebugDrawComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/StaticMeshComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/OpenGLCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RendererBackend.h
@@ -112,19 +125,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/AudioLoader_wav.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/ComponentDataHolder.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/Entity.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/EntityComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/Light.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/TransformComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/World.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldRenderingParams.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldSize.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/EntityLoader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/EntityManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/WorldLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.h
@@ -137,6 +137,12 @@ set(libdf3d_HEADER_LIST
 
 set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/2d/Sprite2DComponentProcessor.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/3d/Camera.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/3d/DebugDrawComponentProcessor.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/3d/Frustum.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/3d/Light.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/3d/StaticMeshComponentProcessor.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/3d/TransformComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioBuffer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.cpp
@@ -148,6 +154,11 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/FPSCamera.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/World.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldRenderingParams.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityLoader.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityManager.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/WorldLoader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketIntrusivePtr.cpp
@@ -165,13 +176,11 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/ParticleSystemLoader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/DebugDrawComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/StaticMeshComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/OpenGLCommon.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RendererBackend.cpp
@@ -201,15 +210,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/AudioLoader_wav.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/Camera.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/Frustum.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/Light.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/TransformComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/World.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/WorldRenderingParams.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/EntityLoader.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/EntityManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/scene/impl/WorldLoader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MathUtils.cpp

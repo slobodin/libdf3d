@@ -1,7 +1,7 @@
 #pragma once
 
-#include <scene/Entity.h>
-#include <scene/EntityComponentProcessor.h>
+#include <game/Entity.h>
+#include <game/EntityComponentProcessor.h>
 #include <math/AABB.h>
 #include <math/BoundingSphere.h>
 #include <math/OBB.h>

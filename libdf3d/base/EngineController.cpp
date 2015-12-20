@@ -3,8 +3,8 @@
 #include "DebugConsole.h"
 #include "TimeManager.h"
 #include <render/RenderManager.h>
-#include <scene/Camera.h>
-#include <scene/World.h>
+#include <3d/Camera.h>
+#include <game/World.h>
 #include <resources/ResourceManager.h>
 #include <input/InputManager.h>
 #include <io/FileSystem.h>

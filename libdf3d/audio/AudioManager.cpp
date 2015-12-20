@@ -2,7 +2,7 @@
 
 #include "impl/OpenALCommon.h"
 #include <base/EngineController.h>
-#include <scene/Camera.h>
+#include <3d/Camera.h>
 
 namespace df3d {
 

@@ -5,11 +5,11 @@
 #include "impl/WorldLoader.h"
 #include "impl/EntityLoader.h"
 #include <audio/AudioComponentProcessor.h>
-#include <render/StaticMeshComponentProcessor.h>
+#include <3d/StaticMeshComponentProcessor.h>
+#include <3d/TransformComponentProcessor.h>
+#include <3d/Camera.h>
 #include <particlesys/ParticleSystemComponentProcessor.h>
 #include <physics/PhysicsComponentProcessor.h>
-#include <scene/TransformComponentProcessor.h>
-#include <scene/Camera.h>
 #include <render/RenderQueue.h>
 
 namespace df3d {

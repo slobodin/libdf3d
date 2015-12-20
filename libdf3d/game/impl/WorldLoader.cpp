@@ -2,8 +2,8 @@
 #include "WorldLoader.h"
 
 #include <base/EngineController.h>
-#include <scene/World.h>
-#include <scene/Camera.h>
+#include <game/World.h>
+#include <3d/Camera.h>
 #include <utils/JsonUtils.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>

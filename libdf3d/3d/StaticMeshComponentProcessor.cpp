@@ -2,10 +2,10 @@
 #include "StaticMeshComponentProcessor.h"
 
 #include <base/EngineController.h>
-#include <scene/World.h>
-#include <scene/Camera.h>
-#include <scene/TransformComponentProcessor.h>
-#include <scene/ComponentDataHolder.h>
+#include <game/World.h>
+#include <3d/Camera.h>
+#include <3d/TransformComponentProcessor.h>
+#include <game/ComponentDataHolder.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>
 #include <render/MeshData.h>
