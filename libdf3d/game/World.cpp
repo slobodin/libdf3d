@@ -78,6 +78,11 @@ Entity World::spawn(const std::string &entityResource)
     return scene_impl::EntityLoader::createEntity(entityResource, *this);
 }
 
+Entity World::spawn(const Json::Value &entityResource)
+{
+    return scene_impl::EntityLoader::createEntity(entityResource, *this);
+}
+
 bool World::alive(Entity e)
 {
     return m_entityManager->alive(e);

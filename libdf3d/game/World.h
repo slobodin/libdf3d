@@ -45,6 +45,7 @@ public:
 
     Entity spawn();
     Entity spawn(const std::string &entityResource);
+    Entity spawn(const Json::Value &entityResource);
     bool alive(Entity e);
     void destroy(Entity e);
 

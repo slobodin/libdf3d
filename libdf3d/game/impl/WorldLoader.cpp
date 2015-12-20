@@ -29,10 +29,9 @@ static void parseEntities(const Json::Value &entitiesNode, World &w)
         return;
 
     assert(false);
-    // TODO_ecs:
 
-    //for (Json::UInt objIdx = 0; objIdx < objectsNode.size(); ++objIdx)
-        //sc->addChild(nodeFromJson(objectsNode[objIdx]));
+    for (Json::UInt objIdx = 0; objIdx < entitiesNode.size(); ++objIdx)
+        w.spawn(entitiesNode[objIdx]);
 }
 
 static void parseAmbientLight(const Json::Value &root, World &w)
