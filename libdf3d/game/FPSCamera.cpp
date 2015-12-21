@@ -1,29 +1,10 @@
 #include "FPSCamera.h"
 
 #include <base/EngineController.h>
+#include <input/InputManager.h>
 #include <input/InputEvents.h>
 
 namespace df3d {
-
-void FPSCamera::moveForward(float step)
-{
-    move(getDir() * step);
-}
-
-void FPSCamera::moveBackward(float step)
-{
-    move(-getDir() * step);
-}
-
-void FPSCamera::moveLeft(float step)
-{
-    move(-getRight() * step);
-}
-
-void FPSCamera::moveRight(float step)
-{
-    move(getRight() * step);
-}
 
 void FPSCamera::move(const glm::vec3 &vec)
 {
@@ -35,29 +16,11 @@ void FPSCamera::onGameDeltaTime(float dt)
     if (!m_freeMove)
         return;
 
-    float dv = dt * m_velocity;
-
-    if (m_movingForward)
-        moveForward(dv);
-    if (m_movingBackward)
-        moveBackward(dv);
-    if (m_movingLeft)
-        moveLeft(dv);
-    if (m_movingRight)
-        moveRight(dv);
-}
-
-void FPSCamera::onTouchEvent(const TouchEvent &touchEvent)
-{
-    if (!m_freeMove)
-        return;
-
-    static float yaw, pitch;
-
-    if (touchEvent.state == TouchEvent::State::MOVING)
+    if (svc().inputManager().getMouseButton(MouseButton::LEFT))
     {
-        yaw += int(touchEvent.dx);
-        pitch += int(touchEvent.dy);
+        static float yaw, pitch;
+        yaw += int(svc().inputManager().getMouseDelta().x) * m_damping;
+        pitch += int(svc().inputManager().getMouseDelta().y) * m_damping;
 
         while (yaw > 360.0f)
             yaw -= 360.0f;
@@ -70,59 +33,23 @@ void FPSCamera::onTouchEvent(const TouchEvent &touchEvent)
 
         setOrientation(glm::vec3(-pitch, -yaw, 0.0f));
     }
+
+    float dv = dt * m_velocity;
+
+    if (svc().inputManager().getKey(KeyCode::KEY_UP))
+        move(getDir() * dv);
+    if (svc().inputManager().getKey(KeyCode::KEY_DOWN))
+        move(-getDir() * dv);
+    if (svc().inputManager().getKey(KeyCode::KEY_LEFT))
+        move(-getRight() * dv);
+    if (svc().inputManager().getKey(KeyCode::KEY_RIGHT))
+        move(getRight() * dv);
 }
 
-void FPSCamera::onKeyUp(const KeyboardEvent &ev)
-{
-    if (!m_freeMove)
-        return;
-
-    switch (ev.keycode)
-    {
-    case KeyboardEvent::KeyCode::KEY_UP:
-        m_movingForward = false;
-        break;
-    case KeyboardEvent::KeyCode::KEY_DOWN:
-        m_movingBackward = false;
-        break;
-    case KeyboardEvent::KeyCode::KEY_LEFT:
-        m_movingLeft = false;
-        break;
-    case KeyboardEvent::KeyCode::KEY_RIGHT:
-        m_movingRight = false;
-        break;
-    default:
-        break;
-    }
-}
-
-void FPSCamera::onKeyDown(const KeyboardEvent &ev)
-{
-    if (!m_freeMove)
-        return;
-
-    switch (ev.keycode)
-    {
-    case KeyboardEvent::KeyCode::KEY_UP:
-        m_movingForward = true;
-        break;
-    case KeyboardEvent::KeyCode::KEY_DOWN:
-        m_movingBackward = true;
-        break;
-    case KeyboardEvent::KeyCode::KEY_LEFT:
-        m_movingLeft = true;
-        break;
-    case KeyboardEvent::KeyCode::KEY_RIGHT:
-        m_movingRight = true;
-        break;
-    default:
-        break;
-    }
-}
-
-FPSCamera::FPSCamera(float velocity, bool freeMove)
+FPSCamera::FPSCamera(float velocity, bool freeMove, float damping)
     : m_freeMove(freeMove),
-    m_velocity(velocity)
+    m_velocity(velocity),
+    m_damping(damping)
 {
     svc().timeManager().registerTimeListener(this);
 }

@@ -8,154 +8,116 @@
 
 namespace df3d {
 
-InputManager::InputSubscriber* InputManager::findSubscriber(InputListener *l)
+void InputManager::cleanStep()
 {
-    for (auto &it : m_inputListeners)
-        if (it.valid && (it.listener->m_id == l->m_id))
-            return &it;
+    m_prevMouseState = m_mouseState;
+    m_prevKeyboardState = m_keyboardState;
 
-    return nullptr;
+    m_mouseState.wheelDelta = 0.0f;
+    m_touches.clear();
 }
 
-void InputManager::cleanInvalidListeners()
+const std::vector<Touch>& InputManager::getTouches() const
 {
-    for (auto it = m_inputListeners.cbegin(); it != m_inputListeners.cend(); )
-    {
-        if (!it->valid)
-            it = m_inputListeners.erase(it);
-        else
-            it++;
-    }
+    return m_touches;
 }
 
-void InputManager::registerInputListener(InputListener *listener)
+const glm::ivec2& InputManager::getMousePosition() const
 {
-    auto found = findSubscriber(listener);
-    if (found)
-    {
-        glog << "Trying to add duplicate input listener" << logwarn;
-        return;
-    }
-
-    InputSubscriber s;
-    s.valid = true;
-    s.listener = listener;
-    m_inputListeners.push_back(s);
+    return m_mouseState.position;
 }
 
-void InputManager::unregisterInputListener(InputListener *listener)
+const glm::ivec2& InputManager::getMouseDelta() const
 {
-    auto found = findSubscriber(listener);
-    if (found)
-        found->valid = false;
-    else
-        glog << "Trying to remove nonexistent input listener." << logwarn;
+    return m_mouseState.delta;
 }
 
-void InputManager::pauseInput(bool pause)
+bool InputManager::getMouseButton(MouseButton button) const
 {
-    glog << "Not implemented" << logwarn;
+    return m_mouseState.buttons.at((size_t)button) == MouseState::PRESSED;
 }
 
-void InputManager::onTouchEvent(const TouchEvent &touchEvent)
+bool InputManager::getMouseButtonPressed(MouseButton button) const
 {
+    return (m_prevMouseState.buttons.at((size_t)button) == MouseState::RELEASED) && getMouseButton(button);
+}
+
+bool InputManager::getMouseButtonReleased(MouseButton button) const
+{
+    return (m_prevMouseState.buttons.at((size_t)button) == MouseState::PRESSED) && !getMouseButton(button);
+}
+
+float InputManager::getMouseWheelDelta() const
+{
+    return m_mouseState.wheelDelta;
+}
+
+bool InputManager::getKey(KeyCode key) const
+{
+    return m_keyboardState.keyboard.at((size_t)key) == KeyboardState::PRESSED;
+}
+
+bool InputManager::getKeyPressed(KeyCode key) const
+{
+    return (m_prevKeyboardState.keyboard.at((size_t)key) == KeyboardState::RELEASED) && getKey(key);
+}
+
+bool InputManager::getKeyReleased(KeyCode key) const
+{
+    return (m_prevKeyboardState.keyboard.at((size_t)key) == KeyboardState::PRESSED) && !getKey(key);
+}
+
+KeyModifier InputManager::getKeyModifiers() const
+{
+    return m_keyboardState.modifiers;
+}
+
+void InputManager::onMouseButtonPressed(MouseButton button)
+{
+    df3d::svc().guiManager().getContext()->ProcessMouseButtonDown(gui_impl::convertToRocketMouseButtonIdx(button), 0);
+
+    m_mouseState.buttons.at((size_t)button) = MouseState::PRESSED;
+}
+
+void InputManager::onMouseButtonReleased(MouseButton button)
+{
+    df3d::svc().guiManager().getContext()->ProcessMouseButtonUp(gui_impl::convertToRocketMouseButtonIdx(button), 0);
+
+    m_mouseState.buttons.at((size_t)button) = MouseState::RELEASED;
+}
+
+void InputManager::setMousePosition(int x, int y)
+{
+    m_mouseState.position = glm::ivec2(x, y);
+    m_mouseState.delta = m_mouseState.position - m_prevMouseState.position;
     // Force move event in order to pass coords to libRocket. wtf?
-    if (touchEvent.id == 0)
-        df3d::svc().guiManager().getContext()->ProcessMouseMove(touchEvent.x, touchEvent.y, 0);
-
-    switch (touchEvent.state)
-    {
-    case df3d::TouchEvent::State::DOWN:
-        if (touchEvent.id == 0)
-            df3d::svc().guiManager().getContext()->ProcessMouseButtonDown(0, 0);
-        break;
-    case df3d::TouchEvent::State::UP:
-        if (touchEvent.id == 0)
-            df3d::svc().guiManager().getContext()->ProcessMouseButtonUp(0, 0);
-        break;
-    case df3d::TouchEvent::State::MOVING:
-        break;
-    case df3d::TouchEvent::State::CANCEL:
-        break;
-    default:
-        break;
-    }
-
-    for (auto listener : m_inputListeners)
-        if (listener.valid)
-            listener.listener->onTouchEvent(touchEvent);
+    df3d::svc().guiManager().getContext()->ProcessMouseMove(x, y, 0);
 }
 
-void InputManager::onMouseButtonEvent(const MouseButtonEvent &mouseButtonEvent)
+void InputManager::setMouseWheelDelta(float delta)
 {
-    // Emulate a touch.
-    if (mouseButtonEvent.button == MouseButtonEvent::Button::LEFT)
-    {
-        TouchEvent ev;
-        ev.x = mouseButtonEvent.x;
-        ev.y = mouseButtonEvent.y;
-        if (mouseButtonEvent.state == MouseButtonEvent::State::PRESSED)
-            ev.state = TouchEvent::State::DOWN;
-        else if (mouseButtonEvent.state == MouseButtonEvent::State::RELEASED)
-            ev.state = TouchEvent::State::UP;
-        else
-            return;
-
-        onTouchEvent(ev);
-    }
-
-    for (auto listener : m_inputListeners)
-        if (listener.valid)
-            listener.listener->onMouseButtonEvent(mouseButtonEvent);
+    df3d::svc().guiManager().getContext()->ProcessMouseWheel(static_cast<int>(delta), 0);
+    m_mouseState.wheelDelta = delta;
 }
 
-void InputManager::onMouseMotionEvent(const MouseMotionEvent &mouseMotionEvent)
+void InputManager::onKeyUp(const KeyCode &keyCode, KeyModifier modifiers)
 {
-    // Emulate a touch.
-    if (mouseMotionEvent.leftPressed)
-    {
-        TouchEvent ev;
-        ev.x = mouseMotionEvent.x;
-        ev.y = mouseMotionEvent.y;
-        ev.dx = mouseMotionEvent.dx;
-        ev.dy = mouseMotionEvent.dy;
-        ev.state = TouchEvent::State::MOVING;
-
-        onTouchEvent(ev);
-    }
-
-    for (auto listener : m_inputListeners)
-        if (listener.valid)
-            listener.listener->onMouseMotionEvent(mouseMotionEvent);
-}
-
-void InputManager::onMouseWheelEvent(const MouseWheelEvent &mouseWheelEvent)
-{
-    df3d::svc().guiManager().getContext()->ProcessMouseWheel(static_cast<int>(mouseWheelEvent.delta), 0);
-}
-
-void InputManager::onKeyUp(const KeyboardEvent &keyUpEvent)
-{
-    auto rocketCode = gui_impl::convertToRocketKeyCode(keyUpEvent.keycode);
-    auto rocketModifiers = gui_impl::convertToRocketModifier(keyUpEvent.modifiers);
+    auto rocketCode = gui_impl::convertToRocketKeyCode(keyCode);
+    auto rocketModifiers = gui_impl::convertToRocketModifier(modifiers);
 
     svc().guiManager().getContext()->ProcessKeyUp(rocketCode, rocketModifiers);
 
-    for (auto listener : m_inputListeners)
-        if (listener.valid)
-            listener.listener->onKeyUp(keyUpEvent);
+    m_keyboardState.keyboard.at((size_t)keyCode) = KeyboardState::RELEASED;
 }
 
-void InputManager::onKeyDown(const KeyboardEvent &keyDownEvent)
+void InputManager::onKeyDown(const KeyCode &keyCode, KeyModifier modifiers)
 {
-    auto rocketCode = gui_impl::convertToRocketKeyCode(keyDownEvent.keycode);
-    auto rocketModifiers = gui_impl::convertToRocketModifier(keyDownEvent.modifiers);
+    auto rocketCode = gui_impl::convertToRocketKeyCode(keyCode);
+    auto rocketModifiers = gui_impl::convertToRocketModifier(modifiers);
 
     svc().guiManager().getContext()->ProcessKeyDown(rocketCode, rocketModifiers);
 
-    for (auto listener : m_inputListeners)
-        if (listener.valid)
-            listener.listener->onKeyDown(keyDownEvent);
+    m_keyboardState.keyboard.at((size_t)keyCode) = KeyboardState::PRESSED;
 }
 
 void InputManager::onTextInput(unsigned int codepoint)
@@ -163,18 +125,28 @@ void InputManager::onTextInput(unsigned int codepoint)
     svc().guiManager().getContext()->ProcessTextInput(codepoint);
 }
 
-InputListener::InputListener()
+void InputManager::onTouch(const Touch &touch)
 {
-    static uint32_t id;
-    // Can't use just pointer of this object as an id.
-    m_id = id++;
+    // TODO: implement.
+    assert(false);
 
-    svc().inputManager().registerInputListener(this);
-}
+    // Force move event in order to pass coords to libRocket. wtf?
+    if (touch.id == 0)
+        df3d::svc().guiManager().getContext()->ProcessMouseMove(touch.x, touch.y, 0);
 
-InputListener::~InputListener()
-{
-    svc().inputManager().unregisterInputListener(this);
+    switch (touch.state)
+    {
+    case Touch::State::DOWN:
+        if (touch.id == 0)
+            df3d::svc().guiManager().getContext()->ProcessMouseButtonDown(0, 0);
+        break;
+    case Touch::State::UP:
+        if (touch.id == 0)
+            df3d::svc().guiManager().getContext()->ProcessMouseButtonUp(0, 0);
+        break;
+    default:
+        break;
+    }
 }
 
 }

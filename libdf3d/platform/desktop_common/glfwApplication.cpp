@@ -8,7 +8,6 @@
 
 namespace df3d { namespace platform_impl {
 
-static void cursorPositionCallback(GLFWwindow *window, double xpos, double ypos);
 static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 static void textInputCallback(GLFWwindow *window, unsigned int codepoint);
@@ -19,9 +18,6 @@ class glfwApplication
     GLFWwindow *window = nullptr;
     unique_ptr<AppDelegate> m_appDelegate = nullptr;
     unique_ptr<EngineController> m_engine = nullptr;
-
-    // Touches emulation.
-    unique_ptr<MouseMotionEvent> m_prevTouch;
 
 public:
     glfwApplication(unique_ptr<AppDelegate> appDelegate)
@@ -68,7 +64,6 @@ public:
             glfwSwapInterval(1);
 
         // Set input callbacks.
-        glfwSetCursorPosCallback(window, cursorPositionCallback);
         glfwSetMouseButtonCallback(window, mouseButtonCallback);
         glfwSetKeyCallback(window, keyCallback);
         glfwSetCharCallback(window, textInputCallback);
@@ -80,16 +75,27 @@ public:
             throw std::runtime_error("Game code initialization failed.");
     }
 
+    void pollEvents()
+    {
+        glfwPollEvents();
+
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+
+        svc().inputManager().setMousePosition(xpos, ypos);
+    }
+
     void run()
     {
         using namespace std::chrono;
 
         while (!glfwWindowShouldClose(window))
         {
+            pollEvents();
+
             m_engine->step();
 
             glfwSwapBuffers(window);
-            glfwPollEvents();
         }
 
         m_appDelegate->onAppEnded();
@@ -102,76 +108,48 @@ public:
         glfwSetWindowTitle(window, title.c_str());
     }
 
-    void onMouseMove(float xpos, float ypos)
-    {
-        MouseMotionEvent ev;
-        ev.x = xpos;
-        ev.y = ypos;
-        ev.leftPressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
-        ev.rightPressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
-
-        if (m_prevTouch)
-        {
-            ev.dx = ev.x - m_prevTouch->x;
-            ev.dy = ev.y - m_prevTouch->y;
-        }
-        else
-        {
-            m_prevTouch = make_unique<MouseMotionEvent>();
-        }
-
-        *m_prevTouch = ev;
-
-        svc().inputManager().onMouseMotionEvent(ev);
-    }
-
     void onMouseButton(int button, int action, int mods)
     {
-        MouseButtonEvent ev;
-
-        if (action == GLFW_PRESS)
-            ev.state = MouseButtonEvent::State::PRESSED;
-        else if (action == GLFW_RELEASE)
-            ev.state = MouseButtonEvent::State::RELEASED;
-        else
-            return;
+        MouseButton df3dBtn;
 
         if (button == GLFW_MOUSE_BUTTON_LEFT)
-            ev.button = MouseButtonEvent::Button::LEFT;
+            df3dBtn = MouseButton::LEFT;
         else if (button == GLFW_MOUSE_BUTTON_RIGHT)
-            ev.button = MouseButtonEvent::Button::RIGHT;
+            df3dBtn = MouseButton::RIGHT;
         else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
-            ev.button = MouseButtonEvent::Button::MIDDLE;
+            df3dBtn = MouseButton::MIDDLE;
         else
             return;
 
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
-
-        ev.x = (int)xpos;
-        ev.y = (int)ypos;
-        
-        svc().inputManager().onMouseButtonEvent(ev);
+        if (action == GLFW_PRESS)
+            svc().inputManager().onMouseButtonPressed(df3dBtn);
+        else if (action == GLFW_RELEASE)
+            svc().inputManager().onMouseButtonReleased(df3dBtn);
     }
 
     void onKey(int key, int scancode, int action, int mods)
     {
         int keyModifiers = 0;
         if (mods & GLFW_MOD_SHIFT)
-            keyModifiers |= KeyboardEvent::KM_SHIFT;
+            keyModifiers |= KeyModifier::KM_SHIFT;
         if (mods & GLFW_MOD_ALT)
-            keyModifiers |= KeyboardEvent::KM_ALT;
+            keyModifiers |= KeyModifier::KM_ALT;
         if (mods & GLFW_MOD_CONTROL)
-            keyModifiers |= KeyboardEvent::KM_CTRL;
+            keyModifiers |= KeyModifier::KM_CTRL;
 
-        KeyboardEvent ev;
-        ev.keycode = convertGlfwKeyCode(key);
-        ev.modifiers = static_cast<KeyboardEvent::KeyModifier>(keyModifiers);
+        KeyCode df3dCode = convertGlfwKeyCode(key);
+        KeyModifier df3dModifiers = static_cast<KeyModifier>(keyModifiers);
+
+        if (df3dCode == KeyCode::UNDEFINED)
+        {
+            glog << "Undefined key input!" << logwarn;
+            return;
+        }
 
         if (action == GLFW_PRESS)
-            svc().inputManager().onKeyDown(ev);
+            svc().inputManager().onKeyDown(df3dCode, df3dModifiers);
         else if (action == GLFW_RELEASE)
-            svc().inputManager().onKeyUp(ev);
+            svc().inputManager().onKeyUp(df3dCode, df3dModifiers);
     }
 
     void onTextInput(unsigned int codepoint)
@@ -181,20 +159,11 @@ public:
 
     void onScroll(double xoffset, double yoffset)
     {
-        MouseWheelEvent ev;
-        ev.delta = (float)-yoffset;
-        svc().inputManager().onMouseWheelEvent(ev);
+        svc().inputManager().setMouseWheelDelta((float)-yoffset);
     }
 
     EngineController& getEngine() { return *m_engine; }
 };
-
-static void cursorPositionCallback(GLFWwindow *window, double xpos, double ypos)
-{
-    auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
-
-    app->onMouseMove((float)xpos, (float)ypos);
-}
 
 static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {

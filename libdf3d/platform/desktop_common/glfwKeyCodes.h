@@ -4,6 +4,6 @@
 
 namespace df3d { namespace platform_impl {
 
-KeyboardEvent::KeyCode convertGlfwKeyCode(int keycode);
+KeyCode convertGlfwKeyCode(int keycode);
 
 } }

@@ -1,67 +1,80 @@
 #pragma once
 
+#include "InputEvents.h"
+
 namespace df3d 
 {
-
-class InputListener;
-class TouchEvent;
-class MouseWheelEvent;
-class MouseMotionEvent;
-class MouseButtonEvent;
-class KeyboardEvent;
 
 class DF3D_DLL InputManager : utils::NonCopyable
 {
     friend class EngineController;
 
-    struct InputSubscriber
+    struct MouseState
     {
-        bool valid = true;
-        InputListener *listener = nullptr;
+        glm::ivec2 position;
+        glm::ivec2 delta;
+        float wheelDelta = 0.0f;
+
+        enum ButtonState
+        {
+            PRESSED,
+            RELEASED,
+        };
+
+        std::vector<ButtonState> buttons = std::vector<ButtonState>((size_t)MouseButton::UNDEFINED, ButtonState::RELEASED);
     };
 
-    // NOTE: using list because no iterators or references are invalidated when push_back'ing.
-    std::list<InputSubscriber> m_inputListeners;
-    InputSubscriber* findSubscriber(InputListener *l);
+    MouseState m_prevMouseState;
+    MouseState m_mouseState;
 
-    void cleanInvalidListeners();
+    struct KeyboardState
+    {
+        enum KeyState
+        {
+            PRESSED,
+            RELEASED
+        };
+
+        std::vector<KeyState> keyboard = std::vector<KeyState>((size_t)KeyCode::UNDEFINED, KeyState::RELEASED);
+        KeyModifier modifiers = KM_NONE;
+    };
+
+    KeyboardState m_prevKeyboardState;
+    KeyboardState m_keyboardState;
+
+    std::vector<Touch> m_touches;
+
+    void cleanStep();
 
 public:
     InputManager() = default;
     ~InputManager() = default;
 
-    void registerInputListener(InputListener *listener);
-    void unregisterInputListener(InputListener *listener);
+    const std::vector<Touch>& getTouches() const;
 
-    void pauseInput(bool pause);
+    const glm::ivec2& getMousePosition() const;
+    const glm::ivec2& getMouseDelta() const;
+    bool getMouseButton(MouseButton button) const;
+    bool getMouseButtonPressed(MouseButton button) const;
+    bool getMouseButtonReleased(MouseButton button) const;
+    float getMouseWheelDelta() const;
+
+    bool getKey(KeyCode key) const;
+    bool getKeyPressed(KeyCode key) const;
+    bool getKeyReleased(KeyCode key) const;
+    KeyModifier getKeyModifiers() const;
 
     // This should be called by the platform code only.
     // TODO: improve encapsulation!
-    void onTouchEvent(const TouchEvent &touchEvent);
-    void onMouseButtonEvent(const MouseButtonEvent &mouseButtonEvent);
-    void onMouseMotionEvent(const MouseMotionEvent &mouseMotionEvent);
-    void onMouseWheelEvent(const MouseWheelEvent &mouseWheelEvent);
-    void onKeyUp(const KeyboardEvent &keyUpEvent);
-    void onKeyDown(const KeyboardEvent &keyDownEvent);
+    //void onTouchEvent(const Touch &touchEvent);
+    void onMouseButtonPressed(MouseButton button);
+    void onMouseButtonReleased(MouseButton button);
+    void setMousePosition(int x, int y);
+    void setMouseWheelDelta(float delta);
+    void onKeyUp(const KeyCode &keyCode, KeyModifier modifiers);
+    void onKeyDown(const KeyCode &keyCode, KeyModifier modifiers);
     void onTextInput(unsigned int codepoint);
-};
-
-//! Subclasses will be automatically listening input manager.
-class DF3D_DLL InputListener
-{
-    friend class InputManager;
-
-    uint64_t m_id;
-
-public:
-    InputListener();
-    virtual ~InputListener();
-
-    virtual void onTouchEvent(const TouchEvent &touchEvent) { }
-    virtual void onMouseButtonEvent(const MouseButtonEvent &mouseButtonEvent) { }
-    virtual void onMouseMotionEvent(const MouseMotionEvent &mouseMotionEvent) { }
-    virtual void onKeyUp(const KeyboardEvent &keyUpEvent) { }
-    virtual void onKeyDown(const KeyboardEvent &keyDownEvent) { }
+    void onTouch(const Touch &touch);
 };
 
 }

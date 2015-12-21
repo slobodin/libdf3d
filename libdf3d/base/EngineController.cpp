@@ -122,14 +122,15 @@ void EngineController::step()
     m_timeManager->updateListeners();
     m_world->update(systemDelta, gameDelta);
 
-    // Clean step.
     // TODO: clean up each n secs.
     // TODO_ecs: cleaning up was here!
-    m_inputManager->cleanInvalidListeners();
     m_timeManager->cleanInvalidListeners();
 
     // Run frame.
     m_renderManager->drawWorld(*m_world);
+
+    // Clean step.
+    m_inputManager->cleanStep();
 }
 
 const RenderStats& EngineController::getLastRenderStats() const
