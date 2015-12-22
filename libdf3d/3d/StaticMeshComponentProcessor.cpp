@@ -56,7 +56,7 @@ struct StaticMeshComponentProcessor::Impl
     }
 };
 
-void StaticMeshComponentProcessor::update(float systemDelta, float gameDelta)
+void StaticMeshComponentProcessor::update()
 {
     // TODO_ecs: get only changed components.
     // Update the transform component.
