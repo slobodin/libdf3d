@@ -42,7 +42,7 @@ class DF3D_DLL World : utils::NonCopyable
     void cleanStep();
 
     World();
-    void destroy();
+    void destroyWorld();
 
 public:
     ~World();

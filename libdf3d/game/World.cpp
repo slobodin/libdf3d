@@ -47,12 +47,12 @@ void World::collectRenderOperations(RenderQueue *ops)
 
 void World::cleanStep()
 {
-    // TODO_ecs:
-    //m_physics->cleanStep(*this);
-    //m_tranform->cleanStep(*this);
-    //m_vfx->cleanStep(*this);
-    //m_staticMeshes->cleanStep(*this);
-    //m_audio->cleanStep(*this);
+    // TODO_ecs: clean for user processors.
+    m_physics->cleanStep(*this);
+    m_tranform->cleanStep(*this);
+    m_vfx->cleanStep(*this);
+    m_staticMeshes->cleanStep(*this);
+    m_audio->cleanStep(*this);
 
     m_timeMgr->cleanStep();
 }
@@ -70,7 +70,7 @@ World::World()
 
 }
 
-void World::destroy()
+void World::destroyWorld()
 {
     // TODO_ecs: first, clean user systems.
 

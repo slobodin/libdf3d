@@ -66,7 +66,7 @@ void TransformComponentProcessor::update()
 
 void TransformComponentProcessor::cleanStep(World &w)
 {
-
+    m_pimpl->data.cleanStep(w);
 }
 
 TransformComponentProcessor::TransformComponentProcessor()
@@ -77,7 +77,7 @@ TransformComponentProcessor::TransformComponentProcessor()
 
 TransformComponentProcessor::~TransformComponentProcessor()
 {
-
+    glog << "TransformComponentProcessor::~TransformComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
 }
 
 void TransformComponentProcessor::setPosition(Entity e, const glm::vec3 &newPosition)

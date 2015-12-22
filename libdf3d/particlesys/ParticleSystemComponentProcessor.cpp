@@ -115,7 +115,7 @@ void ParticleSystemComponentProcessor::draw(RenderQueue *ops)
 
 void ParticleSystemComponentProcessor::cleanStep(World &w)
 {
-
+    m_pimpl->data.cleanStep(w);
 }
 
 ParticleSystemComponentProcessor::ParticleSystemComponentProcessor()
@@ -128,6 +128,7 @@ ParticleSystemComponentProcessor::ParticleSystemComponentProcessor()
 
 ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor()
 {
+    glog << "ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
     SPK_DUMP_MEMORY
 }
 

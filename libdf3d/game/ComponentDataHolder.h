@@ -1,18 +1,38 @@
 #pragma once
 
 #include "Entity.h"
+#include "World.h"
 #include <utils/Utils.h>
 
 namespace df3d {
 
 // TODO_ecs : add test suits.
+// TODO_ecs: more efficient implementation.
 template<typename T>
 class DF3D_DLL ComponentDataHolder : utils::NonCopyable
 {
+public:
+    using DestructionCallback = std::function<void(const T&)>;
+
+private:
     std::vector<T> m_data;
+    // TODO_ecs: replace with array.
+    // Maintain a bag of entities ids. If < 1000 for example, use array, instead - hashmap.
     std::unordered_map<Entity::IdType, ComponentInstance> m_lookup;
 
+    DestructionCallback m_destructionCallback;
+
 public:
+    ComponentDataHolder()
+    {
+
+    }
+
+    ~ComponentDataHolder()
+    {
+        clear();
+    }
+
     ComponentInstance lookup(Entity e)
     {
         assert(e.valid());
@@ -37,10 +57,15 @@ public:
     void remove(Entity e)
     {
         assert(e.valid());
-        assert(contains(e));
 
-        // TODO_ecs
-        assert(false);
+        auto compInstance = lookup(e);
+        assert(compInstance.valid());
+
+        if (m_destructionCallback)
+            m_destructionCallback(getData(compInstance));
+
+        m_data.erase(m_data.begin() + compInstance.id);
+        m_lookup.erase(e.id);
     }
 
     bool contains(Entity e)
@@ -77,9 +102,34 @@ public:
 
     void clear()
     {
-        // TODO_ecs:
-        assert(false);
+        while (!m_lookup.empty())
+            remove(m_lookup.begin()->first);
+
+        assert(m_data.empty());
     }
+
+    void cleanStep(World &w)
+    {
+        // TODO_ecs: more efficient removing.
+        // Instead, maintain list of not alive entities.
+        for (auto it = m_lookup.begin(); it != m_lookup.end(); )
+        {
+            if (!w.alive(it->first))
+            {
+                if (m_destructionCallback)
+                    m_destructionCallback(getData(it->second));
+
+                m_data.erase(m_data.begin() + it->second.id);
+                it = m_lookup.erase(it);
+            }
+            else
+                it++;
+        }
+
+        assert(m_data.size() == m_lookup.size());
+    }
+
+    void setDestructionCallback(const DestructionCallback &callback) { m_destructionCallback = callback; }
 };
 
 }

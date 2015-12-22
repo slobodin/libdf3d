@@ -125,6 +125,8 @@ void TimeManager::cleanStep()
         else
             it++;
     }
+
+    // TODO_ecs: shrink_to_fit every n sec.
 }
 
 }

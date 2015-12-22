@@ -116,7 +116,7 @@ void PhysicsComponentProcessor::update()
 
 void PhysicsComponentProcessor::cleanStep(World &w)
 {
-
+    m_pimpl->data.cleanStep(w);
 }
 
 void PhysicsComponentProcessor::draw(RenderQueue *ops)
@@ -138,6 +138,7 @@ PhysicsComponentProcessor::PhysicsComponentProcessor()
 
 PhysicsComponentProcessor::~PhysicsComponentProcessor()
 {
+    glog << "PhysicsComponentProcessor::~PhysicsComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
     // TODO_ecs: first, remove all physics actors!
     assert(false);
 }

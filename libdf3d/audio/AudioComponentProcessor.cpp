@@ -81,29 +81,20 @@ void AudioComponentProcessor::update()
 
 void AudioComponentProcessor::cleanStep(World &w)
 {
-    // TODO_ecs:
-    assert(false);
-    // TODO_ecs: more efficient removing.
-    /*
-    for (auto it = m_pimpl->data.rawData().begin(); it != m_pimpl->data.rawData().end(); )
-    {
-        if (!m_pimpl->world.alive(it->holder))
-            it = m_pimpl->data.rawData().erase(it);
-        else
-            it++;
-    }*/
+    m_pimpl->data.cleanStep(w);
 }
 
 AudioComponentProcessor::AudioComponentProcessor()
     : m_pimpl(new Impl())
 {
-
+    m_pimpl->data.setDestructionCallback([](const Impl::Data &data) {
+        alDeleteSources(1, &data.audioSourceId);
+    });
 }
 
 AudioComponentProcessor::~AudioComponentProcessor()
 {
-    assert(false);
-    // TODO_ecs: remove all entities first.
+    glog << "AudioComponentProcessor::~AudioComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
 }
 
 void AudioComponentProcessor::play(Entity e)
@@ -211,9 +202,6 @@ void AudioComponentProcessor::remove(Entity e)
         glog << "Failed to remove audio component from an entity. Component is not attached" << logwarn;
         return;
     }
-
-    const auto &data = m_pimpl->data.getData(e);
-    alDeleteSources(1, &data.audioSourceId);
 
     m_pimpl->data.remove(e);
 }
