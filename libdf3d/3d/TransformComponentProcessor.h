@@ -13,7 +13,7 @@ class DF3D_DLL TransformComponentProcessor : public EntityComponentProcessor
     unique_ptr<Impl> m_pimpl;
 
     void remove(Entity e);
-    void update(float systemDelta, float gameDelta) override;
+    void update() override;
     void cleanStep(World &w) override;
 
 public:

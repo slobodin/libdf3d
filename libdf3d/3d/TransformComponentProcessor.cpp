@@ -59,7 +59,7 @@ void TransformComponentProcessor::remove(Entity e)
     m_pimpl->data.remove(e);
 }
 
-void TransformComponentProcessor::update(float systemDelta, float gameDelta)
+void TransformComponentProcessor::update()
 {
 
 }
