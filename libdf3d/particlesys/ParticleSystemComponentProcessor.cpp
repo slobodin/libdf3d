@@ -6,6 +6,7 @@
 #include <3d/Camera.h>
 #include <3d/TransformComponentProcessor.h>
 #include <base/EngineController.h>
+#include <base/TimeManager.h>
 #include <particlesys/impl/SparkInterface.h>
 
 namespace df3d {
@@ -49,12 +50,13 @@ struct ParticleSystemComponentProcessor::Impl
     }
 };
 
-void ParticleSystemComponentProcessor::update(float systemDelta, float gameDelta)
+void ParticleSystemComponentProcessor::update()
 {
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
         compData.holderTransform = world().transform().getTransformation(compData.holder);
 
+    auto dt = svc().timer().getFrameDelta(TimeChannel::GAME);
     for (auto &compData : m_pimpl->data.rawData())
     {
         auto spkSystem = compData.system;
@@ -68,11 +70,11 @@ void ParticleSystemComponentProcessor::update(float systemDelta, float gameDelta
             spkSystem->getTransform().set(glm::value_ptr(compData.holderTransform));
 
         Impl::updateCameraPosition(compData);
-        spkSystem->updateParticles(gameDelta);
+        spkSystem->updateParticles(dt);
 
         if (compData.systemLifeTime > 0.0f)
         {
-            compData.systemAge += gameDelta;
+            compData.systemAge += dt;
             if (compData.systemAge > compData.systemLifeTime)
             {
                 // TODO_ecs:
