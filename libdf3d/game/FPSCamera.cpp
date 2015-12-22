@@ -1,6 +1,7 @@
 #include "FPSCamera.h"
 
 #include <base/EngineController.h>
+#include <game/World.h>
 #include <input/InputManager.h>
 #include <input/InputEvents.h>
 
@@ -11,7 +12,7 @@ void FPSCamera::move(const glm::vec3 &vec)
     setPosition(getPosition() + vec);
 }
 
-void FPSCamera::onGameDeltaTime(float dt)
+void FPSCamera::onUpdate()
 {
     if (!m_freeMove)
         return;
@@ -34,6 +35,7 @@ void FPSCamera::onGameDeltaTime(float dt)
         setOrientation(glm::vec3(-pitch, -yaw, 0.0f));
     }
 
+    float dt = svc().timer().getFrameDelta(TimeChannel::GAME);
     float dv = dt * m_velocity;
 
     if (svc().inputManager().getKey(KeyCode::KEY_UP))
@@ -51,12 +53,12 @@ FPSCamera::FPSCamera(float velocity, bool freeMove, float damping)
     m_velocity(velocity),
     m_damping(damping)
 {
-    svc().timeManager().registerTimeListener(this);
+    m_updateHandle = svc().world().timeManager().subscribeUpdate(std::bind(&FPSCamera::onUpdate, this));
 }
 
 FPSCamera::~FPSCamera()
 {
-    svc().timeManager().unregisterTimeListener(this);
+    svc().world().timeManager().unsubscribeUpdate(m_updateHandle);
 }
 
 }

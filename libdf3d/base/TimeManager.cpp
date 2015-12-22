@@ -2,11 +2,40 @@
 
 namespace df3d {
 
-TimeManager::TimeSubscriber* TimeManager::findSubscriber(TimeListener *l)
+void Timer::update()
+{
+    m_timeElapsed = IntervalBetweenNowAnd(m_timeStarted);
+    auto now = std::chrono::system_clock::now();
+
+    for (auto &timeInfo : m_timers)
+    {
+        timeInfo.prevTime = timeInfo.currTime;
+        timeInfo.currTime = now;
+
+        timeInfo.dt = IntervalBetween(timeInfo.currTime, timeInfo.prevTime) * timeInfo.scale;
+    }
+}
+
+Timer::Timer()
+{
+    auto now = std::chrono::system_clock::now();
+
+    for (auto &timeInfo : m_timers)
+        timeInfo.currTime = timeInfo.prevTime = now;
+
+    m_timeStarted = now;
+}
+
+Timer::~Timer()
+{
+
+}
+
+TimeManager::TimeSubscriber* TimeManager::findSubscriber(Handle handle)
 {
     for (auto &it : m_timeListeners)
     {
-        if (it.valid && (it.listener->m_id == l->m_id))
+        if (it.handle.valid() && (it.handle == handle))
             return &it;
     }
 
@@ -15,105 +44,83 @@ TimeManager::TimeSubscriber* TimeManager::findSubscriber(TimeListener *l)
 
 TimeManager::TimeManager()
 {
-    auto now = std::chrono::system_clock::now();
-    m_systemTime.currTime = m_systemTime.prevTime = now;
-    m_gameTime.currTime = m_gameTime.prevTime = now;
-    m_timeStarted = now;
+
 }
 
 TimeManager::~TimeManager()
 {
+    // Dump some debug info.
+    glog << "TimeManager::~TimeManager total listeners:" << m_timeListeners.size() << logdebug;
+    auto aliveCount = 0;
+    for (auto &l : m_timeListeners)
+        if (l.handle.valid())
+            aliveCount++;
 
+    glog << "TimeManager::~TimeManager alive listeners:" << aliveCount << logdebug;
 }
 
-void TimeManager::registerTimeListener(TimeListener *listener)
+TimeManager::Handle TimeManager::subscribeUpdate(const UpdateFn &callback)
 {
-    static uint32_t id;
+    TimeSubscriber subscr;
+    subscr.callback = callback;
+    subscr.handle.id = ++m_nextHandle.id;
 
-    // Can't use just pointer of this object as an id.
-    listener->m_id = id++;
+    m_timeListeners.emplace_back(std::move(subscr));
 
-    m_timeListeners.push_back({ true, listener });
+    return m_nextHandle;
 }
 
-void TimeManager::unregisterTimeListener(TimeListener *listener)
+TimeManager::Handle TimeManager::subscribeUpdate(UpdateFn &&callback)
 {
-    auto found = findSubscriber(listener);
+    TimeSubscriber subscr;
+    subscr.callback = std::move(callback);
+    subscr.handle.id = ++m_nextHandle.id;
+
+    m_timeListeners.emplace_back(std::move(subscr));
+
+    return m_nextHandle;
+}
+
+void TimeManager::unsubscribeUpdate(Handle handle)
+{
+    auto found = findSubscriber(handle);
     if (found)
-        found->valid = false;
+        found->handle.id = -1;
     else
-        glog << "Trying to remove nonexistent time listener." << loggame;
+        glog << "Trying to remove nonexistent time listener" << loggame;
 }
 
-void TimeManager::setGameTimeScale(float scale)
+void TimeManager::enqueueForNextUpdate(const UpdateFn &callback)
 {
-    m_gameTimeScale = scale;
+    m_pendingListeners.push(callback);
 }
 
-void TimeManager::pauseGameTime(bool pause)
+void TimeManager::enqueueForNextUpdate(UpdateFn &&callback)
 {
-    m_paused = pause;
+    m_pendingListeners.push(std::move(callback));
 }
 
-void TimeManager::enqueueForNextUpdate(const EngineThreadWorker &worker)
+void TimeManager::update()
 {
-    m_engineThreadWorkers.push(worker);
-}
-
-void TimeManager::enqueueForNextUpdate(EngineThreadWorker &&worker)
-{
-    m_engineThreadWorkers.push(std::forward<EngineThreadWorker>(worker));
-}
-
-void TimeManager::updateFrameTime()
-{
-    m_timeElapsed = IntervalBetweenNowAnd(m_timeStarted);
-    m_systemTime.prevTime = m_systemTime.currTime;
-    m_gameTime.prevTime = m_gameTime.currTime;
-    m_systemTime.currTime = m_gameTime.currTime = std::chrono::system_clock::now();
-    m_systemTime.dt = IntervalBetween(m_systemTime.currTime, m_systemTime.prevTime);
-    m_gameTime.dt = IntervalBetween(m_gameTime.currTime, m_gameTime.prevTime);
-}
-
-void TimeManager::flushPendingWorkers()
-{
-    std::function<void()> worker;
-    while (m_engineThreadWorkers.tryPop(worker))
+    // First, fire all pending workers.
+    // FIXME: what if paused?
+    UpdateFn worker;
+    while (m_pendingListeners.tryPop(worker))
         worker();
-}
 
-float TimeManager::getGameFrameTimeDuration()
-{
-    return m_gameTime.dt * m_gameTimeScale;
-}
-
-float TimeManager::getSystemFrameTimeDuration()
-{
-    return m_systemTime.dt;
-}
-
-void TimeManager::updateListeners()
-{
-    auto systemDelta = getSystemFrameTimeDuration();
-    auto gameDelta = getGameFrameTimeDuration();
-
-    for (auto listener : m_timeListeners)
-        if (listener.valid)
-            listener.listener->onSystemDeltaTime(systemDelta);
-
-    if (!m_paused)
+    // Update client code.
+    for (auto &listener : m_timeListeners)
     {
-        for (auto listener : m_timeListeners)
-            if (listener.valid)
-                listener.listener->onGameDeltaTime(gameDelta);
+        if (listener.handle.valid())
+            listener.callback();
     }
 }
 
-void TimeManager::cleanInvalidListeners()
+void TimeManager::cleanStep()
 {
-    for (auto it = m_timeListeners.cbegin(); it != m_timeListeners.cend();)
+    for (auto it = m_timeListeners.cbegin(); it != m_timeListeners.cend(); )
     {
-        if (!it->valid)
+        if (!it->handle.valid())
             it = m_timeListeners.erase(it);
         else
             it++;

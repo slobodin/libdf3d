@@ -95,6 +95,7 @@ void EngineController::shutdown()
 {
     assert(m_initialized);
 
+    m_world->destroy();
     m_world.reset();
     m_debugConsole.reset();
     m_guiManager.reset();
@@ -147,6 +148,7 @@ glm::vec2 EngineController::getScreenSize() const
 
 void EngineController::replaceWorld(unique_ptr<World> w)
 {
+    m_world->destroy();
     m_world = std::move(w);
 }
 

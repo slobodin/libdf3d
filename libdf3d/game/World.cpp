@@ -5,6 +5,7 @@
 #include "impl/WorldLoader.h"
 #include "impl/EntityLoader.h"
 #include <audio/AudioComponentProcessor.h>
+#include <base/TimeManager.h>
 #include <3d/StaticMeshComponentProcessor.h>
 #include <3d/TransformComponentProcessor.h>
 #include <3d/Camera.h>
@@ -14,17 +15,20 @@
 
 namespace df3d {
 
-void World::update(float systemDelta, float gameDelta)
+void World::update()
 {
-    if (m_paused)
-        return;
-
     // TODO_ecs: ordering.
-    m_physics->update(systemDelta, gameDelta);
-    m_tranform->update(systemDelta, gameDelta);
-    m_vfx->update(systemDelta, gameDelta);
-    m_staticMeshes->update(systemDelta, gameDelta);
-    m_audio->update(systemDelta, gameDelta);
+    // TODO_ecs: pause check!!!
+    if (!m_paused)
+    {
+        m_timeMgr->update();    // Update client code.
+
+        m_physics->update();
+        m_tranform->update();
+        m_vfx->update();
+        m_staticMeshes->update();
+        m_audio->update();
+    }
 
     cleanStep();
 }
@@ -44,6 +48,13 @@ void World::collectRenderOperations(RenderQueue *ops)
 void World::cleanStep()
 {
     // TODO_ecs:
+    //m_physics->cleanStep(*this);
+    //m_tranform->cleanStep(*this);
+    //m_vfx->cleanStep(*this);
+    //m_staticMeshes->cleanStep(*this);
+    //m_audio->cleanStep(*this);
+
+    m_timeMgr->cleanStep();
 }
 
 World::World()
@@ -53,9 +64,26 @@ World::World()
     m_vfx(new ParticleSystemComponentProcessor()),
     m_physics(new PhysicsComponentProcessor()),
     m_tranform(new TransformComponentProcessor()),
-    m_camera(new Camera())
+    m_camera(new Camera()),
+    m_timeMgr(new TimeManager())
 {
 
+}
+
+void World::destroy()
+{
+    // TODO_ecs: first, clean user systems.
+
+    m_audio.reset();
+    m_staticMeshes.reset();
+    m_vfx.reset();
+    m_physics.reset();
+    m_tranform.reset();
+
+    m_camera.reset();
+    m_entityManager.reset();
+
+    m_timeMgr.reset();
 }
 
 World::~World()

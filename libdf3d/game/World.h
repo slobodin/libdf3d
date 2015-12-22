@@ -15,6 +15,7 @@ class TransformComponentProcessor;
 class RenderQueue;
 class EntityComponentProcessor;
 class Camera;
+class TimeManager;
 
 class DF3D_DLL World : utils::NonCopyable
 {
@@ -34,11 +35,14 @@ class DF3D_DLL World : utils::NonCopyable
 
     bool m_paused = false;
 
-    void update(float systemDelta, float gameDelta);
+    unique_ptr<TimeManager> m_timeMgr;
+
+    void update();
     void collectRenderOperations(RenderQueue *ops);
     void cleanStep();
 
     World();
+    void destroy();
 
 public:
     ~World();
@@ -65,6 +69,8 @@ public:
     ParticleSystemComponentProcessor& vfx();
     PhysicsComponentProcessor& physics();
     TransformComponentProcessor& transform();
+
+    TimeManager& timeManager() { return *m_timeMgr; }
 
     static unique_ptr<World> newWorld();
     static unique_ptr<World> newWorld(const std::string &worldResource);

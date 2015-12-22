@@ -4,76 +4,88 @@
 
 namespace df3d {
 
-class TimeListener;
+enum class TimeChannel
+{
+    SYSTEM,
+    GAME,
 
-class DF3D_DLL TimeManager : utils::NonCopyable
+    COUNT
+};
+
+class DF3D_DLL Timer
 {
     friend class EngineController;
 
-public:
-    using EngineThreadWorker = std::function<void()>;
-
-private:
     struct TimeInfo
     {
         TimePoint prevTime;
         TimePoint currTime;
+        float scale = 1.0f;
+
         float dt = 0.0f;
     };
 
-    TimeInfo m_systemTime;
-    TimeInfo m_gameTime;
     TimePoint m_timeStarted;
     float m_timeElapsed = 0.0f;
-    float m_gameTimeScale = 1.0f;
-    bool m_paused = false;
 
-    struct TimeSubscriber
+    void update();
+
+    TimeInfo m_timers[static_cast<size_t>(TimeChannel::COUNT)];
+
+    TimeInfo& getTimeInfo(TimeChannel channel) { return m_timers[static_cast<size_t>(channel)]; }
+    const TimeInfo& getTimeInfo(TimeChannel channel) const { return m_timers[static_cast<size_t>(channel)]; }
+
+public:
+    Timer();
+    ~Timer();
+
+    float getFrameDelta(TimeChannel channel) const { return getTimeInfo(channel).dt; }
+    void setScale(TimeChannel channel, float scale) { getTimeInfo(channel).scale = scale; }
+
+    float getElapsedTime() { return m_timeElapsed; }
+};
+
+class DF3D_DLL TimeManager : utils::NonCopyable
+{
+public:
+    using UpdateFn = std::function<void()>;
+    struct Handle
     {
-        bool valid;
-        TimeListener *listener;
+        int64_t id = -1;
+
+        bool valid() const { return id != -1; }
+        bool operator== (const Handle &other) const { return id == other.id;}
     };
 
-    // NOTE: using list because no iterators or references are invalidated when push_back'ing.
-    // This may happen when registering time listener during update loop (iterating over all listeners).
-    std::list<TimeSubscriber> m_timeListeners;
-    TimeSubscriber* findSubscriber(TimeListener *l);
+private:
+    struct TimeSubscriber
+    {
+        Handle handle;
+        UpdateFn callback;
+    };
 
-    utils::ConcurrentQueue<EngineThreadWorker> m_engineThreadWorkers;
+    std::list<TimeSubscriber> m_timeListeners;
+    utils::ConcurrentQueue<UpdateFn> m_pendingListeners;
+    Handle m_nextHandle;
+
+    TimeSubscriber* findSubscriber(Handle handle);
 
 public:
     TimeManager();
     ~TimeManager();
 
-    void registerTimeListener(TimeListener *listener);
-    void unregisterTimeListener(TimeListener *listener);
+    Handle subscribeUpdate(const UpdateFn &callback);
+    Handle subscribeUpdate(UpdateFn &&callback);
+    void unsubscribeUpdate(Handle handle);
 
-    void setGameTimeScale(float scale);
-    void pauseGameTime(bool pause);
+    // TODO_ecs: late update.
 
-    void enqueueForNextUpdate(const EngineThreadWorker &worker);
-    void enqueueForNextUpdate(EngineThreadWorker &&worker);
+    void enqueueForNextUpdate(const UpdateFn &callback);
+    void enqueueForNextUpdate(UpdateFn &&callback);
 
-    float getElapsedTime() const { return m_timeElapsed; }
-
-private:
-    void updateFrameTime();
-    void flushPendingWorkers();
-    float getGameFrameTimeDuration();
-    float getSystemFrameTimeDuration();
-    void updateListeners();
-    void cleanInvalidListeners();
-};
-
-class DF3D_DLL TimeListener
-{
-    friend class TimeManager;
-
-    uint32_t m_id = 0;
-
-public:
-    virtual void onGameDeltaTime(float dt) { }
-    virtual void onSystemDeltaTime(float dt) { }
+    // Should not be called by client code. TODO: improve encapsulation.
+    void update();
+    void cleanStep();
 };
 
 }
