@@ -130,7 +130,7 @@ void GpuProgramState::onFrameBegin()
 
     m_cameraPosition = svc().world().getCamera().getPosition();
 
-    m_engineElapsedTime = svc().timeManager().getElapsedTime();
+    m_engineElapsedTime = svc().timer().getElapsedTime();
 }
 
 void GpuProgramState::onFrameEnd()
