@@ -52,7 +52,7 @@ struct AudioComponentProcessor::Impl
     ComponentDataHolder<Data> data;
 };
 
-void AudioComponentProcessor::update(float systemDelta, float gameDelta)
+void AudioComponentProcessor::update()
 {
     // Update camera position.
     const auto &cam = svc().world().getCamera();
