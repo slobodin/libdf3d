@@ -32,7 +32,7 @@ private:
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
-    void update(float systemDelta, float gameDelta) override;
+    void update() override;
     void draw(RenderQueue *ops);
     void cleanStep(World &w) override;
 

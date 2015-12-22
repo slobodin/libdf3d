@@ -9,6 +9,7 @@
 #include "impl/BulletInterface.h"
 #include <base/EngineController.h>
 #include <base/DebugConsole.h>
+#include <base/TimeManager.h>
 #include <game/ComponentDataHolder.h>
 
 namespace df3d {
@@ -108,9 +109,9 @@ struct PhysicsComponentProcessor::Impl
     }
 };
 
-void PhysicsComponentProcessor::update(float systemDelta, float gameDelta)
+void PhysicsComponentProcessor::update()
 {
-    m_pimpl->dynamicsWorld->stepSimulation(gameDelta, 10);
+    m_pimpl->dynamicsWorld->stepSimulation(svc().timer().getFrameDelta(TimeChannel::GAME), 10);
 }
 
 void PhysicsComponentProcessor::cleanStep(World &w)
