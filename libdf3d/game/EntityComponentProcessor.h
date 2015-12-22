@@ -11,7 +11,7 @@ public:
     EntityComponentProcessor() = default;
     virtual ~EntityComponentProcessor() = default;
 
-    virtual void update(float systemDelta, float gameDelta) = 0;
+    virtual void update() = 0;
     virtual void cleanStep(World &w) = 0;
 };
 
