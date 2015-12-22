@@ -41,8 +41,8 @@ void EngineController::initialize(EngineInitParams params)
     {
         srand((unsigned int)time(0));
 
-        // Create time manager.
-        m_timeManager = make_unique<TimeManager>();
+        // Create timer.
+        m_timer = make_unique<Timer>();
 
 #ifdef DF3D_WINDOWS
         platform_impl::CrashHandler::setup();
@@ -81,8 +81,8 @@ void EngineController::initialize(EngineInitParams params)
         m_initialized = true;
         glog << "Engine initialized" << logmess;
 
-        // FIXME: may have big delta. Client code is initilized next.
-        m_timeManager->updateFrameTime();
+        // FIXME: may have big delta. Client code is initialized next.
+        m_timer->update();
     }
     catch (std::exception &e)
     {
@@ -103,33 +103,24 @@ void EngineController::shutdown()
     m_fileSystem.reset();
     m_audioManager.reset();
     m_inputManager.reset();
-    m_timeManager.reset();
+    m_timer.reset();
 }
 
 void EngineController::step()
 {
-    m_timeManager->updateFrameTime();
-    auto systemDelta = m_timeManager->getSystemFrameTimeDuration();
-    auto gameDelta = m_timeManager->getGameFrameTimeDuration();
+    m_timer->update();
 
     // Update some engine subsystems.
-    // TODO_ecs: this will be removed completely!!!
     m_resourceManager->poll();
     m_guiManager->getContext()->Update();
 
     // Update client code.
-    m_timeManager->flushPendingWorkers();
-    m_timeManager->updateListeners();
-    m_world->update(systemDelta, gameDelta);
-
-    // TODO: clean up each n secs.
-    // TODO_ecs: cleaning up was here!
-    m_timeManager->cleanInvalidListeners();
+    m_world->update();
 
     // Run frame.
     m_renderManager->drawWorld(*m_world);
 
-    // Clean step.
+    // Clean step for engine subsystems.
     m_inputManager->cleanStep();
 }
 
