@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "ParticleSystemComponentProcessor.h"
 
 #include "impl/ParticleSystemLoader.h"
@@ -179,7 +178,6 @@ void ParticleSystemComponentProcessor::add(Entity e, const std::string &vfxResou
 
     data.system = spkSystem;
     data.holder = e;
-    data.holderTransform = world().transform().getTransformation(e);
 
     vfxJson["worldTransformed"] >> data.worldTransformed;
     vfxJson["systemLifeTime"] >> data.systemLifeTime;
