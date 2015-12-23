@@ -16,7 +16,7 @@ namespace df3d {
 
 class PhysicsComponentMotionState : public btMotionState
 {
-    ComponentInstance m_transformComponent;
+    Entity m_holder;
     btTransform m_transform;
 
 public:
@@ -100,12 +100,12 @@ struct PhysicsComponentProcessor::Impl
             delete obj;
         }
 
-        SAFE_DELETE(dynamicsWorld);
-        SAFE_DELETE(solver);
-        SAFE_DELETE(overlappingPairCache);
-        SAFE_DELETE(dispatcher);
-        SAFE_DELETE(collisionConfiguration);
-        SAFE_DELETE(debugDraw);
+        delete dynamicsWorld;
+        delete solver;
+        delete overlappingPairCache;
+        delete dispatcher;
+        delete collisionConfiguration;
+        delete debugDraw;
     }
 };
 
@@ -133,17 +133,22 @@ void PhysicsComponentProcessor::draw(RenderQueue *ops)
 PhysicsComponentProcessor::PhysicsComponentProcessor()
     : m_pimpl(new Impl())
 {
-
+    m_pimpl->data.setDestructionCallback([this](const Impl::Data &data) {
+        getPhysicsWorld()->removeRigidBody(data.body);
+        auto motionState = data.body->getMotionState();
+        delete motionState;
+        auto shape = data.body->getCollisionShape();
+        delete shape;
+        delete data.body;
+    });
 }
 
 PhysicsComponentProcessor::~PhysicsComponentProcessor()
 {
     glog << "PhysicsComponentProcessor::~PhysicsComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
-    // TODO_ecs: first, remove all physics actors!
-    assert(false);
 }
 
-btRigidBody* PhysicsComponentProcessor::body(ComponentInstance comp)
+btRigidBody* PhysicsComponentProcessor::body(Entity e)
 {
     return nullptr;
 }

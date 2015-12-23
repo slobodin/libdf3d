@@ -40,7 +40,7 @@ public:
     PhysicsComponentProcessor();
     ~PhysicsComponentProcessor();
 
-    btRigidBody* body(ComponentInstance comp);
+    btRigidBody* body(Entity e);
 
     void add(Entity e, const CreationParams &params, const AABB &box);
     void add(Entity e, const CreationParams &params, const BoundingSphere &sphere);
