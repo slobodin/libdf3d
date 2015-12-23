@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "AudioComponentProcessor.h"
 
 #include "AudioBuffer.h"
@@ -190,7 +189,6 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
     printOpenALError();
 
     data.holder = e;
-    data.holderPos = world().transform().getPosition(e, true);
 
     m_pimpl->data.add(e, data);
 }
