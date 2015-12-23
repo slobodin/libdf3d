@@ -8,28 +8,14 @@ class btDynamicsWorld;
 
 namespace df3d {
 
-class AABB;
-class BoundingSphere;
-class ConvexHull;
 class RenderQueue;
+class MeshData;
+struct PhysicsComponentCreationParams;
 
 class DF3D_DLL PhysicsComponentProcessor : public EntityComponentProcessor
 {
     friend class World;
 
-public:
-    struct CreationParams
-    {
-        float mass = 1.0f;
-        float friction = 0.5f;
-        float restitution = 0.0f;
-        float linearDamping = 0.0f;
-        float angularDamping = 0.0f;
-        short group = -1;
-        short mask = -1;
-    };
-
-private:
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
@@ -43,9 +29,7 @@ public:
 
     btRigidBody* body(Entity e);
 
-    void add(Entity e, const CreationParams &params, const AABB &box);
-    void add(Entity e, const CreationParams &params, const BoundingSphere &sphere);
-    void add(Entity e, const CreationParams &params, const ConvexHull &hull);
+    void add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> meshData);
     void remove(Entity e);
 
     btDynamicsWorld* getPhysicsWorld();
