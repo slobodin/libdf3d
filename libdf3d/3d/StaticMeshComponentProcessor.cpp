@@ -61,6 +61,7 @@ void StaticMeshComponentProcessor::update()
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
     {
+        // TODO_ecs: 3 lookups!!!!
         compData.holderTransformation = m_world->transform().getTransformation(compData.holder);
         compData.holderPosition = m_world->transform().getPosition(compData.holder, true);
         compData.holderScale = m_world->transform().getScale(compData.holder);

@@ -4,7 +4,6 @@
 
 namespace df3d {
 
-// TODO_ecs : add test suits.
 // TODO_ecs: more efficient implementation.
 template<typename T>
 class ComponentDataHolder : utils::NonCopyable

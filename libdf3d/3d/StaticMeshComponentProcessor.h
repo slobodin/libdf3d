@@ -30,7 +30,6 @@ public:
 
     shared_ptr<MeshData> getMeshData(Entity e) const;
 
-    // TODO_ecs: mb use just entity??
     AABB getAABB(Entity e);
     BoundingSphere getBoundingSphere(Entity e);
     OBB getOBB(Entity e);
