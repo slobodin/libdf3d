@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "StaticMeshComponentProcessor.h"
 
 #include <base/EngineController.h>
@@ -170,7 +169,6 @@ void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath
     Impl::Data data;
     data.meshData = svc().resourceManager().getFactory().createMeshData(meshFilePath, lm);
     data.holder = e;
-    data.holderTransformation = world().transform().getTransformation(e);
 
     m_pimpl->data.add(e, data);
 }
