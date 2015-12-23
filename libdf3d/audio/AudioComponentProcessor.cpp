@@ -54,7 +54,7 @@ struct AudioComponentProcessor::Impl
 void AudioComponentProcessor::update()
 {
     // Update camera position.
-    const auto &cam = svc().world().getCamera();
+    const auto &cam = m_world->getCamera();
     alListenerfv(AL_POSITION, glm::value_ptr(cam.getPosition()));
 
     const auto &dir = cam.getDir();
@@ -65,9 +65,8 @@ void AudioComponentProcessor::update()
 
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
-        compData.holderPos = world().transform().getPosition(compData.holder, true);
+        compData.holderPos = m_world->transform().getPosition(compData.holder, true);
 
-    auto &transformSystem = world().transform();
     for (auto &compData : m_pimpl->data.rawData())
     {
         // If it has stopped, then do not update it.
@@ -83,8 +82,9 @@ void AudioComponentProcessor::cleanStep(const std::list<Entity> &deleted)
     m_pimpl->data.cleanStep(deleted);
 }
 
-AudioComponentProcessor::AudioComponentProcessor()
-    : m_pimpl(new Impl())
+AudioComponentProcessor::AudioComponentProcessor(World *world)
+    : m_pimpl(new Impl()),
+    m_world(world)
 {
     m_pimpl->data.setDestructionCallback([](const Impl::Data &data) {
         alDeleteSources(1, &data.audioSourceId);
@@ -189,6 +189,7 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
     printOpenALError();
 
     data.holder = e;
+    data.holderPos = m_world->transform().getPosition(e, true);
 
     m_pimpl->data.add(e, data);
 }

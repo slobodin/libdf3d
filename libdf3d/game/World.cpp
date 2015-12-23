@@ -61,9 +61,9 @@ void World::cleanStep()
 World::World()
     : m_entityManager(new scene_impl::EntityManager()),
     m_entityLoader(new scene_impl::EntityLoader()),
-    m_audio(new AudioComponentProcessor()),
-    m_staticMeshes(new StaticMeshComponentProcessor()),
-    m_vfx(new ParticleSystemComponentProcessor()),
+    m_audio(new AudioComponentProcessor(this)),
+    m_staticMeshes(new StaticMeshComponentProcessor(this)),
+    m_vfx(new ParticleSystemComponentProcessor(this)),
     m_physics(new PhysicsComponentProcessor()),
     m_tranform(new TransformComponentProcessor()),
     m_camera(new Camera()),

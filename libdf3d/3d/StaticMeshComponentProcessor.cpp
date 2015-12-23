@@ -61,9 +61,9 @@ void StaticMeshComponentProcessor::update()
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
     {
-        compData.holderTransformation = world().transform().getTransformation(compData.holder);
-        compData.holderPosition = world().transform().getPosition(compData.holder, true);
-        compData.holderScale = world().transform().getScale(compData.holder);
+        compData.holderTransformation = m_world->transform().getTransformation(compData.holder);
+        compData.holderPosition = m_world->transform().getPosition(compData.holder, true);
+        compData.holderScale = m_world->transform().getScale(compData.holder);
     }
 }
 
@@ -79,7 +79,7 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
 
         if (!compData.frustumCullingDisabled)
         {
-            const auto &frustum = svc().world().getCamera().getFrustum();
+            const auto &frustum = m_world->getCamera().getFrustum();
             if (!frustum.sphereInFrustum(Impl::getBoundingSphere(compData)))
                 continue;
         }
@@ -94,8 +94,9 @@ void StaticMeshComponentProcessor::cleanStep(const std::list<Entity> &deleted)
     m_pimpl->data.cleanStep(deleted);
 }
 
-StaticMeshComponentProcessor::StaticMeshComponentProcessor()
-    : m_pimpl(new Impl())
+StaticMeshComponentProcessor::StaticMeshComponentProcessor(World *world)
+    : m_pimpl(new Impl()),
+    m_world(world)
 {
 
 }
@@ -113,7 +114,9 @@ shared_ptr<MeshData> StaticMeshComponentProcessor::getMeshData(Entity e) const
 AABB StaticMeshComponentProcessor::getAABB(Entity e)
 {
     // FIXME: mb cache if transformation hasn't been changed?
-    const auto &compData = m_pimpl->data.getData(e);
+    auto &compData = m_pimpl->data.getData(e);
+    // Update transformation.
+    compData.holderTransformation = m_world->transform().getTransformation(compData.holder);
 
     AABB transformedAABB;
 
@@ -169,6 +172,7 @@ void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath
     Impl::Data data;
     data.meshData = svc().resourceManager().getFactory().createMeshData(meshFilePath, lm);
     data.holder = e;
+    data.holderTransformation = m_world->transform().getTransformation(e);
 
     m_pimpl->data.add(e, data);
 }

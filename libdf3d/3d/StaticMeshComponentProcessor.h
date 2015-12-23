@@ -18,12 +18,14 @@ class DF3D_DLL StaticMeshComponentProcessor : public EntityComponentProcessor
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
+    World *m_world;
+
     void update() override;
     void draw(RenderQueue *ops);
     void cleanStep(const std::list<Entity> &deleted) override;
 
 public:
-    StaticMeshComponentProcessor();
+    StaticMeshComponentProcessor(World *world);
     ~StaticMeshComponentProcessor();
 
     shared_ptr<MeshData> getMeshData(Entity e) const;

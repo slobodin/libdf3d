@@ -28,14 +28,14 @@ struct ParticleSystemComponentProcessor::Impl
 
     ComponentDataHolder<Data> data;
 
-    static void updateCameraPosition(Data &compData)
+    static void updateCameraPosition(Data &compData, World *w)
     {
         auto spkSystem = compData.system;
         for (size_t i = 0; i < spkSystem->getNbGroups(); ++i)
         {
             if (spkSystem->getGroup(i)->isDistanceComputationEnabled())
             {
-                auto pos = svc().world().getCamera().getPosition();
+                auto pos = w->getCamera().getPosition();
                 if (!compData.worldTransformed)
                 {
                     // Transform camera position into this node space.
@@ -55,7 +55,7 @@ void ParticleSystemComponentProcessor::update()
 {
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
-        compData.holderTransform = world().transform().getTransformation(compData.holder);
+        compData.holderTransform = m_world->transform().getTransformation(compData.holder);
 
     auto dt = svc().timer().getFrameDelta(TimeChannel::GAME);
     for (auto &compData : m_pimpl->data.rawData())
@@ -68,7 +68,7 @@ void ParticleSystemComponentProcessor::update()
         if (compData.worldTransformed)
             spkSystem->getTransform().set(glm::value_ptr(compData.holderTransform));
 
-        Impl::updateCameraPosition(compData);
+        Impl::updateCameraPosition(compData, m_world);
         spkSystem->updateParticles(dt);
 
         if (compData.systemLifeTime > 0.0f)
@@ -118,8 +118,9 @@ void ParticleSystemComponentProcessor::cleanStep(const std::list<Entity> &delete
     m_pimpl->data.cleanStep(deleted);
 }
 
-ParticleSystemComponentProcessor::ParticleSystemComponentProcessor()
-    : m_pimpl(new Impl())
+ParticleSystemComponentProcessor::ParticleSystemComponentProcessor(World *world)
+    : m_pimpl(new Impl()),
+    m_world(world)
 {
     // Clamp the step to 100 ms.
     SPK::System::setClampStep(true, 0.1f);
@@ -178,6 +179,7 @@ void ParticleSystemComponentProcessor::add(Entity e, const std::string &vfxResou
 
     data.system = spkSystem;
     data.holder = e;
+    data.holderTransform = m_world->transform().getTransformation(e);
 
     vfxJson["worldTransformed"] >> data.worldTransformed;
     vfxJson["systemLifeTime"] >> data.systemLifeTime;

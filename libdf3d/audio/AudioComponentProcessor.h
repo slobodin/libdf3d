@@ -23,11 +23,13 @@ private:
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
+    World *m_world;
+
     void update() override;
     void cleanStep(const std::list<Entity> &deleted) override;
 
 public:
-    AudioComponentProcessor();
+    AudioComponentProcessor(World *world);
     ~AudioComponentProcessor();
 
     void play(Entity e);
