@@ -60,6 +60,7 @@
 
 #include <game/FPSCamera.h>
 #include <game/Entity.h>
+#include <game/ComponentDataHolder.h>
 #include <game/World.h>
 #include <game/WorldRenderingParams.h>
 
