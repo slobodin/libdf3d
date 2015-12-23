@@ -4,6 +4,7 @@
 #include <base/EngineController.h>
 #include <game/World.h>
 #include <3d/Camera.h>
+#include <3d/Light.h>
 #include <utils/JsonUtils.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>
@@ -82,7 +83,16 @@ static void parseCamera(const Json::Value &cameraNode, World &w)
 
 static void parseLights(const Json::Value &lightsNode, World &w)
 {
-    // TODO_ecs:
+    for (auto &lightJson : lightsNode)
+    {
+        Light light(Light::Type::DIRECTIONAL);
+
+        light.setDirection(utils::json::getOrDefault(lightJson["direction"], light.getDirection()));
+        light.setDiffuseIntensity(utils::json::getOrDefault(lightJson["diffuse"], light.getDiffuseColor()));
+        light.setSpecularIntensity(utils::json::getOrDefault(lightJson["specular"], light.getSpecularColor()));
+
+        w.getRenderingParams().addLight(light);
+    }
 }
 
 unique_ptr<World> WorldLoader::createWorld(const std::string &resourceFile)
