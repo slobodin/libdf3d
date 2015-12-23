@@ -122,6 +122,8 @@ struct PhysicsComponentProcessor::Impl
 
     void initialize(Data &data)
     {
+        assert(!data.initialized);
+
         btCollisionShape *colShape = nullptr;
         switch (data.params.type)
         {
@@ -197,6 +199,8 @@ struct PhysicsComponentProcessor::Impl
             dynamicsWorld->addRigidBody(data.body, data.params.group, data.params.mask);
         else
             dynamicsWorld->addRigidBody(data.body);
+
+        data.initialized = true;
     }
 };
 
@@ -207,10 +211,7 @@ void PhysicsComponentProcessor::update()
         if (!data.initialized)
         {
             if (data.meshData.lock()->isInitialized())
-            {
                 m_pimpl->initialize(data);
-                data.initialized = true;
-            }
         }
     }
 
@@ -271,6 +272,9 @@ void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationPara
     data.meshData = meshData;
     data.holder = e;
     data.params = params;
+
+    if (meshData->isInitialized())
+        m_pimpl->initialize(data);
 
     m_pimpl->data.add(e, data);
 }

@@ -11,7 +11,7 @@ enum class CollisionShapeType
 
 struct DF3D_DLL PhysicsComponentCreationParams
 {
-    CollisionShapeType type;
+    CollisionShapeType type = CollisionShapeType::BOX;
 
     float mass = 1.0f;
     float friction = 0.5f;

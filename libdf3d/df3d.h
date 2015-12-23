@@ -52,6 +52,7 @@
 
 #include <physics/PhysicsHelpers.h>
 #include <physics/PhysicsComponentProcessor.h>
+#include <physics/PhysicsComponentCreationParams.h>
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 
