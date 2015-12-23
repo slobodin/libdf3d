@@ -9,7 +9,7 @@ namespace df3d {
 // TODO_ecs : add test suits.
 // TODO_ecs: more efficient implementation.
 template<typename T>
-class DF3D_DLL ComponentDataHolder : utils::NonCopyable
+class ComponentDataHolder : utils::NonCopyable
 {
 public:
     using DestructionCallback = std::function<void(const T&)>;
@@ -19,6 +19,7 @@ private:
     // TODO_ecs: replace with array.
     // Maintain a bag of entities ids. If < 1000 for example, use array, instead - hashmap.
     std::unordered_map<Entity::IdType, ComponentInstance> m_lookup;
+    std::unordered_map<ComponentInstance::IdType, Entity> m_holders;
 
     DestructionCallback m_destructionCallback;
 
@@ -52,11 +53,15 @@ public:
         ComponentInstance inst(m_data.size());
         m_data.push_back(componentData);
         m_lookup[e.id] = inst;
+
+        m_holders[inst.id] = e;
     }
 
     void remove(Entity e)
     {
         assert(e.valid());
+        assert(m_data.size() == m_lookup.size() && m_holders.size() == m_lookup.size());
+        assert(m_data.size() > 0);
 
         auto compInstance = lookup(e);
         assert(compInstance.valid());
@@ -64,14 +69,29 @@ public:
         if (m_destructionCallback)
             m_destructionCallback(getData(compInstance));
 
-        m_data.erase(m_data.begin() + compInstance.id);
-        m_lookup.erase(e.id);
+        if (m_data.size() == 1)
+        {
+            m_data.clear();
+            m_lookup.clear();
+            m_holders.clear();
+        }
+        else
+        {
+            auto lastEnt = m_holders.find(m_data.size() - 1)->second;
+            std::swap(m_data[compInstance.id], m_data.back());
+            m_lookup.find(lastEnt.id)->second = compInstance;
+            m_holders.find(compInstance.id)->second = lastEnt;
+
+            m_holders.erase(m_data.size() - 1);
+            m_data.pop_back();
+            m_lookup.erase(e.id);
+        }
     }
 
     bool contains(Entity e)
     {
         assert(e.valid());
-        return utils::contains_key(m_lookup, e.id);
+        return lookup(e).valid();
     }
 
     const T& getData(ComponentInstance inst) const
@@ -100,18 +120,34 @@ public:
 
     std::vector<T>& rawData() { return m_data; }
 
+    size_t getSize() const
+    {
+        assert(m_data.size() == m_lookup.size());
+        assert(m_lookup.size() == m_holders.size());
+
+        return m_data.size();
+    }
+
     void clear()
     {
-        while (!m_lookup.empty())
-            remove(m_lookup.begin()->first);
+        if (m_destructionCallback)
+        {
+            for (auto &data : m_data)
+                m_destructionCallback(data);
+        }
 
-        assert(m_data.empty());
+        m_data.clear();
+        m_holders.clear();
+        m_lookup.clear();
     }
 
     void cleanStep(World &w)
     {
         // TODO_ecs: more efficient removing.
         // Instead, maintain list of not alive entities.
+
+        //WORKS WRONG
+
         for (auto it = m_lookup.begin(); it != m_lookup.end(); )
         {
             if (!w.alive(it->first))
@@ -127,6 +163,8 @@ public:
         }
 
         assert(m_data.size() == m_lookup.size());
+
+        // TODO_ecs: shrinking to fit each n sec.
     }
 
     void setDestructionCallback(const DestructionCallback &callback) { m_destructionCallback = callback; }

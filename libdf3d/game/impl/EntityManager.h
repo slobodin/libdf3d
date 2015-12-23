@@ -15,7 +15,8 @@ public:
 
     Entity create();
     void destroy(Entity e);
-    bool alive(Entity e);
+    bool alive(Entity e) const;
+    size_t size() const;
 };
 
 } }

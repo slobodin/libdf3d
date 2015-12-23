@@ -81,9 +81,11 @@ void World::destroyWorld()
     m_tranform.reset();
 
     m_camera.reset();
-    m_entityManager.reset();
-
     m_timeMgr.reset();
+
+    glog << "World::destroyWorld alive entities:" << m_entityManager->size() << logdebug;
+
+    m_entityManager.reset();
 }
 
 World::~World()
