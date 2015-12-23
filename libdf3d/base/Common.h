@@ -14,9 +14,10 @@
 #include <memory>
 #include <chrono>
 
-#ifndef MSVC
-#include <gui/impl/RocketIntrusivePtr.h>
-#endif
+// TODO: may be not needed.
+//#ifndef MSVC
+//#include <gui/impl/RocketIntrusivePtr.h>
+//#endif
 
 #include <boost/intrusive_ptr.hpp>
 
@@ -48,10 +49,11 @@ using std::dynamic_pointer_cast;
 using std::static_pointer_cast;
 
 // Common macros.
-
-#define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
-#define SAFE_DELETE(x) { delete x; x = nullptr; }
-#define SAFE_ARRAY_DELETE(x) { delete [] x; x = nullptr; }
+#if defined(DF3D_WINDOWS)
+#define DEBUG_BREAK() __debugbreak();
+#else
+#define DEBUG_BREAK()
+#endif
 
 #if defined(max)
 #undef max
