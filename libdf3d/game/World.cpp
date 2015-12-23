@@ -1,4 +1,3 @@
-#include "df3d_pch.h"
 #include "World.h"
 
 #include "impl/EntityManager.h"
