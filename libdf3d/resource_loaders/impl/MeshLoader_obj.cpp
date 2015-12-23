@@ -230,7 +230,7 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSourc
         if (mtlFound != m_materialNameLookup.end())
             materialName = make_unique<std::string>(mtlFound->second);
 
-        result->submeshes.emplace_back(std::move(*s.second));     // FIXME: invokes copy ctor, consider move semantics.
+        result->submeshes.push_back(std::move(*s.second));
         result->materialNames.push_back(std::move(materialName));
     }
 

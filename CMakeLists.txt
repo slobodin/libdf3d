@@ -59,6 +59,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/ComponentDataHolder.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/Entity.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/EntityComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/EntityComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/FPSCamera.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/World.h
@@ -67,6 +68,12 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/WorldLoader.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/AudioComponentLoader.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/MeshComponentLoader.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/PhysicsComponentLoader.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/Sprite2DComponentLoader.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/TransformComponentLoader.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/VfxComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketIntrusivePtr.h

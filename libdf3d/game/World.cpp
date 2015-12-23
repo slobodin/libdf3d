@@ -61,6 +61,7 @@ void World::cleanStep()
 
 World::World()
     : m_entityManager(new scene_impl::EntityManager()),
+    m_entityLoader(new scene_impl::EntityLoader()),
     m_audio(new AudioComponentProcessor()),
     m_staticMeshes(new StaticMeshComponentProcessor()),
     m_vfx(new ParticleSystemComponentProcessor()),
@@ -107,12 +108,12 @@ Entity World::spawn()
 
 Entity World::spawn(const std::string &entityResource)
 {
-    return scene_impl::EntityLoader::createEntity(entityResource, *this);
+    return m_entityLoader->createEntity(entityResource, *this);
 }
 
 Entity World::spawn(const Json::Value &entityResource)
 {
-    return scene_impl::EntityLoader::createEntity(entityResource, *this);
+    return m_entityLoader->createEntity(entityResource, *this);
 }
 
 bool World::alive(Entity e)

@@ -65,7 +65,7 @@ TimeManager::Handle TimeManager::subscribeUpdate(const UpdateFn &callback)
     subscr.callback = callback;
     subscr.handle.id = ++m_nextHandle.id;
 
-    m_timeListeners.emplace_back(std::move(subscr));
+    m_timeListeners.push_back(std::move(subscr));
 
     return m_nextHandle;
 }
@@ -76,7 +76,7 @@ TimeManager::Handle TimeManager::subscribeUpdate(UpdateFn &&callback)
     subscr.callback = std::move(callback);
     subscr.handle.id = ++m_nextHandle.id;
 
-    m_timeListeners.emplace_back(std::move(subscr));
+    m_timeListeners.push_back(std::move(subscr));
 
     return m_nextHandle;
 }

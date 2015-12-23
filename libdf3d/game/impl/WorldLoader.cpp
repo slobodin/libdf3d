@@ -28,10 +28,8 @@ static void parseEntities(const Json::Value &entitiesNode, World &w)
     if (entitiesNode.empty())
         return;
 
-    assert(false);
-
-    for (Json::UInt objIdx = 0; objIdx < entitiesNode.size(); ++objIdx)
-        w.spawn(entitiesNode[objIdx]);
+    for (auto &entJson : entitiesNode)
+        w.spawn(entJson);
 }
 
 static void parseAmbientLight(const Json::Value &root, World &w)
@@ -82,6 +80,11 @@ static void parseCamera(const Json::Value &cameraNode, World &w)
     w.setCamera(camera);
 }
 
+static void parseLights(const Json::Value &lightsNode, World &w)
+{
+    // TODO_ecs:
+}
+
 unique_ptr<World> WorldLoader::createWorld(const std::string &resourceFile)
 {
     auto res = World::newWorld();
@@ -93,6 +96,7 @@ unique_ptr<World> WorldLoader::createWorld(const std::string &resourceFile)
     parseAmbientLight(root["ambient_light"], *res);
     parsePostProcessOption(root["post_process"], *res);
     parseCamera(root["camera"], *res);
+    parseLights(root["lights"], *res);
 
     return res;
 }

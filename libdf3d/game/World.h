@@ -5,7 +5,7 @@
 
 namespace df3d {
 
-namespace scene_impl { class EntityManager; }
+namespace scene_impl { class EntityManager; class EntityLoader; }
 
 class AudioComponentProcessor;
 class StaticMeshComponentProcessor;
@@ -23,6 +23,7 @@ class DF3D_DLL World : utils::NonCopyable
     friend class RenderManager;
 
     unique_ptr<scene_impl::EntityManager> m_entityManager;
+    unique_ptr<scene_impl::EntityLoader> m_entityLoader;
 
     unique_ptr<EntityComponentProcessor> m_audio;
     unique_ptr<EntityComponentProcessor> m_staticMeshes;
