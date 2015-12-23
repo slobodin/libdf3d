@@ -12,6 +12,13 @@
 
 namespace df3d { namespace scene_impl {
 
+// A workaround for ordering of components loading (e.g. physics should be loaded after mesh).
+// FIXME:
+static std::map<std::string, int> LoadingPriority = {
+    { "transform", 10 },
+    { "mesh", 9 }
+};
+
 EntityLoader::EntityLoader()
 {
     registerEntityComponentLoader("audio", make_unique<AudioComponentLoader>());
@@ -51,6 +58,18 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
     const auto &componentsJson = root["components"];
 
     Entity res = w.spawn();
+
+    struct LoadHandler
+    {
+        std::string type;
+        std::function<void()> handler;
+        bool operator<(const LoadHandler &other) const
+        {
+            return LoadingPriority[type] < LoadingPriority[other.type];
+        }
+    };
+
+    std::priority_queue<LoadHandler> loadHandlers;
     for (const auto &componentJson : componentsJson)
     {
         const auto &dataJson = componentJson["data"];
@@ -73,7 +92,13 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
         if (foundLoader == m_loaders.end())
             glog << "Failed to parse entity description, unknown component" << componentType << logwarn;
         else
-            foundLoader->second->loadComponent(dataJson, res, w);
+            loadHandlers.push({ componentType, [&dataJson, res, &w, foundLoader]() { foundLoader->second->loadComponent(dataJson, res, w); } });
+    }
+
+    while (!loadHandlers.empty())
+    {
+        loadHandlers.top().handler();
+        loadHandlers.pop();
     }
 
     const auto &childrenJson = root["children"];
