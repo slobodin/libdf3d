@@ -14,7 +14,7 @@ class DF3D_DLL TransformComponentProcessor : public EntityComponentProcessor
 
     void remove(Entity e);
     void update() override;
-    void cleanStep(World &w) override;
+    void cleanStep(const std::list<Entity> &deleted) override;
 
 public:
     TransformComponentProcessor();

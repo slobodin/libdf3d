@@ -37,6 +37,8 @@ class DF3D_DLL World : utils::NonCopyable
 
     unique_ptr<TimeManager> m_timeMgr;
 
+    std::list<Entity> m_recentlyRemovedEntities;
+
     void update();
     void collectRenderOperations(RenderQueue *ops);
     void cleanStep();

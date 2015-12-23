@@ -64,9 +64,9 @@ void TransformComponentProcessor::update()
 
 }
 
-void TransformComponentProcessor::cleanStep(World &w)
+void TransformComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 {
-    m_pimpl->data.cleanStep(w);
+    m_pimpl->data.cleanStep(deleted);
 }
 
 TransformComponentProcessor::TransformComponentProcessor()

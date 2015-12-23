@@ -11,6 +11,7 @@ namespace df3d {
 class AABB;
 class BoundingSphere;
 class ConvexHull;
+class RenderQueue;
 
 class DF3D_DLL PhysicsComponentProcessor : public EntityComponentProcessor
 {
@@ -34,7 +35,7 @@ private:
 
     void update() override;
     void draw(RenderQueue *ops);
-    void cleanStep(World &w) override;
+    void cleanStep(const std::list<Entity> &deleted) override;
 
 public:
     PhysicsComponentProcessor();

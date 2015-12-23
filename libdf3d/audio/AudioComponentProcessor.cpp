@@ -79,9 +79,9 @@ void AudioComponentProcessor::update()
     }
 }
 
-void AudioComponentProcessor::cleanStep(World &w)
+void AudioComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 {
-    m_pimpl->data.cleanStep(w);
+    m_pimpl->data.cleanStep(deleted);
 }
 
 AudioComponentProcessor::AudioComponentProcessor()

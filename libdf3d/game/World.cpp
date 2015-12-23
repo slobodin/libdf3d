@@ -48,13 +48,15 @@ void World::collectRenderOperations(RenderQueue *ops)
 void World::cleanStep()
 {
     // TODO_ecs: clean for user processors.
-    m_physics->cleanStep(*this);
-    m_tranform->cleanStep(*this);
-    m_vfx->cleanStep(*this);
-    m_staticMeshes->cleanStep(*this);
-    m_audio->cleanStep(*this);
+    m_physics->cleanStep(m_recentlyRemovedEntities);
+    m_tranform->cleanStep(m_recentlyRemovedEntities);
+    m_vfx->cleanStep(m_recentlyRemovedEntities);
+    m_staticMeshes->cleanStep(m_recentlyRemovedEntities);
+    m_audio->cleanStep(m_recentlyRemovedEntities);
 
     m_timeMgr->cleanStep();
+
+    m_recentlyRemovedEntities.clear();
 }
 
 World::World()
@@ -121,6 +123,7 @@ bool World::alive(Entity e)
 void World::destroy(Entity e)
 {
     m_entityManager->destroy(e);
+    m_recentlyRemovedEntities.push_back(e);
 }
 
 void World::pauseSimulation(bool paused)

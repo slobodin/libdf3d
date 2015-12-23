@@ -90,9 +90,9 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
     }
 }
 
-void StaticMeshComponentProcessor::cleanStep(World &w)
+void StaticMeshComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 {
-    m_pimpl->data.cleanStep(w);
+    m_pimpl->data.cleanStep(deleted);
 }
 
 StaticMeshComponentProcessor::StaticMeshComponentProcessor()

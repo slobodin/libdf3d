@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Entity.h"
-#include "World.h"
-#include <utils/Utils.h>
 
 namespace df3d {
 
@@ -141,28 +139,13 @@ public:
         m_lookup.clear();
     }
 
-    void cleanStep(World &w)
+    void cleanStep(const std::list<Entity> &deleted)
     {
-        // TODO_ecs: more efficient removing.
-        // Instead, maintain list of not alive entities.
-
-        //WORKS WRONG
-
-        for (auto it = m_lookup.begin(); it != m_lookup.end(); )
+        for (auto e : deleted)
         {
-            if (!w.alive(it->first))
-            {
-                if (m_destructionCallback)
-                    m_destructionCallback(getData(it->second));
-
-                m_data.erase(m_data.begin() + it->second.id);
-                it = m_lookup.erase(it);
-            }
-            else
-                it++;
+            if (contains(e))
+                remove(e);
         }
-
-        assert(m_data.size() == m_lookup.size());
 
         // TODO_ecs: shrinking to fit each n sec.
     }

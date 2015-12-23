@@ -114,9 +114,9 @@ void PhysicsComponentProcessor::update()
     m_pimpl->dynamicsWorld->stepSimulation(svc().timer().getFrameDelta(TimeChannel::GAME), 10);
 }
 
-void PhysicsComponentProcessor::cleanStep(World &w)
+void PhysicsComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 {
-    m_pimpl->data.cleanStep(w);
+    m_pimpl->data.cleanStep(deleted);
 }
 
 void PhysicsComponentProcessor::draw(RenderQueue *ops)

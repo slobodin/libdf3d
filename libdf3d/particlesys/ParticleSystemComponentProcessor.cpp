@@ -113,9 +113,9 @@ void ParticleSystemComponentProcessor::draw(RenderQueue *ops)
     }
 }
 
-void ParticleSystemComponentProcessor::cleanStep(World &w)
+void ParticleSystemComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 {
-    m_pimpl->data.cleanStep(w);
+    m_pimpl->data.cleanStep(deleted);
 }
 
 ParticleSystemComponentProcessor::ParticleSystemComponentProcessor()

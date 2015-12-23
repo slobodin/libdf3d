@@ -24,7 +24,7 @@ private:
     unique_ptr<Impl> m_pimpl;
 
     void update() override;
-    void cleanStep(World &w) override;
+    void cleanStep(const std::list<Entity> &deleted) override;
 
 public:
     AudioComponentProcessor();

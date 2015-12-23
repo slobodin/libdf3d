@@ -1,9 +1,8 @@
 #pragma once
 
-namespace df3d {
+#include "Entity.h"
 
-class RenderQueue;
-class World;
+namespace df3d {
 
 class DF3D_DLL EntityComponentProcessor : utils::NonCopyable
 {
@@ -12,7 +11,7 @@ public:
     virtual ~EntityComponentProcessor() = default;
 
     virtual void update() = 0;
-    virtual void cleanStep(World &w) = 0;
+    virtual void cleanStep(const std::list<Entity> &deleted) = 0;
 };
 
 }

@@ -6,6 +6,8 @@
 
 namespace df3d {
 
+class RenderQueue;
+
 class DF3D_DLL ParticleSystemComponentProcessor : public EntityComponentProcessor
 {
     friend class World;
@@ -15,7 +17,7 @@ class DF3D_DLL ParticleSystemComponentProcessor : public EntityComponentProcesso
 
     void update() override;
     void draw(RenderQueue *ops);
-    void cleanStep(World &w) override;
+    void cleanStep(const std::list<Entity> &deleted) override;
 
 public:
     ParticleSystemComponentProcessor();
