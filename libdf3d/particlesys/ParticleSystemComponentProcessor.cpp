@@ -1,6 +1,7 @@
 #include "df3d_pch.h"
 #include "ParticleSystemComponentProcessor.h"
 
+#include "impl/ParticleSystemLoader.h"
 #include <game/ComponentDataHolder.h>
 #include <game/World.h>
 #include <3d/Camera.h>
@@ -8,6 +9,7 @@
 #include <base/EngineController.h>
 #include <base/TimeManager.h>
 #include <particlesys/impl/SparkInterface.h>
+#include <utils/JsonUtils.h>
 
 namespace df3d {
 
@@ -60,11 +62,9 @@ void ParticleSystemComponentProcessor::update()
     for (auto &compData : m_pimpl->data.rawData())
     {
         auto spkSystem = compData.system;
-        //bool visible = world().transform().vi
 
-        // TODO_ecs: visibility.
-        //if (compData.paused || !m_holder->isVisible())
-            return;
+        if (compData.paused)
+            continue;
 
         if (compData.worldTransformed)
             spkSystem->getTransform().set(glm::value_ptr(compData.holderTransform));
@@ -78,6 +78,7 @@ void ParticleSystemComponentProcessor::update()
             if (compData.systemAge > compData.systemLifeTime)
             {
                 // TODO_ecs:
+                DEBUG_BREAK();
                 assert(false);
                 //m_holder->detachComponent(ComponentType::PARTICLE_EFFECT);
             }
@@ -166,11 +167,22 @@ void ParticleSystemComponentProcessor::add(Entity e, const std::string &vfxResou
         return;
     }
 
+    auto vfxJson = utils::json::fromFile(vfxResource);
+    auto spkSystem = particlesys_impl::ParticleSystemLoader::createSpkSystem(vfxJson);
+    if (!spkSystem)
+    {
+        glog << "Failed to init particle system component" << logwarn;
+        return;
+    }
+
     Impl::Data data;
 
-    // TODO_ecs
+    data.system = spkSystem;
     data.holder = e;
     data.holderTransform = world().transform().getTransformation(e);
+
+    vfxJson["worldTransformed"] >> data.worldTransformed;
+    vfxJson["systemLifeTime"] >> data.systemLifeTime;
 
     m_pimpl->data.add(e, data);
 }

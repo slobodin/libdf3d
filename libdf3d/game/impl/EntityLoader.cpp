@@ -85,17 +85,6 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
     }
 
     return res;
-
-    // TODO_ecs:
-    //auto result = make_shared<ParticleSystemComponent>();
-
-    //result->setWorldTransformed(utils::json::getOrDefault(root["worldTransformed"], true));
-    //result->setSystemLifeTime(utils::json::getOrDefault(root["systemLifeTime"], -1.0f));
-
-    //for (auto group : systemGroups)
-    //    result->addSPKGroup(group);
-
-    //result->initializeSPK();
 }
 
 void EntityLoader::registerEntityComponentLoader(const std::string &name, unique_ptr<EntityComponentLoader> loader)
