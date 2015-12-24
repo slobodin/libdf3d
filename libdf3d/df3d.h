@@ -67,3 +67,5 @@
 #include <game/WorldRenderingParams.h>
 
 #include <particlesys/ParticleSystemComponentProcessor.h>
+
+#include <script/ScriptManager.h>

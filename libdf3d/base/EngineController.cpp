@@ -14,6 +14,7 @@
 #include <render/RenderStats.h>
 #include <render/RenderTargetScreen.h>
 #include <platform/AppDelegate.h>
+#include <script/ScriptManager.h>
 #include <utils/JsonUtils.h>
 
 #if defined(DF3D_WINDOWS)
@@ -79,6 +80,9 @@ void EngineController::initialize(EngineInitParams params)
         // Create a blank world.
         replaceWorld();
 
+        // Startup squirrel.
+        m_scriptManager = make_unique<ScriptManager>();
+
         m_initialized = true;
         glog << "Engine initialized" << logmess;
 
@@ -98,6 +102,7 @@ void EngineController::shutdown()
 
     m_world->destroyWorld();
     m_world.reset();
+    m_scriptManager.reset();
     m_debugConsole.reset();
     m_guiManager.reset();
     m_renderManager.reset();

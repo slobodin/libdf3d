@@ -26,6 +26,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/ogg)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/vorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/libRocket/Build)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/squirrel)
 
 if (ANDROID)
     include(${PROJECT_SOURCE_DIR}/cmake/AndroidNdkModules.cmake)
@@ -135,6 +136,8 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/AudioLoader_wav.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/script/ScriptManager.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/script/impl/ScriptBindings.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.h
@@ -222,6 +225,8 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/AudioLoader_wav.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/script/ScriptManager.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/script/impl/ScriptBindings.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MathUtils.cpp
@@ -320,12 +325,13 @@ include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/spark/include
                     ${PROJECT_SOURCE_DIR}/third-party/libRocket/Include
                     ${PROJECT_SOURCE_DIR}/third-party/glfw/include
+                    ${PROJECT_SOURCE_DIR}/third-party/squirrel/include
+                    ${PROJECT_SOURCE_DIR}/third-party/sqrat
                     ${Boost_INCLUDE_DIRS}
                     ${OPENAL_INCLUDE_DIR})
 
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd\"4251\" /wd\"4457\" /wd\"4458\"")
-
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd\"4251\" /wd\"4457\" /wd\"4458\" /wd\"4138\"")
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -DGLEW_STATIC)
 endif()
 
@@ -351,7 +357,8 @@ target_link_libraries(libdf3d
     vorbis
     RocketCore
     RocketControls
-    RocketDebugger)
+    RocketDebugger
+    squirrel)
 
 if (DF3D_DESKTOP)
     target_link_libraries(libdf3d glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${OPENAL_LIBRARY})
