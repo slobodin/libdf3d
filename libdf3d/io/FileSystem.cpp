@@ -33,7 +33,7 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
     boost::replace_all(result, "/./", "/");
     if (utils::starts_with(result, "./"))
         result.erase(0, 2);
-    if (boost::ends_with(result, "/."))
+    if (utils::ends_with(result, "/."))
         result.erase(result.size() - 2, 2);
 
     // Remove /../
