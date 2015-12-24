@@ -159,6 +159,11 @@ float ParticleSystemComponentProcessor::getSystemLifeTime(Entity e) const
     return m_pimpl->data.getData(e).systemLifeTime;
 }
 
+SPK::Ref<SPK::System> ParticleSystemComponentProcessor::getSystem(Entity e) const
+{
+    return m_pimpl->data.getData(e).system;
+}
+
 void ParticleSystemComponentProcessor::add(Entity e, const std::string &vfxResource)
 {
     if (m_pimpl->data.contains(e))
