@@ -27,7 +27,9 @@ public:
     PhysicsComponentProcessor();
     ~PhysicsComponentProcessor();
 
-    btRigidBody* body(Entity e);
+    btRigidBody* getBody(Entity e);
+
+    void teleport(Entity e, const glm::vec3 &pos);
 
     void add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> meshData);
     void remove(Entity e);

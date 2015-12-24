@@ -258,9 +258,18 @@ PhysicsComponentProcessor::~PhysicsComponentProcessor()
     glog << "PhysicsComponentProcessor::~PhysicsComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
 }
 
-btRigidBody* PhysicsComponentProcessor::body(Entity e)
+btRigidBody* PhysicsComponentProcessor::getBody(Entity e)
 {
     return m_pimpl->data.getData(e).body;
+}
+
+void PhysicsComponentProcessor::teleport(Entity e, const glm::vec3 &pos)
+{
+    auto body = getBody(e);
+    auto tr = body->getWorldTransform();
+    tr.setOrigin(glmTobt(pos));
+
+    body->setWorldTransform(tr);
 }
 
 void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> meshData)
