@@ -59,6 +59,7 @@
 #include <audio/AudioManager.h>
 #include <audio/AudioComponentProcessor.h>
 
+#include <game/DebugNameComponentProcessor.h>
 #include <game/FPSCamera.h>
 #include <game/Entity.h>
 #include <game/ComponentDataHolder.h>

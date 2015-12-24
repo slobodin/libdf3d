@@ -66,6 +66,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/World.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldRenderingParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldSize.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/DebugNameComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/WorldLoader.h

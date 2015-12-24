@@ -25,6 +25,17 @@ void DebugNameComponentProcessor::cleanStep(const std::list<Entity> &deleted)
     m_pimpl->data.cleanStep(deleted);
 }
 
+DebugNameComponentProcessor::DebugNameComponentProcessor()
+    : m_pimpl(new Impl())
+{
+
+}
+
+DebugNameComponentProcessor::~DebugNameComponentProcessor()
+{
+
+}
+
 const std::string& DebugNameComponentProcessor::getName(Entity e)
 {
     return m_pimpl->data.getData(e).name;

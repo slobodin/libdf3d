@@ -14,6 +14,9 @@ class DF3D_DLL DebugNameComponentProcessor : public EntityComponentProcessor
     void cleanStep(const std::list<Entity> &deleted) override;
 
 public:
+    DebugNameComponentProcessor();
+    ~DebugNameComponentProcessor();
+
     const std::string& getName(Entity e);
     Entity getByName(const std::string &name);
 
