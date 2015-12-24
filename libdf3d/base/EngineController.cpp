@@ -5,6 +5,7 @@
 #include <render/RenderManager.h>
 #include <3d/Camera.h>
 #include <game/World.h>
+#include <game/impl/WorldLoader.h>
 #include <resources/ResourceManager.h>
 #include <input/InputManager.h>
 #include <io/FileSystem.h>
@@ -76,7 +77,7 @@ void EngineController::initialize(EngineInitParams params)
         m_inputManager = make_unique<InputManager>();
 
         // Create a blank world.
-        m_world = World::newWorld();
+        replaceWorld();
 
         m_initialized = true;
         glog << "Engine initialized" << logmess;
@@ -146,10 +147,17 @@ glm::vec2 EngineController::getScreenSize() const
     return glm::vec2(vp.width(), vp.height());
 }
 
-void EngineController::replaceWorld(unique_ptr<World> w)
+void EngineController::replaceWorld()
 {
-    m_world->destroyWorld();
-    m_world = std::move(w);
+    if (m_world)
+        m_world->destroyWorld();
+    m_world = unique_ptr<World>(new World());
+}
+
+void EngineController::replaceWorld(const std::string &resourceFile)
+{
+    replaceWorld();
+    game_impl::WorldLoader::initWorld(resourceFile, *m_world);
 }
 
 World& world()
@@ -157,9 +165,14 @@ World& world()
     return svc().world();
 }
 
-void replaceWorld(unique_ptr<World> w)
+void replaceWorld()
 {
-    svc().replaceWorld(std::move(w));
+    svc().replaceWorld();
+}
+
+void replaceWorld(const std::string &worldResource)
+{
+    svc().replaceWorld(worldResource);
 }
 
 }

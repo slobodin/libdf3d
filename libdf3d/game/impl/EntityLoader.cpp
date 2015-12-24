@@ -11,7 +11,7 @@
 #include "VfxComponentLoader.h"
 #include "DebugNameComponentLoader.h"
 
-namespace df3d { namespace scene_impl {
+namespace df3d { namespace game_impl {
 
 // A workaround for ordering of components loading (e.g. physics should be loaded after mesh).
 // FIXME:

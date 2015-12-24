@@ -57,13 +57,15 @@ public:
     DebugConsole* debugConsole() { return m_debugConsole.get(); }
 
     World& world() { return *m_world; }
-    void replaceWorld(unique_ptr<World> w);
+    void replaceWorld();
+    void replaceWorld(const std::string &resourceFile);
 };
 
 DF3D_DLL EngineController& svc();
 
 // Shortcuts.
 DF3D_DLL World& world();
-DF3D_DLL void replaceWorld(unique_ptr<World> w);
+DF3D_DLL void replaceWorld();
+DF3D_DLL void replaceWorld(const std::string &worldResource);
 
 }

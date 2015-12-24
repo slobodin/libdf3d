@@ -9,7 +9,7 @@
 #include <resources/ResourceFactory.h>
 #include <render/MaterialLib.h>
 
-namespace df3d { namespace scene_impl {
+namespace df3d { namespace game_impl {
 
 static void parseFog(const Json::Value &fogNode, World& w)
 {
@@ -94,20 +94,16 @@ static void parseLights(const Json::Value &lightsNode, World &w)
     }
 }
 
-unique_ptr<World> WorldLoader::createWorld(const std::string &resourceFile)
+void WorldLoader::initWorld(const std::string &resourceFile, World &w)
 {
-    auto res = World::newWorld();
-
     auto root = utils::json::fromFile(resourceFile);
 
-    parseEntities(root["entities"], *res);
-    parseFog(root["fog"], *res);
-    parseAmbientLight(root["ambient_light"], *res);
-    parsePostProcessOption(root["post_process"], *res);
-    parseCamera(root["camera"], *res);
-    parseLights(root["lights"], *res);
-
-    return res;
+    parseEntities(root["entities"], w);
+    parseFog(root["fog"], w);
+    parseAmbientLight(root["ambient_light"], w);
+    parsePostProcessOption(root["post_process"], w);
+    parseCamera(root["camera"], w);
+    parseLights(root["lights"], w);
 }
 
 } }

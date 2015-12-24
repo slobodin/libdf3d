@@ -2,7 +2,7 @@
 
 #include <game/Entity.h>
 
-namespace df3d { namespace scene_impl {
+namespace df3d { namespace game_impl {
 
 class EntityManager : utils::NonCopyable
 {

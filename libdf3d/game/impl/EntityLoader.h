@@ -7,7 +7,7 @@ namespace df3d {
 class World;
 class EntityComponentLoader;
 
-namespace scene_impl {
+namespace game_impl {
 
 class EntityLoader
 {

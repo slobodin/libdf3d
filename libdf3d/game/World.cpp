@@ -1,7 +1,6 @@
 #include "World.h"
 
 #include "impl/EntityManager.h"
-#include "impl/WorldLoader.h"
 #include "impl/EntityLoader.h"
 #include "DebugNameComponentProcessor.h"
 #include <audio/AudioComponentProcessor.h>
@@ -62,8 +61,8 @@ void World::cleanStep()
 }
 
 World::World()
-    : m_entityManager(new scene_impl::EntityManager()),
-    m_entityLoader(new scene_impl::EntityLoader()),
+    : m_entityManager(new game_impl::EntityManager()),
+    m_entityLoader(new game_impl::EntityLoader()),
     m_audio(new AudioComponentProcessor(this)),
     m_staticMeshes(new StaticMeshComponentProcessor(this)),
     m_vfx(new ParticleSystemComponentProcessor(this)),
@@ -171,16 +170,6 @@ TransformComponentProcessor& World::transform()
 DebugNameComponentProcessor& World::debugName()
 {
     return static_cast<DebugNameComponentProcessor&>(*m_debugName);
-}
-
-unique_ptr<World> World::newWorld()
-{
-    return unique_ptr<World>(new World());
-}
-
-unique_ptr<World> World::newWorld(const std::string &worldResource)
-{
-    return scene_impl::WorldLoader::createWorld(worldResource);
 }
 
 }
