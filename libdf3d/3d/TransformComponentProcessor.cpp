@@ -47,8 +47,20 @@ void TransformComponentProcessor::update()
 
 void TransformComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 {
-    // TODO_ecs: fix parent and child relationships.
-    m_pimpl->data.cleanStep(deleted);
+    if (!deleted.empty())
+    {
+        for (auto it : deleted)
+        {
+            auto &compData = m_pimpl->data.getData(it);
+            for (auto child : compData.children)
+                m_pimpl->data.getData(child).parent = Entity();
+
+            if (compData.parent.valid())
+                detachChild(compData.parent, it);
+        }
+
+        m_pimpl->data.cleanStep(deleted);
+    }
 }
 
 TransformComponentProcessor::TransformComponentProcessor()

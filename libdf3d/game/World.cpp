@@ -127,8 +127,15 @@ bool World::alive(Entity e)
 
 void World::destroy(Entity e)
 {
-    m_entityManager->destroy(e);
-    m_recentlyRemovedEntities.push_back(e);
+    if (e.valid() && alive(e))
+    {
+        m_entityManager->destroy(e);
+        m_recentlyRemovedEntities.push_back(e);
+    }
+    else
+    {
+        glog << "Failed to destroy an entity. Entity is not alive!" << logwarn;
+    }
 }
 
 void World::pauseSimulation(bool paused)
