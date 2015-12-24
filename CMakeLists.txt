@@ -58,6 +58,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/ComponentDataHolder.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/DebugNameComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/Entity.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/EntityComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/EntityComponentProcessor.h
@@ -161,6 +162,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/DebugNameComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/FPSCamera.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/World.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldRenderingParams.cpp
