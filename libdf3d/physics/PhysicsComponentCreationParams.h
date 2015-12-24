@@ -20,6 +20,7 @@ struct DF3D_DLL PhysicsComponentCreationParams
     float angularDamping = 0.0f;
     short group = -1;
     short mask = -1;
+    bool disableDeactivation = false;
 
     PhysicsComponentCreationParams() = default;
     explicit PhysicsComponentCreationParams(const std::string &physicsDefinitionFile);

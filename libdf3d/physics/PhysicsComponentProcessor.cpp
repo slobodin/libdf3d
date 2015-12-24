@@ -200,6 +200,9 @@ struct PhysicsComponentProcessor::Impl
         else
             dynamicsWorld->addRigidBody(data.body);
 
+        if (data.params.disableDeactivation)
+            data.body->setActivationState(DISABLE_DEACTIVATION);
+
         data.initialized = true;
     }
 };

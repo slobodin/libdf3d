@@ -31,6 +31,7 @@ PhysicsComponentCreationParams::PhysicsComponentCreationParams(const Json::Value
     root["angularDamping"] >> angularDamping;
     root["group"] >> group;
     root["mask"] >> mask;
+    root["disableDeactivation"] >> disableDeactivation;
 }
 
 }
