@@ -3,6 +3,7 @@
 #include "impl/EntityManager.h"
 #include "impl/WorldLoader.h"
 #include "impl/EntityLoader.h"
+#include "DebugNameComponentProcessor.h"
 #include <audio/AudioComponentProcessor.h>
 #include <base/TimeManager.h>
 #include <3d/StaticMeshComponentProcessor.h>
@@ -27,6 +28,7 @@ void World::update()
         m_vfx->update();
         m_staticMeshes->update();
         m_audio->update();
+        m_debugName->update();
     }
 
     cleanStep();
@@ -52,6 +54,7 @@ void World::cleanStep()
     m_vfx->cleanStep(m_recentlyRemovedEntities);
     m_staticMeshes->cleanStep(m_recentlyRemovedEntities);
     m_audio->cleanStep(m_recentlyRemovedEntities);
+    m_debugName->cleanStep(m_recentlyRemovedEntities);
 
     m_timeMgr->cleanStep();
 
@@ -66,6 +69,7 @@ World::World()
     m_vfx(new ParticleSystemComponentProcessor(this)),
     m_physics(new PhysicsComponentProcessor()),
     m_tranform(new TransformComponentProcessor()),
+    m_debugName(new DebugNameComponentProcessor()),
     m_camera(new Camera()),
     m_timeMgr(new TimeManager())
 {
@@ -81,6 +85,7 @@ void World::destroyWorld()
     m_vfx.reset();
     m_physics.reset();
     m_tranform.reset();
+    m_debugName.reset();
 
     m_camera.reset();
     m_timeMgr.reset();
@@ -154,6 +159,11 @@ PhysicsComponentProcessor& World::physics()
 TransformComponentProcessor& World::transform()
 { 
     return static_cast<TransformComponentProcessor&>(*m_tranform);
+}
+
+DebugNameComponentProcessor& World::debugName()
+{
+    return static_cast<DebugNameComponentProcessor&>(*m_debugName);
 }
 
 unique_ptr<World> World::newWorld()

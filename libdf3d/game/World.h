@@ -12,6 +12,7 @@ class StaticMeshComponentProcessor;
 class ParticleSystemComponentProcessor;
 class PhysicsComponentProcessor;
 class TransformComponentProcessor;
+class DebugNameComponentProcessor;
 class RenderQueue;
 class EntityComponentProcessor;
 class Camera;
@@ -30,6 +31,7 @@ class DF3D_DLL World : utils::NonCopyable
     unique_ptr<EntityComponentProcessor> m_vfx;
     unique_ptr<EntityComponentProcessor> m_physics;
     unique_ptr<EntityComponentProcessor> m_tranform;
+    unique_ptr<EntityComponentProcessor> m_debugName;
 
     shared_ptr<Camera> m_camera;
     WorldRenderingParams m_renderingParams;
@@ -72,6 +74,7 @@ public:
     ParticleSystemComponentProcessor& vfx();
     PhysicsComponentProcessor& physics();
     TransformComponentProcessor& transform();
+    DebugNameComponentProcessor& debugName();
 
     TimeManager& timeManager() { return *m_timeMgr; }
 

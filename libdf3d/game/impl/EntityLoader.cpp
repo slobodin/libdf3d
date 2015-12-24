@@ -9,6 +9,7 @@
 #include "Sprite2DComponentLoader.h"
 #include "TransformComponentLoader.h"
 #include "VfxComponentLoader.h"
+#include "DebugNameComponentLoader.h"
 
 namespace df3d { namespace scene_impl {
 
@@ -27,6 +28,7 @@ EntityLoader::EntityLoader()
     registerEntityComponentLoader("vfx", make_unique<VfxComponentLoader>());
     registerEntityComponentLoader("physics", make_unique<PhysicsComponentLoader>());
     registerEntityComponentLoader("sprite_2d", make_unique<Sprite2DComponentLoader>());
+    registerEntityComponentLoader("debug_name", make_unique<DebugNameComponentLoader>());
 }
 
 EntityLoader::~EntityLoader()
@@ -95,6 +97,9 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
             loadHandlers.push({ componentType, [&dataJson, res, &w, foundLoader]() { foundLoader->second->loadComponent(dataJson, res, w); } });
     }
 
+    if (loadHandlers.empty())
+        glog << "An entity has no components" << logwarn;
+
     while (!loadHandlers.empty())
     {
         loadHandlers.top().handler();
@@ -102,11 +107,8 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
     }
 
     const auto &childrenJson = root["children"];
-    for (Json::UInt objIdx = 0; objIdx < childrenJson.size(); ++objIdx)
-    {
-        const auto &childJson = childrenJson[objIdx];
-        w.transform().addChild(res, createEntity(childJson, w));
-    }
+    for (auto &childJson : childrenJson)
+        w.transform().attachChild(res, createEntity(childJson, w));
 
     return res;
 }

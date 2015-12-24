@@ -12,7 +12,6 @@ class DF3D_DLL TransformComponentProcessor : public EntityComponentProcessor
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
-    void remove(Entity e);
     void update() override;
     void cleanStep(const std::list<Entity> &deleted) override;
 
@@ -45,9 +44,9 @@ public:
     glm::mat4 getTransformation(Entity e);
     glm::vec3 getRotation(Entity e, bool rads = false);
 
-    void addChild(Entity parent, Entity child);
-    void removeChild(Entity parent, Entity child);
-    void removeAllChildren(Entity e);
+    void attachChild(Entity parent, Entity child);
+    void detachChild(Entity parent, Entity child);
+    void detachAllChildren(Entity e);
     Entity getParent(Entity e);
 
     void add(Entity e);

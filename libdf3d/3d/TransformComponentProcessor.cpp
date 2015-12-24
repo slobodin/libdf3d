@@ -40,24 +40,6 @@ struct TransformComponentProcessor::Impl
     }
 };
 
-void TransformComponentProcessor::remove(Entity e)
-{
-    // FIXME: only this system can remove transform component.
-
-    if (!m_pimpl->data.contains(e))
-    {
-        glog << "Failed to remove scene graph component from an entity. Component is not attached" << logwarn;
-        return;
-    }
-
-    auto compInst = m_pimpl->data.lookup(e);
-
-    // TODO_ecs: parent & children
-    assert(false);
-
-    m_pimpl->data.remove(e);
-}
-
 void TransformComponentProcessor::update()
 {
 
@@ -65,6 +47,7 @@ void TransformComponentProcessor::update()
 
 void TransformComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 {
+    // TODO_ecs: fix parent and child relationships.
     m_pimpl->data.cleanStep(deleted);
 }
 
@@ -225,7 +208,7 @@ glm::vec3 TransformComponentProcessor::getRotation(Entity e, bool rads)
         return glm::degrees(glm::eulerAngles(compData.orientation));
 }
 
-void TransformComponentProcessor::addChild(Entity parent, Entity child)
+void TransformComponentProcessor::attachChild(Entity parent, Entity child)
 {
     if (getParent(child).valid())
     {
@@ -238,18 +221,41 @@ void TransformComponentProcessor::addChild(Entity parent, Entity child)
 
     parentCompData.children.push_back(child);
     childCompData.parent = parent;
+
+    m_pimpl->updateWorldTransformation(parentCompData);
 }
 
-void TransformComponentProcessor::removeChild(Entity parent, Entity child)
+void TransformComponentProcessor::detachChild(Entity parent, Entity child)
 {
-    // TODO_ecs:
-    assert(false);
+    if (!getParent(child).valid())
+    {
+        glog << "Can not detach entity. An entity already has no parent" << logwarn;
+        return;
+    }
+
+    auto &parentData = m_pimpl->data.getData(parent);
+    auto &childData = m_pimpl->data.getData(child);
+
+    childData.parent = Entity();
+
+    auto found = std::find_if(parentData.children.begin(), parentData.children.end(), [child](const Entity &e) { return e.id == child.id ;});
+    assert(found != parentData.children.end());
+
+    parentData.children.erase(found);
+    m_pimpl->updateWorldTransformation(childData);
 }
 
-void TransformComponentProcessor::removeAllChildren(Entity e)
+void TransformComponentProcessor::detachAllChildren(Entity e)
 {
-    // TODO_ecs:
-    assert(false);
+    auto &compData = m_pimpl->data.getData(e);
+
+    for (auto childEnt : compData.children)
+    {
+        m_pimpl->data.getData(childEnt).parent = Entity();
+        m_pimpl->updateWorldTransformation(m_pimpl->data.getData(childEnt));
+    }
+
+    compData.children.clear();
 }
 
 Entity TransformComponentProcessor::getParent(Entity e)
@@ -261,7 +267,7 @@ void TransformComponentProcessor::add(Entity e)
 {
     if (m_pimpl->data.contains(e))
     {
-        glog << "An entity already has an scene graph component" << logwarn;
+        glog << "An entity already has a scene graph component" << logwarn;
         return;
     }
 
