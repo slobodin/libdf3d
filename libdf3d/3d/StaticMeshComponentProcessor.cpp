@@ -178,6 +178,22 @@ void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath
     m_pimpl->data.add(e, data);
 }
 
+void StaticMeshComponentProcessor::add(Entity e, shared_ptr<MeshData> meshData)
+{
+    if (m_pimpl->data.contains(e))
+    {
+        glog << "An entity already has a static mesh component" << logwarn;
+        return;
+    }
+
+    Impl::Data data;
+    data.meshData = meshData;
+    data.holder = e;
+    data.holderTransformation = m_world->transform().getTransformation(e);
+
+    m_pimpl->data.add(e, data);
+}
+
 void StaticMeshComponentProcessor::remove(Entity e)
 {
     if (!m_pimpl->data.contains(e))
