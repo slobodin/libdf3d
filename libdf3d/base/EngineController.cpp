@@ -83,6 +83,9 @@ void EngineController::initialize(EngineInitParams params)
         // Startup squirrel.
         m_scriptManager = make_unique<ScriptManager>();
 
+        // Allow to client to listen system time.
+        m_systemTimeManager = make_unique<TimeManager>();
+
         m_initialized = true;
         glog << "Engine initialized" << logmess;
 
@@ -102,6 +105,7 @@ void EngineController::shutdown()
 
     m_world->destroyWorld();
     m_world.reset();
+    m_systemTimeManager.reset();
     m_scriptManager.reset();
     m_debugConsole.reset();
     m_guiManager.reset();
@@ -122,6 +126,7 @@ void EngineController::step()
     m_guiManager->getContext()->Update();
 
     // Update client code.
+    m_systemTimeManager->update();
     m_world->update();
 
     // Run frame.
@@ -129,6 +134,7 @@ void EngineController::step()
 
     // Clean step for engine subsystems.
     m_inputManager->cleanStep();
+    m_systemTimeManager->cleanStep();
 }
 
 const RenderStats& EngineController::getLastRenderStats() const

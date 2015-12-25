@@ -103,7 +103,6 @@ void TimeManager::enqueueForNextUpdate(UpdateFn &&callback)
 void TimeManager::update()
 {
     // First, fire all pending workers.
-    // FIXME: what if paused?
     UpdateFn worker;
     while (m_pendingListeners.tryPop(worker))
         worker();
