@@ -78,4 +78,9 @@ void DebugNameComponentProcessor::remove(Entity e)
     m_pimpl->data.remove(e);
 }
 
+bool DebugNameComponentProcessor::has(Entity e)
+{
+    return m_pimpl->data.lookup(e).valid();
+}
+
 }

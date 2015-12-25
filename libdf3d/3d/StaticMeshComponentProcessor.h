@@ -40,6 +40,7 @@ public:
     void add(Entity e, const std::string &meshFilePath, ResourceLoadingMode lm = ResourceLoadingMode::ASYNC);
     void add(Entity e, shared_ptr<MeshData> meshData);
     void remove(Entity e);
+    bool has(Entity e);
 };
 
 }

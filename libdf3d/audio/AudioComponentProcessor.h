@@ -46,6 +46,7 @@ public:
 
     void add(Entity e, const std::string &audioFilePath);
     void remove(Entity e);
+    bool has(Entity e);
 };
 
 }

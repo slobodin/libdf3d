@@ -205,4 +205,9 @@ void AudioComponentProcessor::remove(Entity e)
     m_pimpl->data.remove(e);
 }
 
+bool AudioComponentProcessor::has(Entity e)
+{
+    return m_pimpl->data.lookup(e).valid();
+}
+
 }

@@ -35,6 +35,7 @@ public:
 
     void add(Entity e, const std::string &vfxResource);
     void remove(Entity e);
+    bool has(Entity e);
 };
 
 }

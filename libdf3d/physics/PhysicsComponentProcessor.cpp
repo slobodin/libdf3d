@@ -302,6 +302,11 @@ void PhysicsComponentProcessor::remove(Entity e)
     m_pimpl->data.remove(e);
 }
 
+bool PhysicsComponentProcessor::has(Entity e)
+{
+    return m_pimpl->data.lookup(e).valid();
+}
+
 btDynamicsWorld* PhysicsComponentProcessor::getPhysicsWorld()
 {
     return m_pimpl->dynamicsWorld;

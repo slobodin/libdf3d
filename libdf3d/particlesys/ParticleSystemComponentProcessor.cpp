@@ -203,4 +203,9 @@ void ParticleSystemComponentProcessor::remove(Entity e)
     m_pimpl->data.remove(e);
 }
 
+bool ParticleSystemComponentProcessor::has(Entity e)
+{
+    return m_pimpl->data.lookup(e).valid();
+}
+
 }

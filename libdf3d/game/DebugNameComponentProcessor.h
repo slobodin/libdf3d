@@ -22,6 +22,7 @@ public:
 
     void add(Entity e, const std::string &name);
     void remove(Entity e);
+    bool has(Entity e);
 };
 
 }

@@ -33,6 +33,7 @@ public:
 
     void add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> meshData);
     void remove(Entity e);
+    bool has(Entity e);
 
     btDynamicsWorld* getPhysicsWorld();
 };
