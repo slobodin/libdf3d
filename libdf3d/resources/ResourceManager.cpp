@@ -1,6 +1,7 @@
 #include "ResourceManager.h"
 
 #include <base/EngineController.h>
+#include <base/TimeManager.h>
 #include <utils/ThreadPool.h>
 #include <utils/Utils.h>
 #include <io/FileSystem.h>
@@ -137,12 +138,13 @@ void ResourceManager::poll()
             request.resource->m_initialized = true;
         }
 
-        // TODO_ecs:
         // Push into timemgr queue in order to invoke this when client is updated.
         for (auto listener : m_listeners)
         {
-            assert(false);
-            listener->onLoadFromFileSystemRequestComplete(request.resource->getGUID());
+            ResourceGUID rGuid = request.resource->getGUID();
+            svc().systemTimeManager().enqueueForNextUpdate([listener, rGuid]() {
+                listener->onLoadFromFileSystemRequestComplete(rGuid);
+            });
         }
     }
 }
