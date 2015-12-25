@@ -18,6 +18,8 @@
 
 #include <platform/AppDelegate.h>
 
+#include <2d/Sprite2DComponentProcessor.h>
+
 #include <3d/Frustum.h>
 #include <3d/Camera.h>
 #include <3d/TransformComponentProcessor.h>

@@ -13,6 +13,7 @@ class ParticleSystemComponentProcessor;
 class PhysicsComponentProcessor;
 class TransformComponentProcessor;
 class DebugNameComponentProcessor;
+class Sprite2DComponentProcessor;
 class RenderQueue;
 class EntityComponentProcessor;
 class Camera;
@@ -32,6 +33,7 @@ class DF3D_DLL World : utils::NonCopyable
     unique_ptr<EntityComponentProcessor> m_physics;
     unique_ptr<EntityComponentProcessor> m_tranform;
     unique_ptr<EntityComponentProcessor> m_debugName;
+    unique_ptr<EntityComponentProcessor> m_sprite2D;
 
     shared_ptr<Camera> m_camera;
     WorldRenderingParams m_renderingParams;
@@ -75,6 +77,7 @@ public:
     PhysicsComponentProcessor& physics();
     TransformComponentProcessor& transform();
     DebugNameComponentProcessor& debugName();
+    Sprite2DComponentProcessor& sprite2d();
 
     TimeManager& timeManager() { return *m_timeMgr; }
 };

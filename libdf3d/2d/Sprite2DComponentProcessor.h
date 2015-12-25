@@ -1,14 +1,53 @@
 #pragma once
 
 #include <game/Entity.h>
+#include <game/EntityComponentProcessor.h>
+#include <render/RenderPass.h>
 
 namespace df3d {
 
-class DF3D_DLL Sprite2DComponentProcessor : utils::NonCopyable
+class RenderQueue;
+
+// FIXME: improve 2d submodule, ideally remove this class.
+
+class DF3D_DLL Sprite2DComponentProcessor : public EntityComponentProcessor
 {
+    friend class World;
+
+    struct Impl;
+    unique_ptr<Impl> m_pimpl;
+    World *m_world;
+
+    void draw(RenderQueue *ops);
+    void cleanStep(const std::list<Entity> &deleted) override;
+    void update() override;
+
 public:
-    Sprite2DComponentProcessor();
+    Sprite2DComponentProcessor(World *world);
     ~Sprite2DComponentProcessor();
+
+    void setAnchorPoint(Entity e, const glm::vec2 &pt);
+    void setZIdx(Entity e, float z);
+
+    void setSize(Entity e, const glm::vec2 &size);
+    void setWidth(Entity e, float w);
+    void setHeight(Entity e, float h);
+
+    glm::vec2 getSize(Entity e);
+    float getWidth(Entity e);
+    float getHeight(Entity e);
+
+    glm::vec2 getScreenPosition(Entity e) const;
+
+    void useTexture(Entity e, const std::string &pathToTexture);
+    glm::vec2 getTextureSize(Entity e) const;
+
+    void setBlendMode(Entity e, RenderPass::BlendingMode bm);
+    void setDiffuseColor(Entity e, const glm::vec4 &diffuseColor);
+
+    void add(Entity e, const std::string &texturePath);
+    void remove(Entity e);
+    bool has(Entity e);
 };
 
 }

@@ -5,6 +5,7 @@
 #include "DebugNameComponentProcessor.h"
 #include <audio/AudioComponentProcessor.h>
 #include <base/TimeManager.h>
+#include <2d/Sprite2DComponentProcessor.h>
 #include <3d/StaticMeshComponentProcessor.h>
 #include <3d/TransformComponentProcessor.h>
 #include <3d/Camera.h>
@@ -26,6 +27,7 @@ void World::update()
         m_tranform->update();
         m_vfx->update();
         m_staticMeshes->update();
+        m_sprite2D->update();
         m_audio->update();
         m_debugName->update();
     }
@@ -43,6 +45,7 @@ void World::collectRenderOperations(RenderQueue *ops)
     staticMesh().draw(ops);
     vfx().draw(ops);
     physics().draw(ops);
+    sprite2d().draw(ops);
 }
 
 void World::cleanStep()
@@ -52,6 +55,7 @@ void World::cleanStep()
     m_tranform->cleanStep(m_recentlyRemovedEntities);
     m_vfx->cleanStep(m_recentlyRemovedEntities);
     m_staticMeshes->cleanStep(m_recentlyRemovedEntities);
+    m_sprite2D->cleanStep(m_recentlyRemovedEntities);
     m_audio->cleanStep(m_recentlyRemovedEntities);
     m_debugName->cleanStep(m_recentlyRemovedEntities);
 
@@ -69,6 +73,7 @@ World::World()
     m_physics(new PhysicsComponentProcessor()),
     m_tranform(new TransformComponentProcessor()),
     m_debugName(new DebugNameComponentProcessor()),
+    m_sprite2D(new Sprite2DComponentProcessor(this)),
     m_camera(new Camera()),
     m_timeMgr(new TimeManager())
 {
@@ -81,6 +86,7 @@ void World::destroyWorld()
 
     m_audio.reset();
     m_staticMeshes.reset();
+    m_sprite2D.reset();
     m_vfx.reset();
     m_physics.reset();
     m_tranform.reset();
@@ -170,6 +176,11 @@ TransformComponentProcessor& World::transform()
 DebugNameComponentProcessor& World::debugName()
 {
     return static_cast<DebugNameComponentProcessor&>(*m_debugName);
+}
+
+Sprite2DComponentProcessor& World::sprite2d()
+{
+    return static_cast<Sprite2DComponentProcessor&>(*m_sprite2D);
 }
 
 }
