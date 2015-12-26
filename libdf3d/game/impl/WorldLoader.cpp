@@ -86,9 +86,13 @@ static void parseLights(const Json::Value &lightsNode, World &w)
     {
         Light light(Light::Type::DIRECTIONAL);
 
+        std::string lightName;
+        lightJson["id"] >> lightName;
+
         light.setDirection(utils::json::getOrDefault(lightJson["direction"], light.getDirection()));
         light.setDiffuseIntensity(utils::json::getOrDefault(lightJson["diffuse"], light.getDiffuseColor()));
         light.setSpecularIntensity(utils::json::getOrDefault(lightJson["specular"], light.getSpecularColor()));
+        light.setName(lightName);
 
         w.getRenderingParams().addLight(light);
     }

@@ -30,6 +30,8 @@ private:
 
     glm::vec3 m_direction;     // Only for directional light.
 
+    std::string m_name;
+
 public:
     Light(Type type);
     ~Light();
@@ -45,11 +47,13 @@ public:
     void setDiffuseIntensity(float rd, float gd, float bd);
     void setSpecularIntensity(const glm::vec3 &specular);
     void setSpecularIntensity(float rs, float gs, float bs);
+    void setName(const std::string &name) { m_name = name; }
 
     const glm::vec3 &getDiffuseColor() const { return m_diffuse; }
     const glm::vec3 &getSpecularColor() const { return m_specular; }
     glm::vec3 getDirection() const { return m_direction; }
     glm::vec3 getPosition() const;
+    const std::string& getName() const { return m_name; }
 
     void setConstantAttenuation(float atten);
     void setLinearAttenuation(float atten);

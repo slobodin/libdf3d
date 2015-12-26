@@ -57,4 +57,21 @@ shared_ptr<Material> WorldRenderingParams::getPostProcessMaterial() const
     return m_postProcessMaterial;
 }
 
+Light* WorldRenderingParams::getLightByName(const std::string &name)
+{
+    if (name.empty())
+    {
+        glog << "Failed to find a light with empty name" << logwarn;
+        return nullptr;
+    }
+
+    for (auto &light : m_lights)
+    {
+        if (light.getName() == name)
+            return &light;
+    }
+
+    return nullptr;
+}
+
 }
