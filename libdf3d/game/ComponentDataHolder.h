@@ -31,7 +31,7 @@ public:
         clear();
     }
 
-    ComponentInstance lookup(Entity e)
+    ComponentInstance lookup(Entity e) const
     {
         assert(e.valid());
 
