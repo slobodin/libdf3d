@@ -21,12 +21,13 @@ void World::update()
     // TODO_ecs: pause check!!!
     if (!m_paused)
     {
+        m_physics->update();
+
         // Update client code.
         m_timeMgr->update();
         for (auto &userProcessor : m_userProcessors)
             userProcessor.second->update();
 
-        m_physics->update();
         m_tranform->update();
         m_vfx->update();
         m_staticMeshes->update();

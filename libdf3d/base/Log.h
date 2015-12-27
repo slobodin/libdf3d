@@ -75,7 +75,7 @@ public:
 
     Log& operator<< (const LoggerManipulator &man);
 
-    void printWithoutFormat(const char *str);
+    void printWithoutFormat(const char *str, const LoggerManipulator &manipulator);
 
     const std::string& logData() const;
 };

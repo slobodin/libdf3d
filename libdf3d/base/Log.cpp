@@ -215,9 +215,9 @@ Log& Log::operator<< (const LoggerManipulator &man)
     return *this;
 }
 
-void Log::printWithoutFormat(const char *str)
+void Log::printWithoutFormat(const char *str, const LoggerManipulator &manipulator)
 {
-    m_impl->writeBuffer(str, MessageType::DEBUG);
+    m_impl->writeBuffer(str, manipulator.getMessageType());
 }
 
 const std::string &Log::logData() const

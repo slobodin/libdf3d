@@ -8,7 +8,6 @@
 #include <cstdarg>
 #include <cstdio>
 #include <sqrat/sqrat.h>
-#include "impl/ScriptBindings.h"
 #include <base/EngineController.h>
 #include <io/FileSystem.h>
 #include <io/FileDataSource.h>
@@ -24,7 +23,7 @@ void printfunc(HSQUIRRELVM v, const SQChar *s, ...)
     char buffer[1024] = { 0 };
     scvsprintf(buffer, 1024, s, arglist);
 
-    glog.printWithoutFormat(buffer);
+    glog.printWithoutFormat(buffer, logscript);
 
     va_end(arglist);
 }
@@ -52,7 +51,8 @@ ScriptManager::ScriptManager()
     sq_setprintfunc(m_squirrel, printfunc, printfunc);
 
     // Bind df3d code.
-    script_impl::bindDf3d(m_squirrel);
+    // FIXME: figure out how to share (static member functions in sqrat)
+    //script_impl::bindDf3d(m_squirrel);
 }
 
 ScriptManager::~ScriptManager()

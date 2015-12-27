@@ -1,5 +1,7 @@
 #include "ScriptBindings.h"
 
+#include <sqrat/sqrat.h>
+
 #include <utils/Utils.h>
 #include <utils/MathUtils.h>
 #include <base/EngineController.h>

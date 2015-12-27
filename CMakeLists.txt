@@ -137,7 +137,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.h
     ${PROJECT_SOURCE_DIR}/libdf3d/script/ScriptManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/script/impl/ScriptBindings.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.h
@@ -226,7 +225,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/script/ScriptManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/script/impl/ScriptBindings.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MathUtils.cpp
