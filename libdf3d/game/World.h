@@ -1,7 +1,10 @@
 #pragma once
 
+#include <typeindex>
+
 #include "Entity.h"
 #include "WorldRenderingParams.h"
+#include <utils/Utils.h>
 
 namespace df3d {
 
@@ -27,13 +30,15 @@ class DF3D_DLL World : utils::NonCopyable
     unique_ptr<game_impl::EntityManager> m_entityManager;
     unique_ptr<game_impl::EntityLoader> m_entityLoader;
 
-    unique_ptr<EntityComponentProcessor> m_audio;
-    unique_ptr<EntityComponentProcessor> m_staticMeshes;
-    unique_ptr<EntityComponentProcessor> m_vfx;
-    unique_ptr<EntityComponentProcessor> m_physics;
-    unique_ptr<EntityComponentProcessor> m_tranform;
-    unique_ptr<EntityComponentProcessor> m_debugName;
-    unique_ptr<EntityComponentProcessor> m_sprite2D;
+    using ComponentProcessor = unique_ptr<EntityComponentProcessor>;
+
+    ComponentProcessor m_audio;
+    ComponentProcessor m_staticMeshes;
+    ComponentProcessor m_vfx;
+    ComponentProcessor m_physics;
+    ComponentProcessor m_tranform;
+    ComponentProcessor m_debugName;
+    ComponentProcessor m_sprite2D;
 
     shared_ptr<Camera> m_camera;
     WorldRenderingParams m_renderingParams;
@@ -43,6 +48,8 @@ class DF3D_DLL World : utils::NonCopyable
     unique_ptr<TimeManager> m_timeMgr;
 
     std::list<Entity> m_recentlyRemovedEntities;
+
+    std::unordered_map<std::type_index, ComponentProcessor> m_userProcessors;
 
     void update();
     void collectRenderOperations(RenderQueue *ops);
@@ -61,6 +68,16 @@ public:
     void destroy(Entity e);
 
     void pauseSimulation(bool paused);
+
+    void addUserComponentProcessor(EntityComponentProcessor *processor);
+    template<typename T>
+    T& getProcessor()
+    {
+        // TODO_ecs: use utils::getTypeId, no rtti.
+        auto found = m_userProcessors.find(std::type_index(typeid(T)));
+        assert(found != m_userProcessors.end());
+        return static_cast<T&>(*found->second);
+    }
 
     void setCamera(shared_ptr<Camera> camera) { m_camera = camera; }
     void setRenderingParams(const WorldRenderingParams &params) { m_renderingParams = params; }

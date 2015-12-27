@@ -21,7 +21,10 @@ void World::update()
     // TODO_ecs: pause check!!!
     if (!m_paused)
     {
-        m_timeMgr->update();    // Update client code.
+        // Update client code.
+        m_timeMgr->update();
+        for (auto &userProcessor : m_userProcessors)
+            userProcessor.second->update();
 
         m_physics->update();
         m_tranform->update();
@@ -50,7 +53,9 @@ void World::collectRenderOperations(RenderQueue *ops)
 
 void World::cleanStep()
 {
-    // TODO_ecs: clean for user processors.
+    for (auto &userProcessor : m_userProcessors)
+        userProcessor.second->cleanStep(m_recentlyRemovedEntities);
+
     m_physics->cleanStep(m_recentlyRemovedEntities);
     m_tranform->cleanStep(m_recentlyRemovedEntities);
     m_vfx->cleanStep(m_recentlyRemovedEntities);
@@ -82,7 +87,7 @@ World::World()
 
 void World::destroyWorld()
 {
-    // TODO_ecs: first, clean user systems.
+    m_userProcessors.clear();
 
     m_audio.reset();
     m_staticMeshes.reset();
@@ -146,6 +151,14 @@ void World::destroy(Entity e)
 void World::pauseSimulation(bool paused)
 {
     m_paused = paused;
+}
+
+void World::addUserComponentProcessor(EntityComponentProcessor *processor)
+{
+    auto idx = std::type_index(typeid(*processor));
+    assert(!utils::contains_key(m_userProcessors, idx));
+
+    m_userProcessors.insert(std::make_pair(idx, unique_ptr<EntityComponentProcessor>(processor)));
 }
 
 AudioComponentProcessor& World::audio() 

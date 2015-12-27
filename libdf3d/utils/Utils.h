@@ -26,6 +26,13 @@ struct shared_ptr_less
     }
 };
 
+template <typename T>
+uintptr_t getTypeId()
+{
+    static char dummy;
+    return &dummy;
+}
+
 template<typename C, typename T>
 inline bool contains(const C &container, const T &val)
 {
