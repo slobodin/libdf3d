@@ -50,7 +50,7 @@ inline float random_float()
     return utils::RandRange(0.0f, 1.0f);
 }
 
-inline float random_range(float a, float b)
+inline float random_float_range(float a, float b)
 {
     return utils::RandRange(a, b);
 }
@@ -88,7 +88,7 @@ void bindGlm(Table &df3dNamespace)
     df3dNamespace.Func(_SC("vec3_len"), vec3_len);
     df3dNamespace.Func(_SC("vec3_neg"), vec3_neg);
     df3dNamespace.Func(_SC("random_float"), random_float);
-    df3dNamespace.Func(_SC("random_range"), random_range);
+    df3dNamespace.Func(_SC("random_float_range"), random_float_range);
 }
 
 void bindProcessors()
