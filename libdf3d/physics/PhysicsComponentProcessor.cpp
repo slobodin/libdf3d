@@ -125,7 +125,7 @@ struct PhysicsComponentProcessor::Impl
         assert(!data.initialized);
 
         btCollisionShape *colShape = nullptr;
-        switch (data.params.type)
+        switch (data.params.shape)
         {
         case CollisionShapeType::BOX:
         {

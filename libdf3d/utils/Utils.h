@@ -7,6 +7,7 @@
 namespace df3d { namespace utils {
 
 // FIXME: not uniform distribution.
+// Random number in closed interval [a..b]
 inline size_t RandRange(const size_t a, const size_t b) { return a + (rand() % (b - a + 1)); }
 inline int RandRange(const int a, const int b) { return a + (rand() % (b - a + 1)); }
 inline float RandRange(const float a, const float b) { return (rand() / (static_cast<float>(RAND_MAX) + 1.0f)) * (b - a) + a; }
