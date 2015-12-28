@@ -51,9 +51,13 @@ public:
         const auto &v = worldTrans.getOrigin();
         const auto &rot = worldTrans.getRotation();
 
+        auto df3dPos = btToGlm(worldTrans.getOrigin());
+        auto df3dOrient = glm::quat(rot.w(), rot.x(), rot.y(), rot.z());
+        glm::mat4 ATTRIBUTE_ALIGNED16(df3dWorldTransf);
+        worldTrans.getOpenGLMatrix(glm::value_ptr(df3dWorldTransf));
+
         // TODO_ecs: more fast lookup!
-        m_world.transform().setOrientation(m_holder, glm::quat(rot.w(), rot.x(), rot.y(), rot.z()));
-        m_world.transform().setPosition(m_holder, v.getX(), v.getY(), v.getZ());
+        m_world.transform().setTransform(m_holder, df3dPos, df3dOrient, df3dWorldTransf);
 
         m_transform = worldTrans;
     }

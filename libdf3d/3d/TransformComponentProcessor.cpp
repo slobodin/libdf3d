@@ -35,6 +35,11 @@ struct TransformComponentProcessor::Impl
         else
             component.transformation = tr;
 
+        updateChildren(component);
+    }
+
+    void updateChildren(Data &component)
+    {
         for (auto child : component.children)
             updateWorldTransformation(data.getData(child));
     }
@@ -121,6 +126,16 @@ void TransformComponentProcessor::setOrientation(Entity e, const glm::vec3 &eule
     glm::vec3 v = rads ? eulerAngles : glm::radians(eulerAngles);
 
     setOrientation(e, glm::quat(v));
+}
+
+void TransformComponentProcessor::setTransform(Entity e, const glm::vec3 &position, const glm::quat &orient, const glm::mat4 &transf)
+{
+    auto &compData = m_pimpl->data.getData(e);
+    compData.position = position;
+    compData.orientation = orient;
+    compData.transformation = transf * glm::scale(compData.scaling);
+
+    m_pimpl->updateChildren(compData);
 }
 
 void TransformComponentProcessor::translate(Entity e, const glm::vec3 &v)

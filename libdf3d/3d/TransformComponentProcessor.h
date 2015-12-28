@@ -26,6 +26,8 @@ public:
     void setScale(Entity e, float uniform);
     void setOrientation(Entity e, const glm::quat &newOrientation);
     void setOrientation(Entity e, const glm::vec3 &eulerAngles, bool rads = false);
+    // NOTE: this is used by physics processor. FIXME
+    void setTransform(Entity e, const glm::vec3 &position, const glm::quat &orient, const glm::mat4 &transf);
 
     void translate(Entity e, const glm::vec3 &v);
     void translate(Entity e, float x, float y, float z);
