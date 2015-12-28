@@ -68,6 +68,19 @@ void bindGlm(Table &df3dNamespace)
     using value_t = vec3::value_type;
 
     {
+        Class<vec2> glmvec2Class;
+        glmvec2Class
+            .Ctor()
+            .Ctor<value_t, value_t>()
+
+            .Var(_SC("x"), &vec2::x)
+            .Var(_SC("y"), &vec2::y)
+            ;
+
+        df3dNamespace.Bind(_SC("vec2"), glmvec2Class);
+    }
+
+    {
         Class<vec3> glmvec3Class;
         glmvec3Class
             .Ctor()
