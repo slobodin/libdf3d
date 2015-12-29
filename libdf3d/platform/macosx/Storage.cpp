@@ -1,7 +1,6 @@
-#include "df3d_pch.h"
-#include "../Storage.h"
+#include <io/Storage.h>
 
-namespace df3d { namespace platform {
+namespace df3d { namespace platform_impl {
 
 class MacosxStorage : public Storage
 {
@@ -18,9 +17,11 @@ public:
     }
 };
 
-Storage *Storage::create(const std::string &filename)
-{
-    return new MacosxStorage(filename);
 }
 
-} }
+Storage *Storage::create(const std::string &filename)
+{
+    return new platform_impl::MacosxStorage(filename);
+}
+
+}

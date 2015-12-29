@@ -10,6 +10,7 @@ namespace df3d {
 
 class RenderQueue;
 class MeshData;
+class World;
 struct PhysicsComponentCreationParams;
 
 class DF3D_DLL PhysicsComponentProcessor : public EntityComponentProcessor

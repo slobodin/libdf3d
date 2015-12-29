@@ -7,6 +7,7 @@
 namespace df3d {
 
 class RenderQueue;
+class World;
 
 // FIXME: improve 2d submodule, ideally remove this class.
 

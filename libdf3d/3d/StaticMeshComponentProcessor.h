@@ -10,6 +10,7 @@ namespace df3d {
 
 class MeshData;
 class RenderQueue;
+class World;
 
 class DF3D_DLL StaticMeshComponentProcessor : public EntityComponentProcessor
 {

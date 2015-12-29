@@ -31,7 +31,7 @@ template <typename T>
 uintptr_t getTypeId()
 {
     static char dummy;
-    return &dummy;
+    return reinterpret_cast<uintptr_t>(&dummy);
 }
 
 template<typename C, typename T>

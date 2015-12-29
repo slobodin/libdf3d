@@ -15,9 +15,9 @@
 #include <chrono>
 
 // TODO: may be not needed.
-//#ifndef MSVC
-//#include <gui/impl/RocketIntrusivePtr.h>
-//#endif
+#ifndef MSVC
+#include <gui/impl/RocketIntrusivePtr.h>
+#endif
 
 #include <boost/intrusive_ptr.hpp>
 

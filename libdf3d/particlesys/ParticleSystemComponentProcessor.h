@@ -7,6 +7,7 @@
 namespace df3d {
 
 class RenderQueue;
+class World;
 
 class DF3D_DLL ParticleSystemComponentProcessor : public EntityComponentProcessor
 {

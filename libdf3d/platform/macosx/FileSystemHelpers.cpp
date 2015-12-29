@@ -1,10 +1,9 @@
-#include "df3d_pch.h"
-#include "../FileSystemHelpers.h"
+#include <io/FileSystemHelpers.h>
 
 #include <platform/desktop_common/FileDataSourceDesktop.h>
 #include <unistd.h>
 
-namespace df3d { namespace platform {
+namespace df3d {
 
 bool FileSystemHelpers::isPathAbsolute(const std::string &path)
 {
@@ -19,9 +18,9 @@ bool FileSystemHelpers::pathExists(const std::string &path)
     return access(path.c_str(), F_OK) != -1;
 }
 
-shared_ptr<resources::FileDataSource> FileSystemHelpers::openFile(const std::string &path)
+shared_ptr<FileDataSource> FileSystemHelpers::openFile(const std::string &path)
 {
-    return make_shared<platform::FileDataSourceDesktop>(path);
+    return make_shared<platform_impl::FileDataSourceDesktop>(path);
 }
 
-} }
+}
