@@ -244,10 +244,11 @@ void PhysicsComponentProcessor::draw(RenderQueue *ops)
 PhysicsComponentProcessor::PhysicsComponentProcessor()
     : m_pimpl(new Impl())
 {
-    m_pimpl->data.setDestructionCallback([this](const Impl::Data &data) {
+    auto physicsWorld = m_pimpl->dynamicsWorld;
+    m_pimpl->data.setDestructionCallback([this, physicsWorld](const Impl::Data &data) {
         if (data.body)
         {
-            getPhysicsWorld()->removeRigidBody(data.body);
+            physicsWorld->removeRigidBody(data.body);
             auto motionState = data.body->getMotionState();
             delete motionState;
             auto shape = data.body->getCollisionShape();
