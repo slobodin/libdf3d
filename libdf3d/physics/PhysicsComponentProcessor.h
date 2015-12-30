@@ -5,6 +5,7 @@
 
 class btRigidBody;
 class btDynamicsWorld;
+class btMotionState;
 
 namespace df3d {
 
@@ -25,7 +26,7 @@ class DF3D_DLL PhysicsComponentProcessor : public EntityComponentProcessor
     void cleanStep(const std::list<Entity> &deleted) override;
 
 public:
-    PhysicsComponentProcessor();
+    PhysicsComponentProcessor(World *w);
     ~PhysicsComponentProcessor();
 
     btRigidBody* getBody(Entity e);
@@ -33,10 +34,13 @@ public:
     void teleport(Entity e, const glm::vec3 &pos);
 
     void add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> meshData);
+    // NOTE: body should not be added to the Physics World as it will be added via this processor.
+    void add(Entity e, btRigidBody *body);
     void remove(Entity e);
     bool has(Entity e);
 
     btDynamicsWorld* getPhysicsWorld();
+    btMotionState* createMotionState(Entity e);
 };
 
 }

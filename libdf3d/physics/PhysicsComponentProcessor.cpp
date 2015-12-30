@@ -48,7 +48,6 @@ public:
 
     void setWorldTransform(const btTransform &worldTrans)
     {
-        const auto &v = worldTrans.getOrigin();
         const auto &rot = worldTrans.getRotation();
 
         auto df3dPos = btToGlm(worldTrans.getOrigin());
@@ -65,6 +64,8 @@ public:
 
 struct PhysicsComponentProcessor::Impl
 {
+    World &df3dWorld;
+
     btDefaultCollisionConfiguration *collisionConfiguration = nullptr;
     btCollisionDispatcher *dispatcher = nullptr;
     btBroadphaseInterface *overlappingPairCache = nullptr;
@@ -80,12 +81,13 @@ struct PhysicsComponentProcessor::Impl
         btRigidBody *body = nullptr;
         bool initialized = false;
         weak_ptr<MeshData> meshData;
-        PhysicsComponentCreationParams params;  // TODO_ecs: can delete it in order to minimize size.
+        shared_ptr<PhysicsComponentCreationParams> params;
     };
 
     ComponentDataHolder<Data> data;
 
-    Impl()
+    Impl(World &w)
+        : df3dWorld(w)
     {
         collisionConfiguration = new btDefaultCollisionConfiguration();
         dispatcher = new btCollisionDispatcher(collisionConfiguration);
@@ -129,7 +131,7 @@ struct PhysicsComponentProcessor::Impl
         assert(!data.initialized);
 
         btCollisionShape *colShape = nullptr;
-        switch (data.params.shape)
+        switch (data.params->shape)
         {
         case CollisionShapeType::BOX:
         {
@@ -184,30 +186,36 @@ struct PhysicsComponentProcessor::Impl
         }
 
         btVector3 localInertia(0, 0, 0);
-        if (!glm::epsilonEqual(data.params.mass, 0.0f, glm::epsilon<float>()))
-            colShape->calculateLocalInertia(data.params.mass, localInertia);
+        if (!glm::epsilonEqual(data.params->mass, 0.0f, glm::epsilon<float>()))
+            colShape->calculateLocalInertia(data.params->mass, localInertia);
 
         // Set motion state.
-        auto myMotionState = new PhysicsComponentMotionState(data.holder, world());
+        auto myMotionState = createMotionState(data.holder);
 
         // Fill body properties.
-        btRigidBody::btRigidBodyConstructionInfo rbInfo(data.params.mass, myMotionState, colShape, localInertia);
-        rbInfo.m_friction = data.params.friction;
-        rbInfo.m_restitution = data.params.restitution;
-        rbInfo.m_linearDamping = data.params.linearDamping;
-        rbInfo.m_angularDamping = data.params.angularDamping;
+        btRigidBody::btRigidBodyConstructionInfo rbInfo(data.params->mass, myMotionState, colShape, localInertia);
+        rbInfo.m_friction = data.params->friction;
+        rbInfo.m_restitution = data.params->restitution;
+        rbInfo.m_linearDamping = data.params->linearDamping;
+        rbInfo.m_angularDamping = data.params->angularDamping;
 
         data.body = new btRigidBody(rbInfo);
 
-        if (data.params.group != -1 && data.params.mask != -1)
-            dynamicsWorld->addRigidBody(data.body, data.params.group, data.params.mask);
+        if (data.params->group != -1 && data.params->mask != -1)
+            dynamicsWorld->addRigidBody(data.body, data.params->group, data.params->mask);
         else
             dynamicsWorld->addRigidBody(data.body);
 
-        if (data.params.disableDeactivation)
+        if (data.params->disableDeactivation)
             data.body->setActivationState(DISABLE_DEACTIVATION);
 
         data.initialized = true;
+        data.params.reset();
+    }
+
+    btMotionState* createMotionState(Entity e)
+    {
+        return new PhysicsComponentMotionState(e, df3dWorld);
     }
 };
 
@@ -241,8 +249,8 @@ void PhysicsComponentProcessor::draw(RenderQueue *ops)
     m_pimpl->debugDraw->flushRenderOperations(ops);
 }
 
-PhysicsComponentProcessor::PhysicsComponentProcessor()
-    : m_pimpl(new Impl())
+PhysicsComponentProcessor::PhysicsComponentProcessor(World *w)
+    : m_pimpl(new Impl(*w))
 {
     auto physicsWorld = m_pimpl->dynamicsWorld;
     m_pimpl->data.setDestructionCallback([this, physicsWorld](const Impl::Data &data) {
@@ -288,10 +296,28 @@ void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationPara
     Impl::Data data;
     data.meshData = meshData;
     data.holder = e;
-    data.params = params;
+    data.params = make_shared<PhysicsComponentCreationParams>(params);
 
     if (meshData->isInitialized())
         m_pimpl->initialize(data);
+
+    m_pimpl->data.add(e, data);
+}
+
+void PhysicsComponentProcessor::add(Entity e, btRigidBody *body)
+{
+    if (m_pimpl->data.contains(e))
+    {
+        glog << "An entity already has an physics component" << logwarn;
+        return;
+    }
+
+    Impl::Data data;
+    data.holder = e;
+    data.body = body;
+    data.initialized = true;
+
+    m_pimpl->dynamicsWorld->addRigidBody(data.body);
 
     m_pimpl->data.add(e, data);
 }
@@ -315,6 +341,11 @@ bool PhysicsComponentProcessor::has(Entity e)
 btDynamicsWorld* PhysicsComponentProcessor::getPhysicsWorld()
 {
     return m_pimpl->dynamicsWorld;
+}
+
+btMotionState* PhysicsComponentProcessor::createMotionState(Entity e)
+{
+    return m_pimpl->createMotionState(e);
 }
 
 }

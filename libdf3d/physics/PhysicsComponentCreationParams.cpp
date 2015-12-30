@@ -4,6 +4,16 @@
 
 namespace df3d {
 
+PhysicsComponentCreationParams::PhysicsComponentCreationParams()
+{
+
+}
+
+PhysicsComponentCreationParams::~PhysicsComponentCreationParams()
+{
+
+}
+
 PhysicsComponentCreationParams::PhysicsComponentCreationParams(const std::string &physicsDefinitionFile)
     : PhysicsComponentCreationParams(utils::json::fromFile(physicsDefinitionFile))
 {

@@ -76,7 +76,7 @@ World::World()
     m_audio(new AudioComponentProcessor(this)),
     m_staticMeshes(new StaticMeshComponentProcessor(this)),
     m_vfx(new ParticleSystemComponentProcessor(this)),
-    m_physics(new PhysicsComponentProcessor()),
+    m_physics(new PhysicsComponentProcessor(this)),
     m_tranform(new TransformComponentProcessor()),
     m_debugName(new DebugNameComponentProcessor()),
     m_sprite2D(new Sprite2DComponentProcessor(this)),

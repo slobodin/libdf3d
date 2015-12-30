@@ -22,7 +22,8 @@ struct DF3D_DLL PhysicsComponentCreationParams
     short mask = -1;
     bool disableDeactivation = false;
 
-    PhysicsComponentCreationParams() = default;
+    PhysicsComponentCreationParams();
+    ~PhysicsComponentCreationParams();
     explicit PhysicsComponentCreationParams(const std::string &physicsDefinitionFile);
     explicit PhysicsComponentCreationParams(const Json::Value &root);
 };
