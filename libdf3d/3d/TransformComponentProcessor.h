@@ -41,9 +41,9 @@ public:
 
     // TODO_ecs: make getWorldPosition & getLocalPosition instead.
     glm::vec3 getPosition(Entity e, bool includeParent = false);
-    glm::vec3 getScale(Entity e);
-    glm::quat getOrientation(Entity e);
-    glm::mat4 getTransformation(Entity e);
+    const glm::vec3& getScale(Entity e);
+    const glm::quat& getOrientation(Entity e);
+    const glm::mat4& getTransformation(Entity e);
     glm::vec3 getRotation(Entity e, bool rads = false);
 
     void attachChild(Entity parent, Entity child);

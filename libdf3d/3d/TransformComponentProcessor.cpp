@@ -210,17 +210,17 @@ glm::vec3 TransformComponentProcessor::getPosition(Entity e, bool includeParent)
         return glm::vec3(compData.transformation[3]);
 }
 
-glm::vec3 TransformComponentProcessor::getScale(Entity e)
+const glm::vec3& TransformComponentProcessor::getScale(Entity e)
 {
     return m_pimpl->data.getData(e).scaling;
 }
 
-glm::quat TransformComponentProcessor::getOrientation(Entity e)
+const glm::quat& TransformComponentProcessor::getOrientation(Entity e)
 {
     return m_pimpl->data.getData(e).orientation;
 }
 
-glm::mat4 TransformComponentProcessor::getTransformation(Entity e)
+const glm::mat4& TransformComponentProcessor::getTransformation(Entity e)
 {
     return m_pimpl->data.getData(e).transformation;
 }
