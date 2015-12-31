@@ -1,7 +1,5 @@
 #include "FileSystem.h"
 
-#include <boost/algorithm/string.hpp>
-
 #include "FileDataSource.h"
 #include <io/FileSystemHelpers.h>
 #include <utils/Utils.h>
@@ -30,7 +28,7 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
     result.erase(std::unique(result.begin(), result.end(), bothSlashes), result.end());
 
     // Remove not needed ./
-    boost::replace_all(result, "/./", "/");
+    utils::replace_all(result, "/./", "/");
     if (utils::starts_with(result, "./"))
         result.erase(0, 2);
     if (utils::ends_with(result, "/."))

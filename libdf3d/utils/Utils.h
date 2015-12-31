@@ -88,6 +88,15 @@ inline bool ends_with(const std::string &s, const std::string &with)
     return s.compare(s.size() - with.size(), s.size(), with) == 0;
 }
 
+inline void replace_all(std::string &s, const std::string &what, const std::string &with)
+{
+    size_t found = 0;
+    while ((found = s.find(what)) != std::string::npos) // TODO: more efficient implementation.
+    {
+        s.replace(found, what.size(), with);
+    }
+}
+
 template<typename T>
 inline T clamp(const T &val, const T &min, const T &max)
 {

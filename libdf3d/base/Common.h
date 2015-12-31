@@ -14,13 +14,6 @@
 #include <memory>
 #include <chrono>
 
-// TODO: may be not needed.
-#ifndef MSVC
-#include <gui/impl/RocketIntrusivePtr.h>
-#endif
-
-#include <boost/intrusive_ptr.hpp>
-
 #define GLM_FORCE_RADIANS
 //#define GLM_MESSAGES
 //#define GLM_SWIZZLE
@@ -34,11 +27,6 @@
 #include <glm/gtc/matrix_access.hpp>
 
 #include <json/json.h>
-
-namespace Rocket { namespace Core { class Element; class ElementDocument; } }
-
-using RocketDocument = boost::intrusive_ptr<Rocket::Core::ElementDocument>;
-using RocketElement = boost::intrusive_ptr<Rocket::Core::Element>;
 
 using std::shared_ptr;
 using std::make_shared;

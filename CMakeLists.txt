@@ -78,8 +78,8 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/TransformComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/VfxComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketRefWrapper.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketIntrusivePtr.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketKeyCodesAdapter.h
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.h
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputManager.h
@@ -137,6 +137,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.h
     ${PROJECT_SOURCE_DIR}/libdf3d/script/ScriptManager.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/Any.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.h
@@ -174,7 +175,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/WorldLoader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketIntrusivePtr.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketKeyCodesAdapter.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputManager.cpp
@@ -303,10 +303,8 @@ if (DF3D_DESKTOP)
 endif()
 
 if (ANDROID OR IOS)
-    find_host_package(Boost REQUIRED)
     find_host_package(OpenAL REQUIRED)
 else()
-    find_package(Boost REQUIRED)
     find_package(OpenAL REQUIRED)
 endif()
 
@@ -325,7 +323,6 @@ include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/glfw/include
                     ${PROJECT_SOURCE_DIR}/third-party/squirrel/include
                     ${PROJECT_SOURCE_DIR}/third-party/sqrat
-                    ${Boost_INCLUDE_DIRS}
                     ${OPENAL_INCLUDE_DIR})
 
 if(MSVC)

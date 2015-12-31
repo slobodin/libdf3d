@@ -1,6 +1,7 @@
 #pragma once
 
-#include <boost/any.hpp>
+#include "Any.h"
+#include "Utils.h"
 
 namespace df3d { namespace utils {
 
@@ -10,7 +11,7 @@ namespace df3d { namespace utils {
  */
 class DF3D_DLL Dict
 {
-    std::unordered_map<std::string, boost::any> m_kvPairs;
+    std::unordered_map<std::string, Any> m_kvPairs;
 
 public:
     Dict();
@@ -29,14 +30,22 @@ public:
         if (found == m_kvPairs.end())
             return T();
 
-        try
-        {
-            return boost::any_cast<T>(found->second);
-        }
-        catch(boost::bad_any_cast &)
-        {
-            return T();
-        }
+        return found->second.get<T>();
+    }
+
+    bool contains(const std::string &key)
+    {
+        return contains_key(m_kvPairs, key);
+    }
+
+    void erase(const std::string &key)
+    {
+        m_kvPairs.erase(key);
+    }
+
+    void clear()
+    {
+        m_kvPairs.clear();
     }
 };
 

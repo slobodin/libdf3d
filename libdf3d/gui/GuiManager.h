@@ -1,10 +1,7 @@
 #pragma once
 
-#include "impl/RocketIntrusivePtr.h"
-#include <input/InputEvents.h>
+#include "RocketRefWrapper.h"
 #include <Rocket/Core.h>
-
-namespace Rocket { namespace Core { class Context; } }
 
 namespace df3d {
 
