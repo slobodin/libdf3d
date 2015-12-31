@@ -3,6 +3,8 @@
 #include <game/Entity.h>
 #include <game/EntityComponentProcessor.h>
 
+// TODO_ecs: rename to TagName
+
 namespace df3d {
 
 class DF3D_DLL DebugNameComponentProcessor : public EntityComponentProcessor
