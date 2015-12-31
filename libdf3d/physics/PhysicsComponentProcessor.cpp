@@ -304,7 +304,7 @@ void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationPara
     m_pimpl->data.add(e, data);
 }
 
-void PhysicsComponentProcessor::add(Entity e, btRigidBody *body)
+void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, short mask)
 {
     if (m_pimpl->data.contains(e))
     {
@@ -317,7 +317,10 @@ void PhysicsComponentProcessor::add(Entity e, btRigidBody *body)
     data.body = body;
     data.initialized = true;
 
-    m_pimpl->dynamicsWorld->addRigidBody(data.body);
+    if (group != -1 && mask != -1)
+        m_pimpl->dynamicsWorld->addRigidBody(body, group, mask);
+    else
+        m_pimpl->dynamicsWorld->addRigidBody(body);
 
     m_pimpl->data.add(e, data);
 }
