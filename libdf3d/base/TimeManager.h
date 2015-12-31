@@ -54,7 +54,8 @@ public:
         int64_t id = -1;
 
         bool valid() const { return id != -1; }
-        bool operator== (const Handle &other) const { return id == other.id;}
+        bool operator== (const Handle &other) const { return id == other.id; }
+        void invalidate() { id = -1; }
     };
 
 private:
