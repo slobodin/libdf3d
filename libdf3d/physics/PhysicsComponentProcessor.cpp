@@ -279,10 +279,19 @@ btRigidBody* PhysicsComponentProcessor::getBody(Entity e)
 void PhysicsComponentProcessor::teleport(Entity e, const glm::vec3 &pos)
 {
     auto body = getBody(e);
-    auto tr = body->getWorldTransform();
-    tr.setOrigin(glmTobt(pos));
+    if (body)
+    {
+        auto tr = body->getWorldTransform();
+        tr.setOrigin(glmTobt(pos));
 
-    body->setWorldTransform(tr);
+        body->setWorldTransform(tr);
+
+        m_pimpl->dynamicsWorld->synchronizeSingleMotionState(body);
+    }
+    else
+    {
+        m_pimpl->df3dWorld.transform().setPosition(e, pos);
+    }
 }
 
 void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> meshData)
