@@ -180,14 +180,30 @@ void ParticleSystemComponentProcessor::add(Entity e, const std::string &vfxResou
         return;
     }
 
-    Impl::Data data;
+    add(e, spkSystem);
 
+    bool worldTransformed = true;
+    float systemLifeTime = -1.0f;
+
+    vfxJson["worldTransformed"] >> worldTransformed;
+    vfxJson["systemLifeTime"] >> systemLifeTime;
+
+    setWorldTransformed(e, worldTransformed);
+    setSystemLifeTime(e, systemLifeTime);
+}
+
+void ParticleSystemComponentProcessor::add(Entity e, SPK::Ref<SPK::System> spkSystem)
+{
+    if (m_pimpl->data.contains(e))
+    {
+        glog << "An entity already has a particle system component" << logwarn;
+        return;
+    }
+
+    Impl::Data data;
     data.system = spkSystem;
     data.holder = e;
     data.holderTransform = m_world->transform().getTransformation(e);
-
-    vfxJson["worldTransformed"] >> data.worldTransformed;
-    vfxJson["systemLifeTime"] >> data.systemLifeTime;
 
     m_pimpl->data.add(e, data);
 }

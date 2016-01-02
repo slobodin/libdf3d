@@ -35,6 +35,7 @@ public:
     SPK::Ref<SPK::System> getSystem(Entity e) const;
 
     void add(Entity e, const std::string &vfxResource);
+    void add(Entity e, SPK::Ref<SPK::System> spkSystem);
     void remove(Entity e);
     bool has(Entity e);
 };
