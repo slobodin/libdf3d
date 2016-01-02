@@ -91,7 +91,6 @@ void Sprite2DComponentProcessor::setZIdx(Entity e, float z)
     newPos.z = z;
 
     m_world->transform().setPosition(e, newPos);
-    m_pimpl->data.getData(e).op.worldTransform = m_world->transform().getTransformation(e);
 }
 
 void Sprite2DComponentProcessor::setSize(Entity e, const glm::vec2 &size)
@@ -101,8 +100,6 @@ void Sprite2DComponentProcessor::setSize(Entity e, const glm::vec2 &size)
     // Compute new scale to fit desired size.
     auto sc = size / compData.textureOriginalSize;
     m_world->transform().setScale(e, sc.x, sc.y, 1.0f);
-
-    compData.op.worldTransform = m_world->transform().getTransformation(e);
 }
 
 void Sprite2DComponentProcessor::setWidth(Entity e, float w)
@@ -118,9 +115,9 @@ void Sprite2DComponentProcessor::setHeight(Entity e, float h)
 glm::vec2 Sprite2DComponentProcessor::getSize(Entity e)
 {
     const auto &compData = m_pimpl->data.getData(e);
-    auto &tr = compData.op.worldTransform;
+    auto scale = m_world->transform().getScale(e);
 
-    return{ tr[0][0] * compData.textureOriginalSize.x, tr[1][1] * compData.textureOriginalSize.y };
+    return{ scale.x * compData.textureOriginalSize.x, scale.y * compData.textureOriginalSize.y };
 }
 
 float Sprite2DComponentProcessor::getWidth(Entity e)
@@ -132,12 +129,12 @@ float Sprite2DComponentProcessor::getHeight(Entity e)
 {
     return getSize(e).y;
 }
-
-glm::vec2 Sprite2DComponentProcessor::getScreenPosition(Entity e) const
+/*
+const glm::vec2& Sprite2DComponentProcessor::getScreenPosition(Entity e) const
 {
     return m_pimpl->data.getData(e).screenPosition;
 }
-
+*/
 void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToTexture)
 {
     TextureCreationParams params;
@@ -162,7 +159,7 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
     compData.textureGuid = texture->getGUID();
 }
 
-glm::vec2 Sprite2DComponentProcessor::getTextureSize(Entity e) const
+const glm::vec2& Sprite2DComponentProcessor::getTextureSize(Entity e) const
 {
     return m_pimpl->data.getData(e).textureOriginalSize;
 }

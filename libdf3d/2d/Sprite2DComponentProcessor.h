@@ -38,10 +38,10 @@ public:
     float getWidth(Entity e);
     float getHeight(Entity e);
 
-    glm::vec2 getScreenPosition(Entity e) const;
+    //const glm::vec2& getScreenPosition(Entity e) const;
 
     void useTexture(Entity e, const std::string &pathToTexture);
-    glm::vec2 getTextureSize(Entity e) const;
+    const glm::vec2& getTextureSize(Entity e) const;
 
     void setBlendMode(Entity e, RenderPass::BlendingMode bm);
     void setDiffuseColor(Entity e, const glm::vec4 &diffuseColor);
