@@ -130,6 +130,7 @@ ParticleSystemComponentProcessor::ParticleSystemComponentProcessor(World *world)
 ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor()
 {
     glog << "ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
+    m_pimpl->data.clear();
     SPK_DUMP_MEMORY
 }
 
@@ -162,6 +163,11 @@ float ParticleSystemComponentProcessor::getSystemLifeTime(Entity e) const
 SPK::Ref<SPK::System> ParticleSystemComponentProcessor::getSystem(Entity e) const
 {
     return m_pimpl->data.getData(e).system;
+}
+
+bool ParticleSystemComponentProcessor::isWorldTransformed(Entity e) const
+{
+    return m_pimpl->data.getData(e).worldTransformed;
 }
 
 void ParticleSystemComponentProcessor::add(Entity e, const std::string &vfxResource)
