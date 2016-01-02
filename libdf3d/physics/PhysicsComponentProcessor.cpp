@@ -19,6 +19,8 @@
 
 namespace df3d {
 
+static_assert(sizeof(int) >= sizeof(df3d::Entity::IdType), "Can't store user data in bullet user pointer");
+
 class PhysicsComponentMotionState : public btMotionState
 {
     World &m_world;
@@ -209,6 +211,8 @@ struct PhysicsComponentProcessor::Impl
         if (data.params->disableDeactivation)
             data.body->setActivationState(DISABLE_DEACTIVATION);
 
+        data.body->setUserIndex(data.holder.id);
+
         data.initialized = true;
         data.params.reset();
     }
@@ -315,6 +319,8 @@ void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationPara
 
 void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, short mask)
 {
+    assert(body);
+
     if (m_pimpl->data.contains(e))
     {
         glog << "An entity already has an physics component" << logwarn;
@@ -330,6 +336,8 @@ void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, sh
         m_pimpl->dynamicsWorld->addRigidBody(body, group, mask);
     else
         m_pimpl->dynamicsWorld->addRigidBody(body);
+
+    data.body->setUserIndex(e.id);
 
     m_pimpl->data.add(e, data);
 }
