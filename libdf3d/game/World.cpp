@@ -144,6 +144,22 @@ void World::destroy(Entity e)
     }
 }
 
+void World::destroyWithChildren(Entity e)
+{
+    if (e.valid() && alive(e))
+    {
+        const auto &children = sceneGraph().getChildren(e);
+        for (auto &child : children)
+            destroyWithChildren(child);
+
+        destroy(e);
+    }
+    else
+    {
+        glog << "Failed to destroy an entity. Entity is not alive!" << logwarn;
+    }
+}
+
 void World::pauseSimulation(bool paused)
 {
     m_paused = paused;

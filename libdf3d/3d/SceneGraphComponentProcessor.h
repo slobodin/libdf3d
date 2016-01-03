@@ -53,6 +53,7 @@ public:
     void detachChild(Entity parent, Entity child);
     void detachAllChildren(Entity e);
     Entity getParent(Entity e);
+    const std::vector<Entity>& getChildren(Entity e) const;
 
     void add(Entity e);
 };

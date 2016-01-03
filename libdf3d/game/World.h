@@ -64,6 +64,7 @@ public:
     Entity spawn(const Json::Value &entityResource);
     bool alive(Entity e);
     void destroy(Entity e);
+    void destroyWithChildren(Entity e);
 
     void pauseSimulation(bool paused);
 

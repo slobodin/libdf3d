@@ -327,6 +327,11 @@ Entity SceneGraphComponentProcessor::getParent(Entity e)
     return m_pimpl->data.getData(e).parent;
 }
 
+const std::vector<Entity>& SceneGraphComponentProcessor::getChildren(Entity e) const
+{
+    return m_pimpl->data.getData(e).children;
+}
+
 void SceneGraphComponentProcessor::add(Entity e)
 {
     if (m_pimpl->data.contains(e))
