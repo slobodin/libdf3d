@@ -16,7 +16,7 @@ Entity EntityManager::create()
 {
     m_next.id++;
 
-    m_entities.insert(m_next.id);
+    m_entities.insert(m_next);
 
     return m_next;
 }
@@ -25,7 +25,7 @@ void EntityManager::destroy(Entity e)
 {
     assert(e.valid());
 
-    m_entities.erase(e.id);
+    m_entities.erase(e);
     // NOTE: component data should be destroyed later via World::cleanStep
 }
 
@@ -33,7 +33,7 @@ bool EntityManager::alive(Entity e) const
 {
     assert(e.valid());
 
-    return m_entities.find(e.id) != m_entities.end();
+    return m_entities.find(e) != m_entities.end();
 }
 
 size_t EntityManager::size() const

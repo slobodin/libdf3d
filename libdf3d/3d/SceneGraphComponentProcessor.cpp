@@ -230,7 +230,7 @@ Entity SceneGraphComponentProcessor::getByName(Entity parent, const std::string 
 
     for (const auto &compData : m_pimpl->data.rawData())
     {
-        if (compData.parent.id == parent.id && compData.name == name)
+        if (compData.parent == parent && compData.name == name)
             return compData.holder;
     }
 
@@ -302,7 +302,7 @@ void SceneGraphComponentProcessor::detachChild(Entity parent, Entity child)
 
     childData.parent = Entity();
 
-    auto found = std::find_if(parentData.children.begin(), parentData.children.end(), [child](const Entity &e) { return e.id == child.id ;});
+    auto found = std::find(parentData.children.begin(), parentData.children.end(), child);
     assert(found != parentData.children.end());
 
     parentData.children.erase(found);

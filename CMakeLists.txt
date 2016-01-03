@@ -63,6 +63,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/EntityComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/EntityComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/FPSCamera.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/TagComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/World.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldRenderingParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldSize.h
@@ -165,6 +166,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/FPSCamera.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/TagComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/World.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldRenderingParams.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityLoader.cpp

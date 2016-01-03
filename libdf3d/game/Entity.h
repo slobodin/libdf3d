@@ -11,6 +11,8 @@ struct Entity
     Entity(IdType id = -1) : id(id) { }
 
     bool valid() const { return id != -1; }
+    bool operator== (const Entity &other) const { return other.id == id; }
+    bool operator!= (const Entity &other) const { return other.id != id; }
 };
 
 struct ComponentInstance
@@ -22,6 +24,19 @@ struct ComponentInstance
     ComponentInstance(IdType id = -1) : id(id) { }
 
     bool valid() const { return id != -1; }
+};
+
+}
+
+namespace std {
+
+template <>
+struct hash<df3d::Entity>
+{
+    std::size_t operator()(const df3d::Entity& e) const
+    {
+        return std::hash<df3d::Entity::IdType>()(e.id);
+    }
 };
 
 }

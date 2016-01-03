@@ -6,7 +6,7 @@ namespace df3d { namespace game_impl {
 
 class EntityManager : utils::NonCopyable
 {
-    std::unordered_set<Entity::IdType> m_entities;
+    std::unordered_set<Entity> m_entities;
     Entity m_next;
 
 public:

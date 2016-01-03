@@ -15,7 +15,7 @@ private:
     std::vector<T> m_data;
     // TODO_ecs: replace with array.
     // Maintain a bag of entities ids. If < 1000 for example, use array, instead - hashmap.
-    std::unordered_map<Entity::IdType, ComponentInstance> m_lookup;
+    std::unordered_map<Entity, ComponentInstance> m_lookup;
     std::unordered_map<ComponentInstance::IdType, Entity> m_holders;
 
     DestructionCallback m_destructionCallback;
@@ -35,7 +35,7 @@ public:
     {
         assert(e.valid());
 
-        auto found = m_lookup.find(e.id);
+        auto found = m_lookup.find(e);
         if (found == m_lookup.end())
             return ComponentInstance();
 
@@ -49,7 +49,7 @@ public:
 
         ComponentInstance inst(m_data.size());
         m_data.push_back(componentData);
-        m_lookup[e.id] = inst;
+        m_lookup[e] = inst;
 
         m_holders[inst.id] = e;
     }
@@ -76,12 +76,12 @@ public:
         {
             auto lastEnt = m_holders.find(m_data.size() - 1)->second;
             std::swap(m_data[compInstance.id], m_data.back());
-            m_lookup.find(lastEnt.id)->second = compInstance;
+            m_lookup.find(lastEnt)->second = compInstance;
             m_holders.find(compInstance.id)->second = lastEnt;
 
             m_holders.erase(m_data.size() - 1);
             m_data.pop_back();
-            m_lookup.erase(e.id);
+            m_lookup.erase(e);
         }
     }
 
