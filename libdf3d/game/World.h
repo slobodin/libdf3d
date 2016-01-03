@@ -16,6 +16,7 @@ class ParticleSystemComponentProcessor;
 class PhysicsComponentProcessor;
 class SceneGraphComponentProcessor;
 class Sprite2DComponentProcessor;
+class TagComponentProcessor;
 class RenderQueue;
 class EntityComponentProcessor;
 class Camera;
@@ -37,6 +38,7 @@ class DF3D_DLL World : utils::NonCopyable
     ComponentProcessor m_physics;
     ComponentProcessor m_sceneGraph;
     ComponentProcessor m_sprite2D;
+    ComponentProcessor m_tags;
 
     shared_ptr<Camera> m_camera;
     WorldRenderingParams m_renderingParams;
@@ -93,6 +95,7 @@ public:
     PhysicsComponentProcessor& physics();
     SceneGraphComponentProcessor& sceneGraph();
     Sprite2DComponentProcessor& sprite2d();
+    TagComponentProcessor& tags();
 
     TimeManager& timeManager() { return *m_timeMgr; }
 };

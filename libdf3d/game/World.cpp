@@ -9,6 +9,7 @@
 #include <3d/SceneGraphComponentProcessor.h>
 #include <3d/Camera.h>
 #include <particlesys/ParticleSystemComponentProcessor.h>
+#include <game/TagComponentProcessor.h>
 #include <physics/PhysicsComponentProcessor.h>
 #include <render/RenderQueue.h>
 
@@ -32,6 +33,7 @@ void World::update()
         m_staticMeshes->update();
         m_sprite2D->update();
         m_audio->update();
+        m_tags->update();
     }
 
     cleanStep();
@@ -61,6 +63,7 @@ void World::cleanStep()
     m_staticMeshes->cleanStep(m_recentlyRemovedEntities);
     m_sprite2D->cleanStep(m_recentlyRemovedEntities);
     m_audio->cleanStep(m_recentlyRemovedEntities);
+    m_tags->cleanStep(m_recentlyRemovedEntities);
 
     m_timeMgr->cleanStep();
 
@@ -76,6 +79,7 @@ World::World()
     m_physics(new PhysicsComponentProcessor(this)),
     m_sceneGraph(new SceneGraphComponentProcessor()),
     m_sprite2D(new Sprite2DComponentProcessor(this)),
+    m_tags(new TagComponentProcessor()),
     m_camera(new Camera()),
     m_timeMgr(new TimeManager())
 {
@@ -86,6 +90,7 @@ void World::destroyWorld()
 {
     m_userProcessors.clear();
 
+    m_tags.reset();
     m_audio.reset();
     m_staticMeshes.reset();
     m_sprite2D.reset();
@@ -201,6 +206,11 @@ SceneGraphComponentProcessor& World::sceneGraph()
 Sprite2DComponentProcessor& World::sprite2d()
 {
     return static_cast<Sprite2DComponentProcessor&>(*m_sprite2D);
+}
+
+TagComponentProcessor& World::tags()
+{
+    return static_cast<TagComponentProcessor&>(*m_tags);
 }
 
 }
