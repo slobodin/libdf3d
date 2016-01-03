@@ -91,12 +91,19 @@ bool ScriptManager::doString(const SQChar *str)
     if (!squirrelScript.CompileString(str, errMsg))
     {
         glog << "Failed to compile squirrel script:" << errMsg.c_str() << logwarn;
+#ifdef _DEBUG
+        DEBUG_BREAK();
+#endif
+
         return false;
     }
 
     if (!squirrelScript.Run(errMsg))
     {
         glog << "Failed to run squirrel script:" << errMsg.c_str() << logwarn;
+#ifdef _DEBUG
+        DEBUG_BREAK();
+#endif
         return false;
     }
 
