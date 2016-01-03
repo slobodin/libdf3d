@@ -23,7 +23,7 @@
 
 #include <3d/Frustum.h>
 #include <3d/Camera.h>
-#include <3d/TransformComponentProcessor.h>
+#include <3d/SceneGraphComponentProcessor.h>
 #include <3d/StaticMeshComponentProcessor.h>
 
 #include <math/BoundingVolume.h>
@@ -63,7 +63,6 @@
 #include <audio/AudioManager.h>
 #include <audio/AudioComponentProcessor.h>
 
-#include <game/DebugNameComponentProcessor.h>
 #include <game/FPSCamera.h>
 #include <game/Entity.h>
 #include <game/ComponentDataHolder.h>

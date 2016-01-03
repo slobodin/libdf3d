@@ -5,9 +5,7 @@
 
 namespace df3d {
 
-// TODO_ecs: rename to scenegraph component mb?
-
-class DF3D_DLL TransformComponentProcessor : public EntityComponentProcessor
+class DF3D_DLL SceneGraphComponentProcessor : public EntityComponentProcessor
 {
     struct Impl;
     unique_ptr<Impl> m_pimpl;
@@ -16,8 +14,8 @@ class DF3D_DLL TransformComponentProcessor : public EntityComponentProcessor
     void cleanStep(const std::list<Entity> &deleted) override;
 
 public:
-    TransformComponentProcessor();
-    ~TransformComponentProcessor();
+    SceneGraphComponentProcessor();
+    ~SceneGraphComponentProcessor();
 
     void setPosition(Entity e, const glm::vec3 &newPosition);
     void setPosition(Entity e, float x, float y, float z);

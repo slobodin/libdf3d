@@ -3,7 +3,7 @@
 #include <base/EngineController.h>
 #include <game/World.h>
 #include <3d/Camera.h>
-#include <3d/TransformComponentProcessor.h>
+#include <3d/SceneGraphComponentProcessor.h>
 #include <game/ComponentDataHolder.h>
 #include <resources/ResourceManager.h>
 #include <resources/ResourceFactory.h>
@@ -62,9 +62,9 @@ void StaticMeshComponentProcessor::update()
     for (auto &compData : m_pimpl->data.rawData())
     {
         // TODO_ecs: 3 lookups!!!!
-        compData.holderTransformation = m_world->transform().getTransformation(compData.holder);
-        compData.holderPosition = m_world->transform().getPosition(compData.holder, true);
-        compData.holderScale = m_world->transform().getScale(compData.holder);
+        compData.holderTransformation = m_world->sceneGraph().getTransformation(compData.holder);
+        compData.holderPosition = m_world->sceneGraph().getPosition(compData.holder, true);
+        compData.holderScale = m_world->sceneGraph().getScale(compData.holder);
     }
 }
 
@@ -117,7 +117,7 @@ AABB StaticMeshComponentProcessor::getAABB(Entity e)
     // FIXME: mb cache if transformation hasn't been changed?
     auto &compData = m_pimpl->data.getData(e);
     // Update transformation.
-    compData.holderTransformation = m_world->transform().getTransformation(compData.holder);
+    compData.holderTransformation = m_world->sceneGraph().getTransformation(compData.holder);
 
     AABB transformedAABB;
 
@@ -173,7 +173,7 @@ void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath
     Impl::Data data;
     data.meshData = svc().resourceManager().getFactory().createMeshData(meshFilePath, lm);
     data.holder = e;
-    data.holderTransformation = m_world->transform().getTransformation(e);
+    data.holderTransformation = m_world->sceneGraph().getTransformation(e);
 
     m_pimpl->data.add(e, data);
 }
@@ -189,7 +189,7 @@ void StaticMeshComponentProcessor::add(Entity e, shared_ptr<MeshData> meshData)
     Impl::Data data;
     data.meshData = meshData;
     data.holder = e;
-    data.holderTransformation = m_world->transform().getTransformation(e);
+    data.holderTransformation = m_world->sceneGraph().getTransformation(e);
 
     m_pimpl->data.add(e, data);
 }

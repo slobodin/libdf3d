@@ -10,7 +10,7 @@
 #include <math/ConvexHull.h>
 #include <render/MeshData.h>
 #include <3d/StaticMeshComponentProcessor.h>
-#include <3d/TransformComponentProcessor.h>
+#include <3d/SceneGraphComponentProcessor.h>
 #include <base/EngineController.h>
 #include <base/DebugConsole.h>
 #include <base/TimeManager.h>
@@ -32,8 +32,8 @@ public:
         : m_world(w),
         m_holder(e)
     {
-        auto orientation = w.transform().getOrientation(m_holder);
-        auto position = w.transform().getPosition(m_holder);
+        auto orientation = w.sceneGraph().getOrientation(m_holder);
+        auto position = w.sceneGraph().getPosition(m_holder);
 
         m_transform = btTransform(btQuaternion(orientation.x, orientation.y, orientation.z, orientation.w), glmTobt(position));
     }
@@ -58,7 +58,7 @@ public:
         worldTrans.getOpenGLMatrix(glm::value_ptr(df3dWorldTransf));
 
         // TODO_ecs: more fast lookup!
-        m_world.transform().setTransform(m_holder, df3dPos, df3dOrient, df3dWorldTransf);
+        m_world.sceneGraph().setTransform(m_holder, df3dPos, df3dOrient, df3dWorldTransf);
 
         m_transform = worldTrans;
     }
@@ -178,7 +178,7 @@ struct PhysicsComponentProcessor::Impl
             colShape = new btConvexHullShape((btScalar*)tempPoints.data(), tempPoints.size());
 
             // FIXME: what to do if scale has changed?
-            auto scale = svc().world().transform().getScale(data.holder);
+            auto scale = svc().world().sceneGraph().getScale(data.holder);
             colShape->setLocalScaling(glmTobt(scale));
         }
         break;
@@ -294,7 +294,7 @@ void PhysicsComponentProcessor::teleport(Entity e, const glm::vec3 &pos)
     }
     else
     {
-        m_pimpl->df3dWorld.transform().setPosition(e, pos);
+        m_pimpl->df3dWorld.sceneGraph().setPosition(e, pos);
     }
 }
 

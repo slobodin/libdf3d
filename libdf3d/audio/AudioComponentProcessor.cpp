@@ -3,7 +3,7 @@
 #include "AudioBuffer.h"
 #include "impl/OpenALCommon.h"
 #include <game/ComponentDataHolder.h>
-#include <3d/TransformComponentProcessor.h>
+#include <3d/SceneGraphComponentProcessor.h>
 #include <game/World.h>
 #include <3d/Camera.h>
 #include <base/EngineController.h>
@@ -65,7 +65,7 @@ void AudioComponentProcessor::update()
 
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
-        compData.holderPos = m_world->transform().getPosition(compData.holder, true);
+        compData.holderPos = m_world->sceneGraph().getPosition(compData.holder, true);
 
     for (auto &compData : m_pimpl->data.rawData())
     {
@@ -189,7 +189,7 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
     printOpenALError();
 
     data.holder = e;
-    data.holderPos = m_world->transform().getPosition(e, true);
+    data.holderPos = m_world->sceneGraph().getPosition(e, true);
 
     m_pimpl->data.add(e, data);
 }

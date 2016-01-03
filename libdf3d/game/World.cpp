@@ -2,12 +2,11 @@
 
 #include "impl/EntityManager.h"
 #include "impl/EntityLoader.h"
-#include "DebugNameComponentProcessor.h"
 #include <audio/AudioComponentProcessor.h>
 #include <base/TimeManager.h>
 #include <2d/Sprite2DComponentProcessor.h>
 #include <3d/StaticMeshComponentProcessor.h>
-#include <3d/TransformComponentProcessor.h>
+#include <3d/SceneGraphComponentProcessor.h>
 #include <3d/Camera.h>
 #include <particlesys/ParticleSystemComponentProcessor.h>
 #include <physics/PhysicsComponentProcessor.h>
@@ -28,12 +27,11 @@ void World::update()
         for (auto &userProcessor : m_userProcessors)
             userProcessor.second->update();
 
-        m_tranform->update();
+        m_sceneGraph->update();
         m_vfx->update();
         m_staticMeshes->update();
         m_sprite2D->update();
         m_audio->update();
-        m_debugName->update();
     }
 
     cleanStep();
@@ -58,12 +56,11 @@ void World::cleanStep()
         userProcessor.second->cleanStep(m_recentlyRemovedEntities);
 
     m_physics->cleanStep(m_recentlyRemovedEntities);
-    m_tranform->cleanStep(m_recentlyRemovedEntities);
+    m_sceneGraph->cleanStep(m_recentlyRemovedEntities);
     m_vfx->cleanStep(m_recentlyRemovedEntities);
     m_staticMeshes->cleanStep(m_recentlyRemovedEntities);
     m_sprite2D->cleanStep(m_recentlyRemovedEntities);
     m_audio->cleanStep(m_recentlyRemovedEntities);
-    m_debugName->cleanStep(m_recentlyRemovedEntities);
 
     m_timeMgr->cleanStep();
 
@@ -77,8 +74,7 @@ World::World()
     m_staticMeshes(new StaticMeshComponentProcessor(this)),
     m_vfx(new ParticleSystemComponentProcessor(this)),
     m_physics(new PhysicsComponentProcessor(this)),
-    m_tranform(new TransformComponentProcessor()),
-    m_debugName(new DebugNameComponentProcessor()),
+    m_sceneGraph(new SceneGraphComponentProcessor()),
     m_sprite2D(new Sprite2DComponentProcessor(this)),
     m_camera(new Camera()),
     m_timeMgr(new TimeManager())
@@ -95,8 +91,7 @@ void World::destroyWorld()
     m_sprite2D.reset();
     m_vfx.reset();
     m_physics.reset();
-    m_tranform.reset();
-    m_debugName.reset();
+    m_sceneGraph.reset();
 
     m_camera.reset();
     m_timeMgr.reset();
@@ -116,7 +111,7 @@ Entity World::spawn()
     auto entity = m_entityManager->create();
     // NOTE: forcing have transform component, otherwise have some problems (especially performance)
     // with systems that require transform component.
-    ((TransformComponentProcessor*)m_tranform.get())->add(entity);
+    ((SceneGraphComponentProcessor*)m_sceneGraph.get())->add(entity);
 
     return entity;
 }
@@ -182,14 +177,9 @@ PhysicsComponentProcessor& World::physics()
     return static_cast<PhysicsComponentProcessor&>(*m_physics); 
 }
 
-TransformComponentProcessor& World::transform()
+SceneGraphComponentProcessor& World::sceneGraph()
 { 
-    return static_cast<TransformComponentProcessor&>(*m_tranform);
-}
-
-DebugNameComponentProcessor& World::debugName()
-{
-    return static_cast<DebugNameComponentProcessor&>(*m_debugName);
+    return static_cast<SceneGraphComponentProcessor&>(*m_sceneGraph);
 }
 
 Sprite2DComponentProcessor& World::sprite2d()

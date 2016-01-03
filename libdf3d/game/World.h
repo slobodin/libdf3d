@@ -14,8 +14,7 @@ class AudioComponentProcessor;
 class StaticMeshComponentProcessor;
 class ParticleSystemComponentProcessor;
 class PhysicsComponentProcessor;
-class TransformComponentProcessor;
-class DebugNameComponentProcessor;
+class SceneGraphComponentProcessor;
 class Sprite2DComponentProcessor;
 class RenderQueue;
 class EntityComponentProcessor;
@@ -36,8 +35,7 @@ class DF3D_DLL World : utils::NonCopyable
     ComponentProcessor m_staticMeshes;
     ComponentProcessor m_vfx;
     ComponentProcessor m_physics;
-    ComponentProcessor m_tranform;
-    ComponentProcessor m_debugName;
+    ComponentProcessor m_sceneGraph;
     ComponentProcessor m_sprite2D;
 
     shared_ptr<Camera> m_camera;
@@ -92,8 +90,7 @@ public:
     StaticMeshComponentProcessor& staticMesh();
     ParticleSystemComponentProcessor& vfx();
     PhysicsComponentProcessor& physics();
-    TransformComponentProcessor& transform();
-    DebugNameComponentProcessor& debugName();
+    SceneGraphComponentProcessor& sceneGraph();
     Sprite2DComponentProcessor& sprite2d();
 
     TimeManager& timeManager() { return *m_timeMgr; }

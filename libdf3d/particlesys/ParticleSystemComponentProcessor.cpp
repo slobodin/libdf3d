@@ -4,7 +4,7 @@
 #include <game/ComponentDataHolder.h>
 #include <game/World.h>
 #include <3d/Camera.h>
-#include <3d/TransformComponentProcessor.h>
+#include <3d/SceneGraphComponentProcessor.h>
 #include <base/EngineController.h>
 #include <base/TimeManager.h>
 #include <particlesys/impl/SparkInterface.h>
@@ -55,7 +55,7 @@ void ParticleSystemComponentProcessor::update()
 {
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
-        compData.holderTransform = m_world->transform().getTransformation(compData.holder);
+        compData.holderTransform = m_world->sceneGraph().getTransformation(compData.holder);
 
     auto dt = svc().timer().getFrameDelta(TimeChannel::GAME);
     for (auto &compData : m_pimpl->data.rawData())
@@ -209,7 +209,7 @@ void ParticleSystemComponentProcessor::add(Entity e, SPK::Ref<SPK::System> spkSy
     Impl::Data data;
     data.system = spkSystem;
     data.holder = e;
-    data.holderTransform = m_world->transform().getTransformation(e);
+    data.holderTransform = m_world->sceneGraph().getTransformation(e);
 
     m_pimpl->data.add(e, data);
 }

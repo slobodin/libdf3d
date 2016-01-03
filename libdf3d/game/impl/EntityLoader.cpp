@@ -1,34 +1,32 @@
 #include "EntityLoader.h"
 
 #include <game/World.h>
-#include <3d/TransformComponentProcessor.h>
+#include <3d/SceneGraphComponentProcessor.h>
 #include <utils/JsonUtils.h>
 #include "AudioComponentLoader.h"
 #include "MeshComponentLoader.h"
 #include "PhysicsComponentLoader.h"
 #include "Sprite2DComponentLoader.h"
-#include "TransformComponentLoader.h"
+#include "SceneGraphComponentLoader.h"
 #include "VfxComponentLoader.h"
-#include "DebugNameComponentLoader.h"
 
 namespace df3d { namespace game_impl {
 
 // A workaround for ordering of components loading (e.g. physics should be loaded after mesh).
 // FIXME:
 static std::map<std::string, int> LoadingPriority = {
-    { "transform", 10 },
+    { "scenegraph", 10 },
     { "mesh", 9 }
 };
 
 EntityLoader::EntityLoader()
 {
     registerEntityComponentLoader("audio", make_unique<AudioComponentLoader>());
-    registerEntityComponentLoader("transform", make_unique<TransformComponentLoader>());
+    registerEntityComponentLoader("scenegraph", make_unique<SceneGraphComponentLoader>());
     registerEntityComponentLoader("mesh", make_unique<MeshComponentLoader>());
     registerEntityComponentLoader("vfx", make_unique<VfxComponentLoader>());
     registerEntityComponentLoader("physics", make_unique<PhysicsComponentLoader>());
     registerEntityComponentLoader("sprite_2d", make_unique<Sprite2DComponentLoader>());
-    registerEntityComponentLoader("debug_name", make_unique<DebugNameComponentLoader>());
 }
 
 EntityLoader::~EntityLoader()
@@ -108,7 +106,7 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
 
     const auto &childrenJson = root["children"];
     for (auto &childJson : childrenJson)
-        w.transform().attachChild(res, createEntity(childJson, w));
+        w.sceneGraph().attachChild(res, createEntity(childJson, w));
 
     return res;
 }

@@ -47,7 +47,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/3d/Frustum.h
     ${PROJECT_SOURCE_DIR}/libdf3d/3d/Light.h
     ${PROJECT_SOURCE_DIR}/libdf3d/3d/StaticMeshComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/3d/TransformComponentProcessor.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/3d/SceneGraphComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioBuffer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.h
@@ -59,7 +59,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/ComponentDataHolder.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/DebugNameComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/Entity.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/EntityComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/EntityComponentProcessor.h
@@ -67,7 +66,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/World.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldRenderingParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldSize.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/DebugNameComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/WorldLoader.h
@@ -75,7 +73,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/MeshComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/PhysicsComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/Sprite2DComponentLoader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/TransformComponentLoader.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/SceneGraphComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/VfxComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketRefWrapper.h
@@ -155,7 +153,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/3d/Frustum.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/3d/Light.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/3d/StaticMeshComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/3d/TransformComponentProcessor.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/3d/SceneGraphComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioBuffer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.cpp
@@ -166,7 +164,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/DebugNameComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/FPSCamera.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/World.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldRenderingParams.cpp

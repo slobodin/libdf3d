@@ -1,11 +1,11 @@
 #pragma once
 
 #include <game/EntityComponentLoader.h>
-#include <3d/TransformComponentProcessor.h>
+#include <3d/SceneGraphComponentProcessor.h>
 
 namespace df3d {
 
-class TransformComponentLoader : public EntityComponentLoader
+class SceneGraphComponentLoader : public EntityComponentLoader
 {
 public:
     void loadComponent(const Json::Value &root, Entity e, World &w) const override
@@ -18,9 +18,9 @@ public:
         root["scale"] >> scale;
 
         // NOTE: assuming it's already added.
-        w.transform().setPosition(e, position);
-        w.transform().setOrientation(e, rotation);
-        w.transform().setScale(e, scale);
+        w.sceneGraph().setPosition(e, position);
+        w.sceneGraph().setOrientation(e, rotation);
+        w.sceneGraph().setScale(e, scale);
     }
 };
 

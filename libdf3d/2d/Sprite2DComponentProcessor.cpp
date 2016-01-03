@@ -1,6 +1,6 @@
 #include "Sprite2DComponentProcessor.h"
 
-#include <3d/TransformComponentProcessor.h>
+#include <3d/SceneGraphComponentProcessor.h>
 #include <game/ComponentDataHolder.h>
 #include <game/World.h>
 #include <render/RenderOperation.h>
@@ -65,7 +65,7 @@ void Sprite2DComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 void Sprite2DComponentProcessor::update()
 {
     for (auto &compData : m_pimpl->data.rawData())
-        compData.op.worldTransform = m_world->transform().getTransformation(compData.holder);
+        compData.op.worldTransform = m_world->sceneGraph().getTransformation(compData.holder);
 }
 
 Sprite2DComponentProcessor::Sprite2DComponentProcessor(World *world)
@@ -87,10 +87,10 @@ void Sprite2DComponentProcessor::setAnchorPoint(Entity e, const glm::vec2 &pt)
 
 void Sprite2DComponentProcessor::setZIdx(Entity e, float z)
 {
-    auto newPos = m_world->transform().getPosition(e);
+    auto newPos = m_world->sceneGraph().getPosition(e);
     newPos.z = z;
 
-    m_world->transform().setPosition(e, newPos);
+    m_world->sceneGraph().setPosition(e, newPos);
 }
 
 void Sprite2DComponentProcessor::setSize(Entity e, const glm::vec2 &size)
@@ -99,7 +99,7 @@ void Sprite2DComponentProcessor::setSize(Entity e, const glm::vec2 &size)
 
     // Compute new scale to fit desired size.
     auto sc = size / compData.textureOriginalSize;
-    m_world->transform().setScale(e, sc.x, sc.y, 1.0f);
+    m_world->sceneGraph().setScale(e, sc.x, sc.y, 1.0f);
 }
 
 void Sprite2DComponentProcessor::setWidth(Entity e, float w)
@@ -115,7 +115,7 @@ void Sprite2DComponentProcessor::setHeight(Entity e, float h)
 glm::vec2 Sprite2DComponentProcessor::getSize(Entity e)
 {
     const auto &compData = m_pimpl->data.getData(e);
-    auto scale = m_world->transform().getScale(e);
+    auto scale = m_world->sceneGraph().getScale(e);
 
     return{ scale.x * compData.textureOriginalSize.x, scale.y * compData.textureOriginalSize.y };
 }
@@ -191,7 +191,7 @@ void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
     data.op.passProps->enableDepthTest(false);
     data.op.passProps->enableDepthWrite(false);
     data.op.passProps->setBlendMode(RenderPass::BlendingMode::ALPHA);
-    data.op.worldTransform = m_world->transform().getTransformation(e);
+    data.op.worldTransform = m_world->sceneGraph().getTransformation(e);
 
     auto format = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
     data.op.vertexData = createQuad2(format, 0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
