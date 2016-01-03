@@ -319,7 +319,6 @@ include_directories(${PROJECT_SOURCE_DIR}/libdf3d
                     ${PROJECT_SOURCE_DIR}/third-party/libRocket/Include
                     ${PROJECT_SOURCE_DIR}/third-party/glfw/include
                     ${PROJECT_SOURCE_DIR}/third-party/squirrel/include
-                    ${PROJECT_SOURCE_DIR}/third-party/sqrat
                     ${OPENAL_INCLUDE_DIR})
 
 if(MSVC)
