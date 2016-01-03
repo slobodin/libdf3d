@@ -11,7 +11,7 @@ void TagComponentProcessor::update()
 
 void TagComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 {
-    for (auto &e : deleted)
+    for (auto e : deleted)
         remove(e);
 }
 
