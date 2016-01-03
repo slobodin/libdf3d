@@ -19,6 +19,9 @@ struct SceneGraphComponentProcessor::Impl
         //! Node local scale.
         glm::vec3 scaling = glm::vec3(1.0f, 1.0f, 1.0f);
 
+        std::string name;
+
+        Entity holder;
         Entity parent;
         std::vector<Entity> children;
     };
@@ -200,6 +203,40 @@ void SceneGraphComponentProcessor::rotateAxis(Entity e, float angle, const glm::
     m_pimpl->updateWorldTransformation(compData);
 }
 
+void SceneGraphComponentProcessor::setName(Entity e, const std::string &name)
+{
+    m_pimpl->data.getData(e).name = name;
+}
+
+const std::string& SceneGraphComponentProcessor::getName(Entity e) const
+{
+    return m_pimpl->data.getData(e).name;
+}
+
+Entity SceneGraphComponentProcessor::getByName(const std::string &name) const
+{
+    for (const auto &compData : m_pimpl->data.rawData())
+    {
+        if (!compData.parent.valid() && compData.name == name)
+            return compData.holder;
+    }
+
+    return Entity();
+}
+
+Entity SceneGraphComponentProcessor::getByName(Entity parent, const std::string &name) const
+{
+    assert(parent.valid());
+
+    for (const auto &compData : m_pimpl->data.rawData())
+    {
+        if (compData.parent.id == parent.id && compData.name == name)
+            return compData.holder;
+    }
+
+    return Entity();
+}
+
 glm::vec3 SceneGraphComponentProcessor::getPosition(Entity e, bool includeParent)
 {
     const auto &compData = m_pimpl->data.getData(e);
@@ -298,7 +335,10 @@ void SceneGraphComponentProcessor::add(Entity e)
         return;
     }
 
-    m_pimpl->data.add(e, Impl::Data());
+    Impl::Data data;
+    data.holder = e;
+
+    m_pimpl->data.add(e, data);
 }
 
 }

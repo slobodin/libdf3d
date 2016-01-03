@@ -37,6 +37,11 @@ public:
     void rotateRoll(Entity e, float roll, bool rads = false);
     void rotateAxis(Entity e, float angle, const glm::vec3 &axis, bool rads = false);
 
+    void setName(Entity e, const std::string &name);
+    const std::string& getName(Entity e) const;
+    Entity getByName(const std::string &name) const;
+    Entity getByName(Entity parent, const std::string &name) const;
+
     // TODO_ecs: make getWorldPosition & getLocalPosition instead.
     glm::vec3 getPosition(Entity e, bool includeParent = false);
     const glm::vec3& getScale(Entity e);
