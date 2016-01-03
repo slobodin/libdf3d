@@ -80,13 +80,6 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
             return Entity();
         }
 
-        if (!componentJson["external_data"].empty())
-        {
-            // TODO_ecs:
-            DEBUG_BREAK();
-            assert(false);
-        }
-
         auto componentType = componentJson["type"].asString();
         auto foundLoader = m_loaders.find(componentType);
         if (foundLoader == m_loaders.end())

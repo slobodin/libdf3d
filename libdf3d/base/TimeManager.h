@@ -75,14 +75,11 @@ public:
     TimeManager();
     ~TimeManager();
 
-    Handle subscribeUpdate(const UpdateFn &callback);
     Handle subscribeUpdate(UpdateFn &&callback);
     void unsubscribeUpdate(Handle handle);
 
-    // TODO_ecs: late update.
-
-    void enqueueForNextUpdate(const UpdateFn &callback);
     void enqueueForNextUpdate(UpdateFn &&callback);
+    todo enqueue action
 
     // Should not be called by client code. TODO: improve encapsulation.
     void update();

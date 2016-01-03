@@ -59,17 +59,6 @@ TimeManager::~TimeManager()
     glog << "TimeManager::~TimeManager alive listeners:" << aliveCount << logdebug;
 }
 
-TimeManager::Handle TimeManager::subscribeUpdate(const UpdateFn &callback)
-{
-    TimeSubscriber subscr;
-    subscr.callback = callback;
-    subscr.handle.id = ++m_nextHandle.id;
-
-    m_timeListeners.push_back(std::move(subscr));
-
-    return m_nextHandle;
-}
-
 TimeManager::Handle TimeManager::subscribeUpdate(UpdateFn &&callback)
 {
     TimeSubscriber subscr;
@@ -88,11 +77,6 @@ void TimeManager::unsubscribeUpdate(Handle handle)
         found->handle.id = -1;
     else
         glog << "Trying to remove nonexistent time listener" << loggame;
-}
-
-void TimeManager::enqueueForNextUpdate(const UpdateFn &callback)
-{
-    m_pendingListeners.push(callback);
 }
 
 void TimeManager::enqueueForNextUpdate(UpdateFn &&callback)
