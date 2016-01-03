@@ -24,6 +24,7 @@ struct Sprite2DComponentProcessor::Impl
         glm::vec2 anchor = glm::vec2(0.5f, 0.5f);
         glm::vec2 textureOriginalSize;
         glm::vec2 screenPosition;
+        bool visible = true;
 
         ResourceGUID textureGuid;
     };
@@ -53,7 +54,9 @@ void Sprite2DComponentProcessor::draw(RenderQueue *ops)
 
         compData.screenPosition = { worldTransform[3][0], worldTransform[3][1] };
 
-        ops->sprite2DOperations.push_back(compData.op);
+        // FIXME: deal with screen pos.
+        if (compData.visible)
+            ops->sprite2DOperations.push_back(compData.op);
     }
 }
 
@@ -91,6 +94,11 @@ void Sprite2DComponentProcessor::setZIdx(Entity e, float z)
     newPos.z = z;
 
     m_world->sceneGraph().setPosition(e, newPos);
+}
+
+void Sprite2DComponentProcessor::setVisible(Entity e, bool visible)
+{
+    m_pimpl->data.getData(e).visible = visible;
 }
 
 void Sprite2DComponentProcessor::setSize(Entity e, const glm::vec2 &size)

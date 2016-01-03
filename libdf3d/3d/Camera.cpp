@@ -126,7 +126,7 @@ const Frustum &Camera::getFrustum()
     return m_frustum;
 }
 
-glm::vec3 Camera::screenToViewPoint(float x, float y, float z)
+glm::vec3 Camera::screenToViewPoint(float x, float y, float z) const
 {
     const auto &vp = svc().renderManager().getScreenRenderTarget()->getViewport();
 
@@ -140,7 +140,7 @@ glm::vec3 Camera::screenToViewPoint(float x, float y, float z)
     return viewPos;
 }
 
-glm::vec3 Camera::worldToScreenPoint(const glm::vec3 &world)
+glm::vec3 Camera::worldToScreenPoint(const glm::vec3 &world) const
 {
     const auto &vp = svc().renderManager().getScreenRenderTarget()->getViewport();
 

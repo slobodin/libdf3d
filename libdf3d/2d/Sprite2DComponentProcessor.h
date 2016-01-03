@@ -29,6 +29,7 @@ public:
 
     void setAnchorPoint(Entity e, const glm::vec2 &pt);
     void setZIdx(Entity e, float z);
+    void setVisible(Entity e, bool visible);
 
     void setSize(Entity e, const glm::vec2 &size);
     void setWidth(Entity e, float w);
