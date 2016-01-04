@@ -84,7 +84,17 @@ void TimeManager::enqueueForNextUpdate(UpdateFn &&callback)
     m_pendingListeners.push(std::move(callback));
 }
 
-void TimeManager::update()
+void TimeManager::enqueueAction(UpdateFn &&callback, float delay)
+{
+    Action act;
+    act.callback = std::move(callback);
+    act.handle.id = ++m_nextHandle.id;
+    act.timeDelay = delay;
+
+    m_actions.push_back(std::move(act));
+}
+
+void TimeManager::update(float dt)
 {
     // First, fire all pending workers.
     UpdateFn worker;
@@ -97,6 +107,17 @@ void TimeManager::update()
         if (listener.handle.valid())
             listener.callback();
     }
+
+    for (auto &action : m_actions)
+    {
+        action.timeDelay -= dt;
+
+        if (action.timeDelay <= 0.0f)
+        {
+            action.callback();
+            action.handle.invalidate();
+        }
+    }
 }
 
 void TimeManager::cleanStep()
@@ -105,6 +126,14 @@ void TimeManager::cleanStep()
     {
         if (!it->handle.valid())
             it = m_timeListeners.erase(it);
+        else
+            it++;
+    }
+
+    for (auto it = m_actions.cbegin(); it != m_actions.cend(); )
+    {
+        if (!it->handle.valid())
+            it = m_actions.erase(it);
         else
             it++;
     }

@@ -4,6 +4,7 @@
 #include "impl/EntityLoader.h"
 #include <audio/AudioComponentProcessor.h>
 #include <base/TimeManager.h>
+#include <base/EngineController.h>
 #include <2d/Sprite2DComponentProcessor.h>
 #include <3d/StaticMeshComponentProcessor.h>
 #include <3d/SceneGraphComponentProcessor.h>
@@ -24,7 +25,7 @@ void World::update()
         m_physics->update();
 
         // Update client code.
-        m_timeMgr->update();
+        m_timeMgr->update(svc().timer().getFrameDelta(TimeChannel::GAME));
         for (auto &userProcessor : m_userProcessors)
             userProcessor.second->update();
 
@@ -178,28 +179,28 @@ void World::addUserComponentProcessor(EntityComponentProcessor *processor)
     m_userProcessors.insert(std::make_pair(idx, unique_ptr<EntityComponentProcessor>(processor)));
 }
 
-AudioComponentProcessor& World::audio() 
-{ 
-    return static_cast<AudioComponentProcessor&>(*m_audio); 
+AudioComponentProcessor& World::audio()
+{
+    return static_cast<AudioComponentProcessor&>(*m_audio);
 }
 
 StaticMeshComponentProcessor& World::staticMesh()
 {
-    return static_cast<StaticMeshComponentProcessor&>(*m_staticMeshes); 
+    return static_cast<StaticMeshComponentProcessor&>(*m_staticMeshes);
 }
 
 ParticleSystemComponentProcessor& World::vfx()
 {
-    return static_cast<ParticleSystemComponentProcessor&>(*m_vfx); 
+    return static_cast<ParticleSystemComponentProcessor&>(*m_vfx);
 }
 
 PhysicsComponentProcessor& World::physics()
-{ 
-    return static_cast<PhysicsComponentProcessor&>(*m_physics); 
+{
+    return static_cast<PhysicsComponentProcessor&>(*m_physics);
 }
 
 SceneGraphComponentProcessor& World::sceneGraph()
-{ 
+{
     return static_cast<SceneGraphComponentProcessor&>(*m_sceneGraph);
 }
 

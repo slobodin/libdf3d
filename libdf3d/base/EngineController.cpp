@@ -126,7 +126,7 @@ void EngineController::step()
     m_guiManager->getContext()->Update();
 
     // Update client code.
-    m_systemTimeManager->update();
+    m_systemTimeManager->update(m_timer->getFrameDelta(TimeChannel::SYSTEM));
     m_world->update();
 
     // Run frame.

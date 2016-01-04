@@ -65,8 +65,16 @@ private:
         UpdateFn callback;
     };
 
+    struct Action
+    {
+        Handle handle;
+        UpdateFn callback;
+        float timeDelay;
+    };
+
     std::list<TimeSubscriber> m_timeListeners;
     utils::ConcurrentQueue<UpdateFn> m_pendingListeners;
+    std::list<Action> m_actions;
     Handle m_nextHandle;
 
     TimeSubscriber* findSubscriber(Handle handle);
@@ -79,10 +87,11 @@ public:
     void unsubscribeUpdate(Handle handle);
 
     void enqueueForNextUpdate(UpdateFn &&callback);
-    todo enqueue action
+
+    void enqueueAction(UpdateFn &&callback, float delay);
 
     // Should not be called by client code. TODO: improve encapsulation.
-    void update();
+    void update(float dt);
     void cleanStep();
 };
 
