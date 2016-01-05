@@ -60,10 +60,10 @@ void ParticleSystemComponentProcessor::update()
     auto dt = svc().timer().getFrameDelta(TimeChannel::GAME);
     for (auto &compData : m_pimpl->data.rawData())
     {
-        auto spkSystem = compData.system;
-
         if (compData.paused)
             continue;
+
+        auto spkSystem = compData.system;
 
         if (compData.worldTransformed)
             spkSystem->getTransform().set(glm::value_ptr(compData.holderTransform));
@@ -75,12 +75,7 @@ void ParticleSystemComponentProcessor::update()
         {
             compData.systemAge += dt;
             if (compData.systemAge > compData.systemLifeTime)
-            {
-                // TODO_ecs:
-                DEBUG_BREAK();
-                assert(false);
-                //m_holder->detachComponent(ComponentType::PARTICLE_EFFECT);
-            }
+                compData.paused = true;
         }
     }
 }
@@ -89,6 +84,9 @@ void ParticleSystemComponentProcessor::draw(RenderQueue *ops)
 {
     for (const auto &compData : m_pimpl->data.rawData())
     {
+        if (compData.paused)
+            continue;
+
         glm::mat4 transf;
         if (!compData.worldTransformed)
             transf = compData.holderTransform;
@@ -168,6 +166,11 @@ SPK::Ref<SPK::System> ParticleSystemComponentProcessor::getSystem(Entity e) cons
 bool ParticleSystemComponentProcessor::isWorldTransformed(Entity e) const
 {
     return m_pimpl->data.getData(e).worldTransformed;
+}
+
+bool ParticleSystemComponentProcessor::isPlaying(Entity e) const
+{
+    return !m_pimpl->data.getData(e).paused;
 }
 
 void ParticleSystemComponentProcessor::add(Entity e, const std::string &vfxResource)

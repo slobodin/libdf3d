@@ -34,6 +34,7 @@ public:
     float getSystemLifeTime(Entity e) const;
     SPK::Ref<SPK::System> getSystem(Entity e) const;
     bool isWorldTransformed(Entity e) const;
+    bool isPlaying(Entity e) const;
 
     void add(Entity e, const std::string &vfxResource);
     void add(Entity e, SPK::Ref<SPK::System> spkSystem);
