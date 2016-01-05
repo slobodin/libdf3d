@@ -39,7 +39,7 @@ public:
     float getWidth(Entity e);
     float getHeight(Entity e);
 
-    //const glm::vec2& getScreenPosition(Entity e) const;
+    const glm::vec2& getScreenPosition(Entity e);
 
     void useTexture(Entity e, const std::string &pathToTexture);
     const glm::vec2& getTextureSize(Entity e) const;

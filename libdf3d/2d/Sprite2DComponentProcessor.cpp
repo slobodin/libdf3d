@@ -30,13 +30,8 @@ struct Sprite2DComponentProcessor::Impl
     };
 
     ComponentDataHolder<Data> data;
-};
 
-void Sprite2DComponentProcessor::draw(RenderQueue *ops)
-{
-    // TODO:
-    // Camera transform.
-    for (auto &compData : m_pimpl->data.rawData())
+    static void updateTransform(Data &compData)
     {
         auto &worldTransform = compData.op.worldTransform;
 
@@ -53,10 +48,21 @@ void Sprite2DComponentProcessor::draw(RenderQueue *ops)
         worldTransform[3][2] = 0.0f;
 
         compData.screenPosition = { worldTransform[3][0], worldTransform[3][1] };
+    }
+};
 
-        // FIXME: deal with screen pos.
-        if (compData.visible)
-            ops->sprite2DOperations.push_back(compData.op);
+void Sprite2DComponentProcessor::draw(RenderQueue *ops)
+{
+    // TODO:
+    // Camera transform.
+    for (auto &compData : m_pimpl->data.rawData())
+    {
+        if (!compData.visible)
+            continue;
+
+        Impl::updateTransform(compData);
+
+        ops->sprite2DOperations.push_back(compData.op);
     }
 }
 
@@ -137,12 +143,16 @@ float Sprite2DComponentProcessor::getHeight(Entity e)
 {
     return getSize(e).y;
 }
-/*
-const glm::vec2& Sprite2DComponentProcessor::getScreenPosition(Entity e) const
+
+const glm::vec2& Sprite2DComponentProcessor::getScreenPosition(Entity e)
 {
-    return m_pimpl->data.getData(e).screenPosition;
+    auto &compData = m_pimpl->data.getData(e);
+
+    Impl::updateTransform(compData);
+
+    return compData.screenPosition;
 }
-*/
+
 void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToTexture)
 {
     TextureCreationParams params;
