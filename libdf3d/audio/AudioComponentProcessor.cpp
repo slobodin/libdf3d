@@ -93,7 +93,7 @@ AudioComponentProcessor::AudioComponentProcessor(World *world)
 
 AudioComponentProcessor::~AudioComponentProcessor()
 {
-    glog << "AudioComponentProcessor::~AudioComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
+    //glog << "AudioComponentProcessor::~AudioComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
 }
 
 void AudioComponentProcessor::play(Entity e)

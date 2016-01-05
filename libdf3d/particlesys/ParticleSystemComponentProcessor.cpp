@@ -127,7 +127,7 @@ ParticleSystemComponentProcessor::ParticleSystemComponentProcessor(World *world)
 
 ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor()
 {
-    glog << "ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
+    //glog << "ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
     m_pimpl->data.clear();
     SPK_DUMP_MEMORY
 }

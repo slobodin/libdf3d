@@ -272,7 +272,7 @@ PhysicsComponentProcessor::PhysicsComponentProcessor(World *w)
 
 PhysicsComponentProcessor::~PhysicsComponentProcessor()
 {
-    glog << "PhysicsComponentProcessor::~PhysicsComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
+    //glog << "PhysicsComponentProcessor::~PhysicsComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
 }
 
 btRigidBody* PhysicsComponentProcessor::getBody(Entity e)

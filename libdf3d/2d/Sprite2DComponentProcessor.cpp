@@ -80,7 +80,7 @@ Sprite2DComponentProcessor::Sprite2DComponentProcessor(World *world)
 
 Sprite2DComponentProcessor::~Sprite2DComponentProcessor()
 {
-    glog << "Sprite2DComponentProcessor::~Sprite2DComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
+    //glog << "Sprite2DComponentProcessor::~Sprite2DComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
 }
 
 void Sprite2DComponentProcessor::setAnchorPoint(Entity e, const glm::vec2 &pt)

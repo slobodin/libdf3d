@@ -79,7 +79,7 @@ SceneGraphComponentProcessor::SceneGraphComponentProcessor()
 
 SceneGraphComponentProcessor::~SceneGraphComponentProcessor()
 {
-    glog << "SceneGraphComponentProcessor::~SceneGraphComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
+    //glog << "SceneGraphComponentProcessor::~SceneGraphComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
 }
 
 void SceneGraphComponentProcessor::setPosition(Entity e, const glm::vec3 &newPosition)

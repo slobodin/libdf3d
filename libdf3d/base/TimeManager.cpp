@@ -49,14 +49,19 @@ TimeManager::TimeManager()
 
 TimeManager::~TimeManager()
 {
+#ifdef _DEBUG
     // Dump some debug info.
-    glog << "TimeManager::~TimeManager total listeners:" << m_timeListeners.size() << logdebug;
     auto aliveCount = 0;
     for (auto &l : m_timeListeners)
         if (l.handle.valid())
             aliveCount++;
 
-    glog << "TimeManager::~TimeManager alive listeners:" << aliveCount << logdebug;
+    if (aliveCount > 0)
+    {
+        glog << "TimeManager::~TimeManager total listeners:" << m_timeListeners.size() << logwarn;
+        glog << "TimeManager::~TimeManager alive listeners:" << aliveCount << logwarn;
+    }
+#endif
 }
 
 TimeManager::Handle TimeManager::subscribeUpdate(UpdateFn &&callback)

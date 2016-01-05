@@ -104,7 +104,7 @@ StaticMeshComponentProcessor::StaticMeshComponentProcessor(World *world)
 
 StaticMeshComponentProcessor::~StaticMeshComponentProcessor()
 {
-    glog << "StaticMeshComponentProcessor::~StaticMeshComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
+    //glog << "StaticMeshComponentProcessor::~StaticMeshComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
 }
 
 shared_ptr<MeshData> StaticMeshComponentProcessor::getMeshData(Entity e) const
