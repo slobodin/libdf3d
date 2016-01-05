@@ -166,6 +166,11 @@ void World::destroyWithChildren(Entity e)
     }
 }
 
+size_t World::getEntitiesCount()
+{
+    return m_entityManager->size();
+}
+
 void World::pauseSimulation(bool paused)
 {
     m_paused = paused;

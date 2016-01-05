@@ -67,6 +67,7 @@ public:
     bool alive(Entity e);
     void destroy(Entity e);
     void destroyWithChildren(Entity e);
+    size_t getEntitiesCount();
 
     void pauseSimulation(bool paused);
 
