@@ -18,8 +18,6 @@ namespace df3d {
 
 void World::update()
 {
-    // TODO_ecs: ordering.
-    // TODO_ecs: pause check!!!
     if (!m_paused)
     {
         m_physics->update();
@@ -46,7 +44,7 @@ void World::collectRenderOperations(RenderQueue *ops)
     for (const auto& light : m_renderingParams.getLights())
         ops->lights.push_back(&light);
 
-    // TODO_ecs: can do in parallel.
+    // TODO: can do in parallel.
     staticMesh().draw(ops);
     vfx().draw(ops);
     physics().draw(ops);

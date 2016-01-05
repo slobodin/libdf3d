@@ -47,14 +47,6 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
         return Entity();
     }
 
-    auto objName = root["name"].asString();
-    if (objName.size())
-    {
-        // TODO_ecs:
-        DEBUG_BREAK();
-        assert(false);
-    }
-
     const auto &componentsJson = root["components"];
 
     Entity res = w.spawn();
