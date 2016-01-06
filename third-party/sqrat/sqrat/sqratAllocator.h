@@ -125,11 +125,15 @@ public:
     static SQInteger iNew(HSQUIRRELVM vm) {
         Var<A1> a1(vm, 2);
 
+#if !defined (SCRAT_NO_ERROR_CHECKING)
         if (!Error::Instance().Occurred(vm)) {
+#endif
             setInstance(vm, new C(
                 a1.value
             ));
+#if !defined (SCRAT_NO_ERROR_CHECKING)
         }
+#endif
         return 0;
     }
     template <typename A1,typename A2>
@@ -137,12 +141,16 @@ public:
         Var<A1> a1(vm, 2);
         Var<A2> a2(vm, 3);
 
+#if !defined (SCRAT_NO_ERROR_CHECKING)
         if (!Error::Instance().Occurred(vm)) {
+#endif
             setInstance(vm, new C(
                 a1.value,
                 a2.value
             ));
+#if !defined (SCRAT_NO_ERROR_CHECKING)
         }
+#endif
         return 0;
     }
     template <typename A1,typename A2,typename A3>
@@ -151,13 +159,17 @@ public:
         Var<A2> a2(vm, 3);
         Var<A3> a3(vm, 4);
 
+#if !defined (SCRAT_NO_ERROR_CHECKING)
         if (!Error::Instance().Occurred(vm)) {
+#endif
             setInstance(vm, new C(
                 a1.value,
                 a2.value,
                 a3.value
             ));
+#if !defined (SCRAT_NO_ERROR_CHECKING)
         }
+#endif
         return 0;
     }
     template <typename A1,typename A2,typename A3,typename A4>
@@ -167,14 +179,18 @@ public:
         Var<A3> a3(vm, 4);
         Var<A4> a4(vm, 5);
 
+#if !defined (SCRAT_NO_ERROR_CHECKING)
         if (!Error::Instance().Occurred(vm)) {
+#endif
             setInstance(vm, new C(
                 a1.value,
                 a2.value,
                 a3.value,
                 a4.value
             ));
+#if !defined (SCRAT_NO_ERROR_CHECKING)
         }
+#endif
         return 0;
     }
     template <typename A1,typename A2,typename A3,typename A4,typename A5>
