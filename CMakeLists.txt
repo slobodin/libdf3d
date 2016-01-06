@@ -92,6 +92,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/math/ConvexHull.h
     ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemUtils.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/ParticleSystemLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentCreationParams.h
@@ -184,6 +185,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/math/ConvexHull.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemUtils.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/ParticleSystemLoader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentCreationParams.cpp

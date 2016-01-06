@@ -71,5 +71,6 @@
 #include <game/TagComponentProcessor.h>
 
 #include <particlesys/ParticleSystemComponentProcessor.h>
+#include <particlesys/ParticleSystemUtils.h>
 
 #include <script/ScriptManager.h>

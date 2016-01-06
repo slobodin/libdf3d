@@ -1,6 +1,7 @@
 #include "ParticleSystemComponentProcessor.h"
 
 #include "impl/ParticleSystemLoader.h"
+#include "ParticleSystemUtils.h"
 #include <game/ComponentDataHolder.h>
 #include <game/World.h>
 #include <3d/Camera.h>
@@ -123,6 +124,7 @@ ParticleSystemComponentProcessor::ParticleSystemComponentProcessor(World *world)
     // Clamp the step to 100 ms.
     SPK::System::setClampStep(true, 0.1f);
     SPK::System::useRealStep();
+    //SPK::System::useConstantStep(1.0f / 30.0f);
 }
 
 ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor()
@@ -175,33 +177,10 @@ bool ParticleSystemComponentProcessor::isPlaying(Entity e) const
 
 void ParticleSystemComponentProcessor::add(Entity e, const std::string &vfxResource)
 {
-    if (m_pimpl->data.contains(e))
-    {
-        glog << "An entity already has a particle system component" << logwarn;
-        return;
-    }
-
-    auto vfxJson = utils::json::fromFile(vfxResource);
-    auto spkSystem = particlesys_impl::ParticleSystemLoader::createSpkSystem(vfxJson);
-    if (!spkSystem)
-    {
-        glog << "Failed to init particle system component" << logwarn;
-        return;
-    }
-
-    add(e, spkSystem);
-
-    bool worldTransformed = true;
-    float systemLifeTime = -1.0f;
-
-    vfxJson["worldTransformed"] >> worldTransformed;
-    vfxJson["systemLifeTime"] >> systemLifeTime;
-
-    setWorldTransformed(e, worldTransformed);
-    setSystemLifeTime(e, systemLifeTime);
+    add(e, ParticleSystemUtils::parseVfx(vfxResource));
 }
 
-void ParticleSystemComponentProcessor::add(Entity e, SPK::Ref<SPK::System> spkSystem)
+void ParticleSystemComponentProcessor::add(Entity e, const ParticleSystemCreationParams &params)
 {
     if (m_pimpl->data.contains(e))
     {
@@ -210,8 +189,10 @@ void ParticleSystemComponentProcessor::add(Entity e, SPK::Ref<SPK::System> spkSy
     }
 
     Impl::Data data;
-    data.system = spkSystem;
+    data.system = params.spkSystem;
     data.holder = e;
+    data.systemLifeTime = params.systemLifeTime;
+    data.worldTransformed = params.worldTransformed;
     data.holderTransform = m_world->sceneGraph().getTransformation(e);
 
     m_pimpl->data.add(e, data);
