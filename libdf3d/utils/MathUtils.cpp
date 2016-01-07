@@ -27,6 +27,11 @@ glm::vec2 toPolar(const glm::vec2 &cartesian)
     return { std::sqrt(cartesian.x * cartesian.x + cartesian.y * cartesian.y), std::atan2(cartesian.y, cartesian.x) };
 }
 
+glm::vec2 fromPolar(float angle, float dist)
+{
+    return dist * glm::vec2(std::cos(angle), std::sin(angle));
+}
+
 float signedDistanceToPlane(const glm::vec4 &plane, const glm::vec3 &point)
 {
     return glm::dot(glm::vec3(plane), point) + plane.w;
