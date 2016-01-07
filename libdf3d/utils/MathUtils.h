@@ -29,4 +29,10 @@ struct DF3D_DLL spherical
 
 DF3D_DLL float gaussian(float x, float mean, float stddev);
 
+struct Ray
+{
+    glm::vec3 origin;
+    glm::vec3 dir;
+};
+
 } } }

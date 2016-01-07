@@ -2,6 +2,7 @@
 
 #include "Frustum.h"
 #include <render/Viewport.h>
+#include <utils/MathUtils.h>
 
 namespace df3d {
 
@@ -67,6 +68,7 @@ public:
 
     glm::vec3 screenToViewPoint(float x, float y, float z = 0.0f) const;
     glm::vec3 worldToScreenPoint(const glm::vec3 &world) const;
+    utils::math::Ray createPickingRay(float x, float y);
 };
 
 }

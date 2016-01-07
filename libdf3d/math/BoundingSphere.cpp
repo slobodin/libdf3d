@@ -1,5 +1,8 @@
 #include "BoundingSphere.h"
 
+#include <utils/MathUtils.h>
+#include <glm/gtx/intersect.hpp>
+
 namespace df3d {
 
 BoundingSphere::BoundingSphere()
@@ -41,19 +44,33 @@ bool BoundingSphere::isValid() const
 
 bool BoundingSphere::contains(const glm::vec3 &point) const
 {
+    if (!isValid())
+        return false;
     return glm::length(point - m_position) <= m_radius;
 }
 
 bool BoundingSphere::intersects(const BoundingSphere &other) const
 {
+    if (!isValid())
+        return false;
     return glm::length(other.m_position - m_position) <= m_radius + other.m_radius;
 }
 
 bool BoundingSphere::intersects(const AABB &aabb) const
 {
+    if (!isValid())
+        return false;
     // TODO:
     assert(false);
     return false;
+}
+
+bool BoundingSphere::intersects(const utils::math::Ray &r) const
+{
+    if (!isValid())
+        return false;
+    glm::vec3 pos, normal;
+    return glm::intersectRaySphere(r.origin, r.dir, m_position, m_radius, pos, normal);
 }
 
 const glm::vec3 &BoundingSphere::getCenter() const
