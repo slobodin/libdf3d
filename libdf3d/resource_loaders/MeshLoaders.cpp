@@ -29,7 +29,7 @@ MeshData* MeshDataManualLoader::load()
     for (auto &s : m_geometry)
         utils::mesh::computeTangentBasis(s);
 
-    return new MeshData(m_geometry);
+    return result;
 }
 
 MeshDataFSLoader::MeshDataFSLoader(const std::string &path, ResourceLoadingMode lm)
