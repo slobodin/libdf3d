@@ -6,35 +6,35 @@ namespace df3d {
 
 SharedUniformType getSharedTypeForUniform(const std::string &name)
 {
-    if (name == "WorldViewProjectionMatrix")
+    if (name == "u_worldViewProjectionMatrix")
         return SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM;
-    else if (name == "WorldViewMatrix")
+    else if (name == "u_worldViewMatrix")
         return SharedUniformType::WORLD_VIEW_MATRIX_UNIFORM;
-    else if (name == "WorldViewMatrix3x3")
+    else if (name == "u_worldViewMatrix3x3")
         return SharedUniformType::WORLD_VIEW_3X3_MATRIX_UNIFORM;
-    else if (name == "ViewMatrixInverse")
+    else if (name == "u_viewMatrixInverse")
         return SharedUniformType::VIEW_INVERSE_MATRIX_UNIFORM;
-    else if (name == "ViewMatrix")
+    else if (name == "u_viewMatrix")
         return SharedUniformType::VIEW_MATRIX_UNIFORM;
-    else if (name == "ProjectionMatrix")
+    else if (name == "u_projectionMatrix")
         return SharedUniformType::PROJECTION_MATRIX_UNIFORM;
-    else if (name == "WorldMatrix")
+    else if (name == "u_worldMatrix")
         return SharedUniformType::WORLD_MATRIX_UNIFORM;
-    else if (name == "WorldMatrixInverse")
+    else if (name == "u_worldMatrixInverse")
         return SharedUniformType::WORLD_INVERSE_MATRIX_UNIFORM;
-    else if (name == "NormalMatrix")
+    else if (name == "u_normalMatrix")
         return SharedUniformType::NORMAL_MATRIX_UNIFORM;
-    else if (name == "globalAmbient")
+    else if (name == "u_globalAmbient")
         return SharedUniformType::GLOBAL_AMBIENT_UNIFORM;
-    else if (name == "CameraPosition")
+    else if (name == "u_cameraPosition")
         return SharedUniformType::CAMERA_POSITION_UNIFORM;
-    else if (name == "FogDensity")
+    else if (name == "u_fogDensity")
         return SharedUniformType::FOG_DENSITY_UNIFORM;
-    else if (name == "FogColor")
+    else if (name == "u_fogColor")
         return SharedUniformType::FOG_COLOR_UNIFORM;
-    else if (name == "PixelSize")
+    else if (name == "u_pixelSize")
         return SharedUniformType::PIXEL_SIZE_UNIFORM;
-    else if (name == "ElapsedTime")
+    else if (name == "u_elapsedTime")
         return SharedUniformType::ELAPSED_TIME_UNIFORM;
     else if (name == "material.ambient")
         return SharedUniformType::MATERIAL_AMBIENT_UNIFORM;

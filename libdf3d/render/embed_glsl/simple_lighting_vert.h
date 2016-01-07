@@ -19,12 +19,12 @@ attribute vec3 a_vertex3;                    \n\
 attribute vec3 a_normal;                    \n\
 attribute vec2 a_txCoord;                   \n\
 \
-uniform mat4 WorldViewMatrix;               \n\
-uniform mat4 WorldViewProjectionMatrix;     \n\
-uniform mat3 NormalMatrix;                  \n\
+uniform mat4 u_worldViewMatrix;               \n\
+uniform mat4 u_worldViewProjectionMatrix;     \n\
+uniform mat3 u_normalMatrix;                  \n\
 \
 uniform Material material;                  \n\
-uniform vec4 globalAmbient;                 \n\
+uniform vec4 u_globalAmbient;                 \n\
 uniform Light current_light;                \n\
 \
 varying LOWP vec4 color;                    \n\
@@ -57,15 +57,15 @@ void illuminate()                                           \n\
 \
 void main()                                             \n\
 {                                                       \n\
-    N = normalize( NormalMatrix * a_normal );           \n\
-    P = (WorldViewMatrix * vec4(a_vertex3, 1.0)).xyz;                  \n\
+    N = normalize( u_normalMatrix * a_normal );           \n\
+    P = (u_worldViewMatrix * vec4(a_vertex3, 1.0)).xyz;                  \n\
     V = normalize( -P );                                \n\
 \
     color = vec4(0.0, 0.0, 0.0, 1.0);                   \n\
 \
     illuminate();                                       \n\
 \
-    gl_Position = WorldViewProjectionMatrix * vec4(a_vertex3, 1.0);     \n\
+    gl_Position = u_worldViewProjectionMatrix * vec4(a_vertex3, 1.0);     \n\
 \
     UV = a_txCoord;                                     \n\
 }                                                       \n\
