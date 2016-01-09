@@ -158,6 +158,11 @@ bool AudioComponentProcessor::isLooped(Entity e) const
     return m_pimpl->data.getData(e).looped;
 }
 
+AudioComponentProcessor::State AudioComponentProcessor::getState(Entity e) const
+{
+    return getAudioState(m_pimpl->data.getData(e).audioSourceId);
+}
+
 void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
 {
     if (m_pimpl->data.contains(e))

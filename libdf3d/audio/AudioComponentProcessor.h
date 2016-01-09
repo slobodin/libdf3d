@@ -43,6 +43,7 @@ public:
     float getPitch(Entity e) const;
     float getGain(Entity e) const;
     bool isLooped(Entity e) const;
+    State getState(Entity e) const;
 
     void add(Entity e, const std::string &audioFilePath);
     void remove(Entity e);
