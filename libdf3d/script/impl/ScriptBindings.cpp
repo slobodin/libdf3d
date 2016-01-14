@@ -104,6 +104,7 @@ void bindGlm(Table &df3dNamespace)
     df3dNamespace.Func(_SC("vec3_neg"), vec3_neg);
     df3dNamespace.Func(_SC("random_float"), random_float);
     df3dNamespace.Func(_SC("random_float_range"), random_float_range);
+    df3dNamespace.Func(_SC("gaussian"), df3d::utils::math::gaussian);
 }
 
 void bindProcessors()
