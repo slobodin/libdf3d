@@ -12,41 +12,6 @@ using namespace Sqrat;
 
 namespace df3d { namespace script_impl {
 
-inline glm::vec3 vec3_sub(const glm::vec3 &a, const glm::vec3 &b)
-{
-    return a - b;
-}
-
-inline glm::vec3 vec3_add(const glm::vec3 &a, const glm::vec3 &b)
-{
-    return a + b;
-}
-
-inline glm::vec3 vec3_mult_scalar(const glm::vec3 &a, float s)
-{
-    return a * s;
-}
-
-inline float vec3_dot(const glm::vec3 &a, const glm::vec3 &b)
-{
-    return glm::dot(a, b);
-}
-
-inline glm::vec3 vec3_cross(const glm::vec3 &a, const glm::vec3 &b)
-{
-    return glm::cross(a, b);
-}
-
-inline float vec3_len(const glm::vec3 &a)
-{
-    return glm::length(a);
-}
-
-inline glm::vec3 vec3_neg(const glm::vec3 &a)
-{
-    return -a;
-}
-
 inline float random_float()
 {
     return utils::RandRange(0.0f, 1.0f);
@@ -94,14 +59,6 @@ void bindGlm(Table &df3dNamespace)
         df3dNamespace.Bind(_SC("vec3"), glmvec3Class);
     }
 
-    df3dNamespace.Func(_SC("safeNormalize"), df3d::utils::math::safeNormalize);
-    df3dNamespace.Func(_SC("vec3_sub"), vec3_sub);
-    df3dNamespace.Func(_SC("vec3_add"), vec3_add);
-    df3dNamespace.Func(_SC("vec3_dot"), vec3_dot);
-    df3dNamespace.Func(_SC("vec3_mult_scalar"), vec3_mult_scalar);
-    df3dNamespace.Func(_SC("vec3_cross"), vec3_cross);
-    df3dNamespace.Func(_SC("vec3_len"), vec3_len);
-    df3dNamespace.Func(_SC("vec3_neg"), vec3_neg);
     df3dNamespace.Func(_SC("random_float"), random_float);
     df3dNamespace.Func(_SC("random_float_range"), random_float_range);
     df3dNamespace.Func(_SC("gaussian"), df3d::utils::math::gaussian);
