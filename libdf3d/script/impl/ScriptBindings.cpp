@@ -22,6 +22,11 @@ inline float random_float_range(float a, float b)
     return utils::RandRange(a, b);
 }
 
+inline int random_int_range(int a, int b)
+{
+    return utils::RandRange(a, b);
+}
+
 inline World* df3dWorld()
 {
     return &df3d::world();
@@ -61,6 +66,7 @@ void bindGlm(Table &df3dNamespace)
 
     df3dNamespace.Func(_SC("random_float"), random_float);
     df3dNamespace.Func(_SC("random_float_range"), random_float_range);
+    df3dNamespace.Func(_SC("random_int_range"), random_int_range);
     df3dNamespace.Func(_SC("gaussian"), df3d::utils::math::gaussian);
 }
 
