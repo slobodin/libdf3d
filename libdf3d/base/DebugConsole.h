@@ -1,6 +1,7 @@
 #pragma once
 
 #include <utils/Utils.h>
+#include <gui/RocketRefWrapper.h>
 
 namespace df3d {
 
@@ -46,7 +47,7 @@ class DF3D_DLL DebugConsole : utils::NonCopyable
     std::unordered_map<std::string, ConsoleCommand> m_consoleCommands;
 
     class ConsoleWindow;
-    ConsoleWindow *m_menu = nullptr;
+    RocketRefWrapper<ConsoleWindow> m_menu;
     friend class ConsoleWindow;
 
     std::string m_history;

@@ -33,9 +33,12 @@ public:
     Rocket::Core::Context* getContext() { return m_rocketContext; }
 
     template<typename T>
-    T* createDocument(const std::string &id)
+    RocketRefWrapper<T> createDocument(const std::string &id)
     {
-        return dynamic_cast<T*>(m_rocketContext->CreateDocument(id.c_str()));
+        auto el = dynamic_cast<T*>(m_rocketContext->CreateDocument(id.c_str()));
+        RocketRefWrapper<T> result(el);
+        el->RemoveReference();
+        return el;
     }
 };
 

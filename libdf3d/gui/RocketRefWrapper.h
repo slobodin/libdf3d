@@ -71,6 +71,11 @@ public:
     {
         std::swap(m_ref, other.m_ref);
     }
+
+    T* get()
+    {
+        return m_ref;
+    }
 };
 
 using RocketDocument = RocketRefWrapper<Rocket::Core::ElementDocument>;
