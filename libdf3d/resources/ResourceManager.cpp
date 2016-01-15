@@ -13,7 +13,9 @@ namespace df3d {
 
 void ResourceManager::doRequest(DecodeRequest req)
 {
+    /*
     glog << "ASYNC decoding" << req.source->getPath() << logdebug;
+    */
 
     req.result = req.loader->decode(req.source);
     if (!req.result)
@@ -93,7 +95,9 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
         m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, req));
     else
     {
+        /*
         glog << "Decoding" << req.source->getPath() << logdebug;
+        */
 
         req.result = loader->decode(req.source);
         if (req.result)
