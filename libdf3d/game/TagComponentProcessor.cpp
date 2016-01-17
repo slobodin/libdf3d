@@ -2,7 +2,7 @@
 
 #include <utils/Utils.h>
 
-namespace df3d {    
+namespace df3d {
 
 void TagComponentProcessor::update()
 {
@@ -33,31 +33,29 @@ const std::unordered_set<Entity>& TagComponentProcessor::getEntities(int tag)
 bool TagComponentProcessor::hasTag(Entity e, int tag) const
 {
     auto found = m_tagLookup.find(e);
-    return found != m_tagLookup.end() && found->second == tag;
+    return found != m_tagLookup.end() && df3d::utils::contains_key(found->second, tag);
 }
 
 void TagComponentProcessor::add(Entity e, int tag)
 {
-    if (utils::contains_key(m_tagLookup, e))
-    {
-        glog << "An entity already has a tag component" << logwarn;
-        return;
-    }
-
-    m_tagLookup.insert(std::make_pair(e, tag));
+    m_tagLookup[e].insert(tag);
     m_entities[tag].insert(e);
 }
 
 void TagComponentProcessor::remove(Entity e)
 {
-    auto tag = m_tagLookup.find(e);
-    if (tag != m_tagLookup.end())
+    auto tags = m_tagLookup.find(e);
+    if (tags != m_tagLookup.end())
     {
-        auto arrFound = m_entities.find(tag->second);
-        assert(arrFound != m_entities.end());
+        for (auto tag : tags->second)
+        {
+            auto arrFound = m_entities.find(tag);
+            assert(arrFound != m_entities.end());
 
-        arrFound->second.erase(e);
-        m_tagLookup.erase(tag);
+            arrFound->second.erase(e);
+        }
+
+        assert(m_tagLookup.erase(e) == 1);
     }
 }
 

@@ -8,7 +8,7 @@ namespace df3d {
 class DF3D_DLL TagComponentProcessor : public EntityComponentProcessor
 {
     std::unordered_map<int, std::unordered_set<Entity>> m_entities;
-    std::unordered_map<Entity, int> m_tagLookup;
+    std::unordered_map<Entity, std::unordered_set<int>> m_tagLookup;
 
     void update() override;
     void cleanStep(const std::list<Entity> &deleted) override;
