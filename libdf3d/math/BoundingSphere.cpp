@@ -65,12 +65,12 @@ bool BoundingSphere::intersects(const AABB &aabb) const
     return false;
 }
 
-bool BoundingSphere::intersects(const utils::math::Ray &r) const
+bool BoundingSphere::intersects(const utils::math::Ray &r, glm::vec3 &outPos) const
 {
     if (!isValid())
         return false;
-    glm::vec3 pos, normal;
-    return glm::intersectRaySphere(r.origin, r.dir, m_position, m_radius, pos, normal);
+    glm::vec3 normal;
+    return glm::intersectRaySphere(r.origin, r.dir, m_position, m_radius, outPos, normal);
 }
 
 const glm::vec3 &BoundingSphere::getCenter() const
