@@ -68,6 +68,7 @@
 #include <game/ComponentDataHolder.h>
 #include <game/World.h>
 #include <game/WorldRenderingParams.h>
+#include <game/WorldSize.h>
 #include <game/TagComponentProcessor.h>
 
 #include <particlesys/ParticleSystemComponentProcessor.h>
