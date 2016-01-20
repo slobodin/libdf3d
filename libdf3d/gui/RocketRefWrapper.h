@@ -76,6 +76,11 @@ public:
     {
         return m_ref;
     }
+
+    operator bool() const
+    {
+        return m_ref != nullptr;
+    }
 };
 
 using RocketDocument = RocketRefWrapper<Rocket::Core::ElementDocument>;
