@@ -293,7 +293,7 @@ void SceneGraphComponentProcessor::detachChild(Entity parent, Entity child)
 {
     if (!getParent(child).valid())
     {
-        glog << "Can not detach entity. An entity already has no parent" << logwarn;
+        glog << "Can not detach entity. An entity has no parent" << logwarn;
         return;
     }
 
