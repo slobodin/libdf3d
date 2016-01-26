@@ -54,7 +54,7 @@ struct AudioComponentProcessor::Impl
 void AudioComponentProcessor::update()
 {
     // Update camera position.
-    const auto &cam = m_world->getCamera();
+    const auto &cam = *m_world->getCamera();
     alListenerfv(AL_POSITION, glm::value_ptr(cam.getPosition()));
 
     const auto &dir = cam.getDir();

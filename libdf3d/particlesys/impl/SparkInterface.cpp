@@ -256,6 +256,9 @@ SPK::RenderBuffer* QuadParticleSystemRenderer::attachRenderBuffer(const SPK::Gro
 
 void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::DataSet *dataSet, SPK::RenderBuffer *renderBuffer) const
 {
+    if (!isActive())
+        return;
+
     auto &buffer = static_cast<MyRenderBuffer&>(*renderBuffer);
     buffer.positionAtStart(); // Repositions all the buffers at the start.
 
@@ -300,7 +303,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
             m_renderParticle = &QuadParticleSystemRenderer::render2D;
     }
 
-    auto camMatr = svc().world().getCamera().getViewMatrix() * *m_currentTransformation;
+    auto camMatr = svc().world().getCamera()->getViewMatrix() * *m_currentTransformation;
     camMatr = glm::inverse(camMatr);
 
     bool globalOrientation = precomputeOrientation3D(group,
@@ -383,6 +386,9 @@ SPK::RenderBuffer* LineParticleSystemRenderer::attachRenderBuffer(const SPK::Gro
 
 void LineParticleSystemRenderer::render(const SPK::Group &group, const SPK::DataSet *dataSet, SPK::RenderBuffer *renderBuffer) const
 {
+    if (!isActive())
+        return;
+
     auto &buffer = static_cast<MyRenderBuffer&>(*renderBuffer);
     buffer.positionAtStart(); // Repositions all the buffers at the start.
 

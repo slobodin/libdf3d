@@ -80,7 +80,7 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
 
         if (!compData.frustumCullingDisabled)
         {
-            const auto &frustum = m_world->getCamera().getFrustum();
+            const auto &frustum = m_world->getCamera()->getFrustum();
             if (!frustum.sphereInFrustum(Impl::getBoundingSphere(compData)))
                 continue;
         }

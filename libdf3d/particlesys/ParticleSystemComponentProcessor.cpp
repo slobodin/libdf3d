@@ -36,7 +36,7 @@ struct ParticleSystemComponentProcessor::Impl
         {
             if (spkSystem->getGroup(i)->isDistanceComputationEnabled())
             {
-                auto pos = w->getCamera().getPosition();
+                auto pos = w->getCamera()->getPosition();
                 if (!compData.worldTransformed)
                 {
                     // Transform camera position into this node space.

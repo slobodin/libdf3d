@@ -144,7 +144,7 @@ void RenderManager::doRenderWorld(World &world)
 
     // Draw whole scene to the texture or to the screen (depends on postprocess option).
     rt->bind();
-    m_renderer->setProjectionMatrix(world.getCamera().getProjectionMatrix());
+    m_renderer->setProjectionMatrix(world.getCamera()->getProjectionMatrix());
 
     m_renderer->clearColorBuffer();
     m_renderer->clearDepthBuffer();
@@ -154,7 +154,7 @@ void RenderManager::doRenderWorld(World &world)
     m_renderer->setAmbientLight(world.getRenderingParams().getAmbientLight());
     m_renderer->enableFog(world.getRenderingParams().getFogDensity(), world.getRenderingParams().getFogColor());
 
-    m_renderer->setCameraMatrix(world.getCamera().getViewMatrix());
+    m_renderer->setCameraMatrix(world.getCamera()->getViewMatrix());
 
     m_renderQueue->sort();
 

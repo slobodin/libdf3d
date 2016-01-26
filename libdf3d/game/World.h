@@ -84,8 +84,7 @@ public:
     void setCamera(shared_ptr<Camera> camera) { m_camera = camera; }
     void setRenderingParams(const WorldRenderingParams &params) { m_renderingParams = params; }
 
-    Camera& getCamera() { return *m_camera; }
-    const Camera& getCamera() const { return *m_camera; }
+    shared_ptr<Camera> getCamera() { return m_camera; }
 
     WorldRenderingParams& getRenderingParams() { return m_renderingParams; }
     const WorldRenderingParams& getRenderingParams() const { return m_renderingParams; }
