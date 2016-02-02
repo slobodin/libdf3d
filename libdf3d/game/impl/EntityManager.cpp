@@ -2,6 +2,18 @@
 
 namespace df3d { namespace game_impl {
 
+Entity::IdType EntityManager::getNextId()
+{
+    if (!m_available.empty())
+    {
+        auto res = m_available.front();
+        m_available.pop_front();
+        return res;
+    }
+
+    return m_next++;
+}
+
 EntityManager::EntityManager()
 {
 
@@ -14,19 +26,22 @@ EntityManager::~EntityManager()
 
 Entity EntityManager::create()
 {
-    m_next.id++;
+    Entity e;
+    e.id = getNextId();
 
-    m_entities.insert(m_next);
+    m_entities.insert(e);
 
-    return m_next;
+    return e;
 }
 
 void EntityManager::destroy(Entity e)
 {
     assert(e.valid());
 
-    m_entities.erase(e);
+    assert(m_entities.erase(e) == 1);
     // NOTE: component data should be destroyed later via World::cleanStep
+
+    m_removed.push_back(e.id);
 }
 
 bool EntityManager::alive(Entity e) const
@@ -39,6 +54,12 @@ bool EntityManager::alive(Entity e) const
 size_t EntityManager::size() const
 {
     return m_entities.size();
+}
+
+void EntityManager::cleanStep()
+{
+    m_available.insert(m_available.end(), m_removed.begin(), m_removed.end());
+    m_removed.clear();
 }
 
 } }

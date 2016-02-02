@@ -67,6 +67,7 @@ void World::cleanStep()
     m_timeMgr->cleanStep();
 
     m_recentlyRemovedEntities.clear();
+    m_entityManager->cleanStep();
 }
 
 World::World()
@@ -113,7 +114,7 @@ World::~World()
 Entity World::spawn()
 {
     auto entity = m_entityManager->create();
-    // NOTE: forcing have transform component, otherwise have some problems (especially performance)
+    // NOTE: forcing to have transform component, otherwise have some problems (especially performance)
     // with systems that require transform component.
     ((SceneGraphComponentProcessor*)m_sceneGraph.get())->add(entity);
 
