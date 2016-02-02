@@ -29,6 +29,7 @@ void RendererBackend::createWhiteTexture()
     params.setFiltering(TextureFiltering::NEAREST);
     params.setMipmapped(false);
     params.setWrapMode(TextureWrapMode::WRAP);
+    params.setAnisotropyLevel(NO_ANISOTROPY);
 
     auto pb = make_unique<PixelBuffer>(w, h, data, pf);
 

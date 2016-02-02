@@ -51,10 +51,18 @@ extern const DF3D_DLL int NO_ANISOTROPY;
 // FIXME: don't like it.
 class DF3D_DLL RenderingCapabilities
 {
+    TextureFiltering m_textureFiltering = TextureFiltering::TRILINEAR;
+    bool m_mipmaps = true;
+    int m_anisotropyMax = ANISOTROPY_LEVEL_MAX;
+
 public:
-    TextureFiltering textureFiltering = TextureFiltering::TRILINEAR;
-    bool mipmaps = true;
-    int anisotropyMax = ANISOTROPY_LEVEL_MAX;
+    void setFiltering(TextureFiltering f) { m_textureFiltering = f; }
+    void setHasMipmaps(bool mipmaps) { m_mipmaps = mipmaps; }
+    void setAnisotropy(int lvl) { m_anisotropyMax = lvl; }
+
+    TextureFiltering getFiltering() const { return m_textureFiltering; }
+    bool hasMipmaps() const { return m_mipmaps; }
+    int getAnisotropy() const { return m_anisotropyMax; }
 
     static RenderingCapabilities getDefaults();
 };

@@ -91,6 +91,7 @@ void RenderTargetTexture::setViewport(const Viewport &vp)
     TextureCreationParams params;
     params.setMipmapped(false);
     params.setFiltering(TextureFiltering::NEAREST);
+    params.setAnisotropyLevel(NO_ANISOTROPY);
 
     auto pb = make_unique<PixelBuffer>(m_viewport.width(), m_viewport.height(), PixelFormat::RGBA);
 

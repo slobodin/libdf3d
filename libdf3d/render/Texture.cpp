@@ -49,10 +49,10 @@ PixelBuffer::~PixelBuffer()
 
 TextureCreationParams::TextureCreationParams()
 {
-    m_filtering = TextureFiltering::TRILINEAR;
-    m_mipmapped = true;
+    m_filtering = svc().renderManager().getRenderingCapabilities().getFiltering();
+    m_mipmapped = svc().renderManager().getRenderingCapabilities().hasMipmaps();
     m_wrapMode = TextureWrapMode::WRAP;
-    m_anisotropyLevel = ANISOTROPY_LEVEL_MAX;
+    m_anisotropyLevel = svc().renderManager().getRenderingCapabilities().getAnisotropy();
 }
 
 void TextureCreationParams::setFiltering(TextureFiltering filtering)
