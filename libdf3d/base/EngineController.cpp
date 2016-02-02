@@ -142,19 +142,9 @@ const RenderStats& EngineController::getLastRenderStats() const
     return m_renderManager->getLastRenderStats();
 }
 
-const Viewport& EngineController::getViewport() const
-{
-    return m_renderManager->getScreenRenderTarget()->getViewport();
-}
-
-void EngineController::setViewport(const Viewport &newvp)
-{
-    m_renderManager->getScreenRenderTarget()->setViewport(newvp);
-}
-
 glm::vec2 EngineController::getScreenSize() const
 {
-    auto vp = m_renderManager->getScreenRenderTarget()->getViewport();
+    const auto &vp = m_renderManager->getScreenRenderTarget().getViewport();
     return glm::vec2(vp.width(), vp.height());
 }
 

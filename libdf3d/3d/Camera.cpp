@@ -10,13 +10,9 @@ namespace df3d {
 
 void Camera::buildProjectionMatrix()
 {
-    const auto &vp = svc().renderManager().getScreenRenderTarget()->getViewport();
+    const auto &screenSize = svc().getScreenSize();
 
-    float w = (float)vp.width();
-    float h = (float)vp.height();
-
-    m_projectionMatrix = glm::perspective(glm::radians(m_fov), w / h, m_nearZ, m_farZ);
-    m_currentViewport = vp;
+    m_projectionMatrix = glm::perspective(glm::radians(m_fov), screenSize.x / screenSize.y, m_nearZ, m_farZ);
 
     buildFrustum();
 }
@@ -128,26 +124,21 @@ const Frustum &Camera::getFrustum()
 
 glm::vec3 Camera::screenToViewPoint(float x, float y, float z) const
 {
-    const auto &vp = svc().renderManager().getScreenRenderTarget()->getViewport();
+    const auto &screenSize = svc().getScreenSize();
 
-    float w = (float)vp.width();
-    float h = (float)vp.height();
     //float z = svc().renderManager().getRenderer()->readDepthBuffer(x, h - y - 1);
 
-    glm::vec4 viewport = glm::vec4(0.0f, 0.0f, w, h);
-    auto viewPos = glm::unProject(glm::vec3(x, h - y - 1, z), getViewMatrix(), getProjectionMatrix(), viewport);
+    glm::vec4 viewport = glm::vec4(0.0f, 0.0f, screenSize.x, screenSize.y);
+    auto viewPos = glm::unProject(glm::vec3(x, screenSize.y - y - 1, z), getViewMatrix(), getProjectionMatrix(), viewport);
 
     return viewPos;
 }
 
 glm::vec3 Camera::worldToScreenPoint(const glm::vec3 &world) const
 {
-    const auto &vp = svc().renderManager().getScreenRenderTarget()->getViewport();
+    const auto &screenSize = svc().getScreenSize();
 
-    float w = (float)vp.width();
-    float h = (float)vp.height();
-
-    glm::vec4 viewport = glm::vec4(0.0f, 0.0f, w, h);
+    glm::vec4 viewport = glm::vec4(0.0f, 0.0f, screenSize.x, screenSize.y);
     auto screenPt = glm::project(world, getViewMatrix(), getProjectionMatrix(), viewport);
 
     return screenPt;

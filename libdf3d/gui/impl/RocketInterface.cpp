@@ -216,7 +216,7 @@ void RenderInterface::EnableScissorRegion(bool enable)
 
 void RenderInterface::SetScissorRegion(int x, int y, int width, int height)
 {
-    svc().renderManager().getRenderer()->setScissorRegion(x, svc().getViewport().height() - (y + height), width, height);
+    svc().renderManager().getRenderer()->setScissorRegion(x, svc().getScreenSize().y - (y + height), width, height);
 }
 
 bool RenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle,

@@ -34,12 +34,12 @@ class RenderManager : utils::NonCopyable
     unique_ptr<RenderPass> m_ambientPassProps;
 
     // For postfx support.
-    shared_ptr<RenderTargetScreen> m_screenRt;
-    shared_ptr<RenderTargetTexture> m_textureRt;
-    shared_ptr<Material> m_defaultPostProcessMaterial;
+    unique_ptr<RenderTargetScreen> m_screenRt;
+    unique_ptr<RenderTargetTexture> m_textureRt;
+    unique_ptr<Material> m_defaultPostProcessMaterial;
     shared_ptr<VertexBuffer> m_quadVb;
     // FIXME: oes2.0 doesn't support mrt's.
-    shared_ptr<RenderTargetTexture> m_postProcessPassBuffers[MAX_POSPROCESS_PASSES];
+    unique_ptr<RenderTargetTexture> m_postProcessPassBuffers[MAX_POSPROCESS_PASSES];
 
     unique_ptr<RenderQueue> m_renderQueue;
 
@@ -64,7 +64,7 @@ public:
     void drawWorld(World &world);
 
     const RenderStats& getLastRenderStats() const;
-    shared_ptr<RenderTargetScreen> getScreenRenderTarget() const;
+    const RenderTargetScreen& getScreenRenderTarget() const;
 
     const RenderingCapabilities& getRenderingCapabilities() const;
 

@@ -18,9 +18,6 @@ class DF3D_DLL Camera : utils::NonCopyable  // Should be polymorphic.
     //! Far Z-clipping plane position.
     float m_farZ;
 
-    //! Cached copy of the current screen viewport.
-    Viewport m_currentViewport;
-
     //! View frustum.
     Frustum m_frustum;
 

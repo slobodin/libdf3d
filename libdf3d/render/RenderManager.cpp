@@ -35,7 +35,7 @@ void RenderManager::createQuadRenderOperation()
 
     m_quadVb = createQuad(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2 }), 0.0f, 0.0f, 2.0, 2.0f, GpuBufferUsageType::STATIC);
 
-    m_defaultPostProcessMaterial = shared_ptr<Material>(new Material("default_postprocess_material"));
+    m_defaultPostProcessMaterial = make_unique<Material>("default_postprocess_material");
 
     Technique defaultTech("default_technique");
     defaultTech.appendPass(passThrough);
@@ -47,14 +47,14 @@ void RenderManager::createQuadRenderOperation()
 void RenderManager::createRenderTargets(const Viewport &vp)
 {
     // Create screen RT.
-    m_screenRt = make_shared<RenderTargetScreen>(vp);
+    m_screenRt = make_unique<RenderTargetScreen>(vp);
 
-    m_textureRt = make_shared<RenderTargetTexture>(vp);
+    m_textureRt = make_unique<RenderTargetTexture>(vp);
 
     // FIXME: use buffer pingponging.
     for (size_t i = 0; i < MAX_POSPROCESS_PASSES; i++)
         // Doesn't actually create gpu buffer. Created when it's being used.
-        m_postProcessPassBuffers[i] = make_shared<RenderTargetTexture>(vp);
+        m_postProcessPassBuffers[i] = make_unique<RenderTargetTexture>(vp);
 }
 
 void RenderManager::createAmbientPassProps()
@@ -84,13 +84,13 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
 
     for (size_t passidx = 0; passidx < passCount; passidx++)
     {
-        shared_ptr<RenderTarget> rt;
+        RenderTarget *rt = nullptr;
 
         // Last pass.
         if ((passidx + 1) == passCount)
-            rt = m_screenRt;
+            rt = m_screenRt.get();
         else
-            rt = m_postProcessPassBuffers[passidx];
+            rt = m_postProcessPassBuffers[passidx].get();
 
         rt->bind();
 
@@ -136,11 +136,11 @@ void RenderManager::doRenderWorld(World &world)
 {
     auto postProcessingEnabled = world.getRenderingParams().getPostProcessMaterial() != nullptr;
 
-    shared_ptr<RenderTarget> rt;
+    RenderTarget *rt = nullptr;
     if (postProcessingEnabled)
-        rt = m_textureRt;
+        rt = m_textureRt.get();
     else
-        rt = m_screenRt;
+        rt = m_screenRt.get();
 
     // Draw whole scene to the texture or to the screen (depends on postprocess option).
     rt->bind();
@@ -272,9 +272,9 @@ const RenderStats& RenderManager::getLastRenderStats() const
     return m_lastStats;
 }
 
-shared_ptr<RenderTargetScreen> RenderManager::getScreenRenderTarget() const
+const RenderTargetScreen& RenderManager::getScreenRenderTarget() const
 {
-    return m_screenRt;
+    return *m_screenRt;
 }
 
 const RenderingCapabilities& RenderManager::getRenderingCapabilities() const

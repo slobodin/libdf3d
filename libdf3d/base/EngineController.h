@@ -47,8 +47,6 @@ public:
     void step();
 
     const RenderStats& getLastRenderStats() const;
-    const Viewport& getViewport() const;
-    void setViewport(const Viewport &newvp);
     glm::vec2 getScreenSize() const;
 
     RenderManager& renderManager() { return *m_renderManager; }
