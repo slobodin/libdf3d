@@ -42,7 +42,7 @@ struct StaticMeshComponentProcessor::Impl
         sphere.setPosition(compData.holderPosition);
 
         // FIXME: absolutely incorrect!!! Should take into account children.
-        // TODO_ecs: 
+        // TODO_ecs:
 
         // FIXME: wtf is this??? Why can't just scale radius?
         auto rad = sphere.getRadius() * utils::math::UnitVec3;
@@ -57,10 +57,11 @@ struct StaticMeshComponentProcessor::Impl
 
 void StaticMeshComponentProcessor::update()
 {
+    glm::quat tmp;
     // TODO_ecs: get only changed components.
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
-        m_world->sceneGraph().getTransformation(compData.holder, compData.holderTransformation, compData.holderPosition, glm::quat(), compData.holderScale);
+        m_world->sceneGraph().getTransformation(compData.holder, compData.holderTransformation, compData.holderPosition, tmp, compData.holderScale);
 }
 
 void StaticMeshComponentProcessor::draw(RenderQueue *ops)

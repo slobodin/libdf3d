@@ -1,6 +1,6 @@
-#include <io/FileSystemHelpers.h>
+#include <libdf3d/io/FileSystemHelpers.h>
 
-#include <platform/desktop_common/FileDataSourceDesktop.h>
+#include <libdf3d/platform/desktop_common/FileDataSourceDesktop.h>
 #include <unistd.h>
 
 namespace df3d {
