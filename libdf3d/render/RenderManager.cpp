@@ -34,26 +34,14 @@ void RenderManager::createQuadRenderOperation()
     passThrough.enableDepthWrite(false);
 
     m_quadVb = createQuad(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2 }), 0.0f, 0.0f, 2.0, 2.0f, GpuBufferUsageType::STATIC);
-
-    m_defaultPostProcessMaterial = make_unique<Material>("default_postprocess_material");
-
-    Technique defaultTech("default_technique");
-    defaultTech.appendPass(passThrough);
-
-    m_defaultPostProcessMaterial->appendTechnique(defaultTech);
-    m_defaultPostProcessMaterial->setCurrentTechnique("default_technique");
 }
 
 void RenderManager::createRenderTargets(const Viewport &vp)
 {
-    // Create screen RT.
     m_screenRt = make_unique<RenderTargetScreen>(vp);
-
     m_textureRt = make_unique<RenderTargetTexture>(vp);
 
-    // FIXME: use buffer pingponging.
-    for (size_t i = 0; i < MAX_POSPROCESS_PASSES; i++)
-        // Doesn't actually create gpu buffer. Created when it's being used.
+    for (size_t i = 0; i < 2; i++)
         m_postProcessPassBuffers[i] = make_unique<RenderTargetTexture>(vp);
 }
 
@@ -66,21 +54,9 @@ void RenderManager::createAmbientPassProps()
 
 void RenderManager::postProcessPass(shared_ptr<Material> material)
 {
-    //m_renderer->clearDepthBuffer();
-
     auto tech = material->getCurrentTechnique();
-    if (!tech)
-    {
-        glog << "Post process technique was not set. Use default." << logdebug;
-        tech = m_defaultPostProcessMaterial->getCurrentTechnique();
-    }
 
     size_t passCount = tech->getPassCount();
-    if (passCount > MAX_POSPROCESS_PASSES)
-    {
-        glog << "Too many post process passes" << logdebug;
-        return;
-    }
 
     for (size_t passidx = 0; passidx < passCount; passidx++)
     {
@@ -90,11 +66,12 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
         if ((passidx + 1) == passCount)
             rt = m_screenRt.get();
         else
-            rt = m_postProcessPassBuffers[passidx].get();
+            rt = m_postProcessPassBuffers[passidx % 2].get();
 
         rt->bind();
 
         m_renderer->clearColorBuffer();
+        m_renderer->clearDepthBuffer();
 
         RenderOperation quadRo;
 
@@ -102,7 +79,7 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
         quadRo.passProps = tech->getPass(passidx);
         quadRo.passProps->setSampler("sceneTexture", m_textureRt->getTexture());
         if (passidx != 0)
-            quadRo.passProps->setSampler("prevPassBuffer", m_postProcessPassBuffers[passidx - 1]->getTexture());
+            quadRo.passProps->setSampler("prevPassBuffer", m_postProcessPassBuffers[(passidx - 1) % 2]->getTexture());
 
         m_renderer->drawOperation(quadRo);
 
