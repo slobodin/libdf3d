@@ -46,7 +46,19 @@ void RenderTargetTexture::createGLFramebuffer()
 
 RenderTargetTexture::RenderTargetTexture(const Viewport &vp)
 {
-    setViewport(vp);
+    if (m_texture)
+        svc().resourceManager().unloadResource(m_texture);
+
+    m_viewport = vp;
+
+    TextureCreationParams params;
+    params.setMipmapped(false);
+    params.setFiltering(TextureFiltering::NEAREST);
+    params.setAnisotropyLevel(NO_ANISOTROPY);
+
+    auto pb = make_unique<PixelBuffer>(m_viewport.width(), m_viewport.height(), PixelFormat::RGBA);
+
+    m_texture = svc().resourceManager().getFactory().createTexture(std::move(pb), params);
 }
 
 RenderTargetTexture::~RenderTargetTexture()
@@ -79,23 +91,6 @@ void RenderTargetTexture::unbind()
     if (m_renderBufferId)
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
     m_texture->unbind();
-}
-
-void RenderTargetTexture::setViewport(const Viewport &vp)
-{
-    if (m_texture)
-        svc().resourceManager().unloadResource(m_texture);
-
-    m_viewport = vp;
-
-    TextureCreationParams params;
-    params.setMipmapped(false);
-    params.setFiltering(TextureFiltering::NEAREST);
-    params.setAnisotropyLevel(NO_ANISOTROPY);
-
-    auto pb = make_unique<PixelBuffer>(m_viewport.width(), m_viewport.height(), PixelFormat::RGBA);
-
-    m_texture = svc().resourceManager().getFactory().createTexture(std::move(pb), params);
 }
 
 shared_ptr<Texture2D> RenderTargetTexture::getTexture()

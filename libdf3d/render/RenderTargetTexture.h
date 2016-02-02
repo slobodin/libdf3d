@@ -22,8 +22,6 @@ public:
     void bind() override;
     void unbind() override;
 
-    void setViewport(const Viewport &vp) override;
-
     shared_ptr<Texture2D> getTexture();
 };
 

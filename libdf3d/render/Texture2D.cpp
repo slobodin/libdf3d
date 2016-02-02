@@ -34,6 +34,9 @@ bool Texture2D::createGLTexture(const PixelBuffer &buffer)
     case PixelFormat::GRAYSCALE:
         glPixelFormat = GL_LUMINANCE;   // FIXME: is it valid on ES?
         break;
+    case PixelFormat::DEPTH:
+        glPixelFormat = GL_DEPTH_COMPONENT24;
+        break;
     default:
         glog << "Invalid GL texture pixel format" << logwarn;
         return false;
@@ -54,7 +57,10 @@ bool Texture2D::createGLTexture(const PixelBuffer &buffer)
 
     // FIXME:
     // Init empty texture.
-    glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, m_actualWidth, m_actualHeight, 0, glPixelFormat, GL_UNSIGNED_BYTE, nullptr);
+    if (buffer.getFormat() == PixelFormat::DEPTH)
+        glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, m_actualWidth, m_actualHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    else
+        glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, m_actualWidth, m_actualHeight, 0, glPixelFormat, GL_UNSIGNED_BYTE, nullptr);
 
     if (buffer.getData())
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, buffer.getWidth(), buffer.getHeight(), glPixelFormat, GL_UNSIGNED_BYTE, buffer.getData());

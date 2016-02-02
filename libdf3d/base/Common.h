@@ -66,7 +66,8 @@ enum class PixelFormat
     RGB,
     BGR,
     RGBA,
-    GRAYSCALE
+    GRAYSCALE,
+    DEPTH
 };
 
 using ResourceGUID = std::string;
