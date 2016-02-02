@@ -2,17 +2,17 @@
 
 #include "impl/EntityManager.h"
 #include "impl/EntityLoader.h"
-#include <audio/AudioComponentProcessor.h>
-#include <base/TimeManager.h>
-#include <base/EngineController.h>
-#include <2d/Sprite2DComponentProcessor.h>
-#include <3d/StaticMeshComponentProcessor.h>
-#include <3d/SceneGraphComponentProcessor.h>
-#include <3d/Camera.h>
-#include <particlesys/ParticleSystemComponentProcessor.h>
-#include <game/TagComponentProcessor.h>
-#include <physics/PhysicsComponentProcessor.h>
-#include <render/RenderQueue.h>
+#include <libdf3d/audio/AudioComponentProcessor.h>
+#include <libdf3d/base/TimeManager.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/2d/Sprite2DComponentProcessor.h>
+#include <libdf3d/3d/StaticMeshComponentProcessor.h>
+#include <libdf3d/3d/SceneGraphComponentProcessor.h>
+#include <libdf3d/3d/Camera.h>
+#include <libdf3d/particlesys/ParticleSystemComponentProcessor.h>
+#include <libdf3d/game/TagComponentProcessor.h>
+#include <libdf3d/physics/PhysicsComponentProcessor.h>
+#include <libdf3d/render/RenderQueue.h>
 
 namespace df3d {
 

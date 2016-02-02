@@ -1,15 +1,15 @@
 #include "Sprite2DComponentProcessor.h"
 
-#include <3d/SceneGraphComponentProcessor.h>
-#include <game/ComponentDataHolder.h>
-#include <game/World.h>
-#include <render/RenderOperation.h>
-#include <render/RenderQueue.h>
-#include <render/VertexIndexBuffer.h>
-#include <render/Texture2D.h>
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
-#include <resources/ResourceFactory.h>
+#include <libdf3d/3d/SceneGraphComponentProcessor.h>
+#include <libdf3d/game/ComponentDataHolder.h>
+#include <libdf3d/game/World.h>
+#include <libdf3d/render/RenderOperation.h>
+#include <libdf3d/render/RenderQueue.h>
+#include <libdf3d/render/VertexIndexBuffer.h>
+#include <libdf3d/render/Texture2D.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/resources/ResourceFactory.h>
 
 namespace df3d {
 

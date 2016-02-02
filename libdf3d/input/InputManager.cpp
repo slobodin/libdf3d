@@ -1,10 +1,9 @@
-#include "df3d.h"
 #include "InputManager.h"
 
 #include "InputEvents.h"
-#include <base/EngineController.h>
-#include <gui/GuiManager.h>
-#include <gui/impl/RocketKeyCodesAdapter.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/gui/GuiManager.h>
+#include <libdf3d/gui/impl/RocketKeyCodesAdapter.h>
 
 namespace df3d {
 

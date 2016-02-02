@@ -1,6 +1,6 @@
 #include "PhysicsComponentCreationParams.h"
 
-#include <utils/JsonUtils.h>
+#include <libdf3d/utils/JsonUtils.h>
 
 namespace df3d {
 

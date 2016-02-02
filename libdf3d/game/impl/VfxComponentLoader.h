@@ -1,7 +1,7 @@
 #pragma once
 
-#include <game/EntityComponentLoader.h>
-#include <particlesys/ParticleSystemComponentProcessor.h>
+#include <libdf3d/game/EntityComponentLoader.h>
+#include <libdf3d/particlesys/ParticleSystemComponentProcessor.h>
 
 namespace df3d {
 

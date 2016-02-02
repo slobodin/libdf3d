@@ -1,8 +1,8 @@
 #pragma once
 
-#include <game/EntityComponentLoader.h>
-#include <physics/PhysicsComponentProcessor.h>
-#include <physics/PhysicsComponentCreationParams.h>
+#include <libdf3d/game/EntityComponentLoader.h>
+#include <libdf3d/physics/PhysicsComponentProcessor.h>
+#include <libdf3d/physics/PhysicsComponentCreationParams.h>
 
 namespace df3d {
 

@@ -90,5 +90,5 @@ static const int DEFAULT_WINDOW_HEIGHT = 480;
 
 // Include some useful df3d stuff.
 
-#include <base/Log.h>
-#include <utils/NonCopyable.h>
+#include <libdf3d/base/Log.h>
+#include <libdf3d/utils/NonCopyable.h>

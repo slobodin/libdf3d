@@ -316,7 +316,7 @@ if (DF3D_DESKTOP)
     include_directories(${OPENGL_INCLUDE_DIR})
 endif()
 
-include_directories(${PROJECT_SOURCE_DIR}/libdf3d
+include_directories(${PROJECT_SOURCE_DIR}/
                     ${PROJECT_SOURCE_DIR}/third-party/
                     ${PROJECT_SOURCE_DIR}/third-party/bullet/src
                     ${PROJECT_SOURCE_DIR}/third-party/spark/include

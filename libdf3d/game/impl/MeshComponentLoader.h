@@ -1,7 +1,7 @@
 #pragma once
 
-#include <game/EntityComponentLoader.h>
-#include <3d/StaticMeshComponentProcessor.h>
+#include <libdf3d/game/EntityComponentLoader.h>
+#include <libdf3d/3d/StaticMeshComponentProcessor.h>
 
 namespace df3d {
 

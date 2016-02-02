@@ -1,6 +1,6 @@
 #pragma once
 
-#include <resources/Resource.h>
+#include <libdf3d/resources/Resource.h>
 #include "OpenGLCommon.h"
 #include "RenderCommon.h"
 

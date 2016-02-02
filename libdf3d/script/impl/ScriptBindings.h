@@ -1,6 +1,6 @@
 #pragma once
 
-#include <script/ScriptManager.h>
+#include <libdf3d/script/ScriptManager.h>
 
 namespace df3d { namespace script_impl {
 

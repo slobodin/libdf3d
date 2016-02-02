@@ -3,10 +3,10 @@
 #include "GpuProgramUniform.h"
 #include "RenderPass.h"
 #include "OpenGLCommon.h"
-#include <base/EngineController.h>
-#include <base/TimeManager.h>
-#include <3d/Camera.h>
-#include <game/World.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/base/TimeManager.h>
+#include <libdf3d/3d/Camera.h>
+#include <libdf3d/game/World.h>
 
 namespace df3d {
 

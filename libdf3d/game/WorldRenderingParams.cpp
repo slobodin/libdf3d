@@ -1,6 +1,6 @@
 #include "WorldRenderingParams.h"
 
-#include <utils/Utils.h>
+#include <libdf3d/utils/Utils.h>
 
 namespace df3d {
 

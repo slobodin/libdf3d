@@ -1,7 +1,7 @@
 #pragma once
 
-#include <3d/Camera.h>
-#include <base/TimeManager.h>
+#include <libdf3d/3d/Camera.h>
+#include <libdf3d/base/TimeManager.h>
 
 namespace df3d {
 

@@ -1,7 +1,7 @@
 #include "MaterialLib.h"
 
 #include "Material.h"
-#include <base/EngineController.h>
+#include <libdf3d/base/EngineController.h>
 
 namespace df3d {
 

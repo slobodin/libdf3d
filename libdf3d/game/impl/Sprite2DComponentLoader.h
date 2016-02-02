@@ -1,7 +1,7 @@
 #pragma once
 
-#include <2d/Sprite2DComponentProcessor.h>
-#include <game/EntityComponentLoader.h>
+#include <libdf3d/2d/Sprite2DComponentProcessor.h>
+#include <libdf3d/game/EntityComponentLoader.h>
 
 namespace df3d {
 

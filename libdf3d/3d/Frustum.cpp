@@ -1,7 +1,7 @@
 #include "Frustum.h"
 
-#include "math/BoundingSphere.h"
-#include <utils/MathUtils.h>
+#include <libdf3d/math/BoundingSphere.h>
+#include <libdf3d/utils/MathUtils.h>
 
 namespace df3d {
 

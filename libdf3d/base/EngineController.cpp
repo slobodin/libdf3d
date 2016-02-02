@@ -2,23 +2,23 @@
 
 #include "DebugConsole.h"
 #include "TimeManager.h"
-#include <render/RenderManager.h>
-#include <3d/Camera.h>
-#include <game/World.h>
-#include <game/impl/WorldLoader.h>
-#include <resources/ResourceManager.h>
-#include <input/InputManager.h>
-#include <io/FileSystem.h>
-#include <gui/GuiManager.h>
-#include <audio/AudioManager.h>
-#include <render/RenderStats.h>
-#include <render/RenderTargetScreen.h>
-#include <platform/AppDelegate.h>
-#include <script/ScriptManager.h>
-#include <utils/JsonUtils.h>
+#include <libdf3d/render/RenderManager.h>
+#include <libdf3d/3d/Camera.h>
+#include <libdf3d/game/World.h>
+#include <libdf3d/game/impl/WorldLoader.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/input/InputManager.h>
+#include <libdf3d/io/FileSystem.h>
+#include <libdf3d/gui/GuiManager.h>
+#include <libdf3d/audio/AudioManager.h>
+#include <libdf3d/render/RenderStats.h>
+#include <libdf3d/render/RenderTargetScreen.h>
+#include <libdf3d/platform/AppDelegate.h>
+#include <libdf3d/script/ScriptManager.h>
+#include <libdf3d/utils/JsonUtils.h>
 
 #if defined(DF3D_WINDOWS)
-#include <platform/windows/CrashHandler.h>
+#include <libdf3d/platform/windows/CrashHandler.h>
 #endif
 
 namespace df3d {

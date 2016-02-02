@@ -1,9 +1,9 @@
 #include "Shader.h"
 
 #include "OpenGLCommon.h"
-#include <base/EngineController.h>
-#include <io/FileSystem.h>
-#include <io/FileDataSource.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/io/FileSystem.h>
+#include <libdf3d/io/FileDataSource.h>
 
 namespace df3d {
 

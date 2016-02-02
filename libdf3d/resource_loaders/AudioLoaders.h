@@ -1,7 +1,7 @@
 #pragma once
 
-#include <resources/Resource.h>
-#include <audio/AudioBuffer.h>
+#include <libdf3d/resources/Resource.h>
+#include <libdf3d/audio/AudioBuffer.h>
 
 namespace df3d {
 

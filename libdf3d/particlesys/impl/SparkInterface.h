@@ -2,7 +2,7 @@
 
 #include <SPARK.h>
 
-#include <render/RenderOperation.h>
+#include <libdf3d/render/RenderOperation.h>
 
 namespace df3d { 
 

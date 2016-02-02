@@ -1,7 +1,7 @@
 #include "Texture2D.h"
 
-#include <base/EngineController.h>
-#include <render/RenderManager.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/render/RenderManager.h>
 #include "RendererBackend.h"
 
 namespace df3d {

@@ -1,15 +1,15 @@
 #include "SparkInterface.h"
 
-#include <render/RenderPass.h>
-#include <base/EngineController.h>
-#include <3d/Camera.h>
-#include <game/World.h>
-#include <resources/ResourceManager.h>
-#include <resources/ResourceFactory.h>
-#include <render/VertexIndexBuffer.h>
-#include <render/GpuProgram.h>
-#include <render/RenderOperation.h>
-#include <render/RenderQueue.h>
+#include <libdf3d/render/RenderPass.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/3d/Camera.h>
+#include <libdf3d/game/World.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/resources/ResourceFactory.h>
+#include <libdf3d/render/VertexIndexBuffer.h>
+#include <libdf3d/render/GpuProgram.h>
+#include <libdf3d/render/RenderOperation.h>
+#include <libdf3d/render/RenderQueue.h>
 
 namespace df3d { namespace particlesys_impl {
 

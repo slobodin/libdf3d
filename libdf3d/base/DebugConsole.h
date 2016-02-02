@@ -1,7 +1,7 @@
 #pragma once
 
-#include <utils/Utils.h>
-#include <gui/RocketRefWrapper.h>
+#include <libdf3d/utils/Utils.h>
+#include <libdf3d/gui/RocketRefWrapper.h>
 
 namespace df3d {
 

@@ -1,12 +1,12 @@
 #include "RenderManager.h"
 
-#include <base/EngineController.h>
-#include <base/DebugConsole.h>
-#include <resources/ResourceManager.h>
-#include <resources/ResourceFactory.h>
-#include <3d/Camera.h>
-#include <game/World.h>
-#include <gui/GuiManager.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/base/DebugConsole.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/resources/ResourceFactory.h>
+#include <libdf3d/3d/Camera.h>
+#include <libdf3d/game/World.h>
+#include <libdf3d/gui/GuiManager.h>
 #include "RendererBackend.h"
 #include "VertexIndexBuffer.h"
 #include "RenderOperation.h"

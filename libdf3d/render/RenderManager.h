@@ -2,7 +2,7 @@
 
 #include "RenderStats.h"
 #include "RenderCommon.h"
-#include <base/EngineInitParams.h>
+#include <libdf3d/base/EngineInitParams.h>
 
 namespace df3d {
 

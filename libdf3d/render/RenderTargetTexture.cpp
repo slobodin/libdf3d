@@ -1,8 +1,8 @@
 #include "RenderTargetTexture.h"
 
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
-#include <resources/ResourceFactory.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/resources/ResourceFactory.h>
 #include "OpenGLCommon.h"
 #include "Texture2D.h"
 #include "RenderManager.h"

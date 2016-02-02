@@ -1,8 +1,8 @@
 #pragma once
 
-#include <resources/Resource.h>
-#include <render/Texture2D.h>
-#include <render/TextureCube.h>
+#include <libdf3d/resources/Resource.h>
+#include <libdf3d/render/Texture2D.h>
+#include <libdf3d/render/TextureCube.h>
 
 namespace df3d {
 

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <resources/Resource.h>
-#include <math/AABB.h>
-#include <math/BoundingSphere.h>
-#include <math/OBB.h>
-#include <math/ConvexHull.h>
+#include <libdf3d/resources/Resource.h>
+#include <libdf3d/math/AABB.h>
+#include <libdf3d/math/BoundingSphere.h>
+#include <libdf3d/math/OBB.h>
+#include <libdf3d/math/ConvexHull.h>
 #include "Vertex.h"
 #include "RenderCommon.h"
 

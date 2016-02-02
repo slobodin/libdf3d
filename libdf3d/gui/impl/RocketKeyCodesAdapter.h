@@ -1,6 +1,6 @@
 #pragma once
 
-#include <input/InputEvents.h>
+#include <libdf3d/input/InputEvents.h>
 #include <Rocket/Core/Input.h>
 
 namespace df3d { namespace gui_impl {

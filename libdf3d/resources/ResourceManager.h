@@ -1,6 +1,6 @@
 #pragma once
 
-#include <utils/ConcurrentQueue.h>
+#include <libdf3d/utils/ConcurrentQueue.h>
 
 namespace df3d {
 

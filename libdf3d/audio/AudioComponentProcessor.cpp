@@ -2,14 +2,14 @@
 
 #include "AudioBuffer.h"
 #include "impl/OpenALCommon.h"
-#include <game/ComponentDataHolder.h>
-#include <3d/SceneGraphComponentProcessor.h>
-#include <game/World.h>
-#include <3d/Camera.h>
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
-#include <resources/ResourceFactory.h>
-#include <utils/Utils.h>
+#include <libdf3d/game/ComponentDataHolder.h>
+#include <libdf3d/3d/SceneGraphComponentProcessor.h>
+#include <libdf3d/game/World.h>
+#include <libdf3d/3d/Camera.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/resources/ResourceFactory.h>
+#include <libdf3d/utils/Utils.h>
 
 namespace df3d {
 

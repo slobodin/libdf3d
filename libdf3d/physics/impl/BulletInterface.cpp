@@ -1,11 +1,11 @@
 #include "BulletInterface.h"
 
-#include <base/EngineController.h>
-#include <render/RenderManager.h>
-#include <render/RenderPass.h>
-#include <render/RendererBackend.h>
-#include <render/VertexIndexBuffer.h>
-#include <render/RenderQueue.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/render/RenderManager.h>
+#include <libdf3d/render/RenderPass.h>
+#include <libdf3d/render/RendererBackend.h>
+#include <libdf3d/render/VertexIndexBuffer.h>
+#include <libdf3d/render/RenderQueue.h>
 
 namespace df3d { namespace physics_impl {
 

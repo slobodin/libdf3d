@@ -1,8 +1,8 @@
 #pragma once
 
-#include <game/Entity.h>
-#include <game/EntityComponentProcessor.h>
-#include <render/RenderPass.h>
+#include <libdf3d/game/Entity.h>
+#include <libdf3d/game/EntityComponentProcessor.h>
+#include <libdf3d/render/RenderPass.h>
 
 namespace df3d {
 

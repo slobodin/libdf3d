@@ -1,7 +1,7 @@
 #pragma once
 
-#include <resources/Resource.h>
-#include <render/MeshData.h>
+#include <libdf3d/resources/Resource.h>
+#include <libdf3d/render/MeshData.h>
 
 namespace df3d {
 

@@ -1,12 +1,12 @@
 #include "ResourceFactory.h"
 
 #include "ResourceManager.h"
-#include <resource_loaders/TextureLoaders.h>
-#include <resource_loaders/AudioLoaders.h>
-#include <resource_loaders/MaterialLibLoaders.h>
-#include <resource_loaders/MeshLoaders.h>
-#include <render/Texture2D.h>
-#include <render/GpuProgram.h>
+#include <libdf3d/resource_loaders/TextureLoaders.h>
+#include <libdf3d/resource_loaders/AudioLoaders.h>
+#include <libdf3d/resource_loaders/MaterialLibLoaders.h>
+#include <libdf3d/resource_loaders/MeshLoaders.h>
+#include <libdf3d/render/Texture2D.h>
+#include <libdf3d/render/GpuProgram.h>
 
 namespace df3d {
 

@@ -1,20 +1,20 @@
 #include "RocketInterface.h"
 
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
-#include <resources/ResourceFactory.h>
-#include <io/FileSystem.h>
-#include <io/FileDataSource.h>
-#include <render/RenderManager.h>
-#include <render/GpuProgram.h>
-#include <render/Texture.h>
-#include <render/RenderOperation.h>
-#include <render/VertexIndexBuffer.h>
-#include <render/RenderPass.h>
-#include <render/RendererBackend.h>
-#include <render/Texture2D.h>
-#include <render/Viewport.h>
-#include <render/RenderCommon.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/resources/ResourceFactory.h>
+#include <libdf3d/io/FileSystem.h>
+#include <libdf3d/io/FileDataSource.h>
+#include <libdf3d/render/RenderManager.h>
+#include <libdf3d/render/GpuProgram.h>
+#include <libdf3d/render/Texture.h>
+#include <libdf3d/render/RenderOperation.h>
+#include <libdf3d/render/VertexIndexBuffer.h>
+#include <libdf3d/render/RenderPass.h>
+#include <libdf3d/render/RendererBackend.h>
+#include <libdf3d/render/Texture2D.h>
+#include <libdf3d/render/Viewport.h>
+#include <libdf3d/render/RenderCommon.h>
 
 #include <Rocket/Core.h>
 

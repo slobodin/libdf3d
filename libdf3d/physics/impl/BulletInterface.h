@@ -3,7 +3,7 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 
-#include <render/Vertex.h>
+#include <libdf3d/render/Vertex.h>
 
 namespace df3d { 
 

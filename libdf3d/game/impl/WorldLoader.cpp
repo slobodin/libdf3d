@@ -1,13 +1,13 @@
 #include "WorldLoader.h"
 
-#include <base/EngineController.h>
-#include <game/World.h>
-#include <3d/Camera.h>
-#include <3d/Light.h>
-#include <utils/JsonUtils.h>
-#include <resources/ResourceManager.h>
-#include <resources/ResourceFactory.h>
-#include <render/MaterialLib.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/game/World.h>
+#include <libdf3d/3d/Camera.h>
+#include <libdf3d/3d/Light.h>
+#include <libdf3d/utils/JsonUtils.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/resources/ResourceFactory.h>
+#include <libdf3d/render/MaterialLib.h>
 
 namespace df3d { namespace game_impl {
 

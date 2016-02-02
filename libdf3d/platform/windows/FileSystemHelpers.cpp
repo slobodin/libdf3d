@@ -1,6 +1,6 @@
-#include <io/FileSystemHelpers.h>
+#include <libdf3d/io/FileSystemHelpers.h>
 
-#include <platform/desktop_common/FileDataSourceDesktop.h>
+#include <libdf3d/platform/desktop_common/FileDataSourceDesktop.h>
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 

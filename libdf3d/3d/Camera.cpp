@@ -1,10 +1,10 @@
 #include "Camera.h"
 
-#include <base/EngineController.h>
-#include <render/RendererBackend.h>
-#include <render/Viewport.h>
-#include <render/RenderTargetScreen.h>
-#include <render/RenderManager.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/render/RendererBackend.h>
+#include <libdf3d/render/Viewport.h>
+#include <libdf3d/render/RenderTargetScreen.h>
+#include <libdf3d/render/RenderManager.h>
 
 namespace df3d {
 

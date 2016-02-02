@@ -1,9 +1,9 @@
 #include "TextureLoaders.h"
 
-#include <base/EngineController.h>
-#include <io/FileSystem.h>
-#include <io/FileDataSource.h>
-#include <utils/JsonUtils.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/io/FileSystem.h>
+#include <libdf3d/io/FileDataSource.h>
+#include <libdf3d/utils/JsonUtils.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #ifndef STB_DO_ERROR_PRINT

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <game/EntityComponentLoader.h>
-#include <audio/AudioComponentProcessor.h>
+#include <libdf3d/game/EntityComponentLoader.h>
+#include <libdf3d/audio/AudioComponentProcessor.h>
 
 namespace df3d {
 

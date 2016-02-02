@@ -1,8 +1,8 @@
 #include "DebugConsole.h"
 
-#include <base/EngineController.h>
-#include <gui/GuiManager.h>
-#include <utils/Utils.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/gui/GuiManager.h>
+#include <libdf3d/utils/Utils.h>
 
 #include <Rocket/Core.h>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <resources/Resource.h>
-#include <render/MaterialLib.h>
+#include <libdf3d/resources/Resource.h>
+#include <libdf3d/render/MaterialLib.h>
 
 namespace df3d {
 

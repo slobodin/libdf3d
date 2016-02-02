@@ -1,6 +1,6 @@
 #include "BoundingSphere.h"
 
-#include <utils/MathUtils.h>
+#include <libdf3d/utils/MathUtils.h>
 #include <glm/gtx/intersect.hpp>
 
 namespace df3d {

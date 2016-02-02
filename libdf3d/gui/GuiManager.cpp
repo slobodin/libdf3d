@@ -2,8 +2,8 @@
 
 #include "impl/RocketInterface.h"
 #include "impl/RocketKeyCodesAdapter.h"
-#include <base/EngineController.h>
-#include <input/InputEvents.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/input/InputEvents.h>
 
 #include <Rocket/Core.h>
 #include <Rocket/Controls.h>

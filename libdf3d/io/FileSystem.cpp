@@ -1,8 +1,8 @@
 #include "FileSystem.h"
 
 #include "FileDataSource.h"
-#include <io/FileSystemHelpers.h>
-#include <utils/Utils.h>
+#include <libdf3d/io/FileSystemHelpers.h>
+#include <libdf3d/utils/Utils.h>
 
 namespace df3d {
 

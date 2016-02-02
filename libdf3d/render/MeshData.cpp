@@ -5,7 +5,7 @@
 #include "RenderQueue.h"
 #include "Technique.h"
 #include "RenderPass.h"
-#include <base/EngineController.h>
+#include <libdf3d/base/EngineController.h>
 
 namespace df3d {
 

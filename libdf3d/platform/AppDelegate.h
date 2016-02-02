@@ -1,7 +1,7 @@
 #pragma once
 
-#include <input/InputEvents.h>
-#include <base/EngineInitParams.h>
+#include <libdf3d/input/InputEvents.h>
+#include <libdf3d/base/EngineInitParams.h>
 
 namespace df3d {
 

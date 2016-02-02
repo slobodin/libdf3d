@@ -1,15 +1,15 @@
 #include "ParticleSystemComponentProcessor.h"
 
 #include "impl/ParticleSystemLoader.h"
+#include "impl/SparkInterface.h"
 #include "ParticleSystemUtils.h"
-#include <game/ComponentDataHolder.h>
-#include <game/World.h>
-#include <3d/Camera.h>
-#include <3d/SceneGraphComponentProcessor.h>
-#include <base/EngineController.h>
-#include <base/TimeManager.h>
-#include <particlesys/impl/SparkInterface.h>
-#include <utils/JsonUtils.h>
+#include <libdf3d/game/ComponentDataHolder.h>
+#include <libdf3d/game/World.h>
+#include <libdf3d/3d/Camera.h>
+#include <libdf3d/3d/SceneGraphComponentProcessor.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/base/TimeManager.h>
+#include <libdf3d/utils/JsonUtils.h>
 
 namespace df3d {
 

@@ -1,6 +1,6 @@
 #include "BoundingVolume.h"
 
-#include <render/MeshData.h>
+#include <libdf3d/render/MeshData.h>
 
 namespace df3d {
 

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Frustum.h"
-#include <render/Viewport.h>
-#include <utils/MathUtils.h>
+#include <libdf3d/render/Viewport.h>
+#include <libdf3d/utils/MathUtils.h>
 
 namespace df3d {
 

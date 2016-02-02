@@ -1,8 +1,8 @@
 #include "AudioManager.h"
 
 #include "impl/OpenALCommon.h"
-#include <base/EngineController.h>
-#include <3d/Camera.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/3d/Camera.h>
 
 namespace df3d {
 

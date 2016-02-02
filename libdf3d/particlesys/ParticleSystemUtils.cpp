@@ -2,12 +2,12 @@
 
 #include "impl/ParticleSystemLoader.h"
 #include "impl/SparkInterface.h"
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
-#include <resources/ResourceFactory.h>
-#include <render/Texture2D.h>
-#include <render/RenderPass.h>
-#include <utils/JsonUtils.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/resources/ResourceFactory.h>
+#include <libdf3d/render/Texture2D.h>
+#include <libdf3d/render/RenderPass.h>
+#include <libdf3d/utils/JsonUtils.h>
 
 namespace df3d {
 

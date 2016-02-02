@@ -37,4 +37,4 @@
 #include "df3d_config.h"
 #include "libdf3d_dll.h"
 
-#include <base/Common.h>
+#include <libdf3d/base/Common.h>

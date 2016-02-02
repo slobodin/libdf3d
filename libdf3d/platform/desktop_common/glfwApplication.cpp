@@ -1,9 +1,9 @@
 #include "glfwApplication.h"
 
 #include "glfwKeyCodes.h"
-#include <platform/AppDelegate.h>
-#include <base/EngineController.h>
-#include <input/InputManager.h>
+#include <libdf3d/platform/AppDelegate.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/input/InputManager.h>
 #include <GLFW/glfw3.h>
 
 namespace df3d { namespace platform_impl {

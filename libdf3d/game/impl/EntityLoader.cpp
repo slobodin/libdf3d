@@ -1,8 +1,8 @@
 #include "EntityLoader.h"
 
-#include <game/World.h>
-#include <3d/SceneGraphComponentProcessor.h>
-#include <utils/JsonUtils.h>
+#include <libdf3d/game/World.h>
+#include <libdf3d/3d/SceneGraphComponentProcessor.h>
+#include <libdf3d/utils/JsonUtils.h>
 #include "AudioComponentLoader.h"
 #include "MeshComponentLoader.h"
 #include "PhysicsComponentLoader.h"

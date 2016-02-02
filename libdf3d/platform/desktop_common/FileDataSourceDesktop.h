@@ -1,6 +1,6 @@
 #pragma once
 
-#include <io/FileDataSource.h>
+#include <libdf3d/io/FileDataSource.h>
 
 namespace df3d { namespace platform_impl {
 

@@ -1,9 +1,9 @@
 #include "FPSCamera.h"
 
-#include <base/EngineController.h>
-#include <game/World.h>
-#include <input/InputManager.h>
-#include <input/InputEvents.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/game/World.h>
+#include <libdf3d/input/InputManager.h>
+#include <libdf3d/input/InputEvents.h>
 
 namespace df3d {
 

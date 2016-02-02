@@ -1,17 +1,17 @@
 #include "MaterialLibLoaders.h"
 
-#include <base/EngineController.h>
-#include <resources/ResourceFactory.h>
-#include <resources/ResourceManager.h>
-#include <io/FileDataSource.h>
-#include <render/MaterialLib.h>
-#include <render/Material.h>
-#include <render/Technique.h>
-#include <render/RenderPass.h>
-#include <render/GpuProgram.h>
-#include <render/Texture2D.h>
-#include <render/TextureCube.h>
-#include <utils/Utils.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/resources/ResourceFactory.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/io/FileDataSource.h>
+#include <libdf3d/render/MaterialLib.h>
+#include <libdf3d/render/Material.h>
+#include <libdf3d/render/Technique.h>
+#include <libdf3d/render/RenderPass.h>
+#include <libdf3d/render/GpuProgram.h>
+#include <libdf3d/render/Texture2D.h>
+#include <libdf3d/render/TextureCube.h>
+#include <libdf3d/utils/Utils.h>
 
 namespace df3d {
 

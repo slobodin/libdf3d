@@ -1,6 +1,6 @@
 #include "SceneGraphComponentProcessor.h"
 
-#include <game/ComponentDataHolder.h>
+#include <libdf3d/game/ComponentDataHolder.h>
 
 namespace df3d {
 

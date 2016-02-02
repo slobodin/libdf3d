@@ -5,17 +5,17 @@
 #include "impl/BulletInterface.h"
 #include "PhysicsComponentCreationParams.h"
 #include "PhysicsHelpers.h"
-#include <math/AABB.h>
-#include <math/BoundingSphere.h>
-#include <math/ConvexHull.h>
-#include <render/MeshData.h>
-#include <3d/StaticMeshComponentProcessor.h>
-#include <3d/SceneGraphComponentProcessor.h>
-#include <base/EngineController.h>
-#include <base/DebugConsole.h>
-#include <base/TimeManager.h>
-#include <game/ComponentDataHolder.h>
-#include <game/World.h>
+#include <libdf3d/math/AABB.h>
+#include <libdf3d/math/BoundingSphere.h>
+#include <libdf3d/math/ConvexHull.h>
+#include <libdf3d/render/MeshData.h>
+#include <libdf3d/3d/StaticMeshComponentProcessor.h>
+#include <libdf3d/3d/SceneGraphComponentProcessor.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/base/DebugConsole.h>
+#include <libdf3d/base/TimeManager.h>
+#include <libdf3d/game/ComponentDataHolder.h>
+#include <libdf3d/game/World.h>
 
 namespace df3d {
 

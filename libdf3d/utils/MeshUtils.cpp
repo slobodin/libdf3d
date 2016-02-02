@@ -1,7 +1,7 @@
 #include "MeshUtils.h"
 
-#include <utils/MathUtils.h>
-#include <render/MeshData.h>
+#include <libdf3d/utils/MathUtils.h>
+#include <libdf3d/render/MeshData.h>
 
 namespace df3d { namespace utils { namespace mesh {
 

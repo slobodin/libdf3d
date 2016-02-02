@@ -1,11 +1,11 @@
 #include "ResourceManager.h"
 
-#include <base/EngineController.h>
-#include <base/TimeManager.h>
-#include <utils/ThreadPool.h>
-#include <utils/Utils.h>
-#include <io/FileSystem.h>
-#include <io/FileDataSource.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/base/TimeManager.h>
+#include <libdf3d/utils/ThreadPool.h>
+#include <libdf3d/utils/Utils.h>
+#include <libdf3d/io/FileSystem.h>
+#include <libdf3d/io/FileDataSource.h>
 #include "Resource.h"
 #include "ResourceFactory.h"
 

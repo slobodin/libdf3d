@@ -1,6 +1,6 @@
 #include "AABB.h"
 
-#include <game/WorldSize.h>
+#include <libdf3d/game/WorldSize.h>
 
 namespace df3d {
 

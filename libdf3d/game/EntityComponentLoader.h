@@ -1,6 +1,6 @@
 #pragma once
 
-#include <game/Entity.h>
+#include <libdf3d/game/Entity.h>
 
 namespace df3d {
 

@@ -1,9 +1,9 @@
 #include "RendererBackend.h"
 
-#include <base/EngineController.h>
-#include <resources/ResourceManager.h>
-#include <resources/ResourceFactory.h>
-#include <3d/Light.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/resources/ResourceFactory.h>
+#include <libdf3d/3d/Light.h>
 #include "OpenGLCommon.h"
 #include "GpuProgramState.h"
 #include "RenderPass.h"
@@ -41,28 +41,28 @@ void RendererBackend::createWhiteTexture()
 void RendererBackend::loadResidentGpuPrograms()
 {
     const std::string simple_lighting_vert =
-#include "render/embed_glsl/simple_lighting_vert.h"
+#include "libdf3d/render/embed_glsl/simple_lighting_vert.h"
         ;
     const std::string simple_lighting_frag =
-#include "render/embed_glsl/simple_lighting_frag.h"
+#include "libdf3d/render/embed_glsl/simple_lighting_frag.h"
         ;
     const std::string rtt_quad_vert =
-#include "render/embed_glsl/rtt_quad_vert.h"
+#include "libdf3d/render/embed_glsl/rtt_quad_vert.h"
         ;
     const std::string rtt_quad_frag =
-#include "render/embed_glsl/rtt_quad_frag.h"
+#include "libdf3d/render/embed_glsl/rtt_quad_frag.h"
         ;
     const std::string colored_vert =
-#include "render/embed_glsl/colored_vert.h"
+#include "libdf3d/render/embed_glsl/colored_vert.h"
         ;
     const std::string colored_frag =
-#include "render/embed_glsl/colored_frag.h"
+#include "libdf3d/render/embed_glsl/colored_frag.h"
         ;
     const std::string ambient_vert =
-#include "render/embed_glsl/ambient_vert.h"
+#include "libdf3d/render/embed_glsl/ambient_vert.h"
         ;
     const std::string ambient_frag =
-#include "render/embed_glsl/ambient_frag.h"
+#include "libdf3d/render/embed_glsl/ambient_frag.h"
         ;
 
     auto &factory = svc().resourceManager().getFactory();

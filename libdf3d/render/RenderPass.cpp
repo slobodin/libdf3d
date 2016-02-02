@@ -4,9 +4,9 @@
 #include "Texture.h"
 #include "RenderManager.h"
 #include "RendererBackend.h"
-#include <resources/ResourceManager.h>
-#include <resources/ResourceFactory.h>
-#include <base/EngineController.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/resources/ResourceFactory.h>
+#include <libdf3d/base/EngineController.h>
 
 namespace df3d {
 

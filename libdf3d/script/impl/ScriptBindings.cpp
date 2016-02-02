@@ -2,11 +2,11 @@
 
 #include <sqrat/sqrat.h>
 
-#include <utils/Utils.h>
-#include <utils/MathUtils.h>
-#include <base/EngineController.h>
-#include <game/Entity.h>
-#include <game/World.h>
+#include <libdf3d/utils/Utils.h>
+#include <libdf3d/utils/MathUtils.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/game/Entity.h>
+#include <libdf3d/game/World.h>
 
 using namespace Sqrat;
 

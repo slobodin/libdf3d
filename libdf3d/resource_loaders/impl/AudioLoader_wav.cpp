@@ -1,7 +1,7 @@
 #include "AudioLoader_wav.h"
 
-#include <base/EngineController.h>
-#include <io/FileDataSource.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/io/FileDataSource.h>
 
 namespace df3d { namespace resource_loaders_impl {
 

@@ -1,10 +1,10 @@
 #include "MeshLoader_obj.h"
 
-#include <base/EngineController.h>
-#include <io/FileSystem.h>
-#include <io/FileDataSource.h>
-#include <utils/MeshUtils.h>
-#include <utils/Utils.h>
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/io/FileSystem.h>
+#include <libdf3d/io/FileDataSource.h>
+#include <libdf3d/utils/MeshUtils.h>
+#include <libdf3d/utils/Utils.h>
 
 namespace df3d { namespace resource_loaders_impl {
 
