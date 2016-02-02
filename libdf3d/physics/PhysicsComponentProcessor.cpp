@@ -50,7 +50,7 @@ public:
 
     void setWorldTransform(const btTransform &worldTrans)
     {
-        const auto &rot = worldTrans.getRotation();
+        auto rot = worldTrans.getRotation();
 
         auto df3dPos = btToGlm(worldTrans.getOrigin());
         auto df3dOrient = glm::quat(rot.w(), rot.x(), rot.y(), rot.z());

@@ -47,6 +47,7 @@ public:
     const glm::vec3& getScale(Entity e);
     const glm::quat& getOrientation(Entity e);
     const glm::mat4& getTransformation(Entity e);
+    void getTransformation(Entity e, glm::mat4 &outTr, glm::vec3 &outPos, glm::quat &outRot, glm::vec3 &outScale);
     glm::vec3 getRotation(Entity e, bool rads = false);
 
     void attachChild(Entity parent, Entity child);

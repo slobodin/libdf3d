@@ -60,12 +60,7 @@ void StaticMeshComponentProcessor::update()
     // TODO_ecs: get only changed components.
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
-    {
-        // TODO_ecs: 3 lookups!!!!
-        compData.holderTransformation = m_world->sceneGraph().getTransformation(compData.holder);
-        compData.holderPosition = m_world->sceneGraph().getPosition(compData.holder, true);
-        compData.holderScale = m_world->sceneGraph().getScale(compData.holder);
-    }
+        m_world->sceneGraph().getTransformation(compData.holder, compData.holderTransformation, compData.holderPosition, glm::quat(), compData.holderScale);
 }
 
 void StaticMeshComponentProcessor::draw(RenderQueue *ops)

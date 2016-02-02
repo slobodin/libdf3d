@@ -262,6 +262,16 @@ const glm::mat4& SceneGraphComponentProcessor::getTransformation(Entity e)
     return m_pimpl->data.getData(e).transformation;
 }
 
+void SceneGraphComponentProcessor::getTransformation(Entity e, glm::mat4 &outTr, glm::vec3 &outPos, glm::quat &outRot, glm::vec3 &outScale)
+{
+    const auto &compData = m_pimpl->data.getData(e);
+
+    outTr = compData.transformation;
+    outPos = glm::vec3(compData.transformation[3]);
+    outRot = compData.orientation;
+    outScale = compData.scaling;
+}
+
 glm::vec3 SceneGraphComponentProcessor::getRotation(Entity e, bool rads)
 {
     const auto &compData = m_pimpl->data.getData(e);
