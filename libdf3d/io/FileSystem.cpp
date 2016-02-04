@@ -59,7 +59,7 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
 
 FileSystem::FileSystem()
 {
-    m_searchPaths.push_back("");
+
 }
 
 FileSystem::~FileSystem()
@@ -82,20 +82,6 @@ shared_ptr<FileDataSource> FileSystem::openFile(const std::string &filePath)
     return fileSource;
 }
 
-void FileSystem::addSearchPath(const std::string &path)
-{
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-    auto found = std::find_if(m_searchPaths.cbegin(), m_searchPaths.cend(), [&path](const std::string &it) { return it == path; });
-    if (found != m_searchPaths.cend())
-    {
-        glog << "Trying to add duplicate search path" << path << logwarn;
-        return;
-    }
-
-    m_searchPaths.push_back(path);
-}
-
 std::string FileSystem::fullPath(const std::string &path) const
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
@@ -104,15 +90,11 @@ std::string FileSystem::fullPath(const std::string &path) const
     if (foundInCache != m_fullPathsCache.end())
         return foundInCache->second;
 
-    for (const auto &sp : m_searchPaths)
+    auto fullP = canonicalPath(path);
+    if (!fullP.empty())
     {
-        auto newpath = pathConcatenate(sp, path);
-        auto fullp = canonicalPath(newpath);
-        if (!fullp.empty())
-        {
-            m_fullPathsCache[path] = fullp;
-            return fullp;
-        }
+        m_fullPathsCache[path] = fullP;
+        return fullP;
     }
 
     return "";

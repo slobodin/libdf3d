@@ -7,8 +7,6 @@ class FileDataSource;
 class DF3D_DLL FileSystem : utils::NonCopyable
 {
     mutable std::recursive_mutex m_lock;
-    std::vector<std::string> m_searchPaths;
-
     mutable std::unordered_map<std::string, std::string> m_fullPathsCache;
 
     static std::string canonicalPath(const std::string &rawPath);
@@ -18,8 +16,6 @@ public:
     ~FileSystem();
 
     shared_ptr<FileDataSource> openFile(const std::string &filePath);
-
-    void addSearchPath(const std::string &path);
 
     std::string fullPath(const std::string &path) const;
 
