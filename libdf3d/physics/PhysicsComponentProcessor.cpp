@@ -280,6 +280,13 @@ btRigidBody* PhysicsComponentProcessor::getBody(Entity e)
     return m_pimpl->data.getData(e).body;
 }
 
+glm::vec3 PhysicsComponentProcessor::getCenterOfMass(Entity e)
+{
+    auto body = m_pimpl->data.getData(e).body;
+    assert(body);
+    return btToGlm(body->getCenterOfMassPosition());
+}
+
 void PhysicsComponentProcessor::teleportPosition(Entity e, const glm::vec3 &pos)
 {
     auto body = getBody(e);

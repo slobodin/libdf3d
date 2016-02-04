@@ -30,6 +30,7 @@ public:
     ~PhysicsComponentProcessor();
 
     btRigidBody* getBody(Entity e);
+    glm::vec3 getCenterOfMass(Entity e);
 
     void teleportPosition(Entity e, const glm::vec3 &pos);
     void teleportOrientation(Entity e, const glm::quat &orient);
