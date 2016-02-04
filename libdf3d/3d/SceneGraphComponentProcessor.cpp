@@ -299,6 +299,20 @@ void SceneGraphComponentProcessor::attachChild(Entity parent, Entity child)
     m_pimpl->updateWorldTransformation(parentCompData);
 }
 
+void SceneGraphComponentProcessor::attachChildren(Entity parent, const std::vector<Entity> &children)
+{
+    for (auto c : children)
+    {
+        assert(!getParent(c).valid());
+        m_pimpl->data.getData(c).parent = parent;
+    }
+
+    auto &parentCompData = m_pimpl->data.getData(parent);
+    parentCompData.children.insert(parentCompData.children.end(), children.begin(), children.end());
+
+    m_pimpl->updateWorldTransformation(parentCompData);
+}
+
 void SceneGraphComponentProcessor::detachChild(Entity parent, Entity child)
 {
     if (!getParent(child).valid())

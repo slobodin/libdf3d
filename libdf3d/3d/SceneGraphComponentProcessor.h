@@ -51,6 +51,7 @@ public:
     glm::vec3 getRotation(Entity e, bool rads = false);
 
     void attachChild(Entity parent, Entity child);
+    void attachChildren(Entity parent, const std::vector<Entity> &children);
     void detachChild(Entity parent, Entity child);
     void detachAllChildren(Entity e);
     Entity getParent(Entity e);
