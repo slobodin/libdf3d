@@ -31,7 +31,8 @@ public:
 
     btRigidBody* getBody(Entity e);
 
-    void teleport(Entity e, const glm::vec3 &pos);
+    void teleportPosition(Entity e, const glm::vec3 &pos);
+    void teleportOrientation(Entity e, const glm::quat &orient);
 
     void add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> meshData);
     // NOTE: body should not be added to the Physics World as it will be added via this processor.

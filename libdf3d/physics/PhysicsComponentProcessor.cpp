@@ -280,7 +280,7 @@ btRigidBody* PhysicsComponentProcessor::getBody(Entity e)
     return m_pimpl->data.getData(e).body;
 }
 
-void PhysicsComponentProcessor::teleport(Entity e, const glm::vec3 &pos)
+void PhysicsComponentProcessor::teleportPosition(Entity e, const glm::vec3 &pos)
 {
     auto body = getBody(e);
     if (body)
@@ -295,6 +295,24 @@ void PhysicsComponentProcessor::teleport(Entity e, const glm::vec3 &pos)
     else
     {
         m_pimpl->df3dWorld.sceneGraph().setPosition(e, pos);
+    }
+}
+
+void PhysicsComponentProcessor::teleportOrientation(Entity e, const glm::quat &orient)
+{
+    auto body = getBody(e);
+    if (body)
+    {
+        auto tr = body->getWorldTransform();
+        tr.setRotation(btQuaternion(orient.x, orient.y, orient.z, orient.w));
+
+        body->setWorldTransform(tr);
+
+        m_pimpl->dynamicsWorld->synchronizeSingleMotionState(body);
+    }
+    else
+    {
+        m_pimpl->df3dWorld.sceneGraph().setOrientation(e, orient);
     }
 }
 
