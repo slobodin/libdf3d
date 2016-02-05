@@ -67,7 +67,7 @@ FileSystem::~FileSystem()
 
 }
 
-shared_ptr<FileDataSource> FileSystem::openFile(const std::string &filePath)
+shared_ptr<FileDataSource> FileSystem::openFile(const std::string &filePath) const
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
@@ -80,6 +80,11 @@ shared_ptr<FileDataSource> FileSystem::openFile(const std::string &filePath)
         return nullptr;
 
     return fileSource;
+}
+
+bool FileSystem::fileExists(const std::string &filePath) const
+{
+    return openFile(filePath) != nullptr;
 }
 
 std::string FileSystem::fullPath(const std::string &path) const

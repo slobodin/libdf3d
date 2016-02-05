@@ -2,6 +2,7 @@
 
 #include "DebugConsole.h"
 #include "TimeManager.h"
+#include "StringTable.h"
 #include <libdf3d/render/RenderManager.h>
 #include <libdf3d/3d/Camera.h>
 #include <libdf3d/game/World.h>
@@ -83,7 +84,7 @@ void EngineController::initialize(EngineInitParams params)
         // Startup squirrel.
         m_scriptManager = make_unique<ScriptManager>();
 
-        // Allow to client to listen system time.
+        // Allow to a client to listen system time.
         m_systemTimeManager = make_unique<TimeManager>();
 
         m_initialized = true;
@@ -135,6 +136,11 @@ void EngineController::step()
     // Clean step for engine subsystems.
     m_inputManager->cleanStep();
     m_systemTimeManager->cleanStep();
+}
+
+void EngineController::setStringTable(const std::string &stringTablePath)
+{
+    m_stringTable = make_unique<StringTable>(stringTablePath);
 }
 
 const RenderStats& EngineController::getLastRenderStats() const

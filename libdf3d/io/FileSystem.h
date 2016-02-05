@@ -15,7 +15,8 @@ public:
     FileSystem();
     ~FileSystem();
 
-    shared_ptr<FileDataSource> openFile(const std::string &filePath);
+    shared_ptr<FileDataSource> openFile(const std::string &filePath) const;
+    bool fileExists(const std::string &filePath) const;
 
     std::string fullPath(const std::string &path) const;
 

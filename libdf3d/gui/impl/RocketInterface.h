@@ -48,9 +48,11 @@ public:
     //! Get the number of seconds elapsed since the start of the application
     /** @returns Seconds elapsed
       */
-    float GetElapsedTime();
+    float GetElapsedTime() override;
 
-    bool LogMessage(Rocket::Core::Log::Type type, const Rocket::Core::String &message);
+    int TranslateString(Rocket::Core::String& translated, const Rocket::Core::String& input) override;
+
+    bool LogMessage(Rocket::Core::Log::Type type, const Rocket::Core::String &message) override;
 };
 
 class RenderInterface : public Rocket::Core::RenderInterface

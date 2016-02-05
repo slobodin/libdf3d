@@ -16,6 +16,7 @@
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/base/DebugConsole.h>
 #include <libdf3d/base/TimeManager.h>
+#include <libdf3d/base/StringTable.h>
 
 #include <libdf3d/platform/AppDelegate.h>
 

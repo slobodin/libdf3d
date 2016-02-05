@@ -17,6 +17,7 @@ class DebugConsole;
 class RenderStats;
 class Viewport;
 class World;
+class StringTable;
 
 class DF3D_DLL EngineController : utils::NonCopyable
 {
@@ -30,6 +31,7 @@ class DF3D_DLL EngineController : utils::NonCopyable
     unique_ptr<TimeManager> m_systemTimeManager;
     unique_ptr<Timer> m_timer;
 
+    unique_ptr<StringTable> m_stringTable;
     unique_ptr<DebugConsole> m_debugConsole;
 
     unique_ptr<World> m_world;
@@ -46,6 +48,8 @@ public:
     void shutdown();
     void step();
 
+    void setStringTable(const std::string &stringTablePath);
+
     const RenderStats& getLastRenderStats() const;
     glm::vec2 getScreenSize() const;
 
@@ -58,6 +62,7 @@ public:
     Timer& timer() { return *m_timer; }
     TimeManager& systemTimeManager() { return *m_systemTimeManager; }
     ScriptManager& scripts() { return *m_scriptManager; }
+    StringTable* stringTable() { return m_stringTable.get(); }
     DebugConsole* debugConsole() { return m_debugConsole.get(); }
 
     World& world() { return *m_world; }

@@ -1,6 +1,7 @@
 #include "RocketInterface.h"
 
 #include <libdf3d/base/EngineController.h>
+#include <libdf3d/base/StringTable.h>
 #include <libdf3d/resources/ResourceManager.h>
 #include <libdf3d/resources/ResourceFactory.h>
 #include <libdf3d/io/FileSystem.h>
@@ -79,10 +80,50 @@ SystemInterface::SystemInterface()
 
 float SystemInterface::GetElapsedTime()
 {
-    auto now = std::chrono::system_clock::now();
-    auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_appStarted).count();
+    using namespace std::chrono;
 
-    return dt / 1000.f;
+    auto dt = duration_cast<milliseconds>(system_clock::now() - m_appStarted).count();
+    return dt / 1000.0f;
+}
+
+int SystemInterface::TranslateString(Rocket::Core::String& translated, const Rocket::Core::String& input)
+{
+    if (auto translator = df3d::svc().stringTable())
+    {
+        translated.Reserve(input.Length());
+
+        int translatedCount = 0;
+        size_t tokenStart = std::string::npos;
+        for (size_t i = 0; i < input.Length(); i++)
+        {
+            if (input[i] == '[')
+                tokenStart = i;
+
+            if (tokenStart == std::string::npos)
+            {
+                translated += input[i];
+            }
+            else
+            {
+                if (input[i] == ']')
+                {
+                    std::string id = std::string(input.CString() + tokenStart + 1, input.CString() + i);
+                    translated += Rocket::Core::String(translator->translateString(id).c_str());
+
+                    tokenStart = std::string::npos;
+                    translatedCount++;
+                }
+                else if (i == input.Length() - 1)
+                {
+                    translated += input.Substring(tokenStart);
+                }
+            }
+        }
+
+        return translatedCount;
+    }
+
+    return Rocket::Core::SystemInterface::TranslateString(translated, input);
 }
 
 bool SystemInterface::LogMessage(Rocket::Core::Log::Type type, const Rocket::Core::String &message)
