@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-class StringTable : utils::NonCopyable
+class DF3D_DLL StringTable : utils::NonCopyable
 {
     std::string m_missingEntry = "missing_entry";
     std::unordered_map<std::string, std::string> m_table;
