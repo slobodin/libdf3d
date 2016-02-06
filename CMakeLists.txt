@@ -28,8 +28,20 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/libRocket/Build)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/squirrel)
 
-if (ANDROID)
-    include(${PROJECT_SOURCE_DIR}/cmake/AndroidNdkModules.cmake)
+OPTION(ALSOFT_DLOPEN OFF)
+OPTION(ALSOFT_WERROR OFF)
+OPTION(ALSOFT_UTILS OFF)
+OPTION(ALSOFT_NO_CONFIG_UTIL OFF)
+OPTION(ALSOFT_EXAMPLES OFF)
+OPTION(ALSOFT_TESTS OFF)
+OPTION(ALSOFT_CONFIG OFF)
+OPTION(ALSOFT_HRTF_DEFS OFF)
+OPTION(ALSOFT_INSTALL OFF)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/openal-soft)
+if(NOT WIN32)
+    SET(DF3D_OPENAL_LIBNAME openal)
+else()
+    SET(DF3D_OPENAL_LIBNAME OpenAL32)
 endif()
 
 if (NOT ANDROID AND NOT IOS)
@@ -305,12 +317,6 @@ if (DF3D_DESKTOP)
     )
 endif()
 
-if (ANDROID OR IOS)
-    find_host_package(OpenAL REQUIRED)
-else()
-    find_package(OpenAL REQUIRED)
-endif()
-
 if (DF3D_DESKTOP)
     find_package(GLEW REQUIRED)
     find_package(OpenGL REQUIRED)
@@ -325,7 +331,7 @@ include_directories(${PROJECT_SOURCE_DIR}/
                     ${PROJECT_SOURCE_DIR}/third-party/libRocket/Include
                     ${PROJECT_SOURCE_DIR}/third-party/glfw/include
                     ${PROJECT_SOURCE_DIR}/third-party/squirrel/include
-                    ${OPENAL_INCLUDE_DIR})
+                    ${PROJECT_SOURCE_DIR}/third-party/openal-soft/include)
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd\"4251\" /wd\"4457\" /wd\"4458\" /wd\"4138\"")
@@ -358,7 +364,7 @@ target_link_libraries(libdf3d
     squirrel)
 
 if (DF3D_DESKTOP)
-    target_link_libraries(libdf3d glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${OPENAL_LIBRARY})
+    target_link_libraries(libdf3d glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${DF3D_OPENAL_LIBNAME})
 endif()
 
 if (WINDOWS_PHONE)
@@ -368,7 +374,7 @@ if (WINDOWS_PHONE)
 endif()
 
 if (ANDROID)
-    target_link_libraries(libdf3d OpenSLES ${OPENAL_LIBRARY} GLESv2 log android)
+    target_link_libraries(libdf3d OpenSLES ${DF3D_OPENAL_LIBNAME} GLESv2 log android)
 endif()
 
 set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "$(PROJECT_SOURCE_DIR)/libdf3d/df3d_pch.h")
