@@ -8,7 +8,6 @@ import android.opengl.GLSurfaceView;
 public class Df3dRenderer implements GLSurfaceView.Renderer {
     private int m_width = 0;
     private int m_height = 0;
-    private long m_prevTime = 0;
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -16,7 +15,6 @@ public class Df3dRenderer implements GLSurfaceView.Renderer {
         // Context recreate also here.
 
         NativeBindings.init(m_width, m_height);
-        m_prevTime = System.nanoTime();
     }
 
     @Override
@@ -27,12 +25,7 @@ public class Df3dRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        long currTime = System.nanoTime();
-        long dt = currTime - m_prevTime;
-
-        m_prevTime = currTime;
-
-        NativeBindings.draw((double)dt / 1000000000.0);
+        NativeBindings.draw();
     }
 
     public void setWidthAndHeight(int w, int h) {

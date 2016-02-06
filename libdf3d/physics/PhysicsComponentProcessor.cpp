@@ -244,8 +244,11 @@ void PhysicsComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 
 void PhysicsComponentProcessor::draw(RenderQueue *ops)
 {
-    if (!svc().debugConsole()->getCVars().get<bool>(CVAR_DEBUG_DRAW))
-        return;
+    if (auto console = svc().debugConsole())
+    {
+        if (!console->getCVars().get<bool>(CVAR_DEBUG_DRAW))
+            return;
+    }
 
     // Collect render operations.
     m_pimpl->dynamicsWorld->debugDrawWorld();

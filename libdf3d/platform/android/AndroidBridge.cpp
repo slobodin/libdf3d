@@ -1,6 +1,7 @@
 #include "../AppDelegate.h"
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/platform/android/FileDataSourceAndroid.h>
+#include <libdf3d/input/InputManager.h>
 #include <jni.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
@@ -104,12 +105,13 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onDestro
     df3d::glog << "Activity was destroyed" << df3d::logmess;
     g_appState->appDelegate->onAppEnded();
 
+    g_appState->engine->shutdown();
     g_appState.reset();
 }
 
-extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_draw(JNIEnv* env, jclass cls, jdouble dt)
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_draw(JNIEnv* env, jclass cls)
 {
-    // g_appState->appDelegate->onAppUpdate((float)dt);
+    g_appState->engine->step();
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchDown(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
@@ -132,6 +134,9 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchD
 
     g_appState->appDelegate->onTouchEvent(touch.touch);
     */
+
+    df3d::svc().inputManager().setMousePosition(x, y);
+    df3d::svc().inputManager().onMouseButtonPressed(df3d::MouseButton::LEFT);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchUp(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
@@ -154,6 +159,8 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchU
 
     g_appState->appDelegate->onTouchEvent(touch.touch);
     */
+    df3d::svc().inputManager().setMousePosition(x, y);
+    df3d::svc().inputManager().onMouseButtonReleased(df3d::MouseButton::LEFT);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchMove(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)

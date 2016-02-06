@@ -4,7 +4,7 @@ import android.content.res.AssetManager;
 
 public class NativeBindings {
     public static native void init(int screenWidth, int screenHeight);
-    public static native void draw(double dt);
+    public static native void draw();
 
     public static native void onResume();
     public static native void onPause();
