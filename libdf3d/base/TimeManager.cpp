@@ -127,7 +127,7 @@ void TimeManager::update(float dt)
 
 void TimeManager::cleanStep()
 {
-    for (auto it = m_timeListeners.cbegin(); it != m_timeListeners.cend(); )
+    for (auto it = m_timeListeners.begin(); it != m_timeListeners.end(); )
     {
         if (!it->handle.valid())
             it = m_timeListeners.erase(it);
@@ -135,7 +135,7 @@ void TimeManager::cleanStep()
             it++;
     }
 
-    for (auto it = m_actions.cbegin(); it != m_actions.cend(); )
+    for (auto it = m_actions.begin(); it != m_actions.end(); )
     {
         if (!it->handle.valid())
             it = m_actions.erase(it);

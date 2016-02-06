@@ -16,8 +16,8 @@ static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 class glfwApplication
 {
     GLFWwindow *window = nullptr;
-    unique_ptr<AppDelegate> m_appDelegate = nullptr;
-    unique_ptr<EngineController> m_engine = nullptr;
+    unique_ptr<AppDelegate> m_appDelegate;
+    unique_ptr<EngineController> m_engine;
 
 public:
     glfwApplication(unique_ptr<AppDelegate> appDelegate)

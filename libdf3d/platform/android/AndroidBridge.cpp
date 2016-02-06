@@ -1,4 +1,5 @@
 #include "../AppDelegate.h"
+#include <libdf3d/base/EngineController.h>
 #include <libdf3d/platform/android/FileDataSourceAndroid.h>
 #include <jni.h>
 #include <android/asset_manager.h>
@@ -6,7 +7,6 @@
 
 struct AndroidTouch
 {
-    df3d::base::TouchEvent touch;
     bool valid = false;
 };
 
@@ -15,46 +15,44 @@ static const int MAX_TOUCHES = 16;
 struct AndroidAppState
 {
     JavaVM *javaVm = nullptr;
-    df3d::platform::AppDelegate *appDelegate = nullptr;
+
+    unique_ptr<df3d::AppDelegate> appDelegate;
+    unique_ptr<df3d::EngineController> engine;
 
     AndroidTouch touchesCache[MAX_TOUCHES];
-
-    ~AndroidAppState()
-    {
-        SAFE_DELETE(appDelegate);
-    }
 };
 
-AndroidAppState *g_appState = nullptr;
+static unique_ptr<AndroidAppState> g_appState;
 
-extern void df3dInitialized();
+namespace df3d {
 
-namespace df3d { namespace platform {
-
-void setupDelegate(df3d::platform::AppDelegate *appDelegate)
+void Application::setupDelegate(unique_ptr<AppDelegate> appDelegate)
 {
-    assert(g_appState);
-
-    g_appState->appDelegate = appDelegate;
-
-    df3d::base::glog << "App delegate was set up" << df3d::base::logmess;
+    g_appState->appDelegate = std::move(appDelegate);
 }
 
-} }
+void Application::setTitle(const std::string &title)
+{
+
+}
+
+EngineController& svc() { return *g_appState->engine; }
+
+}
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 {
     JNIEnv *env;
     if (vm->GetEnv((void **)(&env), JNI_VERSION_1_6) != JNI_OK)
     {
-        df3d::base::glog << "Failed to get environment" << df3d::base::logcritical;
+        df3d::glog << "Failed to get environment" << df3d::logcritical;
         return -1;
     }
 
-    g_appState = new AndroidAppState();
+    g_appState.reset(new AndroidAppState());
     g_appState->javaVm = vm;
 
-    df3d::base::glog << "JNI_OnLoad success" << df3d::base::logmess;
+    df3d::glog << "JNI_OnLoad success" << df3d::logmess;
 
     df3dInitialized();
 
@@ -65,21 +63,24 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_setAssetManager(JNIEnv* env, jobject cls, jobject assetManager)
 {
-    df3d::platform::FileDataSourceAndroid::setAssetManager(AAssetManager_fromJava(env, assetManager));
+    df3d::platform_impl::FileDataSourceAndroid::setAssetManager(AAssetManager_fromJava(env, assetManager));
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_init(JNIEnv* env, jclass cls, jint jscreenWidth, jint jscreenHeight)
 {
-    df3d::base::glog << "Doing native init" << df3d::base::logmess;
+    df3d::glog << "Doing native init" << df3d::logmess;
 
-    // Must be initialized by client code!
-    if (!g_engineController->initialized())
+    if (!g_appState->engine)
     {
-        if (!g_appState->appDelegate->onAppStarted(jscreenWidth, jscreenHeight))
-            df3d::base::glog << "Failed to initialize game code." << df3d::base::logcritical;
+        g_appState->engine.reset(new df3d::EngineController());
 
-        // TODO:
-        // Shutdown on failure.
+        auto engineInitParams = g_appState->appDelegate->getInitParams();
+        engineInitParams.windowWidth = jscreenWidth;
+        engineInitParams.windowHeight = jscreenHeight;
+
+        g_appState->engine->initialize(engineInitParams);
+        if (!g_appState->appDelegate->onAppStarted())
+            throw std::runtime_error("Game code initialization failed.");
     }
     else
     {
@@ -100,27 +101,28 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onPause(
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onDestroy(JNIEnv* env, jclass cls)
 {
-    df3d::base::glog << "Activity was destroyed" << df3d::base::logmess;
+    df3d::glog << "Activity was destroyed" << df3d::logmess;
     g_appState->appDelegate->onAppEnded();
 
-    SAFE_DELETE(g_appState);
+    g_appState.reset();
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_draw(JNIEnv* env, jclass cls, jdouble dt)
 {
-    g_appState->appDelegate->onAppUpdate((float)dt);
+    // g_appState->appDelegate->onAppUpdate((float)dt);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchDown(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
     if (pointerId >= MAX_TOUCHES)
     {
-        df3d::base::glog << "Touch limit exceeded" << df3d::base::logwarn;
+        df3d::glog << "Touch limit exceeded" << df3d::logwarn;
         return;
     }
 
     auto &touch = g_appState->touchesCache[pointerId];
     touch.valid = true;
+    /*
     touch.touch.x = x;
     touch.touch.y = y;
     touch.touch.dx = 0;
@@ -129,17 +131,19 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchD
     touch.touch.state = df3d::base::TouchEvent::State::DOWN;
 
     g_appState->appDelegate->onTouchEvent(touch.touch);
+    */
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchUp(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
     if (pointerId >= MAX_TOUCHES)
     {
-        df3d::base::glog << "Touch limit exceeded" << df3d::base::logwarn;
+        df3d::glog << "Touch limit exceeded" << df3d::logwarn;
         return;
     }
 
     auto &touch = g_appState->touchesCache[pointerId];
+    /*
     touch.valid = false;
     touch.touch.x = x;
     touch.touch.y = y;
@@ -149,17 +153,19 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchU
     touch.touch.state = df3d::base::TouchEvent::State::UP;
 
     g_appState->appDelegate->onTouchEvent(touch.touch);
+    */
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchMove(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
     if (pointerId >= MAX_TOUCHES)
     {
-        df3d::base::glog << "Touch limit exceeded" << df3d::base::logwarn;
+        df3d::glog << "Touch limit exceeded" << df3d::logwarn;
         return;
     }
 
     auto &touch = g_appState->touchesCache[pointerId];
+    /*
     if (touch.valid)
     {
         touch.touch.dx = x - touch.touch.x;
@@ -172,18 +178,20 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchM
     touch.touch.state = df3d::base::TouchEvent::State::MOVING;
 
     g_appState->appDelegate->onTouchEvent(touch.touch);
+    */
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchCancel(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
     if (pointerId >= MAX_TOUCHES)
     {
-        df3d::base::glog << "Touch limit exceeded" << df3d::base::logwarn;
+        df3d::glog << "Touch limit exceeded" << df3d::logwarn;
         return;
     }
 
     auto &touch = g_appState->touchesCache[pointerId];
     touch.valid = false;
+    /*
     touch.touch.x = x;
     touch.touch.y = y;
     touch.touch.dx = 0;
@@ -192,4 +200,5 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchC
     touch.touch.state = df3d::base::TouchEvent::State::CANCEL;
 
     g_appState->appDelegate->onTouchEvent(touch.touch);
+    */
 }

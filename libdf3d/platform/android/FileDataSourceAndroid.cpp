@@ -5,13 +5,13 @@ namespace df3d { namespace platform_impl {
 AAssetManager *FileDataSourceAndroid::m_assetMgr = nullptr;
 
 FileDataSourceAndroid::FileDataSourceAndroid(const char *fileName)
-    : resources::FileDataSource(fileName),
+    : FileDataSource(fileName),
     m_file(nullptr),
     m_current(0)
 {
     m_file = AAssetManager_open(m_assetMgr, fileName, AASSET_MODE_UNKNOWN);
     if (!m_file)
-        base::glog << "Can not open file" << fileName << base::logwarn;
+        glog << "Can not open file" << fileName << logwarn;
 }
 
 FileDataSourceAndroid::~FileDataSourceAndroid()
@@ -85,7 +85,7 @@ bool FileDataSourceAndroid::seek(int64_t offset, std::ios_base::seekdir origin)
 void FileDataSourceAndroid::setAssetManager(AAssetManager *mgr)
 {
     if (!mgr)
-        base::glog << "Setting up NULL AAssetManager" << base::logwarn;
+        glog << "Setting up NULL AAssetManager" << logwarn;
 
     m_assetMgr = mgr;
 }
