@@ -7,7 +7,7 @@ import android.content.res.AssetManager;
 
 public class Df3dActivity extends Activity {
     private Df3dSurfaceView m_glSurfaceView = null;
-	private AssetManager m_assetManager = null;
+    private AssetManager m_assetManager = null;
 
     static
     {
@@ -19,14 +19,14 @@ public class Df3dActivity extends Activity {
         // TODO: load client library from meta-data.
         System.loadLibrary("ships3d");
 
-		Log.i("df3d_android", "df3d native libraries loaded");
+        Log.i("df3d_android", "df3d native libraries loaded");
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-		m_assetManager = getAssets();
+        m_assetManager = getAssets();
         NativeBindings.setAssetManager(m_assetManager);
 
         setContentView(m_glSurfaceView = new Df3dSurfaceView(this));
@@ -50,6 +50,6 @@ public class Df3dActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
 
-		NativeBindings.onDestroy();
+        NativeBindings.onDestroy();
     }
 }
