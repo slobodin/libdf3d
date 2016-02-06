@@ -37,8 +37,10 @@ void bindGlm(Table &df3dNamespace)
     using namespace glm;
     using value_t = vec3::value_type;
 
+    auto vm = df3d::svc().scripts().getVm();
+
     {
-        Class<vec2> glmvec2Class;
+        Class<vec2> glmvec2Class(vm, _SC("vec2"));
         glmvec2Class
             .Ctor()
             .Ctor<value_t, value_t>()
@@ -51,7 +53,7 @@ void bindGlm(Table &df3dNamespace)
     }
 
     {
-        Class<vec3> glmvec3Class;
+        Class<vec3> glmvec3Class(vm, _SC("vec3"));
         glmvec3Class
             .Ctor()
             .Ctor<value_t, value_t, value_t>()
@@ -77,8 +79,10 @@ void bindProcessors()
 
 void bindGame(Table &df3dNamespace)
 {
+    auto vm = df3d::svc().scripts().getVm();
+
     {
-        Class<Entity> entityClass;
+        Class<Entity> entityClass(vm, _SC("Entity"));
         entityClass
             .Ctor()
             .Prop(_SC("valid"), &Entity::valid)
@@ -88,7 +92,7 @@ void bindGame(Table &df3dNamespace)
     }
 
     {
-        Class<World, NoConstructor<World>> worldClass;
+        Class<World, NoConstructor<World>> worldClass(vm, _SC("World"));
         worldClass
             .Func(_SC("alive"), &World::alive)
             .Func(_SC("destroy"), &World::destroy)

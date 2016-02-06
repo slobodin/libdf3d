@@ -186,6 +186,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchM
 
     g_appState->appDelegate->onTouchEvent(touch.touch);
     */
+    df3d::svc().inputManager().setMousePosition(x, y);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchCancel(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
