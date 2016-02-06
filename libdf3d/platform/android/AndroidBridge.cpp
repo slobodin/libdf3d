@@ -1,8 +1,5 @@
-#include "df3d_pch.h"
-
 #include "../AppDelegate.h"
-#include <base/SystemsMacro.h>
-#include <platform/android/FileDataSourceAndroid.h>
+#include <libdf3d/platform/android/FileDataSourceAndroid.h>
 #include <jni.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>

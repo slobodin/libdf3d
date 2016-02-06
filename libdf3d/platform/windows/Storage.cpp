@@ -26,7 +26,7 @@ public:
 
 }
 
-Storage *Storage::create(const std::string &filename)
+Storage* Storage::create(const std::string &filename)
 {
     return new platform_impl::WindowsStorage(filename);
 }

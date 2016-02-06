@@ -1,11 +1,11 @@
 #pragma once
 
-#include <resources/FileDataSource.h>
+#include <libdf3d/io/FileDataSource.h>
 #include <android/asset_manager.h>
 
-namespace df3d { namespace platform {
+namespace df3d { namespace platform_impl {
 
-class DF3D_DLL FileDataSourceAndroid : public resources::FileDataSource
+class DF3D_DLL FileDataSourceAndroid : public FileDataSource
 {
     AAsset *m_file = nullptr;
     static AAssetManager *m_assetMgr;

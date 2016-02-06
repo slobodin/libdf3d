@@ -35,7 +35,7 @@ bool Texture2D::createGLTexture(const PixelBuffer &buffer)
         glPixelFormat = GL_LUMINANCE;   // FIXME: is it valid on ES?
         break;
     case PixelFormat::DEPTH:
-        glPixelFormat = GL_DEPTH_COMPONENT24;
+        glPixelFormat = GL_DEPTH_COMPONENT16;
         break;
     default:
         glog << "Invalid GL texture pixel format" << logwarn;

@@ -19,13 +19,13 @@ const size_t MAX_LOG_SIZE = 2 << 18;
 
 enum class MessageType
 {
-    DEBUG,
-    MESSAGE,
-    WARNING,
-    CRITICAL,
-    GAME,
-    SCRIPT,
-    NONE,
+    MT_DEBUG,
+    MT_MESSAGE,
+    MT_WARNING,
+    MT_CRITICAL,
+    MT_GAME,
+    MT_SCRIPT,
+    MT_NONE,
 
     COUNT
 };
@@ -47,25 +47,25 @@ public:
     {
         switch (type)
         {
-        case MessageType::DEBUG:
+        case MessageType::MT_DEBUG:
             std::cout << "[debug]: ";
             break;
-        case MessageType::MESSAGE:
+        case MessageType::MT_MESSAGE:
             std::cout << "[message]: ";
             break;
-        case MessageType::WARNING:
+        case MessageType::MT_WARNING:
             std::cout << "[warning]: ";
             break;
-        case MessageType::CRITICAL:
+        case MessageType::MT_CRITICAL:
             std::cout << "[critical]: ";
             break;
-        case MessageType::GAME:
+        case MessageType::MT_GAME:
             std::cout << "[game]: ";
             break;
-        case MessageType::SCRIPT:
+        case MessageType::MT_SCRIPT:
             std::cout << "[script]: ";
             break;
-        case MessageType::NONE:
+        case MessageType::MT_NONE:
             break;
         default:
             break;
@@ -89,13 +89,13 @@ public:
 
         m_consoleColors =
         {
-            { MessageType::DEBUG, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED },
-            { MessageType::MESSAGE, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY },
-            { MessageType::WARNING, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY },
-            { MessageType::CRITICAL, FOREGROUND_RED | FOREGROUND_INTENSITY },
-            { MessageType::GAME, FOREGROUND_GREEN | FOREGROUND_INTENSITY },
-            { MessageType::SCRIPT, FOREGROUND_GREEN | FOREGROUND_INTENSITY },
-            { MessageType::NONE, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED }
+            { MessageType::MT_DEBUG, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED },
+            { MessageType::MT_MESSAGE, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY },
+            { MessageType::MT_WARNING, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY },
+            { MessageType::MT_CRITICAL, FOREGROUND_RED | FOREGROUND_INTENSITY },
+            { MessageType::MT_GAME, FOREGROUND_GREEN | FOREGROUND_INTENSITY },
+            { MessageType::MT_SCRIPT, FOREGROUND_GREEN | FOREGROUND_INTENSITY },
+            { MessageType::MT_NONE, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED }
         };
 
         assert(m_consoleColors.size() == (int)MessageType::COUNT);
@@ -144,13 +144,13 @@ public:
     {
         m_priorities =
         {
-            { (int)MessageType::DEBUG, ANDROID_LOG_DEBUG },
-            { (int)MessageType::MESSAGE, ANDROID_LOG_INFO },
-            { (int)MessageType::WARNING, ANDROID_LOG_WARN },
-            { (int)MessageType::CRITICAL, ANDROID_LOG_FATAL },
-            { (int)MessageType::GAME, ANDROID_LOG_INFO },
-            { (int)MessageType::SCRIPT, ANDROID_LOG_INFO },
-            { (int)MessageType::NONE, ANDROID_LOG_UNKNOWN }
+            { (int)MessageType::MT_DEBUG, ANDROID_LOG_DEBUG },
+            { (int)MessageType::MT_MESSAGE, ANDROID_LOG_INFO },
+            { (int)MessageType::MT_WARNING, ANDROID_LOG_WARN },
+            { (int)MessageType::MT_CRITICAL, ANDROID_LOG_FATAL },
+            { (int)MessageType::MT_GAME, ANDROID_LOG_INFO },
+            { (int)MessageType::MT_SCRIPT, ANDROID_LOG_INFO },
+            { (int)MessageType::MT_NONE, ANDROID_LOG_UNKNOWN }
         };
 
         assert(m_priorities.size() == (int)MessageType::COUNT);
@@ -226,11 +226,11 @@ const std::string &Log::logData() const
 }
 
 Log& glog = Log::instance();
-const LoggerManipulator logdebug = LoggerManipulator(MessageType::DEBUG);
-const LoggerManipulator logmess = LoggerManipulator(MessageType::MESSAGE);
-const LoggerManipulator logwarn = LoggerManipulator(MessageType::WARNING);
-const LoggerManipulator logcritical = LoggerManipulator(MessageType::CRITICAL);
-const LoggerManipulator loggame = LoggerManipulator(MessageType::GAME);
-const LoggerManipulator logscript = LoggerManipulator(MessageType::SCRIPT);
+const LoggerManipulator logdebug = LoggerManipulator(MessageType::MT_DEBUG);
+const LoggerManipulator logmess = LoggerManipulator(MessageType::MT_MESSAGE);
+const LoggerManipulator logwarn = LoggerManipulator(MessageType::MT_WARNING);
+const LoggerManipulator logcritical = LoggerManipulator(MessageType::MT_CRITICAL);
+const LoggerManipulator loggame = LoggerManipulator(MessageType::MT_GAME);
+const LoggerManipulator logscript = LoggerManipulator(MessageType::MT_SCRIPT);
 
 }

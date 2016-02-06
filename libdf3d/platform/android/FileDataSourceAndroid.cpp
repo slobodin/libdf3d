@@ -1,7 +1,6 @@
-#include "df3d_pch.h"
 #include "FileDataSourceAndroid.h"
 
-namespace df3d { namespace platform {
+namespace df3d { namespace platform_impl {
 
 AAssetManager *FileDataSourceAndroid::m_assetMgr = nullptr;
 

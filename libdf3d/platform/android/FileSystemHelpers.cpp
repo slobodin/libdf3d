@@ -1,9 +1,8 @@
-#include "df3d_pch.h"
-#include "../FileSystemHelpers.h"
+#include <libdf3d/io/FileSystemHelpers.h>
 
-#include <platform/android/FileDataSourceAndroid.h>
+#include <libdf3d/platform/android/FileDataSourceAndroid.h>
 
-namespace df3d { namespace platform {
+namespace df3d {
 
 bool FileSystemHelpers::isPathAbsolute(const std::string &path)
 {
@@ -31,7 +30,7 @@ bool FileSystemHelpers::pathExists(const std::string &path)
     }
     else
     {
-        auto aassetManager = FileDataSourceAndroid::getAAssetManager();
+        auto aassetManager = platform_impl::FileDataSourceAndroid::getAAssetManager();
         auto file = AAssetManager_open(aassetManager, path.c_str(), AASSET_MODE_UNKNOWN);
         if (file)
         {
@@ -43,7 +42,7 @@ bool FileSystemHelpers::pathExists(const std::string &path)
     return retRes;
 }
 
-shared_ptr<resources::FileDataSource> FileSystemHelpers::openFile(const std::string &path)
+shared_ptr<FileDataSource> FileSystemHelpers::openFile(const std::string &path)
 {
     if (isPathAbsolute(path))
     {
@@ -54,8 +53,8 @@ shared_ptr<resources::FileDataSource> FileSystemHelpers::openFile(const std::str
     }
     else
     {
-        return make_shared<platform::FileDataSourceAndroid>(path.c_str());
+        return make_shared<platform_impl::FileDataSourceAndroid>(path.c_str());
     }
 }
 
-} }
+}
