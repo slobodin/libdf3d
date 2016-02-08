@@ -73,6 +73,15 @@ public:
         return *this;
     }
 
+    Log& operator<< (const glm::quat &v)
+    {
+        std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+        m_buffer << "[x: " << v.x << " y: " << v.y << " z: " << v.z << " w: " << v.w << "] ";
+
+        return *this;
+    }
+
     Log& operator<< (const LoggerManipulator &man);
 
     void printWithoutFormat(const char *str, const LoggerManipulator &manipulator);
