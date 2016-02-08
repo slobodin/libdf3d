@@ -1,6 +1,7 @@
 #include "SceneGraphComponentProcessor.h"
 
 #include <libdf3d/game/ComponentDataHolder.h>
+#include <libdf3d/utils/MathUtils.h>
 
 namespace df3d {
 
@@ -280,6 +281,11 @@ glm::vec3 SceneGraphComponentProcessor::getRotation(Entity e, bool rads)
         return glm::eulerAngles(compData.orientation);
     else
         return glm::degrees(glm::eulerAngles(compData.orientation));
+}
+
+glm::vec3 SceneGraphComponentProcessor::getWorldDirection(Entity e)
+{
+    return glm::normalize(glm::vec3(getTransformation(e) *-utils::math::ZAxis));
 }
 
 void SceneGraphComponentProcessor::attachChild(Entity parent, Entity child)
