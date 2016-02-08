@@ -4,29 +4,38 @@ namespace df3d {
 
 class DF3D_DLL Storage : utils::NonCopyable
 {
+public:
+    struct Encryptor
+    {
+        virtual ~Encryptor() = default;
+
+        virtual std::string encode(const std::string &data) = 0;
+        virtual std::string decode(const std::string &data) = 0;
+    };
+
+private:
+    unique_ptr<Encryptor> m_encryptor;
+
 protected:
     Json::Value m_data;
     std::string m_fileName;
 
-    Storage(const std::string &filename) 
-        : m_data(Json::ValueType::objectValue),
-        m_fileName(filename) 
-    { }
+    Storage(const std::string &filename);
 
     virtual void saveToFileSystem(const std::string &data) = 0;
-    virtual std::string getFromFileSystem() = 0;
+    virtual bool getFromFileSystem(std::string &outStr) = 0;
 
 public:
     static Storage *create(const std::string &filename);
     virtual ~Storage() { }
 
-    const Json::Value& data() const { return m_data; }
-    Json::Value& data() { return m_data; }
+    void setEncryptor(unique_ptr<Encryptor> e) { m_encryptor = std::move(e); }
 
-    // TODO:
-    // Serialize/deserialize to bytearray.
+    const Json::Value& getData() const { return m_data; }
+    Json::Value& getData() { return m_data; }
 
-    void save();
+    bool save();
+    bool load();
 };
 
 }
