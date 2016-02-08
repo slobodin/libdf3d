@@ -193,6 +193,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/io/Storage.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/math/AABB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingSphere.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingVolume.cpp

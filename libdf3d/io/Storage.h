@@ -13,6 +13,9 @@ protected:
         m_fileName(filename) 
     { }
 
+    virtual void saveToFileSystem(const std::string &data) = 0;
+    virtual std::string getFromFileSystem() = 0;
+
 public:
     static Storage *create(const std::string &filename);
     virtual ~Storage() { }
@@ -23,7 +26,7 @@ public:
     // TODO:
     // Serialize/deserialize to bytearray.
 
-    virtual void save() = 0;
+    void save();
 };
 
 }

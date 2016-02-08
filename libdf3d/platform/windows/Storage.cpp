@@ -6,6 +6,11 @@ namespace df3d { namespace platform_impl {
 
 class WindowsStorage : public Storage
 {
+    void saveToFileSystem(const std::string &data) override
+    {
+
+    }
+
 public:
     WindowsStorage(const std::string &filename)
         : Storage(filename)
@@ -16,11 +21,6 @@ public:
             df3d::glog << "Failed to init Storage. Can not open file" << df3d::logwarn;
             return;
         }
-    }
-
-    virtual void save() override
-    {
-
     }
 };
 
