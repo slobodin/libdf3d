@@ -123,8 +123,7 @@ ParticleSystemComponentProcessor::ParticleSystemComponentProcessor(World *world)
 {
     // Clamp the step to 100 ms.
     SPK::System::setClampStep(true, 0.1f);
-    SPK::System::useRealStep();
-    //SPK::System::useConstantStep(1.0f / 30.0f);
+    useRealStep();
 }
 
 ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor()
@@ -132,6 +131,16 @@ ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor()
     //glog << "ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
     m_pimpl->data.clear();
     SPK_DUMP_MEMORY
+}
+
+void ParticleSystemComponentProcessor::useRealStep()
+{
+    SPK::System::useRealStep();
+}
+
+void ParticleSystemComponentProcessor::useConstantStep(float time)
+{
+    SPK::System::useConstantStep(time);
 }
 
 void ParticleSystemComponentProcessor::stop(Entity e)

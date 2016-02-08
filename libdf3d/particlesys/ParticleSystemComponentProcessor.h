@@ -42,6 +42,9 @@ public:
     ParticleSystemComponentProcessor(World *world);
     ~ParticleSystemComponentProcessor();
 
+    void useRealStep();
+    void useConstantStep(float time);
+
     void stop(Entity e);
     void pause(Entity e, bool paused);
     void setSystemLifeTime(Entity e, float lifeTime);
