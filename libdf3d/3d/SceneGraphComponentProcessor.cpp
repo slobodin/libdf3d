@@ -115,11 +115,9 @@ void SceneGraphComponentProcessor::setOrientation(Entity e, const glm::quat &new
     m_pimpl->updateWorldTransformation(compData);
 }
 
-void SceneGraphComponentProcessor::setOrientation(Entity e, const glm::vec3 &eulerAngles, bool rads)
+void SceneGraphComponentProcessor::setOrientation(Entity e, const glm::vec3 &eulerAngles)
 {
-    glm::vec3 v = rads ? eulerAngles : glm::radians(eulerAngles);
-
-    setOrientation(e, glm::quat(v));
+    setOrientation(e, glm::quat(glm::radians(eulerAngles)));
 }
 
 void SceneGraphComponentProcessor::setTransform(Entity e, const glm::vec3 &position, const glm::quat &orient, const glm::mat4 &transf)
@@ -156,27 +154,24 @@ void SceneGraphComponentProcessor::scale(Entity e, float uniform)
     scale(e, { uniform, uniform, uniform });
 }
 
-void SceneGraphComponentProcessor::rotateYaw(Entity e, float yaw, bool rads)
+void SceneGraphComponentProcessor::rotateYaw(Entity e, float yaw)
 {
-    rotateAxis(e, yaw, glm::vec3(0.0f, 1.0f, 0.0f), rads);
+    rotateAxis(e, yaw, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
-void SceneGraphComponentProcessor::rotatePitch(Entity e, float pitch, bool rads)
+void SceneGraphComponentProcessor::rotatePitch(Entity e, float pitch)
 {
-    rotateAxis(e, pitch, glm::vec3(1.0f, 0.0f, 0.0f), rads);
+    rotateAxis(e, pitch, glm::vec3(1.0f, 0.0f, 0.0f));
 }
 
-void SceneGraphComponentProcessor::rotateRoll(Entity e, float roll, bool rads)
+void SceneGraphComponentProcessor::rotateRoll(Entity e, float roll)
 {
-    rotateAxis(e, roll, glm::vec3(0.0f, 0.0f, 1.0f), rads);
+    rotateAxis(e, roll, glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
-void SceneGraphComponentProcessor::rotateAxis(Entity e, float angle, const glm::vec3 &axis, bool rads)
+void SceneGraphComponentProcessor::rotateAxis(Entity e, float angle, const glm::vec3 &axis)
 {
-    if (!rads)
-        angle = glm::radians(angle);
-
-    auto q = glm::angleAxis(angle, axis);
+    auto q = glm::angleAxis(glm::radians(angle), axis);
     q = glm::normalize(q);
 
     auto &compData = m_pimpl->data.getData(e);
@@ -219,32 +214,32 @@ Entity SceneGraphComponentProcessor::getByName(Entity parent, const std::string 
     return Entity();
 }
 
-glm::vec3 SceneGraphComponentProcessor::getPosition(Entity e, bool includeParent)
+glm::vec3 SceneGraphComponentProcessor::getWorldPosition(Entity e) const
 {
-    const auto &compData = m_pimpl->data.getData(e);
-
-    if (!includeParent)
-        return compData.position;
-    else
-        return glm::vec3(compData.transformation[3]);
+    return glm::vec3(m_pimpl->data.getData(e).transformation[3]);
 }
 
-const glm::vec3& SceneGraphComponentProcessor::getScale(Entity e)
+glm::vec3 SceneGraphComponentProcessor::getLocalPosition(Entity e) const
+{
+    return m_pimpl->data.getData(e).position;
+}
+
+const glm::vec3& SceneGraphComponentProcessor::getScale(Entity e) const
 {
     return m_pimpl->data.getData(e).scaling;
 }
 
-const glm::quat& SceneGraphComponentProcessor::getOrientation(Entity e)
+const glm::quat& SceneGraphComponentProcessor::getOrientation(Entity e) const
 {
     return m_pimpl->data.getData(e).orientation;
 }
 
-const glm::mat4& SceneGraphComponentProcessor::getTransformation(Entity e)
+const glm::mat4& SceneGraphComponentProcessor::getTransformation(Entity e) const
 {
     return m_pimpl->data.getData(e).transformation;
 }
 
-void SceneGraphComponentProcessor::getTransformation(Entity e, glm::mat4 &outTr, glm::vec3 &outPos, glm::quat &outRot, glm::vec3 &outScale)
+void SceneGraphComponentProcessor::getTransformation(Entity e, glm::mat4 &outTr, glm::vec3 &outPos, glm::quat &outRot, glm::vec3 &outScale) const
 {
     const auto &compData = m_pimpl->data.getData(e);
 
@@ -254,17 +249,14 @@ void SceneGraphComponentProcessor::getTransformation(Entity e, glm::mat4 &outTr,
     outScale = compData.scaling;
 }
 
-glm::vec3 SceneGraphComponentProcessor::getRotation(Entity e, bool rads)
+glm::vec3 SceneGraphComponentProcessor::getRotation(Entity e) const
 {
     const auto &compData = m_pimpl->data.getData(e);
 
-    if (rads)
-        return glm::eulerAngles(compData.orientation);
-    else
-        return glm::degrees(glm::eulerAngles(compData.orientation));
+    return glm::degrees(glm::eulerAngles(compData.orientation));
 }
 
-glm::vec3 SceneGraphComponentProcessor::getWorldDirection(Entity e)
+glm::vec3 SceneGraphComponentProcessor::getWorldDirection(Entity e) const
 {
     return glm::normalize(glm::vec3(getTransformation(e) *-utils::math::ZAxis));
 }

@@ -89,7 +89,36 @@ void bindGlm(Table &df3dNamespace)
 
 void bindProcessors(Table &df3dNamespace)
 {
+    auto vm = df3d::svc().scripts().getVm();
 
+    {
+        Class<SceneGraphComponentProcessor, NoConstructor<SceneGraphComponentProcessor>> scGraphProcessor(vm, _SC("SceneGraphComponentProcessor"));
+        scGraphProcessor
+            .Func(_SC("setPosition"), &SceneGraphComponentProcessor::setPosition)
+            .Func<void(SceneGraphComponentProcessor::*)(Entity, const glm::vec3 &)>(_SC("setScale"), &SceneGraphComponentProcessor::setScale)
+            .Func<void(SceneGraphComponentProcessor::*)(Entity, const glm::quat &)>(_SC("setOrientation"), &SceneGraphComponentProcessor::setOrientation)
+
+            .Func(_SC("translate"), &SceneGraphComponentProcessor::translate)
+            .Func<void(SceneGraphComponentProcessor::*)(Entity, const glm::vec3 &)>(_SC("scale"), &SceneGraphComponentProcessor::scale)
+
+            .Func(_SC("rotateYaw"), &SceneGraphComponentProcessor::rotateYaw)
+            .Func(_SC("rotatePitch"), &SceneGraphComponentProcessor::rotatePitch)
+            .Func(_SC("rotateRoll"), &SceneGraphComponentProcessor::rotateRoll)
+            .Func(_SC("rotateAxis"), &SceneGraphComponentProcessor::rotateAxis)
+
+            .Func(_SC("setName"), &SceneGraphComponentProcessor::setName)
+            .Func(_SC("getName"), &SceneGraphComponentProcessor::getName)
+
+            .Func(_SC("getWorldPosition"), &SceneGraphComponentProcessor::getWorldPosition)
+            .Func(_SC("getLocalPosition"), &SceneGraphComponentProcessor::getLocalPosition)
+            .Func(_SC("getScale"), &SceneGraphComponentProcessor::getScale)
+            .Func(_SC("getOrientation"), &SceneGraphComponentProcessor::getOrientation)
+            .Func(_SC("getRotation"), &SceneGraphComponentProcessor::getRotation)
+            .Func(_SC("getWorldDirection"), &SceneGraphComponentProcessor::getWorldDirection)
+            ;
+
+        df3dNamespace.Bind(_SC("SceneGraphComponentProcessor"), scGraphProcessor);
+    }
 }
 
 void bindGame(Table &df3dNamespace)
@@ -111,6 +140,10 @@ void bindGame(Table &df3dNamespace)
         worldClass
             .Func(_SC("alive"), &World::alive)
             .Func(_SC("destroy"), &World::destroy)
+            .Func(_SC("destroyWithChildren"), &World::destroyWithChildren)
+            .Func(_SC("getEntitiesCount"), &World::getEntitiesCount)
+
+            .Prop(_SC("sceneGraph"), &World::sceneGraph)
             ;
 
         worldClass.Overload<Entity(World::*)()>(_SC("spawn"), &World::spawn);

@@ -46,7 +46,7 @@ public:
     void setFov(float fov);
     void setPosition(const glm::vec3 &newPosition);
     void setOrientation(const glm::quat &q);
-    void setOrientation(const glm::vec3 &eulerAngles, bool rads = false);
+    void setOrientation(const glm::vec3 &eulerAngles);
 
     const glm::mat4& getViewMatrix() const;
     const glm::mat4& getProjectionMatrix() const;

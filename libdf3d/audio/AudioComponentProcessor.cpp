@@ -65,7 +65,7 @@ void AudioComponentProcessor::update()
 
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
-        compData.holderPos = m_world->sceneGraph().getPosition(compData.holder, true);
+        compData.holderPos = m_world->sceneGraph().getWorldPosition(compData.holder);
 
     for (auto &compData : m_pimpl->data.rawData())
     {
@@ -194,7 +194,7 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
     printOpenALError();
 
     data.holder = e;
-    data.holderPos = m_world->sceneGraph().getPosition(e, true);
+    data.holderPos = m_world->sceneGraph().getWorldPosition(e);
 
     m_pimpl->data.add(e, data);
 }

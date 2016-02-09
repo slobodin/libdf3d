@@ -33,7 +33,7 @@ public:
         m_holder(e)
     {
         auto orientation = w.sceneGraph().getOrientation(m_holder);
-        auto position = w.sceneGraph().getPosition(m_holder);
+        auto position = w.sceneGraph().getWorldPosition(m_holder);
 
         m_transform = btTransform(btQuaternion(orientation.x, orientation.y, orientation.z, orientation.w), glmTobt(position));
     }

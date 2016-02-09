@@ -96,7 +96,7 @@ void Sprite2DComponentProcessor::setAnchorPoint(Entity e, const glm::vec2 &pt)
 
 void Sprite2DComponentProcessor::setZIdx(Entity e, float z)
 {
-    auto newPos = m_world->sceneGraph().getPosition(e);
+    auto newPos = m_world->sceneGraph().getLocalPosition(e);
     newPos.z = z;
 
     m_world->sceneGraph().setPosition(e, newPos);

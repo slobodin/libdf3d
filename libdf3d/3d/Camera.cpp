@@ -68,11 +68,9 @@ void Camera::setOrientation(const glm::quat &q)
     buildCameraMatrix();
 }
 
-void Camera::setOrientation(const glm::vec3 &eulerAngles, bool rads)
+void Camera::setOrientation(const glm::vec3 &eulerAngles)
 {
-    glm::vec3 v = rads ? eulerAngles : glm::radians(eulerAngles);
-
-    setOrientation(glm::quat(v));
+    setOrientation(glm::quat(glm::radians(eulerAngles)));
 }
 
 const glm::mat4 &Camera::getViewMatrix() const
