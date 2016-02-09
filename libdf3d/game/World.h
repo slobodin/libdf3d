@@ -71,7 +71,7 @@ public:
 
     void pauseSimulation(bool paused);
 
-    void addUserComponentProcessor(EntityComponentProcessor *processor);
+    void addUserComponentProcessor(unique_ptr<EntityComponentProcessor> processor);
     template<typename T>
     T& getProcessor()
     {

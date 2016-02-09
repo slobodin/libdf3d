@@ -175,12 +175,12 @@ void World::pauseSimulation(bool paused)
     m_paused = paused;
 }
 
-void World::addUserComponentProcessor(EntityComponentProcessor *processor)
+void World::addUserComponentProcessor(unique_ptr<EntityComponentProcessor> processor)
 {
     auto idx = std::type_index(typeid(*processor));
     assert(!utils::contains_key(m_userProcessors, idx));
 
-    m_userProcessors.insert(std::make_pair(idx, unique_ptr<EntityComponentProcessor>(processor)));
+    m_userProcessors.insert(std::make_pair(idx, std::move(processor)));
 }
 
 AudioComponentProcessor& World::audio()
