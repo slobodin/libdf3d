@@ -66,13 +66,28 @@ void bindGlm(Table &df3dNamespace)
         df3dNamespace.Bind(_SC("vec3"), glmvec3Class);
     }
 
+    {
+        Class<quat> glmquatClass(vm, _SC("quat"));
+        glmquatClass
+            .Ctor()
+            .Ctor<value_t, value_t, value_t, value_t>()
+
+            .Var(_SC("x"), &quat::x)
+            .Var(_SC("y"), &quat::y)
+            .Var(_SC("z"), &quat::z)
+            .Var(_SC("w"), &quat::w)
+            ;
+
+        df3dNamespace.Bind(_SC("quat"), glmquatClass);
+    }
+
     df3dNamespace.Func(_SC("random_float"), random_float);
     df3dNamespace.Func(_SC("random_float_range"), random_float_range);
     df3dNamespace.Func(_SC("random_int_range"), random_int_range);
     df3dNamespace.Func(_SC("gaussian"), df3d::utils::math::gaussian);
 }
 
-void bindProcessors()
+void bindProcessors(Table &df3dNamespace)
 {
 
 }
