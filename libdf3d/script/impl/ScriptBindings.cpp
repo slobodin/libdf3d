@@ -163,6 +163,7 @@ void bindDf3d(HSQUIRRELVM vm)
 
     bindGlm(df3dNamespace);
     bindGame(df3dNamespace);
+    bindProcessors(df3dNamespace);
 }
 
 } }
