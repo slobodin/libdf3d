@@ -113,7 +113,7 @@ void Sprite2DComponentProcessor::setSize(Entity e, const glm::vec2 &size)
 
     // Compute new scale to fit desired size.
     auto sc = size / compData.textureOriginalSize;
-    m_world->sceneGraph().setScale(e, sc.x, sc.y, 1.0f);
+    m_world->sceneGraph().setScale(e, { sc.x, sc.y, 1.0f });
 }
 
 void Sprite2DComponentProcessor::setWidth(Entity e, float w)

@@ -18,9 +18,7 @@ public:
     ~SceneGraphComponentProcessor();
 
     void setPosition(Entity e, const glm::vec3 &newPosition);
-    void setPosition(Entity e, float x, float y, float z);
     void setScale(Entity e, const glm::vec3 &newScale);
-    void setScale(Entity e, float x, float y, float z);
     void setScale(Entity e, float uniform);
     void setOrientation(Entity e, const glm::quat &newOrientation);
     void setOrientation(Entity e, const glm::vec3 &eulerAngles, bool rads = false);
@@ -28,9 +26,7 @@ public:
     void setTransform(Entity e, const glm::vec3 &position, const glm::quat &orient, const glm::mat4 &transf);
 
     void translate(Entity e, const glm::vec3 &v);
-    void translate(Entity e, float x, float y, float z);
     void scale(Entity e, const glm::vec3 &v);
-    void scale(Entity e, float x, float y, float z);
     void scale(Entity e, float uniform);
     void rotateYaw(Entity e, float yaw, bool rads = false);
     void rotatePitch(Entity e, float pitch, bool rads = false);

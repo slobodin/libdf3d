@@ -92,11 +92,6 @@ void SceneGraphComponentProcessor::setPosition(Entity e, const glm::vec3 &newPos
     m_pimpl->updateWorldTransformation(compData);
 }
 
-void SceneGraphComponentProcessor::setPosition(Entity e, float x, float y, float z)
-{
-    setPosition(e, glm::vec3(x, y, z));
-}
-
 void SceneGraphComponentProcessor::setScale(Entity e, const glm::vec3 &newScale)
 {
     auto &compData = m_pimpl->data.getData(e);
@@ -106,14 +101,9 @@ void SceneGraphComponentProcessor::setScale(Entity e, const glm::vec3 &newScale)
     m_pimpl->updateWorldTransformation(compData);
 }
 
-void SceneGraphComponentProcessor::setScale(Entity e, float x, float y, float z)
-{
-    setScale(e, glm::vec3(x, y, z));
-}
-
 void SceneGraphComponentProcessor::setScale(Entity e, float uniform)
 {
-    setScale(e, uniform, uniform, uniform);
+    setScale(e, { uniform, uniform, uniform });
 }
 
 void SceneGraphComponentProcessor::setOrientation(Entity e, const glm::quat &newOrientation)
@@ -151,28 +141,19 @@ void SceneGraphComponentProcessor::translate(Entity e, const glm::vec3 &v)
     m_pimpl->updateWorldTransformation(compData);
 }
 
-void SceneGraphComponentProcessor::translate(Entity e, float x, float y, float z)
-{
-    translate(e, glm::vec3(x, y, z));
-}
-
 void SceneGraphComponentProcessor::scale(Entity e, const glm::vec3 &v)
-{
-    scale(e, v.x, v.y, v.z);
-}
-
-void SceneGraphComponentProcessor::scale(Entity e, float x, float y, float z)
 {
     auto &compData = m_pimpl->data.getData(e);
 
-    compData.scaling *= glm::vec3(x, y, z);
+    compData.scaling *= v;
 
     m_pimpl->updateWorldTransformation(compData);
+
 }
 
 void SceneGraphComponentProcessor::scale(Entity e, float uniform)
 {
-    scale(e, uniform, uniform, uniform);
+    scale(e, { uniform, uniform, uniform });
 }
 
 void SceneGraphComponentProcessor::rotateYaw(Entity e, float yaw, bool rads)
