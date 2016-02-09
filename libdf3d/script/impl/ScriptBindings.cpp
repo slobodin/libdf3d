@@ -32,6 +32,11 @@ inline World* df3dWorld()
     return &df3d::world();
 }
 
+inline Camera* getWorldCamera()
+{
+    return df3d::world().getCamera().get();
+}
+
 void bindGlm(Table &df3dNamespace)
 {
     using namespace glm;
@@ -130,7 +135,7 @@ void bindGame(Table &df3dNamespace)
         entityClass
             .Ctor()
             .Prop(_SC("valid"), &Entity::valid)
-        ;
+            ;
 
         df3dNamespace.Bind(_SC("Entity"), entityClass);
     }
@@ -151,6 +156,20 @@ void bindGame(Table &df3dNamespace)
 
         df3dNamespace.Bind(_SC("World"), worldClass);
         df3dNamespace.Func(_SC("world"), &df3dWorld);
+        df3dNamespace.Func(_SC("worldCamera"), &getWorldCamera);
+    }
+
+    {
+        Class<Camera, NoConstructor<Camera>> cameraClass(vm, _SC("Camera"));
+        cameraClass
+            .Func(_SC("setPosition"), &Camera::setPosition)
+            .Func<void(Camera::*)(const glm::quat &)>(_SC("setOrientation"), &Camera::setOrientation)
+
+            .Func(_SC("getPosition"), &Camera::getPosition)
+            .Func(_SC("getOrientation"), &Camera::getOrientation)
+            ;
+
+        df3dNamespace.Bind(_SC("Camera"), cameraClass);
     }
 }
 
