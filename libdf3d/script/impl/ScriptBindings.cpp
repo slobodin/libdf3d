@@ -113,6 +113,8 @@ void bindProcessors(Table &df3dNamespace)
 
             .Func(_SC("setName"), &SceneGraphComponentProcessor::setName)
             .Func(_SC("getName"), &SceneGraphComponentProcessor::getName)
+            .Overload<Entity(SceneGraphComponentProcessor::*)(const std::string &)const>(_SC("getByName"), &SceneGraphComponentProcessor::getByName)
+            .Overload<Entity(SceneGraphComponentProcessor::*)(Entity, const std::string &)const>(_SC("getByName"), &SceneGraphComponentProcessor::getByName)
 
             .Func(_SC("getWorldPosition"), &SceneGraphComponentProcessor::getWorldPosition)
             .Func(_SC("getLocalPosition"), &SceneGraphComponentProcessor::getLocalPosition)
