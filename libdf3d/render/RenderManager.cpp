@@ -181,7 +181,6 @@ void RenderManager::doRenderWorld(World &world)
         m_renderer->drawOperation(op);
 
     // Transparent pass.
-    // TODO: sort by Z.
     for (const auto &op : m_renderQueue->transparentOperations)
         m_renderer->drawOperation(op);
 
