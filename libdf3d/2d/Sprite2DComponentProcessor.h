@@ -34,6 +34,7 @@ public:
     void setSize(Entity e, const glm::vec2 &size);
     void setWidth(Entity e, float w);
     void setHeight(Entity e, float h);
+    void setRotation(Entity e, float rotation);
 
     glm::vec2 getSize(Entity e) const;
     float getWidth(Entity e) const;

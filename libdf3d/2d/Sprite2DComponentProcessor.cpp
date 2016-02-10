@@ -24,6 +24,7 @@ struct Sprite2DComponentProcessor::Impl
         glm::vec2 anchor = glm::vec2(0.5f, 0.5f);
         glm::vec2 textureOriginalSize;
         glm::vec2 screenPosition;
+        float rotation = 0.0f;
         bool visible = true;
 
         ResourceGUID textureGuid;
@@ -37,15 +38,32 @@ struct Sprite2DComponentProcessor::Impl
 
         compData.op.z = worldTransform[3][2];
 
-        // Set quad scale.
-        worldTransform[0][0] *= compData.textureOriginalSize.x;
-        worldTransform[1][1] *= compData.textureOriginalSize.y;
-        worldTransform[2][2] = 1.0f;
+        if (compData.rotation != 0.0f)
+        {
+            // FIXME: don't use anchor.
+            glm::mat4 model;
+            model = glm::translate(model, glm::vec3(worldTransform[3][0], worldTransform[3][1], 0.0f));
 
-        // Set position.
-        worldTransform[3][0] += (0.5f - compData.anchor.x) * worldTransform[0][0];
-        worldTransform[3][1] += (0.5f - compData.anchor.y) * worldTransform[1][1];
-        worldTransform[3][2] = 0.0f;
+//            model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
+            model = glm::rotate(model, glm::radians(compData.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+//            model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
+
+            model = glm::scale(model, glm::vec3(compData.textureOriginalSize.x, compData.textureOriginalSize.y, 1.0f));
+
+            worldTransform = model;
+        }
+        else
+        {
+            // Set just quad scale.
+            worldTransform[0][0] *= compData.textureOriginalSize.x;
+            worldTransform[1][1] *= compData.textureOriginalSize.y;
+            worldTransform[2][2] = 1.0f;
+
+            // Set position.
+            worldTransform[3][0] += (0.5f - compData.anchor.x) * worldTransform[0][0];
+            worldTransform[3][1] += (0.5f - compData.anchor.y) * worldTransform[1][1];
+            worldTransform[3][2] = 0.0f;
+        }
 
         compData.screenPosition = { worldTransform[3][0], worldTransform[3][1] };
     }
@@ -124,6 +142,11 @@ void Sprite2DComponentProcessor::setWidth(Entity e, float w)
 void Sprite2DComponentProcessor::setHeight(Entity e, float h)
 {
     setSize(e, { getSize(e).x, h });
+}
+
+void Sprite2DComponentProcessor::setRotation(Entity e, float rotation)
+{
+    m_pimpl->data.getData(e).rotation = rotation;
 }
 
 glm::vec2 Sprite2DComponentProcessor::getSize(Entity e) const
