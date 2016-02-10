@@ -78,6 +78,21 @@ void bindGlm(Table &df3dNamespace)
     }
 
     {
+        Class<vec4> glmvec4Class(vm, _SC("vec4"));
+        glmvec4Class
+            .Ctor()
+            .Ctor<value_t, value_t, value_t, value_t>()
+
+            .Var(_SC("x"), &vec4::x)
+            .Var(_SC("y"), &vec4::y)
+            .Var(_SC("z"), &vec4::z)
+            .Var(_SC("w"), &vec4::w)
+            ;
+
+        df3dNamespace.Bind(_SC("vec4"), glmvec4Class);
+    }
+
+    {
         Class<quat> glmquatClass(vm, _SC("quat"));
         glmquatClass
             .Ctor()
