@@ -7,6 +7,7 @@
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/game/Entity.h>
 #include <libdf3d/game/World.h>
+#include <libdf3d/2d/Sprite2DComponentProcessor.h>
 
 using namespace Sqrat;
 
@@ -35,6 +36,11 @@ inline World* df3dWorld()
 inline Camera* getWorldCamera()
 {
     return df3d::world().getCamera().get();
+}
+
+inline glm::vec2 getScreenSize()
+{
+    return df3d::svc().getScreenSize();
 }
 
 void bindGlm(Table &df3dNamespace)
@@ -92,6 +98,19 @@ void bindGlm(Table &df3dNamespace)
     df3dNamespace.Func(_SC("gaussian"), df3d::utils::math::gaussian);
 }
 
+void bindBase(Table &df3dNamespace)
+{
+    {
+        Enumeration blendingMode;
+        blendingMode.Const("NONE", static_cast<int>(RenderPass::BlendingMode::NONE));
+        blendingMode.Const("ADDALPHA", static_cast<int>(RenderPass::BlendingMode::ADDALPHA));
+        blendingMode.Const("ALPHA", static_cast<int>(RenderPass::BlendingMode::ALPHA));
+        blendingMode.Const("ADD", static_cast<int>(RenderPass::BlendingMode::ADD));
+
+        ConstTable().Enum("BlendingMode", blendingMode);
+    }
+}
+
 void bindProcessors(Table &df3dNamespace)
 {
     auto vm = df3d::svc().scripts().getVm();
@@ -122,9 +141,37 @@ void bindProcessors(Table &df3dNamespace)
             .Func(_SC("getOrientation"), &SceneGraphComponentProcessor::getOrientation)
             .Func(_SC("getRotation"), &SceneGraphComponentProcessor::getRotation)
             .Func(_SC("getWorldDirection"), &SceneGraphComponentProcessor::getWorldDirection)
+
+            .Func(_SC("attachChild"), &SceneGraphComponentProcessor::attachChild)
+            .Func(_SC("detachChild"), &SceneGraphComponentProcessor::detachChild)
+            .Func(_SC("detachAllChildren"), &SceneGraphComponentProcessor::detachAllChildren)
+            .Func(_SC("getParent"), &SceneGraphComponentProcessor::getParent)
             ;
 
         df3dNamespace.Bind(_SC("SceneGraphComponentProcessor"), scGraphProcessor);
+    }
+
+    {
+        Class<Sprite2DComponentProcessor, NoConstructor<Sprite2DComponentProcessor>> sprProcessor(vm, _SC("Sprite2DComponentProcessor"));
+        sprProcessor
+            .Func(_SC("setAnchorPoint"), &Sprite2DComponentProcessor::setAnchorPoint)
+            .Func(_SC("setZIdx"), &Sprite2DComponentProcessor::setZIdx)
+            .Func(_SC("setVisible"), &Sprite2DComponentProcessor::setVisible)
+            .Func(_SC("setSize"), &Sprite2DComponentProcessor::setSize)
+            .Func(_SC("setWidth"), &Sprite2DComponentProcessor::setWidth)
+            .Func(_SC("setHeight"), &Sprite2DComponentProcessor::setHeight)
+            .Func(_SC("getSize"), &Sprite2DComponentProcessor::getSize)
+            .Func(_SC("getWidth"), &Sprite2DComponentProcessor::getWidth)
+            .Func(_SC("getHeight"), &Sprite2DComponentProcessor::getHeight)
+            .Func(_SC("getScreenPosition"), &Sprite2DComponentProcessor::getScreenPosition)
+            .Func(_SC("setBlendMode"), &Sprite2DComponentProcessor::setBlendMode2)
+            .Func(_SC("setDiffuseColor"), &Sprite2DComponentProcessor::setDiffuseColor)
+            .Func(_SC("add"), &Sprite2DComponentProcessor::add)
+            .Func(_SC("remove"), &Sprite2DComponentProcessor::remove)
+            .Func(_SC("has"), &Sprite2DComponentProcessor::has)
+        ;
+
+        df3dNamespace.Bind(_SC("Sprite2DComponentProcessor"), sprProcessor);
     }
 }
 
@@ -151,6 +198,7 @@ void bindGame(Table &df3dNamespace)
             .Func(_SC("getEntitiesCount"), &World::getEntitiesCount)
 
             .Prop(_SC("sceneGraph"), &World::sceneGraph)
+            .Prop(_SC("sprite2d"), &World::sprite2d)
             ;
 
         worldClass.Overload<Entity(World::*)()>(_SC("spawn"), &World::spawn);
@@ -159,6 +207,7 @@ void bindGame(Table &df3dNamespace)
         df3dNamespace.Bind(_SC("World"), worldClass);
         df3dNamespace.Func(_SC("world"), &df3dWorld);
         df3dNamespace.Func(_SC("worldCamera"), &getWorldCamera);
+        df3dNamespace.Func(_SC("getScreenSize"), &getScreenSize);
     }
 
     {
@@ -183,6 +232,7 @@ void bindDf3d(HSQUIRRELVM vm)
     RootTable(vm).Bind("df3d", df3dNamespace);
 
     bindGlm(df3dNamespace);
+    bindBase(df3dNamespace);
     bindGame(df3dNamespace);
     bindProcessors(df3dNamespace);
 }

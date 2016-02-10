@@ -35,9 +35,9 @@ public:
     void setWidth(Entity e, float w);
     void setHeight(Entity e, float h);
 
-    glm::vec2 getSize(Entity e);
-    float getWidth(Entity e);
-    float getHeight(Entity e);
+    glm::vec2 getSize(Entity e) const;
+    float getWidth(Entity e) const;
+    float getHeight(Entity e) const;
 
     const glm::vec2& getScreenPosition(Entity e);
 
@@ -45,6 +45,8 @@ public:
     const glm::vec2& getTextureSize(Entity e) const;
 
     void setBlendMode(Entity e, RenderPass::BlendingMode bm);
+    // FIXME:
+    void setBlendMode2(Entity e, int bm);
     void setDiffuseColor(Entity e, const glm::vec4 &diffuseColor);
 
     void add(Entity e, const std::string &texturePath);

@@ -126,7 +126,7 @@ void Sprite2DComponentProcessor::setHeight(Entity e, float h)
     setSize(e, { getSize(e).x, h });
 }
 
-glm::vec2 Sprite2DComponentProcessor::getSize(Entity e)
+glm::vec2 Sprite2DComponentProcessor::getSize(Entity e) const
 {
     const auto &compData = m_pimpl->data.getData(e);
     auto scale = m_world->sceneGraph().getScale(e);
@@ -134,12 +134,12 @@ glm::vec2 Sprite2DComponentProcessor::getSize(Entity e)
     return{ scale.x * compData.textureOriginalSize.x, scale.y * compData.textureOriginalSize.y };
 }
 
-float Sprite2DComponentProcessor::getWidth(Entity e)
+float Sprite2DComponentProcessor::getWidth(Entity e) const
 {
     return getSize(e).x;
 }
 
-float Sprite2DComponentProcessor::getHeight(Entity e)
+float Sprite2DComponentProcessor::getHeight(Entity e) const
 {
     return getSize(e).y;
 }
@@ -185,6 +185,11 @@ const glm::vec2& Sprite2DComponentProcessor::getTextureSize(Entity e) const
 void Sprite2DComponentProcessor::setBlendMode(Entity e, RenderPass::BlendingMode bm)
 {
     m_pimpl->data.getData(e).op.passProps->setBlendMode(bm);
+}
+
+void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
+{
+    setBlendMode(e, static_cast<RenderPass::BlendingMode>(bm));
 }
 
 void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diffuseColor)
