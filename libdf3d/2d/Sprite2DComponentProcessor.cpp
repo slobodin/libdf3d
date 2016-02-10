@@ -40,17 +40,16 @@ struct Sprite2DComponentProcessor::Impl
 
         if (compData.rotation != 0.0f)
         {
-            // FIXME: don't use anchor.
-            glm::mat4 model;
-            model = glm::translate(model, glm::vec3(worldTransform[3][0], worldTransform[3][1], 0.0f));
+            auto r = glm::radians(compData.rotation);
+            glm::mat2 m;
+            m[0][0] = compData.textureOriginalSize.x * worldTransform[0][0];
+            m[1][1] = compData.textureOriginalSize.y * worldTransform[1][1];
 
-//            model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
-            model = glm::rotate(model, glm::radians(compData.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-//            model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
+            m = glm::mat2(std::cos(r), -std::sin(r), std::sin(r), std::cos(r)) * m;
 
-            model = glm::scale(model, glm::vec3(compData.textureOriginalSize.x, compData.textureOriginalSize.y, 1.0f));
-
-            worldTransform = model;
+            worldTransform[0] = glm::vec4(m[0], 0.0f, 0.0f);
+            worldTransform[1] = glm::vec4(m[1], 0.0f, 0.0f);
+            worldTransform[2][2] = 1.0f;
         }
         else
         {
@@ -58,12 +57,12 @@ struct Sprite2DComponentProcessor::Impl
             worldTransform[0][0] *= compData.textureOriginalSize.x;
             worldTransform[1][1] *= compData.textureOriginalSize.y;
             worldTransform[2][2] = 1.0f;
-
-            // Set position.
-            worldTransform[3][0] += (0.5f - compData.anchor.x) * worldTransform[0][0];
-            worldTransform[3][1] += (0.5f - compData.anchor.y) * worldTransform[1][1];
-            worldTransform[3][2] = 0.0f;
         }
+
+        // Set position.
+        worldTransform[3][0] += (0.5f - compData.anchor.x) * worldTransform[0][0];
+        worldTransform[3][1] += (0.5f - compData.anchor.y) * worldTransform[1][1];
+        worldTransform[3][2] = 0.0f;
 
         compData.screenPosition = { worldTransform[3][0], worldTransform[3][1] };
     }
