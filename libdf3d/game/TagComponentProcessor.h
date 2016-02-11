@@ -18,6 +18,7 @@ public:
     ~TagComponentProcessor();
 
     const std::unordered_set<Entity>& getEntities(int tag);
+    Entity getFirst(int tag);
     bool hasTag(Entity e, int tag) const;
 
     // NOTE: can have only 1 tag for now.

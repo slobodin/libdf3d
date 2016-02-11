@@ -30,6 +30,14 @@ const std::unordered_set<Entity>& TagComponentProcessor::getEntities(int tag)
     return m_entities[tag];
 }
 
+Entity TagComponentProcessor::getFirst(int tag)
+{
+    const auto &wTag = getEntities(tag);
+    if (wTag.empty())
+        return {};
+    return *wTag.begin();
+}
+
 bool TagComponentProcessor::hasTag(Entity e, int tag) const
 {
     auto found = m_tagLookup.find(e);

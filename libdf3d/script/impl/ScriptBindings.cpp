@@ -8,6 +8,8 @@
 #include <libdf3d/game/Entity.h>
 #include <libdf3d/game/World.h>
 #include <libdf3d/2d/Sprite2DComponentProcessor.h>
+#include <libdf3d/particlesys/ParticleSystemComponentProcessor.h>
+#include <libdf3d/3d/StaticMeshComponentProcessor.h>
 
 using namespace Sqrat;
 
@@ -189,6 +191,37 @@ void bindProcessors(Table &df3dNamespace)
 
         df3dNamespace.Bind(_SC("Sprite2DComponentProcessor"), sprProcessor);
     }
+
+    {
+        Class<ParticleSystemComponentProcessor, NoConstructor<ParticleSystemComponentProcessor>> psProcessor(vm, _SC("ParticleSystemComponentProcessor"));
+        psProcessor
+            .Func(_SC("useRealStep"), &ParticleSystemComponentProcessor::useRealStep)
+            .Func(_SC("useConstantStep"), &ParticleSystemComponentProcessor::useConstantStep)
+            .Func(_SC("stop"), &ParticleSystemComponentProcessor::stop)
+            .Func(_SC("pause"), &ParticleSystemComponentProcessor::pause)
+            .Func(_SC("setSystemLifeTime"), &ParticleSystemComponentProcessor::setSystemLifeTime)
+            .Func(_SC("setWorldTransformed"), &ParticleSystemComponentProcessor::setWorldTransformed)
+            .Func(_SC("getSystemLifeTime"), &ParticleSystemComponentProcessor::getSystemLifeTime)
+            .Func(_SC("getSystem"), &ParticleSystemComponentProcessor::getSystem)
+            .Func(_SC("isWorldTransformed"), &ParticleSystemComponentProcessor::isWorldTransformed)
+            .Func(_SC("isPlaying"), &ParticleSystemComponentProcessor::isPlaying)
+            .Func<void(ParticleSystemComponentProcessor::*)(Entity, const std::string&)>(_SC("add"), &ParticleSystemComponentProcessor::add)
+            .Func(_SC("remove"), &ParticleSystemComponentProcessor::remove)
+            .Func(_SC("has"), &ParticleSystemComponentProcessor::has)
+            ;
+
+        df3dNamespace.Bind(_SC("ParticleSystemComponentProcessor"), psProcessor);
+    }
+
+    {
+        Class<StaticMeshComponentProcessor, NoConstructor<StaticMeshComponentProcessor>> smProcessor(vm, _SC("StaticMeshComponentProcessor"));
+        smProcessor
+            .Func(_SC("setVisible"), &StaticMeshComponentProcessor::setVisible)
+            .Func(_SC("disableFrustumCulling"), &StaticMeshComponentProcessor::disableFrustumCulling)
+            ;
+
+        df3dNamespace.Bind(_SC("StaticMeshComponentProcessor"), smProcessor);
+    }
 }
 
 void bindGame(Table &df3dNamespace)
@@ -215,6 +248,8 @@ void bindGame(Table &df3dNamespace)
 
             .Prop(_SC("sceneGraph"), &World::sceneGraph)
             .Prop(_SC("sprite2d"), &World::sprite2d)
+            .Prop(_SC("vfx"), &World::vfx)
+            .Prop(_SC("staticMesh"), &World::staticMesh)
             ;
 
         worldClass.Overload<Entity(World::*)()>(_SC("spawn"), &World::spawn);
