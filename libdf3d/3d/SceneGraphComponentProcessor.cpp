@@ -258,7 +258,17 @@ glm::vec3 SceneGraphComponentProcessor::getRotation(Entity e) const
 
 glm::vec3 SceneGraphComponentProcessor::getWorldDirection(Entity e) const
 {
-    return glm::normalize(glm::vec3(getTransformation(e) *-utils::math::ZAxis));
+    return glm::normalize(glm::vec3(getTransformation(e) * -utils::math::ZAxis));
+}
+
+glm::vec3 SceneGraphComponentProcessor::getWorldUp(Entity e) const
+{
+    return glm::normalize(glm::vec3(getTransformation(e) * utils::math::YAxis));
+}
+
+glm::vec3 SceneGraphComponentProcessor::getWorldRight(Entity e) const
+{
+    return glm::normalize(glm::vec3(getTransformation(e) * utils::math::XAxis));
 }
 
 void SceneGraphComponentProcessor::attachChild(Entity parent, Entity child)

@@ -164,6 +164,8 @@ void bindProcessors(Table &df3dNamespace)
             .Func(_SC("getOrientation"), &SceneGraphComponentProcessor::getOrientation)
             .Func(_SC("getRotation"), &SceneGraphComponentProcessor::getRotation)
             .Func(_SC("getWorldDirection"), &SceneGraphComponentProcessor::getWorldDirection)
+            .Func(_SC("getWorldUp"), &SceneGraphComponentProcessor::getWorldUp)
+            .Func(_SC("getWorldRight"), &SceneGraphComponentProcessor::getWorldRight)
 
             .Func(_SC("attachChild"), &SceneGraphComponentProcessor::attachChild)
             .Func(_SC("detachChild"), &SceneGraphComponentProcessor::detachChild)
@@ -275,6 +277,10 @@ void bindGame(Table &df3dNamespace)
 
             .Func(_SC("getPosition"), &Camera::getPosition)
             .Func(_SC("getOrientation"), &Camera::getOrientation)
+
+            .Func(_SC("getRight"), &Camera::getRight)
+            .Func(_SC("getUp"), &Camera::getUp)
+            .Func(_SC("getDir"), &Camera::getDir)
             ;
 
         df3dNamespace.Bind(_SC("Camera"), cameraClass);

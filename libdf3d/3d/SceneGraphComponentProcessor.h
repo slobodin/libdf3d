@@ -52,6 +52,8 @@ public:
     void getTransformation(Entity e, glm::mat4 &outTr, glm::vec3 &outPos, glm::quat &outRot, glm::vec3 &outScale) const;
     glm::vec3 getRotation(Entity e) const;
     glm::vec3 getWorldDirection(Entity e) const;
+    glm::vec3 getWorldUp(Entity e) const;
+    glm::vec3 getWorldRight(Entity e) const;
 
     void attachChild(Entity parent, Entity child);
     void attachChildren(Entity parent, const std::vector<Entity> &children);
