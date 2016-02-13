@@ -10,6 +10,7 @@
 #include <libdf3d/2d/Sprite2DComponentProcessor.h>
 #include <libdf3d/particlesys/ParticleSystemComponentProcessor.h>
 #include <libdf3d/3d/StaticMeshComponentProcessor.h>
+#include <libdf3d/3d/Light.h>
 
 using namespace Sqrat;
 
@@ -253,6 +254,7 @@ void bindGame(Table &df3dNamespace)
             .Func(_SC("destroy"), &World::destroy)
             .Func(_SC("destroyWithChildren"), &World::destroyWithChildren)
             .Func(_SC("getEntitiesCount"), &World::getEntitiesCount)
+            .Func<WorldRenderingParams&(World::*)()>(_SC("getRenderingParams"), &World::getRenderingParams)
 
             .Prop(_SC("sceneGraph"), &World::sceneGraph)
             .Prop(_SC("sprite2d"), &World::sprite2d)
@@ -281,9 +283,35 @@ void bindGame(Table &df3dNamespace)
             .Func(_SC("getRight"), &Camera::getRight)
             .Func(_SC("getUp"), &Camera::getUp)
             .Func(_SC("getDir"), &Camera::getDir)
+
+            .Func(_SC("worldToScreenPoint"), &Camera::worldToScreenPoint)
             ;
 
         df3dNamespace.Bind(_SC("Camera"), cameraClass);
+    }
+
+    {
+        Class<WorldRenderingParams, NoConstructor<Light>> wrParams(vm, _SC("WorldRenderingParams"));
+        wrParams
+            .Func(_SC("getLightByName"), &WorldRenderingParams::getLightByName)
+            ;
+
+        df3dNamespace.Bind(_SC("WorldRenderingParams"), wrParams);
+    }
+
+    {
+        Class<Light, NoConstructor<Light>> lightClass(vm, _SC("Light"));
+        lightClass
+            .Func(_SC("getDiffuseColor"), &Light::getDiffuseColor)
+            .Func(_SC("getSpecularColor"), &Light::getSpecularColor)
+            .Func(_SC("getDirection"), &Light::getDirection)
+            .Func(_SC("getPosition"), &Light::getPosition)
+            .Func(_SC("getName"), &Light::getName)
+
+            // TODO: other getters.
+        ;
+
+        df3dNamespace.Bind(_SC("Light"), lightClass);
     }
 }
 
