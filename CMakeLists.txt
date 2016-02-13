@@ -28,6 +28,9 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/libRocket/Build)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/squirrel)
 
+OPTION(TB_BUILD_DEMO OFF)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/turbobadger)
+
 OPTION(ALSOFT_DLOPEN OFF)
 OPTION(ALSOFT_WERROR OFF)
 OPTION(ALSOFT_UTILS OFF)
@@ -90,6 +93,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/SceneGraphComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/VfxComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/TbManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketRefWrapper.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketKeyCodesAdapter.h
@@ -188,6 +192,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/WorldLoader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/TbManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketKeyCodesAdapter.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.cpp
