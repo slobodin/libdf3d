@@ -5,11 +5,13 @@
 #include <libdf3d/game/World.h>
 #include <libdf3d/render/RenderOperation.h>
 #include <libdf3d/render/RenderQueue.h>
+#include <libdf3d/render/RenderPass.h>
 #include <libdf3d/render/VertexIndexBuffer.h>
 #include <libdf3d/render/Texture2D.h>
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/resources/ResourceManager.h>
 #include <libdf3d/resources/ResourceFactory.h>
+#include <libdf3d/io/FileSystem.h>
 
 namespace df3d {
 
@@ -177,6 +179,14 @@ const glm::vec2& Sprite2DComponentProcessor::getScreenPosition(Entity e)
 
 void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToTexture)
 {
+    auto &compData = m_pimpl->data.getData(e);
+
+    if (auto sampler = compData.op.passProps->getSampler("diffuseMap"))
+    {
+        if (sampler->getFilePath() == svc().fileSystem().fullPath(pathToTexture))
+            return;
+    }
+
     TextureCreationParams params;
     params.setFiltering(TextureFiltering::BILINEAR);
     params.setMipmapped(false);
@@ -188,8 +198,6 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
         glog << "Failed to init Sprite2DComponent with texture" << pathToTexture << logwarn;
         return;
     }
-
-    auto &compData = m_pimpl->data.getData(e);
 
     if (compData.textureGuid == texture->getGUID())
         return;
