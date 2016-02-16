@@ -43,6 +43,10 @@ GuiManager::GuiManager(int contextWidth, int contextHeight)
 #ifdef ENABLE_ROCKET_DEBUGGER
     if (!Rocket::Debugger::Initialise(m_rocketContext))
         glog << "Failed to initialize Rocket GUI debugger" << logwarn;
+
+    // FIXME: setting new system interface as rocket debugger sets its own interface which
+    // do not implement all methods.
+    SetSystemInterface(m_systemInterface.get());
 #endif
 }
 

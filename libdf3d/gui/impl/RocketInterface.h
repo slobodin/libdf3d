@@ -53,6 +53,8 @@ public:
     int TranslateString(Rocket::Core::String& translated, const Rocket::Core::String& input) override;
 
     bool LogMessage(Rocket::Core::Log::Type type, const Rocket::Core::String &message) override;
+
+    void JoinPath(Rocket::Core::String& translated_path, const Rocket::Core::String& document_path, const Rocket::Core::String& path) override;
 };
 
 class RenderInterface : public Rocket::Core::RenderInterface
