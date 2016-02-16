@@ -17,6 +17,6 @@ int main(int agrc, char **argv) try
 }
 catch (std::exception &e)
 {
-    std::cout << "Fatal exception occurred " << e.what() << std::endl;
+    std::cout << "Fatal exception occurred: '" << e.what() << "'" << std::endl;
     return 1;
 }
