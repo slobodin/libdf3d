@@ -198,7 +198,7 @@ void RendererBackend::updateTextureSamplers()
         if (!bound)
         {
             texture = m_whiteTexture;
-            texture->bind(textureUnit);
+            assert(texture->bind(textureUnit));
         }
 
         // FIXME:
@@ -501,9 +501,15 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
     {
     case RenderOperation::Type::LINES:
         if (indexed)
+        {
             glDrawElements(GL_LINES, ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
+            svc().getFrameStats().totalLines += ib->getIndicesUsed() / 2;
+        }
         else
+        {
             glDrawArrays(GL_LINES, 0, vb->getVerticesUsed());
+            svc().getFrameStats().totalLines += vb->getVerticesUsed() / 2;
+        }
         break;
     case RenderOperation::Type::TRIANGLES:
         if (indexed)

@@ -4,7 +4,7 @@ namespace df3d {
 
 class GpuProgram;
 
-class Shader
+class Shader : utils::NonCopyable
 {
     friend class GpuProgram;
 public:
@@ -38,7 +38,6 @@ public:
     ~Shader();
 
     Type getType() const { return m_type; }
-    unsigned int getDescriptor() const { return m_shaderDescriptor; }
     bool compiled() { return m_isCompiled; }
 
     static shared_ptr<Shader> createFromFile(const std::string &filePath);
