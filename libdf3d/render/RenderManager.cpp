@@ -1,6 +1,7 @@
 #include "RenderManager.h"
 
 #include <libdf3d/base/EngineController.h>
+#include <libdf3d/base/FrameStats.h>
 #include <libdf3d/base/DebugConsole.h>
 #include <libdf3d/resources/ResourceManager.h>
 #include <libdf3d/resources/ResourceFactory.h>
@@ -21,7 +22,7 @@
 #include "Viewport.h"
 #include "RenderQueue.h"
 
-namespace df3d { 
+namespace df3d {
 
 void RenderManager::createQuadRenderOperation()
 {
@@ -98,15 +99,15 @@ void RenderManager::loadEmbedResources()
 
 void RenderManager::onFrameBegin()
 {
+    // TODO_ecs: what if render queue becomes big???
+    m_renderQueue->clear();
+
     m_renderer->beginFrame();
 }
 
 void RenderManager::onFrameEnd()
 {
     m_renderer->endFrame();
-    m_lastStats = m_stats;
-
-    m_stats.reset();
 }
 
 void RenderManager::doRenderWorld(World &world)
@@ -126,7 +127,7 @@ void RenderManager::doRenderWorld(World &world)
     m_renderer->clearColorBuffer();
     m_renderer->clearDepthBuffer();
 
-    m_stats.totalLights += m_renderQueue->lights.size();
+    svc().getFrameStats().totalLights += m_renderQueue->lights.size();
 
     m_renderer->setAmbientLight(world.getRenderingParams().getAmbientLight());
     m_renderer->enableFog(world.getRenderingParams().getFogDensity(), world.getRenderingParams().getFogColor());
@@ -222,7 +223,6 @@ RenderManager::RenderManager(EngineInitParams params)
     m_initParams(params)
 {
     m_renderer = make_unique<RendererBackend>();
-    m_renderer->setRenderStatsLocation(&m_stats);
 }
 
 RenderManager::~RenderManager()
@@ -232,20 +232,12 @@ RenderManager::~RenderManager()
 
 void RenderManager::drawWorld(World &world)
 {
-    // TODO_ecs: what if render queue becomes big???
-    m_renderQueue->clear();
-
     onFrameBegin();
 
     world.collectRenderOperations(m_renderQueue.get());
     doRenderWorld(world);
 
     onFrameEnd();
-}
-
-const RenderStats& RenderManager::getLastRenderStats() const
-{
-    return m_lastStats;
 }
 
 const RenderTargetScreen& RenderManager::getScreenRenderTarget() const

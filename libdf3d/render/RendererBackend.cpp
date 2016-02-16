@@ -1,6 +1,7 @@
 #include "RendererBackend.h"
 
 #include <libdf3d/base/EngineController.h>
+#include <libdf3d/base/FrameStats.h>
 #include <libdf3d/resources/ResourceManager.h>
 #include <libdf3d/resources/ResourceFactory.h>
 #include <libdf3d/3d/Light.h>
@@ -168,7 +169,7 @@ void RendererBackend::setPolygonDrawMode(RenderPass::PolygonMode pm)
 
 void RendererBackend::updateProgramUniformValues(GpuProgram *program, RenderPass *pass)
 {
-    // Update shader uniforms.
+    // Update shared uniforms.
     size_t uniCount = program->getSharedUniformsCount();
 
     for (size_t i = 0; i < uniCount; i++)
@@ -260,11 +261,6 @@ void RendererBackend::loadResources()
 {
     createWhiteTexture();
     loadResidentGpuPrograms();
-}
-
-void RendererBackend::setRenderStatsLocation(RenderStats *renderStats)
-{
-    m_renderStats = renderStats;
 }
 
 void RendererBackend::beginFrame()
@@ -511,26 +507,25 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
         break;
     case RenderOperation::Type::TRIANGLES:
         if (indexed)
+        {
             glDrawElements(GL_TRIANGLES, ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
+            svc().getFrameStats().totalTriangles += ib->getIndicesUsed() / 3;
+        }
         else
+        {
             glDrawArrays(GL_TRIANGLES, 0, vb->getVerticesUsed());
+            svc().getFrameStats().totalTriangles += vb->getVerticesUsed() / 3;
+        }
         break;
     default:
         break;
     }
 
-    //vb->unbind();
-    //if (indexed)
-    //    ib->unbind();
+    vb->unbind();
+    if (indexed)
+       ib->unbind();
 
-    if (m_renderStats)
-    {
-        m_renderStats->drawCalls++;
-
-        // FIXME:
-        if (type != RenderOperation::Type::LINES)
-            m_renderStats->totalTriangles += indexed ? ib->getIndicesUsed() / 3 : vb->getVerticesUsed() / 3;
-    }
+    svc().getFrameStats().drawCalls++;
 
     printOpenGLError();
 }

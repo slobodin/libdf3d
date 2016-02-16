@@ -68,6 +68,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/DebugConsole.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/FrameStats.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/StringTable.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.h
@@ -126,7 +127,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderOperation.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderPass.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderQueue.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderStats.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTarget.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetScreen.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetTexture.h

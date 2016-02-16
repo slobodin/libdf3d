@@ -2,7 +2,6 @@
 
 #include "GuiManager.h"
 #include <base/EngineController.h>
-#include <render/RenderStats.h>
 #include <scene/SceneManager.h>
 #include <scene/Node.h>
 #include <scene/Camera.h>

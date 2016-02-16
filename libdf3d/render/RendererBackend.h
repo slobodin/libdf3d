@@ -1,6 +1,5 @@
 #pragma once
 
-#include "RenderStats.h"
 #include "RenderPass.h"
 #include "RenderOperation.h"
 
@@ -15,8 +14,6 @@ class Light;
 
 class RendererBackend
 {
-    RenderStats *m_renderStats = nullptr;
-
     unique_ptr<GpuProgramState> m_programState;
     shared_ptr<Texture2D> m_whiteTexture;
 
@@ -49,8 +46,6 @@ public:
     ~RendererBackend();
 
     void loadResources();
-
-    void setRenderStatsLocation(RenderStats *renderStats);
 
     void beginFrame();
     void endFrame();
