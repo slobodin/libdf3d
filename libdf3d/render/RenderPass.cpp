@@ -10,6 +10,21 @@
 
 namespace df3d {
 
+void Sampler::update(GpuProgram *program, int textureUnit)
+{
+    if (!m_uniform)
+    {
+        m_uniform = program->getSamplerUniform(name);
+        if (!m_uniform)
+        {
+            glog << "Sampler" << name << "was not found in shader" << program->getFilePath() << logwarn;
+            return;
+        }
+    }
+
+    m_uniform->update(&textureUnit);
+}
+
 void RenderPassParam::updateTo(GpuProgram *program)
 {
     if (!m_uniform)
@@ -28,8 +43,7 @@ void RenderPassParam::updateTo(GpuProgram *program)
 RenderPass::RenderPass(const std::string &name)
     : m_name(name)
 {
-    setGpuProgram(svc().resourceManager().getFactory().createSimpleLightingGpuProgram());
-    setSampler("diffuseMap", nullptr);
+
 }
 
 RenderPass::~RenderPass()
@@ -44,6 +58,26 @@ void RenderPass::setGpuProgram(shared_ptr<GpuProgram> newProgram)
         return;
     }
     m_gpuProgram = newProgram;
+
+    //if (!(m_samplers.empty() && m_passParams.empty()))
+    //    glog << "Setting gpu program while have pass params or samplers set up" << logwarn;
+
+    // Invalidate pass params & samplers.
+    for (auto &passParam : m_passParams)
+    {
+        RenderPassParam newparam;
+        newparam.name = passParam.name;
+        newparam.value = passParam.value;
+        passParam = newparam;
+    }
+
+    for (auto &sampler : m_samplers)
+    {
+        Sampler newsampler;
+        newsampler.name = sampler.name;
+        newsampler.texture = sampler.texture;
+        sampler = newsampler;
+    }
 }
 
 shared_ptr<GpuProgram> RenderPass::getGpuProgram() const

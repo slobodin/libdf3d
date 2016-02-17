@@ -137,14 +137,13 @@ size_t Texture2D::getActualHeight() const
     return m_actualHeight;
 }
 
-bool Texture2D::bind(size_t unit)
+bool Texture2D::bind()
 {
     if (!isInitialized())
         return false;
 
     assert(m_glid);
 
-    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, m_glid);
 
     return true;

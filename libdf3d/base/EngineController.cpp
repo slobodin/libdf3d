@@ -134,6 +134,8 @@ void EngineController::step()
     m_systemTimeManager->update(m_timer->getFrameDelta(TimeChannel::SYSTEM));
     m_world->update();
 
+    // Clear frame stats.
+    *m_frameStats = FrameStats();
     // Run frame.
     m_renderManager->drawWorld(*m_world);
 

@@ -181,30 +181,28 @@ void RendererBackend::updateProgramUniformValues(GpuProgram *program, RenderPass
 
     for (size_t i = 0; i < uniCount; i++)
         passParams[i].updateTo(program);
-}
 
-void RendererBackend::updateTextureSamplers()
-{
-    // Bind textures to samplers.
-    auto &samplers = m_programState->m_currentPass->getSamplers();
-    size_t textureUnit = 0;
-    for (size_t i = 0; i < samplers.size(); i++)
+    // Update samplers.
+    auto &samplers = pass->getSamplers();
+    int textureUnit = 0;
+    for (int i = 0; i < samplers.size(); i++)
     {
         shared_ptr<Texture> texture = samplers[i].texture;
         if (!texture)
             texture = m_whiteTexture;
 
-        auto bound = texture->bind(textureUnit);
+        glActiveTexture(GL_TEXTURE0 + textureUnit);
+
+        auto bound = texture->bind();
         if (!bound)
         {
             texture = m_whiteTexture;
-            assert(texture->bind(textureUnit));
+            assert(texture->bind());
         }
 
-        // FIXME:
-        auto location = glGetUniformLocation(m_programState->m_currentShader->descriptor(), samplers[i].name.c_str());
-        if (location != -1)
-            glUniform1i(location, textureUnit++);
+        samplers[i].update(program, textureUnit);
+
+        textureUnit++;
     }
 }
 
@@ -453,7 +451,13 @@ void RendererBackend::bindPass(RenderPass *pass)
     if (pass == m_programState->m_currentPass)
     {
         updateProgramUniformValues(m_programState->m_currentShader, m_programState->m_currentPass);
-        updateTextureSamplers();
+        return;
+    }
+
+    auto glprogram = pass->getGpuProgram();
+    if (!glprogram)
+    {
+        glog << "Failed to bind pass. No GPU program" << logwarn;
         return;
     }
 
@@ -468,11 +472,6 @@ void RendererBackend::bindPass(RenderPass *pass)
     setCullFace(pass->getFaceCullMode());
     setPolygonDrawMode(pass->getPolygonDrawMode());
 
-    auto glprogram = pass->getGpuProgram();
-    // Sanity check.
-    if (!glprogram)
-        return;
-
     // Bind GPU program.
     if (!m_programState->m_currentShader || m_programState->m_currentShader != glprogram.get())
     {
@@ -481,7 +480,6 @@ void RendererBackend::bindPass(RenderPass *pass)
     }
 
     updateProgramUniformValues(m_programState->m_currentShader, m_programState->m_currentPass);
-    updateTextureSamplers();
 
     printOpenGLError();
 }

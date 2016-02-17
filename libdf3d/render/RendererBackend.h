@@ -29,8 +29,6 @@ class RendererBackend
     void setCullFace(RenderPass::FaceCullMode cm);
     void setPolygonDrawMode(RenderPass::PolygonMode pm);
     void updateProgramUniformValues(GpuProgram *program, RenderPass *pass);
-    // Updates texture samplers for current pass.
-    void updateTextureSamplers();
 
     bool m_blendModeOverriden = false;
     bool m_frontFaceOverriden = false;

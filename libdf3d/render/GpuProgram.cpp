@@ -103,6 +103,8 @@ void GpuProgram::requestUniforms()
 
         if (uni.isShared())
             m_sharedUniforms.push_back(uni);
+        else if (uni.isSampler())
+            m_samplerUniforms.push_back(uni);
         else
             m_customUniforms.push_back(uni);
     }
@@ -154,6 +156,17 @@ GpuProgramUniform *GpuProgram::getCustomUniform(const std::string &name)
     {
         if (m_customUniforms[i].getName() == name)
             return &m_customUniforms[i];
+    }
+
+    return nullptr;
+}
+
+GpuProgramUniform* GpuProgram::getSamplerUniform(const std::string &name)
+{
+    for (size_t i = 0; i < m_samplerUniforms.size(); i++)
+    {
+        if (m_samplerUniforms[i].getName() == name)
+            return &m_samplerUniforms[i];
     }
 
     return nullptr;

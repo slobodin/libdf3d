@@ -69,7 +69,7 @@ public:
     unsigned getGLId() const { return m_glid; }
     const TextureCreationParams& getParams() const { return m_params; }
 
-    virtual bool bind(size_t unit) = 0;
+    virtual bool bind() = 0;
     virtual void unbind() = 0;
 };
 

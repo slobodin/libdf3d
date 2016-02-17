@@ -16,6 +16,7 @@ class GpuProgram : public Resource
     std::vector<shared_ptr<Shader>> m_shaders;
     std::vector<GpuProgramUniform> m_sharedUniforms;
     std::vector<GpuProgramUniform> m_customUniforms;
+    std::vector<GpuProgramUniform> m_samplerUniforms;
 
     bool compileShaders();
     bool attachShaders();
@@ -32,7 +33,8 @@ public:
     const GpuProgramUniform &getSharedUniform(size_t idx) const { return m_sharedUniforms[idx]; }
     size_t getSharedUniformsCount() const { return m_sharedUniforms.size(); }
 
-    GpuProgramUniform *getCustomUniform(const std::string &name);
+    GpuProgramUniform* getCustomUniform(const std::string &name);
+    GpuProgramUniform* getSamplerUniform(const std::string &name);
 
     unsigned int descriptor() const { return m_programDescriptor; }
 };

@@ -10,8 +10,11 @@ struct DF3D_DLL Sampler
 {
     shared_ptr<Texture> texture;
     std::string name;
-    // TODO:
-    // texture unit.
+
+    void update(GpuProgram *program, int textureUnit);
+
+private:
+    GpuProgramUniform *m_uniform = nullptr;
 };
 
 struct DF3D_DLL RenderPassParam
