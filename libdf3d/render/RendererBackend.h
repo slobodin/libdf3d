@@ -17,6 +17,9 @@ class RendererBackend
     unique_ptr<GpuProgramState> m_programState;
     shared_ptr<Texture2D> m_whiteTexture;
 
+    // Cached state.
+    VertexBuffer *m_prevVB = nullptr;
+
     int m_maxTextureSize = -1;
     float m_maxAnisotropyLevel = 1.0f;
 

@@ -263,6 +263,8 @@ void RendererBackend::loadResources()
 
 void RendererBackend::beginFrame()
 {
+    m_prevVB = nullptr;
+
     clearColorBuffer();
     clearDepthBuffer();
     clearStencilBuffer();
@@ -491,7 +493,12 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
 
     bool indexed = ib != nullptr;
 
-    vb->bind();
+    if (m_prevVB != vb)
+    {
+        vb->bind();
+        m_prevVB = vb;
+    }
+
     if (indexed)
         ib->bind();
 
@@ -512,10 +519,6 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
     default:
         break;
     }
-
-    vb->unbind();
-    if (indexed)
-       ib->unbind();
 
     svc().getFrameStats().addRenderOperation(vb, ib, type);
 

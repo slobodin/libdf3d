@@ -35,6 +35,7 @@ public:
     MyRenderBuffer(size_t nbParticles, int verticesPerParticle, int indicesPerParticle)
         : m_vertexData(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 }))
     {
+        // TODO: can have only 1 VB & only 1 IB!
         m_vb = make_shared<VertexBuffer>(m_vertexData.getFormat());
         m_ib = make_shared<IndexBuffer>();
 
@@ -84,7 +85,7 @@ public:
 
 void ParticleSystemRenderer::addToRenderQueue(MyRenderBuffer &buffer, size_t nbOfParticles, int verticesPerParticle, int indicesPerParticle, RenderOperation::Type type) const
 {
-    // Refill GPU with new data (only vertices was changed).
+    // Refill GPU with new data (only vertices have been changed).
     buffer.m_vb->update(nbOfParticles * verticesPerParticle, buffer.m_vertexData.getRawData());
 
     buffer.m_vb->setVerticesUsed(nbOfParticles * verticesPerParticle);
