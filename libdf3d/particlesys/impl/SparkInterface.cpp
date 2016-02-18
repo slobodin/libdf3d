@@ -92,9 +92,9 @@ void ParticleSystemRenderer::addToRenderQueue(MyRenderBuffer &buffer, size_t nbO
 
     RenderOperation op;
     op.type = type;
-    op.indexData = buffer.m_ib;
-    op.vertexData = buffer.m_vb;
-    op.passProps = m_pass;
+    op.indexData = buffer.m_ib.get();
+    op.vertexData = buffer.m_vb.get();
+    op.passProps = m_pass.get();
     op.worldTransform = *m_currentTransformation;
 
     if (op.passProps->isTransparent())

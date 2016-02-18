@@ -550,8 +550,8 @@ void RendererBackend::drawOperation(const RenderOperation &op)
         return;
 
     setWorldMatrix(op.worldTransform);
-    bindPass(op.passProps.get());
-    drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
+    bindPass(op.passProps);
+    drawVertexBuffer(op.vertexData, op.indexData, op.type);
 }
 
 }

@@ -18,9 +18,10 @@ public:
 
     Type type = Type::TRIANGLES;
     glm::mat4 worldTransform;
-    shared_ptr<IndexBuffer> indexData;
-    shared_ptr<VertexBuffer> vertexData;
-    shared_ptr<RenderPass> passProps;
+
+    IndexBuffer *indexData = nullptr;
+    VertexBuffer *vertexData = nullptr;
+    RenderPass *passProps = nullptr;
 
     RenderOperation() = default;
     ~RenderOperation() = default;

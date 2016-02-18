@@ -16,10 +16,7 @@ void Sampler::update(GpuProgram *program, int textureUnit)
     {
         m_uniform = program->getSamplerUniform(name);
         if (!m_uniform)
-        {
-            glog << "Sampler" << name << "was not found in shader" << program->getFilePath() << logwarn;
             return;
-        }
     }
 
     m_uniform->update(&textureUnit);

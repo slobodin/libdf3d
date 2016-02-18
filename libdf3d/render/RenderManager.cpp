@@ -76,8 +76,8 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
 
         RenderOperation quadRo;
 
-        quadRo.vertexData = m_quadVb;
-        quadRo.passProps = tech->getPass(passidx);
+        quadRo.vertexData = m_quadVb.get();
+        quadRo.passProps = tech->getPass(passidx).get();
         quadRo.passProps->setSampler("sceneTexture", m_textureRt->getTexture());
         if (passidx != 0)
             quadRo.passProps->setSampler("prevPassBuffer", m_postProcessPassBuffers[(passidx - 1) % 2]->getTexture());
@@ -148,7 +148,7 @@ void RenderManager::doRenderWorld(World &world)
 
         m_renderer->bindPass(m_ambientPassProps.get());
 
-        m_renderer->drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
+        m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);
     }
 
     // Opaque pass with lights on.
@@ -165,8 +165,8 @@ void RenderManager::doRenderWorld(World &world)
             m_renderer->setLight(*light);
 
             // TODO: update ONLY light uniforms.
-            m_renderer->bindPass(op.passProps.get());
-            m_renderer->drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
+            m_renderer->bindPass(op.passProps);
+            m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);
         }
     }
 

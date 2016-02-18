@@ -241,9 +241,9 @@ void RenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandl
     m_guipass->setSampler("diffuseMap", geom->texture);
 
     RenderOperation op;
-    op.vertexData = geom->vb;
-    op.indexData = geom->ib;
-    op.passProps = m_guipass;
+    op.vertexData = geom->vb.get();
+    op.indexData = geom->ib.get();
+    op.passProps = m_guipass.get();
     op.worldTransform = glm::translate(glm::vec3(translation.x, translation.y, 0.0f));
 
     svc().renderManager().getRenderer()->drawOperation(op);
