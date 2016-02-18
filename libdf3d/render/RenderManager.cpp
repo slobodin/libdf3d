@@ -179,6 +179,8 @@ void RenderManager::doRenderWorld(World &world)
     for (const auto &op : m_renderQueue->notLitOpaqueOperations)
         m_renderer->drawOperation(op);
 
+    // VFX pass.
+
     // Transparent pass.
     for (const auto &op : m_renderQueue->transparentOperations)
         m_renderer->drawOperation(op);
