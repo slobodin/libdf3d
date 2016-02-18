@@ -408,7 +408,8 @@ static SPK::Ref<ParticleSystemRenderer> createRenderer(const Json::Value &render
     }
     else if (rendererType == "line")
     {
-        renderer = LineParticleSystemRenderer::create(100.0f, 100.0f);
+        assert(false && "Not implemented");
+        //renderer = LineParticleSystemRenderer::create(100.0f, 100.0f);
     }
     else
     {

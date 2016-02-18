@@ -3,23 +3,59 @@
 #include <SPARK.h>
 
 #include <libdf3d/render/RenderOperation.h>
+#include <libdf3d/render/RenderCommon.h>
+#include <libdf3d/render/Vertex.h>
 
 namespace df3d { 
 
 class RenderQueue;
 class Texture;
 class RenderPass;
+class VertexData;
 
 namespace particlesys_impl {
 
 class MyRenderBuffer;
 
+// A cache for all systems vertex & index data.
+class ParticleSystemBuffers_Quad
+{
+    const size_t INITIAL_CAPACITY = 64;
+    const VertexFormat VERTEX_FORMAT = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
+
+    size_t m_particlesAllocated = 0;
+
+    unique_ptr<VertexBuffer> m_vb;
+    unique_ptr<IndexBuffer> m_ib;
+
+    // CPU side storage, TODO: use glMapBuffer
+    unique_ptr<VertexData> m_vertexData;
+    IndexArray m_indexData;
+
+    size_t m_currentIndexIndex = 0;
+    size_t m_currentVertexIndex = 0;
+    size_t m_currentColorIndex = 0;
+    size_t m_currentTexCoordIndex = 0;
+
+public:
+    ParticleSystemBuffers_Quad();
+    ~ParticleSystemBuffers_Quad();
+
+    void realloc(size_t nbParticles);
+
+    void positionAtStart();
+    void setNextIndex(int index);
+    void setNextVertex(const SPK::Vector3D &vertex);
+    void setNextColor(const SPK::Color &color);
+    void setNextTexCoords(float u, float v);
+    size_t getParticlesAllocated() const { return m_particlesAllocated; }
+
+    void addToRenderQueue(size_t nbOfParticles, RenderPass *passProps, const glm::mat4 &m, RenderQueue *rqueue);
+};
+
 class ParticleSystemRenderer : public SPK::Renderer
 {
     spark_description(ParticleSystemRenderer, SPK::Renderer)();
-
-protected:
-    void addToRenderQueue(MyRenderBuffer &buffer, size_t nbOfParticles, int verticesPerParticle, int indicesPerParticle, RenderOperation::Type type) const;
 
 public:
     shared_ptr<RenderPass> m_pass;
@@ -28,6 +64,7 @@ public:
     // We need to pass RenderQueue in order to populate it when renderParticles called.
     RenderQueue *m_currentRenderQueue;
     glm::mat4 *m_currentTransformation;
+    ParticleSystemBuffers_Quad *m_quadBuffers;
 
     ParticleSystemRenderer(bool NEEDS_DATASET);
     ~ParticleSystemRenderer();
@@ -72,6 +109,7 @@ public:
     }
 };
 
+/*
 // A renderer drawing particles as lines.
 class LineParticleSystemRenderer : public ParticleSystemRenderer, public SPK::LineRenderBehavior
 {
@@ -90,6 +128,7 @@ public:
         return SPK_NEW(LineParticleSystemRenderer, length, width);
     }
 };
+*/
 
 inline SPK::Vector3D glmToSpk(const glm::vec3 &v)
 {

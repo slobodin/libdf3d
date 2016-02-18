@@ -13,95 +13,131 @@
 
 namespace df3d { namespace particlesys_impl {
 
-const int QUAD_VERTICES_PER_PARTICLE = 4;
-const int QUAD_INDICES_PER_PARTICLE = 6;
-const int LINE_VERTICES_PER_PARTICLE = 2;
-const int LINE_INDICES_PER_PARTICLE = 2;
+static const size_t QUAD_VERTICES_PER_PARTICLE = 4;
+static const size_t QUAD_INDICES_PER_PARTICLE = 6;
 
 class MyRenderBuffer : public SPK::RenderBuffer
 {
-    size_t m_currentIndexIndex;
-    size_t m_currentVertexIndex;
-    size_t m_currentColorIndex;
-    size_t m_currentTexCoordIndex;
-
 public:
-    shared_ptr<VertexBuffer> m_vb;
-    shared_ptr<IndexBuffer> m_ib;
+    ParticleSystemBuffers_Quad *m_buffers = nullptr;
 
-    VertexData m_vertexData;
-    IndexArray m_indexData;
-
-    MyRenderBuffer(size_t nbParticles, int verticesPerParticle, int indicesPerParticle)
-        : m_vertexData(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 }))
+    MyRenderBuffer(size_t nbParticles, ParticleSystemBuffers_Quad *buffers)
+        : m_buffers(buffers)
     {
-        // TODO: can have only 1 VB & only 1 IB!
-        m_vb = make_shared<VertexBuffer>(m_vertexData.getFormat());
-        m_ib = make_shared<IndexBuffer>();
-
-        // Allocate GPU storage.
-        m_vb->alloc(nbParticles * verticesPerParticle, nullptr, GpuBufferUsageType::DYNAMIC);
-        m_ib->alloc(nbParticles * indicesPerParticle, nullptr, GpuBufferUsageType::STATIC);
-
-        // Allocate main memory storage copy (no glMapBuffer on ES2.0)
-        m_vertexData.allocVertices(nbParticles * verticesPerParticle);
-        m_indexData.resize(nbParticles * indicesPerParticle);
-
-        positionAtStart();
-    }
-
-    void positionAtStart()
-    {
-        // Repositions all the buffer pointers at the start.
-        m_currentIndexIndex = 0;
-        m_currentVertexIndex = 0;
-        m_currentColorIndex = 0;
-        m_currentTexCoordIndex = 0;
-    }
-
-    void setNextIndex(int index)
-    {
-        m_indexData[m_currentIndexIndex++] = index;
-    }
-
-    void setNextVertex(const SPK::Vector3D &vertex)
-    {
-        auto vert = m_vertexData.getVertex(m_currentVertexIndex++);
-        vert.setPosition({ vertex.x, vertex.y, vertex.z });
-    }
-
-    void setNextColor(const SPK::Color &color)
-    {
-        auto vert = m_vertexData.getVertex(m_currentColorIndex++);
-        vert.setColor({ color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f });
-    }
-
-    void setNextTexCoords(float u, float v)
-    {
-        auto vert = m_vertexData.getVertex(m_currentTexCoordIndex++);
-        vert.setTx({ u, v });
+        if (nbParticles > m_buffers->getParticlesAllocated())
+            m_buffers->realloc(nbParticles);
     }
 };
 
-void ParticleSystemRenderer::addToRenderQueue(MyRenderBuffer &buffer, size_t nbOfParticles, int verticesPerParticle, int indicesPerParticle, RenderOperation::Type type) const
+ParticleSystemBuffers_Quad::ParticleSystemBuffers_Quad()
 {
-    // Refill GPU with new data (only vertices have been changed).
-    buffer.m_vb->update(nbOfParticles * verticesPerParticle, buffer.m_vertexData.getRawData());
+    m_vb = make_unique<VertexBuffer>(VERTEX_FORMAT);
+    m_ib = make_unique<IndexBuffer>();
+}
 
-    buffer.m_vb->setVerticesUsed(nbOfParticles * verticesPerParticle);
-    buffer.m_ib->setIndicesUsed(nbOfParticles * indicesPerParticle);
+ParticleSystemBuffers_Quad::~ParticleSystemBuffers_Quad()
+{
+
+}
+
+void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
+{
+    nbParticles = std::max(nbParticles, INITIAL_CAPACITY);
+
+    m_vertexData.reset(new VertexData(VERTEX_FORMAT));
+
+    // Allocate GPU storage.
+    m_vb->alloc(nbParticles * QUAD_VERTICES_PER_PARTICLE, nullptr, GpuBufferUsageType::DYNAMIC);
+    m_ib->alloc(nbParticles * QUAD_INDICES_PER_PARTICLE, nullptr, GpuBufferUsageType::STATIC);
+
+    // Allocate main memory storage copy (no glMapBuffer on ES2.0)
+    m_vertexData->allocVertices(nbParticles * QUAD_VERTICES_PER_PARTICLE);
+    m_indexData.resize(nbParticles * QUAD_INDICES_PER_PARTICLE);
+
+    positionAtStart();
+
+    // Initialize the index array.
+    for (size_t i = 0; i < nbParticles; ++i)
+    {
+        setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 0);
+        setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 1);
+        setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 2);
+        setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 0);
+        setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 2);
+        setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 3);
+    }
+
+    // Initialize GPU storage of index array.
+    m_ib->update(nbParticles * QUAD_INDICES_PER_PARTICLE, m_indexData.data());
+    // Clear main storage indices copy.
+    m_indexData.clear();
+
+    // Initialize the texture array (CCW order).
+    for (size_t i = 0; i < nbParticles; ++i)
+    {
+        // FIXME: inverted UV's Y because of OpenGL.
+        setNextTexCoords(1.0f, 0.0f);
+        setNextTexCoords(0.0f, 0.0f);
+        setNextTexCoords(0.0f, 1.0f);
+        setNextTexCoords(1.0f, 1.0f);
+    }
+
+    m_particlesAllocated = nbParticles;
+}
+
+void ParticleSystemBuffers_Quad::positionAtStart()
+{
+    // Repositions all the buffer pointers at the start.
+    m_currentIndexIndex = 0;
+    m_currentVertexIndex = 0;
+    m_currentColorIndex = 0;
+    m_currentTexCoordIndex = 0;
+}
+
+void ParticleSystemBuffers_Quad::setNextIndex(int index)
+{
+    m_indexData[m_currentIndexIndex++] = index;
+}
+
+void ParticleSystemBuffers_Quad::setNextVertex(const SPK::Vector3D &vertex)
+{
+    auto vert = m_vertexData->getVertex(m_currentVertexIndex++);
+    vert.setPosition({ vertex.x, vertex.y, vertex.z });
+}
+
+void ParticleSystemBuffers_Quad::setNextColor(const SPK::Color &color)
+{
+    auto vert = m_vertexData->getVertex(m_currentColorIndex++);
+    vert.setColor({ color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f });
+}
+
+void ParticleSystemBuffers_Quad::setNextTexCoords(float u, float v)
+{
+    auto vert = m_vertexData->getVertex(m_currentTexCoordIndex++);
+    vert.setTx({ u, v });
+}
+
+void ParticleSystemBuffers_Quad::addToRenderQueue(size_t nbOfParticles, RenderPass *passProps, const glm::mat4 &m, RenderQueue *rqueue)
+{
+    assert(nbOfParticles <= m_particlesAllocated);
+
+    // Refill GPU with new data (only vertices have been changed).
+    m_vb->update(nbOfParticles * QUAD_VERTICES_PER_PARTICLE, m_vertexData->getRawData());
+
+    m_vb->setVerticesUsed(nbOfParticles * QUAD_VERTICES_PER_PARTICLE);
+    m_ib->setIndicesUsed(nbOfParticles * QUAD_INDICES_PER_PARTICLE);
 
     RenderOperation op;
-    op.type = type;
-    op.indexData = buffer.m_ib.get();
-    op.vertexData = buffer.m_vb.get();
-    op.passProps = m_pass.get();
-    op.worldTransform = *m_currentTransformation;
+    op.type = RenderOperation::Type::TRIANGLES;
+    op.indexData = m_ib.get();
+    op.vertexData = m_vb.get();
+    op.passProps = passProps;
+    op.worldTransform = m;
 
     if (op.passProps->isTransparent())
-        m_currentRenderQueue->transparentOperations.push_back(op);
+        rqueue->transparentOperations.push_back(op);
     else
-        m_currentRenderQueue->notLitOpaqueOperations.push_back(op);
+        rqueue->notLitOpaqueOperations.push_back(op);
 }
 
 ParticleSystemRenderer::ParticleSystemRenderer(bool NEEDS_DATASET)
@@ -186,16 +222,16 @@ void QuadParticleSystemRenderer::render2DAtlasRot(const SPK::Particle &particle,
 void QuadParticleSystemRenderer::fillBufferColorAndVertex(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const
 {
     // Quads are drawn in a counter clockwise order.
-    renderBuffer.setNextVertex(particle.position() + quadSide() + quadUp());    // top right vertex
-    renderBuffer.setNextVertex(particle.position() - quadSide() + quadUp());    // top left vertex
-    renderBuffer.setNextVertex(particle.position() - quadSide() - quadUp());    // bottom left vertex
-    renderBuffer.setNextVertex(particle.position() + quadSide() - quadUp());    // bottom right vertex
+    renderBuffer.m_buffers->setNextVertex(particle.position() + quadSide() + quadUp());    // top right vertex
+    renderBuffer.m_buffers->setNextVertex(particle.position() - quadSide() + quadUp());    // top left vertex
+    renderBuffer.m_buffers->setNextVertex(particle.position() - quadSide() - quadUp());    // bottom left vertex
+    renderBuffer.m_buffers->setNextVertex(particle.position() + quadSide() - quadUp());    // bottom right vertex
 
     const auto &color = particle.getColor();
-    renderBuffer.setNextColor(color);
-    renderBuffer.setNextColor(color);
-    renderBuffer.setNextColor(color);
-    renderBuffer.setNextColor(color);
+    renderBuffer.m_buffers->setNextColor(color);
+    renderBuffer.m_buffers->setNextColor(color);
+    renderBuffer.m_buffers->setNextColor(color);
+    renderBuffer.m_buffers->setNextColor(color);
 }
 
 void QuadParticleSystemRenderer::fillBufferTexture2DCoordsAtlas(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const
@@ -203,10 +239,10 @@ void QuadParticleSystemRenderer::fillBufferTexture2DCoordsAtlas(const SPK::Parti
     computeAtlasCoordinates(particle);
 
     // FIXME: inverted UV's Y because of OpenGL.
-    renderBuffer.setNextTexCoords(textureAtlasU1(), textureAtlasV0());
-    renderBuffer.setNextTexCoords(textureAtlasU0(), textureAtlasV0());
-    renderBuffer.setNextTexCoords(textureAtlasU0(), textureAtlasV1());
-    renderBuffer.setNextTexCoords(textureAtlasU1(), textureAtlasV1());
+    renderBuffer.m_buffers->setNextTexCoords(textureAtlasU1(), textureAtlasV0());
+    renderBuffer.m_buffers->setNextTexCoords(textureAtlasU0(), textureAtlasV0());
+    renderBuffer.m_buffers->setNextTexCoords(textureAtlasU0(), textureAtlasV1());
+    renderBuffer.m_buffers->setNextTexCoords(textureAtlasU1(), textureAtlasV1());
 }
 
 QuadParticleSystemRenderer::QuadParticleSystemRenderer(float scaleX, float scaleY)
@@ -223,37 +259,7 @@ QuadParticleSystemRenderer::~QuadParticleSystemRenderer()
 
 SPK::RenderBuffer* QuadParticleSystemRenderer::attachRenderBuffer(const SPK::Group &group) const
 {
-    size_t totalParticles = group.getCapacity();
-    auto buffer = SPK_NEW(MyRenderBuffer, totalParticles, QUAD_VERTICES_PER_PARTICLE, QUAD_INDICES_PER_PARTICLE);
-    buffer->positionAtStart();
-
-    // Initialize the index array.
-    for (size_t i = 0; i < totalParticles; ++i)
-    {
-        buffer->setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 0);
-        buffer->setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 1);
-        buffer->setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 2);
-        buffer->setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 0);
-        buffer->setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 2);
-        buffer->setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 3);
-    }
-
-    // Initialize GPU storage of index array.
-    buffer->m_ib->update(totalParticles * QUAD_INDICES_PER_PARTICLE, buffer->m_indexData.data());
-    // Clear main storage indices copy.
-    buffer->m_indexData.clear();
-
-    // Initialize the texture array (CCW order).
-    for (size_t i = 0; i < group.getCapacity(); ++i)
-    {
-        // FIXME: inverted UV's Y because of OpenGL.
-        buffer->setNextTexCoords(1.0f, 0.0f);
-        buffer->setNextTexCoords(0.0f, 0.0f);
-        buffer->setNextTexCoords(0.0f, 1.0f);
-        buffer->setNextTexCoords(1.0f, 1.0f);
-    }
-
-    return buffer;
+    return SPK_NEW(MyRenderBuffer, group.getCapacity(), m_quadBuffers);
 }
 
 void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::DataSet *dataSet, SPK::RenderBuffer *renderBuffer) const
@@ -262,7 +268,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
         return;
 
     auto &buffer = static_cast<MyRenderBuffer&>(*renderBuffer);
-    buffer.positionAtStart(); // Repositions all the buffers at the start.
+    buffer.m_buffers->positionAtStart(); // Repositions all the buffers at the start.
 
     m_pass->enableDepthWrite(isRenderingOptionEnabled(SPK::RENDERING_OPTION_DEPTH_WRITE));
 
@@ -276,10 +282,10 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
             // FIXME: inverted UV's Y because of OpenGL.
             for (size_t i = 0; i < group.getCapacity(); ++i)
             {
-                buffer.setNextTexCoords(1.0f, 0.0f);
-                buffer.setNextTexCoords(0.0f, 0.0f);
-                buffer.setNextTexCoords(0.0f, 1.0f);
-                buffer.setNextTexCoords(1.0f, 1.0f);
+                buffer.m_buffers->setNextTexCoords(1.0f, 0.0f);
+                buffer.m_buffers->setNextTexCoords(0.0f, 0.0f);
+                buffer.m_buffers->setNextTexCoords(0.0f, 1.0f);
+                buffer.m_buffers->setNextTexCoords(1.0f, 1.0f);
             }
         }
         break;
@@ -329,7 +335,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
         }
     }
 
-    addToRenderQueue(buffer, group.getNbParticles(), QUAD_VERTICES_PER_PARTICLE, QUAD_INDICES_PER_PARTICLE, RenderOperation::Type::TRIANGLES);
+    buffer.m_buffers->addToRenderQueue(group.getNbParticles(), m_pass.get(), *m_currentTransformation, m_currentRenderQueue);
 }
 
 void QuadParticleSystemRenderer::computeAABB(SPK::Vector3D &AABBMin, SPK::Vector3D &AABBMax, const SPK::Group &group, const SPK::DataSet *dataSet) const
@@ -358,6 +364,7 @@ void QuadParticleSystemRenderer::computeAABB(SPK::Vector3D &AABBMin, SPK::Vector
     }
 }
 
+/*
 LineParticleSystemRenderer::LineParticleSystemRenderer(float length, float width)
     : ParticleSystemRenderer(false),
     SPK::LineRenderBehavior(length, width)
@@ -420,5 +427,6 @@ void LineParticleSystemRenderer::computeAABB(SPK::Vector3D &AABBMin, SPK::Vector
         AABBMax.setMax(v);
     }
 }
+.*/
 
 } }

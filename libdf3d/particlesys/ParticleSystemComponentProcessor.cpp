@@ -9,6 +9,8 @@
 #include <libdf3d/3d/SceneGraphComponentProcessor.h>
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/base/TimeManager.h>
+#include <libdf3d/render/Vertex.h>
+#include <libdf3d/render/VertexIndexBuffer.h>
 #include <libdf3d/utils/JsonUtils.h>
 
 namespace df3d {
@@ -28,6 +30,7 @@ struct ParticleSystemComponentProcessor::Impl
     };
 
     ComponentDataHolder<Data> data;
+    particlesys_impl::ParticleSystemBuffers_Quad m_quadBuffers;
 
     static void updateCameraPosition(Data &compData, World *w)
     {
@@ -99,16 +102,10 @@ void ParticleSystemComponentProcessor::draw(RenderQueue *ops)
             auto renderer = static_cast<particlesys_impl::ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
             renderer->m_currentRenderQueue = ops;
             renderer->m_currentTransformation = &transf;
+            renderer->m_quadBuffers = &m_pimpl->m_quadBuffers;
         }
 
         spkSystem->renderParticles();
-
-        // FIXME: do we need this?
-        for (size_t i = 0; i < spkSystem->getNbGroups(); i++)
-        {
-            auto renderer = static_cast<particlesys_impl::ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
-            renderer->m_currentRenderQueue = nullptr;
-        }
     }
 }
 
