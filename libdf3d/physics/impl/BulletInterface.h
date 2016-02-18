@@ -9,12 +9,14 @@ namespace df3d {
 
 class RenderPass;
 class RenderQueue;
+class VertexBuffer;
 
 namespace physics_impl {
 
 class BulletDebugDraw : public btIDebugDraw
 {
     shared_ptr<RenderPass> m_pass;
+    shared_ptr<VertexBuffer> m_vertexBuffer;
 
     VertexData m_vertexData;
 
@@ -29,6 +31,7 @@ public:
     void setDebugMode(int debugMode) override;
     int getDebugMode() const override;
 
+    void clean();
     void flushRenderOperations(RenderQueue *ops);
 };
 

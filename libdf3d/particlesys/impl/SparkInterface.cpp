@@ -110,6 +110,7 @@ ParticleSystemRenderer::ParticleSystemRenderer(bool NEEDS_DATASET)
     m_pass->setFaceCullMode(RenderPass::FaceCullMode::BACK);
     m_pass->setFrontFaceWinding(RenderPass::WindingOrder::CCW);
     m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f);
+    m_pass->setSampler("diffuseMap", nullptr);          // FIXME: force to use default white texture (as using colored program)
 
     m_pass->setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
 }

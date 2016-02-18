@@ -57,6 +57,12 @@ int BulletDebugDraw::getDebugMode() const
     return btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawNormals | btIDebugDraw::DBG_DrawConstraints;
 }
 
+void BulletDebugDraw::clean()
+{
+    m_vertexBuffer.reset();
+    m_vertexData.clear();
+}
+
 void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
 {
     if (m_vertexData.getVerticesCount() == 0)
@@ -66,15 +72,16 @@ void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
     {
         m_pass = make_shared<RenderPass>(RenderPass::createDebugDrawPass());
         m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 0.7f);
+        m_pass->setSampler("diffuseMap", nullptr);          // FIXME: force to use default white texture because using colored shader.
     }
 
-    RenderOperation op;
-    op.passProps = m_pass;
-    op.type = RenderOperation::Type::LINES;
+    m_vertexBuffer = make_shared<VertexBuffer>(m_vertexData.getFormat());
+    m_vertexBuffer->alloc(m_vertexData, GpuBufferUsageType::STREAM);
 
-    op.vertexData = make_shared<VertexBuffer>(m_vertexData.getFormat());
-    op.vertexData->alloc(m_vertexData, GpuBufferUsageType::STREAM);
-    m_vertexData.clear();
+    RenderOperation op;
+    op.passProps = m_pass.get();
+    op.vertexData = m_vertexBuffer.get();
+    op.type = RenderOperation::Type::LINES;
 
     ops->debugDrawOperations.push_back(op);
 }

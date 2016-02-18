@@ -240,6 +240,7 @@ void PhysicsComponentProcessor::update()
 void PhysicsComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 {
     m_pimpl->data.cleanStep(deleted);
+    m_pimpl->debugDraw->clean();
 }
 
 void PhysicsComponentProcessor::draw(RenderQueue *ops)
