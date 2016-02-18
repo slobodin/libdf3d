@@ -14,6 +14,7 @@
 #include <libdf3d/utils/Any.h>
 
 #include <libdf3d/base/EngineController.h>
+#include <libdf3d/base/FrameStats.h>
 #include <libdf3d/base/DebugConsole.h>
 #include <libdf3d/base/TimeManager.h>
 #include <libdf3d/base/StringTable.h>
@@ -37,7 +38,6 @@
 #include <libdf3d/render/MaterialLib.h>
 #include <libdf3d/render/Technique.h>
 #include <libdf3d/render/RenderPass.h>
-#include <libdf3d/render/RenderStats.h>
 #include <libdf3d/render/Viewport.h>
 #include <libdf3d/render/Vertex.h>
 #include <libdf3d/render/MeshData.h>

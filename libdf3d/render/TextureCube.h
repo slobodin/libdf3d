@@ -18,7 +18,7 @@ class TextureCube : public Texture
 public:
     ~TextureCube();
 
-    bool bind(size_t unit) override;
+    bool bind() override;
     void unbind() override;
 };
 

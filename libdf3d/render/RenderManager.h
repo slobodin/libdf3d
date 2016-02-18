@@ -1,6 +1,5 @@
 #pragma once
 
-#include "RenderStats.h"
 #include "RenderCommon.h"
 #include <libdf3d/base/EngineInitParams.h>
 
@@ -46,9 +45,6 @@ class RenderManager : utils::NonCopyable
 
     void postProcessPass(shared_ptr<Material> material);
 
-    RenderStats m_stats;
-    RenderStats m_lastStats;
-
     void loadEmbedResources();
     void onFrameBegin();
     void onFrameEnd();
@@ -60,9 +56,7 @@ public:
 
     void drawWorld(World &world);
 
-    const RenderStats& getLastRenderStats() const;
     const RenderTargetScreen& getScreenRenderTarget() const;
-
     const RenderingCapabilities& getRenderingCapabilities() const;
 
     RendererBackend* getRenderer();

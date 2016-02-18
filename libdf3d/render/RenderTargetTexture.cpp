@@ -18,7 +18,7 @@ void RenderTargetTexture::createGLFramebuffer()
     glGenFramebuffers(1, &m_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
-    m_texture->bind(0);
+    m_texture->bind();
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture->getGLId(), 0);
 
@@ -81,7 +81,7 @@ void RenderTargetTexture::bind()
     svc().renderManager().getRenderer()->setViewport(m_viewport);
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-    m_texture->bind(0);
+    m_texture->bind();
 }
 
 void RenderTargetTexture::unbind()

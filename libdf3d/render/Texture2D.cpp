@@ -68,15 +68,18 @@ bool Texture2D::createGLTexture(const PixelBuffer &buffer)
     if (m_params.isMipmapped())
         glGenerateMipmap(GL_TEXTURE_2D);
 
-    if (m_params.getAnisotropyLevel() != 1)
+    if (GL_EXT_texture_filter_anisotropic)
     {
-        float aniso = svc().renderManager().getRenderer()->getMaxAnisotropy();
-        if (m_params.getAnisotropyLevel() != ANISOTROPY_LEVEL_MAX)
-        { 
-            aniso = (float)m_params.getAnisotropyLevel();
-        }
+        if (m_params.getAnisotropyLevel() != 1)
+        {
+            float aniso = svc().renderManager().getRenderer()->getMaxAnisotropy();
+            if (m_params.getAnisotropyLevel() != ANISOTROPY_LEVEL_MAX)
+            {
+                aniso = (float)m_params.getAnisotropyLevel();
+            }
 
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
+        }
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -134,14 +137,13 @@ size_t Texture2D::getActualHeight() const
     return m_actualHeight;
 }
 
-bool Texture2D::bind(size_t unit)
+bool Texture2D::bind()
 {
     if (!isInitialized())
         return false;
 
     assert(m_glid);
 
-    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, m_glid);
 
     return true;

@@ -81,14 +81,13 @@ TextureCube::~TextureCube()
     deleteGLTexture();
 }
 
-bool TextureCube::bind(size_t unit)
+bool TextureCube::bind()
 {
     if (!isInitialized())
         return false;
 
     assert(m_glid);
 
-    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_glid);
 
     return true;

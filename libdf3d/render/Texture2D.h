@@ -29,7 +29,7 @@ public:
     size_t getActualWidth() const;
     size_t getActualHeight() const;
 
-    bool bind(size_t unit) override;
+    bool bind() override;
     void unbind() override;
 };
 

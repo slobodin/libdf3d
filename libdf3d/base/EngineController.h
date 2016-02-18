@@ -14,7 +14,7 @@ class ScriptManager;
 class Timer;
 class TimeManager;
 class DebugConsole;
-class RenderStats;
+class FrameStats;
 class Viewport;
 class World;
 class StringTable;
@@ -30,6 +30,7 @@ class DF3D_DLL EngineController : utils::NonCopyable
     unique_ptr<ScriptManager> m_scriptManager;
     unique_ptr<TimeManager> m_systemTimeManager;
     unique_ptr<Timer> m_timer;
+    unique_ptr<FrameStats> m_frameStats;
 
     unique_ptr<StringTable> m_stringTable;
     unique_ptr<DebugConsole> m_debugConsole;
@@ -50,7 +51,8 @@ public:
 
     void setStringTable(const std::string &stringTablePath);
 
-    const RenderStats& getLastRenderStats() const;
+    const FrameStats& getFrameStats() const;
+    FrameStats& getFrameStats();
     glm::vec2 getScreenSize() const;
 
     RenderManager& renderManager() { return *m_renderManager; }

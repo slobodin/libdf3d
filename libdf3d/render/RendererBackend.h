@@ -1,6 +1,5 @@
 #pragma once
 
-#include "RenderStats.h"
 #include "RenderPass.h"
 #include "RenderOperation.h"
 
@@ -15,8 +14,6 @@ class Light;
 
 class RendererBackend
 {
-    RenderStats *m_renderStats = nullptr;
-
     unique_ptr<GpuProgramState> m_programState;
     shared_ptr<Texture2D> m_whiteTexture;
 
@@ -32,8 +29,6 @@ class RendererBackend
     void setCullFace(RenderPass::FaceCullMode cm);
     void setPolygonDrawMode(RenderPass::PolygonMode pm);
     void updateProgramUniformValues(GpuProgram *program, RenderPass *pass);
-    // Updates texture samplers for current pass.
-    void updateTextureSamplers();
 
     bool m_blendModeOverriden = false;
     bool m_frontFaceOverriden = false;
@@ -49,8 +44,6 @@ public:
     ~RendererBackend();
 
     void loadResources();
-
-    void setRenderStatsLocation(RenderStats *renderStats);
 
     void beginFrame();
     void endFrame();

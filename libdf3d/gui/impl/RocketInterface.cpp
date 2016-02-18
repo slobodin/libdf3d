@@ -149,6 +149,11 @@ bool SystemInterface::LogMessage(Rocket::Core::Log::Type type, const Rocket::Cor
     return true;
 }
 
+void SystemInterface::JoinPath(Rocket::Core::String& translated_path, const Rocket::Core::String& document_path, const Rocket::Core::String& path)
+{
+    translated_path = path;
+}
+
 // Helper.
 struct CompiledGeometry
 {

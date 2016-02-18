@@ -80,6 +80,12 @@ void GpuProgramUniform::update(const void *data) const
 {
     switch (m_glType)
     {
+    case GL_SAMPLER_2D:
+        glUniform1iv(m_location, 1, (GLint *)data);
+        break;
+    case GL_SAMPLER_CUBE:
+        glUniform1iv(m_location, 1, (GLint *)data);
+        break;
     case GL_INT:
         glUniform1iv(m_location, 1, (GLint *)data);
         break;
@@ -102,6 +108,7 @@ void GpuProgramUniform::update(const void *data) const
         glUniformMatrix4fv(m_location, 1, GL_FALSE, (GLfloat *)data);
         break;
     default:
+        glog << "Failed to update GpuProgramUniform. Unknown uniform type" << logwarn;
         break;
     }
 }

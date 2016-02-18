@@ -411,6 +411,10 @@ class MaterialLibParser
             }
         }
 
+        // FIXME: implicit assumption. Setting up default lighting when no shader provided.
+        if (pass->isLit() && !pass->getGpuProgram())
+            pass->setGpuProgram(svc().resourceManager().getFactory().createSimpleLightingGpuProgram());
+
         return pass;
     }
 

@@ -55,7 +55,7 @@ bool GpuProgram::attachShaders()
         return false;
 
     for (auto shader : m_shaders)
-        glAttachShader(m_programDescriptor, shader->getDescriptor());
+        glAttachShader(m_programDescriptor, shader->m_shaderDescriptor);
 
     glBindAttribLocation(m_programDescriptor, VertexFormat::POSITION_3, "a_vertex3");
     glBindAttribLocation(m_programDescriptor, VertexFormat::NORMAL_3, "a_normal");
@@ -103,6 +103,8 @@ void GpuProgram::requestUniforms()
 
         if (uni.isShared())
             m_sharedUniforms.push_back(uni);
+        else if (uni.isSampler())
+            m_samplerUniforms.push_back(uni);
         else
             m_customUniforms.push_back(uni);
     }
@@ -126,8 +128,8 @@ GpuProgram::~GpuProgram()
 
     for (auto shader : m_shaders)
     {
-        if (shader->getDescriptor() != 0)
-            glDetachShader(m_programDescriptor, shader->getDescriptor());
+        if (shader->m_shaderDescriptor != 0)
+            glDetachShader(m_programDescriptor, shader->m_shaderDescriptor);
     }
 
     glDeleteProgram(m_programDescriptor);
@@ -154,6 +156,17 @@ GpuProgramUniform *GpuProgram::getCustomUniform(const std::string &name)
     {
         if (m_customUniforms[i].getName() == name)
             return &m_customUniforms[i];
+    }
+
+    return nullptr;
+}
+
+GpuProgramUniform* GpuProgram::getSamplerUniform(const std::string &name)
+{
+    for (size_t i = 0; i < m_samplerUniforms.size(); i++)
+    {
+        if (m_samplerUniforms[i].getName() == name)
+            return &m_samplerUniforms[i];
     }
 
     return nullptr;

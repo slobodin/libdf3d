@@ -3,6 +3,7 @@
 #include "DebugConsole.h"
 #include "TimeManager.h"
 #include "StringTable.h"
+#include "FrameStats.h"
 #include <libdf3d/render/RenderManager.h>
 #include <libdf3d/3d/Camera.h>
 #include <libdf3d/game/World.h>
@@ -12,7 +13,6 @@
 #include <libdf3d/io/FileSystem.h>
 #include <libdf3d/gui/GuiManager.h>
 #include <libdf3d/audio/AudioManager.h>
-#include <libdf3d/render/RenderStats.h>
 #include <libdf3d/render/RenderTargetScreen.h>
 #include <libdf3d/platform/AppDelegate.h>
 #include <libdf3d/script/ScriptManager.h>
@@ -46,6 +46,9 @@ void EngineController::initialize(EngineInitParams params)
 
         // Create timer.
         m_timer = make_unique<Timer>();
+
+        // Create frame stats.
+        m_frameStats = make_unique<FrameStats>();
 
 #ifdef DF3D_WINDOWS
         platform_impl::CrashHandler::setup();
@@ -116,6 +119,7 @@ void EngineController::shutdown()
     m_audioManager.reset();
     m_inputManager.reset();
     m_timer.reset();
+    m_frameStats.reset();
 }
 
 void EngineController::step()
@@ -130,6 +134,8 @@ void EngineController::step()
     m_systemTimeManager->update(m_timer->getFrameDelta(TimeChannel::SYSTEM));
     m_world->update();
 
+    // Clear frame stats.
+    *m_frameStats = FrameStats();
     // Run frame.
     m_renderManager->drawWorld(*m_world);
 
@@ -143,9 +149,14 @@ void EngineController::setStringTable(const std::string &stringTablePath)
     m_stringTable = make_unique<StringTable>(stringTablePath);
 }
 
-const RenderStats& EngineController::getLastRenderStats() const
+const FrameStats& EngineController::getFrameStats() const
 {
-    return m_renderManager->getLastRenderStats();
+    return *m_frameStats;
+}
+
+FrameStats& EngineController::getFrameStats()
+{
+    return *m_frameStats;
 }
 
 glm::vec2 EngineController::getScreenSize() const

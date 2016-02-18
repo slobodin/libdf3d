@@ -15,6 +15,8 @@ const std::string CVAR_DEBUG_DRAW = "df3d_debug_draw";
 
 class DebugConsole::ConsoleWindow : public Rocket::Core::ElementDocument, public Rocket::Core::EventListener
 {
+    std::string m_prevCommand;
+
     void ProcessEvent(Rocket::Core::Event &ev)
     {
         if (ev == "click")
@@ -23,7 +25,20 @@ class DebugConsole::ConsoleWindow : public Rocket::Core::ElementDocument, public
             {
                 auto command = m_inputText->GetAttribute<Rocket::Core::String>("value", "");
 
-                m_parent->onConsoleInput(command.CString());
+                m_parent->onConsoleInput(m_prevCommand = command.CString());
+            }
+        }
+        if (ev == "keyup")
+        {
+            auto identifier = ev.GetParameter<int>("key_identifier", -1);
+            if (identifier == Rocket::Core::Input::KeyIdentifier::KI_RETURN)
+            {
+                GetElementById("submit_command")->Click();
+            }
+            else if (identifier == Rocket::Core::Input::KeyIdentifier::KI_UP)
+            {
+                if (!m_prevCommand.empty())
+                    m_inputText->SetAttribute("value", Rocket::Core::String(m_prevCommand.c_str()));
             }
         }
     }

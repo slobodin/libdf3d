@@ -1,6 +1,7 @@
 #include "RendererBackend.h"
 
 #include <libdf3d/base/EngineController.h>
+#include <libdf3d/base/FrameStats.h>
 #include <libdf3d/resources/ResourceManager.h>
 #include <libdf3d/resources/ResourceFactory.h>
 #include <libdf3d/3d/Light.h>
@@ -168,7 +169,7 @@ void RendererBackend::setPolygonDrawMode(RenderPass::PolygonMode pm)
 
 void RendererBackend::updateProgramUniformValues(GpuProgram *program, RenderPass *pass)
 {
-    // Update shader uniforms.
+    // Update shared uniforms.
     size_t uniCount = program->getSharedUniformsCount();
 
     for (size_t i = 0; i < uniCount; i++)
@@ -180,30 +181,28 @@ void RendererBackend::updateProgramUniformValues(GpuProgram *program, RenderPass
 
     for (size_t i = 0; i < uniCount; i++)
         passParams[i].updateTo(program);
-}
 
-void RendererBackend::updateTextureSamplers()
-{
-    // Bind textures to samplers.
-    auto &samplers = m_programState->m_currentPass->getSamplers();
-    size_t textureUnit = 0;
-    for (size_t i = 0; i < samplers.size(); i++)
+    // Update samplers.
+    auto &samplers = pass->getSamplers();
+    int textureUnit = 0;
+    for (int i = 0; i < samplers.size(); i++)
     {
         shared_ptr<Texture> texture = samplers[i].texture;
         if (!texture)
             texture = m_whiteTexture;
 
-        auto bound = texture->bind(textureUnit);
+        glActiveTexture(GL_TEXTURE0 + textureUnit);
+
+        auto bound = texture->bind();
         if (!bound)
         {
             texture = m_whiteTexture;
-            texture->bind(textureUnit);
+            assert(texture->bind());
         }
 
-        // FIXME:
-        auto location = glGetUniformLocation(m_programState->m_currentShader->descriptor(), samplers[i].name.c_str());
-        if (location != -1)
-            glUniform1i(location, textureUnit++);
+        samplers[i].update(program, textureUnit);
+
+        textureUnit++;
     }
 }
 
@@ -260,11 +259,6 @@ void RendererBackend::loadResources()
 {
     createWhiteTexture();
     loadResidentGpuPrograms();
-}
-
-void RendererBackend::setRenderStatsLocation(RenderStats *renderStats)
-{
-    m_renderStats = renderStats;
 }
 
 void RendererBackend::beginFrame()
@@ -457,7 +451,13 @@ void RendererBackend::bindPass(RenderPass *pass)
     if (pass == m_programState->m_currentPass)
     {
         updateProgramUniformValues(m_programState->m_currentShader, m_programState->m_currentPass);
-        updateTextureSamplers();
+        return;
+    }
+
+    auto glprogram = pass->getGpuProgram();
+    if (!glprogram)
+    {
+        glog << "Failed to bind pass. No GPU program" << logwarn;
         return;
     }
 
@@ -472,11 +472,6 @@ void RendererBackend::bindPass(RenderPass *pass)
     setCullFace(pass->getFaceCullMode());
     setPolygonDrawMode(pass->getPolygonDrawMode());
 
-    auto glprogram = pass->getGpuProgram();
-    // Sanity check.
-    if (!glprogram)
-        return;
-
     // Bind GPU program.
     if (!m_programState->m_currentShader || m_programState->m_currentShader != glprogram.get())
     {
@@ -485,7 +480,6 @@ void RendererBackend::bindPass(RenderPass *pass)
     }
 
     updateProgramUniformValues(m_programState->m_currentShader, m_programState->m_currentPass);
-    updateTextureSamplers();
 
     printOpenGLError();
 }
@@ -505,32 +499,37 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
     {
     case RenderOperation::Type::LINES:
         if (indexed)
+        {
             glDrawElements(GL_LINES, ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
+            svc().getFrameStats().totalLines += ib->getIndicesUsed() / 2;
+        }
         else
+        {
             glDrawArrays(GL_LINES, 0, vb->getVerticesUsed());
+            svc().getFrameStats().totalLines += vb->getVerticesUsed() / 2;
+        }
         break;
     case RenderOperation::Type::TRIANGLES:
         if (indexed)
+        {
             glDrawElements(GL_TRIANGLES, ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
+            svc().getFrameStats().totalTriangles += ib->getIndicesUsed() / 3;
+        }
         else
+        {
             glDrawArrays(GL_TRIANGLES, 0, vb->getVerticesUsed());
+            svc().getFrameStats().totalTriangles += vb->getVerticesUsed() / 3;
+        }
         break;
     default:
         break;
     }
 
-    //vb->unbind();
-    //if (indexed)
-    //    ib->unbind();
+    vb->unbind();
+    if (indexed)
+       ib->unbind();
 
-    if (m_renderStats)
-    {
-        m_renderStats->drawCalls++;
-
-        // FIXME:
-        if (type != RenderOperation::Type::LINES)
-            m_renderStats->totalTriangles += indexed ? ib->getIndicesUsed() / 3 : vb->getVerticesUsed() / 3;
-    }
+    svc().getFrameStats().drawCalls++;
 
     printOpenGLError();
 }

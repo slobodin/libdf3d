@@ -44,12 +44,13 @@ void illuminate()                                           \n\
 \
     // Compute diffuse component.                           \n\
     // FIXME: L is inverted because only dir lights.        \n\
-    float lambertDiffuse = max(dot(N, -L), 0.0);            \n\
+    // Clamping just for sanity check (can't be more than 1.0) \n\
+    float lambertDiffuse = clamp(dot(N, -L), 0.0, 1.0);     \n\
     vec3 diffuse = material.diffuse.rgb * current_light.diffuse * lambertDiffuse;\n\
 \
     // Compute specular light. NOTE: Phong model.           \n\
     vec3 r = reflect( L, N );                               \n\
-    float phongSpecular = pow(max(dot(r, V), 0.0), material.shininess); \n\
+    float phongSpecular = pow(clamp(dot(r, V), 0.0, 1.0), material.shininess); \n\
     vec3 specular = material.specular.rgb * current_light.specular * phongSpecular; \n\
 \
     color.rgb += diffuse + specular;                        \n\

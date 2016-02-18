@@ -5,6 +5,10 @@
 #include <libdf3d/io/FileDataSource.h>
 #include <libdf3d/utils/JsonUtils.h>
 
+#ifdef _DEBUG
+#define STB_DO_ERROR_PRINT
+#endif
+
 #define STB_IMAGE_IMPLEMENTATION
 #ifndef STB_DO_ERROR_PRINT
 #define STBI_NO_FAILURE_STRINGS     // not thread-safe
