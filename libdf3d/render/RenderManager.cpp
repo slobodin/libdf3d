@@ -127,8 +127,6 @@ void RenderManager::doRenderWorld(World &world)
     m_renderer->clearColorBuffer();
     m_renderer->clearDepthBuffer();
 
-    svc().getFrameStats().totalLights += m_renderQueue->lights.size();
-
     m_renderer->setAmbientLight(world.getRenderingParams().getAmbientLight());
     m_renderer->enableFog(world.getRenderingParams().getFogDensity(), world.getRenderingParams().getFogColor());
 

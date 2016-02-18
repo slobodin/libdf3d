@@ -52,6 +52,13 @@ public:
 
         return m_queue.empty();
     }
+
+    void clear()
+    {
+        std::lock_guard<decltype(m_lock)> lock(m_lock);
+
+        m_queue.swap(std::queue<T>());
+    }
 };
 
 } } 

@@ -14,6 +14,7 @@ class Texture2D : public Texture
 
     size_t m_originalWidth = 0, m_originalHeight = 0;
     size_t m_actualWidth = 0, m_actualHeight = 0;
+    size_t m_sizeInBytes = 0;
 
     bool createGLTexture(const PixelBuffer &buffer);
     void deleteGLTexture();
@@ -31,6 +32,8 @@ public:
 
     bool bind() override;
     void unbind() override;
+
+    size_t getSizeInBytes() const override;
 };
 
 }

@@ -499,27 +499,15 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
     {
     case RenderOperation::Type::LINES:
         if (indexed)
-        {
             glDrawElements(GL_LINES, ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
-            svc().getFrameStats().totalLines += ib->getIndicesUsed() / 2;
-        }
         else
-        {
             glDrawArrays(GL_LINES, 0, vb->getVerticesUsed());
-            svc().getFrameStats().totalLines += vb->getVerticesUsed() / 2;
-        }
         break;
     case RenderOperation::Type::TRIANGLES:
         if (indexed)
-        {
             glDrawElements(GL_TRIANGLES, ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
-            svc().getFrameStats().totalTriangles += ib->getIndicesUsed() / 3;
-        }
         else
-        {
             glDrawArrays(GL_TRIANGLES, 0, vb->getVerticesUsed());
-            svc().getFrameStats().totalTriangles += vb->getVerticesUsed() / 3;
-        }
         break;
     default:
         break;
@@ -529,7 +517,7 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
     if (indexed)
        ib->unbind();
 
-    svc().getFrameStats().drawCalls++;
+    svc().getFrameStats().addRenderOperation(vb, ib, type);
 
     printOpenGLError();
 }

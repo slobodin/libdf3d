@@ -10,6 +10,8 @@ class TextureCube : public Texture
 {
     friend class TextureCubeFSLoader;
 
+    size_t m_sizeInBytes = 0;
+
     bool createGLTexture(unique_ptr<PixelBuffer> images[(size_t)CubeFace::COUNT]);
     void deleteGLTexture();
 
@@ -20,6 +22,8 @@ public:
 
     bool bind() override;
     void unbind() override;
+
+    size_t getSizeInBytes() const override;
 };
 
 }

@@ -1,6 +1,7 @@
 #include "Texture2D.h"
 
 #include <libdf3d/base/EngineController.h>
+#include <libdf3d/base/FrameStats.h>
 #include <libdf3d/render/RenderManager.h>
 #include "RendererBackend.h"
 
@@ -82,9 +83,13 @@ bool Texture2D::createGLTexture(const PixelBuffer &buffer)
         }
     }
 
+    m_sizeInBytes = buffer.getSizeInBytes();        // TODO: mipmaps!
+
     glBindTexture(GL_TEXTURE_2D, 0);
 
     printOpenGLError();
+
+    svc().getFrameStats().addTexture(*this);
 
     return true;
 }
@@ -97,6 +102,8 @@ void Texture2D::deleteGLTexture()
         glDeleteTextures(1, &m_glid);
 
         m_glid = 0;
+
+        svc().getFrameStats().removeTexture(*this);
     }
 }
 
@@ -152,6 +159,11 @@ bool Texture2D::bind()
 void Texture2D::unbind()
 {
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+size_t Texture2D::getSizeInBytes() const
+{
+    return m_sizeInBytes;
 }
 
 }
