@@ -46,4 +46,9 @@ SPK::Ref<SPK::Renderer> ParticleSystemUtils::createQuadRenderer(const glm::vec2 
     return quadRenderer;
 }
 
+void ParticleSystemUtils::enableFaceCulling(SPK::Ref<SPK::Renderer> renderer, bool enable)
+{
+    (dynamic_cast<particlesys_impl::ParticleSystemRenderer*>(renderer.get()))->enableFaceCulling(enable);
+}
+
 }
