@@ -81,6 +81,6 @@ shared_ptr<VertexBuffer> createQuad(const VertexFormat &vf, float x, float y, fl
 
 // FIXME: keeping this ugly names as reminder to refactor this shit!
 // XXX: Valid only for vertex format Vertex_3p2tx4c!!!
-shared_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, float w, float h, GpuBufferUsageType usage);
+unique_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, float w, float h, GpuBufferUsageType usage);
 
 }

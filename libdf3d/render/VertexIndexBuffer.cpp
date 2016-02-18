@@ -163,7 +163,7 @@ shared_ptr<VertexBuffer> createQuad(const VertexFormat &vf, float x, float y, fl
     return result;
 }
 
-shared_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, float w, float h, GpuBufferUsageType usage)
+unique_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, float w, float h, GpuBufferUsageType usage)
 {
     // TODO_REFACTO remove this shit!!!
 
@@ -200,7 +200,7 @@ shared_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, f
         v.setColor({ 1.0f, 1.0f, 1.0f, 1.0f });
     }
 
-    auto result = make_shared<VertexBuffer>(vf);
+    auto result = make_unique<VertexBuffer>(vf);
     result->alloc(vertexData, usage);
 
     return result;

@@ -21,7 +21,6 @@ struct Sprite2DComponentProcessor::Impl
     {
         Entity holder;
 
-        shared_ptr<VertexBuffer> vertexData;
         RenderPass pass;
         RenderOperation2D op;
 
@@ -35,6 +34,13 @@ struct Sprite2DComponentProcessor::Impl
     };
 
     ComponentDataHolder<Data> data;
+    unique_ptr<VertexBuffer> vertexData;
+
+    Impl()
+    {
+        auto format = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
+        vertexData = createQuad2(format, 0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
+    }
 
     static void updateTransform(Data &compData)
     {
@@ -83,7 +89,7 @@ void Sprite2DComponentProcessor::draw(RenderQueue *ops)
 
         Impl::updateTransform(compData);
 
-        compData.op.vertexData = compData.vertexData.get();
+        compData.op.vertexData = m_pimpl->vertexData.get();
         compData.op.passProps = &compData.pass;
 
         ops->sprite2DOperations.push_back(compData.op);
@@ -249,9 +255,6 @@ void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
     data.pass.enableDepthWrite(false);
     data.pass.setBlendMode(RenderPass::BlendingMode::ALPHA);
     data.op.worldTransform = m_world->sceneGraph().getTransformation(e);
-
-    auto format = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
-    data.vertexData = createQuad2(format, 0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
 
     m_pimpl->data.add(e, data);
 
