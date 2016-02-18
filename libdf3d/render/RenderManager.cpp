@@ -8,6 +8,7 @@
 #include <libdf3d/3d/Camera.h>
 #include <libdf3d/game/World.h>
 #include <libdf3d/gui/GuiManager.h>
+#include <libdf3d/particlesys/ParticleSystemComponentProcessor.h>
 #include "RendererBackend.h"
 #include "VertexIndexBuffer.h"
 #include "RenderOperation.h"
@@ -180,6 +181,7 @@ void RenderManager::doRenderWorld(World &world)
         m_renderer->drawOperation(op);
 
     // VFX pass.
+    world.vfx().draw();
 
     // Transparent pass.
     for (const auto &op : m_renderQueue->transparentOperations)

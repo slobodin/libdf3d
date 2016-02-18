@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace utils { 
+namespace df3d { namespace utils {
 
 template<typename T>
 class ConcurrentQueue : public NonCopyable
@@ -39,7 +39,7 @@ public:
     T pop()
     {
         std::lock_guard<decltype(m_lock)> lock(m_lock);
-        
+
         T result = m_queue.front();
         m_queue.pop();
 
@@ -57,8 +57,8 @@ public:
     {
         std::lock_guard<decltype(m_lock)> lock(m_lock);
 
-        m_queue.swap(std::queue<T>());
+        m_queue = std::queue<T>();
     }
 };
 
-} } 
+} }

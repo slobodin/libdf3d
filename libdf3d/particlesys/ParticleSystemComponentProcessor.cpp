@@ -86,27 +86,7 @@ void ParticleSystemComponentProcessor::update()
 
 void ParticleSystemComponentProcessor::draw(RenderQueue *ops)
 {
-    for (const auto &compData : m_pimpl->data.rawData())
-    {
-        if (compData.paused)
-            continue;
 
-        glm::mat4 transf;
-        if (!compData.worldTransformed)
-            transf = compData.holderTransform;
-
-        auto spkSystem = compData.system;
-        // Prepare drawing of spark system.
-        for (size_t i = 0; i < spkSystem->getNbGroups(); i++)
-        {
-            auto renderer = static_cast<particlesys_impl::ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
-            renderer->m_currentRenderQueue = ops;
-            renderer->m_currentTransformation = &transf;
-            renderer->m_quadBuffers = &m_pimpl->m_quadBuffers;
-        }
-
-        spkSystem->renderParticles();
-    }
 }
 
 void ParticleSystemComponentProcessor::cleanStep(const std::list<Entity> &deleted)
@@ -218,6 +198,30 @@ void ParticleSystemComponentProcessor::remove(Entity e)
 bool ParticleSystemComponentProcessor::has(Entity e)
 {
     return m_pimpl->data.lookup(e).valid();
+}
+
+void ParticleSystemComponentProcessor::draw()
+{
+    for (const auto &compData : m_pimpl->data.rawData())
+    {
+        if (compData.paused)
+            continue;
+
+        glm::mat4 transf;
+        if (!compData.worldTransformed)
+            transf = compData.holderTransform;
+
+        auto spkSystem = compData.system;
+        // Prepare drawing of spark system.
+        for (size_t i = 0; i < spkSystem->getNbGroups(); i++)
+        {
+            auto renderer = static_cast<particlesys_impl::ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
+            renderer->m_currentTransformation = &transf;
+            renderer->m_quadBuffers = &m_pimpl->m_quadBuffers;
+        }
+
+        spkSystem->renderParticles();
+    }
 }
 
 }

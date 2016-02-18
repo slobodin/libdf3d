@@ -59,6 +59,9 @@ public:
     void add(Entity e, const ParticleSystemCreationParams &params);
     void remove(Entity e);
     bool has(Entity e);
+
+    // FIXME: using this method because of optimizations & spark behaviour.
+    void draw();
 };
 
 }

@@ -9,7 +9,8 @@
 #include <libdf3d/render/VertexIndexBuffer.h>
 #include <libdf3d/render/GpuProgram.h>
 #include <libdf3d/render/RenderOperation.h>
-#include <libdf3d/render/RenderQueue.h>
+#include <libdf3d/render/RenderManager.h>
+#include <libdf3d/render/RendererBackend.h>
 
 namespace df3d { namespace particlesys_impl {
 
@@ -117,7 +118,7 @@ void ParticleSystemBuffers_Quad::setNextTexCoords(float u, float v)
     vert.setTx({ u, v });
 }
 
-void ParticleSystemBuffers_Quad::addToRenderQueue(size_t nbOfParticles, RenderPass *passProps, const glm::mat4 &m, RenderQueue *rqueue)
+void ParticleSystemBuffers_Quad::draw(size_t nbOfParticles, RenderPass *passProps, const glm::mat4 &m)
 {
     assert(nbOfParticles <= m_particlesAllocated);
 
@@ -134,10 +135,7 @@ void ParticleSystemBuffers_Quad::addToRenderQueue(size_t nbOfParticles, RenderPa
     op.passProps = passProps;
     op.worldTransform = m;
 
-    if (op.passProps->isTransparent())
-        rqueue->transparentOperations.push_back(op);
-    else
-        rqueue->notLitOpaqueOperations.push_back(op);
+    svc().renderManager().getRenderer()->drawOperation(op);
 }
 
 ParticleSystemRenderer::ParticleSystemRenderer(bool NEEDS_DATASET)
@@ -335,7 +333,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
         }
     }
 
-    buffer.m_buffers->addToRenderQueue(group.getNbParticles(), m_pass.get(), *m_currentTransformation, m_currentRenderQueue);
+    buffer.m_buffers->draw(group.getNbParticles(), m_pass.get(), *m_currentTransformation);
 }
 
 void QuadParticleSystemRenderer::computeAABB(SPK::Vector3D &AABBMin, SPK::Vector3D &AABBMax, const SPK::Group &group, const SPK::DataSet *dataSet) const

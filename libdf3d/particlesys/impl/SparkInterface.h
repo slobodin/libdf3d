@@ -6,7 +6,7 @@
 #include <libdf3d/render/RenderCommon.h>
 #include <libdf3d/render/Vertex.h>
 
-namespace df3d { 
+namespace df3d {
 
 class RenderQueue;
 class Texture;
@@ -50,7 +50,7 @@ public:
     void setNextTexCoords(float u, float v);
     size_t getParticlesAllocated() const { return m_particlesAllocated; }
 
-    void addToRenderQueue(size_t nbOfParticles, RenderPass *passProps, const glm::mat4 &m, RenderQueue *rqueue);
+    void draw(size_t nbOfParticles, RenderPass *passProps, const glm::mat4 &m);
 };
 
 class ParticleSystemRenderer : public SPK::Renderer
@@ -62,7 +62,6 @@ public:
 
     // This is a workaround.
     // We need to pass RenderQueue in order to populate it when renderParticles called.
-    RenderQueue *m_currentRenderQueue;
     glm::mat4 *m_currentTransformation;
     ParticleSystemBuffers_Quad *m_quadBuffers;
 
