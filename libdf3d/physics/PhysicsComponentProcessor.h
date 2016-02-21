@@ -22,7 +22,7 @@ class DF3D_DLL PhysicsComponentProcessor : public EntityComponentProcessor
     unique_ptr<Impl> m_pimpl;
 
     void update() override;
-    void draw(RenderQueue *ops);
+    void draw(RenderQueue *ops) override;
     void cleanStep(const std::list<Entity> &deleted) override;
 
 public:

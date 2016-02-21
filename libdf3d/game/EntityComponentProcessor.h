@@ -4,6 +4,8 @@
 
 namespace df3d {
 
+class RenderQueue;
+
 class DF3D_DLL EntityComponentProcessor : utils::NonCopyable
 {
 public:
@@ -12,7 +14,7 @@ public:
 
     virtual void update() = 0;
     virtual void cleanStep(const std::list<Entity> &deleted) = 0;
+    virtual void draw(RenderQueue *ops) { }
 };
 
 }
-

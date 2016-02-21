@@ -84,11 +84,6 @@ void ParticleSystemComponentProcessor::update()
     }
 }
 
-void ParticleSystemComponentProcessor::draw(RenderQueue *ops)
-{
-
-}
-
 void ParticleSystemComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 {
     m_pimpl->data.cleanStep(deleted);

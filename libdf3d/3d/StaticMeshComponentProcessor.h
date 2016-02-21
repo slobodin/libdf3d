@@ -22,7 +22,7 @@ class DF3D_DLL StaticMeshComponentProcessor : public EntityComponentProcessor
     World *m_world;
 
     void update() override;
-    void draw(RenderQueue *ops);
+    void draw(RenderQueue *ops) override;
     void cleanStep(const std::list<Entity> &deleted) override;
 
 public:
