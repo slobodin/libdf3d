@@ -192,17 +192,23 @@ const std::string& SceneGraphComponentProcessor::getName(Entity e) const
 
 Entity SceneGraphComponentProcessor::getByName(const std::string &name) const
 {
+    if (name.empty())
+        return {};
+
     for (const auto &compData : m_pimpl->data.rawData())
     {
         if (!compData.parent.valid() && compData.name == name)
             return compData.holder;
     }
 
-    return Entity();
+    return {};
 }
 
 Entity SceneGraphComponentProcessor::getByName(Entity parent, const std::string &name) const
 {
+    if (name.empty())
+        return {};
+
     assert(parent.valid());
 
     for (const auto &compData : m_pimpl->data.rawData())
@@ -211,7 +217,7 @@ Entity SceneGraphComponentProcessor::getByName(Entity parent, const std::string 
             return compData.holder;
     }
 
-    return Entity();
+    return {};
 }
 
 glm::vec3 SceneGraphComponentProcessor::getWorldPosition(Entity e) const
