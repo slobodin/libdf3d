@@ -41,6 +41,8 @@
 #include <libdf3d/render/Viewport.h>
 #include <libdf3d/render/Vertex.h>
 #include <libdf3d/render/MeshData.h>
+#include <libdf3d/render/VertexIndexBuffer.h>
+#include <libdf3d/render/RenderQueue.h>
 
 #include <libdf3d/input/InputEvents.h>
 #include <libdf3d/input/InputManager.h>

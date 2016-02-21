@@ -27,9 +27,12 @@ void World::update()
         for (auto &userProcessor : m_userProcessors)
             userProcessor.second->update();
 
-        // Update engine processors.
-        for (auto engineProcessor : m_engineProcessors)
-            engineProcessor->update();
+        m_sceneGraph->update();
+        m_vfx->update();
+        m_staticMeshes->update();
+        m_sprite2D->update();
+        m_audio->update();
+        m_tags->update();
     }
 
     cleanStep();
