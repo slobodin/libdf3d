@@ -72,7 +72,7 @@ void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
     {
         m_pass = make_shared<RenderPass>(RenderPass::createDebugDrawPass());
         m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 0.7f);
-        m_pass->setSampler("diffuseMap", nullptr);          // FIXME: force to use default white texture because using colored shader.
+        m_pass->setSampler("diffuseMap", std::shared_ptr<Texture>());          // FIXME: force to use default white texture because using colored shader.
     }
 
     m_vertexBuffer = make_shared<VertexBuffer>(m_vertexData.getFormat());

@@ -39,6 +39,8 @@ public:
     void setVerticesUsed(size_t used) { m_verticesUsed = used; }
     size_t getVerticesUsed() const { return m_verticesUsed; }
 
+    const VertexFormat& getVertexFormat() const { return m_format; }
+
     // TODO:
     // Buffer lock/unlock via glMapBuffer
 };
