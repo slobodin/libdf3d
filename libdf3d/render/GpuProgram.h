@@ -35,8 +35,6 @@ public:
 
     GpuProgramUniform* getCustomUniform(const std::string &name);
     GpuProgramUniform* getSamplerUniform(const std::string &name);
-
-    unsigned int descriptor() const { return m_programDescriptor; }
 };
 
 class GpuProgramManualLoader : public ManualResourceLoader

@@ -197,7 +197,7 @@ void RendererBackend::updateProgramUniformValues(GpuProgram *program, RenderPass
         if (!bound)
         {
             texture = m_whiteTexture;
-            assert(texture->bind());
+            texture->bind();
         }
 
         samplers[i].update(program, textureUnit);
@@ -450,11 +450,15 @@ void RendererBackend::bindPass(RenderPass *pass)
     if (!pass)
         return;
 
+    // TODO: check state changes on CPU side.
+    // This may work incorrect when binding the same pass, but with params changed!
+    /*
     if (pass == m_programState->m_currentPass)
     {
         updateProgramUniformValues(m_programState->m_currentShader, m_programState->m_currentPass);
         return;
     }
+    */
 
     auto glprogram = pass->getGpuProgram();
     if (!glprogram)

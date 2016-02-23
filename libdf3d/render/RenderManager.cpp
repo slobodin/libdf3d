@@ -100,9 +100,6 @@ void RenderManager::loadEmbedResources()
 
 void RenderManager::onFrameBegin()
 {
-    // TODO_ecs: what if render queue becomes big???
-    m_renderQueue->clear();
-
     m_renderer->beginFrame();
 }
 
@@ -113,6 +110,11 @@ void RenderManager::onFrameEnd()
 
 void RenderManager::doRenderWorld(World &world)
 {
+    // TODO_ecs: what if render queue becomes big???
+    m_renderQueue->clear();
+
+    world.collectRenderOperations(m_renderQueue.get());
+
     auto postProcessingEnabled = world.getRenderingParams().getPostProcessMaterial() != nullptr;
 
     RenderTarget *rt = nullptr;
@@ -236,7 +238,6 @@ void RenderManager::drawWorld(World &world)
 {
     onFrameBegin();
 
-    world.collectRenderOperations(m_renderQueue.get());
     doRenderWorld(world);
 
     onFrameEnd();
