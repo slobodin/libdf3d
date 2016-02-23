@@ -493,7 +493,8 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
 
     bool indexed = ib != nullptr;
 
-    if (m_prevVB != vb)
+    // FIXME: figure out why crashes on NVIDIA
+    //if (m_prevVB != vb)
     {
         vb->bind();
         m_prevVB = vb;
