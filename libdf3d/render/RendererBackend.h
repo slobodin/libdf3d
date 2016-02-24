@@ -42,6 +42,8 @@ class RendererBackend
 
     bool m_initialized = false;
 
+    void printGpuInfo();
+
 public:
     RendererBackend();
     ~RendererBackend();

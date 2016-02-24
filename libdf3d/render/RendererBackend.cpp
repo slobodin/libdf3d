@@ -206,6 +206,21 @@ void RendererBackend::updateProgramUniformValues(GpuProgram *program, RenderPass
     }
 }
 
+void RendererBackend::printGpuInfo()
+{
+    const char *ver = (const char *)glGetString(GL_VERSION);
+    glog << "OpenGL version" << ver << logmess;
+
+    const char *card = (const char *)glGetString(GL_RENDERER);
+    const char *vendor = (const char *)glGetString(GL_VENDOR);
+    glog << "Using" << card << vendor << logmess;
+
+    const char *shaderVer = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
+    glog << "Shaders version" << shaderVer << logmess;
+
+    glog << "Max texture size" << getMaxTextureSize() << logmess;
+}
+
 RendererBackend::RendererBackend()
     : m_programState(new GpuProgramState())
 {
@@ -225,16 +240,6 @@ RendererBackend::RendererBackend()
         throw std::runtime_error("GL 2.1 unsupported");
 #endif
 
-    const char *ver = (const char *)glGetString(GL_VERSION);
-    glog << "OpenGL version" << ver << logmess;
-
-    const char *card = (const char *)glGetString(GL_RENDERER);
-    const char *vendor = (const char *)glGetString(GL_VENDOR);
-    glog << "Using" << card << vendor << logmess;
-
-    const char *shaderVer = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
-    glog << "Shaders version" << shaderVer << logmess;
-
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
@@ -249,6 +254,8 @@ RendererBackend::RendererBackend()
     printOpenGLError();
 
     m_initialized = true;
+
+    printGpuInfo();
 }
 
 RendererBackend::~RendererBackend()
