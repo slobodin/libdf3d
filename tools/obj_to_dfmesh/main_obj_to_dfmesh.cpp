@@ -56,7 +56,7 @@ df3d::resource_loaders_impl::DFMeshMaterialHeader CreateMaterialDataChunk(const 
     return materialChunk;
 }
 
-void ProcessMesh(const df3d::MeshDataFSLoader::Mesh &meshInput, df3d::FileSystem *fs)
+void ProcessMesh(const df3d::MeshDataFSLoader::Mesh &meshInput, df3d::FileSystem *fs, const std::string &outputFilename)
 {
     using namespace df3d::resource_loaders_impl;
 
@@ -86,7 +86,7 @@ void ProcessMesh(const df3d::MeshDataFSLoader::Mesh &meshInput, df3d::FileSystem
 
     DFMeshMaterialHeader mtlLibHeader = CreateMaterialDataChunk(materialData);
 
-    std::ofstream output("c:/dev/ships/data/test.dfmesh", std::ios::out | std::ios::binary);
+    std::ofstream output(outputFilename, std::ios::out | std::ios::binary);
     if (!output)
         throw std::runtime_error("failed to open output file");
 
@@ -131,13 +131,12 @@ int main(int argc, const char **argv) try
 {
     std::cout << "obj_to_dfmesh starting" << std::endl;
 
-    //if (argc != 2)
-        //throw std::runtime_error("Invalid input. Usage: obj_to_dfmesh.exe mesh.obj");
+    if (argc != 2)
+        throw std::runtime_error("Invalid input. Usage: obj_to_dfmesh.exe mesh.obj");
 
     df3d::FileSystem fs;
 
-    //std::string inputFileName = argv[1];
-    std::string inputFileName = "c:/dev/ships/data/objects/cube_textured.obj";
+    std::string inputFileName = argv[1];
 
     auto file = fs.openFile(inputFileName);
     if (!file)
@@ -151,7 +150,10 @@ int main(int argc, const char **argv) try
 
     std::cout << "obj successfully decoded" << std::endl;
 
-    ProcessMesh(*meshInput, &fs);
+    auto dotPos = inputFileName.find_last_of('.');
+    std::string outputFilename(inputFileName.begin(), inputFileName.begin() + dotPos);
+
+    ProcessMesh(*meshInput, &fs, outputFilename + ".dfmesh");
 
     std::cout << "Done!" << std::endl;
 
