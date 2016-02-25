@@ -19,6 +19,7 @@ public:
 
 class MeshDataFSLoader : public FSResourceLoader
 {
+public:
     friend class resource_loaders_impl::MeshLoader_obj;
     friend class resource_loaders_impl::MeshLoader_dfmesh;
 
@@ -27,12 +28,14 @@ class MeshDataFSLoader : public FSResourceLoader
         std::vector<SubMesh> submeshes;
         std::vector<unique_ptr<std::string>> materialNames;
         std::string materialLibName;
+        std::string materialLibData;
         AABB aabb;
         BoundingSphere sphere;
         OBB obb;
         ConvexHull convexHull;
     };
 
+private:
     std::string m_path;
     unique_ptr<Mesh> m_mesh;
 

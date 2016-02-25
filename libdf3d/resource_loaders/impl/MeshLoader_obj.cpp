@@ -162,6 +162,12 @@ void MeshLoader_obj::processLine_s(std::istream &is)
     utils::skip_line(is);
 }
 
+MeshLoader_obj::MeshLoader_obj(FileSystem *fsInstance)
+    : m_fsInstance(fsInstance)
+{
+
+}
+
 unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSource> source)
 {
     m_meshDataFileName = source->getPath();
@@ -206,7 +212,8 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSourc
             std::string fileName;
             input >> fileName;
 
-            m_materialLibPath = svc().fileSystem().fullPath(FileSystem::pathConcatenate(dir, fileName));
+            // FIXME: can DO NOT use this m_fsInstance.
+            m_materialLibPath = m_fsInstance->fullPath(FileSystem::pathConcatenate(dir, fileName));
         }
     }
 

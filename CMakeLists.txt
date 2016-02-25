@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.1)
 
 project(libdf3d)
 
+set(DF3D_ROOT ${PROJECT_SOURCE_DIR})
+
 include(${PROJECT_SOURCE_DIR}/cmake/libdf3d.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/cotire.cmake)
 
@@ -47,6 +49,9 @@ endif()
 if (NOT ANDROID AND NOT IOS)
     option(DF3D_BUILD_SHARED_LIB "Build shared df3d library" ON)
 endif()
+
+# TODO: if build tools
+add_subdirectory(${PROJECT_SOURCE_DIR}/tools/obj_to_dfmesh)
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
