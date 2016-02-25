@@ -53,6 +53,11 @@ endif()
 # TODO: if build tools
 add_subdirectory(${PROJECT_SOURCE_DIR}/tools/obj_to_dfmesh)
 
+if (DF3D_DESKTOP)
+    set(DF3D_USE_ROCKET_DEBUGGER TRUE)
+    add_definitions(-DENABLE_ROCKET_DEBUGGER)
+endif()
+
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.h
@@ -367,7 +372,6 @@ target_link_libraries(libdf3d
     vorbis
     RocketCore
     RocketControls
-    RocketDebugger
     squirrel)
 
 if (DF3D_DESKTOP)
@@ -382,6 +386,10 @@ endif()
 
 if (ANDROID)
     target_link_libraries(libdf3d OpenSLES ${DF3D_OPENAL_LIBNAME} GLESv2 log android)
+endif()
+
+if (DF3D_USE_ROCKET_DEBUGGER)
+    target_link_libraries(libdf3d RocketDebugger)
 endif()
 
 set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "$(PROJECT_SOURCE_DIR)/libdf3d/df3d_pch.h")

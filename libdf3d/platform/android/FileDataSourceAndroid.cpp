@@ -88,6 +88,8 @@ void FileDataSourceAndroid::setAssetManager(AAssetManager *mgr)
         glog << "Setting up NULL AAssetManager" << logwarn;
 
     m_assetMgr = mgr;
+
+    glog << "AAssetManager was set up" << logmess;
 }
 
 } }

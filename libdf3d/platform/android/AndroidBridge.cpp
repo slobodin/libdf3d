@@ -57,7 +57,11 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 
     df3dInitialized();
 
-    assert(g_appState->appDelegate && "Game code must set up application delegate");
+    if (!g_appState->appDelegate)
+    {
+        df3d::glog << "Game code must set up application delegate in df3dInitialized" << df3d::logcritical;
+        return -1;
+    }
 
     return JNI_VERSION_1_6;
 }

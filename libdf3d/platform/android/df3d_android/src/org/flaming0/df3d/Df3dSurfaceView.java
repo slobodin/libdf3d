@@ -64,7 +64,7 @@ public class Df3dSurfaceView extends GLSurfaceView {
 			yCoords[i] = event.getY(i);
 		}
 
-		switch (event.getAction() & MotionEvent.ACTION_MASK) {
+		switch (event.getActionMasked()) {
 			case MotionEvent.ACTION_DOWN:
 				queueEvent(new Runnable() {
 					@Override

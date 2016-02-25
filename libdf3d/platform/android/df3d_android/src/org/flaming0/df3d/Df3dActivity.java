@@ -14,7 +14,6 @@ public class Df3dActivity extends Activity {
         System.loadLibrary("openal");
         System.loadLibrary("RocketCore");
         System.loadLibrary("RocketControls");
-        System.loadLibrary("RocketDebugger");
 
         // TODO: load client library from meta-data.
         System.loadLibrary("ships3d");
@@ -26,8 +25,7 @@ public class Df3dActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        m_assetManager = getAssets();
-        NativeBindings.setAssetManager(m_assetManager);
+        NativeBindings.setAssetManager(m_assetManager = getAssets());
 
         setContentView(m_glSurfaceView = new Df3dSurfaceView(this));
     }
