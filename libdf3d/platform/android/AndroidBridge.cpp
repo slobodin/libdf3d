@@ -143,8 +143,9 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchD
 
     if (g_appState->primaryTouchId == -1)
     {
-        df3d::svc().inputManager().setMousePosition(x, y);
-        df3d::svc().inputManager().onMouseButtonPressed(df3d::MouseButton::LEFT);
+        //df3d::glog << "Touch DOWN" << x << y << pointerId << df3d::logcritical;
+
+        df3d::svc().inputManager().onMouseButtonPressed(df3d::MouseButton::LEFT, x, y);
 
         g_appState->primaryTouchId = pointerId;
     }
@@ -173,8 +174,9 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchU
 
     if (pointerId == g_appState->primaryTouchId)
     {
-        df3d::svc().inputManager().setMousePosition(x, y);
-        df3d::svc().inputManager().onMouseButtonReleased(df3d::MouseButton::LEFT);
+        //df3d::glog << "Touch UP" << x << y << pointerId << df3d::logcritical;
+
+        df3d::svc().inputManager().onMouseButtonReleased(df3d::MouseButton::LEFT, x, y);
 
         g_appState->primaryTouchId = -1;
     }
@@ -205,7 +207,11 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchM
     */
 
     if (pointerId == g_appState->primaryTouchId)
+    {
+        //df3d::glog << "Touch MOVE" << x << y << pointerId << df3d::logcritical;
+
         df3d::svc().inputManager().setMousePosition(x, y);
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchCancel(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
@@ -231,8 +237,9 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchC
 
     if (pointerId == g_appState->primaryTouchId)
     {
-        df3d::svc().inputManager().setMousePosition(x, y);
-        df3d::svc().inputManager().onMouseButtonReleased(df3d::MouseButton::LEFT);
+        //df3d::glog << "Touch CANCEL" << x << y << pointerId << df3d::logcritical;
+
+        df3d::svc().inputManager().onMouseButtonReleased(df3d::MouseButton::LEFT, x, y);
 
         g_appState->primaryTouchId = -1;
     }
