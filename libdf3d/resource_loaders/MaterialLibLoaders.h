@@ -5,6 +5,16 @@
 
 namespace df3d {
 
+class MaterialLibManualLoader : public ManualResourceLoader
+{
+    std::string m_materialData;
+
+public:
+    MaterialLibManualLoader(std::string &&materialData);
+
+    MaterialLib* load() override;
+};
+
 class MaterialLibFSLoader : public FSResourceLoader
 {
     std::string m_path;

@@ -47,6 +47,7 @@ public:
 
     // FIXME: Do not like these getters.
     const IndexArray& getIndices() const { return m_indexData; }
+    IndexArray& getIndices() { return m_indexData; }
     const VertexData& getVertexData() const { return m_vertexData; }
     VertexData& getVertexData() { return m_vertexData; }
 

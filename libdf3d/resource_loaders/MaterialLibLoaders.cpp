@@ -525,6 +525,28 @@ public:
     }
 };
 
+MaterialLibManualLoader::MaterialLibManualLoader(std::string &&materialData)
+    : m_materialData(materialData)
+{
+
+}
+
+MaterialLib* MaterialLibManualLoader::load()
+{
+    std::istringstream input(std::move(m_materialData));
+
+    std::vector<shared_ptr<Material>> materials;
+
+    if (!MaterialLibParser("manual_loaded_material").parse(input, materials))
+        return nullptr;
+
+    auto result = new MaterialLib();
+    for (const auto &material : materials)
+        result->appendMaterial(material);
+
+    return result;
+}
+
 MaterialLibFSLoader::MaterialLibFSLoader(const std::string &path)
     : FSResourceLoader(ResourceLoadingMode::IMMEDIATE),
     m_path(path)

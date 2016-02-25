@@ -86,6 +86,8 @@ class DF3D_DLL VertexData
 public:
     VertexData(const VertexFormat &format);
 
+    void setWithRawData(std::vector<float> &&data);
+
     //! Allocates memory for given number of vertices.
     void allocVertices(size_t verticesCount);
     //! Allocates memory for a new vertex and returns vertex proxy.
@@ -98,6 +100,8 @@ public:
     size_t getVerticesCount() const { return m_verticesCount; }
     //! Returns raw vertex data.
     const float* getRawData() const { return m_data.data(); }
+    //! Returns vertex data size in bytes.
+    size_t getSizeInBytes() const { return m_data.size() * sizeof(float); }
     //! Clears the buffer.
     void clear();
 };
