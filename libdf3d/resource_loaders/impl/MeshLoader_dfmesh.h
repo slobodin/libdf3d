@@ -9,6 +9,7 @@ class FileSystem;
 namespace resource_loaders_impl {
 
 const int DFMESH_MAX_MATERIAL_ID = 128;
+const int DFMESH_MAX_MATERIAL_LIB_ID = 128;
 const char DFMESH_MAGIC[4] = { 'D', 'F', 'M', 'E' };
 const uint16_t DFMESH_VERSION = 1;
 
@@ -42,10 +43,8 @@ struct DFMeshHeader
     uint16_t submeshesCount;
     //! Offset to submeshes data relative to the start.
     uint32_t submeshesOffset;
-    //! Offset to the material data relative to the start.
-    uint32_t materialLibOffset;
-    //! Offset to bounding volumes data relative to the start.
-    uint32_t boundingVolumesOffset;
+    //! Material lib path.
+    char materialLib[DFMESH_MAX_MATERIAL_LIB_ID];
 };
 
 struct DFMeshSubmeshHeader
@@ -60,14 +59,6 @@ struct DFMeshSubmeshHeader
     // Index data then.
 };
 
-struct DFMeshMaterialHeader
-{
-    uint32_t chunkSize;
-    uint32_t materialDataSizeInBytes;
-
-    // Material data goes here.
-};
-
 #pragma pack(pop)
 
 //! DFMesh file format decoder.
@@ -76,12 +67,10 @@ struct DFMeshMaterialHeader
  */
 class MeshLoader_dfmesh
 {
-    FileSystem *m_fsInstance;
-
     unique_ptr<SubMesh> createSubmesh();
 
 public:
-    MeshLoader_dfmesh(FileSystem *fs);
+    MeshLoader_dfmesh();
 
     unique_ptr<MeshDataFSLoader::Mesh> load(shared_ptr<FileDataSource> source);
 };

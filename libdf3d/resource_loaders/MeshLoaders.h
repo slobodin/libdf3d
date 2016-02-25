@@ -28,7 +28,6 @@ public:
         std::vector<SubMesh> submeshes;
         std::vector<unique_ptr<std::string>> materialNames;
         std::string materialLibName;
-        std::string materialLibData;
         AABB aabb;
         BoundingSphere sphere;
         OBB obb;

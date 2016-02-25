@@ -162,8 +162,7 @@ void MeshLoader_obj::processLine_s(std::istream &is)
     utils::skip_line(is);
 }
 
-MeshLoader_obj::MeshLoader_obj(FileSystem *fsInstance)
-    : m_fsInstance(fsInstance)
+MeshLoader_obj::MeshLoader_obj()
 {
 
 }
@@ -207,14 +206,7 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSourc
         else if (tok == "s")
             processLine_s(input);
         else if (tok == "mtllib")
-        {
-            auto dir = FileSystem::getFileDirectory(source->getPath());
-            std::string fileName;
-            input >> fileName;
-
-            // FIXME: can DO NOT use this m_fsInstance.
-            m_materialLibPath = m_fsInstance->fullPath(FileSystem::pathConcatenate(dir, fileName));
-        }
+            input >> m_materialLibPath;
     }
 
     bool computeNormals = m_normals.size() > 0 ? false : true;

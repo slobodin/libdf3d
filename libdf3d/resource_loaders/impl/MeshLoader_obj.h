@@ -39,10 +39,8 @@ class DF3D_DLL MeshLoader_obj : df3d::utils::NonCopyable
     std::string m_materialLibPath;
     std::string m_meshDataFileName;
 
-    FileSystem *m_fsInstance;
-
 public:
-    MeshLoader_obj(FileSystem *fsInstance); // TODO: use for all loaders.
+    MeshLoader_obj();
 
     unique_ptr<MeshDataFSLoader::Mesh> load(shared_ptr<FileDataSource> source);
 };

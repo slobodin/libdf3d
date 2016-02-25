@@ -49,9 +49,9 @@ bool MeshDataFSLoader::decode(shared_ptr<FileDataSource> source)
     auto extension = svc().fileSystem().getFileExtension(source->getPath());
 
     if (extension == ".obj")
-        m_mesh = resource_loaders_impl::MeshLoader_obj(&svc().fileSystem()).load(source);
+        m_mesh = resource_loaders_impl::MeshLoader_obj().load(source);
     else if (extension == ".dfmesh")
-        m_mesh = resource_loaders_impl::MeshLoader_dfmesh(&svc().fileSystem()).load(source);
+        m_mesh = resource_loaders_impl::MeshLoader_dfmesh().load(source);
 
     return m_mesh != nullptr;
 }
@@ -68,14 +68,11 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
     meshdata->m_convexHull = m_mesh->convexHull;
 
     // Load all the materials.
-    shared_ptr<MaterialLib> mtlLib;
-    // Material data was embed to the mesh.
-    if (!m_mesh->materialLibData.empty())
-        mtlLib = svc().resourceManager().getFactory().createMaterialLibFromSource(std::move(m_mesh->materialLibData));
-    else
-        mtlLib = svc().resourceManager().getFactory().createMaterialLib(m_mesh->materialLibName);
+    auto mtlLibPath = m_mesh->materialLibName;
+    mtlLibPath = FileSystem::pathConcatenate(FileSystem::getFileDirectory(m_path), mtlLibPath);
 
-    if (mtlLib)     // Leaving null material in submesh, do not set default as it will be set later. mb it's wrong design?
+    // Leaving null material in submesh, do not set default as it will be set later. mb it's wrong design?
+    if (auto mtlLib = svc().resourceManager().getFactory().createMaterialLib(mtlLibPath))
     {
         assert(m_mesh->submeshes.size() == m_mesh->materialNames.size());
 

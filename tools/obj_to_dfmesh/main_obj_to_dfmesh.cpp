@@ -45,18 +45,7 @@ df3d::resource_loaders_impl::DFMeshSubmeshHeader CreateSubmeshChunk(const df3d::
     return submeshChunk;
 }
 
-df3d::resource_loaders_impl::DFMeshMaterialHeader CreateMaterialDataChunk(const std::string &materialData)
-{
-    using namespace df3d::resource_loaders_impl;
-
-    DFMeshMaterialHeader materialChunk;
-    materialChunk.chunkSize = sizeof(DFMeshMaterialHeader) + materialData.size();
-    materialChunk.materialDataSizeInBytes = materialData.size();
-
-    return materialChunk;
-}
-
-void ProcessMesh(const df3d::MeshDataFSLoader::Mesh &meshInput, df3d::FileSystem *fs, const std::string &outputFilename)
+void ProcessMesh(const df3d::MeshDataFSLoader::Mesh &meshInput, const std::string &outputFilename)
 {
     using namespace df3d::resource_loaders_impl;
 
@@ -76,22 +65,15 @@ void ProcessMesh(const df3d::MeshDataFSLoader::Mesh &meshInput, df3d::FileSystem
         submeshChunksSize += submeshHeaders[i].chunkSize;
     }
 
-    auto mtlLib = fs->openFile(meshInput.materialLibName);
-    if (!mtlLib)
-        throw std::runtime_error("failed to open material lib file");
-
-    std::string materialData;
-    materialData.resize(mtlLib->getSize());
-    mtlLib->getRaw(&materialData[0], mtlLib->getSize());
-
-    DFMeshMaterialHeader mtlLibHeader = CreateMaterialDataChunk(materialData);
-
     std::ofstream output(outputFilename, std::ios::out | std::ios::binary);
     if (!output)
         throw std::runtime_error("failed to open output file");
 
     if (meshInput.submeshes.size() > 0xFFFF)
         throw std::runtime_error("too many submeshes");
+
+    if (meshInput.materialLibName.size() >= DFMESH_MAX_MATERIAL_LIB_ID)
+        throw std::runtime_error("material lib name is too big");
 
     DFMeshHeader header;
     memset(&header, 0, sizeof(header));
@@ -103,8 +85,8 @@ void ProcessMesh(const df3d::MeshDataFSLoader::Mesh &meshInput, df3d::FileSystem
     header.indexSize = sizeof(df3d::INDICES_TYPE);
     header.submeshesCount = (uint16_t)meshInput.submeshes.size();
     header.submeshesOffset = sizeof(header);
-    header.materialLibOffset = sizeof(header) + submeshChunksSize;
-    header.boundingVolumesOffset = header.materialLibOffset + mtlLibHeader.chunkSize;
+
+    memcpy(header.materialLib, meshInput.materialLibName.data(), meshInput.materialLibName.size());
 
     // Write the header.
     Serialize(header, output);
@@ -116,10 +98,6 @@ void ProcessMesh(const df3d::MeshDataFSLoader::Mesh &meshInput, df3d::FileSystem
         Serialize(meshInput.submeshes[i].getVertexData().getRawData(), submeshHeaders[i].vertexDataSizeInBytes, output);
         Serialize(meshInput.submeshes[i].getIndices().data(), submeshHeaders[i].indexDataSizeInBytes, output);
     }
-
-    // Write material data.
-    Serialize(mtlLibHeader, output);
-    Serialize(materialData.data(), materialData.size(), output);
 
     if (output.fail() || output.bad())
         throw std::runtime_error("failed to write to an output");
@@ -144,7 +122,7 @@ int main(int argc, const char **argv) try
 
     std::cout << "decoding obj file..." << std::endl;
 
-    auto meshInput = df3d::resource_loaders_impl::MeshLoader_obj(&fs).load(file);
+    auto meshInput = df3d::resource_loaders_impl::MeshLoader_obj().load(file);
     if (!meshInput)
         throw std::runtime_error("Failed to load input obj mesh");
 
@@ -153,7 +131,7 @@ int main(int argc, const char **argv) try
     auto dotPos = inputFileName.find_last_of('.');
     std::string outputFilename(inputFileName.begin(), inputFileName.begin() + dotPos);
 
-    ProcessMesh(*meshInput, &fs, outputFilename + ".dfmesh");
+    ProcessMesh(*meshInput, outputFilename + ".dfmesh");
 
     std::cout << "Done!" << std::endl;
 

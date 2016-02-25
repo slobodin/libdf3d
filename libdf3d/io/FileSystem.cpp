@@ -163,7 +163,7 @@ std::string FileSystem::getFilename(const std::string &filePath)
 {
     auto lastSlashPos = std::find_if(filePath.rbegin(), filePath.rend(), [](char ch) { return ch == '/' || ch == '\\'; });
     if (lastSlashPos == filePath.rend())
-        return "";
+        return filePath;
 
     return std::string(lastSlashPos.base(), filePath.end());
 }

@@ -16,8 +16,7 @@ unique_ptr<SubMesh> MeshLoader_dfmesh::createSubmesh()
     return submesh;
 }
 
-MeshLoader_dfmesh::MeshLoader_dfmesh(FileSystem *fs)
-    : m_fsInstance(fs)
+MeshLoader_dfmesh::MeshLoader_dfmesh()
 {
 
 }
@@ -48,6 +47,7 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<FileDataSo
     // TODO: vertex format is hardcoded.
 
     auto result = make_unique<MeshDataFSLoader::Mesh>();
+    result->materialLibName = header.materialLib;
 
     source->seek(header.submeshesOffset, std::ios_base::beg);
 
@@ -74,15 +74,7 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<FileDataSo
         result->submeshes.back().getIndices() = std::move(indices);
     }
 
-    source->seek(header.materialLibOffset, std::ios_base::beg);
-
-    DFMeshMaterialHeader mtlHeader;
-    source->getAsObjects(&mtlHeader, 1);
-
-    result->materialLibData.resize(mtlHeader.materialDataSizeInBytes);
-    source->getRaw(&result->materialLibData[0], mtlHeader.materialDataSizeInBytes);
-
-    // TODO: serialize bounding volumes.
+    // TODO: deserialize bounding volumes.
 
     result->aabb.constructFromGeometry(result->submeshes);
     result->sphere.constructFromGeometry(result->submeshes);
