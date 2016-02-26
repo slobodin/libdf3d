@@ -104,7 +104,7 @@ void Sprite2DComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 void Sprite2DComponentProcessor::update()
 {
     for (auto &compData : m_pimpl->data.rawData())
-        compData.op.worldTransform = m_world->sceneGraph().getTransformation(compData.holder);
+        compData.op.worldTransform = m_world->sceneGraph().getWorldTransform(compData.holder);
 }
 
 Sprite2DComponentProcessor::Sprite2DComponentProcessor(World *world)
@@ -254,7 +254,7 @@ void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
     data.pass.enableDepthTest(false);
     data.pass.enableDepthWrite(false);
     data.pass.setBlendMode(RenderPass::BlendingMode::ALPHA);
-    data.op.worldTransform = m_world->sceneGraph().getTransformation(e);
+    data.op.worldTransform = m_world->sceneGraph().getWorldTransform(e);
 
     m_pimpl->data.add(e, data);
 

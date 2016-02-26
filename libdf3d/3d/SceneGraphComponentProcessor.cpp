@@ -269,12 +269,12 @@ const glm::quat& SceneGraphComponentProcessor::getOrientation(Entity e) const
     return m_pimpl->data.getData(e).orientation;
 }
 
-const glm::mat4& SceneGraphComponentProcessor::getTransformation(Entity e) const
+const glm::mat4& SceneGraphComponentProcessor::getWorldTransform(Entity e) const
 {
     return m_pimpl->data.getData(e).worldTransform;
 }
 
-void SceneGraphComponentProcessor::getTransformation(Entity e, glm::mat4 &outTr, glm::vec3 &outPos, glm::quat &outRot, glm::vec3 &outScale) const
+void SceneGraphComponentProcessor::getWorldTransformMeshWorkaround(Entity e, glm::mat4 &outTr, glm::vec3 &outPos, glm::quat &outRot, glm::vec3 &outScale) const
 {
     const auto &compData = m_pimpl->data.getData(e);
 
@@ -293,17 +293,17 @@ glm::vec3 SceneGraphComponentProcessor::getRotation(Entity e) const
 
 glm::vec3 SceneGraphComponentProcessor::getWorldDirection(Entity e) const
 {
-    return glm::normalize(glm::vec3(getTransformation(e) * -utils::math::ZAxis));
+    return glm::normalize(glm::vec3(getWorldTransform(e) * -utils::math::ZAxis));
 }
 
 glm::vec3 SceneGraphComponentProcessor::getWorldUp(Entity e) const
 {
-    return glm::normalize(glm::vec3(getTransformation(e) * utils::math::YAxis));
+    return glm::normalize(glm::vec3(getWorldTransform(e) * utils::math::YAxis));
 }
 
 glm::vec3 SceneGraphComponentProcessor::getWorldRight(Entity e) const
 {
-    return glm::normalize(glm::vec3(getTransformation(e) * utils::math::XAxis));
+    return glm::normalize(glm::vec3(getWorldTransform(e) * utils::math::XAxis));
 }
 
 void SceneGraphComponentProcessor::attachChild(Entity parent, Entity child)

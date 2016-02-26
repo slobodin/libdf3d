@@ -59,7 +59,7 @@ void ParticleSystemComponentProcessor::update()
 {
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
-        compData.holderTransform = m_world->sceneGraph().getTransformation(compData.holder);
+        compData.holderTransform = m_world->sceneGraph().getWorldTransform(compData.holder);
 
     auto dt = svc().timer().getFrameDelta(TimeChannel::GAME);
     for (auto &compData : m_pimpl->data.rawData())
@@ -174,7 +174,7 @@ void ParticleSystemComponentProcessor::add(Entity e, const ParticleSystemCreatio
     data.holder = e;
     data.systemLifeTime = params.systemLifeTime;
     data.worldTransformed = params.worldTransformed;
-    data.holderTransform = m_world->sceneGraph().getTransformation(e);
+    data.holderTransform = m_world->sceneGraph().getWorldTransform(e);
 
     m_pimpl->data.add(e, data);
 }

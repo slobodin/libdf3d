@@ -48,8 +48,9 @@ public:
     glm::vec3 getLocalPosition(Entity e) const;
     const glm::vec3& getLocalScale(Entity e) const;
     const glm::quat& getOrientation(Entity e) const;
-    const glm::mat4& getTransformation(Entity e) const;
-    void getTransformation(Entity e, glm::mat4 &outTr, glm::vec3 &outPos, glm::quat &outRot, glm::vec3 &outScale) const;
+    const glm::mat4& getWorldTransform(Entity e) const;
+    // FIXME: remove this method.
+    void getWorldTransformMeshWorkaround(Entity e, glm::mat4 &outTr, glm::vec3 &outPos, glm::quat &outRot, glm::vec3 &outScale) const;
     glm::vec3 getRotation(Entity e) const;
     glm::vec3 getWorldDirection(Entity e) const;
     glm::vec3 getWorldUp(Entity e) const;
