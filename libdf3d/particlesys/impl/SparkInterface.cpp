@@ -53,25 +53,24 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
 
     // Allocate main memory storage copy (no glMapBuffer on ES2.0)
     m_vertexData->allocVertices(nbParticles * QUAD_VERTICES_PER_PARTICLE);
-    m_indexData.resize(nbParticles * QUAD_INDICES_PER_PARTICLE);
+    IndexArray indexData(nbParticles * QUAD_INDICES_PER_PARTICLE);
 
     positionAtStart();
 
     // Initialize the index array.
+    size_t currentIndex = 0;
     for (size_t i = 0; i < nbParticles; ++i)
     {
-        setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 0);
-        setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 1);
-        setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 2);
-        setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 0);
-        setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 2);
-        setNextIndex(QUAD_VERTICES_PER_PARTICLE * i + 3);
+        indexData[currentIndex++] = QUAD_VERTICES_PER_PARTICLE * i + 0;
+        indexData[currentIndex++] = QUAD_VERTICES_PER_PARTICLE * i + 1;
+        indexData[currentIndex++] = QUAD_VERTICES_PER_PARTICLE * i + 2;
+        indexData[currentIndex++] = QUAD_VERTICES_PER_PARTICLE * i + 0;
+        indexData[currentIndex++] = QUAD_VERTICES_PER_PARTICLE * i + 2;
+        indexData[currentIndex++] = QUAD_VERTICES_PER_PARTICLE * i + 3;
     }
 
     // Initialize GPU storage of index array.
-    m_ib->update(nbParticles * QUAD_INDICES_PER_PARTICLE, m_indexData.data());
-    // Clear main storage indices copy.
-    m_indexData.clear();
+    m_ib->update(nbParticles * QUAD_INDICES_PER_PARTICLE, indexData.data());
 
     // Initialize the texture array (CCW order).
     for (size_t i = 0; i < nbParticles; ++i)
@@ -89,15 +88,9 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
 void ParticleSystemBuffers_Quad::positionAtStart()
 {
     // Repositions all the buffer pointers at the start.
-    m_currentIndexIndex = 0;
     m_currentVertexIndex = 0;
     m_currentColorIndex = 0;
     m_currentTexCoordIndex = 0;
-}
-
-void ParticleSystemBuffers_Quad::setNextIndex(int index)
-{
-    m_indexData[m_currentIndexIndex++] = index;
 }
 
 void ParticleSystemBuffers_Quad::setNextVertex(const SPK::Vector3D &vertex)
@@ -110,6 +103,17 @@ void ParticleSystemBuffers_Quad::setNextColor(const SPK::Color &color)
 {
     auto vert = m_vertexData->getVertex(m_currentColorIndex++);
     vert.setColor({ color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f });
+}
+
+void ParticleSystemBuffers_Quad::setNextVertexAndColor(const SPK::Vector3D &vertex, const SPK::Color &color)
+{
+    auto vert = m_vertexData->getVertex(m_currentVertexIndex);
+
+    vert.setPosition({ vertex.x, vertex.y, vertex.z });
+    vert.setColor({ color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f });
+
+    m_currentVertexIndex++;
+    m_currentColorIndex++;
 }
 
 void ParticleSystemBuffers_Quad::setNextTexCoords(float u, float v)
@@ -219,17 +223,18 @@ void QuadParticleSystemRenderer::render2DAtlasRot(const SPK::Particle &particle,
 
 void QuadParticleSystemRenderer::fillBufferColorAndVertex(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const
 {
-    // Quads are drawn in a counter clockwise order.
-    renderBuffer.m_buffers->setNextVertex(particle.position() + quadSide() + quadUp());    // top right vertex
-    renderBuffer.m_buffers->setNextVertex(particle.position() - quadSide() + quadUp());    // top left vertex
-    renderBuffer.m_buffers->setNextVertex(particle.position() - quadSide() - quadUp());    // bottom left vertex
-    renderBuffer.m_buffers->setNextVertex(particle.position() + quadSide() - quadUp());    // bottom right vertex
-
     const auto &color = particle.getColor();
-    renderBuffer.m_buffers->setNextColor(color);
-    renderBuffer.m_buffers->setNextColor(color);
-    renderBuffer.m_buffers->setNextColor(color);
-    renderBuffer.m_buffers->setNextColor(color);
+
+    // Quads are drawn in a counter clockwise order.
+
+    // top right vertex
+    renderBuffer.m_buffers->setNextVertexAndColor(particle.position() + quadSide() + quadUp(), color);
+    // top left vertex
+    renderBuffer.m_buffers->setNextVertexAndColor(particle.position() - quadSide() + quadUp(), color);
+    // bottom left vertex
+    renderBuffer.m_buffers->setNextVertexAndColor(particle.position() - quadSide() - quadUp(), color);
+    // bottom right vertex
+    renderBuffer.m_buffers->setNextVertexAndColor(particle.position() + quadSide() - quadUp(), color);
 }
 
 void QuadParticleSystemRenderer::fillBufferTexture2DCoordsAtlas(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const
@@ -278,7 +283,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
         if (!group.isEnabled(SPK::PARAM_TEXTURE_INDEX))
         {
             // FIXME: inverted UV's Y because of OpenGL.
-            for (size_t i = 0; i < group.getCapacity(); ++i)
+            for (size_t i = 0; i < group.getNbParticles(); ++i)
             {
                 buffer.m_buffers->setNextTexCoords(1.0f, 0.0f);
                 buffer.m_buffers->setNextTexCoords(0.0f, 0.0f);

@@ -30,9 +30,7 @@ class ParticleSystemBuffers_Quad
 
     // CPU side storage, TODO: use glMapBuffer
     unique_ptr<VertexData> m_vertexData;
-    IndexArray m_indexData;
 
-    size_t m_currentIndexIndex = 0;
     size_t m_currentVertexIndex = 0;
     size_t m_currentColorIndex = 0;
     size_t m_currentTexCoordIndex = 0;
@@ -44,9 +42,9 @@ public:
     void realloc(size_t nbParticles);
 
     void positionAtStart();
-    void setNextIndex(int index);
     void setNextVertex(const SPK::Vector3D &vertex);
     void setNextColor(const SPK::Color &color);
+    void setNextVertexAndColor(const SPK::Vector3D &vertex, const SPK::Color &color);
     void setNextTexCoords(float u, float v);
     size_t getParticlesAllocated() const { return m_particlesAllocated; }
 
