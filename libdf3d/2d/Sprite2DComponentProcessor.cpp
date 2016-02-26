@@ -164,7 +164,7 @@ void Sprite2DComponentProcessor::setRotation(Entity e, float rotation)
 glm::vec2 Sprite2DComponentProcessor::getSize(Entity e) const
 {
     const auto &compData = m_pimpl->data.getData(e);
-    auto scale = m_world->sceneGraph().getScale(e);
+    auto scale = m_world->sceneGraph().getLocalScale(e);
 
     return{ scale.x * compData.textureOriginalSize.x, scale.y * compData.textureOriginalSize.y };
 }

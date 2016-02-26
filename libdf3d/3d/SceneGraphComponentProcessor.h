@@ -46,7 +46,7 @@ public:
     // TODO_ecs: rename local rotation, local scaling
     glm::vec3 getWorldPosition(Entity e) const;
     glm::vec3 getLocalPosition(Entity e) const;
-    const glm::vec3& getScale(Entity e) const;
+    const glm::vec3& getLocalScale(Entity e) const;
     const glm::quat& getOrientation(Entity e) const;
     const glm::mat4& getTransformation(Entity e) const;
     void getTransformation(Entity e, glm::mat4 &outTr, glm::vec3 &outPos, glm::quat &outRot, glm::vec3 &outScale) const;

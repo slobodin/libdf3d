@@ -178,7 +178,7 @@ struct PhysicsComponentProcessor::Impl
             colShape = new btConvexHullShape((btScalar*)tempPoints.data(), tempPoints.size());
 
             // FIXME: what to do if scale has changed?
-            auto scale = svc().world().sceneGraph().getScale(data.holder);
+            auto scale = svc().world().sceneGraph().getLocalScale(data.holder);
             colShape->setLocalScaling(glmTobt(scale));
         }
         break;

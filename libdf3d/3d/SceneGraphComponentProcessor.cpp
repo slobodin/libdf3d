@@ -259,7 +259,7 @@ glm::vec3 SceneGraphComponentProcessor::getLocalPosition(Entity e) const
     return m_pimpl->data.getData(e).position;
 }
 
-const glm::vec3& SceneGraphComponentProcessor::getScale(Entity e) const
+const glm::vec3& SceneGraphComponentProcessor::getLocalScale(Entity e) const
 {
     return m_pimpl->data.getData(e).scaling;
 }
