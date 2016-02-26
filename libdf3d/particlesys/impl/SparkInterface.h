@@ -28,8 +28,18 @@ class ParticleSystemBuffers_Quad
     unique_ptr<VertexBuffer> m_vb;
     unique_ptr<IndexBuffer> m_ib;
 
+#pragma pack(push, 1)
+    struct SpkVertexData
+    {
+        SPK::Vector3D pos;
+        float tx_u;
+        float tx_v;
+        glm::vec4 color;
+    };
+#pragma pack(pop)
+
     // CPU side storage, TODO: use glMapBuffer
-    unique_ptr<VertexData> m_vertexData;
+    SpkVertexData *m_vertexData = nullptr;
 
     size_t m_currentVertexIndex = 0;
     size_t m_currentColorIndex = 0;
@@ -41,11 +51,37 @@ public:
 
     void realloc(size_t nbParticles);
 
-    void positionAtStart();
-    void setNextVertex(const SPK::Vector3D &vertex);
-    void setNextColor(const SPK::Color &color);
-    void setNextVertexAndColor(const SPK::Vector3D &vertex, const SPK::Color &color);
-    void setNextTexCoords(float u, float v);
+    inline void positionAtStart()
+    {
+        // Repositions all the buffer pointers at the start.
+        m_currentVertexIndex = 0;
+        m_currentColorIndex = 0;
+        m_currentTexCoordIndex = 0;
+    }
+
+    inline void setNextVertex(const SPK::Vector3D &vertex)
+    {
+        m_vertexData[m_currentVertexIndex++].pos = vertex;
+    }
+
+    void setNextColor(const SPK::Color &color)
+    {
+        auto &c = m_vertexData[m_currentColorIndex++].color;
+
+        c.r = color.r / 255.0f;
+        c.g = color.g / 255.0f;
+        c.b = color.b / 255.0f;
+        c.a = color.a / 255.0f;
+    }
+
+    void setNextTexCoords(float u, float v)
+    {
+        m_vertexData[m_currentTexCoordIndex].tx_u = u;
+        m_vertexData[m_currentTexCoordIndex].tx_v = v;
+
+        m_currentTexCoordIndex++;
+    }
+
     size_t getParticlesAllocated() const { return m_particlesAllocated; }
 
     void draw(size_t nbOfParticles, RenderPass *passProps, const glm::mat4 &m);

@@ -34,30 +34,34 @@ ParticleSystemBuffers_Quad::ParticleSystemBuffers_Quad()
 {
     m_vb = make_unique<VertexBuffer>(VERTEX_FORMAT);
     m_ib = make_unique<IndexBuffer>();
+
+    assert(sizeof(SpkVertexData) == VERTEX_FORMAT.getVertexSize());
+    assert(VERTEX_FORMAT.getOffsetTo(VertexFormat::POSITION_3) == 0);
+    assert(VERTEX_FORMAT.getOffsetTo(VertexFormat::TX_2) == sizeof(SPK::Vector3D));
+    assert(VERTEX_FORMAT.getOffsetTo(VertexFormat::COLOR_4) == sizeof(SPK::Vector3D) + sizeof(float) * 2);
 }
 
 ParticleSystemBuffers_Quad::~ParticleSystemBuffers_Quad()
 {
-
+    delete [] m_vertexData;
 }
 
 void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
 {
     nbParticles = std::max(nbParticles, INITIAL_CAPACITY);
 
-    m_vertexData.reset(new VertexData(VERTEX_FORMAT));
+    // Allocate main memory storage copy (no glMapBuffer on ES2.0)
+    delete [] m_vertexData;
+    m_vertexData = new SpkVertexData[nbParticles * QUAD_VERTICES_PER_PARTICLE];
 
     // Allocate GPU storage.
     m_vb->alloc(nbParticles * QUAD_VERTICES_PER_PARTICLE, nullptr, GpuBufferUsageType::DYNAMIC);
     m_ib->alloc(nbParticles * QUAD_INDICES_PER_PARTICLE, nullptr, GpuBufferUsageType::STATIC);
 
-    // Allocate main memory storage copy (no glMapBuffer on ES2.0)
-    m_vertexData->allocVertices(nbParticles * QUAD_VERTICES_PER_PARTICLE);
-    IndexArray indexData(nbParticles * QUAD_INDICES_PER_PARTICLE);
-
     positionAtStart();
 
     // Initialize the index array.
+    IndexArray indexData(nbParticles * QUAD_INDICES_PER_PARTICLE);
     size_t currentIndex = 0;
     for (size_t i = 0; i < nbParticles; ++i)
     {
@@ -85,49 +89,12 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
     m_particlesAllocated = nbParticles;
 }
 
-void ParticleSystemBuffers_Quad::positionAtStart()
-{
-    // Repositions all the buffer pointers at the start.
-    m_currentVertexIndex = 0;
-    m_currentColorIndex = 0;
-    m_currentTexCoordIndex = 0;
-}
-
-void ParticleSystemBuffers_Quad::setNextVertex(const SPK::Vector3D &vertex)
-{
-    auto vert = m_vertexData->getVertex(m_currentVertexIndex++);
-    vert.setPosition({ vertex.x, vertex.y, vertex.z });
-}
-
-void ParticleSystemBuffers_Quad::setNextColor(const SPK::Color &color)
-{
-    auto vert = m_vertexData->getVertex(m_currentColorIndex++);
-    vert.setColor({ color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f });
-}
-
-void ParticleSystemBuffers_Quad::setNextVertexAndColor(const SPK::Vector3D &vertex, const SPK::Color &color)
-{
-    auto vert = m_vertexData->getVertex(m_currentVertexIndex);
-
-    vert.setPosition({ vertex.x, vertex.y, vertex.z });
-    vert.setColor({ color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f });
-
-    m_currentVertexIndex++;
-    m_currentColorIndex++;
-}
-
-void ParticleSystemBuffers_Quad::setNextTexCoords(float u, float v)
-{
-    auto vert = m_vertexData->getVertex(m_currentTexCoordIndex++);
-    vert.setTx({ u, v });
-}
-
 void ParticleSystemBuffers_Quad::draw(size_t nbOfParticles, RenderPass *passProps, const glm::mat4 &m)
 {
     assert(nbOfParticles <= m_particlesAllocated);
 
     // Refill GPU with new data (only vertices have been changed).
-    m_vb->update(nbOfParticles * QUAD_VERTICES_PER_PARTICLE, m_vertexData->getRawData());
+    m_vb->update(nbOfParticles * QUAD_VERTICES_PER_PARTICLE, m_vertexData);
 
     m_vb->setVerticesUsed(nbOfParticles * QUAD_VERTICES_PER_PARTICLE);
     m_ib->setIndicesUsed(nbOfParticles * QUAD_INDICES_PER_PARTICLE);
@@ -228,13 +195,17 @@ void QuadParticleSystemRenderer::fillBufferColorAndVertex(const SPK::Particle &p
     // Quads are drawn in a counter clockwise order.
 
     // top right vertex
-    renderBuffer.m_buffers->setNextVertexAndColor(particle.position() + quadSide() + quadUp(), color);
+    renderBuffer.m_buffers->setNextVertex(particle.position() + quadSide() + quadUp());
+    renderBuffer.m_buffers->setNextColor(color);
     // top left vertex
-    renderBuffer.m_buffers->setNextVertexAndColor(particle.position() - quadSide() + quadUp(), color);
+    renderBuffer.m_buffers->setNextVertex(particle.position() - quadSide() + quadUp());
+    renderBuffer.m_buffers->setNextColor(color);
     // bottom left vertex
-    renderBuffer.m_buffers->setNextVertexAndColor(particle.position() - quadSide() - quadUp(), color);
+    renderBuffer.m_buffers->setNextVertex(particle.position() - quadSide() - quadUp());
+    renderBuffer.m_buffers->setNextColor(color);
     // bottom right vertex
-    renderBuffer.m_buffers->setNextVertexAndColor(particle.position() + quadSide() - quadUp(), color);
+    renderBuffer.m_buffers->setNextVertex(particle.position() + quadSide() - quadUp());
+    renderBuffer.m_buffers->setNextColor(color);
 }
 
 void QuadParticleSystemRenderer::fillBufferTexture2DCoordsAtlas(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const

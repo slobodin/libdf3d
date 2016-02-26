@@ -12,6 +12,7 @@ public:
     {
         // FIXME: figure out why if its starting not from 0 gives black screen on mac os.
         // stackoverflow.com/questions/11497870
+        // FIXME: reordering may affect on ParticleSystemBuffers_Quad
         POSITION_3,
         TX_2,
         COLOR_4,
