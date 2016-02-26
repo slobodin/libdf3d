@@ -12,7 +12,10 @@ struct SceneGraphComponentProcessor::Impl
     struct Data
     {
         //! Accumulated node world transform (including parent).
-        glm::mat4 transformation;
+        glm::mat4 worldTransform;
+
+        glm::mat4 localTransform;
+        bool localTransformDirty = true;
         //! Node local position.
         glm::vec3 position;
         //! Node local orientation.
@@ -31,15 +34,34 @@ struct SceneGraphComponentProcessor::Impl
 
     void updateWorldTransformation(Data &component)
     {
-        // Scale -> Rotation -> Translation
-        auto tr = glm::translate(component.position) * glm::toMat4(component.orientation) * glm::scale(component.scaling);
+        updateLocalTransform(component);
 
         if (component.parent.valid())
-            component.transformation = data.getData(component.parent).transformation * tr; // tr = parent * me
+            component.worldTransform = data.getData(component.parent).worldTransform * component.localTransform; // tr = parent * me
         else
-            component.transformation = tr;
+            component.worldTransform = component.localTransform;
 
         updateChildren(component);
+    }
+
+    void updateWorldTransformation(Data &component, const glm::mat4 &parentTransform)
+    {
+        updateLocalTransform(component);
+
+        component.worldTransform = parentTransform * component.localTransform; // tr = parent * me
+
+        for (auto child : component.children)
+            updateWorldTransformation(data.getData(child), component.worldTransform);
+    }
+
+    void updateLocalTransform(Data &component)
+    {
+        if (component.localTransformDirty)
+        {
+            // Scale -> Rotation -> Translation
+            component.localTransform = glm::translate(component.position) * glm::toMat4(component.orientation) * glm::scale(component.scaling);
+            component.localTransformDirty = false;
+        }
     }
 
     void updateChildren(Data &component)
@@ -88,6 +110,7 @@ void SceneGraphComponentProcessor::setPosition(Entity e, const glm::vec3 &newPos
     auto &compData = m_pimpl->data.getData(e);
 
     compData.position = newPosition;
+    compData.localTransformDirty = true;
 
     m_pimpl->updateWorldTransformation(compData);
 }
@@ -97,6 +120,7 @@ void SceneGraphComponentProcessor::setScale(Entity e, const glm::vec3 &newScale)
     auto &compData = m_pimpl->data.getData(e);
 
     compData.scaling = newScale;
+    compData.localTransformDirty = true;
 
     m_pimpl->updateWorldTransformation(compData);
 }
@@ -111,6 +135,7 @@ void SceneGraphComponentProcessor::setOrientation(Entity e, const glm::quat &new
     auto &compData = m_pimpl->data.getData(e);
 
     compData.orientation = newOrientation;
+    compData.localTransformDirty = true;
 
     m_pimpl->updateWorldTransformation(compData);
 }
@@ -125,9 +150,11 @@ void SceneGraphComponentProcessor::setTransform(Entity e, const glm::vec3 &posit
     auto &compData = m_pimpl->data.getData(e);
     compData.position = position;
     compData.orientation = orient;
-    compData.transformation = transf * glm::scale(compData.scaling);
+    compData.localTransform = transf * glm::scale(compData.scaling);
+    compData.localTransformDirty = false;
 
-    m_pimpl->updateChildren(compData);
+    glm::mat4 parentTransf = compData.parent.valid() ? m_pimpl->data.getData(compData.parent).worldTransform : glm::mat4();
+    m_pimpl->updateWorldTransformation(compData, parentTransf);
 }
 
 void SceneGraphComponentProcessor::translate(Entity e, const glm::vec3 &v)
@@ -135,6 +162,7 @@ void SceneGraphComponentProcessor::translate(Entity e, const glm::vec3 &v)
     auto &compData = m_pimpl->data.getData(e);
 
     compData.position += v;
+    compData.localTransformDirty = true;
 
     m_pimpl->updateWorldTransformation(compData);
 }
@@ -144,9 +172,9 @@ void SceneGraphComponentProcessor::scale(Entity e, const glm::vec3 &v)
     auto &compData = m_pimpl->data.getData(e);
 
     compData.scaling *= v;
+    compData.localTransformDirty = true;
 
     m_pimpl->updateWorldTransformation(compData);
-
 }
 
 void SceneGraphComponentProcessor::scale(Entity e, float uniform)
@@ -176,6 +204,7 @@ void SceneGraphComponentProcessor::rotateAxis(Entity e, float angle, const glm::
 
     auto &compData = m_pimpl->data.getData(e);
     compData.orientation = q * compData.orientation;
+    compData.localTransformDirty = true;
 
     m_pimpl->updateWorldTransformation(compData);
 }
@@ -222,7 +251,7 @@ Entity SceneGraphComponentProcessor::getByName(Entity parent, const std::string 
 
 glm::vec3 SceneGraphComponentProcessor::getWorldPosition(Entity e) const
 {
-    return glm::vec3(m_pimpl->data.getData(e).transformation[3]);
+    return glm::vec3(m_pimpl->data.getData(e).worldTransform[3]);
 }
 
 glm::vec3 SceneGraphComponentProcessor::getLocalPosition(Entity e) const
@@ -242,15 +271,15 @@ const glm::quat& SceneGraphComponentProcessor::getOrientation(Entity e) const
 
 const glm::mat4& SceneGraphComponentProcessor::getTransformation(Entity e) const
 {
-    return m_pimpl->data.getData(e).transformation;
+    return m_pimpl->data.getData(e).worldTransform;
 }
 
 void SceneGraphComponentProcessor::getTransformation(Entity e, glm::mat4 &outTr, glm::vec3 &outPos, glm::quat &outRot, glm::vec3 &outScale) const
 {
     const auto &compData = m_pimpl->data.getData(e);
 
-    outTr = compData.transformation;
-    outPos = glm::vec3(compData.transformation[3]);
+    outTr = compData.worldTransform;
+    outPos = glm::vec3(compData.worldTransform[3]);
     outRot = compData.orientation;
     outScale = compData.scaling;
 }

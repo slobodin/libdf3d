@@ -43,7 +43,7 @@ public:
     Entity getByName(const std::string &name) const;
     Entity getByName(Entity parent, const std::string &name) const;
 
-    // TODO_ecs: local rotation
+    // TODO_ecs: rename local rotation, local scaling
     glm::vec3 getWorldPosition(Entity e) const;
     glm::vec3 getLocalPosition(Entity e) const;
     const glm::vec3& getScale(Entity e) const;
