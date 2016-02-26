@@ -61,17 +61,20 @@ public:
 
     inline void setNextVertex(const SPK::Vector3D &vertex)
     {
-        m_vertexData[m_currentVertexIndex++].pos = vertex;
+        m_vertexData[m_currentVertexIndex].pos = vertex;
+        ++m_currentVertexIndex;
     }
 
     void setNextColor(const SPK::Color &color)
     {
-        auto &c = m_vertexData[m_currentColorIndex++].color;
+        auto &c = m_vertexData[m_currentColorIndex].color;
 
         c.r = color.r / 255.0f;
         c.g = color.g / 255.0f;
         c.b = color.b / 255.0f;
         c.a = color.a / 255.0f;
+
+        ++m_currentColorIndex;
     }
 
     void setNextTexCoords(float u, float v)
@@ -79,7 +82,7 @@ public:
         m_vertexData[m_currentTexCoordIndex].tx_u = u;
         m_vertexData[m_currentTexCoordIndex].tx_v = v;
 
-        m_currentTexCoordIndex++;
+        ++m_currentTexCoordIndex;
     }
 
     size_t getParticlesAllocated() const { return m_particlesAllocated; }
