@@ -106,6 +106,7 @@ public:
     shared_ptr<GpuProgram> getGpuProgram() const;
 
     void setSampler(const std::string &name, shared_ptr<Texture> texture);
+    void setSampler(const std::string &name, const std::string &texturePath);
     std::vector<Sampler> &getSamplers();
     shared_ptr<Texture> getSampler(const std::string &name);
 

@@ -45,10 +45,10 @@ void World::collectRenderOperations(RenderQueue *ops)
         ops->lights.push_back(&light);
 
     // TODO: can do in parallel.
-    staticMesh().draw(ops);
-    vfx().draw(ops);
-    physics().draw(ops);
-    sprite2d().draw(ops);
+    for (auto engineProcessor : m_engineProcessors)
+        engineProcessor->draw(ops);
+    for (auto &userProcessor : m_userProcessors)
+        userProcessor.second->draw(ops);
 }
 
 void World::cleanStep()
@@ -56,13 +56,8 @@ void World::cleanStep()
     for (auto &userProcessor : m_userProcessors)
         userProcessor.second->cleanStep(m_recentlyRemovedEntities);
 
-    m_physics->cleanStep(m_recentlyRemovedEntities);
-    m_sceneGraph->cleanStep(m_recentlyRemovedEntities);
-    m_vfx->cleanStep(m_recentlyRemovedEntities);
-    m_staticMeshes->cleanStep(m_recentlyRemovedEntities);
-    m_sprite2D->cleanStep(m_recentlyRemovedEntities);
-    m_audio->cleanStep(m_recentlyRemovedEntities);
-    m_tags->cleanStep(m_recentlyRemovedEntities);
+    for (auto engineProcessor : m_engineProcessors)
+        engineProcessor->cleanStep(m_recentlyRemovedEntities);
 
     m_timeMgr->cleanStep();
 
@@ -83,12 +78,19 @@ World::World()
     m_camera(new Camera()),
     m_timeMgr(new TimeManager())
 {
-
+    m_engineProcessors.push_back(m_audio.get());
+    m_engineProcessors.push_back(m_staticMeshes.get());
+    m_engineProcessors.push_back(m_vfx.get());
+    m_engineProcessors.push_back(m_physics.get());
+    m_engineProcessors.push_back(m_sceneGraph.get());
+    m_engineProcessors.push_back(m_sprite2D.get());
+    m_engineProcessors.push_back(m_tags.get());
 }
 
 void World::destroyWorld()
 {
     m_userProcessors.clear();
+    m_engineProcessors.clear();
 
     m_tags.reset();
     m_audio.reset();

@@ -194,9 +194,9 @@ void MeshData::populateRenderQueue(RenderQueue *ops, const glm::mat4 &transforma
             auto passProps = tech->getPass(passidx);
 
             newoperation.worldTransform = transformation;
-            newoperation.vertexData = sm.vb;
-            newoperation.indexData = sm.ib;
-            newoperation.passProps = passProps;
+            newoperation.vertexData = sm.vb.get();
+            newoperation.indexData = sm.ib.get();
+            newoperation.passProps = passProps.get();
 
             if (passProps->isTransparent())
             {

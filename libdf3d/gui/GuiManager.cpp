@@ -9,10 +9,6 @@
 #include <Rocket/Controls.h>
 #include <Rocket/Debugger.h>
 
-#if defined(DF3D_DESKTOP)
-#define ENABLE_ROCKET_DEBUGGER
-#endif
-
 namespace df3d {
 
 GuiManager::GuiManager(int contextWidth, int contextHeight)
@@ -68,12 +64,20 @@ RocketDocument GuiManager::loadDocument(const std::string &name)
 
 void GuiManager::showDebugger(bool show)
 {
+#ifdef ENABLE_ROCKET_DEBUGGER
     Rocket::Debugger::SetVisible(show);
+#else
+    glog << "GuiManager::showDebugger failed. Debugger is not enabled" << logwarn;
+#endif
 }
 
 bool GuiManager::isDebuggerVisible() const
 {
+#ifdef ENABLE_ROCKET_DEBUGGER
     return Rocket::Debugger::IsVisible();
+#else
+    return false;
+#endif
 }
 
 }

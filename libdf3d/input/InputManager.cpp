@@ -13,6 +13,7 @@ void InputManager::cleanStep()
     m_prevKeyboardState = m_keyboardState;
 
     m_mouseState.wheelDelta = 0.0f;
+    m_mouseState.delta = glm::ivec2(0, 0);
     m_touches.clear();
 }
 
@@ -71,15 +72,19 @@ KeyModifier InputManager::getKeyModifiers() const
     return m_keyboardState.modifiers;
 }
 
-void InputManager::onMouseButtonPressed(MouseButton button)
+void InputManager::onMouseButtonPressed(MouseButton button, int x, int y)
 {
+    setMousePosition(x, y);
+
     df3d::svc().guiManager().getContext()->ProcessMouseButtonDown(gui_impl::convertToRocketMouseButtonIdx(button), 0);
 
     m_mouseState.buttons.at((size_t)button) = MouseState::PRESSED;
 }
 
-void InputManager::onMouseButtonReleased(MouseButton button)
+void InputManager::onMouseButtonReleased(MouseButton button, int x, int y)
 {
+    setMousePosition(x, y);
+
     df3d::svc().guiManager().getContext()->ProcessMouseButtonUp(gui_impl::convertToRocketMouseButtonIdx(button), 0);
 
     m_mouseState.buttons.at((size_t)button) = MouseState::RELEASED;

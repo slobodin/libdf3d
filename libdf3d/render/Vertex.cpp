@@ -191,6 +191,12 @@ VertexData::VertexData(const VertexFormat &format)
 
 }
 
+void VertexData::setWithRawData(std::vector<float> &&data)
+{
+    m_data = std::move(data);
+    m_verticesCount = (m_data.size() * sizeof(float)) / m_format.getVertexSize();
+}
+
 void VertexData::allocVertices(size_t verticesCount)
 {
     assert(verticesCount > 0);

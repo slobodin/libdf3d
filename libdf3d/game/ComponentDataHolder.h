@@ -4,7 +4,6 @@
 
 namespace df3d {
 
-// TODO_ecs: more efficient implementation.
 template<typename T>
 class ComponentDataHolder : utils::NonCopyable
 {
@@ -13,17 +12,24 @@ public:
 
 private:
     std::vector<T> m_data;
-    // TODO_ecs: replace with array.
-    // Maintain a bag of entities ids. If < 1000 for example, use array, instead - hashmap.
-    std::unordered_map<Entity, ComponentInstance> m_lookup;
+
+    std::vector<ComponentInstance> m_lookup;
     std::unordered_map<ComponentInstance::IdType, Entity> m_holders;
 
     DestructionCallback m_destructionCallback;
 
+    void grow(Entity::IdType id)
+    {
+        // TODO_ecs: may become big if too much entities. Use hashmap in that case.
+        m_lookup.resize((id + 1) * 2);
+        if (m_lookup.size() > 1000)
+            glog << "ComponentDataHolder size" << m_lookup.size() << logdebug;
+    }
+
 public:
     ComponentDataHolder()
     {
-
+        m_lookup.resize(128);
     }
 
     ~ComponentDataHolder()
@@ -35,11 +41,10 @@ public:
     {
         assert(e.valid());
 
-        auto found = m_lookup.find(e);
-        if (found == m_lookup.end())
-            return ComponentInstance();
+        if (e.id >= (Entity::IdType)m_lookup.size())
+            return {};
 
-        return found->second;
+        return m_lookup[e.id];
     }
 
     void add(Entity e, const T &componentData)
@@ -47,9 +52,12 @@ public:
         assert(e.valid());
         assert(!contains(e));
 
+        if (e.id >= (Entity::IdType)m_lookup.size())
+            grow(e.id);
+
         ComponentInstance inst(m_data.size());
         m_data.push_back(componentData);
-        m_lookup[e] = inst;
+        m_lookup[e.id] = inst;
 
         m_holders[inst.id] = e;
     }
@@ -57,7 +65,7 @@ public:
     void remove(Entity e)
     {
         assert(e.valid());
-        assert(m_data.size() == m_lookup.size() && m_holders.size() == m_lookup.size());
+        assert(m_data.size() == m_holders.size());
         assert(m_data.size() > 0);
 
         auto compInstance = lookup(e);
@@ -76,12 +84,12 @@ public:
         {
             auto lastEnt = m_holders.find(m_data.size() - 1)->second;
             std::swap(m_data[compInstance.id], m_data.back());
-            m_lookup.find(lastEnt)->second = compInstance;
+            m_lookup[lastEnt.id] = compInstance;
             m_holders.find(compInstance.id)->second = lastEnt;
 
             m_holders.erase(m_data.size() - 1);
             m_data.pop_back();
-            m_lookup.erase(e);
+            m_lookup[e.id] = {};
         }
     }
 
@@ -119,8 +127,7 @@ public:
 
     size_t getSize() const
     {
-        assert(m_data.size() == m_lookup.size());
-        assert(m_lookup.size() == m_holders.size());
+        assert(m_data.size() == m_holders.size());
 
         return m_data.size();
     }

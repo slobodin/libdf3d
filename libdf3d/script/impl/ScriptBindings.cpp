@@ -161,7 +161,7 @@ void bindProcessors(Table &df3dNamespace)
 
             .Func(_SC("getWorldPosition"), &SceneGraphComponentProcessor::getWorldPosition)
             .Func(_SC("getLocalPosition"), &SceneGraphComponentProcessor::getLocalPosition)
-            .Func(_SC("getScale"), &SceneGraphComponentProcessor::getScale)
+            .Func(_SC("getLocalScale"), &SceneGraphComponentProcessor::getLocalScale)
             .Func(_SC("getOrientation"), &SceneGraphComponentProcessor::getOrientation)
             .Func(_SC("getRotation"), &SceneGraphComponentProcessor::getRotation)
             .Func(_SC("getWorldDirection"), &SceneGraphComponentProcessor::getWorldDirection)

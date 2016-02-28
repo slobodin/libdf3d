@@ -19,7 +19,7 @@ class DF3D_DLL Sprite2DComponentProcessor : public EntityComponentProcessor
     unique_ptr<Impl> m_pimpl;
     World *m_world;
 
-    void draw(RenderQueue *ops);
+    void draw(RenderQueue *ops) override;
     void cleanStep(const std::list<Entity> &deleted) override;
     void update() override;
 

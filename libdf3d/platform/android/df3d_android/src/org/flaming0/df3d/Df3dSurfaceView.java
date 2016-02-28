@@ -64,20 +64,27 @@ public class Df3dSurfaceView extends GLSurfaceView {
 			yCoords[i] = event.getY(i);
 		}
 
-		switch (event.getAction() & MotionEvent.ACTION_MASK) {
+        final int p = event.getActionIndex();
+        final float x = event.getX(p);
+        final float y = event.getY(p);
+        final int pointerId = event.getPointerId(p);
+
+		switch (event.getActionMasked()) {
 			case MotionEvent.ACTION_DOWN:
+			case MotionEvent.ACTION_POINTER_DOWN:
 				queueEvent(new Runnable() {
 					@Override
 					public void run() {
-						NativeBindings.onTouchDown(ids[0], xCoords[0], yCoords[0]);
+						NativeBindings.onTouchDown(pointerId, x, y);
 					}
 				});
 				break;
 			case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
 				queueEvent(new Runnable() {
 					@Override
 					public void run() {
-						NativeBindings.onTouchUp(ids[0], xCoords[0], yCoords[0]);
+						NativeBindings.onTouchUp(pointerId, x, y);
 					}
 				});
 				break;
@@ -96,32 +103,6 @@ public class Df3dSurfaceView extends GLSurfaceView {
 					public void run() {
 						for (int i = 0; i < pointerCount; i++)
 							NativeBindings.onTouchCancel(ids[i], xCoords[i], yCoords[i]);
-					}
-				});
-				break;
-			case MotionEvent.ACTION_POINTER_UP:
-				final int idxUp = event.getAction() >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
-				final int idUp = event.getPointerId(idxUp);
-				final float xUp = event.getX(idxUp);
-				final float yUp = event.getY(idxUp);
-
-				queueEvent(new Runnable() {
-					@Override
-					public void run() {
-						NativeBindings.onTouchUp(idUp, xUp, yUp);
-					}
-				});
-				break;
-			case MotionEvent.ACTION_POINTER_DOWN:
-				final int idxDown = event.getAction() >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
-				final int idDown = event.getPointerId(idxDown);
-				final float xDown = event.getX(idxDown);
-				final float yDown = event.getY(idxDown);
-
-				queueEvent(new Runnable() {
-					@Override
-					public void run() {
-						NativeBindings.onTouchDown(idDown, xDown, yDown);
 					}
 				});
 				break;

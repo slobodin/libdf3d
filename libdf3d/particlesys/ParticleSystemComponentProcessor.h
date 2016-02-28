@@ -35,7 +35,6 @@ class DF3D_DLL ParticleSystemComponentProcessor : public EntityComponentProcesso
     World *m_world;
 
     void update() override;
-    void draw(RenderQueue *ops);
     void cleanStep(const std::list<Entity> &deleted) override;
 
 public:
@@ -59,6 +58,9 @@ public:
     void add(Entity e, const ParticleSystemCreationParams &params);
     void remove(Entity e);
     bool has(Entity e);
+
+    // FIXME: using this method because of optimizations & spark behaviour.
+    void draw();
 };
 
 }

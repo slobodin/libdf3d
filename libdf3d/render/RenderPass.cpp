@@ -2,6 +2,7 @@
 
 #include "GpuProgram.h"
 #include "Texture.h"
+#include "Texture2D.h"
 #include "RenderManager.h"
 #include "RendererBackend.h"
 #include <libdf3d/resources/ResourceManager.h>
@@ -17,7 +18,7 @@ void Sampler::update(GpuProgram *program, int textureUnit)
         m_uniform = program->getSamplerUniform(name);
         if (!m_uniform)
         {
-            glog << "Sampler" << name << "was not found in shader" << program->getFilePath() << logwarn;
+            assert(false);
             return;
         }
     }
@@ -99,6 +100,17 @@ void RenderPass::setSampler(const std::string &name, shared_ptr<Texture> texture
     {
         found->texture = texture;
     }
+}
+
+void RenderPass::setSampler(const std::string &name, const std::string &texturePath)
+{
+    auto tex = df3d::svc().resourceManager().getFactory().createTexture(texturePath, df3d::ResourceLoadingMode::ASYNC);
+    if (!tex)
+    {
+        df3d::glog << "Failed to setSampler. Can't load texture from" << texturePath << df3d::logwarn;
+        return;
+    }
+    setSampler(name, tex);
 }
 
 std::vector<Sampler> &RenderPass::getSamplers()

@@ -21,6 +21,7 @@ struct Sprite2DComponentProcessor::Impl
     {
         Entity holder;
 
+        RenderPass pass;
         RenderOperation2D op;
 
         glm::vec2 anchor = glm::vec2(0.5f, 0.5f);
@@ -33,6 +34,13 @@ struct Sprite2DComponentProcessor::Impl
     };
 
     ComponentDataHolder<Data> data;
+    unique_ptr<VertexBuffer> vertexData;
+
+    Impl()
+    {
+        auto format = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
+        vertexData = createQuad2(format, 0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
+    }
 
     static void updateTransform(Data &compData)
     {
@@ -81,6 +89,9 @@ void Sprite2DComponentProcessor::draw(RenderQueue *ops)
 
         Impl::updateTransform(compData);
 
+        compData.op.vertexData = m_pimpl->vertexData.get();
+        compData.op.passProps = &compData.pass;
+
         ops->sprite2DOperations.push_back(compData.op);
     }
 }
@@ -93,7 +104,7 @@ void Sprite2DComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 void Sprite2DComponentProcessor::update()
 {
     for (auto &compData : m_pimpl->data.rawData())
-        compData.op.worldTransform = m_world->sceneGraph().getTransformation(compData.holder);
+        compData.op.worldTransform = m_world->sceneGraph().getWorldTransform(compData.holder);
 }
 
 Sprite2DComponentProcessor::Sprite2DComponentProcessor(World *world)
@@ -153,7 +164,7 @@ void Sprite2DComponentProcessor::setRotation(Entity e, float rotation)
 glm::vec2 Sprite2DComponentProcessor::getSize(Entity e) const
 {
     const auto &compData = m_pimpl->data.getData(e);
-    auto scale = m_world->sceneGraph().getScale(e);
+    auto scale = m_world->sceneGraph().getLocalScale(e);
 
     return{ scale.x * compData.textureOriginalSize.x, scale.y * compData.textureOriginalSize.y };
 }
@@ -181,7 +192,7 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
 {
     auto &compData = m_pimpl->data.getData(e);
 
-    if (auto sampler = compData.op.passProps->getSampler("diffuseMap"))
+    if (auto sampler = compData.pass.getSampler("diffuseMap"))
     {
         if (sampler->getFilePath() == svc().fileSystem().fullPath(pathToTexture))
             return;
@@ -202,7 +213,7 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
     if (compData.textureGuid == texture->getGUID())
         return;
 
-    compData.op.passProps->setSampler("diffuseMap", texture);
+    compData.pass.setSampler("diffuseMap", texture);
     compData.textureOriginalSize = { texture->getOriginalWidth(), texture->getOriginalHeight() };
     compData.textureGuid = texture->getGUID();
 }
@@ -214,7 +225,7 @@ const glm::vec2& Sprite2DComponentProcessor::getTextureSize(Entity e) const
 
 void Sprite2DComponentProcessor::setBlendMode(Entity e, RenderPass::BlendingMode bm)
 {
-    m_pimpl->data.getData(e).op.passProps->setBlendMode(bm);
+    m_pimpl->data.getData(e).pass.setBlendMode(bm);
 }
 
 void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
@@ -224,7 +235,7 @@ void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
 
 void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diffuseColor)
 {
-    m_pimpl->data.getData(e).op.passProps->setDiffuseColor(diffuseColor);
+    m_pimpl->data.getData(e).pass.setDiffuseColor(diffuseColor);
 }
 
 void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
@@ -238,16 +249,12 @@ void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
     Impl::Data data;
 
     data.holder = e;
-    data.op.passProps = make_shared<RenderPass>();
-    data.op.passProps->setFaceCullMode(RenderPass::FaceCullMode::NONE);
-    data.op.passProps->setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
-    data.op.passProps->enableDepthTest(false);
-    data.op.passProps->enableDepthWrite(false);
-    data.op.passProps->setBlendMode(RenderPass::BlendingMode::ALPHA);
-    data.op.worldTransform = m_world->sceneGraph().getTransformation(e);
-
-    auto format = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
-    data.op.vertexData = createQuad2(format, 0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
+    data.pass.setFaceCullMode(RenderPass::FaceCullMode::NONE);
+    data.pass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
+    data.pass.enableDepthTest(false);
+    data.pass.enableDepthWrite(false);
+    data.pass.setBlendMode(RenderPass::BlendingMode::ALPHA);
+    data.op.worldTransform = m_world->sceneGraph().getWorldTransform(e);
 
     m_pimpl->data.add(e, data);
 

@@ -135,7 +135,7 @@ void EngineController::step()
     m_world->update();
 
     // Clear frame stats.
-    *m_frameStats = FrameStats();
+    m_frameStats->reset();
     // Run frame.
     m_renderManager->drawWorld(*m_world);
 

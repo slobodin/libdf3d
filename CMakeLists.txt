@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.1)
 
 project(libdf3d)
 
+set(DF3D_ROOT ${PROJECT_SOURCE_DIR})
+
 include(${PROJECT_SOURCE_DIR}/cmake/libdf3d.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/cotire.cmake)
 
@@ -49,6 +51,14 @@ endif()
 
 if (NOT ANDROID AND NOT IOS)
     option(DF3D_BUILD_SHARED_LIB "Build shared df3d library" ON)
+endif()
+
+# TODO: if build tools
+add_subdirectory(${PROJECT_SOURCE_DIR}/tools/obj_to_dfmesh)
+
+if (DF3D_DESKTOP)
+    set(DF3D_USE_ROCKET_DEBUGGER TRUE)
+    add_definitions(-DENABLE_ROCKET_DEBUGGER)
 endif()
 
 set(libdf3d_HEADER_LIST
@@ -181,6 +191,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/DebugConsole.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/impl/ConsoleWindowRmlSource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/base/FrameStats.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/StringTable.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.cpp
@@ -366,7 +377,6 @@ target_link_libraries(libdf3d
     vorbis
     RocketCore
     RocketControls
-    RocketDebugger
     squirrel)
 
 if (DF3D_DESKTOP)
@@ -381,6 +391,10 @@ endif()
 
 if (ANDROID)
     target_link_libraries(libdf3d OpenSLES ${DF3D_OPENAL_LIBNAME} GLESv2 log android)
+endif()
+
+if (DF3D_USE_ROCKET_DEBUGGER)
+    target_link_libraries(libdf3d RocketDebugger)
 endif()
 
 set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "$(PROJECT_SOURCE_DIR)/libdf3d/df3d_pch.h")

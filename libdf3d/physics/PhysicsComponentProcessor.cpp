@@ -57,7 +57,6 @@ public:
         glm::mat4 ATTRIBUTE_ALIGNED16(df3dWorldTransf);
         worldTrans.getOpenGLMatrix(glm::value_ptr(df3dWorldTransf));
 
-        // TODO_ecs: more fast lookup!
         m_world.sceneGraph().setTransform(m_holder, df3dPos, df3dOrient, df3dWorldTransf);
 
         m_transform = worldTrans;
@@ -178,7 +177,7 @@ struct PhysicsComponentProcessor::Impl
             colShape = new btConvexHullShape((btScalar*)tempPoints.data(), tempPoints.size());
 
             // FIXME: what to do if scale has changed?
-            auto scale = svc().world().sceneGraph().getScale(data.holder);
+            auto scale = svc().world().sceneGraph().getLocalScale(data.holder);
             colShape->setLocalScaling(glmTobt(scale));
         }
         break;
@@ -240,6 +239,7 @@ void PhysicsComponentProcessor::update()
 void PhysicsComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 {
     m_pimpl->data.cleanStep(deleted);
+    m_pimpl->debugDraw->clean();
 }
 
 void PhysicsComponentProcessor::draw(RenderQueue *ops)

@@ -8,6 +8,7 @@
 #include <libdf3d/3d/Camera.h>
 #include <libdf3d/game/World.h>
 #include <libdf3d/gui/GuiManager.h>
+#include <libdf3d/particlesys/ParticleSystemComponentProcessor.h>
 #include "RendererBackend.h"
 #include "VertexIndexBuffer.h"
 #include "RenderOperation.h"
@@ -76,8 +77,8 @@ void RenderManager::postProcessPass(shared_ptr<Material> material)
 
         RenderOperation quadRo;
 
-        quadRo.vertexData = m_quadVb;
-        quadRo.passProps = tech->getPass(passidx);
+        quadRo.vertexData = m_quadVb.get();
+        quadRo.passProps = tech->getPass(passidx).get();
         quadRo.passProps->setSampler("sceneTexture", m_textureRt->getTexture());
         if (passidx != 0)
             quadRo.passProps->setSampler("prevPassBuffer", m_postProcessPassBuffers[(passidx - 1) % 2]->getTexture());
@@ -99,9 +100,6 @@ void RenderManager::loadEmbedResources()
 
 void RenderManager::onFrameBegin()
 {
-    // TODO_ecs: what if render queue becomes big???
-    m_renderQueue->clear();
-
     m_renderer->beginFrame();
 }
 
@@ -112,6 +110,11 @@ void RenderManager::onFrameEnd()
 
 void RenderManager::doRenderWorld(World &world)
 {
+    // TODO_ecs: what if render queue becomes big???
+    m_renderQueue->clear();
+
+    world.collectRenderOperations(m_renderQueue.get());
+
     auto postProcessingEnabled = world.getRenderingParams().getPostProcessMaterial() != nullptr;
 
     RenderTarget *rt = nullptr;
@@ -126,8 +129,6 @@ void RenderManager::doRenderWorld(World &world)
 
     m_renderer->clearColorBuffer();
     m_renderer->clearDepthBuffer();
-
-    svc().getFrameStats().totalLights += m_renderQueue->lights.size();
 
     m_renderer->setAmbientLight(world.getRenderingParams().getAmbientLight());
     m_renderer->enableFog(world.getRenderingParams().getFogDensity(), world.getRenderingParams().getFogColor());
@@ -150,7 +151,7 @@ void RenderManager::doRenderWorld(World &world)
 
         m_renderer->bindPass(m_ambientPassProps.get());
 
-        m_renderer->drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
+        m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);
     }
 
     // Opaque pass with lights on.
@@ -167,8 +168,8 @@ void RenderManager::doRenderWorld(World &world)
             m_renderer->setLight(*light);
 
             // TODO: update ONLY light uniforms.
-            m_renderer->bindPass(op.passProps.get());
-            m_renderer->drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
+            m_renderer->bindPass(op.passProps);
+            m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);
         }
     }
 
@@ -180,6 +181,9 @@ void RenderManager::doRenderWorld(World &world)
     // Opaque pass without lights.
     for (const auto &op : m_renderQueue->notLitOpaqueOperations)
         m_renderer->drawOperation(op);
+
+    // VFX pass.
+    world.vfx().draw();
 
     // Transparent pass.
     for (const auto &op : m_renderQueue->transparentOperations)
@@ -234,7 +238,6 @@ void RenderManager::drawWorld(World &world)
 {
     onFrameBegin();
 
-    world.collectRenderOperations(m_renderQueue.get());
     doRenderWorld(world);
 
     onFrameEnd();

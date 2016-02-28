@@ -21,6 +21,8 @@ struct AndroidAppState
     unique_ptr<df3d::EngineController> engine;
 
     AndroidTouch touchesCache[MAX_TOUCHES];
+
+    int primaryTouchId = -1;
 };
 
 static unique_ptr<AndroidAppState> g_appState;
@@ -57,7 +59,11 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 
     df3dInitialized();
 
-    assert(g_appState->appDelegate && "Game code must set up application delegate");
+    if (!g_appState->appDelegate)
+    {
+        df3d::glog << "Game code must set up application delegate in df3dInitialized" << df3d::logcritical;
+        return -1;
+    }
 
     return JNI_VERSION_1_6;
 }
@@ -122,9 +128,9 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchD
         return;
     }
 
+    /*
     auto &touch = g_appState->touchesCache[pointerId];
     touch.valid = true;
-    /*
     touch.touch.x = x;
     touch.touch.y = y;
     touch.touch.dx = 0;
@@ -135,8 +141,14 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchD
     g_appState->appDelegate->onTouchEvent(touch.touch);
     */
 
-    df3d::svc().inputManager().setMousePosition(x, y);
-    df3d::svc().inputManager().onMouseButtonPressed(df3d::MouseButton::LEFT);
+    if (g_appState->primaryTouchId == -1)
+    {
+        //df3d::glog << "Touch DOWN" << x << y << pointerId << df3d::logcritical;
+
+        df3d::svc().inputManager().onMouseButtonPressed(df3d::MouseButton::LEFT, x, y);
+
+        g_appState->primaryTouchId = pointerId;
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchUp(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
@@ -147,8 +159,8 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchU
         return;
     }
 
-    auto &touch = g_appState->touchesCache[pointerId];
     /*
+    auto &touch = g_appState->touchesCache[pointerId];
     touch.valid = false;
     touch.touch.x = x;
     touch.touch.y = y;
@@ -159,8 +171,15 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchU
 
     g_appState->appDelegate->onTouchEvent(touch.touch);
     */
-    df3d::svc().inputManager().setMousePosition(x, y);
-    df3d::svc().inputManager().onMouseButtonReleased(df3d::MouseButton::LEFT);
+
+    if (pointerId == g_appState->primaryTouchId)
+    {
+        //df3d::glog << "Touch UP" << x << y << pointerId << df3d::logcritical;
+
+        df3d::svc().inputManager().onMouseButtonReleased(df3d::MouseButton::LEFT, x, y);
+
+        g_appState->primaryTouchId = -1;
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchMove(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
@@ -171,8 +190,8 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchM
         return;
     }
 
-    auto &touch = g_appState->touchesCache[pointerId];
     /*
+    auto &touch = g_appState->touchesCache[pointerId];
     if (touch.valid)
     {
         touch.touch.dx = x - touch.touch.x;
@@ -186,7 +205,13 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchM
 
     g_appState->appDelegate->onTouchEvent(touch.touch);
     */
-    df3d::svc().inputManager().setMousePosition(x, y);
+
+    if (pointerId == g_appState->primaryTouchId)
+    {
+        //df3d::glog << "Touch MOVE" << x << y << pointerId << df3d::logcritical;
+
+        df3d::svc().inputManager().setMousePosition(x, y);
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchCancel(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
@@ -197,9 +222,9 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchC
         return;
     }
 
+    /*
     auto &touch = g_appState->touchesCache[pointerId];
     touch.valid = false;
-    /*
     touch.touch.x = x;
     touch.touch.y = y;
     touch.touch.dx = 0;
@@ -209,4 +234,13 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchC
 
     g_appState->appDelegate->onTouchEvent(touch.touch);
     */
+
+    if (pointerId == g_appState->primaryTouchId)
+    {
+        //df3d::glog << "Touch CANCEL" << x << y << pointerId << df3d::logcritical;
+
+        df3d::svc().inputManager().onMouseButtonReleased(df3d::MouseButton::LEFT, x, y);
+
+        g_appState->primaryTouchId = -1;
+    }
 }

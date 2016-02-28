@@ -185,7 +185,7 @@ void RendererBackend::updateProgramUniformValues(GpuProgram *program, RenderPass
     // Update samplers.
     auto &samplers = pass->getSamplers();
     int textureUnit = 0;
-    for (int i = 0; i < samplers.size(); i++)
+    for (size_t i = 0; i < samplers.size(); i++)
     {
         shared_ptr<Texture> texture = samplers[i].texture;
         if (!texture)
@@ -197,13 +197,28 @@ void RendererBackend::updateProgramUniformValues(GpuProgram *program, RenderPass
         if (!bound)
         {
             texture = m_whiteTexture;
-            assert(texture->bind());
+            texture->bind();
         }
 
         samplers[i].update(program, textureUnit);
 
         textureUnit++;
     }
+}
+
+void RendererBackend::printGpuInfo()
+{
+    const char *ver = (const char *)glGetString(GL_VERSION);
+    glog << "OpenGL version" << ver << logmess;
+
+    const char *card = (const char *)glGetString(GL_RENDERER);
+    const char *vendor = (const char *)glGetString(GL_VENDOR);
+    glog << "Using" << card << vendor << logmess;
+
+    const char *shaderVer = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
+    glog << "Shaders version" << shaderVer << logmess;
+
+    glog << "Max texture size" << getMaxTextureSize() << logmess;
 }
 
 RendererBackend::RendererBackend()
@@ -225,16 +240,6 @@ RendererBackend::RendererBackend()
         throw std::runtime_error("GL 2.1 unsupported");
 #endif
 
-    const char *ver = (const char *)glGetString(GL_VERSION);
-    glog << "OpenGL version" << ver << logmess;
-
-    const char *card = (const char *)glGetString(GL_RENDERER);
-    const char *vendor = (const char *)glGetString(GL_VENDOR);
-    glog << "Using" << card << vendor << logmess;
-
-    const char *shaderVer = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
-    glog << "Shaders version" << shaderVer << logmess;
-
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
@@ -249,6 +254,8 @@ RendererBackend::RendererBackend()
     printOpenGLError();
 
     m_initialized = true;
+
+    printGpuInfo();
 }
 
 RendererBackend::~RendererBackend()
@@ -263,6 +270,8 @@ void RendererBackend::loadResources()
 
 void RendererBackend::beginFrame()
 {
+    m_prevVB = nullptr;
+
     clearColorBuffer();
     clearDepthBuffer();
     clearStencilBuffer();
@@ -448,11 +457,15 @@ void RendererBackend::bindPass(RenderPass *pass)
     if (!pass)
         return;
 
+    // TODO: check state changes on CPU side.
+    // This may work incorrect when binding the same pass, but with params changed!
+    /*
     if (pass == m_programState->m_currentPass)
     {
         updateProgramUniformValues(m_programState->m_currentShader, m_programState->m_currentPass);
         return;
     }
+    */
 
     auto glprogram = pass->getGpuProgram();
     if (!glprogram)
@@ -491,7 +504,13 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
 
     bool indexed = ib != nullptr;
 
-    vb->bind();
+    // FIXME: figure out why crashes on NVIDIA
+    //if (m_prevVB != vb)
+    {
+        vb->bind();
+        m_prevVB = vb;
+    }
+
     if (indexed)
         ib->bind();
 
@@ -499,37 +518,21 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
     {
     case RenderOperation::Type::LINES:
         if (indexed)
-        {
             glDrawElements(GL_LINES, ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
-            svc().getFrameStats().totalLines += ib->getIndicesUsed() / 2;
-        }
         else
-        {
             glDrawArrays(GL_LINES, 0, vb->getVerticesUsed());
-            svc().getFrameStats().totalLines += vb->getVerticesUsed() / 2;
-        }
         break;
     case RenderOperation::Type::TRIANGLES:
         if (indexed)
-        {
             glDrawElements(GL_TRIANGLES, ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
-            svc().getFrameStats().totalTriangles += ib->getIndicesUsed() / 3;
-        }
         else
-        {
             glDrawArrays(GL_TRIANGLES, 0, vb->getVerticesUsed());
-            svc().getFrameStats().totalTriangles += vb->getVerticesUsed() / 3;
-        }
         break;
     default:
         break;
     }
 
-    vb->unbind();
-    if (indexed)
-       ib->unbind();
-
-    svc().getFrameStats().drawCalls++;
+    svc().getFrameStats().addRenderOperation(vb, ib, type);
 
     printOpenGLError();
 }
@@ -562,8 +565,8 @@ void RendererBackend::drawOperation(const RenderOperation &op)
         return;
 
     setWorldMatrix(op.worldTransform);
-    bindPass(op.passProps.get());
-    drawVertexBuffer(op.vertexData.get(), op.indexData.get(), op.type);
+    bindPass(op.passProps);
+    drawVertexBuffer(op.vertexData, op.indexData, op.type);
 }
 
 }

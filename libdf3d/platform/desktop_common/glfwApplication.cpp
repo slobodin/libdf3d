@@ -12,6 +12,7 @@ static void mouseButtonCallback(GLFWwindow *window, int button, int action, int 
 static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 static void textInputCallback(GLFWwindow *window, unsigned int codepoint);
 static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
+static void cursorPosCallback(GLFWwindow *window, double x, double y);
 
 class glfwApplication
 {
@@ -68,21 +69,12 @@ public:
         glfwSetKeyCallback(window, keyCallback);
         glfwSetCharCallback(window, textInputCallback);
         glfwSetScrollCallback(window, scrollCallback);
+        glfwSetCursorPosCallback(window, cursorPosCallback);
 
         m_engine.reset(new EngineController());
         m_engine->initialize(params);
         if (!m_appDelegate->onAppStarted())
             throw std::runtime_error("Game code initialization failed.");
-    }
-
-    void pollEvents()
-    {
-        glfwPollEvents();
-
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
-
-        svc().inputManager().setMousePosition(xpos, ypos);
     }
 
     void run()
@@ -91,7 +83,7 @@ public:
 
         while (!glfwWindowShouldClose(window))
         {
-            pollEvents();
+            glfwPollEvents();
 
             m_engine->step();
 
@@ -110,6 +102,9 @@ public:
 
     void onMouseButton(int button, int action, int mods)
     {
+        double x, y;
+        glfwGetCursorPos(window, &x, &y);
+
         MouseButton df3dBtn;
 
         if (button == GLFW_MOUSE_BUTTON_LEFT)
@@ -122,9 +117,9 @@ public:
             return;
 
         if (action == GLFW_PRESS)
-            svc().inputManager().onMouseButtonPressed(df3dBtn);
+            svc().inputManager().onMouseButtonPressed(df3dBtn, (int)x, (int)y);
         else if (action == GLFW_RELEASE)
-            svc().inputManager().onMouseButtonReleased(df3dBtn);
+            svc().inputManager().onMouseButtonReleased(df3dBtn, (int)x, (int)y);
     }
 
     void onKey(int key, int scancode, int action, int mods)
@@ -162,6 +157,11 @@ public:
         svc().inputManager().setMouseWheelDelta((float)-yoffset);
     }
 
+    void onCursorMove(double x, double y)
+    {
+        svc().inputManager().setMousePosition((int)x, (int)y);
+    }
+
     EngineController& getEngine() { return *m_engine; }
 };
 
@@ -191,6 +191,13 @@ void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
     auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
 
     app->onScroll(xoffset, yoffset);
+}
+
+void cursorPosCallback(GLFWwindow *window, double x, double y)
+{
+    auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
+
+    app->onCursorMove(x, y);
 }
 
 glfwApplication *g_application = nullptr;

@@ -68,9 +68,11 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
     meshdata->m_convexHull = m_mesh->convexHull;
 
     // Load all the materials.
-    auto mtlLib = svc().resourceManager().getFactory().createMaterialLib(m_mesh->materialLibName);
+    auto mtlLibPath = m_mesh->materialLibName;
+    mtlLibPath = FileSystem::pathConcatenate(FileSystem::getFileDirectory(m_path), mtlLibPath);
 
-    if (mtlLib)     // Leaving null material in submesh, do not set default as it will be set later. mb it's wrong design?
+    // Leaving null material in submesh, do not set default as it will be set later. mb it's wrong design?
+    if (auto mtlLib = svc().resourceManager().getFactory().createMaterialLib(mtlLibPath))
     {
         assert(m_mesh->submeshes.size() == m_mesh->materialNames.size());
 

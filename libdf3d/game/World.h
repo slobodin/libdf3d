@@ -50,6 +50,7 @@ class DF3D_DLL World : utils::NonCopyable
     std::list<Entity> m_recentlyRemovedEntities;
 
     std::unordered_map<std::type_index, ComponentProcessor> m_userProcessors;
+    std::vector<EntityComponentProcessor*> m_engineProcessors;
 
     void update();
     void collectRenderOperations(RenderQueue *ops);

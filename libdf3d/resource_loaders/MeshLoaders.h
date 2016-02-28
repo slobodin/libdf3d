@@ -19,6 +19,7 @@ public:
 
 class MeshDataFSLoader : public FSResourceLoader
 {
+public:
     friend class resource_loaders_impl::MeshLoader_obj;
     friend class resource_loaders_impl::MeshLoader_dfmesh;
 
@@ -33,6 +34,7 @@ class MeshDataFSLoader : public FSResourceLoader
         ConvexHull convexHull;
     };
 
+private:
     std::string m_path;
     unique_ptr<Mesh> m_mesh;
 

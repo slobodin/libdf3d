@@ -61,7 +61,7 @@ void StaticMeshComponentProcessor::update()
     // TODO_ecs: get only changed components.
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
-        m_world->sceneGraph().getTransformation(compData.holder, compData.holderTransformation, compData.holderPosition, tmp, compData.holderScale);
+        m_world->sceneGraph().getWorldTransformMeshWorkaround(compData.holder, compData.holderTransformation, compData.holderPosition, tmp, compData.holderScale);
 }
 
 void StaticMeshComponentProcessor::draw(RenderQueue *ops)
@@ -113,7 +113,7 @@ AABB StaticMeshComponentProcessor::getAABB(Entity e)
     // FIXME: mb cache if transformation hasn't been changed?
     auto &compData = m_pimpl->data.getData(e);
     // Update transformation.
-    compData.holderTransformation = m_world->sceneGraph().getTransformation(compData.holder);
+    compData.holderTransformation = m_world->sceneGraph().getWorldTransform(compData.holder);
 
     AABB transformedAABB;
 
@@ -169,7 +169,7 @@ void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath
     Impl::Data data;
     data.meshData = svc().resourceManager().getFactory().createMeshData(meshFilePath, lm);
     data.holder = e;
-    data.holderTransformation = m_world->sceneGraph().getTransformation(e);
+    data.holderTransformation = m_world->sceneGraph().getWorldTransform(e);
 
     m_pimpl->data.add(e, data);
 }
@@ -185,7 +185,7 @@ void StaticMeshComponentProcessor::add(Entity e, shared_ptr<MeshData> meshData)
     Impl::Data data;
     data.meshData = meshData;
     data.holder = e;
-    data.holderTransformation = m_world->sceneGraph().getTransformation(e);
+    data.holderTransformation = m_world->sceneGraph().getWorldTransform(e);
 
     m_pimpl->data.add(e, data);
 }

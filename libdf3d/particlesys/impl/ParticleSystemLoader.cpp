@@ -408,7 +408,8 @@ static SPK::Ref<ParticleSystemRenderer> createRenderer(const Json::Value &render
     }
     else if (rendererType == "line")
     {
-        renderer = LineParticleSystemRenderer::create(100.0f, 100.0f);
+        assert(false && "Not implemented");
+        //renderer = LineParticleSystemRenderer::create(100.0f, 100.0f);
     }
     else
     {
@@ -476,7 +477,7 @@ SPK::Ref<SPK::System> ParticleSystemLoader::createSpkSystem(const Json::Value &r
 
         // Get group params.
         std::string groupName;
-        bool enableSorting = false, immortal = false;
+        bool enableSorting = false, immortal = false, still = false;
         int maxParticles = 100;
         float minLifeTime = 1.0f, maxLifeTime = 1.0f, radius = 1.0f;
 
@@ -486,6 +487,7 @@ SPK::Ref<SPK::System> ParticleSystemLoader::createSpkSystem(const Json::Value &r
         groupJson["minLifeTime"] >> minLifeTime;
         groupJson["maxLifeTime"] >> maxLifeTime;
         groupJson["immortal"] >> immortal;
+        groupJson["still"] >> still;
         groupJson["radius"] >> radius;
 
         // Create a group.
@@ -495,6 +497,7 @@ SPK::Ref<SPK::System> ParticleSystemLoader::createSpkSystem(const Json::Value &r
         particlesGroup->setRenderer(createRenderer(groupJson["Renderer"]));
         particlesGroup->setLifeTime(minLifeTime, maxLifeTime);
         particlesGroup->setImmortal(immortal);
+        particlesGroup->setStill(still);
         particlesGroup->setRadius(radius);
 
         // Add emitters.

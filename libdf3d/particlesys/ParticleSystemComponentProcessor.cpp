@@ -9,6 +9,8 @@
 #include <libdf3d/3d/SceneGraphComponentProcessor.h>
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/base/TimeManager.h>
+#include <libdf3d/render/Vertex.h>
+#include <libdf3d/render/VertexIndexBuffer.h>
 #include <libdf3d/utils/JsonUtils.h>
 
 namespace df3d {
@@ -28,6 +30,7 @@ struct ParticleSystemComponentProcessor::Impl
     };
 
     ComponentDataHolder<Data> data;
+    particlesys_impl::ParticleSystemBuffers_Quad m_quadBuffers;
 
     static void updateCameraPosition(Data &compData, World *w)
     {
@@ -56,7 +59,7 @@ void ParticleSystemComponentProcessor::update()
 {
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
-        compData.holderTransform = m_world->sceneGraph().getTransformation(compData.holder);
+        compData.holderTransform = m_world->sceneGraph().getWorldTransform(compData.holder);
 
     auto dt = svc().timer().getFrameDelta(TimeChannel::GAME);
     for (auto &compData : m_pimpl->data.rawData())
@@ -77,37 +80,6 @@ void ParticleSystemComponentProcessor::update()
             compData.systemAge += dt;
             if (compData.systemAge > compData.systemLifeTime)
                 compData.paused = true;
-        }
-    }
-}
-
-void ParticleSystemComponentProcessor::draw(RenderQueue *ops)
-{
-    for (const auto &compData : m_pimpl->data.rawData())
-    {
-        if (compData.paused)
-            continue;
-
-        glm::mat4 transf;
-        if (!compData.worldTransformed)
-            transf = compData.holderTransform;
-
-        auto spkSystem = compData.system;
-        // Prepare drawing of spark system.
-        for (size_t i = 0; i < spkSystem->getNbGroups(); i++)
-        {
-            auto renderer = static_cast<particlesys_impl::ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
-            renderer->m_currentRenderQueue = ops;
-            renderer->m_currentTransformation = &transf;
-        }
-
-        spkSystem->renderParticles();
-
-        // FIXME: do we need this?
-        for (size_t i = 0; i < spkSystem->getNbGroups(); i++)
-        {
-            auto renderer = static_cast<particlesys_impl::ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
-            renderer->m_currentRenderQueue = nullptr;
         }
     }
 }
@@ -202,7 +174,7 @@ void ParticleSystemComponentProcessor::add(Entity e, const ParticleSystemCreatio
     data.holder = e;
     data.systemLifeTime = params.systemLifeTime;
     data.worldTransformed = params.worldTransformed;
-    data.holderTransform = m_world->sceneGraph().getTransformation(e);
+    data.holderTransform = m_world->sceneGraph().getWorldTransform(e);
 
     m_pimpl->data.add(e, data);
 }
@@ -221,6 +193,30 @@ void ParticleSystemComponentProcessor::remove(Entity e)
 bool ParticleSystemComponentProcessor::has(Entity e)
 {
     return m_pimpl->data.lookup(e).valid();
+}
+
+void ParticleSystemComponentProcessor::draw()
+{
+    for (const auto &compData : m_pimpl->data.rawData())
+    {
+        if (compData.paused)
+            continue;
+
+        glm::mat4 transf;
+        if (!compData.worldTransformed)
+            transf = compData.holderTransform;
+
+        auto spkSystem = compData.system;
+        // Prepare drawing of spark system.
+        for (size_t i = 0; i < spkSystem->getNbGroups(); i++)
+        {
+            auto renderer = static_cast<particlesys_impl::ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
+            renderer->m_currentTransformation = &transf;
+            renderer->m_quadBuffers = &m_pimpl->m_quadBuffers;
+        }
+
+        spkSystem->renderParticles();
+    }
 }
 
 }
