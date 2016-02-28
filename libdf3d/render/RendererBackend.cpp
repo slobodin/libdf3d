@@ -185,7 +185,7 @@ void RendererBackend::updateProgramUniformValues(GpuProgram *program, RenderPass
     // Update samplers.
     auto &samplers = pass->getSamplers();
     int textureUnit = 0;
-    for (int i = 0; i < samplers.size(); i++)
+    for (size_t i = 0; i < samplers.size(); i++)
     {
         shared_ptr<Texture> texture = samplers[i].texture;
         if (!texture)

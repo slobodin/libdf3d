@@ -117,9 +117,9 @@ public:
             return;
 
         if (action == GLFW_PRESS)
-            svc().inputManager().onMouseButtonPressed(df3dBtn, x, y);
+            svc().inputManager().onMouseButtonPressed(df3dBtn, (int)x, (int)y);
         else if (action == GLFW_RELEASE)
-            svc().inputManager().onMouseButtonReleased(df3dBtn, x, y);
+            svc().inputManager().onMouseButtonReleased(df3dBtn, (int)x, (int)y);
     }
 
     void onKey(int key, int scancode, int action, int mods)
@@ -159,7 +159,7 @@ public:
 
     void onCursorMove(double x, double y)
     {
-        svc().inputManager().setMousePosition(x, y);
+        svc().inputManager().setMousePosition((int)x, (int)y);
     }
 
     EngineController& getEngine() { return *m_engine; }

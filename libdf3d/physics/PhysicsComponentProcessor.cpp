@@ -57,7 +57,6 @@ public:
         glm::mat4 ATTRIBUTE_ALIGNED16(df3dWorldTransf);
         worldTrans.getOpenGLMatrix(glm::value_ptr(df3dWorldTransf));
 
-        // TODO_ecs: more fast lookup!
         m_world.sceneGraph().setTransform(m_holder, df3dPos, df3dOrient, df3dWorldTransf);
 
         m_transform = worldTrans;
