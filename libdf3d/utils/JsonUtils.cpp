@@ -18,8 +18,8 @@ Json::Value fromFile(const std::string &path)
     Json::Value root;
     Json::Reader reader;
 
-    std::string buffer(fileSource->getSize(), 0);
-    fileSource->getRaw(&buffer[0], fileSource->getSize());
+    std::string buffer(fileSource->getSizeInBytes(), 0);
+    fileSource->getRaw(&buffer[0], fileSource->getSizeInBytes());
 
     if (!reader.parse(buffer.c_str(), root))
     {

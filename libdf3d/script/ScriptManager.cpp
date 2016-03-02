@@ -68,8 +68,8 @@ bool ScriptManager::doFile(const std::string &fileName)
         if (utils::contains_key(m_executedFiles, file->getPath()))
             return true;
 
-        std::string buffer(file->getSize(), 0);
-        file->getRaw(&buffer[0], file->getSize());
+        std::string buffer(file->getSizeInBytes(), 0);
+        file->getRaw(&buffer[0], file->getSizeInBytes());
 
         glog << "Executing" << fileName << logmess;
         m_executedFiles.insert(file->getPath());

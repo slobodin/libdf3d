@@ -22,8 +22,7 @@ public:
     virtual void close() = 0;
 
     virtual size_t getRaw(void *buffer, size_t sizeInBytes) = 0;
-    //! Returns size in bytes.
-    virtual int64_t getSize() = 0;
+    virtual int64_t getSizeInBytes() = 0;
 
     virtual int64_t tell() = 0;
     virtual bool seek(int64_t offset, std::ios_base::seekdir origin) = 0;
@@ -37,7 +36,7 @@ public:
         return got == bytes;
     }
 
-    const std::string &getPath() const { return m_filePath; }
+    const std::string& getPath() const { return m_filePath; }
 };
 
 }

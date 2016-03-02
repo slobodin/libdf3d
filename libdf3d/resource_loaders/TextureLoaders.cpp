@@ -44,7 +44,7 @@ namespace
     int eof(void *user)
     {
         auto dataSource = static_cast<FileDataSource*>(user);
-        return dataSource->tell() >= dataSource->getSize();
+        return dataSource->tell() >= dataSource->getSizeInBytes();
     }
 
     unique_ptr<PixelBuffer> loadPixelBuffer(shared_ptr<FileDataSource> source)
@@ -150,8 +150,8 @@ TextureCube* TextureCubeFSLoader::createDummy()
 
 bool TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
 {
-    std::string buffer(source->getSize(), 0);
-    source->getRaw(&buffer[0], source->getSize());
+    std::string buffer(source->getSizeInBytes(), 0);
+    source->getRaw(&buffer[0], source->getSizeInBytes());
 
     auto jsonRoot = utils::json::fromSource(buffer);
     if (jsonRoot.empty())

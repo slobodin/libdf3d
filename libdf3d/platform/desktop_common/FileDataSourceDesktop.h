@@ -16,7 +16,7 @@ public:
     virtual void close() override;
 
     virtual size_t getRaw(void *buffer, size_t sizeInBytes) override;
-    virtual int64_t getSize() override;
+    virtual int64_t getSizeInBytes() override;
 
     virtual int64_t tell() override;
     virtual bool seek(int64_t offset, std::ios_base::seekdir origin) override;

@@ -35,7 +35,7 @@ size_t FileDataSourceDesktop::getRaw(void *buffer, size_t sizeInBytes)
     return fread(buffer, 1, sizeInBytes, m_file);
 }
 
-int64_t FileDataSourceDesktop::getSize()
+int64_t FileDataSourceDesktop::getSizeInBytes()
 {
     if (!m_file)
         return 0;

@@ -84,8 +84,8 @@ std::string Shader::preprocessInclude(std::string shaderData, const std::string 
             return shaderData;
         }
 
-        std::string includeData(file->getSize(), 0);
-        file->getRaw(&includeData[0], file->getSize());
+        std::string includeData(file->getSizeInBytes(), 0);
+        file->getRaw(&includeData[0], file->getSizeInBytes());
 
         shaderData.replace(found, end - found + 1, includeData);
 
@@ -175,8 +175,8 @@ shared_ptr<Shader> Shader::createFromFile(const std::string &filePath)
         return nullptr;
     }
 
-    std::string buffer(file->getSize(), 0);
-    file->getRaw(&buffer[0], file->getSize());
+    std::string buffer(file->getSizeInBytes(), 0);
+    file->getRaw(&buffer[0], file->getSizeInBytes());
 
     shader->setShaderData(preprocessInclude(preprocess(buffer), file->getPath()));
 
