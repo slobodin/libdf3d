@@ -53,7 +53,10 @@ shared_ptr<FileDataSource> FileSystemHelpers::openFile(const std::string &path)
     }
     else
     {
-        return make_shared<platform_impl::FileDataSourceAndroid>(path.c_str());
+        auto result = make_shared<platform_impl::FileDataSourceAndroid>(path.c_str());
+        if (!result->valid())
+            return nullptr;
+        return result;
     }
 }
 

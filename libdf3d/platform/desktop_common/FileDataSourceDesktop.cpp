@@ -13,19 +13,13 @@ FileDataSourceDesktop::FileDataSourceDesktop(const std::string &fileName)
 
 FileDataSourceDesktop::~FileDataSourceDesktop()
 {
-    close();
+    if (m_file)
+        fclose(m_file);
 }
 
 bool FileDataSourceDesktop::valid() const
 {
     return m_file != nullptr;
-}
-
-void FileDataSourceDesktop::close()
-{
-    if (m_file)
-        fclose(m_file);
-    m_file = nullptr;
 }
 
 size_t FileDataSourceDesktop::getRaw(void *buffer, size_t sizeInBytes)

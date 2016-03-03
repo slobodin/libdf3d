@@ -19,7 +19,6 @@ public:
     virtual ~FileDataSource() { }
 
     virtual bool valid() const = 0;
-    virtual void close() = 0;
 
     virtual size_t getRaw(void *buffer, size_t sizeInBytes) = 0;
     virtual int64_t getSizeInBytes() = 0;

@@ -8,24 +8,20 @@ namespace df3d { namespace utils { namespace json {
 
 Json::Value fromFile(const std::string &path)
 {
-    auto fileSource = svc().fileSystem().openFile(path);
-    if (!fileSource || !fileSource->valid())
-    {
-        glog << "Couldn't load json configs from" << path << logwarn;
-        return Json::Value();
-    }
-
     Json::Value root;
+    std::string buffer;
     Json::Reader reader;
 
-    std::string buffer(fileSource->getSizeInBytes(), 0);
-    fileSource->getRaw(&buffer[0], fileSource->getSizeInBytes());
+    if (auto fileSource = svc().fileSystem().openFile(path))
+    {
+        buffer.resize(fileSource->getSizeInBytes());
+        fileSource->getRaw(&buffer[0], buffer.size());
+    }
+    else
+        glog << "Couldn't load json configs from" << path << logwarn;
 
     if (!reader.parse(buffer.c_str(), root))
-    {
         glog << "Failed to parse json from" << path << ". Error:" << reader.getFormattedErrorMessages() << logwarn;
-        return Json::Value();
-    }
 
     return root;
 }
@@ -36,10 +32,7 @@ Json::Value fromSource(const std::string &data)
     Json::Reader reader;
 
     if (!reader.parse(data, root))
-    {
         glog << "Failed to parse json. Error:" << reader.getFormattedErrorMessages() << logwarn;
-        return Json::Value();
-    }
 
     return root;
 }

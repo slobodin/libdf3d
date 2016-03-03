@@ -15,6 +15,9 @@ template<typename T>
 void Serialize(const T &data, std::ofstream &fs)
 {
     fs.write(reinterpret_cast<const char *>(&data), sizeof(data));
+
+    if (!fs)
+        throw std::runtime_error("failed to write to an output");
 }
 
 void Serialize(const void *data, size_t size, std::ofstream &fs)
@@ -22,6 +25,9 @@ void Serialize(const void *data, size_t size, std::ofstream &fs)
     if (size == 0)
         return;
     fs.write(reinterpret_cast<const char *>(data), size);
+
+    if (!fs)
+        throw std::runtime_error("failed to write to an output");
 }
 
 df3d::resource_loaders_impl::DFMeshSubmeshHeader CreateSubmeshChunk(const df3d::SubMesh &sm, const std::string &materialId)

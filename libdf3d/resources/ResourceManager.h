@@ -8,7 +8,6 @@ namespace utils { class ThreadPool; }
 
 class Resource;
 class ResourceFactory;
-class FileDataSource;
 class ManualResourceLoader;
 class FSResourceLoader;
 
@@ -29,7 +28,7 @@ private:
 
     struct DecodeRequest
     {
-        shared_ptr<FileDataSource> source;
+        std::string resourcePath;
         shared_ptr<Resource> resource;
         shared_ptr<FSResourceLoader> loader;
 

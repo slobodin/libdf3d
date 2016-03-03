@@ -52,6 +52,7 @@ endif()
 
 # TODO: if build tools
 add_subdirectory(${PROJECT_SOURCE_DIR}/tools/obj_to_dfmesh)
+add_subdirectory(${PROJECT_SOURCE_DIR}/tools/data_archiver)
 
 if (DF3D_DESKTOP)
     set(DF3D_USE_ROCKET_DEBUGGER TRUE)
@@ -109,6 +110,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileDataSource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystemHelpers.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/io/MemoryDataSource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/Storage.h
     ${PROJECT_SOURCE_DIR}/libdf3d/math/AABB.h
     ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingSphere.h
@@ -149,6 +151,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/VertexIndexBuffer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Viewport.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceContainer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/AudioLoaders.h
@@ -204,6 +207,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/io/MemoryDataSource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/io/Storage.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/math/AABB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingSphere.cpp
@@ -241,6 +245,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/VertexIndexBuffer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Viewport.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceContainer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/AudioLoaders.cpp

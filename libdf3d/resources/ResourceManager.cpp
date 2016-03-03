@@ -17,9 +17,14 @@ void ResourceManager::doRequest(DecodeRequest req)
     glog << "ASYNC decoding" << req.source->getPath() << logdebug;
     */
 
-    req.result = req.loader->decode(req.source);
-    if (!req.result)
-        glog << "ASYNC decoding failed" << logwarn;
+    if (auto source = svc().fileSystem().openFile(req.resourcePath))
+    {
+        req.result = req.loader->decode(source);
+        if (!req.result)
+            glog << "ASYNC decoding failed" << logwarn;
+    }
+    else
+        glog << "Failed to ASYNC decode a resource. Failed to open file" << logwarn;
 
     m_decodedResources.push(req);
 }
@@ -89,7 +94,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
     DecodeRequest req;
     req.loader = loader;
     req.resource = resource;
-    req.source = svc().fileSystem().openFile(guid);
+    req.resourcePath = guid;
 
     if (loader->loadingMode == ResourceLoadingMode::ASYNC)
         m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, req));
@@ -99,7 +104,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
         glog << "Decoding" << req.source->getPath() << logdebug;
         */
 
-        req.result = loader->decode(req.source);
+        req.result = loader->decode(svc().fileSystem().openFile(req.resourcePath));
         if (req.result)
         {
             loader->onDecoded(resource.get());

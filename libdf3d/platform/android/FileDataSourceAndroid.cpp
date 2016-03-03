@@ -16,20 +16,13 @@ FileDataSourceAndroid::FileDataSourceAndroid(const char *fileName)
 
 FileDataSourceAndroid::~FileDataSourceAndroid()
 {
-    close();
+    if (m_file)
+        AAsset_close(m_file);
 }
 
 bool FileDataSourceAndroid::valid() const
 {
     return m_file != nullptr;
-}
-
-void FileDataSourceAndroid::close()
-{
-    if (m_file)
-        AAsset_close(m_file);
-    m_file = nullptr;
-    m_current = 0;
 }
 
 size_t FileDataSourceAndroid::getRaw(void *buffer, size_t sizeInBytes)

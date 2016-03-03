@@ -15,14 +15,13 @@ public:
     FileDataSourceAndroid(const char *fileName);
     ~FileDataSourceAndroid();
 
-    virtual bool valid() const override;
-    virtual void close() override;
+    bool valid() const override;
 
-    virtual size_t getRaw(void *buffer, size_t sizeInBytes) override;
-    virtual int64_t getSize() override;
+    size_t getRaw(void *buffer, size_t sizeInBytes) override;
+    int64_t getSize() override;
 
-    virtual int64_t tell() override;
-    virtual bool seek(int64_t offset, std::ios_base::seekdir origin) override;
+    int64_t tell() override;
+    bool seek(int64_t offset, std::ios_base::seekdir origin) override;
 
     static void setAssetManager(AAssetManager *mgr);
 

@@ -69,10 +69,12 @@ bool ScriptManager::doFile(const std::string &fileName)
             return true;
 
         std::string buffer(file->getSizeInBytes(), 0);
-        file->getRaw(&buffer[0], file->getSizeInBytes());
+        file->getRaw(&buffer[0], buffer.size());
 
         glog << "Executing" << fileName << logmess;
         m_executedFiles.insert(file->getPath());
+
+        file.reset();
 
         return doString(buffer.c_str());
     }
