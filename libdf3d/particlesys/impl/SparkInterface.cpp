@@ -35,6 +35,7 @@ ParticleSystemBuffers_Quad::ParticleSystemBuffers_Quad()
     m_vb = make_unique<VertexBuffer>(VERTEX_FORMAT);
     m_ib = make_unique<IndexBuffer>();
 
+    // Some assertions for this performance workaround.
     assert(sizeof(SpkVertexData) == VERTEX_FORMAT.getVertexSize());
     assert(VERTEX_FORMAT.getOffsetTo(VertexFormat::POSITION_3) == 0);
     assert(VERTEX_FORMAT.getOffsetTo(VertexFormat::TX_2) == sizeof(SPK::Vector3D));
