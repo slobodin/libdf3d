@@ -226,6 +226,7 @@ void bindProcessors(Table &df3dNamespace)
         Class<StaticMeshComponentProcessor, NoConstructor<StaticMeshComponentProcessor>> smProcessor(vm, _SC("StaticMeshComponentProcessor"));
         smProcessor
             .Func(_SC("setVisible"), &StaticMeshComponentProcessor::setVisible)
+            .Func<void(StaticMeshComponentProcessor::*)(Entity, const std::string&)>(_SC("add"), &StaticMeshComponentProcessor::add)
             .Func(_SC("disableFrustumCulling"), &StaticMeshComponentProcessor::disableFrustumCulling)
             ;
 
