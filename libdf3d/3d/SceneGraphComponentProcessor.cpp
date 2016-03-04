@@ -7,27 +7,23 @@ namespace df3d {
 
 struct SceneGraphComponentProcessor::Impl
 {
-    // TODO_ecs: play with layout.
     // TODO_ecs: return dirty flag back?
     struct Data
     {
         //! Accumulated node world transform (including parent).
         glm::mat4 worldTransform;
-
         glm::mat4 localTransform;
-        bool localTransformDirty = true;
-        //! Node local position.
-        glm::vec3 position;
         //! Node local orientation.
         glm::quat orientation;
+        //! Node local position.
+        glm::vec3 position;
+        Entity holder;
         //! Node local scale.
         glm::vec3 scaling = glm::vec3(1.0f, 1.0f, 1.0f);
-
-        std::string name;
-
-        Entity holder;
         Entity parent;
         std::vector<Entity> children;
+        std::string name;
+        bool localTransformDirty = true;
     };
 
     ComponentDataHolder<Data> data;

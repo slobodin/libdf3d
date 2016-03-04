@@ -14,15 +14,13 @@ namespace df3d {
 
 struct StaticMeshComponentProcessor::Impl
 {
-    // TODO_ecs: more cache friendly layout.
     struct Data
     {
-        shared_ptr<MeshData> meshData;
-        Entity holder;
         glm::mat4 holderTransformation;
         glm::vec3 holderPosition;
+        Entity holder;
         glm::vec3 holderScale;
-
+        shared_ptr<MeshData> meshData;
         bool visible = true;
         bool frustumCullingDisabled = false;
     };
