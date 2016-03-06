@@ -18,7 +18,7 @@ public:
     bool valid() const override;
 
     size_t getRaw(void *buffer, size_t sizeInBytes) override;
-    int64_t getSize() override;
+    int64_t getSizeInBytes() override;
 
     int64_t tell() override;
     bool seek(int64_t offset, std::ios_base::seekdir origin) override;
