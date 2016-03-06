@@ -22,8 +22,6 @@ PhysicsComponentCreationParams::PhysicsComponentCreationParams(const std::string
 
 PhysicsComponentCreationParams::PhysicsComponentCreationParams(const Json::Value &root)
 {
-    shape = CollisionShapeType::BOX;
-
     auto shapeStr = root["shape"].asString();
     if (shapeStr == "box")
         shape = CollisionShapeType::BOX;
@@ -32,7 +30,7 @@ PhysicsComponentCreationParams::PhysicsComponentCreationParams(const Json::Value
     else if (shapeStr == "convex_hull")
         shape = CollisionShapeType::CONVEX_HULL;
     else
-        glog << "Unsupported rigid body box shape" << shapeStr << logwarn;
+        glog << "Unsupported rigid body shape" << shapeStr << logwarn;
 
     root["mass"] >> mass;
     root["friction"] >> friction;

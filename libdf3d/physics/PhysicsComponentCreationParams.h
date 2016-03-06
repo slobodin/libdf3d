@@ -4,14 +4,17 @@ namespace df3d {
 
 enum class CollisionShapeType
 {
-    BOX,
-    SPHERE,
-    CONVEX_HULL
+    BOX,                            // btBoxShape
+    SPHERE,                         // btSphereShape
+    CONVEX_HULL,                    // btConvexHullShape
+    STATIC_TRIANGLE_MESH,           // btBvhTriangleMeshShape
+
+    UNDEFINED
 };
 
 struct DF3D_DLL PhysicsComponentCreationParams
 {
-    CollisionShapeType shape = CollisionShapeType::BOX;
+    CollisionShapeType shape = CollisionShapeType::UNDEFINED;
 
     float mass = 1.0f;
     float friction = 0.5f;
