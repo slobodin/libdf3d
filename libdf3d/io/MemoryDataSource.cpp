@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-MemoryDataSource::MemoryDataSource(unique_ptr<unsigned char[]> &&buffer, int64_t size, const std::string &fileName)
+MemoryDataSource::MemoryDataSource(unique_ptr<unsigned char[]> &&buffer, int32_t size, const std::string &fileName)
     : FileDataSource(fileName),
     m_buffer(std::move(buffer)),
     m_size(size)
@@ -32,17 +32,17 @@ size_t MemoryDataSource::getRaw(void *buffer, size_t sizeInBytes)
     return sizeInBytes;
 }
 
-int64_t MemoryDataSource::getSizeInBytes()
+size_t MemoryDataSource::getSizeInBytes()
 {
     return m_size;
 }
 
-int64_t MemoryDataSource::tell()
+size_t MemoryDataSource::tell()
 {
     return m_current - m_buffer.get();
 }
 
-bool MemoryDataSource::seek(int64_t offset, std::ios_base::seekdir origin)
+bool MemoryDataSource::seek(size_t offset, std::ios_base::seekdir origin)
 {
     if (origin == std::ios_base::cur)
         m_current += offset;

@@ -60,17 +60,17 @@ size_t ResourceContainerDataSource::getRaw(void *buffer, size_t sizeInBytes)
     return read;
 }
 
-int64_t ResourceContainerDataSource::getSizeInBytes()
+size_t ResourceContainerDataSource::getSizeInBytes()
 {
     return m_entry.length;
 }
 
-int64_t ResourceContainerDataSource::tell()
+size_t ResourceContainerDataSource::tell()
 {
     return m_internalPos;
 }
 
-bool ResourceContainerDataSource::seek(int64_t offset, std::ios_base::seekdir origin)
+bool ResourceContainerDataSource::seek(size_t offset, std::ios_base::seekdir origin)
 {
     if (origin == std::ios_base::cur)
         m_internalPos += offset;
