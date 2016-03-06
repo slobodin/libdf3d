@@ -46,4 +46,7 @@ public:
     void onDecoded(Resource *resource) override;
 };
 
+// FIXME: workaround for physics. Figure out how to do this more clear way.
+unique_ptr<MeshDataFSLoader::Mesh> LoadMeshDataFromFile_Workaround(shared_ptr<FileDataSource> source);
+
 }

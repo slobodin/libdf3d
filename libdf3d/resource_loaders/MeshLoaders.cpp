@@ -21,13 +21,13 @@ MeshDataManualLoader::MeshDataManualLoader(std::vector<SubMesh> &&geometry)
 
 MeshData* MeshDataManualLoader::load()
 {
+    for (auto &s : m_geometry)
+        utils::mesh::computeTangentBasis(s);
+
     auto result = new MeshData(m_geometry);
     result->m_aabb.constructFromGeometry(m_geometry);
     result->m_obb.constructFromGeometry(m_geometry);
     result->m_sphere.constructFromGeometry(m_geometry);
-
-    for (auto &s : m_geometry)
-        utils::mesh::computeTangentBasis(s);
 
     return result;
 }
@@ -95,6 +95,18 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
     */
 
     m_mesh.reset();     // Cleanup main memory.
+}
+
+unique_ptr<MeshDataFSLoader::Mesh> LoadMeshDataFromFile_Workaround(shared_ptr<FileDataSource> source)
+{
+    auto extension = svc().fileSystem().getFileExtension(source->getPath());
+
+    if (extension == ".obj")
+        return resource_loaders_impl::MeshLoader_obj().load(source);
+    else if (extension == ".dfmesh")
+        return resource_loaders_impl::MeshLoader_dfmesh().load(source);
+
+    return nullptr;
 }
 
 }

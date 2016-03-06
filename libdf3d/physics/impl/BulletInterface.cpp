@@ -54,7 +54,7 @@ void BulletDebugDraw::setDebugMode(int debugMode)
 
 int BulletDebugDraw::getDebugMode() const
 {
-    return btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawNormals | btIDebugDraw::DBG_DrawConstraints;
+    return btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawWireframe;// | btIDebugDraw::DBG_DrawNormals | btIDebugDraw::DBG_DrawConstraints;
 }
 
 void BulletDebugDraw::clean()
