@@ -119,7 +119,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemUtils.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkInterface.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkCommon.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkLineTrailRenderer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkQuadRenderer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/ParticleSystemLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentCreationParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.h
@@ -216,7 +218,9 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemUtils.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkInterface.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkCommon.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkLineTrailRenderer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkQuadRenderer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/ParticleSystemLoader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentCreationParams.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.cpp

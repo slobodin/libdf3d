@@ -1,7 +1,8 @@
 #include "ParticleSystemComponentProcessor.h"
 
 #include "impl/ParticleSystemLoader.h"
-#include "impl/SparkInterface.h"
+#include "impl/SparkCommon.h"
+#include "impl/SparkQuadRenderer.h"
 #include "ParticleSystemUtils.h"
 #include <libdf3d/game/ComponentDataHolder.h>
 #include <libdf3d/game/World.h>

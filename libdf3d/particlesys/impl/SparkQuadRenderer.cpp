@@ -1,16 +1,12 @@
-#include "SparkInterface.h"
+#include "SparkQuadRenderer.h"
 
-#include <libdf3d/render/RenderPass.h>
 #include <libdf3d/base/EngineController.h>
-#include <libdf3d/3d/Camera.h>
-#include <libdf3d/game/World.h>
-#include <libdf3d/resources/ResourceManager.h>
-#include <libdf3d/resources/ResourceFactory.h>
-#include <libdf3d/render/VertexIndexBuffer.h>
-#include <libdf3d/render/GpuProgram.h>
-#include <libdf3d/render/RenderOperation.h>
 #include <libdf3d/render/RenderManager.h>
 #include <libdf3d/render/RendererBackend.h>
+#include <libdf3d/render/VertexIndexBuffer.h>
+#include <libdf3d/render/RenderOperation.h>
+#include <libdf3d/3d/Camera.h>
+#include <libdf3d/game/World.h>
 
 namespace df3d { namespace particlesys_impl {
 
@@ -108,59 +104,6 @@ void ParticleSystemBuffers_Quad::draw(size_t nbOfParticles, RenderPass *passProp
     op.worldTransform = m;
 
     svc().renderManager().getRenderer()->drawOperation(op);
-}
-
-ParticleSystemRenderer::ParticleSystemRenderer(bool NEEDS_DATASET)
-    : SPK::Renderer(NEEDS_DATASET),
-    m_pass(make_shared<RenderPass>())
-{
-    m_pass->setFaceCullMode(RenderPass::FaceCullMode::BACK);
-    m_pass->setFrontFaceWinding(RenderPass::WindingOrder::CCW);
-    m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f);
-    m_pass->setSampler("diffuseMap", std::shared_ptr<Texture>());          // FIXME: force to use default white texture (as using colored program)
-
-    m_pass->setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
-}
-
-ParticleSystemRenderer::~ParticleSystemRenderer()
-{
-
-}
-
-void ParticleSystemRenderer::setBlendMode(SPK::BlendMode blendMode)
-{
-    switch (blendMode)
-    {
-    case SPK::BLEND_MODE_NONE:
-        m_pass->setBlendMode(RenderPass::BlendingMode::NONE);
-        break;
-    case SPK::BLEND_MODE_ADD:
-        m_pass->setBlendMode(RenderPass::BlendingMode::ADDALPHA);
-        break;
-    case SPK::BLEND_MODE_ALPHA:
-        m_pass->setBlendMode(RenderPass::BlendingMode::ALPHA);
-        break;
-    default:
-        break;
-    }
-}
-
-void ParticleSystemRenderer::setDiffuseMap(shared_ptr<Texture> texture)
-{
-    m_pass->setSampler("diffuseMap", texture);
-}
-
-void ParticleSystemRenderer::enableFaceCulling(bool enable)
-{
-    if (enable)
-    {
-        m_pass->setFaceCullMode(RenderPass::FaceCullMode::BACK);
-        m_pass->setFrontFaceWinding(RenderPass::WindingOrder::CCW);
-    }
-    else
-    {
-        m_pass->setFaceCullMode(RenderPass::FaceCullMode::NONE);
-    }
 }
 
 void QuadParticleSystemRenderer::render2D(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const
@@ -338,70 +281,5 @@ void QuadParticleSystemRenderer::computeAABB(SPK::Vector3D &AABBMin, SPK::Vector
         AABBMax += diagV;
     }
 }
-
-/*
-LineParticleSystemRenderer::LineParticleSystemRenderer(float length, float width)
-    : ParticleSystemRenderer(false),
-    SPK::LineRenderBehavior(length, width)
-{
-
-}
-
-LineParticleSystemRenderer::~LineParticleSystemRenderer()
-{
-
-}
-
-SPK::RenderBuffer* LineParticleSystemRenderer::attachRenderBuffer(const SPK::Group &group) const
-{
-    size_t totalParticles = group.getCapacity();
-    auto buffer = SPK_NEW(MyRenderBuffer, totalParticles, LINE_VERTICES_PER_PARTICLE, LINE_INDICES_PER_PARTICLE);
-    buffer->positionAtStart();
-
-    // Initialize the index array.
-    for (size_t i = 0; i < totalParticles * LINE_INDICES_PER_PARTICLE; ++i)
-        buffer->setNextIndex(i);
-
-    buffer->m_ib->update(totalParticles * LINE_INDICES_PER_PARTICLE, buffer->m_indexData.data());
-    buffer->m_indexData.clear();
-
-    return buffer;
-}
-
-void LineParticleSystemRenderer::render(const SPK::Group &group, const SPK::DataSet *dataSet, SPK::RenderBuffer *renderBuffer) const
-{
-    if (!isActive())
-        return;
-
-    auto &buffer = static_cast<MyRenderBuffer&>(*renderBuffer);
-    buffer.positionAtStart(); // Repositions all the buffers at the start.
-
-    m_pass->enableDepthWrite(isRenderingOptionEnabled(SPK::RENDERING_OPTION_DEPTH_WRITE));
-
-    for (SPK::ConstGroupIterator particleIt(group); !particleIt.end(); ++particleIt)
-    {
-        buffer.setNextVertex(particleIt->position());
-        buffer.setNextVertex(particleIt->position() + particleIt->velocity() * length);
-
-        const auto &color = particleIt->getColor();
-        buffer.setNextColor(color);
-        buffer.setNextColor(color);
-    }
-
-    addToRenderQueue(buffer, group.getNbParticles(), LINE_VERTICES_PER_PARTICLE, LINE_INDICES_PER_PARTICLE, RenderOperation::Type::LINES);
-}
-
-void LineParticleSystemRenderer::computeAABB(SPK::Vector3D &AABBMin, SPK::Vector3D &AABBMax, const SPK::Group &group, const SPK::DataSet *dataSet) const
-{
-    for (SPK::ConstGroupIterator particleIt(group); !particleIt.end(); ++particleIt)
-    {
-        auto v = particleIt->position() + particleIt->velocity() * length;
-        AABBMin.setMin(particleIt->position());
-        AABBMin.setMin(v);
-        AABBMax.setMax(particleIt->position());
-        AABBMax.setMax(v);
-    }
-}
-.*/
 
 } }

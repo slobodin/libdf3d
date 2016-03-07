@@ -1,6 +1,7 @@
 #include "ParticleSystemLoader.h"
 
-#include "SparkInterface.h"
+#include "SparkCommon.h"
+#include "SparkQuadRenderer.h"
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/resources/ResourceManager.h>
 #include <libdf3d/resources/ResourceFactory.h>
