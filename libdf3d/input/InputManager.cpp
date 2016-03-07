@@ -7,8 +7,6 @@
 
 namespace df3d {
 
-const size_t InputManager::MAX_TOUCHES = 16;
-
 void InputManager::cleanStep()
 {
     m_prevMouseState = m_mouseState;

@@ -9,7 +9,7 @@ class DF3D_DLL InputManager : utils::NonCopyable
 {
     friend class EngineController;
 
-    static const size_t MAX_TOUCHES;
+    static const size_t MAX_TOUCHES = 16;
 
     struct MouseState
     {
