@@ -13,7 +13,8 @@ public:
     enum class Type
     {
         LINES,
-        TRIANGLES
+        TRIANGLES,
+        LINE_STRIP
     };
 
     Type type = Type::TRIANGLES;
