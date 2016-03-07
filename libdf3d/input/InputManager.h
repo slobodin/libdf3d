@@ -9,6 +9,8 @@ class DF3D_DLL InputManager : utils::NonCopyable
 {
     friend class EngineController;
 
+    static const size_t MAX_TOUCHES;
+
     struct MouseState
     {
         glm::ivec2 position;
@@ -42,7 +44,9 @@ class DF3D_DLL InputManager : utils::NonCopyable
     KeyboardState m_prevKeyboardState;
     KeyboardState m_keyboardState;
 
-    std::vector<Touch> m_touches;
+    Touch m_currentTouches[MAX_TOUCHES];
+    size_t m_touchesCount = 0;
+    std::unordered_map<int, Touch> m_touches;
 
     void cleanStep();
 
@@ -50,7 +54,8 @@ public:
     InputManager() = default;
     ~InputManager() = default;
 
-    const std::vector<Touch>& getTouches() const;
+    const Touch& getTouch(size_t idx) const;
+    size_t getTouchesCount() const;
 
     const glm::ivec2& getMousePosition() const;
     const glm::ivec2& getMouseDelta() const;
@@ -66,7 +71,6 @@ public:
 
     // This should be called by the platform code only.
     // TODO: improve encapsulation!
-    //void onTouchEvent(const Touch &touchEvent);
     void onMouseButtonPressed(MouseButton button, int x, int y);
     void onMouseButtonReleased(MouseButton button, int x, int y);
     void setMousePosition(int x, int y);
@@ -74,7 +78,7 @@ public:
     void onKeyUp(const KeyCode &keyCode, KeyModifier modifiers);
     void onKeyDown(const KeyCode &keyCode, KeyModifier modifiers);
     void onTextInput(unsigned int codepoint);
-    void onTouch(const Touch &touch);
+    void onTouch(int id, int x, int y, Touch::State state);
 };
 
 }

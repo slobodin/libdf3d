@@ -2,16 +2,10 @@
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/platform/android/FileDataSourceAndroid.h>
 #include <libdf3d/input/InputManager.h>
+#include <libdf3d/input/InputEvents.h>
 #include <jni.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
-
-struct AndroidTouch
-{
-    bool valid = false;
-};
-
-static const int MAX_TOUCHES = 16;
 
 struct AndroidAppState
 {
@@ -19,8 +13,6 @@ struct AndroidAppState
 
     unique_ptr<df3d::AppDelegate> appDelegate;
     unique_ptr<df3d::EngineController> engine;
-
-    AndroidTouch touchesCache[MAX_TOUCHES];
 
     int primaryTouchId = -1;
 };
@@ -122,24 +114,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_draw(JNI
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchDown(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
-    if (pointerId >= MAX_TOUCHES)
-    {
-        df3d::glog << "Touch limit exceeded" << df3d::logwarn;
-        return;
-    }
-
-    /*
-    auto &touch = g_appState->touchesCache[pointerId];
-    touch.valid = true;
-    touch.touch.x = x;
-    touch.touch.y = y;
-    touch.touch.dx = 0;
-    touch.touch.dy = 0;
-    touch.touch.id = pointerId;
-    touch.touch.state = df3d::base::TouchEvent::State::DOWN;
-
-    g_appState->appDelegate->onTouchEvent(touch.touch);
-    */
+    df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::DOWN);
 
     if (g_appState->primaryTouchId == -1)
     {
@@ -153,24 +128,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchD
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchUp(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
-    if (pointerId >= MAX_TOUCHES)
-    {
-        df3d::glog << "Touch limit exceeded" << df3d::logwarn;
-        return;
-    }
-
-    /*
-    auto &touch = g_appState->touchesCache[pointerId];
-    touch.valid = false;
-    touch.touch.x = x;
-    touch.touch.y = y;
-    touch.touch.dx = 0;
-    touch.touch.dy = 0;
-    touch.touch.id = pointerId;
-    touch.touch.state = df3d::base::TouchEvent::State::UP;
-
-    g_appState->appDelegate->onTouchEvent(touch.touch);
-    */
+    df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::UP);
 
     if (pointerId == g_appState->primaryTouchId)
     {
@@ -184,27 +142,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchU
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchMove(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
-    if (pointerId >= MAX_TOUCHES)
-    {
-        df3d::glog << "Touch limit exceeded" << df3d::logwarn;
-        return;
-    }
-
-    /*
-    auto &touch = g_appState->touchesCache[pointerId];
-    if (touch.valid)
-    {
-        touch.touch.dx = x - touch.touch.x;
-        touch.touch.dy = y - touch.touch.y;
-    }
-
-    touch.touch.x = x;
-    touch.touch.y = y;
-    touch.touch.id = pointerId;
-    touch.touch.state = df3d::base::TouchEvent::State::MOVING;
-
-    g_appState->appDelegate->onTouchEvent(touch.touch);
-    */
+    df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::MOVING);
 
     if (pointerId == g_appState->primaryTouchId)
     {
@@ -216,24 +154,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchM
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchCancel(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
-    if (pointerId >= MAX_TOUCHES)
-    {
-        df3d::glog << "Touch limit exceeded" << df3d::logwarn;
-        return;
-    }
-
-    /*
-    auto &touch = g_appState->touchesCache[pointerId];
-    touch.valid = false;
-    touch.touch.x = x;
-    touch.touch.y = y;
-    touch.touch.dx = 0;
-    touch.touch.dy = 0;
-    touch.touch.id = pointerId;
-    touch.touch.state = df3d::base::TouchEvent::State::CANCEL;
-
-    g_appState->appDelegate->onTouchEvent(touch.touch);
-    */
+    df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::CANCEL);
 
     if (pointerId == g_appState->primaryTouchId)
     {

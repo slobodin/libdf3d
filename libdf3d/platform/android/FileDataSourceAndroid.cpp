@@ -36,7 +36,7 @@ size_t FileDataSourceAndroid::getRaw(void *buffer, size_t sizeInBytes)
     return bytesRead;
 }
 
-int64_t FileDataSourceAndroid::getSizeInBytes()
+size_t FileDataSourceAndroid::getSizeInBytes()
 {
     if (!m_file)
         return 0;
@@ -44,14 +44,14 @@ int64_t FileDataSourceAndroid::getSizeInBytes()
     return AAsset_getLength(m_file);
 }
 
-int64_t FileDataSourceAndroid::tell()
+size_t FileDataSourceAndroid::tell()
 {
     if (!m_file)
         return -1;
     return m_current;
 }
 
-bool FileDataSourceAndroid::seek(int64_t offset, std::ios_base::seekdir origin)
+bool FileDataSourceAndroid::seek(size_t offset, std::ios_base::seekdir origin)
 {
     int whence;
     if (origin == std::ios_base::cur)

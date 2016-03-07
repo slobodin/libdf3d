@@ -7,6 +7,8 @@
 
 namespace df3d {
 
+const size_t InputManager::MAX_TOUCHES = 16;
+
 void InputManager::cleanStep()
 {
     m_prevMouseState = m_mouseState;
@@ -14,12 +16,36 @@ void InputManager::cleanStep()
 
     m_mouseState.wheelDelta = 0.0f;
     m_mouseState.delta = glm::ivec2(0, 0);
-    m_touches.clear();
+
+    m_touchesCount = 0;
+    for (const auto &kv : m_touches)
+    {
+        m_currentTouches[m_touchesCount++] = kv.second;
+        if (m_touchesCount >= MAX_TOUCHES)
+        {
+            glog << "Touch limit exceeded" << logwarn;
+            break;
+        }
+    }
+
+    for (auto it = m_touches.begin(); it != m_touches.end(); )
+    {
+        if (it->second.state == Touch::State::UP || it->second.state == Touch::State::CANCEL)
+            it = m_touches.erase(it);
+        else
+            it++;
+    }
 }
 
-const std::vector<Touch>& InputManager::getTouches() const
+const Touch& InputManager::getTouch(size_t idx) const
 {
-    return m_touches;
+    assert(idx >= 0 && idx < getTouchesCount());
+    return m_currentTouches[idx];
+}
+
+size_t InputManager::getTouchesCount() const
+{
+    return m_touchesCount;
 }
 
 const glm::ivec2& InputManager::getMousePosition() const
@@ -129,24 +155,61 @@ void InputManager::onTextInput(unsigned int codepoint)
     svc().guiManager().getContext()->ProcessTextInput(codepoint);
 }
 
-void InputManager::onTouch(const Touch &touch)
+void InputManager::onTouch(int id, int x, int y, Touch::State state)
 {
-    // TODO: implement.
-    assert(false);
-
-    // Force move event in order to pass coords to libRocket. wtf?
-    if (touch.id == 0)
-        df3d::svc().guiManager().getContext()->ProcessMouseMove(touch.x, touch.y, 0);
-
-    switch (touch.state)
+    switch (state)
     {
     case Touch::State::DOWN:
-        if (touch.id == 0)
-            df3d::svc().guiManager().getContext()->ProcessMouseButtonDown(0, 0);
+    {
+        auto found = m_touches.find(id);
+        if (found == m_touches.end())
+        {
+            Touch newTouch;
+            newTouch.state = state;
+            newTouch.x = x;
+            newTouch.y = y;
+            newTouch.id = id;
+
+            m_touches.insert({ id, newTouch});
+        }
+        else
+        {
+            glog << "InputManager::onTouch touchdown failed, already have this touch" << logwarn;
+        }
+    }
+        break;
+    case Touch::State::MOVING:
+    {
+        auto found = m_touches.find(id);
+        if (found != m_touches.end())
+        {
+            found->second.state = state;
+            found->second.dx = x - found->second.x;
+            found->second.dy = y - found->second.y;
+            found->second.x = x;
+            found->second.y = y;
+        }
+        else
+        {
+            glog << "InputManager::onTouch touchmove failed, no such touch" << logwarn;
+        }
+    }
         break;
     case Touch::State::UP:
-        if (touch.id == 0)
-            df3d::svc().guiManager().getContext()->ProcessMouseButtonUp(0, 0);
+    case Touch::State::CANCEL:
+    {
+        auto found = m_touches.find(id);
+        if (found != m_touches.end())
+        {
+            found->second.state = state;
+            found->second.x = x;
+            found->second.y = y;
+        }
+        else
+        {
+            glog << "InputManager::onTouch touchup failed, no such touch" << logwarn;
+        }
+    }
         break;
     default:
         break;

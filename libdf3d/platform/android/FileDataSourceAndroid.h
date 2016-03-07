@@ -9,7 +9,7 @@ class DF3D_DLL FileDataSourceAndroid : public FileDataSource
 {
     AAsset *m_file = nullptr;
     static AAssetManager *m_assetMgr;
-    int64_t m_current = 0;
+    size_t m_current = 0;
 
 public:
     FileDataSourceAndroid(const char *fileName);
@@ -18,10 +18,10 @@ public:
     bool valid() const override;
 
     size_t getRaw(void *buffer, size_t sizeInBytes) override;
-    int64_t getSizeInBytes() override;
+    size_t getSizeInBytes() override;
 
-    int64_t tell() override;
-    bool seek(int64_t offset, std::ios_base::seekdir origin) override;
+    size_t tell() override;
+    bool seek(size_t offset, std::ios_base::seekdir origin) override;
 
     static void setAssetManager(AAssetManager *mgr);
 
