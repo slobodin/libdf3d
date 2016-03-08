@@ -84,78 +84,12 @@ void TextureCreationParams::setWrapMode(TextureWrapMode wrapMode)
     m_wrapMode = wrapMode;
 }
 
-bool Texture::isPot(size_t v)
+Texture::Texture()
 {
-    return v && !(v & (v - 1));
+
 }
 
-size_t Texture::getNextPot(size_t v)
-{
-    if (!isPot(v))
-    {
-        int n = 0;
-        while (v >>= 1)
-            ++n;
-
-        v = 1 << (n + 1);
-    }
-    return v;
-}
-
-GLint Texture::getGlFilteringMode(TextureFiltering filtering, bool mipmapped)
-{
-    switch (filtering)
-    {
-    case TextureFiltering::NEAREST:
-        return !mipmapped ? GL_NEAREST : GL_NEAREST_MIPMAP_NEAREST;
-    case TextureFiltering::BILINEAR:
-        return !mipmapped ? GL_LINEAR : GL_LINEAR_MIPMAP_NEAREST;
-    case TextureFiltering::TRILINEAR:
-        return !mipmapped ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR;
-    default:
-        break;
-    }
-
-    return -1;
-}
-
-GLint Texture::getGlWrapMode(TextureWrapMode mode)
-{
-    switch (mode)
-    {
-    case TextureWrapMode::WRAP:
-        return GL_REPEAT;
-    case TextureWrapMode::CLAMP:
-        return GL_CLAMP_TO_EDGE;
-    default:
-        break;
-    }
-
-    return -1;
-}
-
-void Texture::setupGlTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped)
-{
-    glTexParameteri(glType, GL_TEXTURE_MAG_FILTER, filtering == TextureFiltering::NEAREST ? GL_NEAREST : GL_LINEAR);
-    glTexParameteri(glType, GL_TEXTURE_MIN_FILTER, getGlFilteringMode(filtering, mipmapped));
-
-    printOpenGLError();
-}
-
-void Texture::setupGlWrapMode(GLenum glType, TextureWrapMode wrapMode)
-{
-    auto wmGl = getGlWrapMode(wrapMode);
-    glTexParameteri(glType, GL_TEXTURE_WRAP_S, wmGl);
-    glTexParameteri(glType, GL_TEXTURE_WRAP_T, wmGl);
-#if defined(DF3D_DESKTOP)
-    glTexParameteri(glType, GL_TEXTURE_WRAP_R, wmGl);
-#endif
-
-    printOpenGLError();
-}
-
-Texture::Texture(TextureCreationParams params)
-    : m_params(params)
+Texture::~Texture()
 {
 
 }

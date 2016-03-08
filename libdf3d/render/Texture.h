@@ -1,7 +1,6 @@
 #pragma once
 
 #include <libdf3d/resources/Resource.h>
-#include "OpenGLCommon.h"
 #include "RenderCommon.h"
 
 namespace df3d {
@@ -49,30 +48,12 @@ public:
 
 class Texture : public Resource
 {
-protected:
-    TextureCreationParams m_params;
-
-    GLuint m_glid = 0;
-
-    // Helpers.
-    static bool isPot(size_t v);
-    static size_t getNextPot(size_t v);
-    static GLint getGlFilteringMode(TextureFiltering filtering, bool mipmapped);
-    static GLint getGlWrapMode(TextureWrapMode mode);
-
-    static void setupGlTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped);
-    static void setupGlWrapMode(GLenum glType, TextureWrapMode wrapMode);
-
-    Texture(TextureCreationParams params);
-    
 public:
-    unsigned getGLId() const { return m_glid; }
-    const TextureCreationParams& getParams() const { return m_params; }
+    Texture();
+    ~Texture();
 
-    virtual bool bind() = 0;
-    virtual void unbind() = 0;
-
-    virtual size_t getSizeInBytes() const = 0;
+    size_t getWidth() const;
+    size_t getHeight() const;
 };
 
 }
