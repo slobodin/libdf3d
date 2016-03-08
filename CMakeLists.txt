@@ -128,6 +128,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/backend/IRenderBackend.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/backend/RenderBackendCommon.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/backend/RenderBackendGL.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.h
@@ -225,6 +228,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentCreationParams.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/backend/RenderBackendGL.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.cpp
