@@ -17,6 +17,23 @@
 
 namespace df3d {
 
+static GLenum convertRopType(const RenderOperation::Type type)
+{
+    switch (type)
+    {
+    case RenderOperation::Type::LINES:
+        return GL_LINES;
+    case RenderOperation::Type::TRIANGLES:
+        return GL_TRIANGLES;
+    case RenderOperation::Type::LINE_STRIP:
+        return GL_LINE_STRIP;
+    default:
+        break;
+    }
+
+    return GL_INVALID_ENUM;
+}
+
 void RendererBackend::createWhiteTexture()
 {
     const auto w = 8;
@@ -502,8 +519,6 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
     if (!vb)
         return;
 
-    bool indexed = ib != nullptr;
-
     // FIXME: figure out why crashes on NVIDIA
     //if (m_prevVB != vb)
     {
@@ -511,25 +526,14 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
         m_prevVB = vb;
     }
 
-    if (indexed)
-        ib->bind();
-
-    switch (type)
+    if (ib != nullptr)
     {
-    case RenderOperation::Type::LINES:
-        if (indexed)
-            glDrawElements(GL_LINES, ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
-        else
-            glDrawArrays(GL_LINES, 0, vb->getVerticesUsed());
-        break;
-    case RenderOperation::Type::TRIANGLES:
-        if (indexed)
-            glDrawElements(GL_TRIANGLES, ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
-        else
-            glDrawArrays(GL_TRIANGLES, 0, vb->getVerticesUsed());
-        break;
-    default:
-        break;
+        ib->bind();
+        glDrawElements(convertRopType(type), ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
+    }
+    else
+    {
+        glDrawArrays(convertRopType(type), 0, vb->getVerticesUsed());
     }
 
     svc().getFrameStats().addRenderOperation(vb, ib, type);
