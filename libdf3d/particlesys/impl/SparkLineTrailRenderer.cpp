@@ -1,11 +1,5 @@
 #include "SparkLineTrailRenderer.h"
 
-#include <libdf3d/render/OpenGLCommon.h>
-#include <libdf3d/base/EngineController.h>
-#include <libdf3d/render/RenderManager.h>
-#include <libdf3d/render/RendererBackend.h>
-#include <libdf3d/render/VertexIndexBuffer.h>
-
 namespace df3d { namespace particlesys_impl {
 
 TrailsParticleSystemRenderer::TrailsParticleSystemRenderer(size_t nbSamples, float duration, float width)

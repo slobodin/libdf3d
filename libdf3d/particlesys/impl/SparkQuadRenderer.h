@@ -6,9 +6,6 @@
 
 namespace df3d {
 
-class VertexBuffer;
-class IndexBuffer;
-
 namespace particlesys_impl {
 
 class MyRenderBuffer;
