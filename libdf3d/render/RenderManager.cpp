@@ -226,6 +226,8 @@ RenderManager::RenderManager(EngineInitParams params)
     : m_renderQueue(make_unique<RenderQueue>()),
     m_initParams(params)
 {
+    m_viewport = Viewport(0, 0, params.windowWidth, params.windowHeight);
+
     m_renderer = make_unique<RendererBackend>();
 }
 
@@ -243,9 +245,9 @@ void RenderManager::drawWorld(World &world)
     onFrameEnd();
 }
 
-const RenderTargetScreen& RenderManager::getScreenRenderTarget() const
+const Viewport& RenderManager::getViewport() const
 {
-    return *m_screenRt;
+    return m_viewport;
 }
 
 const RenderingCapabilities& RenderManager::getRenderingCapabilities() const
