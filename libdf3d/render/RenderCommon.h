@@ -43,6 +43,36 @@ enum class CubeFace
     COUNT
 };
 
+// TODO_render: move
+static const int16_t INVALID_DESCRIPTOR = -1;
+
+struct VertexBufferDescriptor
+{
+    int16_t id = INVALID_DESCRIPTOR;
+};
+
+struct IndexBufferDescriptor
+{
+    int16_t id = INVALID_DESCRIPTOR;
+};
+
+struct TextureDescriptor
+{
+    int16_t id = INVALID_DESCRIPTOR;
+
+    bool valid() const { return id != INVALID_DESCRIPTOR; }
+};
+
+struct ShaderDescriptor
+{
+    int16_t id = INVALID_DESCRIPTOR;
+};
+
+struct GpuProgramDescriptor
+{
+    int16_t id = INVALID_DESCRIPTOR;
+};
+
 // FIXME: move to namespace.
 
 extern const DF3D_DLL int ANISOTROPY_LEVEL_MAX;

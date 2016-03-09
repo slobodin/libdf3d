@@ -7,7 +7,7 @@ const int NO_ANISOTROPY = 1;
 
 RenderingCapabilities RenderingCapabilities::getDefaults()
 {
-    return RenderingCapabilities();
+    return{};
 }
 
 }

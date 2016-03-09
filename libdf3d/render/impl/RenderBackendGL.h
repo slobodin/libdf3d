@@ -12,26 +12,24 @@ class RenderBackendGL : public IRenderBackend
         GLuint id = GL_INVALID_ENUM;
     };
 
-    DescriptorPool m_descrPool;
-
     // TODO: use array
-    std::unordered_map<Descriptor, VertexBufferGL> m_vertexBuffers;
+    //std::unordered_map<, VertexBufferGL> m_vertexBuffers;
 
 public:
     VertexBufferDescriptor createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage) override;
     void destroyVertexBuffer(VertexBufferDescriptor vb) override;
 
-    void bindVertexBuffer(VertexBufferDescriptor vb, int, int) override;
+    void bindVertexBuffer(VertexBufferDescriptor vb, size_t first, size_t count) override;
     void updateVertexBuffer(VertexBufferDescriptor vb, size_t verticesCount, const void *data) override;
 
     IndexBufferDescriptor createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage) override;
     void destroyIndexBuffer(IndexBufferDescriptor ib) override;
 
-    void bindIndexBuffer(IndexBufferDescriptor ib, int, int) override;
+    void bindIndexBuffer(IndexBufferDescriptor ib, size_t first, size_t count) override;
     void updateIndexBuffer(IndexBufferDescriptor ib, size_t indicesCount, const void *data) override;
 
-    TextureDescriptor createTexture2D() override;
-    TextureDescriptor createTextureCube() override;
+    TextureDescriptor createTexture2D(const PixelBuffer &pixels, const TextureCreationParams &params) override;
+    TextureDescriptor createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params) override;
     void destroyTexture(TextureDescriptor t) override;
 
     void bindTexture(TextureDescriptor t) override;

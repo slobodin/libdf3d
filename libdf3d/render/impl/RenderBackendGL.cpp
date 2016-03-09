@@ -105,12 +105,7 @@ GLenum GetGLBufferUsageType(GpuBufferUsageType t)
 
 df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage)
 {
-    VertexBufferGL vb;
-    glGenBuffers(1, &vb.id);
-
-    auto id = m_descrPool.alloc();
-
-    m_vertexBuffers[id] = vb;
+    //glGenBuffers(1, &vb.id);
 
     assert(verticesCount > 0);
     /*
@@ -121,18 +116,13 @@ df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFor
     m_sizeInBytes = verticesCount * m_format.getVertexSize();
     */
 
-    return id;
+    return{};
 }
 
 void RenderBackendGL::destroyVertexBuffer(VertexBufferDescriptor vb)
 {
-    m_descrPool.free(vb);
-
-    auto glVb = m_vertexBuffers[vb];
-    glDeleteBuffers(0, &glVb.id);
-
-    m_vertexBuffers.erase(vb);
     /*
+    glDeleteBuffers(0, &glVb.id);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glDeleteBuffers(1, &m_glId);
 
@@ -141,11 +131,8 @@ void RenderBackendGL::destroyVertexBuffer(VertexBufferDescriptor vb)
     */
 }
 
-void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb, int, int)
+void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb, size_t first, size_t count)
 {
-    auto glVb = m_vertexBuffers[vb];
-
-    glBindBuffer(GL_ARRAY_BUFFER, glVb.id);
     /*
     glBindBuffer(GL_ARRAY_BUFFER, m_glId);
 
@@ -197,7 +184,7 @@ void RenderBackendGL::destroyIndexBuffer(IndexBufferDescriptor ib)
 
 }
 
-void RenderBackendGL::bindIndexBuffer(IndexBufferDescriptor ib, int, int)
+void RenderBackendGL::bindIndexBuffer(IndexBufferDescriptor ib, size_t first, size_t count)
 {/*
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glId);
     */
@@ -215,7 +202,7 @@ void RenderBackendGL::updateIndexBuffer(IndexBufferDescriptor ib, size_t indices
     */
 }
 
-df3d::TextureDescriptor RenderBackendGL::createTexture2D()
+df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixels, const TextureCreationParams &params)
 {
     /*
     m_originalWidth = buffer.getWidth();
@@ -303,7 +290,7 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D()
     return{};
 }
 
-df3d::TextureDescriptor RenderBackendGL::createTextureCube()
+df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params)
 {/*
     m_sizeInBytes = 0;
 
