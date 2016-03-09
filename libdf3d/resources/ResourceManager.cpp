@@ -40,11 +40,11 @@ shared_ptr<Resource> ResourceManager::findResource(const std::string &fullPath) 
     return found->second;
 }
 
-shared_ptr<Resource> ResourceManager::loadManual(shared_ptr<ManualResourceLoader> loader)
+shared_ptr<Resource> ResourceManager::loadManual(ManualResourceLoader &loader)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-    auto resource = shared_ptr<Resource>(loader->load());
+    auto resource = shared_ptr<Resource>(loader.load());
     if (!resource)
     {
         glog << "Failed to manual load a resource" << logwarn;
