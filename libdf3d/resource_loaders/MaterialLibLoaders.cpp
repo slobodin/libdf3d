@@ -15,12 +15,12 @@
 
 namespace df3d {
 
-std::map<std::string, RenderPass::FaceCullMode> faceCullModeValues =
+std::map<std::string, FaceCullMode> faceCullModeValues =
 {
-    { "NONE", RenderPass::FaceCullMode::NONE },
-    { "BACK", RenderPass::FaceCullMode::BACK },
-    { "FRONT", RenderPass::FaceCullMode::FRONT },
-    { "FRONT_AND_BACK", RenderPass::FaceCullMode::FRONT_AND_BACK }
+    { "NONE", FaceCullMode::NONE },
+    { "BACK", FaceCullMode::BACK },
+    { "FRONT", FaceCullMode::FRONT },
+    { "FRONT_AND_BACK", FaceCullMode::FRONT_AND_BACK }
 };
 
 std::map<std::string, TextureFiltering> textureFilteringValues =
@@ -36,11 +36,11 @@ std::map<std::string, TextureWrapMode> textureWrapValues =
     { "CLAMP", TextureWrapMode::CLAMP }
 };
 
-std::map<std::string, RenderPass::BlendingMode> blendModeValues =
+std::map<std::string, BlendingMode> blendModeValues =
 {
-    { "NONE", RenderPass::BlendingMode::NONE },
-    { "ALPHA", RenderPass::BlendingMode::ALPHA },
-    { "ADDALPHA", RenderPass::BlendingMode::ADDALPHA }
+    { "NONE", BlendingMode::NONE },
+    { "ALPHA", BlendingMode::ALPHA },
+    { "ADDALPHA", BlendingMode::ADDALPHA }
 };
 
 std::map<std::string, bool> boolValues =
@@ -340,7 +340,7 @@ class MaterialLibParser
             }
             else if (keyval.first == "cull_face")
             {
-                std::function<void(RenderPass::FaceCullMode)> fn = std::bind(&RenderPass::setFaceCullMode, pass.get(), std::placeholders::_1);
+                std::function<void(FaceCullMode)> fn = std::bind(&RenderPass::setFaceCullMode, pass.get(), std::placeholders::_1);
                 setPassParam(keyval.first, keyval.second, faceCullModeValues, fn, m_libPath);
             }
             else if (keyval.first == "depth_test")
@@ -360,7 +360,7 @@ class MaterialLibParser
             }
             else if (keyval.first == "blend")
             {
-                std::function<void(RenderPass::BlendingMode)> fn = std::bind(&RenderPass::setBlendMode, pass.get(), std::placeholders::_1);
+                std::function<void(BlendingMode)> fn = std::bind(&RenderPass::setBlendMode, pass.get(), std::placeholders::_1);
                 setPassParam(keyval.first, keyval.second, blendModeValues, fn, m_libPath);
             }
         }

@@ -13,7 +13,6 @@ class SubMesh;
 class Texture;
 
 extern const char * const SIMPLE_LIGHTING_PROGRAM_EMBED_PATH;
-extern const char * const RTT_QUAD_PROGRAM_EMBED_PATH;
 extern const char * const COLORED_PROGRAM_EMBED_PATH;
 extern const char * const AMBIENT_PASS_PROGRAM_EMBED_PATH;
 
@@ -30,7 +29,6 @@ public:
     shared_ptr<GpuProgram> createGpuProgram(const std::string &guid, const std::string &vertexData, const std::string &fragmentData);
     shared_ptr<GpuProgram> createSimpleLightingGpuProgram();
     shared_ptr<GpuProgram> createColoredGpuProgram();
-    shared_ptr<GpuProgram> createRttQuadProgram();
     shared_ptr<GpuProgram> createAmbientPassProgram();
     shared_ptr<MeshData> createMeshData(const std::string &meshDataPath, ResourceLoadingMode lm);
     shared_ptr<MeshData> createMeshData(std::vector<SubMesh> &&submeshes);

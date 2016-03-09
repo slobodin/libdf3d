@@ -30,13 +30,13 @@ public:
     virtual VertexBufferDescriptor createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage) = 0;
     virtual void destroyVertexBuffer(VertexBufferDescriptor vb) = 0;
 
-    virtual void bindVertexBuffer(VertexBufferDescriptor vb, size_t first, size_t count) = 0;
+    virtual void bindVertexBuffer(VertexBufferDescriptor vb) = 0;
     virtual void updateVertexBuffer(VertexBufferDescriptor vb, size_t verticesCount, const void *data) = 0;
 
     virtual IndexBufferDescriptor createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage) = 0;
     virtual void destroyIndexBuffer(IndexBufferDescriptor ib) = 0;
 
-    virtual void bindIndexBuffer(IndexBufferDescriptor ib, size_t first, size_t count) = 0;
+    virtual void bindIndexBuffer(IndexBufferDescriptor ib) = 0;
     virtual void updateIndexBuffer(IndexBufferDescriptor ib, size_t indicesCount, const void *data) = 0;
 
     virtual TextureDescriptor createTexture2D(const PixelBuffer &pixels, const TextureCreationParams &params) = 0;
@@ -48,8 +48,8 @@ public:
     virtual ShaderDescriptor createShader(ShaderType type, const std::string &data) = 0;
     virtual void destroyShader(ShaderDescriptor shader) = 0;
 
-    virtual GpuProgramDescriptor createGpuProgram(ShaderDescriptor, ShaderDescriptor) = 0;
-    virtual void destroyGpuProgram(GpuProgramDescriptor) = 0;
+    virtual GpuProgramDescriptor createGpuProgram(ShaderDescriptor vertexShader, ShaderDescriptor fragmentShader) = 0;
+    virtual void destroyGpuProgram(GpuProgramDescriptor program) = 0;
 
     virtual void setViewport(int x, int y, int width, int height) = 0;
     virtual void setWorldMatrix(const glm::mat4 &worldm) = 0;
@@ -64,7 +64,10 @@ public:
     virtual void enableScissorTest(bool enable) = 0;
     virtual void setScissorRegion(int x, int y, int width, int height) = 0;
 
-    virtual void draw() = 0;
+    virtual void setBlendingMode(BlendingMode mode) = 0;
+    virtual void setCullFaceMode(FaceCullMode mode) = 0;
+
+    virtual void draw(RopType type, size_t numberOfElements) = 0;
 
     // NOTE: do not support other backends for now. So it's static.
     static unique_ptr<IRenderBackend> create();

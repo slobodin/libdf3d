@@ -45,7 +45,7 @@ public:
     void useTexture(Entity e, const std::string &pathToTexture);
     const glm::vec2& getTextureSize(Entity e) const;
 
-    void setBlendMode(Entity e, RenderPass::BlendingMode bm);
+    void setBlendMode(Entity e, BlendingMode bm);
     // FIXME:
     void setBlendMode2(Entity e, int bm);
     void setDiffuseColor(Entity e, const glm::vec4 &diffuseColor);

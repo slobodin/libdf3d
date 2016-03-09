@@ -63,6 +63,7 @@ class DF3D_DLL MeshData : public Resource
     {
         VertexBufferDescriptor vertexBuffer;
         IndexBufferDescriptor indexBuffer;
+        size_t numElementsToRender = 0;
         unique_ptr<Material> material;
 
         HardwareSubMesh() = default;

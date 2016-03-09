@@ -1,5 +1,7 @@
 #pragma once
 
+#include <libdf3d/render/RenderCommon.h>
+
 namespace df3d {
 
 class Texture;
@@ -27,24 +29,6 @@ struct RenderPassParamTexture
 
 class DF3D_DLL RenderPass
 {
-public:
-    enum class FaceCullMode
-    {
-        NONE,
-        FRONT,
-        BACK,
-        FRONT_AND_BACK
-    };
-
-    enum class BlendingMode
-    {
-        NONE,
-        ADDALPHA,
-        ALPHA,
-        ADD
-    };
-
-private:
     std::string m_name;
 
     shared_ptr<GpuProgram> m_gpuProgram;

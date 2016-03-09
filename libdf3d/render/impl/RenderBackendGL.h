@@ -64,13 +64,13 @@ public:
     VertexBufferDescriptor createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage) override;
     void destroyVertexBuffer(VertexBufferDescriptor vb) override;
 
-    void bindVertexBuffer(VertexBufferDescriptor vb, size_t first, size_t count) override;
+    void bindVertexBuffer(VertexBufferDescriptor vb) override;
     void updateVertexBuffer(VertexBufferDescriptor vb, size_t verticesCount, const void *data) override;
 
     IndexBufferDescriptor createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage) override;
     void destroyIndexBuffer(IndexBufferDescriptor ib) override;
 
-    void bindIndexBuffer(IndexBufferDescriptor ib, size_t first, size_t count) override;
+    void bindIndexBuffer(IndexBufferDescriptor ib) override;
     void updateIndexBuffer(IndexBufferDescriptor ib, size_t indicesCount, const void *data) override;
 
     TextureDescriptor createTexture2D(const PixelBuffer &pixels, const TextureCreationParams &params) override;
@@ -82,8 +82,8 @@ public:
     ShaderDescriptor createShader(ShaderType type, const std::string &data) override;
     void destroyShader(ShaderDescriptor shader) override;
 
-    GpuProgramDescriptor createGpuProgram(ShaderDescriptor, ShaderDescriptor) override;
-    void destroyGpuProgram(GpuProgramDescriptor) override;
+    GpuProgramDescriptor createGpuProgram(ShaderDescriptor vertexShader, ShaderDescriptor fragmentShader) override;
+    void destroyGpuProgram(GpuProgramDescriptor program) override;
 
     void setViewport(int x, int y, int width, int height) override;
     void setWorldMatrix(const glm::mat4 &worldm) override;
@@ -98,7 +98,10 @@ public:
     void enableScissorTest(bool enable) override;
     void setScissorRegion(int x, int y, int width, int height) override;
 
-    void draw() override;
+    void setBlendingMode(BlendingMode mode) override;
+    void setCullFaceMode(FaceCullMode mode) override;
+
+    void draw(RopType type, size_t numberOfElements) override;
 };
 
 }

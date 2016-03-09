@@ -11,7 +11,7 @@ ParticleSystemRenderer::ParticleSystemRenderer(bool NEEDS_DATASET)
     : SPK::Renderer(NEEDS_DATASET),
     m_pass(make_shared<RenderPass>())
 {
-    m_pass->setFaceCullMode(RenderPass::FaceCullMode::BACK);
+    m_pass->setFaceCullMode(FaceCullMode::BACK);
     m_pass->setParam("material_diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
     m_pass->setParam("diffuseMap", nullptr);          // FIXME: force to use default white texture (as using colored program)
 
@@ -28,13 +28,13 @@ void ParticleSystemRenderer::setBlendMode(SPK::BlendMode blendMode)
     switch (blendMode)
     {
     case SPK::BLEND_MODE_NONE:
-        m_pass->setBlendMode(RenderPass::BlendingMode::NONE);
+        m_pass->setBlendMode(BlendingMode::NONE);
         break;
     case SPK::BLEND_MODE_ADD:
-        m_pass->setBlendMode(RenderPass::BlendingMode::ADDALPHA);
+        m_pass->setBlendMode(BlendingMode::ADDALPHA);
         break;
     case SPK::BLEND_MODE_ALPHA:
-        m_pass->setBlendMode(RenderPass::BlendingMode::ALPHA);
+        m_pass->setBlendMode(BlendingMode::ALPHA);
         break;
     default:
         break;
@@ -49,9 +49,9 @@ void ParticleSystemRenderer::setDiffuseMap(shared_ptr<Texture> texture)
 void ParticleSystemRenderer::enableFaceCulling(bool enable)
 {
     if (enable)
-        m_pass->setFaceCullMode(RenderPass::FaceCullMode::BACK);
+        m_pass->setFaceCullMode(FaceCullMode::BACK);
     else
-        m_pass->setFaceCullMode(RenderPass::FaceCullMode::NONE);
+        m_pass->setFaceCullMode(FaceCullMode::NONE);
 }
 
 } }

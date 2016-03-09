@@ -51,6 +51,30 @@ enum class ShaderType
     UNDEFINED
 };
 
+enum class RopType
+{
+    LINES,
+    TRIANGLES,
+    LINE_STRIP
+};
+
+// TODO: refactor blending mode.
+enum class BlendingMode
+{
+    NONE,
+    ADDALPHA,
+    ALPHA,
+    ADD
+};
+
+enum class FaceCullMode
+{
+    NONE,
+    FRONT,
+    BACK,
+    FRONT_AND_BACK
+};
+
 // TODO_render: move
 static const int16_t INVALID_DESCRIPTOR = -1;
 

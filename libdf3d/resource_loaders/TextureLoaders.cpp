@@ -103,7 +103,13 @@ Texture* Texture2DManualLoader::load()
     if (!descr.valid())
         return nullptr;
 
-    return new Texture(descr);
+    TextureInfo info;
+    info.width = m_pixelBuffer->getWidth();
+    info.height = m_pixelBuffer->getHeight();
+    info.sizeInBytes = m_pixelBuffer->getSizeInBytes();
+    info.isCubemap = false;
+
+    return new Texture(descr, info);
 }
 
 Texture2DFSLoader::Texture2DFSLoader(const std::string &path, const TextureCreationParams &params, ResourceLoadingMode lm)
@@ -131,7 +137,17 @@ void Texture2DFSLoader::onDecoded(Resource *resource)
 
     auto descr = svc().renderManager().getBackend().createTexture2D(*m_pixelBuffer, m_params);
     if (descr.valid())
+    {
         texture->setDescriptor(descr);
+
+        TextureInfo info;
+        info.width = m_pixelBuffer->getWidth();
+        info.height = m_pixelBuffer->getHeight();
+        info.sizeInBytes = m_pixelBuffer->getSizeInBytes();
+        info.isCubemap = false;
+
+        texture->setTextureInfo(info);
+    }
 
     /*
     glog << "Cleaning up" << m_pixelBuffer->getSizeInBytes() / 1024.0f << "KB of CPU copy of pixel data" << logdebug;
@@ -202,7 +218,17 @@ void TextureCubeFSLoader::onDecoded(Resource *resource)
     auto texture = static_cast<Texture*>(resource);
     auto descr = svc().renderManager().getBackend().createTextureCube(m_pixelBuffers, m_params);
     if (descr.valid())
+    {
         texture->setDescriptor(descr);
+
+        TextureInfo info;
+        // FIXME:
+        info.width = 0;
+        info.height = 0;
+        info.isCubemap = true;
+
+        texture->setTextureInfo(info);
+    }
 
     // Explicitly clean up main memory.
     for (int i = 0; i < (size_t)CubeFace::COUNT; i++)

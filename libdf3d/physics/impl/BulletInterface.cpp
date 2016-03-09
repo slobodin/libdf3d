@@ -13,8 +13,8 @@ namespace df3d { namespace physics_impl {
 static unique_ptr<RenderPass> CreateDebugDrawPass()
 {
     auto pass = make_unique<RenderPass>("bullet_debug_draw_pass");
-    pass->setFaceCullMode(RenderPass::FaceCullMode::NONE);
-    pass->setBlendMode(RenderPass::BlendingMode::ALPHA);
+    pass->setFaceCullMode(FaceCullMode::NONE);
+    pass->setBlendMode(BlendingMode::ALPHA);
     pass->setParam("material_diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 0.7f));
     // FIXME: force to use default white texture because using colored shader.
     pass->setParam("diffuseMap", nullptr);
@@ -95,7 +95,8 @@ void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
     RenderOperation op;
     op.passProps = m_pass.get();
     op.vertexBuffer = m_vertexBuffer;
-    op.type = RenderOperation::Type::LINES;
+    op.numberOfElements = m_vertexData.getVerticesCount();
+    op.type = RopType::LINES;
 
     ops->debugDrawOperations.push_back(op);
 }

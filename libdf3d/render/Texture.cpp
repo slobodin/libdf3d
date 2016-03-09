@@ -84,8 +84,9 @@ void TextureCreationParams::setWrapMode(TextureWrapMode wrapMode)
     m_wrapMode = wrapMode;
 }
 
-Texture::Texture(TextureDescriptor descr)
-    : m_descr(descr)
+Texture::Texture(TextureDescriptor descr, const TextureInfo &info)
+    : m_descr(descr),
+    m_info(info)
 {
 
 }
@@ -112,19 +113,6 @@ void Texture::setDescriptor(TextureDescriptor descr)
     }
 
     m_descr = descr;
-
-}
-
-size_t Texture::getWidth() const
-{
-    // TODO_render:
-    return 0;
-}
-
-size_t Texture::getHeight() const
-{
-    // TODO_render:
-    return 0;
 }
 
 }

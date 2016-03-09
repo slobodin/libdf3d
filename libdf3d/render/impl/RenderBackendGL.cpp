@@ -173,15 +173,15 @@ static GLenum GetGLBufferUsageType(GpuBufferUsageType t)
     return GL_INVALID_ENUM;
 }
 
-static GLenum GetGLDrawMode(const RenderOperation::Type type)
+static GLenum GetGLDrawMode(RopType type)
 {
     switch (type)
     {
-    case RenderOperation::Type::LINES:
+    case RopType::LINES:
         return GL_LINES;
-    case RenderOperation::Type::TRIANGLES:
+    case RopType::TRIANGLES:
         return GL_TRIANGLES;
-    case RenderOperation::Type::LINE_STRIP:
+    case RopType::LINE_STRIP:
         return GL_LINE_STRIP;
     default:
         break;
@@ -386,7 +386,7 @@ void RenderBackendGL::destroyVertexBuffer(VertexBufferDescriptor vb)
     */
 }
 
-void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb, size_t first, size_t count)
+void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
 {
     /*
     glBindBuffer(GL_ARRAY_BUFFER, m_glId);
@@ -439,7 +439,7 @@ void RenderBackendGL::destroyIndexBuffer(IndexBufferDescriptor ib)
 
 }
 
-void RenderBackendGL::bindIndexBuffer(IndexBufferDescriptor ib, size_t first, size_t count)
+void RenderBackendGL::bindIndexBuffer(IndexBufferDescriptor ib)
 {/*
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glId);
     */
@@ -542,7 +542,11 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixe
 
     svc().getFrameStats().addTexture(*this);
     */
-    return{};
+
+    TextureDescriptor d;
+    d.id = 1;
+
+    return d;
 }
 
 df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params)
@@ -655,69 +659,7 @@ df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std:
                     m_shaderDescriptor = 0;
             }
 
-            std::string Shader::preprocess(const std::string &shaderData)
-            {
-            #ifdef DF3D_DESKTOP
-                std::string versionPrefix = "#version 110\n";
-            #else
-                std::string versionPrefix = "";
-            #endif
 
-                std::string precisionPrefix = "#ifdef GL_ES\n"
-                    "#define LOWP lowp\n"
-                    "precision mediump float;\n"
-                    "#else\n"
-                    "#define LOWP\n"
-                    "#endif\n";
-
-                std::string result = versionPrefix + precisionPrefix + shaderData;
-
-                return result;
-            }
-
-            std::string Shader::preprocessInclude(std::string shaderData, const std::string &shaderFilePath)
-            {
-                const std::string shaderDirectory = svc().fileSystem().getFileDirectory(shaderFilePath);
-                const std::string INCLUDE_DIRECTIVE = "#include";
-                const size_t INCLUDE_DIRECTIVE_LEN = INCLUDE_DIRECTIVE.size();
-
-                size_t found = shaderData.find(INCLUDE_DIRECTIVE, 0);
-                while (found != std::string::npos)
-                {
-                    auto start = shaderData.find('\"', found + INCLUDE_DIRECTIVE_LEN);
-                    auto end = shaderData.find('\"', start + 1);
-
-                    if (start == end || start == std::string::npos || end == std::string::npos)
-                    {
-                        glog << "Failed to preprocess shader: invalid include directive" << logwarn;
-                        return shaderData;
-                    }
-
-                    auto fileToInclude = shaderData.substr(start + 1, end - start - 1);
-                    if (fileToInclude.empty())
-                    {
-                        glog << "Failed to preprocess shader: empty include path" << logwarn;
-                        return shaderData;
-                    }
-
-                    fileToInclude = FileSystem::pathConcatenate(shaderDirectory, fileToInclude);
-                    auto file = svc().fileSystem().openFile(fileToInclude);
-                    if (!file || !file->valid())
-                    {
-                        glog << "Failed to preprocess shader: file" << fileToInclude << "not found" << logwarn;
-                        return shaderData;
-                    }
-
-                    std::string includeData(file->getSizeInBytes(), 0);
-                    file->getRaw(&includeData[0], includeData.size());
-
-                    shaderData.replace(found, end - found + 1, includeData);
-
-                    found = shaderData.find(INCLUDE_DIRECTIVE, found);
-                }
-
-                return shaderData;
-            }
 
             bool Shader::compile()
             {
@@ -779,51 +721,21 @@ df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std:
 
             shared_ptr<Shader> Shader::createFromFile(const std::string &filePath)
             {
-                auto shader = make_shared<Shader>();
-                auto file = svc().fileSystem().openFile(filePath);
-                if (!file || !file->valid())
-                {
-                    glog << "Can not create shader. File" << filePath << "doesn't exist" << logwarn;
-                    return nullptr;
-                }
 
-                const std::string &ext = svc().fileSystem().getFileExtension(filePath);
-
-                if (ext == ".vert")
-                    shader->setType(Type::VERTEX);
-                else if (ext == ".frag")
-                    shader->setType(Type::FRAGMENT);
-                else
-                {
-                    glog << "Can not decode GLSL shader because it's type is undefined" << filePath << logwarn;
-                    return nullptr;
-                }
-
-                std::string buffer(file->getSizeInBytes(), 0);
-                file->getRaw(&buffer[0], buffer.size());
-
-                shader->setShaderData(preprocessInclude(preprocess(buffer), file->getPath()));
-
-                return shader;
             }
 
             shared_ptr<Shader> Shader::createFromString(const std::string &shaderData, Type type)
             {
-                if (type == Type::UNDEFINED)
-                {
-                    glog << "Failed to create shader of UNDEFINED type" << logwarn;
-                    return nullptr;
-                }
 
-                auto shader = make_shared<Shader>(type);
-                shader->setShaderData(preprocess(shaderData));
-                return shader;
             }
 
             }
 */
 
-    return{};
+    ShaderDescriptor d;
+    d.id = 1;
+
+    return d;
 }
 
 void RenderBackendGL::destroyShader(ShaderDescriptor shader)
@@ -831,7 +743,7 @@ void RenderBackendGL::destroyShader(ShaderDescriptor shader)
 
 }
 
-df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor, ShaderDescriptor)
+df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor vertexShader, ShaderDescriptor fragmentShader)
 {
     /*
     bool GpuProgram::compileShaders()
@@ -962,11 +874,13 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor, S
 
     */
 
+GpuProgramDescriptor d;
+d.id = 1;
 
-    return{};
+return d;
 }
 
-void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor)
+void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor program)
 {
     /*
     if (m_programDescriptor == 0)
@@ -1028,12 +942,15 @@ void RenderBackendGL::clearStencilBuffer()
 
 void RenderBackendGL::enableDepthTest(bool enable)
 {
-
+    if (enable)
+        glEnable(GL_DEPTH_TEST);
+    else
+        glDisable(GL_DEPTH_TEST);
 }
 
 void RenderBackendGL::enableDepthWrite(bool enable)
 {
-
+    glDepthMask(enable);
 }
 
 void RenderBackendGL::enableScissorTest(bool enable)
@@ -1046,9 +963,83 @@ void RenderBackendGL::setScissorRegion(int x, int y, int width, int height)
     glScissor(x, y, width, height);
 }
 
-void RenderBackendGL::draw()
+void RenderBackendGL::setBlendingMode(BlendingMode mode)
 {
+    switch (mode)
+    {
+    case BlendingMode::NONE:
+        glDisable(GL_BLEND);
+        break;
+    case BlendingMode::ADDALPHA:
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        break;
+    case BlendingMode::ALPHA:
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        break;
+    case BlendingMode::ADD:
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
+        break;
+    default:
+        break;
+    }
+}
 
+void RenderBackendGL::setCullFaceMode(FaceCullMode mode)
+{
+    switch (mode)
+    {
+    case FaceCullMode::NONE:
+        glDisable(GL_CULL_FACE);
+        break;
+    case FaceCullMode::FRONT:
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
+        break;
+    case FaceCullMode::BACK:
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        break;
+    case FaceCullMode::FRONT_AND_BACK:
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT_AND_BACK);
+        break;
+    default:
+        break;
+    }
+}
+
+void RenderBackendGL::draw(RopType type, size_t numberOfElements)
+{
+    // TODO_render
+
+    /*
+    if (!vb)
+        return;
+
+    // FIXME: figure out why crashes on NVIDIA
+    //if (m_prevVB != vb)
+    {
+        vb->bind();
+        m_prevVB = vb;
+    }
+
+    if (ib != nullptr)
+    {
+        ib->bind();
+        glDrawElements(convertRopType(type), ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
+    }
+    else
+    {
+        glDrawArrays(convertRopType(type), 0, vb->getVerticesUsed());
+    }
+
+    svc().getFrameStats().addRenderOperation(vb, ib, type);
+
+    printOpenGLError();
+    */
 }
 
 unique_ptr<IRenderBackend> IRenderBackend::create()

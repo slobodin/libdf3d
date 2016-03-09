@@ -25,6 +25,9 @@ class GpuProgramManualLoader : public ManualResourceLoader
 
     std::string m_vertexShaderPath, m_fragmentShaderPath;
 
+    ShaderDescriptor createShaderFromFile(const std::string &path) const;
+    ShaderDescriptor createShaderFromString(const std::string &data, ShaderType shaderType) const;
+
 public:
     GpuProgramManualLoader(const std::string &guid, const std::string &vertexData, const std::string &fragmentData);
     GpuProgramManualLoader(const std::string &vertexShaderPath, const std::string &fragmentShaderPath);

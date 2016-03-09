@@ -95,6 +95,7 @@ void Sprite2DComponentProcessor::draw(RenderQueue *ops)
 
         compData.op.vertexBuffer = m_pimpl->vertexBuffer;
         compData.op.passProps = &compData.pass;
+        compData.op.numberOfElements = 4;       // This is a quad!.
 
         ops->sprite2DOperations.push_back(compData.op);
     }
@@ -218,7 +219,7 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
         return;
 
     compData.pass.setParam("diffuseMap", texture);
-    compData.textureOriginalSize = { texture->getWidth(), texture->getHeight() };
+    compData.textureOriginalSize = { texture->getTextureInfo().width, texture->getTextureInfo().height };
     compData.textureGuid = texture->getGUID();
 }
 
@@ -227,14 +228,14 @@ const glm::vec2& Sprite2DComponentProcessor::getTextureSize(Entity e) const
     return m_pimpl->data.getData(e).textureOriginalSize;
 }
 
-void Sprite2DComponentProcessor::setBlendMode(Entity e, RenderPass::BlendingMode bm)
+void Sprite2DComponentProcessor::setBlendMode(Entity e, BlendingMode bm)
 {
     m_pimpl->data.getData(e).pass.setBlendMode(bm);
 }
 
 void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
 {
-    setBlendMode(e, static_cast<RenderPass::BlendingMode>(bm));
+    setBlendMode(e, static_cast<BlendingMode>(bm));
 }
 
 void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diffuseColor)
@@ -253,11 +254,11 @@ void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
     Impl::Data data;
 
     data.holder = e;
-    data.pass.setFaceCullMode(RenderPass::FaceCullMode::NONE);
+    data.pass.setFaceCullMode(FaceCullMode::NONE);
     data.pass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
     data.pass.enableDepthTest(false);
     data.pass.enableDepthWrite(false);
-    data.pass.setBlendMode(RenderPass::BlendingMode::ALPHA);
+    data.pass.setBlendMode(BlendingMode::ALPHA);
     data.op.worldTransform = m_world->sceneGraph().getWorldTransform(e);
 
     m_pimpl->data.add(e, data);

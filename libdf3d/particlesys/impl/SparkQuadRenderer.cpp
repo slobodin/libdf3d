@@ -107,19 +107,15 @@ void ParticleSystemBuffers_Quad::draw(size_t nbOfParticles, RenderPass *passProp
     // Refill GPU with new data (only vertices have been changed).
     svc().renderManager().getBackend().updateVertexBuffer(m_vertexBuffer, nbOfParticles * QUAD_VERTICES_PER_PARTICLE, m_vertexData);
 
-    // TODO_render:
-    //m_vb->setVerticesUsed(nbOfParticles * QUAD_VERTICES_PER_PARTICLE);
-    //m_ib->setIndicesUsed(nbOfParticles * QUAD_INDICES_PER_PARTICLE);
-
     RenderOperation op;
-    op.type = RenderOperation::Type::TRIANGLES;
+    op.type = RopType::TRIANGLES;
     op.indexBuffer = m_indexBuffer;
     op.vertexBuffer = m_vertexBuffer;
     op.passProps = passProps;
     op.worldTransform = m;
+    op.numberOfElements = nbOfParticles * QUAD_INDICES_PER_PARTICLE;
 
-    // TODO_render
-    //svc().renderManager().getRenderer()->drawOperation(op);
+    svc().renderManager().drawRenderOperation(op);
 }
 
 void QuadParticleSystemRenderer::render2D(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const

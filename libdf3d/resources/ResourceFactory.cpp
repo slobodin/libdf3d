@@ -61,11 +61,6 @@ shared_ptr<GpuProgram> ResourceFactory::createColoredGpuProgram()
     return static_pointer_cast<GpuProgram>(m_holder->findResource(COLORED_PROGRAM_EMBED_PATH));
 }
 
-shared_ptr<GpuProgram> ResourceFactory::createRttQuadProgram()
-{
-    return static_pointer_cast<GpuProgram>(m_holder->findResource(RTT_QUAD_PROGRAM_EMBED_PATH));
-}
-
 shared_ptr<GpuProgram> ResourceFactory::createAmbientPassProgram()
 {
     return static_pointer_cast<GpuProgram>(m_holder->findResource(AMBIENT_PASS_PROGRAM_EMBED_PATH));

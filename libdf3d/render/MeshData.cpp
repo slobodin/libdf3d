@@ -78,11 +78,13 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
             auto ibUsageHint = s.getIndexBufferUsageHint();
 
             hs.indexBuffer = svc().renderManager().getBackend().createIndexBuffer(indicesCount, indexData, ibUsageHint);
+            hs.numElementsToRender = indicesCount;
 
             m_trianglesCount += s.getIndices().size() / 3;
         }
         else
         {
+            hs.numElementsToRender = verticesCount;
             m_trianglesCount += s.getVertexData().getVerticesCount() / 3;
         }
     }
@@ -189,25 +191,25 @@ const ConvexHull* MeshData::getConvexHull() const
 
 void MeshData::populateRenderQueue(RenderQueue *ops, const glm::mat4 &transformation)
 {
-    // TODO_render
     // Include all the submeshes.
     for (const auto &sm : m_submeshes)
     {
-        /*
         auto tech = sm.material->getCurrentTechnique();
-        if (!tech || !sm.vb)
+        if (!tech)
             continue;
 
         size_t passCount = tech->getPassCount();
         for (size_t passidx = 0; passidx < passCount; passidx++)
         {
+            // TODO_render: just use renderoperation without HardwareSubmesh.
             RenderOperation newoperation;
             auto passProps = tech->getPass(passidx);
 
             newoperation.worldTransform = transformation;
-            newoperation.vertexData = sm.vb.get();
-            newoperation.indexData = sm.ib.get();
+            newoperation.vertexBuffer = sm.vertexBuffer;
+            newoperation.indexBuffer = sm.indexBuffer;
             newoperation.passProps = passProps.get();
+            newoperation.numberOfElements = sm.numElementsToRender;
 
             if (passProps->isTransparent())
             {
@@ -220,7 +222,7 @@ void MeshData::populateRenderQueue(RenderQueue *ops, const glm::mat4 &transforma
                 else
                     ops->notLitOpaqueOperations.push_back(newoperation);
             }
-        }*/
+        }
     }
 }
 

@@ -10,19 +10,13 @@ class RenderPass;
 class RenderOperation
 {
 public:
-    enum class Type
-    {
-        LINES,
-        TRIANGLES,
-        LINE_STRIP
-    };
-
-    Type type = Type::TRIANGLES;
+    RopType type = RopType::TRIANGLES;
     glm::mat4 worldTransform;
 
     VertexBufferDescriptor vertexBuffer;
     IndexBufferDescriptor indexBuffer;
     RenderPass *passProps = nullptr;
+    size_t numberOfElements = 0;
 
     RenderOperation() = default;
     ~RenderOperation() = default;

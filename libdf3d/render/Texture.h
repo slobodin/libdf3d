@@ -46,20 +46,29 @@ public:
     void setWrapMode(TextureWrapMode wrapMode);
 };
 
+struct TextureInfo
+{
+    size_t width = 0;
+    size_t height = 0;
+    bool isCubemap = false;
+    size_t sizeInBytes = 0;
+};
+
 class Texture : public Resource
 {
     TextureDescriptor m_descr;
+    TextureInfo m_info;
 
 public:
-    Texture(TextureDescriptor descr = {});
+    Texture(TextureDescriptor descr = {}, const TextureInfo &info = {});
     ~Texture();
 
     // Texture is owning this descriptor.
     TextureDescriptor getDescriptor() const;
     void setDescriptor(TextureDescriptor descr);
 
-    size_t getWidth() const;
-    size_t getHeight() const;
+    void setTextureInfo(const TextureInfo &info) { m_info = info; }
+    const TextureInfo& getTextureInfo() const { return m_info; }
 };
 
 }

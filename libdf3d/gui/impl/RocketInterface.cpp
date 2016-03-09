@@ -159,6 +159,7 @@ struct CompiledGeometry
     shared_ptr<Texture> texture;
     VertexBufferDescriptor vertexBuffer;
     IndexBufferDescriptor indexBuffer;
+    size_t count;
 };
 
 RenderInterface::RenderInterface()
@@ -213,6 +214,7 @@ Rocket::Core::CompiledGeometryHandle RenderInterface::CompileGeometry(Rocket::Co
     geom->texture = m_textures[texture];        // NOTE: can be nullptr. It's okay.
     geom->vertexBuffer = vertexBuffer;
     geom->indexBuffer = indexBuffer;
+    geom->count = num_indices;
 
     return (Rocket::Core::CompiledGeometryHandle)geom;
 }
@@ -227,11 +229,11 @@ void RenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandl
     {
         m_guipass = make_shared<RenderPass>();
 
-        m_guipass->setFaceCullMode(RenderPass::FaceCullMode::NONE);
+        m_guipass->setFaceCullMode(FaceCullMode::NONE);
         m_guipass->setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
         m_guipass->enableDepthTest(false);
         m_guipass->enableDepthWrite(false);
-        m_guipass->setBlendMode(RenderPass::BlendingMode::ALPHA);
+        m_guipass->setBlendMode(BlendingMode::ALPHA);
     }
 
     auto geom = (CompiledGeometry *)geometry;
@@ -242,10 +244,10 @@ void RenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandl
     op.vertexBuffer = geom->vertexBuffer;
     op.indexBuffer = geom->indexBuffer;
     op.passProps = m_guipass.get();
+    op.numberOfElements = geom->count;
     op.worldTransform = glm::translate(glm::vec3(translation.x, translation.y, 0.0f));
 
-    // TODO_render
-    //svc().renderManager().getRenderer()->drawOperation(op);
+    svc().renderManager().drawRenderOperation(op);
 }
 
 void RenderInterface::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry)
@@ -280,8 +282,8 @@ bool RenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle,
     m_textures[++m_textureId] = texture;
     texture_handle = m_textureId;
 
-    texture_dimensions.x = texture->getWidth();
-    texture_dimensions.y = texture->getHeight();
+    texture_dimensions.x = texture->getTextureInfo().width;
+    texture_dimensions.y = texture->getTextureInfo().height;
 
     return true;
 }
