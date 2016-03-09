@@ -1,10 +1,11 @@
 #include "MeshData.h"
 
 #include "MaterialLib.h"
-#include "VertexIndexBuffer.h"
 #include "RenderQueue.h"
 #include "Technique.h"
 #include "RenderPass.h"
+#include "IRenderBackend.h"
+#include "RenderManager.h"
 #include <libdf3d/base/EngineController.h>
 
 namespace df3d {
@@ -62,13 +63,21 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
             hs.material = make_unique<Material>(getFilePath());
         }
 
-        hs.vb = make_shared<VertexBuffer>(s.getVertexData().getFormat());
-        hs.vb->alloc(s.getVertexData(), s.getVertexBufferUsageHint());
+        const auto &vertexData = s.getVertexData();
+        const auto &vFormat = vertexData.getFormat();
+        size_t verticesCount = vertexData.getVerticesCount();
+        const void *rawData = vertexData.getRawData();
+        auto vbUsageHint = s.getVertexBufferUsageHint();
+
+        hs.vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(vFormat, verticesCount, rawData, vbUsageHint);
 
         if (s.hasIndices())
         {
-            hs.ib = make_shared<IndexBuffer>();
-            hs.ib->alloc(s.getIndices().size(), s.getIndices().data(), s.getIndexBufferUsageHint());
+            size_t indicesCount = s.getIndices().size();
+            const void *indexData = s.getIndices().data();
+            auto ibUsageHint = s.getIndexBufferUsageHint();
+
+            hs.indexBuffer = svc().renderManager().getBackend().createIndexBuffer(indicesCount, indexData, ibUsageHint);
 
             m_trianglesCount += s.getIndices().size() / 3;
         }
@@ -180,9 +189,11 @@ const ConvexHull* MeshData::getConvexHull() const
 
 void MeshData::populateRenderQueue(RenderQueue *ops, const glm::mat4 &transformation)
 {
+    // TODO_render
     // Include all the submeshes.
-    for (auto &sm : m_submeshes)
+    for (const auto &sm : m_submeshes)
     {
+        /*
         auto tech = sm.material->getCurrentTechnique();
         if (!tech || !sm.vb)
             continue;
@@ -209,7 +220,7 @@ void MeshData::populateRenderQueue(RenderQueue *ops, const glm::mat4 &transforma
                 else
                     ops->notLitOpaqueOperations.push_back(newoperation);
             }
-        }
+        }*/
     }
 }
 

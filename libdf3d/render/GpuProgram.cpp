@@ -1,175 +1,20 @@
 #include "GpuProgram.h"
 
 #include <libdf3d/base/EngineController.h>
-#include <libdf3d/resources/ResourceManager.h>
-#include "Shader.h"
-#include "OpenGLCommon.h"
-#include "Vertex.h"
+#include <libdf3d/render/RenderManager.h>
+#include <libdf3d/render/IRenderBackend.h>
 
 namespace df3d {
 
-void gpuProgramLog(unsigned int program)
+GpuProgram::GpuProgram(GpuProgramDescriptor descr)
+    : m_descriptor(descr)
 {
-    int infologLen = 0;
-    char *infoLog = nullptr;
-
-    glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infologLen);
-    infoLog = new char[infologLen + 1];
-
-    glGetProgramInfoLog(program, infologLen, nullptr, infoLog);
-    glog << "GPU program info log:" << infoLog << logmess;
-
-    delete [] infoLog;
-}
-
-bool isSampler(GLenum type)
-{
-#if defined(DF3D_DESKTOP)
-    return type == GL_SAMPLER_1D || type == GL_SAMPLER_2D || type == GL_SAMPLER_3D || type == GL_SAMPLER_CUBE;
-#else
-    return type == GL_SAMPLER_2D || type == GL_SAMPLER_CUBE;
-#endif
-}
-
-bool GpuProgram::compileShaders()
-{
-    assert(!m_programDescriptor);
-
-    m_programDescriptor = glCreateProgram();
-
-    for (auto shader : m_shaders)
-    {
-        if (!shader || !shader->compile())
-        {
-            glog << "Failed to compile shaders in" << getGUID() << logwarn;
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool GpuProgram::attachShaders()
-{
-    if (!m_programDescriptor)
-        return false;
-
-    for (auto shader : m_shaders)
-        glAttachShader(m_programDescriptor, shader->m_shaderDescriptor);
-
-    glBindAttribLocation(m_programDescriptor, VertexFormat::POSITION_3, "a_vertex3");
-    glBindAttribLocation(m_programDescriptor, VertexFormat::NORMAL_3, "a_normal");
-    glBindAttribLocation(m_programDescriptor, VertexFormat::TX_2, "a_txCoord");
-    glBindAttribLocation(m_programDescriptor, VertexFormat::COLOR_4, "a_vertexColor");
-    glBindAttribLocation(m_programDescriptor, VertexFormat::TANGENT_3, "a_tangent");
-    glBindAttribLocation(m_programDescriptor, VertexFormat::BITANGENT_3, "a_bitangent");
-
-    glLinkProgram(m_programDescriptor);
-
-    int linkOk;
-    glGetProgramiv(m_programDescriptor, GL_LINK_STATUS, &linkOk);
-    if (linkOk == GL_FALSE)
-    {
-        glog << "GPU program linkage failed" << logwarn;
-        gpuProgramLog(m_programDescriptor);
-        return false;
-    }
-
-    requestUniforms();
-
-    printOpenGLError();
-
-    return true;
-}
-
-void GpuProgram::requestUniforms()
-{
-    int total = -1;
-    glGetProgramiv(m_programDescriptor, GL_ACTIVE_UNIFORMS, &total);
-
-    for (int i = 0; i < total; i++)
-    {
-        GLenum type = GL_ZERO;
-        int nameLength = -1, uniformVarSize = -1;
-        char name[100];
-
-        glGetActiveUniform(m_programDescriptor, i, sizeof(name) - 1, &nameLength, &uniformVarSize, &type, name);
-        name[nameLength] = 0;
-
-        GpuProgramUniform uni(name);
-        uni.m_location = glGetUniformLocation(m_programDescriptor, name);
-        uni.m_glType = type;
-        uni.m_isSampler = isSampler(type);
-
-        if (uni.isShared())
-            m_sharedUniforms.push_back(uni);
-        else if (uni.isSampler())
-            m_samplerUniforms.push_back(uni);
-        else
-            m_customUniforms.push_back(uni);
-    }
-}
-
-GpuProgram::GpuProgram(const std::vector<shared_ptr<Shader>> &shaders)
-    : m_shaders(shaders)
-{
-    assert(!shaders.empty());
-
-    if (compileShaders())
-        attachShaders();
+    assert(m_descriptor.valid());
 }
 
 GpuProgram::~GpuProgram()
 {
-    if (m_programDescriptor == 0)
-        return;
-
-    unbind();
-
-    for (auto shader : m_shaders)
-    {
-        if (shader->m_shaderDescriptor != 0)
-            glDetachShader(m_programDescriptor, shader->m_shaderDescriptor);
-    }
-
-    glDeleteProgram(m_programDescriptor);
-}
-
-void GpuProgram::bind()
-{
-    if (!isInitialized())
-        return;
-
-    assert(m_programDescriptor);
-
-    glUseProgram(m_programDescriptor);
-}
-
-void GpuProgram::unbind()
-{
-    glUseProgram(0);
-}
-
-GpuProgramUniform *GpuProgram::getCustomUniform(const std::string &name)
-{
-    for (size_t i = 0; i < m_customUniforms.size(); i++)
-    {
-        if (m_customUniforms[i].getName() == name)
-            return &m_customUniforms[i];
-    }
-
-    return nullptr;
-}
-
-GpuProgramUniform* GpuProgram::getSamplerUniform(const std::string &name)
-{
-    for (size_t i = 0; i < m_samplerUniforms.size(); i++)
-    {
-        if (m_samplerUniforms[i].getName() == name)
-            return &m_samplerUniforms[i];
-    }
-
-    return nullptr;
+    svc().renderManager().getBackend().destroyGpuProgram(m_descriptor);
 }
 
 GpuProgramManualLoader::GpuProgramManualLoader(const std::string &guid, const std::string &vertexData, const std::string &fragmentData)
@@ -190,6 +35,9 @@ GpuProgramManualLoader::GpuProgramManualLoader(const std::string &vertexShaderPa
 
 GpuProgram* GpuProgramManualLoader::load()
 {
+    // TODO_render
+    /*
+
     shared_ptr<Shader> vertexShader, fragmentShader;
 
     if (!m_vertexShaderPath.empty() && !m_fragmentShaderPath.empty())
@@ -207,7 +55,8 @@ GpuProgram* GpuProgramManualLoader::load()
 
     program->setGUID(m_resourceGuid);
 
-    return program;
+    return program;*/
+    return nullptr;
 }
 
 }

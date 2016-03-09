@@ -3,8 +3,7 @@
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/render/RenderManager.h>
 #include <libdf3d/render/RenderPass.h>
-#include <libdf3d/render/RendererBackend.h>
-#include <libdf3d/render/VertexIndexBuffer.h>
+#include <libdf3d/render/IRenderBackend.h>
 #include <libdf3d/render/RenderQueue.h>
 
 namespace df3d { namespace physics_impl {
@@ -59,7 +58,7 @@ int BulletDebugDraw::getDebugMode() const
 
 void BulletDebugDraw::clean()
 {
-    m_vertexBuffer.reset();
+    svc().renderManager().getBackend().destroyVertexBuffer(m_vertexBuffer);
     m_vertexData.clear();
 }
 
@@ -75,12 +74,14 @@ void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
         m_pass->setSampler("diffuseMap", std::shared_ptr<Texture>());          // FIXME: force to use default white texture because using colored shader.
     }
 
-    m_vertexBuffer = make_shared<VertexBuffer>(m_vertexData.getFormat());
-    m_vertexBuffer->alloc(m_vertexData, GpuBufferUsageType::STREAM);
+    m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(m_vertexData.getFormat(),
+                                                                           m_vertexData.getVerticesCount(),
+                                                                           m_vertexData.getRawData(),
+                                                                           GpuBufferUsageType::STREAM);
 
     RenderOperation op;
     op.passProps = m_pass.get();
-    op.vertexData = m_vertexBuffer.get();
+    op.vertexBuffer = m_vertexBuffer;
     op.type = RenderOperation::Type::LINES;
 
     ops->debugDrawOperations.push_back(op);

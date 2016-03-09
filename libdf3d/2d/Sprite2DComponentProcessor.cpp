@@ -6,8 +6,8 @@
 #include <libdf3d/render/RenderOperation.h>
 #include <libdf3d/render/RenderQueue.h>
 #include <libdf3d/render/RenderPass.h>
-#include <libdf3d/render/VertexIndexBuffer.h>
-#include <libdf3d/render/Texture2D.h>
+#include <libdf3d/render/Vertex.h>
+#include <libdf3d/render/Texture.h>
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/resources/ResourceManager.h>
 #include <libdf3d/resources/ResourceFactory.h>
@@ -19,27 +19,31 @@ struct Sprite2DComponentProcessor::Impl
 {
     struct Data
     {
-        Entity holder;
-
         RenderPass pass;
         RenderOperation2D op;
-
         glm::vec2 anchor = glm::vec2(0.5f, 0.5f);
         glm::vec2 textureOriginalSize;
         glm::vec2 screenPosition;
+        ResourceGUID textureGuid;
+        Entity holder;
         float rotation = 0.0f;
         bool visible = true;
-
-        ResourceGUID textureGuid;
     };
 
     ComponentDataHolder<Data> data;
-    unique_ptr<VertexBuffer> vertexData;
+    VertexBufferDescriptor vertexBuffer;
 
     Impl()
     {
         auto format = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
-        vertexData = createQuad2(format, 0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
+
+        // TODO_render
+        //vertexData = createQuad2(format, 0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
+    }
+
+    ~Impl()
+    {
+
     }
 
     static void updateTransform(Data &compData)
@@ -89,7 +93,7 @@ void Sprite2DComponentProcessor::draw(RenderQueue *ops)
 
         Impl::updateTransform(compData);
 
-        compData.op.vertexData = m_pimpl->vertexData.get();
+        compData.op.vertexBuffer = m_pimpl->vertexBuffer;
         compData.op.passProps = &compData.pass;
 
         ops->sprite2DOperations.push_back(compData.op);
@@ -214,7 +218,7 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
         return;
 
     compData.pass.setSampler("diffuseMap", texture);
-    compData.textureOriginalSize = { texture->getOriginalWidth(), texture->getOriginalHeight() };
+    compData.textureOriginalSize = { texture->getWidth(), texture->getHeight() };
     compData.textureGuid = texture->getGUID();
 }
 

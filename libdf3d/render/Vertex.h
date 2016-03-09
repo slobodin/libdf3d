@@ -40,12 +40,6 @@ public:
     size_t getOffsetTo(VertexAttribute attrib) const;
     //! Return the size in bytes of a given attribute.
     size_t getAttributeSize(VertexAttribute attrib) const;
-
-    void enableGLAttributes();
-    void disableGLAttributes();
-
-    bool operator== (const VertexFormat &other) const;
-    bool operator!= (const VertexFormat &other) const;
 };
 
 class DF3D_DLL Vertex
@@ -86,8 +80,7 @@ class DF3D_DLL VertexData
 
 public:
     VertexData(const VertexFormat &format);
-
-    void setWithRawData(std::vector<float> &&data);
+    VertexData(const VertexFormat &format, std::vector<float> &&data);
 
     //! Allocates memory for given number of vertices.
     void allocVertices(size_t verticesCount);

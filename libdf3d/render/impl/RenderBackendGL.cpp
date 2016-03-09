@@ -4,6 +4,51 @@
 
 namespace df3d {
 
+static std::string CheckGLError()
+{
+#if defined(DF3D_DESKTOP)
+    std::string errString;
+
+    GLenum errCode = glGetError();
+    if (errCode != GL_NO_ERROR)
+        errString = (char *)gluErrorString(errCode);
+
+    return errString;
+#else
+    GLenum errCode = glGetError();
+    if (errCode == GL_NO_ERROR)
+        return "";
+
+    switch (errCode)
+    {
+    case GL_INVALID_ENUM:
+        return "Invalid enum";
+    case GL_INVALID_VALUE:
+        return "Invalid value";
+    case GL_INVALID_OPERATION:
+        return "Invalid operation";
+    case GL_OUT_OF_MEMORY:
+        return "Out of memory";
+    default:
+        return "Unknown";
+    }
+#endif
+}
+
+static void CheckAndPrintGLError(const char *file, int line)
+{
+    auto err = CheckGLError();
+    if (!err.empty())
+        glog << "OpenGL error:" << err << ". File:" << file << ". Line:" << line << logwarn;
+}
+
+#if defined(_DEBUG) || defined(DEBUG)
+#define printOpenGLError() checkAndPrintGLError(__FILE__, __LINE__)
+#else
+#define printOpenGLError()
+#endif
+
+
 static bool IsPot(size_t v)
 {
     return v && !(v & (v - 1));
@@ -65,7 +110,7 @@ static GLint GetGLWrapMode(TextureWrapMode mode)
 }
 
 /*
-void SetupGlTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped)
+static void SetupGlTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped)
 {
     glTexParameteri(glType, GL_TEXTURE_MAG_FILTER, filtering == TextureFiltering::NEAREST ? GL_NEAREST : GL_LINEAR);
     glTexParameteri(glType, GL_TEXTURE_MIN_FILTER, getGlFilteringMode(filtering, mipmapped));
@@ -73,7 +118,7 @@ void SetupGlTextureFiltering(GLenum glType, TextureFiltering filtering, bool mip
     printOpenGLError();
 }
 
-void SetupGlWrapMode(GLenum glType, TextureWrapMode wrapMode)
+static void SetupGlWrapMode(GLenum glType, TextureWrapMode wrapMode)
 {
     auto wmGl = getGlWrapMode(wrapMode);
     glTexParameteri(glType, GL_TEXTURE_WRAP_S, wmGl);
@@ -84,9 +129,28 @@ void SetupGlWrapMode(GLenum glType, TextureWrapMode wrapMode)
 
     printOpenGLError();
 }
+
+
+void VertexFormat::enableGLAttributes()
+{
+for (auto attrib : m_attribs)
+{
+glEnableVertexAttribArray(attrib);
+size_t offs = getOffsetTo(attrib);
+glVertexAttribPointer(attrib, m_counts[attrib], GL_FLOAT, GL_FALSE, getVertexSize(), (const GLvoid*)offs);
+}
+}
+
+void VertexFormat::disableGLAttributes()
+{
+for (auto attrib : m_attribs)
+glDisableVertexAttribArray(attrib);
+}
+
+
 */
 
-GLenum GetGLBufferUsageType(GpuBufferUsageType t)
+static GLenum GetGLBufferUsageType(GpuBufferUsageType t)
 {
     switch (t)
     {
@@ -101,6 +165,37 @@ GLenum GetGLBufferUsageType(GpuBufferUsageType t)
     }
 
     return GL_INVALID_ENUM;
+}
+
+static bool IsSampler(GLenum type)
+{
+#if defined(DF3D_DESKTOP)
+    return type == GL_SAMPLER_1D || type == GL_SAMPLER_2D || type == GL_SAMPLER_3D || type == GL_SAMPLER_CUBE;
+#else
+    return type == GL_SAMPLER_2D || type == GL_SAMPLER_CUBE;
+#endif
+}
+
+static void PrintShaderLog(GLuint shader)
+{
+    int infologLen = 0;
+    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infologLen);
+
+    unique_ptr<char> infoLog(new char[infologLen + 1]);
+    glGetShaderInfoLog(shader, infologLen, nullptr, infoLog.get());
+
+    glog << "Shader info log:" << infoLog.get() << logmess;
+}
+
+static void PrintGpuProgramLog(unsigned int program)
+{
+    int infologLen = 0;
+    glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infologLen);
+
+    unique_ptr<char> infoLog(new char[infologLen + 1]);
+    glGetProgramInfoLog(program, infologLen, nullptr, infoLog.get());
+
+    glog << "GPU program info log:" << infoLog.get() << logmess;
 }
 
 df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage)
@@ -387,24 +482,346 @@ void RenderBackendGL::bindTexture(TextureDescriptor t)
     return true;*/
 }
 
-df3d::ShaderDescriptor RenderBackendGL::createShader()
+df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std::string &data)
 {
+    /*
+            void Shader::createGLShader()
+            {
+                if (m_type == Type::VERTEX)
+                    m_shaderDescriptor = glCreateShader(GL_VERTEX_SHADER);
+                else if (m_type == Type::FRAGMENT)
+                    m_shaderDescriptor = glCreateShader(GL_FRAGMENT_SHADER);
+                else
+                    m_shaderDescriptor = 0;
+            }
+
+            std::string Shader::preprocess(const std::string &shaderData)
+            {
+            #ifdef DF3D_DESKTOP
+                std::string versionPrefix = "#version 110\n";
+            #else
+                std::string versionPrefix = "";
+            #endif
+
+                std::string precisionPrefix = "#ifdef GL_ES\n"
+                    "#define LOWP lowp\n"
+                    "precision mediump float;\n"
+                    "#else\n"
+                    "#define LOWP\n"
+                    "#endif\n";
+
+                std::string result = versionPrefix + precisionPrefix + shaderData;
+
+                return result;
+            }
+
+            std::string Shader::preprocessInclude(std::string shaderData, const std::string &shaderFilePath)
+            {
+                const std::string shaderDirectory = svc().fileSystem().getFileDirectory(shaderFilePath);
+                const std::string INCLUDE_DIRECTIVE = "#include";
+                const size_t INCLUDE_DIRECTIVE_LEN = INCLUDE_DIRECTIVE.size();
+
+                size_t found = shaderData.find(INCLUDE_DIRECTIVE, 0);
+                while (found != std::string::npos)
+                {
+                    auto start = shaderData.find('\"', found + INCLUDE_DIRECTIVE_LEN);
+                    auto end = shaderData.find('\"', start + 1);
+
+                    if (start == end || start == std::string::npos || end == std::string::npos)
+                    {
+                        glog << "Failed to preprocess shader: invalid include directive" << logwarn;
+                        return shaderData;
+                    }
+
+                    auto fileToInclude = shaderData.substr(start + 1, end - start - 1);
+                    if (fileToInclude.empty())
+                    {
+                        glog << "Failed to preprocess shader: empty include path" << logwarn;
+                        return shaderData;
+                    }
+
+                    fileToInclude = FileSystem::pathConcatenate(shaderDirectory, fileToInclude);
+                    auto file = svc().fileSystem().openFile(fileToInclude);
+                    if (!file || !file->valid())
+                    {
+                        glog << "Failed to preprocess shader: file" << fileToInclude << "not found" << logwarn;
+                        return shaderData;
+                    }
+
+                    std::string includeData(file->getSizeInBytes(), 0);
+                    file->getRaw(&includeData[0], includeData.size());
+
+                    shaderData.replace(found, end - found + 1, includeData);
+
+                    found = shaderData.find(INCLUDE_DIRECTIVE, found);
+                }
+
+                return shaderData;
+            }
+
+            bool Shader::compile()
+            {
+                if (m_isCompiled)
+                    return true;
+
+                // Try to create shader.
+                if (m_shaderDescriptor == 0)
+                    createGLShader();
+
+                if (m_shaderDescriptor == 0 || m_type == Type::UNDEFINED)
+                {
+                    glog << "Can not compile GLSL shader due to undefined type" << logwarn;
+                    return false;
+                }
+
+                if (m_shaderData.empty())
+                {
+                    glog << "Empty shader data" << logwarn;
+                    return false;
+                }
+
+                const char *pdata = m_shaderData.c_str();
+                glShaderSource(m_shaderDescriptor, 1, &pdata, nullptr);
+                glCompileShader(m_shaderDescriptor);
+
+                int compileOk;
+                glGetShaderiv(m_shaderDescriptor, GL_COMPILE_STATUS, &compileOk);
+                if (compileOk == GL_FALSE)
+                {
+                    glog << "Failed to compile a shader" << logwarn;
+                    glog << "\n" << m_shaderData << logmess;
+                    shaderLog(m_shaderDescriptor);
+
+                    return false;
+                }
+
+                setCompiled(true);
+
+                return true;
+            }
+
+            void Shader::setShaderData(const std::string &data)
+            {
+                m_shaderData = data;
+                setCompiled(false);
+            }
+
+            Shader::Shader(Type type)
+                : m_type(type)
+            {
+            }
+
+            Shader::~Shader()
+            {
+                if (m_shaderDescriptor != 0)
+                    glDeleteShader(m_shaderDescriptor);
+            }
+
+            shared_ptr<Shader> Shader::createFromFile(const std::string &filePath)
+            {
+                auto shader = make_shared<Shader>();
+                auto file = svc().fileSystem().openFile(filePath);
+                if (!file || !file->valid())
+                {
+                    glog << "Can not create shader. File" << filePath << "doesn't exist" << logwarn;
+                    return nullptr;
+                }
+
+                const std::string &ext = svc().fileSystem().getFileExtension(filePath);
+
+                if (ext == ".vert")
+                    shader->setType(Type::VERTEX);
+                else if (ext == ".frag")
+                    shader->setType(Type::FRAGMENT);
+                else
+                {
+                    glog << "Can not decode GLSL shader because it's type is undefined" << filePath << logwarn;
+                    return nullptr;
+                }
+
+                std::string buffer(file->getSizeInBytes(), 0);
+                file->getRaw(&buffer[0], buffer.size());
+
+                shader->setShaderData(preprocessInclude(preprocess(buffer), file->getPath()));
+
+                return shader;
+            }
+
+            shared_ptr<Shader> Shader::createFromString(const std::string &shaderData, Type type)
+            {
+                if (type == Type::UNDEFINED)
+                {
+                    glog << "Failed to create shader of UNDEFINED type" << logwarn;
+                    return nullptr;
+                }
+
+                auto shader = make_shared<Shader>(type);
+                shader->setShaderData(preprocess(shaderData));
+                return shader;
+            }
+
+            }
+*/
+
     return{};
 }
 
-void RenderBackendGL::destroyShader()
+void RenderBackendGL::destroyShader(ShaderDescriptor shader)
 {
 
 }
 
 df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor, ShaderDescriptor)
 {
+    /*
+    bool GpuProgram::compileShaders()
+    {
+        assert(!m_programDescriptor);
+
+        m_programDescriptor = glCreateProgram();
+
+        for (auto shader : m_shaders)
+        {
+            if (!shader || !shader->compile())
+            {
+                glog << "Failed to compile shaders in" << getGUID() << logwarn;
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool GpuProgram::attachShaders()
+    {
+        if (!m_programDescriptor)
+            return false;
+
+        for (auto shader : m_shaders)
+            glAttachShader(m_programDescriptor, shader->m_shaderDescriptor);
+
+        glBindAttribLocation(m_programDescriptor, VertexFormat::POSITION_3, "a_vertex3");
+        glBindAttribLocation(m_programDescriptor, VertexFormat::NORMAL_3, "a_normal");
+        glBindAttribLocation(m_programDescriptor, VertexFormat::TX_2, "a_txCoord");
+        glBindAttribLocation(m_programDescriptor, VertexFormat::COLOR_4, "a_vertexColor");
+        glBindAttribLocation(m_programDescriptor, VertexFormat::TANGENT_3, "a_tangent");
+        glBindAttribLocation(m_programDescriptor, VertexFormat::BITANGENT_3, "a_bitangent");
+
+        glLinkProgram(m_programDescriptor);
+
+        int linkOk;
+        glGetProgramiv(m_programDescriptor, GL_LINK_STATUS, &linkOk);
+        if (linkOk == GL_FALSE)
+        {
+            glog << "GPU program linkage failed" << logwarn;
+            gpuProgramLog(m_programDescriptor);
+            return false;
+        }
+
+        requestUniforms();
+
+        printOpenGLError();
+
+        return true;
+    }
+
+    void GpuProgram::requestUniforms()
+    {
+        int total = -1;
+        glGetProgramiv(m_programDescriptor, GL_ACTIVE_UNIFORMS, &total);
+
+        for (int i = 0; i < total; i++)
+        {
+            GLenum type = GL_ZERO;
+            int nameLength = -1, uniformVarSize = -1;
+            char name[100];
+
+            glGetActiveUniform(m_programDescriptor, i, sizeof(name) - 1, &nameLength, &uniformVarSize, &type, name);
+            name[nameLength] = 0;
+
+            GpuProgramUniform uni(name);
+            uni.m_location = glGetUniformLocation(m_programDescriptor, name);
+            uni.m_glType = type;
+            uni.m_isSampler = isSampler(type);
+
+            if (uni.isShared())
+                m_sharedUniforms.push_back(uni);
+            else if (uni.isSampler())
+                m_samplerUniforms.push_back(uni);
+            else
+                m_customUniforms.push_back(uni);
+        }
+    }
+
+    GpuProgram::GpuProgram(GpuProgramDescriptor descr)
+        : m_descriptor(descr)
+    {
+    }
+
+    GpuProgram::~GpuProgram()
+    {
+
+    }
+
+    void GpuProgram::bind()
+    {
+        if (!isInitialized())
+            return;
+
+        assert(m_programDescriptor);
+
+        glUseProgram(m_programDescriptor);
+    }
+
+    void GpuProgram::unbind()
+    {
+        glUseProgram(0);
+    }
+
+    GpuProgramUniform *GpuProgram::getCustomUniform(const std::string &name)
+    {
+        for (size_t i = 0; i < m_customUniforms.size(); i++)
+        {
+            if (m_customUniforms[i].getName() == name)
+                return &m_customUniforms[i];
+        }
+
+        return nullptr;
+    }
+
+    GpuProgramUniform* GpuProgram::getSamplerUniform(const std::string &name)
+    {
+        for (size_t i = 0; i < m_samplerUniforms.size(); i++)
+        {
+            if (m_samplerUniforms[i].getName() == name)
+                return &m_samplerUniforms[i];
+        }
+
+        return nullptr;
+    }
+
+    */
+
+
     return{};
 }
 
 void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor)
 {
+    /*
+    if (m_programDescriptor == 0)
+        return;
 
+    unbind();
+
+    for (auto shader : m_shaders)
+    {
+        if (shader->m_shaderDescriptor != 0)
+            glDetachShader(m_programDescriptor, shader->m_shaderDescriptor);
+    }
+
+    glDeleteProgram(m_programDescriptor);
+    */
 }
 
 void RenderBackendGL::setViewport()
@@ -472,7 +889,7 @@ void RenderBackendGL::draw()
 
 
 
-
+//glUseProgram(0); --> FRAME END
 
 
 
@@ -584,3 +1001,536 @@ unique_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, f
     return result;
 }
 */
+
+
+
+
+
+
+
+
+
+/*
+
+enum class SharedUniformType
+{
+    WORLD_VIEW_PROJECTION_MATRIX_UNIFORM,
+    WORLD_VIEW_MATRIX_UNIFORM,
+    WORLD_VIEW_3X3_MATRIX_UNIFORM,
+    VIEW_INVERSE_MATRIX_UNIFORM,
+    VIEW_MATRIX_UNIFORM,
+    WORLD_INVERSE_MATRIX_UNIFORM,
+    WORLD_MATRIX_UNIFORM,
+    NORMAL_MATRIX_UNIFORM,
+    PROJECTION_MATRIX_UNIFORM,
+
+    CAMERA_POSITION_UNIFORM,
+
+    GLOBAL_AMBIENT_UNIFORM,
+
+    FOG_DENSITY_UNIFORM,
+    FOG_COLOR_UNIFORM,
+
+    PIXEL_SIZE_UNIFORM,
+
+    ELAPSED_TIME_UNIFORM,
+
+    MATERIAL_AMBIENT_UNIFORM,
+    MATERIAL_DIFFUSE_UNIFORM,
+    MATERIAL_SPECULAR_UNIFORM,
+    MATERIAL_EMISSIVE_UNIFORM,
+    MATERIAL_SHININESS_UNIFORM,
+
+    SCENE_LIGHT_DIFFUSE_UNIFORM,
+    SCENE_LIGHT_SPECULAR_UNIFORM,
+    SCENE_LIGHT_POSITION_UNIFORM,
+    SCENE_LIGHT_KC_UNIFORM,
+    SCENE_LIGHT_KL_UNIFORM,
+    SCENE_LIGHT_KQ_UNIFORM,
+
+    COUNT
+};
+
+class GpuProgramUniform
+{
+    friend class GpuProgram;
+
+    std::string m_name;
+    int m_location = -1;
+    unsigned m_glType = 0;
+
+    SharedUniformType m_sharedId = SharedUniformType::COUNT;
+    bool m_isSampler = false;
+
+    GpuProgramUniform(const std::string &name);
+
+public:
+    ~GpuProgramUniform();
+
+    void update(const void *data) const;
+
+    SharedUniformType getSharedType() const { return m_sharedId; }
+    bool isShared() const { return m_sharedId != SharedUniformType::COUNT; }
+    bool isSampler() const { return m_isSampler; }
+    const std::string &getName() const { return m_name; }
+};
+
+}
+
+
+
+
+
+
+
+
+
+
+namespace df3d {
+
+SharedUniformType getSharedTypeForUniform(const std::string &name)
+{
+    if (name == "u_worldViewProjectionMatrix")
+        return SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM;
+    else if (name == "u_worldViewMatrix")
+        return SharedUniformType::WORLD_VIEW_MATRIX_UNIFORM;
+    else if (name == "u_worldViewMatrix3x3")
+        return SharedUniformType::WORLD_VIEW_3X3_MATRIX_UNIFORM;
+    else if (name == "u_viewMatrixInverse")
+        return SharedUniformType::VIEW_INVERSE_MATRIX_UNIFORM;
+    else if (name == "u_viewMatrix")
+        return SharedUniformType::VIEW_MATRIX_UNIFORM;
+    else if (name == "u_projectionMatrix")
+        return SharedUniformType::PROJECTION_MATRIX_UNIFORM;
+    else if (name == "u_worldMatrix")
+        return SharedUniformType::WORLD_MATRIX_UNIFORM;
+    else if (name == "u_worldMatrixInverse")
+        return SharedUniformType::WORLD_INVERSE_MATRIX_UNIFORM;
+    else if (name == "u_normalMatrix")
+        return SharedUniformType::NORMAL_MATRIX_UNIFORM;
+    else if (name == "u_globalAmbient")
+        return SharedUniformType::GLOBAL_AMBIENT_UNIFORM;
+    else if (name == "u_cameraPosition")
+        return SharedUniformType::CAMERA_POSITION_UNIFORM;
+    else if (name == "u_fogDensity")
+        return SharedUniformType::FOG_DENSITY_UNIFORM;
+    else if (name == "u_fogColor")
+        return SharedUniformType::FOG_COLOR_UNIFORM;
+    else if (name == "u_pixelSize")
+        return SharedUniformType::PIXEL_SIZE_UNIFORM;
+    else if (name == "u_elapsedTime")
+        return SharedUniformType::ELAPSED_TIME_UNIFORM;
+    else if (name == "material.ambient")
+        return SharedUniformType::MATERIAL_AMBIENT_UNIFORM;
+    else if (name == "material.diffuse")
+        return SharedUniformType::MATERIAL_DIFFUSE_UNIFORM;
+    else if (name == "material.specular")
+        return SharedUniformType::MATERIAL_SPECULAR_UNIFORM;
+    else if (name == "material.emissive")
+        return SharedUniformType::MATERIAL_EMISSIVE_UNIFORM;
+    else if (name == "material.shininess")
+        return SharedUniformType::MATERIAL_SHININESS_UNIFORM;
+    else if (name == "current_light.diffuse")
+        return SharedUniformType::SCENE_LIGHT_DIFFUSE_UNIFORM;
+    else if (name == "current_light.specular")
+        return SharedUniformType::SCENE_LIGHT_SPECULAR_UNIFORM;
+    else if (name == "current_light.position")
+        return SharedUniformType::SCENE_LIGHT_POSITION_UNIFORM;
+    else if (name == "current_light.constantAttenuation")
+        return SharedUniformType::SCENE_LIGHT_KC_UNIFORM;
+    else if (name == "current_light.linearAttenuation")
+        return SharedUniformType::SCENE_LIGHT_KL_UNIFORM;
+    else if (name == "current_light.quadraticAttenuation")
+        return SharedUniformType::SCENE_LIGHT_KQ_UNIFORM;
+
+    return SharedUniformType::COUNT;
+}
+
+GpuProgramUniform::GpuProgramUniform(const std::string &name)
+    : m_name(name)
+{
+    assert(!m_name.empty());
+
+    // Try to set it shared.
+    m_sharedId = getSharedTypeForUniform(m_name);
+}
+
+GpuProgramUniform::~GpuProgramUniform()
+{
+
+}
+
+void GpuProgramUniform::update(const void *data) const
+{
+    switch (m_glType)
+    {
+    case GL_SAMPLER_2D:
+        glUniform1iv(m_location, 1, (GLint *)data);
+        break;
+    case GL_SAMPLER_CUBE:
+        glUniform1iv(m_location, 1, (GLint *)data);
+        break;
+    case GL_INT:
+        glUniform1iv(m_location, 1, (GLint *)data);
+        break;
+    case GL_FLOAT:
+        glUniform1fv(m_location, 1, (GLfloat *)data);
+        break;
+    case GL_FLOAT_VEC2:
+        glUniform2fv(m_location, 1, (GLfloat *)data);
+        break;
+    case GL_FLOAT_VEC3:
+        glUniform3fv(m_location, 1, (GLfloat *)data);
+        break;
+    case GL_FLOAT_VEC4:
+        glUniform4fv(m_location, 1, (GLfloat *)data);
+        break;
+    case GL_FLOAT_MAT3:
+        glUniformMatrix3fv(m_location, 1, GL_FALSE, (GLfloat *)data);
+        break;
+    case GL_FLOAT_MAT4:
+        glUniformMatrix4fv(m_location, 1, GL_FALSE, (GLfloat *)data);
+        break;
+    default:
+        glog << "Failed to update GpuProgramUniform. Unknown uniform type" << logwarn;
+        break;
+    }
+}
+
+}
+
+
+
+*/
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// GPU PROGRAM STATE
+
+/*
+#pragma once
+
+namespace df3d {
+
+class GpuProgramUniform;
+class RenderPass;
+class GpuProgram;
+
+class GpuProgramState
+{
+    glm::mat4 m_worldMatrix;
+    glm::mat4 m_viewMatrix;
+    glm::mat4 m_projMatrix;
+
+    glm::mat4 m_worldViewProj;
+    glm::mat4 m_worldView;
+    glm::mat3 m_worldView3x3;
+    glm::mat3 m_normalMatrix;
+
+    glm::mat4 m_viewMatrixInverse;
+    glm::mat4 m_worldMatrixInverse;
+
+    glm::vec3 m_cameraPosition;
+
+    struct GLSLLight
+    {
+        glm::vec3 diffuseParam;
+        glm::vec3 specularParam;
+        // NOTE: this vector is translated to the View Space. See OpenGLRenderer::setLight.
+        glm::vec4 positionParam;
+        float k0Param = 1.0f;
+        float k1Param = 1.0f;
+        float k2Param = 1.0f;
+    };
+
+    GLSLLight m_currentLight;
+    glm::vec4 m_globalAmbient = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+
+    float m_fogDensity = 0.0f;
+    glm::vec3 m_fogColor = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    glm::vec2 m_pixelSize = glm::vec2(1.0f / (float)DEFAULT_WINDOW_WIDTH, 1.0f / (float)DEFAULT_WINDOW_HEIGHT);
+
+    float m_engineElapsedTime = 0.0f;
+
+    bool m_worldViewProjDirty = true;
+    bool m_worldViewDirty = true;
+    bool m_worldView3x3Dirty = true;
+    bool m_normalDirty = true;
+    bool m_viewInverseDirty = true;
+    bool m_worldInverseDirty = true;
+
+    void resetFlags();
+
+    RenderPass *m_currentPass = nullptr;
+    GpuProgram *m_currentShader = nullptr;
+
+public:
+    GpuProgramState() = default;
+    ~GpuProgramState() = default;
+
+    const glm::mat4& getWorldMatrix();
+    const glm::mat4& getViewMatrix();
+    const glm::mat4& getProjectionMatrix();
+    const glm::mat4& getWorldViewProjectionMatrix();
+    const glm::mat4& getWorldViewMatrix();
+    const glm::mat3& getWorldView3x3Matrix();
+    const glm::mat3& getNormalMatrix();
+    const glm::mat4& getViewMatrixInverse();
+    const glm::mat4& getWorldMatrixInverse();
+
+    void setWorldMatrix(const glm::mat4 &worldm);
+    void setViewMatrix(const glm::mat4 &viewm);
+    void setProjectionMatrix(const glm::mat4 &projm);
+
+    void onFrameBegin();
+    void onFrameEnd();
+
+    void updateSharedUniform(const GpuProgramUniform &uniform);
+};
+
+}
+*/
+
+/*
+#include "GpuProgramState.h"
+
+#include "GpuProgramUniform.h"
+#include "RenderPass.h"
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/base/TimeManager.h>
+#include <libdf3d/3d/Camera.h>
+#include <libdf3d/game/World.h>
+
+namespace df3d {
+
+void GpuProgramState::resetFlags()
+{
+    m_worldViewProjDirty = m_worldViewDirty = m_worldView3x3Dirty
+        = m_normalDirty = m_viewInverseDirty = m_worldInverseDirty = true;
+}
+
+const glm::mat4 &GpuProgramState::getWorldMatrix()
+{
+    return m_worldMatrix;
+}
+
+const glm::mat4 &GpuProgramState::getViewMatrix()
+{
+    return m_viewMatrix;
+}
+
+const glm::mat4 &GpuProgramState::getProjectionMatrix()
+{
+    return m_projMatrix;
+}
+
+const glm::mat4 &GpuProgramState::getWorldViewProjectionMatrix()
+{
+    if (m_worldViewProjDirty)
+    {
+        m_worldViewProj = m_projMatrix * getWorldViewMatrix();
+        m_worldViewProjDirty = false;
+    }
+
+    return m_worldViewProj;
+}
+
+const glm::mat4 &GpuProgramState::getWorldViewMatrix()
+{
+    if (m_worldViewDirty)
+    {
+        m_worldView = m_viewMatrix * m_worldMatrix;
+        m_worldViewDirty = false;
+    }
+
+    return m_worldView;
+}
+
+const glm::mat3 &GpuProgramState::getWorldView3x3Matrix()
+{
+    if (m_worldView3x3Dirty)
+    {
+        m_worldView3x3 = glm::mat3(getWorldViewMatrix());
+        m_worldView3x3Dirty = false;
+    }
+
+    return m_worldView3x3;
+}
+
+const glm::mat3 &GpuProgramState::getNormalMatrix()
+{
+    if (m_normalDirty)
+    {
+        m_normalMatrix = glm::inverseTranspose(getWorldView3x3Matrix());
+        m_normalDirty = false;
+    }
+
+    return m_normalMatrix;
+}
+
+const glm::mat4 &GpuProgramState::getViewMatrixInverse()
+{
+    if (m_viewInverseDirty)
+    {
+        m_viewMatrixInverse = glm::inverse(m_viewMatrix);
+        m_viewInverseDirty = false;
+    }
+
+    return m_viewMatrixInverse;
+}
+
+const glm::mat4 &GpuProgramState::getWorldMatrixInverse()
+{
+    if (m_worldInverseDirty)
+    {
+        m_worldMatrixInverse = glm::inverse(m_worldMatrix);
+        m_worldInverseDirty = false;
+    }
+
+    return m_worldMatrixInverse;
+}
+
+void GpuProgramState::setWorldMatrix(const glm::mat4 &worldm)
+{
+    m_worldMatrix = worldm;
+    resetFlags();
+}
+
+void GpuProgramState::setViewMatrix(const glm::mat4 &viewm)
+{
+    m_viewMatrix = viewm;
+    resetFlags();
+}
+
+void GpuProgramState::setProjectionMatrix(const glm::mat4 &projm)
+{
+    m_projMatrix = projm;
+    // FIXME:
+    // Not all flags have to be set. Whatever.
+    resetFlags();
+}
+
+void GpuProgramState::onFrameBegin()
+{
+    resetFlags();
+
+    m_worldMatrix = glm::mat4(1.0f);
+    m_viewMatrix = glm::mat4(1.0f);
+    m_projMatrix = glm::mat4(1.0f);
+
+    m_currentPass = nullptr;
+    m_currentShader = nullptr;
+
+    m_cameraPosition = svc().world().getCamera()->getPosition();
+
+    m_engineElapsedTime = svc().timer().getElapsedTime();
+}
+
+void GpuProgramState::onFrameEnd()
+{
+
+}
+
+void GpuProgramState::updateSharedUniform(const GpuProgramUniform &uniform)
+{
+    // TODO: kind of lookup table.
+    switch (uniform.getSharedType())
+    {
+    case SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM:
+        uniform.update(glm::value_ptr(getWorldViewProjectionMatrix()));
+        break;
+    case SharedUniformType::WORLD_VIEW_MATRIX_UNIFORM:
+        uniform.update(glm::value_ptr(getWorldViewMatrix()));
+        break;
+    case SharedUniformType::WORLD_VIEW_3X3_MATRIX_UNIFORM:
+        uniform.update(glm::value_ptr(getWorldView3x3Matrix()));
+        break;
+    case SharedUniformType::VIEW_INVERSE_MATRIX_UNIFORM:
+        uniform.update(glm::value_ptr(getViewMatrixInverse()));
+        break;
+    case SharedUniformType::VIEW_MATRIX_UNIFORM:
+        uniform.update(glm::value_ptr(getViewMatrix()));
+        break;
+    case SharedUniformType::WORLD_INVERSE_MATRIX_UNIFORM:
+        uniform.update(glm::value_ptr(getWorldMatrixInverse()));
+        break;
+    case SharedUniformType::WORLD_MATRIX_UNIFORM:
+        uniform.update(glm::value_ptr(getWorldMatrix()));
+        break;
+    case SharedUniformType::PROJECTION_MATRIX_UNIFORM:
+        uniform.update(glm::value_ptr(getProjectionMatrix()));
+        break;
+    case SharedUniformType::NORMAL_MATRIX_UNIFORM:
+        uniform.update(glm::value_ptr(getNormalMatrix()));
+        break;
+    case SharedUniformType::CAMERA_POSITION_UNIFORM:
+        uniform.update(glm::value_ptr(m_cameraPosition));
+        break;
+    case SharedUniformType::GLOBAL_AMBIENT_UNIFORM:
+        uniform.update(glm::value_ptr(m_globalAmbient));
+        break;
+    case SharedUniformType::FOG_DENSITY_UNIFORM:
+        uniform.update(&m_fogDensity);
+        break;
+    case SharedUniformType::FOG_COLOR_UNIFORM:
+        uniform.update(glm::value_ptr(m_fogColor));
+        break;
+    case SharedUniformType::PIXEL_SIZE_UNIFORM:
+        uniform.update(glm::value_ptr(m_pixelSize));
+        break;
+    case SharedUniformType::ELAPSED_TIME_UNIFORM:
+        uniform.update(&m_engineElapsedTime);
+        break;
+    case SharedUniformType::MATERIAL_AMBIENT_UNIFORM:
+        uniform.update(glm::value_ptr(m_currentPass->getAmbientColor()));
+        break;
+    case SharedUniformType::MATERIAL_DIFFUSE_UNIFORM:
+        uniform.update(glm::value_ptr(m_currentPass->getDiffuseColor()));
+        break;
+    case SharedUniformType::MATERIAL_SPECULAR_UNIFORM:
+        uniform.update(glm::value_ptr(m_currentPass->getSpecularColor()));
+        break;
+    case SharedUniformType::MATERIAL_EMISSIVE_UNIFORM:
+        uniform.update(glm::value_ptr(m_currentPass->getEmissiveColor()));
+        break;
+    case SharedUniformType::MATERIAL_SHININESS_UNIFORM:
+        uniform.update(&m_currentPass->getShininess());
+        break;
+    case SharedUniformType::SCENE_LIGHT_DIFFUSE_UNIFORM:
+        uniform.update(glm::value_ptr(m_currentLight.diffuseParam));
+        break;
+    case SharedUniformType::SCENE_LIGHT_SPECULAR_UNIFORM:
+        uniform.update(glm::value_ptr(m_currentLight.specularParam));
+        break;
+    case SharedUniformType::SCENE_LIGHT_POSITION_UNIFORM:
+        uniform.update(glm::value_ptr(m_currentLight.positionParam));
+        break;
+    case SharedUniformType::SCENE_LIGHT_KC_UNIFORM:
+        uniform.update(&m_currentLight.k0Param);
+        break;
+    case SharedUniformType::SCENE_LIGHT_KL_UNIFORM:
+        uniform.update(&m_currentLight.k1Param);
+        break;
+    case SharedUniformType::SCENE_LIGHT_KQ_UNIFORM:
+        uniform.update(&m_currentLight.k2Param);
+        break;
+    case SharedUniformType::COUNT:
+    default:
+        glog << "Can not set shared value to not shared uniform" << logwarn;
+        break;
+    }
+}
+
+}
+*/
+
+
+
+

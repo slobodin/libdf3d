@@ -6,7 +6,6 @@
 
 namespace df3d {
 
-class RendererBackend;
 class IRenderBackend;
 class Viewport;
 class Material;
@@ -15,11 +14,10 @@ class RenderPass;
 class World;
 
 // Forward renderer.
-class RenderManager : utils::NonCopyable
+class DF3D_DLL RenderManager : utils::NonCopyable
 {
     friend class EngineController;
 
-    unique_ptr<RendererBackend> m_renderer;
     EngineInitParams m_initParams;
     unique_ptr<RenderQueue> m_renderQueue;
 
@@ -29,10 +27,7 @@ class RenderManager : utils::NonCopyable
     unique_ptr<RenderPass> m_ambientPassProps;
 
     void createQuadRenderOperation();
-    void createRenderTargets(const Viewport &vp);
     void createAmbientPassProps();
-
-    void postProcessPass(shared_ptr<Material> material);
 
     void loadEmbedResources();
     void onFrameBegin();
@@ -48,7 +43,6 @@ public:
     const Viewport& getViewport() const;
     const RenderingCapabilities& getRenderingCapabilities() const;
 
-    RendererBackend* getRenderer();
     IRenderBackend& getBackend();
 };
 

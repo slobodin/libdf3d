@@ -24,7 +24,7 @@ public:
     void addTexture(const Texture &tex);
     void removeTexture(const Texture &tex);
 
-    void addRenderOperation(VertexBuffer *vb, IndexBuffer *ib, RenderOperation::Type type);
+    //void addRenderOperation(VertexBuffer *vb, IndexBuffer *ib, RenderOperation::Type type);
     void addVertexBuffer();
     void addIndexBuffer();
 

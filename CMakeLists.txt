@@ -128,22 +128,17 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/impl/OpenGLCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/impl/RenderBackendGL.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/IRenderBackend.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RendererBackend.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderOperation.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderPass.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderQueue.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Shader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Technique.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Vertex.h
@@ -221,21 +216,16 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentCreationParams.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/impl/OpenGLCommon.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/impl/RenderBackendGL.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RendererBackend.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderCommon.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderOperation.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderPass.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderQueue.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Shader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Technique.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Vertex.cpp

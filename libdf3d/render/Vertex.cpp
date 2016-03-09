@@ -1,6 +1,5 @@
 #include "Vertex.h"
 
-#include "OpenGLCommon.h"
 #include <libdf3d/utils/Utils.h>
 
 namespace df3d {
@@ -72,44 +71,6 @@ size_t VertexFormat::getAttributeSize(VertexAttribute attrib) const
 
     assert(false && "no such attribute in vertex format");
     return 0;
-}
-
-void VertexFormat::enableGLAttributes()
-{
-    for (auto attrib : m_attribs)
-    {
-        glEnableVertexAttribArray(attrib);
-        size_t offs = getOffsetTo(attrib);
-        glVertexAttribPointer(attrib, m_counts[attrib], GL_FLOAT, GL_FALSE, getVertexSize(), (const GLvoid*)offs);
-    }
-}
-
-void VertexFormat::disableGLAttributes()
-{
-    for (auto attrib : m_attribs)
-        glDisableVertexAttribArray(attrib);
-}
-
-bool VertexFormat::operator== (const VertexFormat &other) const
-{
-    if (m_size != other.m_size)
-        return false;
-
-    if (m_attribs.size() != other.m_attribs.size())
-        return 0;
-
-    for (size_t i = 0; i < m_attribs.size(); i++)
-    {
-        if (m_attribs[i] != other.m_attribs[i])
-            return false;
-    }
-
-    return true;
-}
-
-bool VertexFormat::operator!= (const VertexFormat &other) const
-{
-    return !(*this == other);
 }
 
 Vertex::Vertex(const VertexFormat &format, float *vertexData)
@@ -191,9 +152,10 @@ VertexData::VertexData(const VertexFormat &format)
 
 }
 
-void VertexData::setWithRawData(std::vector<float> &&data)
+VertexData::VertexData(const VertexFormat &format, std::vector<float> &&data)
+    : m_data(std::move(data)),
+    m_format(format)
 {
-    m_data = std::move(data);
     m_verticesCount = (m_data.size() * sizeof(float)) / m_format.getVertexSize();
 }
 

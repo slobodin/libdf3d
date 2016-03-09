@@ -1,40 +1,20 @@
 #pragma once
 
 #include <libdf3d/resources/Resource.h>
-#include "GpuProgramUniform.h"
+#include "RenderCommon.h"
 
 namespace df3d {
-
-class Shader;
 
 class GpuProgram : public Resource
 {
     friend class GpuProgramManualLoader;
 
-    unsigned int m_programDescriptor = 0;
+    GpuProgramDescriptor m_descriptor;
 
-    std::vector<shared_ptr<Shader>> m_shaders;
-    std::vector<GpuProgramUniform> m_sharedUniforms;
-    std::vector<GpuProgramUniform> m_customUniforms;
-    std::vector<GpuProgramUniform> m_samplerUniforms;
-
-    bool compileShaders();
-    bool attachShaders();
-    void requestUniforms();
-
-    GpuProgram(const std::vector<shared_ptr<Shader>> &shaders);
+    GpuProgram(GpuProgramDescriptor descr);
 
 public:
     ~GpuProgram();
-
-    void bind();
-    void unbind();
-
-    const GpuProgramUniform &getSharedUniform(size_t idx) const { return m_sharedUniforms[idx]; }
-    size_t getSharedUniformsCount() const { return m_sharedUniforms.size(); }
-
-    GpuProgramUniform* getCustomUniform(const std::string &name);
-    GpuProgramUniform* getSamplerUniform(const std::string &name);
 };
 
 class GpuProgramManualLoader : public ManualResourceLoader

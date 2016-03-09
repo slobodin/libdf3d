@@ -2,8 +2,8 @@
 
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/render/RenderManager.h>
-#include <libdf3d/render/RendererBackend.h>
-#include <libdf3d/render/VertexIndexBuffer.h>
+#include <libdf3d/render/RenderPass.h>
+#include <libdf3d/render/IRenderBackend.h>
 #include <libdf3d/render/RenderOperation.h>
 #include <libdf3d/3d/Camera.h>
 #include <libdf3d/game/World.h>
@@ -26,11 +26,17 @@ public:
     }
 };
 
+void ParticleSystemBuffers_Quad::cleanup()
+{
+    delete[] m_vertexData;
+    if (m_vertexBuffer.valid())
+        svc().renderManager().getBackend().destroyVertexBuffer(m_vertexBuffer);
+    if (m_indexBuffer.valid())
+        svc().renderManager().getBackend().destroyIndexBuffer(m_indexBuffer);
+}
+
 ParticleSystemBuffers_Quad::ParticleSystemBuffers_Quad()
 {
-    m_vb = make_unique<VertexBuffer>(VERTEX_FORMAT);
-    m_ib = make_unique<IndexBuffer>();
-
     // Some assertions for this performance workaround.
     assert(sizeof(SpkVertexData) == VERTEX_FORMAT.getVertexSize());
     assert(VERTEX_FORMAT.getOffsetTo(VertexFormat::POSITION_3) == 0);
@@ -40,11 +46,13 @@ ParticleSystemBuffers_Quad::ParticleSystemBuffers_Quad()
 
 ParticleSystemBuffers_Quad::~ParticleSystemBuffers_Quad()
 {
-    delete [] m_vertexData;
+    cleanup();
 }
 
 void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
 {
+    cleanup();
+
     nbParticles = std::max(nbParticles, INITIAL_CAPACITY);
 
     // Allocate main memory storage copy (no glMapBuffer on ES2.0)
@@ -52,8 +60,14 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
     m_vertexData = new SpkVertexData[nbParticles * QUAD_VERTICES_PER_PARTICLE];
 
     // Allocate GPU storage.
-    m_vb->alloc(nbParticles * QUAD_VERTICES_PER_PARTICLE, nullptr, GpuBufferUsageType::DYNAMIC);
-    m_ib->alloc(nbParticles * QUAD_INDICES_PER_PARTICLE, nullptr, GpuBufferUsageType::STATIC);
+    m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(VERTEX_FORMAT,
+                                                                           nbParticles * QUAD_VERTICES_PER_PARTICLE,
+                                                                           nullptr,
+                                                                           GpuBufferUsageType::DYNAMIC);
+
+    m_indexBuffer = svc().renderManager().getBackend().createIndexBuffer(nbParticles * QUAD_INDICES_PER_PARTICLE,
+                                                                         nullptr,
+                                                                         GpuBufferUsageType::STATIC);
 
     positionAtStart();
 
@@ -71,7 +85,7 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
     }
 
     // Initialize GPU storage of index array.
-    m_ib->update(nbParticles * QUAD_INDICES_PER_PARTICLE, indexData.data());
+    svc().renderManager().getBackend().updateIndexBuffer(m_indexBuffer, nbParticles * QUAD_INDICES_PER_PARTICLE, indexData.data());
 
     // Initialize the texture array (CCW order).
     for (size_t i = 0; i < nbParticles; ++i)
@@ -91,19 +105,21 @@ void ParticleSystemBuffers_Quad::draw(size_t nbOfParticles, RenderPass *passProp
     assert(nbOfParticles <= m_particlesAllocated);
 
     // Refill GPU with new data (only vertices have been changed).
-    m_vb->update(nbOfParticles * QUAD_VERTICES_PER_PARTICLE, m_vertexData);
+    svc().renderManager().getBackend().updateVertexBuffer(m_vertexBuffer, nbOfParticles * QUAD_VERTICES_PER_PARTICLE, m_vertexData);
 
-    m_vb->setVerticesUsed(nbOfParticles * QUAD_VERTICES_PER_PARTICLE);
-    m_ib->setIndicesUsed(nbOfParticles * QUAD_INDICES_PER_PARTICLE);
+    // TODO_render:
+    //m_vb->setVerticesUsed(nbOfParticles * QUAD_VERTICES_PER_PARTICLE);
+    //m_ib->setIndicesUsed(nbOfParticles * QUAD_INDICES_PER_PARTICLE);
 
     RenderOperation op;
     op.type = RenderOperation::Type::TRIANGLES;
-    op.indexData = m_ib.get();
-    op.vertexData = m_vb.get();
+    op.indexBuffer = m_indexBuffer;
+    op.vertexBuffer = m_vertexBuffer;
     op.passProps = passProps;
     op.worldTransform = m;
 
-    svc().renderManager().getRenderer()->drawOperation(op);
+    // TODO_render
+    //svc().renderManager().getRenderer()->drawOperation(op);
 }
 
 void QuadParticleSystemRenderer::render2D(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const

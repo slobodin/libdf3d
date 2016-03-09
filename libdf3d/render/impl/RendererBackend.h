@@ -5,11 +5,10 @@
 
 namespace df3d {
 
-class VertexBuffer;
-class IndexBuffer;
+/*
+
 class GpuProgramState;
 class Viewport;
-class Texture2D;
 class Light;
 
 class RendererBackend
@@ -105,5 +104,7 @@ public:
 
     void drawOperation(const RenderOperation &op);
 };
+
+*/
 
 }

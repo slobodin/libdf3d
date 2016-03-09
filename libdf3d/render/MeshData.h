@@ -10,8 +10,6 @@
 
 namespace df3d {
 
-class VertexBuffer;
-class IndexBuffer;
 class RenderQueue;
 class MeshDataManualLoader;
 class MeshDataFSLoader;
@@ -63,8 +61,8 @@ class DF3D_DLL MeshData : public Resource
 
     struct HardwareSubMesh
     {
-        shared_ptr<VertexBuffer> vb;
-        shared_ptr<IndexBuffer> ib;
+        VertexBufferDescriptor vertexBuffer;
+        IndexBufferDescriptor indexBuffer;
         unique_ptr<Material> material;
 
         HardwareSubMesh() = default;

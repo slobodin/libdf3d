@@ -10,10 +10,9 @@
 #include <libdf3d/render/GpuProgram.h>
 #include <libdf3d/render/Texture.h>
 #include <libdf3d/render/RenderOperation.h>
-#include <libdf3d/render/VertexIndexBuffer.h>
 #include <libdf3d/render/RenderPass.h>
-#include <libdf3d/render/RendererBackend.h>
-#include <libdf3d/render/Texture2D.h>
+#include <libdf3d/render/IRenderBackend.h>
+#include <libdf3d/render/Texture.h>
 #include <libdf3d/render/Viewport.h>
 #include <libdf3d/render/RenderCommon.h>
 
@@ -158,8 +157,8 @@ void SystemInterface::JoinPath(Rocket::Core::String& translated_path, const Rock
 struct CompiledGeometry
 {
     shared_ptr<Texture> texture;
-    shared_ptr<VertexBuffer> vb;
-    shared_ptr<IndexBuffer> ib;
+    VertexBufferDescriptor vertexBuffer;
+    IndexBufferDescriptor indexBuffer;
 };
 
 RenderInterface::RenderInterface()
@@ -191,9 +190,10 @@ Rocket::Core::CompiledGeometryHandle RenderInterface::CompileGeometry(Rocket::Co
 
     // FIXME: can map directly to vertexBuffer if Rocket::Core::Vertex is the same layout as internal vertex buffer storage.
     VertexData vertexData(vertexFormat);
+    vertexData.allocVertices(num_vertices);
     for (int i = 0; i < num_vertices; i++)
     {
-        auto v = vertexData.allocVertex();
+        auto v = vertexData.getVertex(i);
 
         v.setPosition({ vertices[i].position.x, vertices[i].position.y, 0.0f });
         v.setTx({ vertices[i].tex_coord.x, vertices[i].tex_coord.y });
@@ -201,20 +201,18 @@ Rocket::Core::CompiledGeometryHandle RenderInterface::CompileGeometry(Rocket::Co
     }
 
     // Set up vertex buffer.
-    auto vertexBuffer = make_shared<VertexBuffer>(vertexFormat);
-    vertexBuffer->alloc(vertexData, GpuBufferUsageType::STATIC);
+    auto vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(vertexFormat, num_vertices, vertexData.getRawData(), GpuBufferUsageType::STATIC);
 
     // FIXME: this is not 64 bit
     static_assert(sizeof(INDICES_TYPE) == sizeof(int), "rocket indices should be the same as render::INDICES_TYPE");
 
     // Set up index buffer
-    auto indexBuffer = make_shared<IndexBuffer>();
-    indexBuffer->alloc(num_indices, indices, GpuBufferUsageType::STATIC);
+    auto indexBuffer = svc().renderManager().getBackend().createIndexBuffer(num_indices, indices, GpuBufferUsageType::STATIC);
 
     CompiledGeometry *geom = new CompiledGeometry();
     geom->texture = m_textures[texture];        // NOTE: can be nullptr. It's okay.
-    geom->vb = vertexBuffer;
-    geom->ib = indexBuffer;
+    geom->vertexBuffer = vertexBuffer;
+    geom->indexBuffer = indexBuffer;
 
     return (Rocket::Core::CompiledGeometryHandle)geom;
 }
@@ -241,12 +239,13 @@ void RenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandl
     m_guipass->setSampler("diffuseMap", geom->texture);
 
     RenderOperation op;
-    op.vertexData = geom->vb.get();
-    op.indexData = geom->ib.get();
+    op.vertexBuffer = geom->vertexBuffer;
+    op.indexBuffer = geom->indexBuffer;
     op.passProps = m_guipass.get();
     op.worldTransform = glm::translate(glm::vec3(translation.x, translation.y, 0.0f));
 
-    svc().renderManager().getRenderer()->drawOperation(op);
+    // TODO_render
+    //svc().renderManager().getRenderer()->drawOperation(op);
 }
 
 void RenderInterface::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry)
@@ -257,12 +256,12 @@ void RenderInterface::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHand
 
 void RenderInterface::EnableScissorRegion(bool enable)
 {
-    svc().renderManager().getRenderer()->enableScissorTest(enable);
+    svc().renderManager().getBackend().enableScissorTest(enable);
 }
 
 void RenderInterface::SetScissorRegion(int x, int y, int width, int height)
 {
-    svc().renderManager().getRenderer()->setScissorRegion(x, (int)svc().getScreenSize().y - (y + height), width, height);
+    svc().renderManager().getBackend().setScissorRegion(x, (int)svc().getScreenSize().y - (y + height), width, height);
 }
 
 bool RenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle,
@@ -281,8 +280,8 @@ bool RenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle,
     m_textures[++m_textureId] = texture;
     texture_handle = m_textureId;
 
-    texture_dimensions.x = texture->getOriginalWidth();
-    texture_dimensions.y = texture->getOriginalHeight();
+    texture_dimensions.x = texture->getWidth();
+    texture_dimensions.y = texture->getHeight();
 
     return true;
 }

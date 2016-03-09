@@ -9,8 +9,8 @@
 #include <libdf3d/render/Technique.h>
 #include <libdf3d/render/RenderPass.h>
 #include <libdf3d/render/GpuProgram.h>
-#include <libdf3d/render/Texture2D.h>
-#include <libdf3d/render/TextureCube.h>
+#include <libdf3d/render/Texture.h>
+#include <libdf3d/render/IRenderBackend.h>
 #include <libdf3d/utils/Utils.h>
 
 namespace df3d {

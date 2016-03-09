@@ -3,6 +3,7 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 
+#include <libdf3d/render/RenderCommon.h>
 #include <libdf3d/render/Vertex.h>
 
 namespace df3d { 
@@ -15,8 +16,8 @@ namespace physics_impl {
 class BulletDebugDraw : public btIDebugDraw
 {
     shared_ptr<RenderPass> m_pass;
-    shared_ptr<VertexBuffer> m_vertexBuffer;
 
+    VertexBufferDescriptor m_vertexBuffer;
     VertexData m_vertexData;
 
 public:

@@ -43,17 +43,29 @@ enum class CubeFace
     COUNT
 };
 
+enum class ShaderType
+{
+    VERTEX,
+    FRAGMENT,
+
+    UNDEFINED
+};
+
 // TODO_render: move
 static const int16_t INVALID_DESCRIPTOR = -1;
 
 struct VertexBufferDescriptor
 {
     int16_t id = INVALID_DESCRIPTOR;
+
+    bool valid() const { return id != INVALID_DESCRIPTOR; }
 };
 
 struct IndexBufferDescriptor
 {
     int16_t id = INVALID_DESCRIPTOR;
+
+    bool valid() const { return id != INVALID_DESCRIPTOR; }
 };
 
 struct TextureDescriptor
@@ -66,11 +78,15 @@ struct TextureDescriptor
 struct ShaderDescriptor
 {
     int16_t id = INVALID_DESCRIPTOR;
+
+    bool valid() const { return id != INVALID_DESCRIPTOR; }
 };
 
 struct GpuProgramDescriptor
 {
     int16_t id = INVALID_DESCRIPTOR;
+
+    bool valid() const { return id != INVALID_DESCRIPTOR; }
 };
 
 // FIXME: move to namespace.

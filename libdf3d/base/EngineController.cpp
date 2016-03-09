@@ -13,7 +13,6 @@
 #include <libdf3d/io/FileSystem.h>
 #include <libdf3d/gui/GuiManager.h>
 #include <libdf3d/audio/AudioManager.h>
-#include <libdf3d/render/RenderTargetScreen.h>
 #include <libdf3d/platform/AppDelegate.h>
 #include <libdf3d/script/ScriptManager.h>
 #include <libdf3d/utils/JsonUtils.h>
