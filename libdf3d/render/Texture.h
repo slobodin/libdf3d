@@ -48,9 +48,15 @@ public:
 
 class Texture : public Resource
 {
+    TextureDescriptor m_descr;
+
 public:
-    Texture();
+    Texture(TextureDescriptor descr = {});
     ~Texture();
+
+    // Texture is owning this descriptor.
+    TextureDescriptor getDescriptor() const;
+    void setDescriptor(TextureDescriptor descr);
 
     size_t getWidth() const;
     size_t getHeight() const;

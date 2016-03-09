@@ -2,7 +2,7 @@
 
 #include <libdf3d/base/EngineController.h>
 #include "RenderManager.h"
-#include "RendererBackend.h"
+#include "IRenderBackend.h"
 
 namespace df3d {
 
@@ -67,7 +67,7 @@ void TextureCreationParams::setMipmapped(bool mipmapped)
 
 void TextureCreationParams::setAnisotropyLevel(int anisotropy)
 {
-    float maxSupportedAniso = svc().renderManager().getRenderer()->getMaxAnisotropy();
+    float maxSupportedAniso = svc().renderManager().getBackend().getCaps().maxAnisotropy;
     if (anisotropy > maxSupportedAniso)
     {
         glog << "Anisotropy level is bigger than supported. Setting maximum." << logwarn;
@@ -84,13 +84,34 @@ void TextureCreationParams::setWrapMode(TextureWrapMode wrapMode)
     m_wrapMode = wrapMode;
 }
 
-Texture::Texture()
+Texture::Texture(TextureDescriptor descr)
+    : m_descr(descr)
 {
 
 }
 
 Texture::~Texture()
 {
+    if (m_descr.valid())
+        svc().renderManager().getBackend().destroyTexture(m_descr);
+}
+
+TextureDescriptor Texture::getDescriptor() const
+{
+    return m_descr;
+}
+
+void Texture::setDescriptor(TextureDescriptor descr)
+{
+    assert(descr.valid());
+
+    if (m_descr.valid())
+    {
+        glog << "Texture already has a descriptor" << logwarn;
+        return;
+    }
+
+    m_descr = descr;
 
 }
 

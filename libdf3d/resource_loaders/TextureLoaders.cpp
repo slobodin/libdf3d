@@ -1,6 +1,8 @@
 #include "TextureLoaders.h"
 
 #include <libdf3d/base/EngineController.h>
+#include <libdf3d/render/RenderManager.h>
+#include <libdf3d/render/IRenderBackend.h>
 #include <libdf3d/io/FileSystem.h>
 #include <libdf3d/io/FileDataSource.h>
 #include <libdf3d/utils/JsonUtils.h>
@@ -18,77 +20,75 @@
 namespace df3d {
 
 // stb image loader helpers.
-namespace
+
+// fill 'data' with 'size' bytes.  return number of bytes actually read
+static int read(void *user, char *data, int size)
 {
-    // fill 'data' with 'size' bytes.  return number of bytes actually read
-    int read(void *user, char *data, int size)
+    auto dataSource = static_cast<FileDataSource*>(user);
+    return dataSource->getRaw(data, size);
+}
+
+// skip the next 'n' bytes, or 'unget' the last -n bytes if negative
+static void skip(void *user, int n)
+{
+    if (n < 0)
     {
-        auto dataSource = static_cast<FileDataSource*>(user);
-        return dataSource->getRaw(data, size);
+        // TODO:
+        assert(false);
     }
 
-    // skip the next 'n' bytes, or 'unget' the last -n bytes if negative
-    void skip(void *user, int n)
-    {
-        if (n < 0)
-        {
-            // TODO:
-            assert(false);
-        }
+    auto dataSource = static_cast<FileDataSource*>(user);
+    dataSource->seek(n, std::ios_base::cur);
+}
 
-        auto dataSource = static_cast<FileDataSource*>(user);
-        dataSource->seek(n, std::ios_base::cur);
+// returns nonzero if we are at end of file/data
+static int eof(void *user)
+{
+    auto dataSource = static_cast<FileDataSource*>(user);
+    return dataSource->tell() >= dataSource->getSizeInBytes();
+}
+
+static unique_ptr<PixelBuffer> loadPixelBuffer(shared_ptr<FileDataSource> source)
+{
+    if (!source)
+    {
+        glog << "Failed to load pixel buffer from file source. Source is null." << logwarn;
+        return nullptr;
     }
 
-    // returns nonzero if we are at end of file/data
-    int eof(void *user)
+    stbi_io_callbacks callbacks;
+    callbacks.read = read;
+    callbacks.skip = skip;
+    callbacks.eof = eof;
+    auto dataSource = source.get();
+
+    int x, y, bpp;
+    auto pixels = stbi_load_from_callbacks(&callbacks, dataSource, &x, &y, &bpp, 0);
+    if (!pixels)
     {
-        auto dataSource = static_cast<FileDataSource*>(user);
-        return dataSource->tell() >= dataSource->getSizeInBytes();
-    }
-
-    unique_ptr<PixelBuffer> loadPixelBuffer(shared_ptr<FileDataSource> source)
-    {
-        if (!source)
-        {
-            glog << "Failed to load pixel buffer from file source. Source is null." << logwarn;
-            return nullptr;
-        }
-
-        stbi_io_callbacks callbacks;
-        callbacks.read = read;
-        callbacks.skip = skip;
-        callbacks.eof = eof;
-        auto dataSource = source.get();
-
-        int x, y, bpp;
-        auto pixels = stbi_load_from_callbacks(&callbacks, dataSource, &x, &y, &bpp, 0);
-        if (!pixels)
-        {
-            glog << "Can not load image" << source->getPath() << logwarn;
+        glog << "Can not load image" << source->getPath() << logwarn;
 #ifdef STB_DO_ERROR_PRINT
-            glog << stbi_failure_reason() << logwarn;
+        glog << stbi_failure_reason() << logwarn;
 #endif
-            return nullptr;
-        }
-
-        auto fmt = PixelFormat::INVALID;
-
-        if (bpp == STBI_rgb)
-            fmt = PixelFormat::RGB;
-        else if (bpp == STBI_rgb_alpha)
-            fmt = PixelFormat::RGBA;
-        else if (bpp == STBI_grey)
-            fmt = PixelFormat::GRAYSCALE;
-        else
-            glog << "Parsed image with an invalid bpp" << logwarn;
-
-        auto result = make_unique<PixelBuffer>(x, y, pixels, fmt);
-
-        stbi_image_free(pixels);
-
-        return result;
+        return nullptr;
     }
+
+    auto fmt = PixelFormat::INVALID;
+
+    if (bpp == STBI_rgb)
+        fmt = PixelFormat::RGB;
+    else if (bpp == STBI_rgb_alpha)
+        fmt = PixelFormat::RGBA;
+    else if (bpp == STBI_grey)
+        fmt = PixelFormat::GRAYSCALE;
+    else
+        glog << "Parsed image with an invalid bpp" << logwarn;
+
+    auto result = make_unique<PixelBuffer>(x, y, pixels, fmt);
+
+    stbi_image_free(pixels);
+
+    return result;
 }
 
 Texture2DManualLoader::Texture2DManualLoader(unique_ptr<PixelBuffer> pixelBuffer, TextureCreationParams params)
@@ -97,9 +97,13 @@ Texture2DManualLoader::Texture2DManualLoader(unique_ptr<PixelBuffer> pixelBuffer
 
 }
 
-Texture2D* Texture2DManualLoader::load()
+Texture* Texture2DManualLoader::load()
 {
-    return new Texture2D(*m_pixelBuffer, m_params);
+    auto descr = svc().renderManager().getBackend().createTexture2D(*m_pixelBuffer, m_params);
+    if (!descr.valid())
+        return nullptr;
+
+    return new Texture(descr);
 }
 
 Texture2DFSLoader::Texture2DFSLoader(const std::string &path, const TextureCreationParams &params, ResourceLoadingMode lm)
@@ -110,9 +114,9 @@ Texture2DFSLoader::Texture2DFSLoader(const std::string &path, const TextureCreat
 
 }
 
-Texture2D* Texture2DFSLoader::createDummy()
+Texture* Texture2DFSLoader::createDummy()
 {
-    return new Texture2D(m_params);
+    return new Texture();
 }
 
 bool Texture2DFSLoader::decode(shared_ptr<FileDataSource> source)
@@ -123,8 +127,11 @@ bool Texture2DFSLoader::decode(shared_ptr<FileDataSource> source)
 
 void Texture2DFSLoader::onDecoded(Resource *resource)
 {
-    auto texture = static_cast<Texture2D*>(resource);
-    texture->createGLTexture(*m_pixelBuffer);
+    auto texture = static_cast<Texture*>(resource);
+
+    auto descr = svc().renderManager().getBackend().createTexture2D(*m_pixelBuffer, m_params);
+    if (descr.valid())
+        texture->setDescriptor(descr);
 
     /*
     glog << "Cleaning up" << m_pixelBuffer->getSizeInBytes() / 1024.0f << "KB of CPU copy of pixel data" << logdebug;
@@ -143,9 +150,9 @@ TextureCubeFSLoader::TextureCubeFSLoader(const std::string &path, const TextureC
 
 }
 
-TextureCube* TextureCubeFSLoader::createDummy()
+Texture* TextureCubeFSLoader::createDummy()
 {
-    return new TextureCube(m_params);
+    return new Texture();
 }
 
 bool TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
@@ -192,11 +199,12 @@ void TextureCubeFSLoader::onDecoded(Resource *resource)
         }
     }
 
-    auto texture = static_cast<TextureCube*>(resource);
+    auto texture = static_cast<Texture*>(resource);
+    auto descr = svc().renderManager().getBackend().createTextureCube(m_pixelBuffers, m_params);
+    if (descr.valid())
+        texture->setDescriptor(descr);
 
-    texture->createGLTexture(m_pixelBuffers);
-
-    // Clean up main memory.
+    // Explicitly clean up main memory.
     for (int i = 0; i < (size_t)CubeFace::COUNT; i++)
         m_pixelBuffers[i].reset();
 }
