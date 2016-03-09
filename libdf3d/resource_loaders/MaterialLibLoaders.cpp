@@ -15,18 +15,6 @@
 
 namespace df3d {
 
-std::map<std::string, RenderPass::WindingOrder> woValues =
-{
-    { "CW", RenderPass::WindingOrder::CW },
-    { "CCW", RenderPass::WindingOrder::CCW }
-};
-
-std::map<std::string, RenderPass::PolygonMode> polygonModeValues =
-{
-    { "FILL", RenderPass::PolygonMode::FILL },
-    { "WIRE", RenderPass::PolygonMode::WIRE }
-};
-
 std::map<std::string, RenderPass::FaceCullMode> faceCullModeValues =
 {
     { "NONE", RenderPass::FaceCullMode::NONE },
@@ -324,46 +312,36 @@ class MaterialLibParser
             {
                 auto color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
                 val >> color.r >> color.g >> color.b >> color.a;
-                pass->setAmbientColor(color);
+                pass->setParam("material_ambient", color);
             }
             else if (keyval.first == "diffuse")
             {
                 auto color = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
                 val >> color.r >> color.g >> color.b >> color.a;
-                pass->setDiffuseColor(color);
+                pass->setParam("material_diffuse", color);
             }
             else if (keyval.first == "specular")
             {
                 auto color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
                 val >> color.r >> color.g >> color.b >> color.a;
-                pass->setSpecularColor(color);
+                pass->setParam("material_specular", color);
             }
             else if (keyval.first == "emissive")
             {
                 auto color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
                 val >> color.r >> color.g >> color.b >> color.a;
-                pass->setEmissiveColor(color);
+                pass->setParam("material_emissive", color);
             }
             else if (keyval.first == "shininess")
             {
                 float shininess = 64.0f;
                 val >> shininess;
-                pass->setShininess(shininess);
+                pass->setParam("material_shininess", shininess);
             }
             else if (keyval.first == "cull_face")
             {
                 std::function<void(RenderPass::FaceCullMode)> fn = std::bind(&RenderPass::setFaceCullMode, pass.get(), std::placeholders::_1);
                 setPassParam(keyval.first, keyval.second, faceCullModeValues, fn, m_libPath);
-            }
-            else if (keyval.first == "front_face")
-            {
-                std::function<void(RenderPass::WindingOrder)> fn = std::bind(&RenderPass::setFrontFaceWinding, pass.get(), std::placeholders::_1);
-                setPassParam(keyval.first, keyval.second, woValues, fn, m_libPath);
-            }
-            else if (keyval.first == "polygon_mode")
-            {
-                std::function<void(RenderPass::PolygonMode)> fn = std::bind(&RenderPass::setPolygonDrawMode, pass.get(), std::placeholders::_1);
-                setPassParam(keyval.first, keyval.second, polygonModeValues, fn, m_libPath);
             }
             else if (keyval.first == "depth_test")
             {
@@ -407,7 +385,7 @@ class MaterialLibParser
             else if (n->type == SAMPLER_TYPE)
             {
                 auto texture = parseSamplerNode(*n);
-                pass->setSampler(n->name, texture);
+                pass->setParam(n->name, texture);
             }
         }
 
@@ -452,13 +430,7 @@ class MaterialLibParser
     void parseShaderParamsNode(MaterialLibNode &node, shared_ptr<RenderPass> pass)
     {
         for (auto it : node.keyValues)
-        {
-            RenderPassParam param;
-            param.name = it.first;
-            param.value = utils::from_string<float>(it.second);
-
-            pass->addPassParam(param);
-        }
+            pass->setParam(it.first, utils::from_string<float>(it.second));
     }
 
     shared_ptr<Texture> parseSamplerNode(const MaterialLibNode &node)
@@ -489,7 +461,7 @@ class MaterialLibParser
         return nullptr;
 
         // TODO: other types are:
-        // TEXTURE_1D TEXTURE_2D TEXTURE_3D 
+        // TEXTURE_1D TEXTURE_2D TEXTURE_3D
     }
 
 public:

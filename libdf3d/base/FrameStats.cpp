@@ -1,7 +1,6 @@
 #include "FrameStats.h"
 
 #include <libdf3d/render/Texture.h>
-#include <libdf3d/render/VertexIndexBuffer.h>
 
 namespace df3d {
 
@@ -9,7 +8,8 @@ void FrameStats::addTexture(const Texture &tex)
 {
     m_textures++;
 
-    m_textureMemoryBytes += tex.getSizeInBytes();
+    // TODO_render
+    //m_textureMemoryBytes += tex.getSizeInBytes();
 }
 
 void FrameStats::removeTexture(const Texture &tex)
@@ -17,9 +17,10 @@ void FrameStats::removeTexture(const Texture &tex)
     assert(m_textures > 0);
     m_textures--;
 
-    m_textureMemoryBytes -= tex.getSizeInBytes();
+    // TODO_render
+    //m_textureMemoryBytes -= tex.getSizeInBytes();
 }
-
+/*
 void FrameStats::addRenderOperation(VertexBuffer *vb, IndexBuffer *ib, RenderOperation::Type type)
 {
     m_drawCalls++;
@@ -42,7 +43,7 @@ void FrameStats::addRenderOperation(VertexBuffer *vb, IndexBuffer *ib, RenderOpe
         break;
     }
 }
-
+*/
 void FrameStats::addVertexBuffer()
 {
 

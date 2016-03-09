@@ -115,4 +115,16 @@ void Texture::setDescriptor(TextureDescriptor descr)
 
 }
 
+size_t Texture::getWidth() const
+{
+    // TODO_render:
+    return 0;
+}
+
+size_t Texture::getHeight() const
+{
+    // TODO_render:
+    return 0;
+}
+
 }

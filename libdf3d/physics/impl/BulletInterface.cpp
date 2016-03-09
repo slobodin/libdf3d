@@ -5,8 +5,25 @@
 #include <libdf3d/render/RenderPass.h>
 #include <libdf3d/render/IRenderBackend.h>
 #include <libdf3d/render/RenderQueue.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/resources/ResourceFactory.h>
 
 namespace df3d { namespace physics_impl {
+
+static unique_ptr<RenderPass> CreateDebugDrawPass()
+{
+    auto pass = make_unique<RenderPass>("bullet_debug_draw_pass");
+    pass->setFaceCullMode(RenderPass::FaceCullMode::NONE);
+    pass->setBlendMode(RenderPass::BlendingMode::ALPHA);
+    pass->setParam("material_diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 0.7f));
+    // FIXME: force to use default white texture because using colored shader.
+    pass->setParam("diffuseMap", nullptr);
+
+    auto program = svc().resourceManager().getFactory().createColoredGpuProgram();
+    pass->setGpuProgram(program);
+
+    return pass;
+}
 
 BulletDebugDraw::BulletDebugDraw()
     : m_vertexData(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 }))
@@ -68,11 +85,7 @@ void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
         return;
 
     if (!m_pass)
-    {
-        m_pass = make_shared<RenderPass>(RenderPass::createDebugDrawPass());
-        m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 0.7f);
-        m_pass->setSampler("diffuseMap", std::shared_ptr<Texture>());          // FIXME: force to use default white texture because using colored shader.
-    }
+        m_pass = CreateDebugDrawPass();
 
     m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(m_vertexData.getFormat(),
                                                                            m_vertexData.getVerticesCount(),

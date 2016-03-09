@@ -20,6 +20,7 @@ class DF3D_DLL RenderManager : utils::NonCopyable
 
     EngineInitParams m_initParams;
     unique_ptr<RenderQueue> m_renderQueue;
+    unique_ptr<IRenderBackend> m_renderBackend;
 
     Viewport m_viewport;
 

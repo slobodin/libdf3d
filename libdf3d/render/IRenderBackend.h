@@ -7,7 +7,8 @@ namespace df3d {
 
 struct RenderBackendCaps
 {
-    float maxAnisotropy;
+    int maxTextureSize = 0;
+    float maxAnisotropy = 0.0f;
 };
 
 class PixelBuffer;
@@ -19,7 +20,12 @@ public:
     IRenderBackend() = default;
     virtual ~IRenderBackend() = default;
 
+    virtual void createEmbedResources() = 0;
+
     virtual const RenderBackendCaps& getCaps() const = 0;
+
+    virtual void frameBegin() = 0;
+    virtual void frameEnd() = 0;
 
     virtual VertexBufferDescriptor createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage) = 0;
     virtual void destroyVertexBuffer(VertexBufferDescriptor vb) = 0;
@@ -45,7 +51,7 @@ public:
     virtual GpuProgramDescriptor createGpuProgram(ShaderDescriptor, ShaderDescriptor) = 0;
     virtual void destroyGpuProgram(GpuProgramDescriptor) = 0;
 
-    virtual void setViewport() = 0;
+    virtual void setViewport(int x, int y, int width, int height) = 0;
     virtual void setWorldMatrix(const glm::mat4 &worldm) = 0;
     virtual void setCameraMatrix(const glm::mat4 &viewm) = 0;
     virtual void setProjectionMatrix(const glm::mat4 &projm) = 0;
@@ -59,6 +65,9 @@ public:
     virtual void setScissorRegion(int x, int y, int width, int height) = 0;
 
     virtual void draw() = 0;
+
+    // NOTE: do not support other backends for now. So it's static.
+    static unique_ptr<IRenderBackend> create();
 };
 
 }

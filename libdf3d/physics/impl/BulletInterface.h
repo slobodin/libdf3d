@@ -15,7 +15,7 @@ namespace physics_impl {
 
 class BulletDebugDraw : public btIDebugDraw
 {
-    shared_ptr<RenderPass> m_pass;
+    unique_ptr<RenderPass> m_pass;
 
     VertexBufferDescriptor m_vertexBuffer;
     VertexData m_vertexData;

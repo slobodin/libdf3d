@@ -123,8 +123,6 @@ void saveMaterials(std::ostream &os, const std::vector<MaterialProps> &materials
         os << indent << "emissive " << material.emissive[0] << " " << material.emissive[1] << " " << material.emissive[2] << "\n";
 
         // Write defaults.
-        os << indent << "polygon_mode FILL" << "\n";
-        os << indent << "front_face CCW" << "\n";
         os << indent << "cull_face BACK" << "\n";
         os << indent << "depth_test true" << "\n";
         os << indent << "is_lit true" << "\n";

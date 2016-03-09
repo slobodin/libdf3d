@@ -31,8 +31,12 @@
 
 namespace df3d {
 
+class Texture;
+
 class RenderBackendGL : public IRenderBackend
 {
+    RenderBackendCaps m_caps;
+
     struct VertexBufferGL
     {
         GLuint id = GL_INVALID_ENUM;
@@ -41,7 +45,22 @@ class RenderBackendGL : public IRenderBackend
     // TODO: use array
     //std::unordered_map<, VertexBufferGL> m_vertexBuffers;
 
+    shared_ptr<Texture> m_whiteTexture;
+
+    void createWhiteTexture();
+    void loadResidentGpuPrograms();
+
 public:
+    RenderBackendGL();
+    ~RenderBackendGL();
+
+    void createEmbedResources() override;
+
+    const RenderBackendCaps& getCaps() const override;
+
+    void frameBegin() override;
+    void frameEnd() override;
+
     VertexBufferDescriptor createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage) override;
     void destroyVertexBuffer(VertexBufferDescriptor vb) override;
 
@@ -66,7 +85,7 @@ public:
     GpuProgramDescriptor createGpuProgram(ShaderDescriptor, ShaderDescriptor) override;
     void destroyGpuProgram(GpuProgramDescriptor) override;
 
-    void setViewport();
+    void setViewport(int x, int y, int width, int height) override;
     void setWorldMatrix(const glm::mat4 &worldm) override;
     void setCameraMatrix(const glm::mat4 &viewm) override;
     void setProjectionMatrix(const glm::mat4 &projm) override;

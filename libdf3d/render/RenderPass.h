@@ -6,44 +6,28 @@ class Texture;
 class GpuProgram;
 class GpuProgramUniform;
 
-struct DF3D_DLL Sampler
+struct DF3D_DLL RenderPassParamFloat
 {
-    shared_ptr<Texture> texture;
+    // TODO_render: mb remove name?
     std::string name;
-
-    void update(GpuProgram *program, int textureUnit);
-
-private:
-    GpuProgramUniform *m_uniform = nullptr;
+    float value = 0.0f;
 };
 
-struct DF3D_DLL RenderPassParam
+struct DF3D_DLL RenderPassParamVec4
 {
     std::string name;
-    // Only floats for now.
-    float value = 0.0f;
+    glm::vec4 value = {};
+};
 
-    void updateTo(GpuProgram *program);
-
-private:
-    GpuProgramUniform *m_uniform = nullptr;
+struct RenderPassParamTexture
+{
+    std::string name;
+    shared_ptr<Texture> texture;
 };
 
 class DF3D_DLL RenderPass
 {
 public:
-    enum class WindingOrder
-    {
-        CW,
-        CCW
-    };
-
-    enum class PolygonMode
-    {
-        FILL,
-        WIRE
-    };
-
     enum class FaceCullMode
     {
         NONE,
@@ -63,37 +47,19 @@ public:
 private:
     std::string m_name;
 
-    //! GPU program params.
     shared_ptr<GpuProgram> m_gpuProgram;
-    //! Textures.
-    std::vector<Sampler> m_samplers;
-    //! Shader params.
-    std::vector<RenderPassParam> m_passParams;
+    std::vector<RenderPassParamFloat> m_floatParams;
+    std::vector<RenderPassParamVec4> m_vec4Params;
 
-    bool m_isTransparent = false;
-    bool m_lightingEnabled = false;
-
-    //! Light params.
-    glm::vec4 m_ambientColor = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-    glm::vec4 m_diffuseColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    glm::vec4 m_specularColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    glm::vec4 m_emissiveColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    float m_shininess = 64.0f;
-
-    //! Front face winding order.
-    WindingOrder m_frontFaceWo = WindingOrder::CCW;
     //! Face culling mode.
     FaceCullMode m_faceCullMode = FaceCullMode::BACK;
-    //! Polygon fill mode.
-    PolygonMode m_polygonMode = PolygonMode::FILL;
     //! Blending.
     BlendingMode m_blendMode = BlendingMode::NONE;
 
+    bool m_isTransparent = false;
+    bool m_lightingEnabled = false;
     bool m_depthTest = true;
     bool m_depthWrite = true;
-
-    // TODO:
-    // Blend factor src dst.
 
 public:
     //! Creates a pass with default parameters.
@@ -105,51 +71,28 @@ public:
     void setGpuProgram(shared_ptr<GpuProgram> newProgram);
     shared_ptr<GpuProgram> getGpuProgram() const;
 
-    void setSampler(const std::string &name, shared_ptr<Texture> texture);
-    void setSampler(const std::string &name, const std::string &texturePath);
-    std::vector<Sampler> &getSamplers();
-    shared_ptr<Texture> getSampler(const std::string &name);
+    void setParam(const std::string &name, float value);
+    void setParam(const std::string &name, const glm::vec4 &value);
+    // TODO_render: do not want shared_ptr here. Do not want pass to hold the resource.
+    void setParam(const std::string &name, shared_ptr<Texture> texture);
 
-    void addPassParam(const RenderPassParam &param);
-    std::vector<RenderPassParam>& getPassParams() { return m_passParams; }
-    RenderPassParam* getPassParam(const std::string &name);
+    shared_ptr<Texture> getTextureParam(const std::string &name) const;
+    float getFloatParam(const std::string &name) const;
+    const glm::vec4& getVec4Param(const std::string &name) const;
 
-    void setAmbientColor(float ra, float ga, float ba, float aa = 1.0f);
-    void setAmbientColor(const glm::vec4 &ambient);
-    void setDiffuseColor(float rd, float gd, float bd, float ad = 1.0f);
-    void setDiffuseColor(const glm::vec4 &diffuse);
-    void setSpecularColor(float rs, float gs, float bs, float as = 1.0f);
-    void setSpecularColor(const glm::vec4 &specular);
-    void setEmissiveColor(float re, float ge, float be, float ae = 1.0f);
-    void setEmissiveColor(const glm::vec4 &emissive);
-    void setShininess(float sh);
-
-    void setFrontFaceWinding(WindingOrder wo);
     void setFaceCullMode(FaceCullMode mode);
-    void setPolygonDrawMode(PolygonMode mode);
     void setBlendMode(BlendingMode mode);
     void enableDepthTest(bool enable);
     void enableDepthWrite(bool enable);
     void enableLighting(bool enable);
 
-    const glm::vec4 &getAmbientColor() const { return m_ambientColor; }
-    const glm::vec4 &getDiffuseColor() const { return m_diffuseColor; }
-    const glm::vec4 &getSpecularColor() const { return m_specularColor; }
-    const glm::vec4 &getEmissiveColor() const { return m_emissiveColor; }
-    const float &getShininess() const { return m_shininess; }
-
     bool isTransparent() const { return m_isTransparent; }
     bool isLit() const { return m_lightingEnabled; }
-    const std::string &getName() const { return m_name; }
-    bool depthTestEnabled() const { return m_depthTest; }
-    bool depthWriteEnabled() const { return m_depthWrite; }
-
-    WindingOrder getFrontFaceWinding() const { return m_frontFaceWo; }
+    bool isDepthTestEnabled() const { return m_depthTest; }
+    bool isDepthWriteEnabled() const { return m_depthWrite; }
+    const std::string& getName() const { return m_name; }
     FaceCullMode getFaceCullMode() const { return m_faceCullMode; }
-    PolygonMode getPolygonDrawMode() const { return m_polygonMode; }
     BlendingMode getBlendingMode() const { return m_blendMode; }
-
-    static RenderPass createDebugDrawPass();
 };
 
 }

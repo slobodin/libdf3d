@@ -17,81 +17,6 @@
 
 namespace df3d {
 
-static GLenum convertRopType(const RenderOperation::Type type)
-{
-    switch (type)
-    {
-    case RenderOperation::Type::LINES:
-        return GL_LINES;
-    case RenderOperation::Type::TRIANGLES:
-        return GL_TRIANGLES;
-    case RenderOperation::Type::LINE_STRIP:
-        return GL_LINE_STRIP;
-    default:
-        break;
-    }
-
-    return GL_INVALID_ENUM;
-}
-
-void RendererBackend::createWhiteTexture()
-{
-    const auto w = 8;
-    const auto h = 8;
-    const auto pf = PixelFormat::RGBA;
-
-    auto data = new unsigned char[w * h * 4];
-    memset(data, 255, w * h * 4);
-
-    TextureCreationParams params;
-    params.setFiltering(TextureFiltering::NEAREST);
-    params.setMipmapped(false);
-    params.setWrapMode(TextureWrapMode::WRAP);
-    params.setAnisotropyLevel(NO_ANISOTROPY);
-
-    auto pb = make_unique<PixelBuffer>(w, h, data, pf);
-
-    m_whiteTexture = svc().resourceManager().getFactory().createTexture(std::move(pb), params);
-    m_whiteTexture->setResident(true);
-
-    delete[] data;
-}
-
-void RendererBackend::loadResidentGpuPrograms()
-{
-    const std::string simple_lighting_vert =
-#include "libdf3d/render/embed_glsl/simple_lighting_vert.h"
-        ;
-    const std::string simple_lighting_frag =
-#include "libdf3d/render/embed_glsl/simple_lighting_frag.h"
-        ;
-    const std::string rtt_quad_vert =
-#include "libdf3d/render/embed_glsl/rtt_quad_vert.h"
-        ;
-    const std::string rtt_quad_frag =
-#include "libdf3d/render/embed_glsl/rtt_quad_frag.h"
-        ;
-    const std::string colored_vert =
-#include "libdf3d/render/embed_glsl/colored_vert.h"
-        ;
-    const std::string colored_frag =
-#include "libdf3d/render/embed_glsl/colored_frag.h"
-        ;
-    const std::string ambient_vert =
-#include "libdf3d/render/embed_glsl/ambient_vert.h"
-        ;
-    const std::string ambient_frag =
-#include "libdf3d/render/embed_glsl/ambient_frag.h"
-        ;
-
-    auto &factory = svc().resourceManager().getFactory();
-
-    factory.createGpuProgram(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH, simple_lighting_vert, simple_lighting_frag)->setResident(true);
-    factory.createGpuProgram(RTT_QUAD_PROGRAM_EMBED_PATH, rtt_quad_vert, rtt_quad_frag)->setResident(true);
-    factory.createGpuProgram(COLORED_PROGRAM_EMBED_PATH, colored_vert, colored_frag)->setResident(true);
-    factory.createGpuProgram(AMBIENT_PASS_PROGRAM_EMBED_PATH, ambient_vert, ambient_frag)->setResident(true);
-}
-
 void RendererBackend::setBlendMode(RenderPass::BlendingMode bm)
 {
     if (m_blendModeOverriden)
@@ -114,23 +39,6 @@ void RendererBackend::setBlendMode(RenderPass::BlendingMode bm)
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
         break;
-    default:
-        break;
-    }
-}
-
-void RendererBackend::setFrontFace(RenderPass::WindingOrder wo)
-{
-    if (m_frontFaceOverriden)
-        return;
-
-    switch (wo)
-    {
-    case RenderPass::WindingOrder::CW:
-        glFrontFace(GL_CW);
-        break;
-    case RenderPass::WindingOrder::CCW:
-        glFrontFace(GL_CCW);
     default:
         break;
     }
@@ -161,27 +69,6 @@ void RendererBackend::setCullFace(RenderPass::FaceCullMode cm)
     default:
         break;
     }
-}
-
-void RendererBackend::setPolygonDrawMode(RenderPass::PolygonMode pm)
-{
-    if (m_polygonDrawModeOverriden)
-        return;
-
-    // Doesn't work in OpenGL ES 2.x
-#if defined(DF3D_DESKTOP)
-    switch (pm)
-    {
-    case RenderPass::PolygonMode::FILL:
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        break;
-    case RenderPass::PolygonMode::WIRE:
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        break;
-    default:
-        break;
-    }
-#endif
 }
 
 void RendererBackend::updateProgramUniformValues(GpuProgram *program, RenderPass *pass)
@@ -223,56 +110,11 @@ void RendererBackend::updateProgramUniformValues(GpuProgram *program, RenderPass
     }
 }
 
-void RendererBackend::printGpuInfo()
-{
-    const char *ver = (const char *)glGetString(GL_VERSION);
-    glog << "OpenGL version" << ver << logmess;
-
-    const char *card = (const char *)glGetString(GL_RENDERER);
-    const char *vendor = (const char *)glGetString(GL_VENDOR);
-    glog << "Using" << card << vendor << logmess;
-
-    const char *shaderVer = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
-    glog << "Shaders version" << shaderVer << logmess;
-
-    glog << "Max texture size" << getMaxTextureSize() << logmess;
-}
 
 RendererBackend::RendererBackend()
     : m_programState(new GpuProgramState())
 {
-#ifdef DF3D_DESKTOP
-    // Init GLEW.
-    glewExperimental = GL_TRUE;
 
-    auto glewerr = glewInit();
-    if (glewerr != GLEW_OK)
-    {
-        std::string errStr = "GLEW initialization failed: ";
-        errStr += (const char *)glewGetErrorString(glewerr);
-        throw std::runtime_error(errStr);
-    }
-
-    if (!glewIsSupported("GL_VERSION_2_1"))
-        throw std::runtime_error("GL 2.1 unsupported");
-#endif
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_maxTextureSize);
-    // TODO:
-    // Check extension supported.
-    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &m_maxAnisotropyLevel);
-
-    printOpenGLError();
-
-    m_initialized = true;
-
-    printGpuInfo();
 }
 
 RendererBackend::~RendererBackend()
@@ -281,40 +123,12 @@ RendererBackend::~RendererBackend()
 
 void RendererBackend::loadResources()
 {
-    createWhiteTexture();
-    loadResidentGpuPrograms();
-}
 
-void RendererBackend::beginFrame()
-{
-    m_prevVB = nullptr;
-
-    clearColorBuffer();
-    clearDepthBuffer();
-    clearStencilBuffer();
-    enableDepthTest(true);
-    enableDepthWrite(true);
-    enableScissorTest(false);
-    setBlendMode(RenderPass::BlendingMode::NONE);
-
-    m_programState->onFrameBegin();
-
-    // Clear previous frame GL error.
-    printOpenGLError();
-}
-
-void RendererBackend::endFrame()
-{
-    m_programState->onFrameEnd();
-
-    glFlush();
 }
 
 void RendererBackend::setViewport(const Viewport &viewport)
 {
-    glViewport(viewport.x(), viewport.y(), viewport.width(), viewport.height());
 
-    m_programState->m_pixelSize = glm::vec2(1.0f / (float)viewport.width(), 1.0f / (float)viewport.height());
 }
 
 void RendererBackend::enableDepthTest(bool enable)
@@ -334,19 +148,6 @@ void RendererBackend::enableDepthWrite(bool enable)
         return;
 
     glDepthMask(enable);
-}
-
-void RendererBackend::enableScissorTest(bool enable)
-{
-    if (enable)
-        glEnable(GL_SCISSOR_TEST);
-    else
-        glDisable(GL_SCISSOR_TEST);
-}
-
-void RendererBackend::setScissorRegion(int x, int y, int width, int height)
-{
-    glScissor(x, y, width, height);
 }
 
 void RendererBackend::enableFog(float density, const glm::vec3 &fogColor)
@@ -395,29 +196,6 @@ void RendererBackend::enableDepthWriteOverride(bool enable)
     m_depthWriteOverriden = false;
     enableDepthWrite(enable);
     m_depthWriteOverriden = true;
-}
-
-void RendererBackend::clearColorBuffer(const glm::vec4 &color)
-{
-    glClearColor(color.r, color.g, color.b, color.a);
-    glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void RendererBackend::clearDepthBuffer()
-{
-    glClear(GL_DEPTH_BUFFER_BIT);
-}
-
-void RendererBackend::clearStencilBuffer()
-{
-    glClear(GL_STENCIL_BUFFER_BIT);
-}
-
-float RendererBackend::readDepthBuffer(int x, int y)
-{
-    float z = 0.0f;
-    glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
-    return z;
 }
 
 void RendererBackend::setWorldMatrix(const glm::mat4 &worldm)
@@ -539,28 +317,6 @@ void RendererBackend::drawVertexBuffer(VertexBuffer *vb, IndexBuffer *ib, Render
     svc().getFrameStats().addRenderOperation(vb, ib, type);
 
     printOpenGLError();
-}
-
-int RendererBackend::getMaxTextureSize()
-{
-    if (!m_initialized)
-    {
-        glog << "Failed to get max texture size. RendererBackend is not initialized" << logwarn;
-        return -1;
-    }
-
-    return m_maxTextureSize;
-}
-
-float RendererBackend::getMaxAnisotropy()
-{
-    if (!m_initialized)
-    {
-        glog << "Failed to get max anisotropy level. RendererBackend is not initialized" << logwarn;
-        return 1.0f;
-    }
-
-    return m_maxAnisotropyLevel;
 }
 
 void RendererBackend::drawOperation(const RenderOperation &op)

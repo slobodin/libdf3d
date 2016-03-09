@@ -236,7 +236,7 @@ void RenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandl
 
     auto geom = (CompiledGeometry *)geometry;
 
-    m_guipass->setSampler("diffuseMap", geom->texture);
+    m_guipass->setParam("diffuseMap", geom->texture);
 
     RenderOperation op;
     op.vertexBuffer = geom->vertexBuffer;

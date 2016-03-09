@@ -18,20 +18,23 @@
 #include "GpuProgram.h"
 #include "Viewport.h"
 #include "RenderQueue.h"
+#include "IRenderBackend.h"
 
 namespace df3d {
 
 void RenderManager::createQuadRenderOperation()
 {
     RenderPass passThrough;
-    passThrough.setFrontFaceWinding(RenderPass::WindingOrder::CCW);
     passThrough.setFaceCullMode(RenderPass::FaceCullMode::BACK);
     passThrough.setGpuProgram(svc().resourceManager().getFactory().createRttQuadProgram());
     passThrough.setBlendMode(RenderPass::BlendingMode::NONE);
     passThrough.enableDepthTest(false);
     passThrough.enableDepthWrite(false);
 
+    // TODO_render:
+    /*
     m_quadVb = createQuad(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2 }), 0.0f, 0.0f, 2.0, 2.0f, GpuBufferUsageType::STATIC);
+    */
 }
 
 void RenderManager::createAmbientPassProps()
@@ -43,7 +46,7 @@ void RenderManager::createAmbientPassProps()
 
 void RenderManager::loadEmbedResources()
 {
-    m_renderer->loadResources();
+    m_renderBackend->createEmbedResources();
 
     createQuadRenderOperation();
     createAmbientPassProps();
@@ -51,32 +54,44 @@ void RenderManager::loadEmbedResources()
 
 void RenderManager::onFrameBegin()
 {
-    m_renderer->beginFrame();
+    m_renderBackend->clearColorBuffer();
+    m_renderBackend->clearDepthBuffer();
+    m_renderBackend->clearStencilBuffer();
+    m_renderBackend->enableDepthTest(true);
+    m_renderBackend->enableDepthWrite(true);
+    m_renderBackend->enableScissorTest(false);
+
+    // TODO_render:
+    /*
+    m_renderBackend->setBlendMode(RenderPass::BlendingMode::NONE);
+    */
 }
 
 void RenderManager::onFrameEnd()
 {
-    m_renderer->endFrame();
+    // TODO_render:
+    //m_renderer->endFrame();
 }
 
 void RenderManager::doRenderWorld(World &world)
 {
+    // TODO_render
+    /*
+
     // TODO_ecs: what if render queue becomes big???
     m_renderQueue->clear();
 
     world.collectRenderOperations(m_renderQueue.get());
 
-    // Draw whole scene to the texture or to the screen (depends on postprocess option).
-    rt->bind();
-    m_renderer->setProjectionMatrix(world.getCamera()->getProjectionMatrix());
+    m_renderBackend->setProjectionMatrix(world.getCamera()->getProjectionMatrix());
 
-    m_renderer->clearColorBuffer();
-    m_renderer->clearDepthBuffer();
+    m_renderBackend->clearColorBuffer();
+    m_renderBackend->clearDepthBuffer();
 
     m_renderer->setAmbientLight(world.getRenderingParams().getAmbientLight());
     m_renderer->enableFog(world.getRenderingParams().getFogDensity(), world.getRenderingParams().getFogColor());
 
-    m_renderer->setCameraMatrix(world.getCamera()->getViewMatrix());
+    m_renderBackend->setCameraMatrix(world.getCamera()->getViewMatrix());
 
     m_renderQueue->sort();
 
@@ -142,27 +157,20 @@ void RenderManager::doRenderWorld(World &world)
         }
     }
 
-    m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)rt->getViewport().width(), (float)rt->getViewport().height(), 0.0f));
-    m_renderer->setCameraMatrix(glm::mat4(1.0f));
+    m_renderBackend->setProjectionMatrix(glm::ortho(0.0f, (float)m_viewport.width(), (float)m_viewport.height(), 0.0f));
+    m_renderBackend->setCameraMatrix(glm::mat4(1.0f));
 
     // 2D ops pass.
     for (const auto &op : m_renderQueue->sprite2DOperations)
         m_renderer->drawOperation(op);
 
-    // Do post process if enabled.
-    if (postProcessingEnabled)
-    {
-        rt->unbind();
-        postProcessPass(world.getRenderingParams().getPostProcessMaterial());
-    }
-
     // Draw GUI.
-    m_screenRt->bind();
-
-    m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)m_screenRt->getViewport().width(), (float)m_screenRt->getViewport().height(), 0.0f));
-    m_renderer->setCameraMatrix(glm::mat4(1.0f));
+    m_renderBackend->setProjectionMatrix(glm::ortho(0.0f, (float)m_viewport.width(), (float)m_viewport.height(), 0.0f));
+    m_renderBackend->setCameraMatrix(glm::mat4(1.0f));
 
     svc().guiManager().getContext()->Render();
+
+    */
 }
 
 RenderManager::RenderManager(EngineInitParams params)
@@ -171,7 +179,7 @@ RenderManager::RenderManager(EngineInitParams params)
 {
     m_viewport = Viewport(0, 0, params.windowWidth, params.windowHeight);
 
-    m_renderer = make_unique<RendererBackend>();
+    m_renderBackend = IRenderBackend::create();
 }
 
 RenderManager::~RenderManager()
@@ -196,6 +204,11 @@ const Viewport& RenderManager::getViewport() const
 const RenderingCapabilities& RenderManager::getRenderingCapabilities() const
 {
     return m_initParams.renderingCaps;
+}
+
+IRenderBackend& RenderManager::getBackend()
+{
+    return *m_renderBackend;
 }
 
 }

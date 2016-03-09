@@ -1,6 +1,12 @@
 #include "RenderBackendGL.h"
 
+#include <libdf3d/base/EngineController.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/resources/ResourceFactory.h>
 #include <libdf3d/render/RenderCommon.h>
+#include <libdf3d/render/Texture.h>
+#include <libdf3d/render/RenderOperation.h>
+#include <libdf3d/render/GpuProgram.h>
 
 namespace df3d {
 
@@ -43,7 +49,7 @@ static void CheckAndPrintGLError(const char *file, int line)
 }
 
 #if defined(_DEBUG) || defined(DEBUG)
-#define printOpenGLError() checkAndPrintGLError(__FILE__, __LINE__)
+#define printOpenGLError() CheckAndPrintGLError(__FILE__, __LINE__)
 #else
 #define printOpenGLError()
 #endif
@@ -167,6 +173,23 @@ static GLenum GetGLBufferUsageType(GpuBufferUsageType t)
     return GL_INVALID_ENUM;
 }
 
+static GLenum GetGLDrawMode(const RenderOperation::Type type)
+{
+    switch (type)
+    {
+    case RenderOperation::Type::LINES:
+        return GL_LINES;
+    case RenderOperation::Type::TRIANGLES:
+        return GL_TRIANGLES;
+    case RenderOperation::Type::LINE_STRIP:
+        return GL_LINE_STRIP;
+    default:
+        break;
+    }
+
+    return GL_INVALID_ENUM;
+}
+
 static bool IsSampler(GLenum type)
 {
 #if defined(DF3D_DESKTOP)
@@ -196,6 +219,143 @@ static void PrintGpuProgramLog(unsigned int program)
     glGetProgramInfoLog(program, infologLen, nullptr, infoLog.get());
 
     glog << "GPU program info log:" << infoLog.get() << logmess;
+}
+
+void RenderBackendGL::createWhiteTexture()
+{
+    const auto w = 8;
+    const auto h = 8;
+    const auto pf = PixelFormat::RGBA;
+
+    auto data = new unsigned char[w * h * 4];
+    memset(data, 255, w * h * 4);
+
+    TextureCreationParams params;
+    params.setFiltering(TextureFiltering::NEAREST);
+    params.setMipmapped(false);
+    params.setWrapMode(TextureWrapMode::WRAP);
+    params.setAnisotropyLevel(NO_ANISOTROPY);
+
+    auto pb = make_unique<PixelBuffer>(w, h, data, pf);
+
+    m_whiteTexture = svc().resourceManager().getFactory().createTexture(std::move(pb), params);
+    m_whiteTexture->setResident(true);
+
+    delete[] data;
+}
+
+void RenderBackendGL::loadResidentGpuPrograms()
+{
+    const std::string simple_lighting_vert =
+#include "embed_glsl/simple_lighting_vert.h"
+        ;
+    const std::string simple_lighting_frag =
+#include "embed_glsl/simple_lighting_frag.h"
+        ;
+    const std::string colored_vert =
+#include "embed_glsl/colored_vert.h"
+        ;
+    const std::string colored_frag =
+#include "embed_glsl/colored_frag.h"
+        ;
+    const std::string ambient_vert =
+#include "embed_glsl/ambient_vert.h"
+        ;
+    const std::string ambient_frag =
+#include "embed_glsl/ambient_frag.h"
+        ;
+
+    auto &factory = svc().resourceManager().getFactory();
+
+    factory.createGpuProgram(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH, simple_lighting_vert, simple_lighting_frag)->setResident(true);
+    factory.createGpuProgram(COLORED_PROGRAM_EMBED_PATH, colored_vert, colored_frag)->setResident(true);
+    factory.createGpuProgram(AMBIENT_PASS_PROGRAM_EMBED_PATH, ambient_vert, ambient_frag)->setResident(true);
+}
+
+RenderBackendGL::RenderBackendGL()
+{
+#ifdef DF3D_DESKTOP
+    // Init GLEW.
+    glewExperimental = GL_TRUE;
+
+    auto glewerr = glewInit();
+    if (glewerr != GLEW_OK)
+    {
+        std::string errStr = "GLEW initialization failed: ";
+        errStr += (const char *)glewGetErrorString(glewerr);
+        throw std::runtime_error(errStr);
+    }
+
+    if (!glewIsSupported("GL_VERSION_2_1"))
+        throw std::runtime_error("GL 2.1 unsupported");
+#endif
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glFrontFace(GL_CCW);
+
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_caps.maxTextureSize);
+    // TODO:
+    // Check extension supported.
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &m_caps.maxAnisotropy);
+
+    // Print GPU info.
+    {
+        const char *ver = (const char *)glGetString(GL_VERSION);
+        glog << "OpenGL version" << ver << logmess;
+
+        const char *card = (const char *)glGetString(GL_RENDERER);
+        const char *vendor = (const char *)glGetString(GL_VENDOR);
+        glog << "Using" << card << vendor << logmess;
+
+        const char *shaderVer = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
+        glog << "Shaders version" << shaderVer << logmess;
+
+        glog << "Max texture size" << m_caps.maxTextureSize << logmess;
+    }
+
+    printOpenGLError();
+}
+
+RenderBackendGL::~RenderBackendGL()
+{
+
+}
+
+void RenderBackendGL::createEmbedResources()
+{
+    createWhiteTexture();
+    loadResidentGpuPrograms();
+}
+
+const RenderBackendCaps& RenderBackendGL::getCaps() const
+{
+    return m_caps;
+}
+
+void RenderBackendGL::frameBegin()
+{
+    glUseProgram(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+    // TODO_render
+    /*
+    m_programState->onFrameBegin();
+    */
+
+    // Clear previous frame GL error.
+    printOpenGLError();
+}
+
+void RenderBackendGL::frameEnd()
+{
+    glFlush();
 }
 
 df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage)
@@ -813,6 +973,7 @@ void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor)
         return;
 
     unbind();
+    useProgram(0);!
 
     for (auto shader : m_shaders)
     {
@@ -824,9 +985,14 @@ void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor)
     */
 }
 
-void RenderBackendGL::setViewport()
+void RenderBackendGL::setViewport(int x, int y, int width, int height)
 {
+    glViewport(x, y, width, height);
 
+    // TODO_render:
+    /*
+    m_programState->m_pixelSize = glm::vec2(1.0f / (float)viewport.width(), 1.0f / (float)viewport.height());
+    */
 }
 
 void RenderBackendGL::setWorldMatrix(const glm::mat4 &worldm)
@@ -846,17 +1012,18 @@ void RenderBackendGL::setProjectionMatrix(const glm::mat4 &projm)
 
 void RenderBackendGL::clearColorBuffer(const glm::vec4 &color)
 {
-
+    glClearColor(color.r, color.g, color.b, color.a);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void RenderBackendGL::clearDepthBuffer()
 {
-
+    glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void RenderBackendGL::clearStencilBuffer()
 {
-
+    glClear(GL_STENCIL_BUFFER_BIT);
 }
 
 void RenderBackendGL::enableDepthTest(bool enable)
@@ -871,17 +1038,22 @@ void RenderBackendGL::enableDepthWrite(bool enable)
 
 void RenderBackendGL::enableScissorTest(bool enable)
 {
-
+    if (enable) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
 }
 
 void RenderBackendGL::setScissorRegion(int x, int y, int width, int height)
 {
-
+    glScissor(x, y, width, height);
 }
 
 void RenderBackendGL::draw()
 {
 
+}
+
+unique_ptr<IRenderBackend> IRenderBackend::create()
+{
+    return make_unique<RenderBackendGL>();
 }
 
 }
