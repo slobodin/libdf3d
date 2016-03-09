@@ -131,7 +131,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/impl/OpenGLCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/impl/RenderBackendGL.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/IRenderBackend.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderBackendCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.h
@@ -144,9 +143,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderOperation.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderPass.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderQueue.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTarget.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetScreen.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetTexture.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Shader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Technique.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture.h
@@ -239,8 +235,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderOperation.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderPass.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderQueue.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetScreen.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetTexture.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Shader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Technique.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture.cpp

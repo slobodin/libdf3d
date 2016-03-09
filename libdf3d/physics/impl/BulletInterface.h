@@ -9,7 +9,6 @@ namespace df3d {
 
 class RenderPass;
 class RenderQueue;
-class VertexBuffer;
 
 namespace physics_impl {
 

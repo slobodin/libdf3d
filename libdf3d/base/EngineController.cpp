@@ -161,7 +161,7 @@ FrameStats& EngineController::getFrameStats()
 
 glm::vec2 EngineController::getScreenSize() const
 {
-    const auto &vp = m_renderManager->getScreenRenderTarget().getViewport();
+    const auto &vp = m_renderManager->getViewport();
     return glm::vec2(vp.width(), vp.height());
 }
 
