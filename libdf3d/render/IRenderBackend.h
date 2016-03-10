@@ -21,8 +21,6 @@ public:
     IRenderBackend() = default;
     virtual ~IRenderBackend() = default;
 
-    virtual void createEmbedResources() = 0;
-
     virtual const RenderBackendCaps& getCaps() const = 0;
 
     virtual void frameBegin() = 0;

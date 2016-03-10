@@ -25,6 +25,7 @@ class DF3D_DLL RenderPassParam
     } m_value;
 
     shared_ptr<Texture> m_texture;
+    bool m_hasTexture = false;
 
 public:
     RenderPassParam(const std::string &name);
@@ -38,6 +39,7 @@ public:
     void setValue(shared_ptr<Texture> texture);
 
     shared_ptr<Texture> getTexture();
+    bool hasTexture() { return m_hasTexture; }
 
     // TODO_render think about this method.
     void updateToProgram(IRenderBackend &backend, GpuProgram &program);

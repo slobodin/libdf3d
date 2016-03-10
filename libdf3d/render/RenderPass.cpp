@@ -36,6 +36,7 @@ void RenderPassParam::setValue(const glm::vec4 &val)
 
 void RenderPassParam::setValue(shared_ptr<Texture> texture)
 {
+    m_hasTexture = true;
     m_texture = texture;
 }
 

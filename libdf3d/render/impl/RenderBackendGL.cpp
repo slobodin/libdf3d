@@ -1,8 +1,5 @@
 #include "RenderBackendGL.h"
 
-#include <libdf3d/base/EngineController.h>
-#include <libdf3d/resources/ResourceManager.h>
-#include <libdf3d/resources/ResourceFactory.h>
 #include <libdf3d/render/RenderCommon.h>
 #include <libdf3d/render/Texture.h>
 #include <libdf3d/render/RenderOperation.h>
@@ -147,26 +144,6 @@ static void SetupGLWrapMode(GLenum glType, TextureWrapMode wrapMode)
     printOpenGLError();
 }
 
-/*
-void VertexFormat::enableGLAttributes()
-{
-for (auto attrib : m_attribs)
-{
-glEnableVertexAttribArray(attrib);
-size_t offs = getOffsetTo(attrib);
-glVertexAttribPointer(attrib, m_counts[attrib], GL_FLOAT, GL_FALSE, getVertexSize(), (const GLvoid*)offs);
-}
-}
-
-void VertexFormat::disableGLAttributes()
-{
-for (auto attrib : m_attribs)
-glDisableVertexAttribArray(attrib);
-}
-
-
-*/
-
 static GLenum GetGLBufferUsageType(GpuBufferUsageType t)
 {
     switch (t)
@@ -232,57 +209,6 @@ static void PrintGpuProgramLog(unsigned int program)
     glog << "GPU program info log:" << infoLog.get() << logmess;
 }
 
-void RenderBackendGL::createWhiteTexture()
-{
-    const auto w = 8;
-    const auto h = 8;
-    const auto pf = PixelFormat::RGBA;
-
-    auto data = new unsigned char[w * h * 4];
-    memset(data, 255, w * h * 4);
-
-    TextureCreationParams params;
-    params.setFiltering(TextureFiltering::NEAREST);
-    params.setMipmapped(false);
-    params.setWrapMode(TextureWrapMode::WRAP);
-    params.setAnisotropyLevel(NO_ANISOTROPY);
-
-    auto pb = make_unique<PixelBuffer>(w, h, data, pf);
-
-    m_whiteTexture = svc().resourceManager().getFactory().createTexture(std::move(pb), params);
-    m_whiteTexture->setResident(true);
-
-    delete[] data;
-}
-
-void RenderBackendGL::loadResidentGpuPrograms()
-{
-    const std::string simple_lighting_vert =
-#include "embed_glsl/simple_lighting_vert.h"
-        ;
-    const std::string simple_lighting_frag =
-#include "embed_glsl/simple_lighting_frag.h"
-        ;
-    const std::string colored_vert =
-#include "embed_glsl/colored_vert.h"
-        ;
-    const std::string colored_frag =
-#include "embed_glsl/colored_frag.h"
-        ;
-    const std::string ambient_vert =
-#include "embed_glsl/ambient_vert.h"
-        ;
-    const std::string ambient_frag =
-#include "embed_glsl/ambient_frag.h"
-        ;
-
-    auto &factory = svc().resourceManager().getFactory();
-
-    factory.createGpuProgram(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH, simple_lighting_vert, simple_lighting_frag)->setResident(true);
-    factory.createGpuProgram(COLORED_PROGRAM_EMBED_PATH, colored_vert, colored_frag)->setResident(true);
-    factory.createGpuProgram(AMBIENT_PASS_PROGRAM_EMBED_PATH, ambient_vert, ambient_frag)->setResident(true);
-}
-
 RenderBackendGL::RenderBackendGL()
 {
 #ifdef DF3D_DESKTOP
@@ -336,12 +262,6 @@ RenderBackendGL::~RenderBackendGL()
 
 }
 
-void RenderBackendGL::createEmbedResources()
-{
-    createWhiteTexture();
-    loadResidentGpuPrograms();
-}
-
 const RenderBackendCaps& RenderBackendGL::getCaps() const
 {
     return m_caps;
@@ -349,6 +269,8 @@ const RenderBackendCaps& RenderBackendGL::getCaps() const
 
 void RenderBackendGL::frameBegin()
 {
+    m_indexedDrawCall = false;
+
     glUseProgram(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -407,16 +329,22 @@ void RenderBackendGL::destroyVertexBuffer(VertexBufferDescriptor vb)
 void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
 {
     DESCRIPTOR_CHECK(vb);
-    // TODO_render
-    /*
-    glBindBuffer(GL_ARRAY_BUFFER, m_glId);
 
-    m_format.enableGLAttributes();*/
-    /*
-    m_format.disableGLAttributes();
+    const auto &vertexBuffer = m_vertexBuffers[vb.id];
+    assert(vertexBuffer.gl_id != 0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    */
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id);
+
+    const auto &format = *vertexBuffer.format;
+
+    for (auto attrib : format.m_attribs)
+    {
+        glEnableVertexAttribArray(attrib);
+        size_t offs = format.getOffsetTo(attrib);
+        glVertexAttribPointer(attrib, format.m_counts[attrib], GL_FLOAT, GL_FALSE, format.getVertexSize(), (const GLvoid*)offs);
+    }
+
+    m_indexedDrawCall = false;
 }
 
 void RenderBackendGL::updateVertexBuffer(VertexBufferDescriptor vb, size_t verticesCount, const void *data)
@@ -475,10 +403,13 @@ void RenderBackendGL::destroyIndexBuffer(IndexBufferDescriptor ib)
 void RenderBackendGL::bindIndexBuffer(IndexBufferDescriptor ib)
 {
     DESCRIPTOR_CHECK(ib);
-    // TODO_render
-    /*
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glId);
-    */
+
+    const auto &indexBuffer = m_indexBuffers[ib.id];
+    assert(indexBuffer.gl_id != 0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id);
+
+    m_indexedDrawCall = true;
 }
 
 void RenderBackendGL::updateIndexBuffer(IndexBufferDescriptor ib, size_t indicesCount, const void *data)
@@ -648,50 +579,11 @@ void RenderBackendGL::bindTexture(TextureDescriptor t, int unit)
 {
     DESCRIPTOR_CHECK(t);
 
-    // TODO_render
-    /*
-    if (!isInitialized())
-        return false;
+    const auto &texture = m_textures[t.id];
+    assert(texture.gl_id != 0);
 
-    assert(m_glid);
-
-    glBindTexture(GL_TEXTURE_2D, m_glid);
-
-    return true;
-    */
-    /*
-    if (!isInitialized())
-    return false;
-
-    assert(m_glid);
-
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_glid);
-
-    return true;*/
-
-    /* TODO_render
-    auto &samplers = pass->getSamplers();
-
-    for (size_t i = 0; i < samplers.size(); i++)
-    {
-    shared_ptr<Texture> texture = samplers[i].texture;
-    if (!texture)
-    texture = m_whiteTexture;
-
-    glActiveTexture(GL_TEXTURE0 + textureUnit);
-
-    auto bound = texture->bind();
-    if (!bound)
-    {
-    texture = m_whiteTexture;
-    texture->bind();
-    }
-
-    samplers[i].update(program, textureUnit);
-
-
-    }
-    */
+    glBindTexture(texture.type, texture.gl_id);
+    glActiveTexture(GL_TEXTURE0 + unit);
 }
 
 df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std::string &data)
@@ -1027,33 +919,12 @@ void RenderBackendGL::setCullFaceMode(FaceCullMode mode)
 
 void RenderBackendGL::draw(RopType type, size_t numberOfElements)
 {
-    // TODO_render
-
-    /*
-    if (!vb)
-        return;
-
-    // FIXME: figure out why crashes on NVIDIA
-    //if (m_prevVB != vb)
-    {
-        vb->bind();
-        m_prevVB = vb;
-    }
-
-    if (ib != nullptr)
-    {
-        ib->bind();
-        glDrawElements(convertRopType(type), ib->getIndicesUsed(), GL_UNSIGNED_INT, nullptr);
-    }
+    if (m_indexedDrawCall)
+        glDrawElements(GetGLDrawMode(type), numberOfElements, GL_UNSIGNED_INT, nullptr);
     else
-    {
-        glDrawArrays(convertRopType(type), 0, vb->getVerticesUsed());
-    }
-
-    svc().getFrameStats().addRenderOperation(vb, ib, type);
+        glDrawArrays(GetGLDrawMode(type), 0, numberOfElements);
 
     printOpenGLError();
-    */
 }
 
 unique_ptr<IRenderBackend> IRenderBackend::create()

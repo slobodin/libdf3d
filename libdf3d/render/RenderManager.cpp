@@ -25,7 +25,56 @@ namespace df3d {
 
 void RenderManager::loadEmbedResources()
 {
-    m_renderBackend->createEmbedResources();
+    // Create white texture.
+    {
+        const auto w = 8;
+        const auto h = 8;
+        const auto pf = PixelFormat::RGBA;
+
+        auto data = new unsigned char[w * h * 4];
+        memset(data, 255, w * h * 4);
+
+        TextureCreationParams params;
+        params.setFiltering(TextureFiltering::NEAREST);
+        params.setMipmapped(false);
+        params.setWrapMode(TextureWrapMode::WRAP);
+        params.setAnisotropyLevel(NO_ANISOTROPY);
+
+        auto pb = make_unique<PixelBuffer>(w, h, data, pf);
+
+        m_whiteTexture = svc().resourceManager().getFactory().createTexture(std::move(pb), params);
+        m_whiteTexture->setResident(true);
+
+        delete[] data;
+    }
+
+    // Load resident GPU programs.
+    {
+        const std::string simple_lighting_vert =
+#include "impl/embed_glsl/simple_lighting_vert.h"
+            ;
+        const std::string simple_lighting_frag =
+#include "impl/embed_glsl/simple_lighting_frag.h"
+            ;
+        const std::string colored_vert =
+#include "impl/embed_glsl/colored_vert.h"
+            ;
+        const std::string colored_frag =
+#include "impl/embed_glsl/colored_frag.h"
+            ;
+        const std::string ambient_vert =
+#include "impl/embed_glsl/ambient_vert.h"
+            ;
+        const std::string ambient_frag =
+#include "impl/embed_glsl/ambient_frag.h"
+            ;
+
+        auto &factory = svc().resourceManager().getFactory();
+
+        factory.createGpuProgram(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH, simple_lighting_vert, simple_lighting_frag)->setResident(true);
+        factory.createGpuProgram(COLORED_PROGRAM_EMBED_PATH, colored_vert, colored_frag)->setResident(true);
+        factory.createGpuProgram(AMBIENT_PASS_PROGRAM_EMBED_PATH, ambient_vert, ambient_frag)->setResident(true);
+    }
 
     m_ambientPassProps.setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
     m_ambientMtlParam = m_ambientPassProps.getPassParamHandle("material_ambient");
@@ -185,11 +234,14 @@ void RenderManager::bindPass(RenderPass *pass)
         auto &passParams = pass->getPassParams();
         for (auto &passParam : passParams)
         {
-            if (passParam.getTexture())
+            if (passParam.hasTexture())
             {
-                passParam.setValue(textureUnit);
+                if (passParam.getTexture() && passParam.getTexture()->isInitialized())
+                    m_renderBackend->bindTexture(passParam.getTexture()->getDescriptor(), textureUnit);
+                else
+                    m_renderBackend->bindTexture(m_whiteTexture->getDescriptor(), textureUnit);
 
-                m_renderBackend->bindTexture(passParam.getTexture()->getDescriptor(), textureUnit);
+                passParam.setValue(textureUnit);
 
                 textureUnit++;
             }

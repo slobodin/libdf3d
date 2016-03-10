@@ -23,13 +23,12 @@ public:
         COUNT
     };
 
-private:
+    // FIXME: encapsulate
     std::vector<VertexAttribute> m_attribs;
     size_t m_offsets[COUNT] = { 0 };
     size_t m_counts[COUNT] = { 0 };
     size_t m_size = 0;
 
-public:
     VertexFormat(const std::vector<VertexAttribute> &attribs);
 
     //! Whether or not this format has a given attribute.

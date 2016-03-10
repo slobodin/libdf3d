@@ -90,16 +90,11 @@ class RenderBackendGL : public IRenderBackend
     std::unordered_map<int16_t, ProgramGL> m_programs;
     std::unordered_map<int16_t, UniformGL> m_uniforms;
 
-    shared_ptr<Texture> m_whiteTexture;
-
-    void createWhiteTexture();
-    void loadResidentGpuPrograms();
+    bool m_indexedDrawCall = false; // FIXME
 
 public:
     RenderBackendGL();
     ~RenderBackendGL();
-
-    void createEmbedResources() override;
 
     const RenderBackendCaps& getCaps() const override;
 

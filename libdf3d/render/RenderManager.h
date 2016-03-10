@@ -34,6 +34,8 @@ class DF3D_DLL RenderManager : utils::NonCopyable
     bool m_depthTestOverriden = false;
     bool m_depthWriteOverriden = false;
 
+    shared_ptr<Texture> m_whiteTexture;
+
     void loadEmbedResources();
     void onFrameBegin();
     void onFrameEnd();
