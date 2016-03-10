@@ -53,6 +53,8 @@ public:
     virtual void destroyGpuProgram(GpuProgramDescriptor program) = 0;
 
     virtual void bindGpuProgram(GpuProgramDescriptor program) = 0;
+    virtual void requestUniforms(GpuProgramDescriptor program, std::vector<UniformDescriptor> &outDescr, std::vector<std::string> &outNames) = 0;
+    virtual void setUniformValue(UniformDescriptor uniform, const void *data) = 0;
 
     virtual void setViewport(int x, int y, int width, int height) = 0;
 

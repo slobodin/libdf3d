@@ -27,8 +27,8 @@ void RenderManager::loadEmbedResources()
 {
     m_renderBackend->createEmbedResources();
 
-    m_ambientPassProps = make_unique<RenderPass>();
-    m_ambientPassProps->setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
+    m_ambientPassProps.setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
+    m_ambientMtlParam = m_ambientPassProps.getPassParamHandle("material_ambient");
 }
 
 void RenderManager::onFrameBegin()
@@ -61,6 +61,8 @@ void RenderManager::doRenderWorld(World &world)
 
     world.collectRenderOperations(m_renderQueue.get());
 
+    m_renderBackend->setViewport(m_viewport.x(), m_viewport.y(), m_viewport.width(), m_viewport.height());
+    m_sharedState->setViewPort(m_viewport);
     m_sharedState->setProjectionMatrix(world.getCamera()->getProjectionMatrix());
 
     m_renderBackend->clearColorBuffer();
@@ -88,10 +90,9 @@ void RenderManager::doRenderWorld(World &world)
         // TODO_render
         /*
         m_ambientPassProps->setAmbientColor(op.passProps->getAmbientColor());
-        m_ambientPassProps->setEmissiveColor(op.passProps->getEmissiveColor());
         */
 
-        bindPass(m_ambientPassProps.get());
+        bindPass(&m_ambientPassProps);
 
         m_renderBackend->bindVertexBuffer(op.vertexBuffer);
         if (op.indexBuffer.valid())
@@ -179,23 +180,24 @@ void RenderManager::bindPass(RenderPass *pass)
 
     // Update pass uniforms.
     {
+        // Shared uniforms.
+        m_sharedState->updateSharedUniforms(*gpuProgram);
+
+        // Custom uniforms.
+        auto &passParams = pass->getPassParams();
+        for (auto &passParam : passParams)
+        {
             // TODO_render
             /*
-            // Update shared uniforms.
-            size_t uniCount = program->getSharedUniformsCount();
-
             for (size_t i = 0; i < uniCount; i++)
-                m_programState->updateSharedUniform(program->getSharedUniform(i));
+            passParams[i].updateTo(program);
+            */
+        }
 
-            // Update custom uniforms.
-            auto &passParams = pass->getPassParams();
-            uniCount = passParams.size();
-
-            for (size_t i = 0; i < uniCount; i++)
-                passParams[i].updateTo(program);
-
-            // Update samplers.
-            auto &samplers = pass->getSamplers();
+        // Samplers.
+        {
+            /* TODO_render
+                        auto &samplers = pass->getSamplers();
             int textureUnit = 0;
             for (size_t i = 0; i < samplers.size(); i++)
             {
@@ -217,6 +219,7 @@ void RenderManager::bindPass(RenderPass *pass)
                 textureUnit++;
             }
             */
+        }
     }
 
     if (!m_depthTestOverriden)

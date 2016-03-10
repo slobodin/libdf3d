@@ -312,7 +312,7 @@ class MaterialLibParser
             {
                 auto color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
                 val >> color.r >> color.g >> color.b >> color.a;
-                pass->getPassParam("material_ambient")->setValue(color);
+                pass->setAmbientColor(color);
             }
             else if (keyval.first == "diffuse")
             {
@@ -325,12 +325,6 @@ class MaterialLibParser
                 auto color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
                 val >> color.r >> color.g >> color.b >> color.a;
                 pass->getPassParam("material_specular")->setValue(color);
-            }
-            else if (keyval.first == "emissive")
-            {
-                auto color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-                val >> color.r >> color.g >> color.b >> color.a;
-                pass->getPassParam("material_emissive")->setValue(color);
             }
             else if (keyval.first == "shininess")
             {
@@ -362,6 +356,10 @@ class MaterialLibParser
             {
                 std::function<void(BlendingMode)> fn = std::bind(&RenderPass::setBlendMode, pass.get(), std::placeholders::_1);
                 setPassParam(keyval.first, keyval.second, blendModeValues, fn, m_libPath);
+            }
+            else
+            {
+                glog << "Unknown parameter in a material" << keyval.first << logwarn;
             }
         }
 

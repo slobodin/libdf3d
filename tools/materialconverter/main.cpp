@@ -13,13 +13,12 @@ struct MaterialProps
     double ambient[3];
     double diffuse[3];
     double specular[3];
-    double emissive[3];
 
     std::string map_Kd;
     std::string map_Ks;
 
     MaterialProps()
-        : ambient{ }, diffuse{ }, specular{ }, emissive{ }
+        : ambient{ }, diffuse{ }, specular{ }
     {
 
     }
@@ -69,10 +68,6 @@ std::vector<MaterialProps> loadMaterials(std::istream &is)
         {
             is >> currentMaterial->specular[0] >> currentMaterial->specular[1] >> currentMaterial->specular[2];
         }
-        else if (tok == "Ke")
-        {
-            is >> currentMaterial->emissive[0] >> currentMaterial->emissive[1] >> currentMaterial->emissive[2];
-        }
         else if (tok == "map_Kd")
         {
             is >> currentMaterial->map_Kd;
@@ -120,7 +115,6 @@ void saveMaterials(std::ostream &os, const std::vector<MaterialProps> &materials
         os << indent << "ambient " << material.ambient[0] << " " << material.ambient[1] << " " << material.ambient[2] << "\n";
         os << indent << "diffuse " << material.diffuse[0] << " " << material.diffuse[1] << " " << material.diffuse[2] << "\n";
         os << indent << "specular " << material.specular[0] << " " << material.specular[1] << " " << material.specular[2] << "\n";
-        os << indent << "emissive " << material.emissive[0] << " " << material.emissive[1] << " " << material.emissive[2] << "\n";
 
         // Write defaults.
         os << indent << "cull_face BACK" << "\n";

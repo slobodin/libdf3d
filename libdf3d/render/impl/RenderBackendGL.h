@@ -86,6 +86,8 @@ public:
     void destroyGpuProgram(GpuProgramDescriptor program) override;
 
     void bindGpuProgram(GpuProgramDescriptor program) override;
+    void requestUniforms(GpuProgramDescriptor program, std::vector<UniformDescriptor> &outDescr, std::vector<std::string> &outNames) override;
+    void setUniformValue(UniformDescriptor uniform, const void *data) override;
 
     void setViewport(int x, int y, int width, int height) override;
 

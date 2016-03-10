@@ -26,7 +26,7 @@ static std::string ShaderPreprocess(const std::string &shaderData)
     return versionPrefix + precisionPrefix + shaderData;
 }
 
-std::string ShaderPreprocessInclude(std::string shaderData, const std::string &shaderFilePath)
+static std::string ShaderPreprocessInclude(std::string shaderData, const std::string &shaderFilePath)
 {
     const std::string shaderDirectory = svc().fileSystem().getFileDirectory(shaderFilePath);
     const std::string INCLUDE_DIRECTIVE = "#include";
@@ -70,15 +70,79 @@ std::string ShaderPreprocessInclude(std::string shaderData, const std::string &s
     return shaderData;
 }
 
+static SharedUniformType GetSharedTypeForUniform(const std::string &name)
+{
+    if (name == "u_worldViewProjectionMatrix")
+        return SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM;
+    else if (name == "u_worldViewMatrix")
+        return SharedUniformType::WORLD_VIEW_MATRIX_UNIFORM;
+    else if (name == "u_worldViewMatrix3x3")
+        return SharedUniformType::WORLD_VIEW_3X3_MATRIX_UNIFORM;
+    else if (name == "u_viewMatrixInverse")
+        return SharedUniformType::VIEW_INVERSE_MATRIX_UNIFORM;
+    else if (name == "u_viewMatrix")
+        return SharedUniformType::VIEW_MATRIX_UNIFORM;
+    else if (name == "u_projectionMatrix")
+        return SharedUniformType::PROJECTION_MATRIX_UNIFORM;
+    else if (name == "u_worldMatrix")
+        return SharedUniformType::WORLD_MATRIX_UNIFORM;
+    else if (name == "u_worldMatrixInverse")
+        return SharedUniformType::WORLD_INVERSE_MATRIX_UNIFORM;
+    else if (name == "u_normalMatrix")
+        return SharedUniformType::NORMAL_MATRIX_UNIFORM;
+    else if (name == "u_globalAmbient")
+        return SharedUniformType::GLOBAL_AMBIENT_UNIFORM;
+    else if (name == "u_cameraPosition")
+        return SharedUniformType::CAMERA_POSITION_UNIFORM;
+    else if (name == "u_fogDensity")
+        return SharedUniformType::FOG_DENSITY_UNIFORM;
+    else if (name == "u_fogColor")
+        return SharedUniformType::FOG_COLOR_UNIFORM;
+    else if (name == "u_pixelSize")
+        return SharedUniformType::PIXEL_SIZE_UNIFORM;
+    else if (name == "u_elapsedTime")
+        return SharedUniformType::ELAPSED_TIME_UNIFORM;
+    else if (name == "current_light.diffuse")
+        return SharedUniformType::SCENE_LIGHT_DIFFUSE_UNIFORM;
+    else if (name == "current_light.specular")
+        return SharedUniformType::SCENE_LIGHT_SPECULAR_UNIFORM;
+    else if (name == "current_light.position")
+        return SharedUniformType::SCENE_LIGHT_POSITION_UNIFORM;
+    else if (name == "current_light.constantAttenuation")
+        return SharedUniformType::SCENE_LIGHT_KC_UNIFORM;
+    else if (name == "current_light.linearAttenuation")
+        return SharedUniformType::SCENE_LIGHT_KL_UNIFORM;
+    else if (name == "current_light.quadraticAttenuation")
+        return SharedUniformType::SCENE_LIGHT_KQ_UNIFORM;
+
+    return SharedUniformType::COUNT;
+}
+
 GpuProgram::GpuProgram(GpuProgramDescriptor descr)
     : m_descriptor(descr)
 {
     assert(m_descriptor.valid());
 
+    std::vector<UniformDescriptor> uniforms;
+    std::vector<std::string> uniformNames;
 
-    // TODO_render: get shared uniforms FUK YEAH
+    svc().renderManager().getBackend().requestUniforms(m_descriptor, uniforms, uniformNames);
 
+    // Sanity check.
+    assert(uniforms.size() == uniformNames.size());
 
+    for (size_t i = 0; i < uniforms.size(); i++)
+    {
+        auto sharedType = GetSharedTypeForUniform(uniformNames[i]);
+        if (sharedType != SharedUniformType::COUNT)
+        {
+            SharedUniform suni;
+            suni.descr = uniforms[i];
+            suni.type = sharedType;
+
+            m_sharedUniforms.push_back(suni);
+        }
+    }
 }
 
 GpuProgram::~GpuProgram()

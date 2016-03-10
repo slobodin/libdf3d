@@ -792,44 +792,6 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor ve
         return true;
     }
 
-    void GpuProgram::requestUniforms()
-    {
-        int total = -1;
-        glGetProgramiv(m_programDescriptor, GL_ACTIVE_UNIFORMS, &total);
-
-        for (int i = 0; i < total; i++)
-        {
-            GLenum type = GL_ZERO;
-            int nameLength = -1, uniformVarSize = -1;
-            char name[100];
-
-            glGetActiveUniform(m_programDescriptor, i, sizeof(name) - 1, &nameLength, &uniformVarSize, &type, name);
-            name[nameLength] = 0;
-
-            GpuProgramUniform uni(name);
-            uni.m_location = glGetUniformLocation(m_programDescriptor, name);
-            uni.m_glType = type;
-            uni.m_isSampler = isSampler(type);
-
-            if (uni.isShared())
-                m_sharedUniforms.push_back(uni);
-            else if (uni.isSampler())
-                m_samplerUniforms.push_back(uni);
-            else
-                m_customUniforms.push_back(uni);
-        }
-    }
-
-    GpuProgram::GpuProgram(GpuProgramDescriptor descr)
-        : m_descriptor(descr)
-    {
-    }
-
-    GpuProgram::~GpuProgram()
-    {
-
-    }
-
     void GpuProgram::bind()
     {
         if (!isInitialized())
@@ -899,14 +861,47 @@ void RenderBackendGL::bindGpuProgram(GpuProgramDescriptor program)
     // TODO_render
 }
 
+void RenderBackendGL::requestUniforms(GpuProgramDescriptor program, std::vector<UniformDescriptor> &outDescr, std::vector<std::string> &outNames)
+{
+    // TODO_render
+    /*
+    int total = -1;
+    glGetProgramiv(m_programDescriptor, GL_ACTIVE_UNIFORMS, &total);
+
+    for (int i = 0; i < total; i++)
+    {
+        GLenum type = GL_ZERO;
+        int nameLength = -1, uniformVarSize = -1;
+        char name[100];
+
+        glGetActiveUniform(m_programDescriptor, i, sizeof(name) - 1, &nameLength, &uniformVarSize, &type, name);
+        name[nameLength] = 0;
+
+        GpuProgramUniform uni(name);
+        uni.m_location = glGetUniformLocation(m_programDescriptor, name);
+        uni.m_glType = type;
+        uni.m_isSampler = isSampler(type);
+
+        if (uni.isShared())
+            m_sharedUniforms.push_back(uni);
+        else if (uni.isSampler())
+            m_samplerUniforms.push_back(uni);
+        else
+            m_customUniforms.push_back(uni);
+    }
+
+    */
+}
+
+void RenderBackendGL::setUniformValue(UniformDescriptor uniform, const void *data)
+{
+    // TODO_render
+    assert(false);
+}
+
 void RenderBackendGL::setViewport(int x, int y, int width, int height)
 {
     glViewport(x, y, width, height);
-
-    // TODO_render:
-    /*
-    m_programState->m_pixelSize = glm::vec2(1.0f / (float)viewport.width(), 1.0f / (float)viewport.height());
-    */
 }
 
 void RenderBackendGL::clearColorBuffer(const glm::vec4 &color)
@@ -1033,27 +1028,6 @@ unique_ptr<IRenderBackend> IRenderBackend::create()
 }
 
 }
-
-
-
-
-//glUseProgram(0); --> FRAME END
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1199,63 +1173,7 @@ public:
 
 namespace df3d {
 
-SharedUniformType getSharedTypeForUniform(const std::string &name)
-{
-    if (name == "u_worldViewProjectionMatrix")
-        return SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM;
-    else if (name == "u_worldViewMatrix")
-        return SharedUniformType::WORLD_VIEW_MATRIX_UNIFORM;
-    else if (name == "u_worldViewMatrix3x3")
-        return SharedUniformType::WORLD_VIEW_3X3_MATRIX_UNIFORM;
-    else if (name == "u_viewMatrixInverse")
-        return SharedUniformType::VIEW_INVERSE_MATRIX_UNIFORM;
-    else if (name == "u_viewMatrix")
-        return SharedUniformType::VIEW_MATRIX_UNIFORM;
-    else if (name == "u_projectionMatrix")
-        return SharedUniformType::PROJECTION_MATRIX_UNIFORM;
-    else if (name == "u_worldMatrix")
-        return SharedUniformType::WORLD_MATRIX_UNIFORM;
-    else if (name == "u_worldMatrixInverse")
-        return SharedUniformType::WORLD_INVERSE_MATRIX_UNIFORM;
-    else if (name == "u_normalMatrix")
-        return SharedUniformType::NORMAL_MATRIX_UNIFORM;
-    else if (name == "u_globalAmbient")
-        return SharedUniformType::GLOBAL_AMBIENT_UNIFORM;
-    else if (name == "u_cameraPosition")
-        return SharedUniformType::CAMERA_POSITION_UNIFORM;
-    else if (name == "u_fogDensity")
-        return SharedUniformType::FOG_DENSITY_UNIFORM;
-    else if (name == "u_fogColor")
-        return SharedUniformType::FOG_COLOR_UNIFORM;
-    else if (name == "u_pixelSize")
-        return SharedUniformType::PIXEL_SIZE_UNIFORM;
-    else if (name == "u_elapsedTime")
-        return SharedUniformType::ELAPSED_TIME_UNIFORM;
-    else if (name == "material.ambient")
-        return SharedUniformType::MATERIAL_AMBIENT_UNIFORM;
-    else if (name == "material.diffuse")
-        return SharedUniformType::MATERIAL_DIFFUSE_UNIFORM;
-    else if (name == "material.specular")
-        return SharedUniformType::MATERIAL_SPECULAR_UNIFORM;
-    else if (name == "material.emissive")
-        return SharedUniformType::MATERIAL_EMISSIVE_UNIFORM;
-    else if (name == "material.shininess")
-        return SharedUniformType::MATERIAL_SHININESS_UNIFORM;
-    else if (name == "current_light.diffuse")
-        return SharedUniformType::SCENE_LIGHT_DIFFUSE_UNIFORM;
-    else if (name == "current_light.specular")
-        return SharedUniformType::SCENE_LIGHT_SPECULAR_UNIFORM;
-    else if (name == "current_light.position")
-        return SharedUniformType::SCENE_LIGHT_POSITION_UNIFORM;
-    else if (name == "current_light.constantAttenuation")
-        return SharedUniformType::SCENE_LIGHT_KC_UNIFORM;
-    else if (name == "current_light.linearAttenuation")
-        return SharedUniformType::SCENE_LIGHT_KL_UNIFORM;
-    else if (name == "current_light.quadraticAttenuation")
-        return SharedUniformType::SCENE_LIGHT_KQ_UNIFORM;
 
-    return SharedUniformType::COUNT;
-}
 
 GpuProgramUniform::GpuProgramUniform(const std::string &name)
     : m_name(name)
@@ -1313,335 +1231,4 @@ void GpuProgramUniform::update(const void *data) const
 
 
 */
-
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////
-// GPU PROGRAM STATE
-
-/*
-#pragma once
-
-namespace df3d {
-
-class GpuProgramUniform;
-class RenderPass;
-class GpuProgram;
-
-class GpuProgramState
-{
-    glm::mat4 m_worldMatrix;
-    glm::mat4 m_viewMatrix;
-    glm::mat4 m_projMatrix;
-
-    glm::mat4 m_worldViewProj;
-    glm::mat4 m_worldView;
-    glm::mat3 m_worldView3x3;
-    glm::mat3 m_normalMatrix;
-
-    glm::mat4 m_viewMatrixInverse;
-    glm::mat4 m_worldMatrixInverse;
-
-    glm::vec3 m_cameraPosition;
-
-    struct GLSLLight
-    {
-        glm::vec3 diffuseParam;
-        glm::vec3 specularParam;
-        // NOTE: this vector is translated to the View Space. See OpenGLRenderer::setLight.
-        glm::vec4 positionParam;
-        float k0Param = 1.0f;
-        float k1Param = 1.0f;
-        float k2Param = 1.0f;
-    };
-
-    GLSLLight m_currentLight;
-    glm::vec4 m_globalAmbient = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-
-    float m_fogDensity = 0.0f;
-    glm::vec3 m_fogColor = glm::vec3(0.0f, 0.0f, 0.0f);
-
-    glm::vec2 m_pixelSize = glm::vec2(1.0f / (float)DEFAULT_WINDOW_WIDTH, 1.0f / (float)DEFAULT_WINDOW_HEIGHT);
-
-    float m_engineElapsedTime = 0.0f;
-
-    bool m_worldViewProjDirty = true;
-    bool m_worldViewDirty = true;
-    bool m_worldView3x3Dirty = true;
-    bool m_normalDirty = true;
-    bool m_viewInverseDirty = true;
-    bool m_worldInverseDirty = true;
-
-    void resetFlags();
-
-    RenderPass *m_currentPass = nullptr;
-    GpuProgram *m_currentShader = nullptr;
-
-public:
-    GpuProgramState() = default;
-    ~GpuProgramState() = default;
-
-    const glm::mat4& getWorldMatrix();
-    const glm::mat4& getViewMatrix();
-    const glm::mat4& getProjectionMatrix();
-    const glm::mat4& getWorldViewProjectionMatrix();
-    const glm::mat4& getWorldViewMatrix();
-    const glm::mat3& getWorldView3x3Matrix();
-    const glm::mat3& getNormalMatrix();
-    const glm::mat4& getViewMatrixInverse();
-    const glm::mat4& getWorldMatrixInverse();
-
-    void setWorldMatrix(const glm::mat4 &worldm);
-    void setViewMatrix(const glm::mat4 &viewm);
-    void setProjectionMatrix(const glm::mat4 &projm);
-
-    void onFrameBegin();
-    void onFrameEnd();
-
-    void updateSharedUniform(const GpuProgramUniform &uniform);
-};
-
-}
-*/
-
-/*
-#include "GpuProgramState.h"
-
-#include "GpuProgramUniform.h"
-#include "RenderPass.h"
-#include <libdf3d/base/EngineController.h>
-#include <libdf3d/base/TimeManager.h>
-#include <libdf3d/3d/Camera.h>
-#include <libdf3d/game/World.h>
-
-namespace df3d {
-
-void GpuProgramState::resetFlags()
-{
-    m_worldViewProjDirty = m_worldViewDirty = m_worldView3x3Dirty
-        = m_normalDirty = m_viewInverseDirty = m_worldInverseDirty = true;
-}
-
-const glm::mat4 &GpuProgramState::getWorldMatrix()
-{
-    return m_worldMatrix;
-}
-
-const glm::mat4 &GpuProgramState::getViewMatrix()
-{
-    return m_viewMatrix;
-}
-
-const glm::mat4 &GpuProgramState::getProjectionMatrix()
-{
-    return m_projMatrix;
-}
-
-const glm::mat4 &GpuProgramState::getWorldViewProjectionMatrix()
-{
-    if (m_worldViewProjDirty)
-    {
-        m_worldViewProj = m_projMatrix * getWorldViewMatrix();
-        m_worldViewProjDirty = false;
-    }
-
-    return m_worldViewProj;
-}
-
-const glm::mat4 &GpuProgramState::getWorldViewMatrix()
-{
-    if (m_worldViewDirty)
-    {
-        m_worldView = m_viewMatrix * m_worldMatrix;
-        m_worldViewDirty = false;
-    }
-
-    return m_worldView;
-}
-
-const glm::mat3 &GpuProgramState::getWorldView3x3Matrix()
-{
-    if (m_worldView3x3Dirty)
-    {
-        m_worldView3x3 = glm::mat3(getWorldViewMatrix());
-        m_worldView3x3Dirty = false;
-    }
-
-    return m_worldView3x3;
-}
-
-const glm::mat3 &GpuProgramState::getNormalMatrix()
-{
-    if (m_normalDirty)
-    {
-        m_normalMatrix = glm::inverseTranspose(getWorldView3x3Matrix());
-        m_normalDirty = false;
-    }
-
-    return m_normalMatrix;
-}
-
-const glm::mat4 &GpuProgramState::getViewMatrixInverse()
-{
-    if (m_viewInverseDirty)
-    {
-        m_viewMatrixInverse = glm::inverse(m_viewMatrix);
-        m_viewInverseDirty = false;
-    }
-
-    return m_viewMatrixInverse;
-}
-
-const glm::mat4 &GpuProgramState::getWorldMatrixInverse()
-{
-    if (m_worldInverseDirty)
-    {
-        m_worldMatrixInverse = glm::inverse(m_worldMatrix);
-        m_worldInverseDirty = false;
-    }
-
-    return m_worldMatrixInverse;
-}
-
-void GpuProgramState::setWorldMatrix(const glm::mat4 &worldm)
-{
-    m_worldMatrix = worldm;
-    resetFlags();
-}
-
-void GpuProgramState::setViewMatrix(const glm::mat4 &viewm)
-{
-    m_viewMatrix = viewm;
-    resetFlags();
-}
-
-void GpuProgramState::setProjectionMatrix(const glm::mat4 &projm)
-{
-    m_projMatrix = projm;
-    // FIXME:
-    // Not all flags have to be set. Whatever.
-    resetFlags();
-}
-
-void GpuProgramState::onFrameBegin()
-{
-    resetFlags();
-
-    m_worldMatrix = glm::mat4(1.0f);
-    m_viewMatrix = glm::mat4(1.0f);
-    m_projMatrix = glm::mat4(1.0f);
-
-    m_currentPass = nullptr;
-    m_currentShader = nullptr;
-
-    m_cameraPosition = svc().world().getCamera()->getPosition();
-
-    m_engineElapsedTime = svc().timer().getElapsedTime();
-}
-
-void GpuProgramState::onFrameEnd()
-{
-
-}
-
-void GpuProgramState::updateSharedUniform(const GpuProgramUniform &uniform)
-{
-    // TODO: kind of lookup table.
-    switch (uniform.getSharedType())
-    {
-    case SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getWorldViewProjectionMatrix()));
-        break;
-    case SharedUniformType::WORLD_VIEW_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getWorldViewMatrix()));
-        break;
-    case SharedUniformType::WORLD_VIEW_3X3_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getWorldView3x3Matrix()));
-        break;
-    case SharedUniformType::VIEW_INVERSE_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getViewMatrixInverse()));
-        break;
-    case SharedUniformType::VIEW_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getViewMatrix()));
-        break;
-    case SharedUniformType::WORLD_INVERSE_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getWorldMatrixInverse()));
-        break;
-    case SharedUniformType::WORLD_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getWorldMatrix()));
-        break;
-    case SharedUniformType::PROJECTION_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getProjectionMatrix()));
-        break;
-    case SharedUniformType::NORMAL_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getNormalMatrix()));
-        break;
-    case SharedUniformType::CAMERA_POSITION_UNIFORM:
-        uniform.update(glm::value_ptr(m_cameraPosition));
-        break;
-    case SharedUniformType::GLOBAL_AMBIENT_UNIFORM:
-        uniform.update(glm::value_ptr(m_globalAmbient));
-        break;
-    case SharedUniformType::FOG_DENSITY_UNIFORM:
-        uniform.update(&m_fogDensity);
-        break;
-    case SharedUniformType::FOG_COLOR_UNIFORM:
-        uniform.update(glm::value_ptr(m_fogColor));
-        break;
-    case SharedUniformType::PIXEL_SIZE_UNIFORM:
-        uniform.update(glm::value_ptr(m_pixelSize));
-        break;
-    case SharedUniformType::ELAPSED_TIME_UNIFORM:
-        uniform.update(&m_engineElapsedTime);
-        break;
-    case SharedUniformType::MATERIAL_AMBIENT_UNIFORM:
-        uniform.update(glm::value_ptr(m_currentPass->getAmbientColor()));
-        break;
-    case SharedUniformType::MATERIAL_DIFFUSE_UNIFORM:
-        uniform.update(glm::value_ptr(m_currentPass->getDiffuseColor()));
-        break;
-    case SharedUniformType::MATERIAL_SPECULAR_UNIFORM:
-        uniform.update(glm::value_ptr(m_currentPass->getSpecularColor()));
-        break;
-    case SharedUniformType::MATERIAL_EMISSIVE_UNIFORM:
-        uniform.update(glm::value_ptr(m_currentPass->getEmissiveColor()));
-        break;
-    case SharedUniformType::MATERIAL_SHININESS_UNIFORM:
-        uniform.update(&m_currentPass->getShininess());
-        break;
-    case SharedUniformType::SCENE_LIGHT_DIFFUSE_UNIFORM:
-        uniform.update(glm::value_ptr(m_currentLight.diffuseParam));
-        break;
-    case SharedUniformType::SCENE_LIGHT_SPECULAR_UNIFORM:
-        uniform.update(glm::value_ptr(m_currentLight.specularParam));
-        break;
-    case SharedUniformType::SCENE_LIGHT_POSITION_UNIFORM:
-        uniform.update(glm::value_ptr(m_currentLight.positionParam));
-        break;
-    case SharedUniformType::SCENE_LIGHT_KC_UNIFORM:
-        uniform.update(&m_currentLight.k0Param);
-        break;
-    case SharedUniformType::SCENE_LIGHT_KL_UNIFORM:
-        uniform.update(&m_currentLight.k1Param);
-        break;
-    case SharedUniformType::SCENE_LIGHT_KQ_UNIFORM:
-        uniform.update(&m_currentLight.k2Param);
-        break;
-    case SharedUniformType::COUNT:
-    default:
-        glog << "Can not set shared value to not shared uniform" << logwarn;
-        break;
-    }
-}
-
-}
-*/
-
-
-
 

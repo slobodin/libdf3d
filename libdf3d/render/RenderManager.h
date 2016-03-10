@@ -2,6 +2,7 @@
 
 #include "RenderCommon.h"
 #include "Viewport.h"
+#include "RenderPass.h"
 #include <libdf3d/base/EngineInitParams.h>
 
 namespace df3d {
@@ -27,7 +28,8 @@ class DF3D_DLL RenderManager : utils::NonCopyable
     Viewport m_viewport;
 
     // Forward rendering stuff.
-    unique_ptr<RenderPass> m_ambientPassProps;
+    RenderPass m_ambientPassProps;
+    PassParamHandle m_ambientMtlParam;
     bool m_blendModeOverriden = false;
     bool m_depthTestOverriden = false;
     bool m_depthWriteOverriden = false;

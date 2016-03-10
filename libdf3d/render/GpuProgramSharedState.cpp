@@ -1,5 +1,8 @@
 #include "GpuProgramSharedState.h"
 
+#include "GpuProgram.h"
+#include "IRenderBackend.h"
+#include "RenderManager.h"
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/base/TimeManager.h>
 #include <libdf3d/3d/Camera.h>
@@ -114,6 +117,11 @@ void GpuProgramSharedState::setProjectionMatrix(const glm::mat4 &projm)
     resetFlags();
 }
 
+void GpuProgramSharedState::setViewPort(const Viewport &viewport)
+{
+    m_pixelSize = glm::vec2(1.0f / (float)viewport.width(), 1.0f / (float)viewport.height());
+}
+
 void GpuProgramSharedState::setFog(float density, const glm::vec3 &color)
 {
     m_fogDensity = density;
@@ -163,96 +171,86 @@ void GpuProgramSharedState::clear()
 
 void GpuProgramSharedState::updateSharedUniforms(const GpuProgram &program)
 {
-    /*
-    // TODO_render
+    const auto &sharedUniforms = program.getSharedUniforms();
 
-    // TODO: kind of lookup table.
-    switch (uniform.getSharedType())
+    for (const auto &sharedUni : sharedUniforms)
     {
-    case SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getWorldViewProjectionMatrix()));
-        break;
-    case SharedUniformType::WORLD_VIEW_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getWorldViewMatrix()));
-        break;
-    case SharedUniformType::WORLD_VIEW_3X3_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getWorldView3x3Matrix()));
-        break;
-    case SharedUniformType::VIEW_INVERSE_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getViewMatrixInverse()));
-        break;
-    case SharedUniformType::VIEW_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getViewMatrix()));
-        break;
-    case SharedUniformType::WORLD_INVERSE_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getWorldMatrixInverse()));
-        break;
-    case SharedUniformType::WORLD_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getWorldMatrix()));
-        break;
-    case SharedUniformType::PROJECTION_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getProjectionMatrix()));
-        break;
-    case SharedUniformType::NORMAL_MATRIX_UNIFORM:
-        uniform.update(glm::value_ptr(getNormalMatrix()));
-        break;
-    case SharedUniformType::CAMERA_POSITION_UNIFORM:
-        uniform.update(glm::value_ptr(m_cameraPosition));
-        break;
-    case SharedUniformType::GLOBAL_AMBIENT_UNIFORM:
-        uniform.update(glm::value_ptr(m_globalAmbient));
-        break;
-    case SharedUniformType::FOG_DENSITY_UNIFORM:
-        uniform.update(&m_fogDensity);
-        break;
-    case SharedUniformType::FOG_COLOR_UNIFORM:
-        uniform.update(glm::value_ptr(m_fogColor));
-        break;
-    case SharedUniformType::PIXEL_SIZE_UNIFORM:
-        uniform.update(glm::value_ptr(m_pixelSize));
-        break;
-    case SharedUniformType::ELAPSED_TIME_UNIFORM:
-        uniform.update(&m_engineElapsedTime);
-        break;
-    case SharedUniformType::MATERIAL_AMBIENT_UNIFORM:
-        uniform.update(glm::value_ptr(m_currentPass->getAmbientColor()));
-        break;
-    case SharedUniformType::MATERIAL_DIFFUSE_UNIFORM:
-        uniform.update(glm::value_ptr(m_currentPass->getDiffuseColor()));
-        break;
-    case SharedUniformType::MATERIAL_SPECULAR_UNIFORM:
-        uniform.update(glm::value_ptr(m_currentPass->getSpecularColor()));
-        break;
-    case SharedUniformType::MATERIAL_EMISSIVE_UNIFORM:
-        uniform.update(glm::value_ptr(m_currentPass->getEmissiveColor()));
-        break;
-    case SharedUniformType::MATERIAL_SHININESS_UNIFORM:
-        uniform.update(&m_currentPass->getShininess());
-        break;
-    case SharedUniformType::SCENE_LIGHT_DIFFUSE_UNIFORM:
-        uniform.update(glm::value_ptr(m_currentLight.diffuseParam));
-        break;
-    case SharedUniformType::SCENE_LIGHT_SPECULAR_UNIFORM:
-        uniform.update(glm::value_ptr(m_currentLight.specularParam));
-        break;
-    case SharedUniformType::SCENE_LIGHT_POSITION_UNIFORM:
-        uniform.update(glm::value_ptr(m_currentLight.positionParam));
-        break;
-    case SharedUniformType::SCENE_LIGHT_KC_UNIFORM:
-        uniform.update(&m_currentLight.k0Param);
-        break;
-    case SharedUniformType::SCENE_LIGHT_KL_UNIFORM:
-        uniform.update(&m_currentLight.k1Param);
-        break;
-    case SharedUniformType::SCENE_LIGHT_KQ_UNIFORM:
-        uniform.update(&m_currentLight.k2Param);
-        break;
-    case SharedUniformType::COUNT:
-    default:
-        glog << "Can not set shared value to not shared uniform" << logwarn;
-        break;
+        const void *data = nullptr;
+
+        switch (sharedUni.type)
+        {
+        case SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM:
+            data = glm::value_ptr(getWorldViewProjectionMatrix());
+            break;
+        case SharedUniformType::WORLD_VIEW_MATRIX_UNIFORM:
+            data = glm::value_ptr(getWorldViewMatrix());
+            break;
+        case SharedUniformType::WORLD_VIEW_3X3_MATRIX_UNIFORM:
+            data = glm::value_ptr(getWorldView3x3Matrix());
+            break;
+        case SharedUniformType::VIEW_INVERSE_MATRIX_UNIFORM:
+            data = glm::value_ptr(getViewMatrixInverse());
+            break;
+        case SharedUniformType::VIEW_MATRIX_UNIFORM:
+            data = glm::value_ptr(getViewMatrix());
+            break;
+        case SharedUniformType::WORLD_INVERSE_MATRIX_UNIFORM:
+            data = glm::value_ptr(getWorldMatrixInverse());
+            break;
+        case SharedUniformType::WORLD_MATRIX_UNIFORM:
+            data = glm::value_ptr(getWorldMatrix());
+            break;
+        case SharedUniformType::PROJECTION_MATRIX_UNIFORM:
+            data = glm::value_ptr(getProjectionMatrix());
+            break;
+        case SharedUniformType::NORMAL_MATRIX_UNIFORM:
+            data = glm::value_ptr(getNormalMatrix());
+            break;
+        case SharedUniformType::CAMERA_POSITION_UNIFORM:
+            data = glm::value_ptr(m_cameraPosition);
+            break;
+        case SharedUniformType::GLOBAL_AMBIENT_UNIFORM:
+            data = glm::value_ptr(m_globalAmbient);
+            break;
+        case SharedUniformType::FOG_DENSITY_UNIFORM:
+            data = &m_fogDensity;
+            break;
+        case SharedUniformType::FOG_COLOR_UNIFORM:
+            data = glm::value_ptr(m_fogColor);
+            break;
+        case SharedUniformType::PIXEL_SIZE_UNIFORM:
+            data = glm::value_ptr(m_pixelSize);
+            break;
+        case SharedUniformType::ELAPSED_TIME_UNIFORM:
+            data = &m_engineElapsedTime;
+            break;
+        case SharedUniformType::SCENE_LIGHT_DIFFUSE_UNIFORM:
+            data = glm::value_ptr(m_currentLight.diffuseParam);
+            break;
+        case SharedUniformType::SCENE_LIGHT_SPECULAR_UNIFORM:
+            data = glm::value_ptr(m_currentLight.specularParam);
+            break;
+        case SharedUniformType::SCENE_LIGHT_POSITION_UNIFORM:
+            data = glm::value_ptr(m_currentLight.positionParam);
+            break;
+        case SharedUniformType::SCENE_LIGHT_KC_UNIFORM:
+            data = &m_currentLight.k0Param;
+            break;
+        case SharedUniformType::SCENE_LIGHT_KL_UNIFORM:
+            data = &m_currentLight.k1Param;
+            break;
+        case SharedUniformType::SCENE_LIGHT_KQ_UNIFORM:
+            data = &m_currentLight.k2Param;
+            break;
+        case SharedUniformType::COUNT:
+        default:
+            glog << "Can not set shared value to a not shared uniform" << logwarn;
+            break;
+        }
+
+        if (data)
+            svc().renderManager().getBackend().setUniformValue(sharedUni.descr, data);
     }
-    */
 }
 
 }

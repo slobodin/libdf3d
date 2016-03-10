@@ -4,6 +4,7 @@ namespace df3d {
 
 class GpuProgram;
 class Light;
+class Viewport;
 
 class GpuProgramSharedState
 {
@@ -68,6 +69,7 @@ public:
     void setWorldMatrix(const glm::mat4 &worldm);
     void setViewMatrix(const glm::mat4 &viewm);
     void setProjectionMatrix(const glm::mat4 &projm);
+    void setViewPort(const Viewport &viewport);
 
     void setFog(float density, const glm::vec3 &color);
     void setAmbientColor(const glm::vec3 &color);
