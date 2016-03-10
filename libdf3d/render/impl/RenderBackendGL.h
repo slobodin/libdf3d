@@ -1,6 +1,7 @@
 #pragma once
 
 #include <libdf3d/render/IRenderBackend.h>
+#include <libdf3d/utils/DescriptorsBag.h>
 
 #if defined(DF3D_WINDOWS)
 #include <GL/glew.h>
@@ -39,11 +40,23 @@ class RenderBackendGL : public IRenderBackend
 
     struct VertexBufferGL
     {
-        GLuint id = GL_INVALID_ENUM;
+        GLuint id;
+        unique_ptr<VertexFormat> format;
+        size_t sizeInBytes = 0;
     };
 
-    // TODO: use array
-    //std::unordered_map<, VertexBufferGL> m_vertexBuffers;
+    struct IndexBufferGL
+    {
+        GLuint id;
+        size_t sizeInBytes = 0;
+    };
+
+    utils::DescriptorsBag m_vertexBuffersBag;
+    utils::DescriptorsBag m_indexBuffersBag;
+
+    // TODO_render: use array
+    std::unordered_map<int16_t, VertexBufferGL> m_vertexBuffers;
+    std::unordered_map<int16_t, IndexBufferGL> m_indexBuffers;
 
     shared_ptr<Texture> m_whiteTexture;
 

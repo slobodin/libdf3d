@@ -75,50 +75,14 @@ enum class FaceCullMode
     FRONT_AND_BACK
 };
 
-// TODO_render: move + macro
-static const int16_t INVALID_DESCRIPTOR = -1;
+#define DF3D_MAKE_DESCRIPTOR(name) struct name { int16_t id; name(int16_t id = -1) : id(id) { } bool valid() const { return id != -1; } }
 
-struct VertexBufferDescriptor
-{
-    int16_t id = INVALID_DESCRIPTOR;
-
-    bool valid() const { return id != INVALID_DESCRIPTOR; }
-};
-
-struct IndexBufferDescriptor
-{
-    int16_t id = INVALID_DESCRIPTOR;
-
-    bool valid() const { return id != INVALID_DESCRIPTOR; }
-};
-
-struct TextureDescriptor
-{
-    int16_t id = INVALID_DESCRIPTOR;
-
-    bool valid() const { return id != INVALID_DESCRIPTOR; }
-};
-
-struct ShaderDescriptor
-{
-    int16_t id = INVALID_DESCRIPTOR;
-
-    bool valid() const { return id != INVALID_DESCRIPTOR; }
-};
-
-struct GpuProgramDescriptor
-{
-    int16_t id = INVALID_DESCRIPTOR;
-
-    bool valid() const { return id != INVALID_DESCRIPTOR; }
-};
-
-struct UniformDescriptor
-{
-    int16_t id = INVALID_DESCRIPTOR;
-
-    bool valid() const { return id != INVALID_DESCRIPTOR; }
-};
+DF3D_MAKE_DESCRIPTOR(VertexBufferDescriptor);
+DF3D_MAKE_DESCRIPTOR(IndexBufferDescriptor);
+DF3D_MAKE_DESCRIPTOR(TextureDescriptor);
+DF3D_MAKE_DESCRIPTOR(ShaderDescriptor);
+DF3D_MAKE_DESCRIPTOR(GpuProgramDescriptor);
+DF3D_MAKE_DESCRIPTOR(UniformDescriptor);
 
 // TODO_render
 // FIXME: move to namespace.
