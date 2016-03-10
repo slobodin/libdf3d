@@ -137,7 +137,7 @@ void Sprite2DComponentProcessor::draw(RenderQueue *ops)
 
         compData.op.vertexBuffer = m_pimpl->vertexBuffer;
         compData.op.passProps = &compData.pass;
-        compData.op.numberOfElements = 4;       // This is a quad!.
+        compData.op.numberOfElements = 6;       // This is a quad! Two triangles.
 
         ops->sprite2DOperations.push_back(compData.op);
     }

@@ -124,7 +124,6 @@ void RenderManager::doRenderWorld(World &world)
 
     m_renderQueue->sort();
 
-    /*
     // Ambient pass.
     m_blendModeOverriden = true;
     m_depthTestOverriden = true;
@@ -175,14 +174,14 @@ void RenderManager::doRenderWorld(World &world)
     m_blendModeOverriden = false;
     m_depthTestOverriden = false;
     m_depthWriteOverriden = false;
-    */
 
     // Opaque pass without lights.
     for (const auto &op : m_renderQueue->notLitOpaqueOperations)
         drawRenderOperation(op);
 
     // VFX pass.
-    world.vfx().draw();
+    // TODO_render
+    //world.vfx().draw();
 
     // Transparent pass.
     for (const auto &op : m_renderQueue->transparentOperations)
