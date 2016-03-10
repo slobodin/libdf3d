@@ -4,12 +4,11 @@
 #include <Rocket/Core/FileInterface.h>
 #include <Rocket/Core/SystemInterface.h>
 #include <Rocket/Core/RenderInterface.h>
+#include <libdf3d/render/RenderPass.h>
 
 namespace df3d { 
 
 class FileDataSource;
-class Texture;
-class RenderPass;
 
 namespace gui_impl {
 
@@ -61,6 +60,7 @@ class RenderInterface : public Rocket::Core::RenderInterface
 {
     //! Gui rendering pass properties.
     shared_ptr<RenderPass> m_guipass;
+    PassParamHandle m_diffuseMapParam;
 
     std::unordered_map<uint32_t, shared_ptr<Texture>> m_textures;
     uint32_t m_textureId;

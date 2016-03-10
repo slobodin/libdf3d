@@ -312,31 +312,31 @@ class MaterialLibParser
             {
                 auto color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
                 val >> color.r >> color.g >> color.b >> color.a;
-                pass->setParam("material_ambient", color);
+                pass->getPassParam("material_ambient")->setValue(color);
             }
             else if (keyval.first == "diffuse")
             {
                 auto color = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
                 val >> color.r >> color.g >> color.b >> color.a;
-                pass->setParam("material_diffuse", color);
+                pass->getPassParam("material_diffuse")->setValue(color);
             }
             else if (keyval.first == "specular")
             {
                 auto color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
                 val >> color.r >> color.g >> color.b >> color.a;
-                pass->setParam("material_specular", color);
+                pass->getPassParam("material_specular")->setValue(color);
             }
             else if (keyval.first == "emissive")
             {
                 auto color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
                 val >> color.r >> color.g >> color.b >> color.a;
-                pass->setParam("material_emissive", color);
+                pass->getPassParam("material_emissive")->setValue(color);
             }
             else if (keyval.first == "shininess")
             {
                 float shininess = 64.0f;
                 val >> shininess;
-                pass->setParam("material_shininess", shininess);
+                pass->getPassParam("material_shininess")->setValue(shininess);
             }
             else if (keyval.first == "cull_face")
             {
@@ -385,7 +385,7 @@ class MaterialLibParser
             else if (n->type == SAMPLER_TYPE)
             {
                 auto texture = parseSamplerNode(*n);
-                pass->setParam(n->name, texture);
+                pass->getPassParam(n->name)->setValue(texture);
             }
         }
 
@@ -428,7 +428,7 @@ class MaterialLibParser
     void parseShaderParamsNode(MaterialLibNode &node, shared_ptr<RenderPass> pass)
     {
         for (auto it : node.keyValues)
-            pass->setParam(it.first, utils::from_string<float>(it.second));
+            pass->getPassParam(it.first)->setValue(utils::from_string<float>(it.second));
     }
 
     shared_ptr<Texture> parseSamplerNode(const MaterialLibNode &node)

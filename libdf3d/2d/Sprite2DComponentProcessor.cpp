@@ -197,9 +197,9 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
 {
     auto &compData = m_pimpl->data.getData(e);
 
-    if (auto sampler = compData.pass.getTextureParam("diffuseMap"))
+    if (auto texture = compData.pass.getPassParam("diffuseMap")->getTexture())
     {
-        if (sampler->getFilePath() == svc().fileSystem().fullPath(pathToTexture))
+        if (texture->getFilePath() == svc().fileSystem().fullPath(pathToTexture))
             return;
     }
 
@@ -218,7 +218,7 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
     if (compData.textureGuid == texture->getGUID())
         return;
 
-    compData.pass.setParam("diffuseMap", texture);
+    compData.pass.getPassParam("diffuseMap")->setValue(texture);
     compData.textureOriginalSize = { texture->getTextureInfo().width, texture->getTextureInfo().height };
     compData.textureGuid = texture->getGUID();
 }
@@ -240,7 +240,7 @@ void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
 
 void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diffuseColor)
 {
-    m_pimpl->data.getData(e).pass.setParam("material_diffuse", diffuseColor);
+    m_pimpl->data.getData(e).pass.getPassParam("diffuseMap")->setValue(diffuseColor);
 }
 
 void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)

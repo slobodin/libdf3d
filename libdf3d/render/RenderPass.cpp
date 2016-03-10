@@ -6,6 +6,37 @@
 
 namespace df3d {
 
+RenderPassParam::RenderPassParam()
+{
+
+}
+
+RenderPassParam::~RenderPassParam()
+{
+
+}
+
+void RenderPassParam::setValue(float val)
+{
+    // TODO_render
+}
+
+void RenderPassParam::setValue(const glm::vec4 &val)
+{
+    // TODO_render
+}
+
+void RenderPassParam::setValue(shared_ptr<Texture> texture)
+{
+    // TODO_render
+}
+
+shared_ptr<Texture> RenderPassParam::getTexture()
+{
+    // TODO_render
+    return nullptr;
+}
+
 RenderPass::RenderPass(const std::string &name)
     : m_name(name)
 {
@@ -39,43 +70,22 @@ shared_ptr<GpuProgram> RenderPass::getGpuProgram() const
     return m_gpuProgram;
 }
 
-void RenderPass::setParam(const std::string &name, float value)
+PassParamHandle RenderPass::getPassParamHandle(const std::string &name) const
 {
-    // TODO_render:
-    assert(false);
+    // TODO_render
+    return 0;
 }
 
-void RenderPass::setParam(const std::string &name, const glm::vec4 &value)
+RenderPassParam* RenderPass::getPassParam(PassParamHandle idx)
 {
-    // TODO_render:
-    assert(false);
+    // TODO_render
+    return &m_params.at(42);
 }
 
-void RenderPass::setParam(const std::string &name, shared_ptr<Texture> texture)
+RenderPassParam* RenderPass::getPassParam(const std::string &name)
 {
     // TODO_render:
-    assert(false);
-}
-
-shared_ptr<Texture> RenderPass::getTextureParam(const std::string &name) const
-{
-    // TODO_render:
-    assert(false);
-    return{};
-}
-
-float RenderPass::getFloatParam(const std::string &name) const
-{
-    // TODO_render:
-    assert(false);
-    return{};
-}
-
-const glm::vec4& RenderPass::getVec4Param(const std::string &name) const
-{
-    // TODO_render:
-    assert(false);
-    return{};
+    return nullptr;
 }
 
 void RenderPass::setFaceCullMode(FaceCullMode mode)
@@ -102,6 +112,48 @@ void RenderPass::enableDepthWrite(bool enable)
 void RenderPass::enableLighting(bool enable)
 {
     m_lightingEnabled = enable;
+}
+
+void RenderPass::updateProgramParams()
+{
+    // TODO_render
+    /*
+    // Update shared uniforms.
+    size_t uniCount = program->getSharedUniformsCount();
+
+    for (size_t i = 0; i < uniCount; i++)
+        m_programState->updateSharedUniform(program->getSharedUniform(i));
+
+    // Update custom uniforms.
+    auto &passParams = pass->getPassParams();
+    uniCount = passParams.size();
+
+    for (size_t i = 0; i < uniCount; i++)
+        passParams[i].updateTo(program);
+
+    // Update samplers.
+    auto &samplers = pass->getSamplers();
+    int textureUnit = 0;
+    for (size_t i = 0; i < samplers.size(); i++)
+    {
+        shared_ptr<Texture> texture = samplers[i].texture;
+        if (!texture)
+            texture = m_whiteTexture;
+
+        glActiveTexture(GL_TEXTURE0 + textureUnit);
+
+        auto bound = texture->bind();
+        if (!bound)
+        {
+            texture = m_whiteTexture;
+            texture->bind();
+        }
+
+        samplers[i].update(program, textureUnit);
+
+        textureUnit++;
+    }
+    */
 }
 
 }

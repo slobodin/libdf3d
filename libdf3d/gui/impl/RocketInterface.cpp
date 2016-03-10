@@ -234,11 +234,12 @@ void RenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandl
         m_guipass->enableDepthTest(false);
         m_guipass->enableDepthWrite(false);
         m_guipass->setBlendMode(BlendingMode::ALPHA);
+        m_diffuseMapParam = m_guipass->getPassParamHandle("diffuseMap");
     }
 
     auto geom = (CompiledGeometry *)geometry;
 
-    m_guipass->setParam("diffuseMap", geom->texture);
+    m_guipass->getPassParam(m_diffuseMapParam)->setValue(geom->texture);
 
     RenderOperation op;
     op.vertexBuffer = geom->vertexBuffer;

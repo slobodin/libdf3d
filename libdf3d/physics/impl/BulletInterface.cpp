@@ -15,9 +15,9 @@ static unique_ptr<RenderPass> CreateDebugDrawPass()
     auto pass = make_unique<RenderPass>("bullet_debug_draw_pass");
     pass->setFaceCullMode(FaceCullMode::NONE);
     pass->setBlendMode(BlendingMode::ALPHA);
-    pass->setParam("material_diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 0.7f));
+    pass->getPassParam("material_diffuse")->setValue(glm::vec4(1.0f, 1.0f, 1.0f, 0.7f));
     // FIXME: force to use default white texture because using colored shader.
-    pass->setParam("diffuseMap", nullptr);
+    pass->getPassParam("diffuseMap")->setValue(nullptr);
 
     auto program = svc().resourceManager().getFactory().createColoredGpuProgram();
     pass->setGpuProgram(program);

@@ -6,34 +6,29 @@ namespace df3d {
 
 class Texture;
 class GpuProgram;
-class GpuProgramUniform;
 
-struct DF3D_DLL RenderPassParamFloat
+class DF3D_DLL RenderPassParam
 {
-    // TODO_render: mb remove name?
-    std::string name;
-    float value = 0.0f;
+public:
+    RenderPassParam();
+    // TODO_render: copy ctor
+    ~RenderPassParam();
+
+    void setValue(float val);
+    void setValue(const glm::vec4 &val);
+    void setValue(shared_ptr<Texture> texture);
+
+    shared_ptr<Texture> getTexture();
 };
 
-struct DF3D_DLL RenderPassParamVec4
-{
-    std::string name;
-    glm::vec4 value = {};
-};
-
-struct RenderPassParamTexture
-{
-    std::string name;
-    shared_ptr<Texture> texture;
-};
+using PassParamHandle = size_t;
 
 class DF3D_DLL RenderPass
 {
     std::string m_name;
 
     shared_ptr<GpuProgram> m_gpuProgram;
-    std::vector<RenderPassParamFloat> m_floatParams;
-    std::vector<RenderPassParamVec4> m_vec4Params;
+    std::vector<RenderPassParam> m_params;
 
     //! Face culling mode.
     FaceCullMode m_faceCullMode = FaceCullMode::BACK;
@@ -48,21 +43,15 @@ class DF3D_DLL RenderPass
 public:
     //! Creates a pass with default parameters.
     RenderPass(const std::string &name = "");
-    RenderPass(const RenderPass& other) = default;
-    RenderPass& operator= (const RenderPass& other) = default;
     ~RenderPass();
 
     void setGpuProgram(shared_ptr<GpuProgram> newProgram);
     shared_ptr<GpuProgram> getGpuProgram() const;
 
-    void setParam(const std::string &name, float value);
-    void setParam(const std::string &name, const glm::vec4 &value);
-    // TODO_render: do not want shared_ptr here. Do not want pass to hold the resource.
-    void setParam(const std::string &name, shared_ptr<Texture> texture);
-
-    shared_ptr<Texture> getTextureParam(const std::string &name) const;
-    float getFloatParam(const std::string &name) const;
-    const glm::vec4& getVec4Param(const std::string &name) const;
+    PassParamHandle getPassParamHandle(const std::string &name) const;
+    // NOTE: do not cache return value.
+    RenderPassParam* getPassParam(PassParamHandle idx);
+    RenderPassParam* getPassParam(const std::string &name);
 
     void setFaceCullMode(FaceCullMode mode);
     void setBlendMode(BlendingMode mode);
@@ -77,6 +66,8 @@ public:
     const std::string& getName() const { return m_name; }
     FaceCullMode getFaceCullMode() const { return m_faceCullMode; }
     BlendingMode getBlendingMode() const { return m_blendMode; }
+
+    void updateProgramParams();
 };
 
 }

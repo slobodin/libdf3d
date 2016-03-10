@@ -51,6 +51,8 @@ public:
     virtual GpuProgramDescriptor createGpuProgram(ShaderDescriptor vertexShader, ShaderDescriptor fragmentShader) = 0;
     virtual void destroyGpuProgram(GpuProgramDescriptor program) = 0;
 
+    virtual void bindGpuProgram(GpuProgramDescriptor program) = 0;
+
     virtual void setViewport(int x, int y, int width, int height) = 0;
     virtual void setWorldMatrix(const glm::mat4 &worldm) = 0;
     virtual void setCameraMatrix(const glm::mat4 &viewm) = 0;

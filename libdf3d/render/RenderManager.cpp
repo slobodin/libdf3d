@@ -32,6 +32,10 @@ void RenderManager::loadEmbedResources()
 
 void RenderManager::onFrameBegin()
 {
+    m_blendModeOverriden = false;
+    m_depthTestOverriden = false;
+    m_depthWriteOverriden = false;
+
     m_renderBackend->frameBegin();
 
     m_renderBackend->clearColorBuffer();
@@ -50,8 +54,6 @@ void RenderManager::onFrameEnd()
 
 void RenderManager::doRenderWorld(World &world)
 {
-    // TODO_render
-    /*
     // TODO_ecs: what if render queue becomes big???
     m_renderQueue->clear();
 
@@ -62,64 +64,84 @@ void RenderManager::doRenderWorld(World &world)
     m_renderBackend->clearColorBuffer();
     m_renderBackend->clearDepthBuffer();
 
+    // TODO_render
+    /*
     m_renderer->setAmbientLight(world.getRenderingParams().getAmbientLight());
     m_renderer->enableFog(world.getRenderingParams().getFogDensity(), world.getRenderingParams().getFogColor());
+    */
 
     m_renderBackend->setCameraMatrix(world.getCamera()->getViewMatrix());
 
     m_renderQueue->sort();
 
     // Ambient pass.
-    m_renderer->enableBlendModeOverride(BlendingMode::NONE);
-    m_renderer->enableDepthTestOverride(true);
-    m_renderer->enableDepthWriteOverride(true);
+    m_blendModeOverriden = true;
+    m_depthTestOverriden = true;
+    m_depthWriteOverriden = true;
+    m_renderBackend->setBlendingMode(BlendingMode::NONE);
+    m_renderBackend->enableDepthTest(true);
+    m_renderBackend->enableDepthWrite(true);
 
     for (const auto &op : m_renderQueue->litOpaqueOperations)
     {
-        m_renderer->setWorldMatrix(op.worldTransform);
+        m_renderBackend->setWorldMatrix(op.worldTransform);
 
+        // TODO_render
+        /*
         m_ambientPassProps->setAmbientColor(op.passProps->getAmbientColor());
         m_ambientPassProps->setEmissiveColor(op.passProps->getEmissiveColor());
+        */
 
-        m_renderer->bindPass(m_ambientPassProps.get());
+        bindPass(m_ambientPassProps.get());
 
-        m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);
+        m_renderBackend->bindVertexBuffer(op.vertexBuffer);
+        if (op.indexBuffer.valid())
+            m_renderBackend->bindIndexBuffer(op.indexBuffer);
+
+        m_renderBackend->draw(op.type, op.numberOfElements);
     }
 
     // Opaque pass with lights on.
-    m_renderer->enableBlendModeOverride(BlendingMode::ADD);
-    m_renderer->enableDepthWriteOverride(false);
+    m_renderBackend->setBlendingMode(BlendingMode::ADD);
+    m_renderBackend->enableDepthWrite(false);
 
     for (const auto &op : m_renderQueue->litOpaqueOperations)
     {
-        m_renderer->setWorldMatrix(op.worldTransform);
+        m_renderBackend->setWorldMatrix(op.worldTransform);
         // TODO: bind pass only once
 
         for (const auto &light : m_renderQueue->lights)
         {
+            // TODO_render
+            /*
             m_renderer->setLight(*light);
+            */
 
-            // TODO: update ONLY light uniforms.
-            m_renderer->bindPass(op.passProps);
-            m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);
+            // TODO_render: update ONLY light uniforms.
+            bindPass(op.passProps);
+
+            m_renderBackend->bindVertexBuffer(op.vertexBuffer);
+            if (op.indexBuffer.valid())
+                m_renderBackend->bindIndexBuffer(op.indexBuffer);
+            m_renderBackend->draw(op.type, op.numberOfElements);
         }
     }
 
     // Rendering others as usual.
-    m_renderer->disableBlendModeOverride();
-    m_renderer->disableDepthTestOverride();
-    m_renderer->disableDepthWriteOverride();
+    m_blendModeOverriden = false;
+    m_depthTestOverriden = false;
+    m_depthWriteOverriden = false;
 
     // Opaque pass without lights.
     for (const auto &op : m_renderQueue->notLitOpaqueOperations)
-        m_renderer->drawOperation(op);
+        drawRenderOperation(op);
 
     // VFX pass.
     world.vfx().draw();
 
     // Transparent pass.
     for (const auto &op : m_renderQueue->transparentOperations)
-        m_renderer->drawOperation(op);
+        drawRenderOperation(op);
 
     // Debug draw pass.
     if (auto console = svc().debugConsole())
@@ -127,7 +149,7 @@ void RenderManager::doRenderWorld(World &world)
         if (console->getCVars().get<bool>(CVAR_DEBUG_DRAW))
         {
             for (const auto &op : m_renderQueue->debugDrawOperations)
-                m_renderer->drawOperation(op);
+                drawRenderOperation(op);
         }
     }
 
@@ -136,61 +158,37 @@ void RenderManager::doRenderWorld(World &world)
 
     // 2D ops pass.
     for (const auto &op : m_renderQueue->sprite2DOperations)
-        m_renderer->drawOperation(op);
+        drawRenderOperation(op);
 
     // Draw GUI.
     m_renderBackend->setProjectionMatrix(glm::ortho(0.0f, (float)m_viewport.width(), (float)m_viewport.height(), 0.0f));
     m_renderBackend->setCameraMatrix(glm::mat4(1.0f));
 
     svc().guiManager().getContext()->Render();
-
-    */
 }
 
 void RenderManager::bindPass(RenderPass *pass)
 {
-    // TODO_render:
     if (!pass)
         return;
 
-    // TODO: check state changes on CPU side.
-    // This may work incorrect when binding the same pass, but with params changed!
-    /*
-    if (pass == m_programState->m_currentPass)
+    auto gpuProgram = pass->getGpuProgram();
+    if (!gpuProgram)
     {
-    updateProgramUniformValues(m_programState->m_currentShader, m_programState->m_currentPass);
-    return;
+        glog << "Failed to bind pass. No GPU program" << logwarn;
+        return;
     }
-    */
 
-    //auto glprogram = pass->getGpuProgram();
-    //if (!glprogram)
-    //{
-    //    glog << "Failed to bind pass. No GPU program" << logwarn;
-    //    return;
-    //}
+    m_renderBackend->bindGpuProgram(gpuProgram->getDescriptor());
+    pass->updateProgramParams();
 
-    //m_programState->m_currentPass = pass;
-
-    //// FIXME:
-    //// Cache state.
-    //enableDepthTest(pass->depthTestEnabled());
-    //enableDepthWrite(pass->depthWriteEnabled());
-    //setBlendMode(pass->getBlendingMode());
-    //setFrontFace(pass->getFrontFaceWinding());
-    //setCullFace(pass->getFaceCullMode());
-    //setPolygonDrawMode(pass->getPolygonDrawMode());
-
-    //// Bind GPU program.
-    //if (!m_programState->m_currentShader || m_programState->m_currentShader != glprogram.get())
-    //{
-    //    m_programState->m_currentShader = glprogram.get();
-    //    m_programState->m_currentShader->bind();
-    //}
-
-    //updateProgramUniformValues(m_programState->m_currentShader, m_programState->m_currentPass);
-
-    //printOpenGLError();
+    if (!m_depthTestOverriden)
+        m_renderBackend->enableDepthTest(pass->isDepthTestEnabled());
+    if (!m_depthWriteOverriden)
+        m_renderBackend->enableDepthWrite(pass->isDepthWriteEnabled());
+    if (!m_blendModeOverriden)
+        m_renderBackend->setBlendingMode(pass->getBlendingMode());
+    m_renderBackend->setCullFaceMode(pass->getFaceCullMode());
 }
 
 RenderManager::RenderManager(EngineInitParams params)

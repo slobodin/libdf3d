@@ -14,7 +14,6 @@ class RenderPass;
 class World;
 class RenderOperation;
 
-// Forward renderer.
 class DF3D_DLL RenderManager : utils::NonCopyable
 {
     friend class EngineController;
@@ -25,8 +24,11 @@ class DF3D_DLL RenderManager : utils::NonCopyable
 
     Viewport m_viewport;
 
-    // Ambient pass support.
+    // Forward rendering stuff.
     unique_ptr<RenderPass> m_ambientPassProps;
+    bool m_blendModeOverriden = false;
+    bool m_depthTestOverriden = false;
+    bool m_depthWriteOverriden = false;
 
     void loadEmbedResources();
     void onFrameBegin();

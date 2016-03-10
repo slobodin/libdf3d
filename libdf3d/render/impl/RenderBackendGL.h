@@ -85,6 +85,8 @@ public:
     GpuProgramDescriptor createGpuProgram(ShaderDescriptor vertexShader, ShaderDescriptor fragmentShader) override;
     void destroyGpuProgram(GpuProgramDescriptor program) override;
 
+    void bindGpuProgram(GpuProgramDescriptor program) override;
+
     void setViewport(int x, int y, int width, int height) override;
     void setWorldMatrix(const glm::mat4 &worldm) override;
     void setCameraMatrix(const glm::mat4 &viewm) override;

@@ -15,6 +15,8 @@ class GpuProgram : public Resource
 
 public:
     ~GpuProgram();
+
+    GpuProgramDescriptor getDescriptor() const { return m_descriptor; }
 };
 
 class GpuProgramManualLoader : public ManualResourceLoader

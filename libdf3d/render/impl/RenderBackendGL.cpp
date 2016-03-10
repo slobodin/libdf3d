@@ -899,6 +899,11 @@ void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor program)
     */
 }
 
+void RenderBackendGL::bindGpuProgram(GpuProgramDescriptor program)
+{
+    // TODO_render
+}
+
 void RenderBackendGL::setViewport(int x, int y, int width, int height)
 {
     glViewport(x, y, width, height);
