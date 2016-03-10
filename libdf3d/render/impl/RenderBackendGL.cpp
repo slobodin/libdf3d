@@ -407,7 +407,7 @@ void RenderBackendGL::destroyVertexBuffer(VertexBufferDescriptor vb)
 void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
 {
     DESCRIPTOR_CHECK(vb);
-
+    // TODO_render
     /*
     glBindBuffer(GL_ARRAY_BUFFER, m_glId);
 
@@ -475,6 +475,7 @@ void RenderBackendGL::destroyIndexBuffer(IndexBufferDescriptor ib)
 void RenderBackendGL::bindIndexBuffer(IndexBufferDescriptor ib)
 {
     DESCRIPTOR_CHECK(ib);
+    // TODO_render
     /*
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glId);
     */
@@ -580,7 +581,9 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixe
 }
 
 df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params)
-{/*
+{
+    // TODO_render
+    /*
     m_sizeInBytes = 0;
 
     glGenTextures(1, &m_glid);
@@ -645,6 +648,7 @@ void RenderBackendGL::bindTexture(TextureDescriptor t, int unit)
 {
     DESCRIPTOR_CHECK(t);
 
+    // TODO_render
     /*
     if (!isInitialized())
         return false;
@@ -891,8 +895,42 @@ void RenderBackendGL::requestUniforms(GpuProgramDescriptor program, std::vector<
 
 void RenderBackendGL::setUniformValue(UniformDescriptor uniform, const void *data)
 {
-    // TODO_render
-    assert(false);
+    DESCRIPTOR_CHECK(uniform);
+
+    const auto &uniformGL = m_uniforms[uniform.id];
+    switch (uniformGL.type)
+    {
+    case GL_SAMPLER_2D:
+        glUniform1iv(uniformGL.location, 1, (GLint *)data);
+        break;
+    case GL_SAMPLER_CUBE:
+        glUniform1iv(uniformGL.location, 1, (GLint *)data);
+        break;
+    case GL_INT:
+        glUniform1iv(uniformGL.location, 1, (GLint *)data);
+        break;
+    case GL_FLOAT:
+        glUniform1fv(uniformGL.location, 1, (GLfloat *)data);
+        break;
+    case GL_FLOAT_VEC2:
+        glUniform2fv(uniformGL.location, 1, (GLfloat *)data);
+        break;
+    case GL_FLOAT_VEC3:
+        glUniform3fv(uniformGL.location, 1, (GLfloat *)data);
+        break;
+    case GL_FLOAT_VEC4:
+        glUniform4fv(uniformGL.location, 1, (GLfloat *)data);
+        break;
+    case GL_FLOAT_MAT3:
+        glUniformMatrix3fv(uniformGL.location, 1, GL_FALSE, (GLfloat *)data);
+        break;
+    case GL_FLOAT_MAT4:
+        glUniformMatrix4fv(uniformGL.location, 1, GL_FALSE, (GLfloat *)data);
+        break;
+    default:
+        glog << "Failed to update GpuProgramUniform. Unknown uniform type" << logwarn;
+        break;
+    }
 }
 
 void RenderBackendGL::setViewport(int x, int y, int width, int height)
@@ -1024,207 +1062,3 @@ unique_ptr<IRenderBackend> IRenderBackend::create()
 }
 
 }
-
-
-
-
-
-
-
-
-
-/*
-shared_ptr<VertexBuffer> createQuad(const VertexFormat &vf, float x, float y, float w, float h, GpuBufferUsageType usage)
-{
-    // TODO_REFACTO remove this shit!!!
-
-    float w2 = w / 2.0f;
-    float h2 = h / 2.0f;
-
-    float quad_pos[][2] =
-    {
-        { x - w2, y - h2 },
-        { x + w2, y - h2 },
-        { x + w2, y + h2 },
-        { x + w2, y + h2 },
-        { x - w2, y + h2 },
-        { x - w2, y - h2 }
-    };
-    float quad_uv[][2] =
-    {
-        { 0.0, 0.0 },
-        { 1.0, 0.0 },
-        { 1.0, 1.0 },
-        { 1.0, 1.0 },
-        { 0.0, 1.0 },
-        { 0.0, 0.0 }
-    };
-
-    VertexData vertexData(vf);
-
-    for (int i = 0; i < 6; i++)
-    {
-        auto v = vertexData.allocVertex();
-
-        v.setPosition({ quad_pos[i][0], quad_pos[i][1], 0.0f });
-        v.setTx({ quad_uv[i][0], quad_uv[i][1] });
-    }
-
-    auto result = make_shared<VertexBuffer>(vf);
-    result->alloc(vertexData, usage);
-
-    return result;
-}
-
-unique_ptr<VertexBuffer> createQuad2(const VertexFormat &vf, float x, float y, float w, float h, GpuBufferUsageType usage)
-{
-    // TODO_REFACTO remove this shit!!!
-
-    float w2 = w / 2.0f;
-    float h2 = h / 2.0f;
-
-    float quad_pos[][2] =
-    {
-        { x - w2, y - h2 },
-        { x + w2, y - h2 },
-        { x + w2, y + h2 },
-        { x + w2, y + h2 },
-        { x - w2, y + h2 },
-        { x - w2, y - h2 }
-    };
-    float quad_uv[][2] =
-    {
-        { 0.0, 0.0 },
-        { 1.0, 0.0 },
-        { 1.0, 1.0 },
-        { 1.0, 1.0 },
-        { 0.0, 1.0 },
-        { 0.0, 0.0 }
-    };
-
-    VertexData vertexData(vf);
-
-    for (int i = 0; i < 6; i++)
-    {
-        auto v = vertexData.allocVertex();
-
-        v.setPosition({ quad_pos[i][0], quad_pos[i][1], 0.0f });
-        v.setTx({ quad_uv[i][0], quad_uv[i][1] });
-        v.setColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-    }
-
-    auto result = make_unique<VertexBuffer>(vf);
-    result->alloc(vertexData, usage);
-
-    return result;
-}
-*/
-
-
-
-
-
-
-
-
-
-/*
-
-
-
-class GpuProgramUniform
-{
-    friend class GpuProgram;
-
-    std::string m_name;
-    int m_location = -1;
-    unsigned m_glType = 0;
-
-    SharedUniformType m_sharedId = SharedUniformType::COUNT;
-    bool m_isSampler = false;
-
-    GpuProgramUniform(const std::string &name);
-
-public:
-    ~GpuProgramUniform();
-
-    void update(const void *data) const;
-
-    SharedUniformType getSharedType() const { return m_sharedId; }
-    bool isShared() const { return m_sharedId != SharedUniformType::COUNT; }
-    bool isSampler() const { return m_isSampler; }
-    const std::string &getName() const { return m_name; }
-};
-
-}
-
-
-
-
-
-
-
-
-
-
-namespace df3d {
-
-
-
-GpuProgramUniform::GpuProgramUniform(const std::string &name)
-    : m_name(name)
-{
-    assert(!m_name.empty());
-
-    // Try to set it shared.
-    m_sharedId = getSharedTypeForUniform(m_name);
-}
-
-GpuProgramUniform::~GpuProgramUniform()
-{
-
-}
-
-void GpuProgramUniform::update(const void *data) const
-{
-    switch (m_glType)
-    {
-    case GL_SAMPLER_2D:
-        glUniform1iv(m_location, 1, (GLint *)data);
-        break;
-    case GL_SAMPLER_CUBE:
-        glUniform1iv(m_location, 1, (GLint *)data);
-        break;
-    case GL_INT:
-        glUniform1iv(m_location, 1, (GLint *)data);
-        break;
-    case GL_FLOAT:
-        glUniform1fv(m_location, 1, (GLfloat *)data);
-        break;
-    case GL_FLOAT_VEC2:
-        glUniform2fv(m_location, 1, (GLfloat *)data);
-        break;
-    case GL_FLOAT_VEC3:
-        glUniform3fv(m_location, 1, (GLfloat *)data);
-        break;
-    case GL_FLOAT_VEC4:
-        glUniform4fv(m_location, 1, (GLfloat *)data);
-        break;
-    case GL_FLOAT_MAT3:
-        glUniformMatrix3fv(m_location, 1, GL_FALSE, (GLfloat *)data);
-        break;
-    case GL_FLOAT_MAT4:
-        glUniformMatrix4fv(m_location, 1, GL_FALSE, (GLfloat *)data);
-        break;
-    default:
-        glog << "Failed to update GpuProgramUniform. Unknown uniform type" << logwarn;
-        break;
-    }
-}
-
-}
-
-
-
-*/
-

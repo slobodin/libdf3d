@@ -4,6 +4,8 @@
 #include <libdf3d/game/ComponentDataHolder.h>
 #include <libdf3d/game/World.h>
 #include <libdf3d/render/RenderOperation.h>
+#include <libdf3d/render/RenderManager.h>
+#include <libdf3d/render/IRenderBackend.h>
 #include <libdf3d/render/RenderQueue.h>
 #include <libdf3d/render/RenderPass.h>
 #include <libdf3d/render/Vertex.h>
@@ -14,6 +16,47 @@
 #include <libdf3d/io/FileSystem.h>
 
 namespace df3d {
+
+static VertexBufferDescriptor createQuad(const VertexFormat &vf, float x, float y, float w, float h, GpuBufferUsageType usage)
+{
+    float w2 = w / 2.0f;
+    float h2 = h / 2.0f;
+
+    float quad_pos[][2] =
+    {
+        { x - w2, y - h2 },
+        { x + w2, y - h2 },
+        { x + w2, y + h2 },
+        { x + w2, y + h2 },
+        { x - w2, y + h2 },
+        { x - w2, y - h2 }
+    };
+    float quad_uv[][2] =
+    {
+        { 0.0, 0.0 },
+        { 1.0, 0.0 },
+        { 1.0, 1.0 },
+        { 1.0, 1.0 },
+        { 0.0, 1.0 },
+        { 0.0, 0.0 }
+    };
+
+    VertexData vertexData(vf);
+
+    for (int i = 0; i < 6; i++)
+    {
+        auto v = vertexData.allocVertex();
+
+        v.setPosition({ quad_pos[i][0], quad_pos[i][1], 0.0f });
+        v.setTx({ quad_uv[i][0], quad_uv[i][1] });
+        v.setColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+    }
+
+    return svc().renderManager().getBackend().createVertexBuffer(vf,
+                                                                 vertexData.getVerticesCount(),
+                                                                 vertexData.getRawData(),
+                                                                 usage);
+}
 
 struct Sprite2DComponentProcessor::Impl
 {
@@ -35,15 +78,14 @@ struct Sprite2DComponentProcessor::Impl
 
     Impl()
     {
-        auto format = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
-
-        // TODO_render
-        //vertexData = createQuad2(format, 0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
+        vertexBuffer = createQuad(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 }),
+                                  0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
     }
 
     ~Impl()
     {
-
+        if (vertexBuffer.valid())
+            svc().renderManager().getBackend().destroyVertexBuffer(vertexBuffer);
     }
 
     static void updateTransform(Data &compData)
