@@ -405,8 +405,6 @@ class MaterialLibParser
             std::string embedProgramName = embedProgramFound->second;
             if (embedProgramName == "colored")
                 return svc().resourceManager().getFactory().createColoredGpuProgram();
-            else if (embedProgramName == "quad_render")
-                return svc().resourceManager().getFactory().createRttQuadProgram();
             else
             {
                 glog << "Invalid embed program name" << embedProgramName << logwarn;
