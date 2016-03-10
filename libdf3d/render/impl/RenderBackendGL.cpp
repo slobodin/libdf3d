@@ -54,6 +54,17 @@ static void CheckAndPrintGLError(const char *file, int line)
 #define printOpenGLError()
 #endif
 
+#if defined(_DEBUG) || defined(DEBUG)
+#define DESCRIPTOR_CHECK(descr) do { if (!descr.valid()) { glog << "Invalid descriptor" << logwarn; return; } } while (0);
+#else
+#define DESCRIPTOR_CHECK(descr) do { if (!descr.valid()) return; } while (0);
+#endif
+
+#if defined(_DEBUG) || defined(DEBUG)
+#define DESCRIPTOR_CHECK_RETURN_INVALID(descr) do { if (!descr.valid()) { glog << "Invalid descriptor" << logwarn; return {}; } } while (0);
+#else
+#define DESCRIPTOR_CHECK_RETURN_INVALID(descr) do { if (!descr.valid()) return {}; } while (0);
+#endif
 
 static bool IsPot(size_t v)
 {
@@ -115,18 +126,18 @@ static GLint GetGLWrapMode(TextureWrapMode mode)
     return -1;
 }
 
-/*
-static void SetupGlTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped)
+
+static void SetupGLTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped)
 {
     glTexParameteri(glType, GL_TEXTURE_MAG_FILTER, filtering == TextureFiltering::NEAREST ? GL_NEAREST : GL_LINEAR);
-    glTexParameteri(glType, GL_TEXTURE_MIN_FILTER, getGlFilteringMode(filtering, mipmapped));
+    glTexParameteri(glType, GL_TEXTURE_MIN_FILTER, GetGLFilteringMode(filtering, mipmapped));
 
     printOpenGLError();
 }
 
-static void SetupGlWrapMode(GLenum glType, TextureWrapMode wrapMode)
+static void SetupGLWrapMode(GLenum glType, TextureWrapMode wrapMode)
 {
-    auto wmGl = getGlWrapMode(wrapMode);
+    auto wmGl = GetGLWrapMode(wrapMode);
     glTexParameteri(glType, GL_TEXTURE_WRAP_S, wmGl);
     glTexParameteri(glType, GL_TEXTURE_WRAP_T, wmGl);
 #if defined(DF3D_DESKTOP)
@@ -136,7 +147,7 @@ static void SetupGlWrapMode(GLenum glType, TextureWrapMode wrapMode)
     printOpenGLError();
 }
 
-
+/*
 void VertexFormat::enableGLAttributes()
 {
 for (auto attrib : m_attribs)
@@ -364,33 +375,39 @@ df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFor
         return{};
     }
 
-    VertexBufferGL glVb;
+    VertexBufferGL vertexBuffer;
 
-    glVb.format = make_unique<VertexFormat>(format);
-    glVb.sizeInBytes = verticesCount * format.getVertexSize();
+    vertexBuffer.format = make_unique<VertexFormat>(format);
+    vertexBuffer.sizeInBytes = verticesCount * format.getVertexSize();
 
-    glGenBuffers(1, &glVb.id);
-    glBindBuffer(GL_ARRAY_BUFFER, glVb.id);
+    glGenBuffers(1, &vertexBuffer.gl_id);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id);
     glBufferData(GL_ARRAY_BUFFER, verticesCount * format.getVertexSize(), data, GetGLBufferUsageType(usage));
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    m_vertexBuffers[vb.id] = std::move(glVb);
+    m_vertexBuffers[vb.id] = std::move(vertexBuffer);
 
     return vb;
 }
 
 void RenderBackendGL::destroyVertexBuffer(VertexBufferDescriptor vb)
 {
-    const auto &glVb = m_vertexBuffers[vb.id];
+    DESCRIPTOR_CHECK(vb);
+
+    const auto &vertexBuffer = m_vertexBuffers[vb.id];
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &glVb.id);
+
+    if (vertexBuffer.gl_id)
+        glDeleteBuffers(1, &vertexBuffer.gl_id);
 
     m_vertexBuffers.erase(vb.id);
 }
 
 void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
 {
+    DESCRIPTOR_CHECK(vb);
+
     /*
     glBindBuffer(GL_ARRAY_BUFFER, m_glId);
 
@@ -404,13 +421,16 @@ void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
 
 void RenderBackendGL::updateVertexBuffer(VertexBufferDescriptor vb, size_t verticesCount, const void *data)
 {
-    const auto &glVb = m_vertexBuffers[vb.id];
+    DESCRIPTOR_CHECK(vb);
 
-    auto bytesUpdating = verticesCount * glVb.format->getVertexSize();
+    const auto &vertexBuffer = m_vertexBuffers[vb.id];
 
-    assert(bytesUpdating <= glVb.sizeInBytes);
+    auto bytesUpdating = verticesCount * vertexBuffer.format->getVertexSize();
 
-    glBindBuffer(GL_ARRAY_BUFFER, glVb.id);
+    assert(bytesUpdating <= vertexBuffer.sizeInBytes);
+    assert(vertexBuffer.gl_id != 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id);
     glBufferSubData(GL_ARRAY_BUFFER, 0, bytesUpdating, data);
 }
 
@@ -425,66 +445,74 @@ df3d::IndexBufferDescriptor RenderBackendGL::createIndexBuffer(size_t indicesCou
         return{};
     }
 
-    IndexBufferGL glIb;
+    IndexBufferGL indexBuffer;
 
-    glGenBuffers(1, &glIb.id);
+    glGenBuffers(1, &indexBuffer.gl_id);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIb.id);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(INDICES_TYPE), data, GetGLBufferUsageType(usage));
 
-    glIb.sizeInBytes = indicesCount * sizeof(INDICES_TYPE);
+    indexBuffer.sizeInBytes = indicesCount * sizeof(INDICES_TYPE);
 
-    m_indexBuffers[ib.id] = glIb;
+    m_indexBuffers[ib.id] = indexBuffer;
 
     return ib;
 }
 
 void RenderBackendGL::destroyIndexBuffer(IndexBufferDescriptor ib)
 {
-    const auto &glIb = m_indexBuffers[ib.id];
+    DESCRIPTOR_CHECK(ib);
+
+    const auto &indexBuffer = m_indexBuffers[ib.id];
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &glIb.id);
+    if (indexBuffer.gl_id != 0)
+        glDeleteBuffers(1, &indexBuffer.gl_id);
 
     m_indexBuffers.erase(ib.id);
 }
 
 void RenderBackendGL::bindIndexBuffer(IndexBufferDescriptor ib)
-{/*
+{
+    DESCRIPTOR_CHECK(ib);
+    /*
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glId);
     */
 }
 
 void RenderBackendGL::updateIndexBuffer(IndexBufferDescriptor ib, size_t indicesCount, const void *data)
 {
-    const auto &glIb = m_vertexBuffers[ib.id];
+    DESCRIPTOR_CHECK(ib);
+
+    const auto &indexBuffer = m_vertexBuffers[ib.id];
 
     auto bytesUpdating = indicesCount * sizeof(INDICES_TYPE);
 
-    assert(bytesUpdating <= glIb.sizeInBytes);
+    assert(bytesUpdating <= indexBuffer.sizeInBytes);
+    assert(indexBuffer.gl_id != 0);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIb.id);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id);
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, bytesUpdating, data);
 }
 
 df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixels, const TextureCreationParams &params)
 {
-    /*
-    m_originalWidth = buffer.getWidth();
-    m_originalHeight = buffer.getHeight();
+    TextureDescriptor textureDescr = { m_texturesBag.getNew() };
+    if (!textureDescr.valid())
+    {
+        glog << "Failed to create a texture buffer" << logwarn;
+        return{};
+    }
 
-    auto actWidth = /*getNextPot(*buffer.getWidth();
-    auto actHeight = /*getNextPot(*buffer.getHeight();
-
-    auto maxSize = svc().renderManager().getRenderer()->getMaxTextureSize();
-    if (actWidth > maxSize || actHeight > maxSize)
+    auto maxSize = m_caps.maxTextureSize;
+    if (pixels.getWidth() > maxSize || pixels.getHeight() > maxSize)
     {
         glog << "Failed to create texture. Size is too big." << logwarn;
-        return false;
+        return{};
     }
 
     GLint glPixelFormat = 0;
-    switch (buffer.getFormat())
+    switch (pixels.getFormat())
     {
     case PixelFormat::RGB:
     case PixelFormat::BGR:
@@ -501,62 +529,54 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixe
         break;
     default:
         glog << "Invalid GL texture pixel format" << logwarn;
-        return false;
+        return{};
     }
 
-    m_actualWidth = actWidth;
-    m_actualHeight = actHeight;
+    TextureGL texture;
 
-    if (!(m_actualWidth == buffer.getWidth() && m_actualHeight == buffer.getHeight()))
-        glog << "Texture with name" << getGUID() << "is not pot" << logdebug;
-
-    glGenTextures(1, &m_glid);
-    glBindTexture(GL_TEXTURE_2D, m_glid);
+    glGenTextures(1, &texture.gl_id);
+    glBindTexture(GL_TEXTURE_2D, texture.gl_id);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    setupGlWrapMode(GL_TEXTURE_2D, m_params.getWrapMode());
-    setupGlTextureFiltering(GL_TEXTURE_2D, m_params.getFiltering(), m_params.isMipmapped());
+    SetupGLWrapMode(GL_TEXTURE_2D, params.getWrapMode());
+    SetupGLTextureFiltering(GL_TEXTURE_2D, params.getFiltering(), params.isMipmapped());
 
-    // FIXME:
     // Init empty texture.
-    if (buffer.getFormat() == PixelFormat::DEPTH)
-        glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, m_actualWidth, m_actualHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    if (pixels.getFormat() == PixelFormat::DEPTH)
+        glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, pixels.getWidth(), pixels.getHeight(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
     else
-        glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, m_actualWidth, m_actualHeight, 0, glPixelFormat, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, pixels.getWidth(), pixels.getHeight(), 0, glPixelFormat, GL_UNSIGNED_BYTE, nullptr);
 
-    if (buffer.getData())
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, buffer.getWidth(), buffer.getHeight(), glPixelFormat, GL_UNSIGNED_BYTE, buffer.getData());
+    if (pixels.getData())
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pixels.getWidth(), pixels.getHeight(), glPixelFormat, GL_UNSIGNED_BYTE, pixels.getData());
 
-    if (m_params.isMipmapped())
+    if (params.isMipmapped())
         glGenerateMipmap(GL_TEXTURE_2D);
 
     if (GL_EXT_texture_filter_anisotropic)
     {
-        if (m_params.getAnisotropyLevel() != 1)
+        if (params.getAnisotropyLevel() != 1)
         {
-            float aniso = svc().renderManager().getRenderer()->getMaxAnisotropy();
-            if (m_params.getAnisotropyLevel() != ANISOTROPY_LEVEL_MAX)
+            float aniso = m_caps.maxAnisotropy;
+            if (params.getAnisotropyLevel() != ANISOTROPY_LEVEL_MAX)
             {
-                aniso = (float)m_params.getAnisotropyLevel();
+                aniso = (float)params.getAnisotropyLevel();
             }
 
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
         }
     }
 
-    m_sizeInBytes = buffer.getSizeInBytes();        // TODO: mipmaps!
+    texture.sizeInBytes = pixels.getSizeInBytes();        // TODO: mipmaps!
+    texture.type = GL_TEXTURE_2D;
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
     printOpenGLError();
 
-    svc().getFrameStats().addTexture(*this);
-    */
+    m_textures[textureDescr.id] = texture;
 
-    TextureDescriptor d;
-    d.id = 1;
-
-    return d;
+    return textureDescr;
 }
 
 df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params)
@@ -610,31 +630,21 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
 
 void RenderBackendGL::destroyTexture(TextureDescriptor t)
 {
-    /*
-    if (m_glid)
-    {
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glDeleteTextures(1, &m_glid);
+    DESCRIPTOR_CHECK(t);
 
-        m_glid = 0;
+    const auto &texture = m_textures[t.id];
 
-        svc().getFrameStats().removeTexture(*this);
-    }*/
-    /*
-    if (m_glid)
-    {
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-    glDeleteTextures(1, &m_glid);
+    glBindTexture(texture.type, 0);
+    if (texture.gl_id)
+        glDeleteTextures(1, &texture.gl_id);
 
-    svc().getFrameStats().removeTexture(*this);
-
-    m_glid = 0;
-    }
-    */
+    m_textures.erase(t.id);
 }
 
 void RenderBackendGL::bindTexture(TextureDescriptor t, int unit)
 {
+    DESCRIPTOR_CHECK(t);
+
     /*
     if (!isInitialized())
         return false;
@@ -682,254 +692,201 @@ void RenderBackendGL::bindTexture(TextureDescriptor t, int unit)
 
 df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std::string &data)
 {
-    /*
-            void Shader::createGLShader()
-            {
-                if (m_type == Type::VERTEX)
-                    m_shaderDescriptor = glCreateShader(GL_VERTEX_SHADER);
-                else if (m_type == Type::FRAGMENT)
-                    m_shaderDescriptor = glCreateShader(GL_FRAGMENT_SHADER);
-                else
-                    m_shaderDescriptor = 0;
-            }
+    if (data.empty())
+    {
+        glog << "Failed to create a shader: empty shader data" << logwarn;
+        return{};
+    }
 
+    ShaderDescriptor shaderDescr = { m_shadersBag.getNew() };
+    if (!shaderDescr.valid())
+    {
+        glog << "Failed to create a shader" << logwarn;
+        return{};
+    }
 
+    ShaderGL shader;
 
-            bool Shader::compile()
-            {
-                if (m_isCompiled)
-                    return true;
+    if (type == ShaderType::VERTEX)
+    {
+        shader.gl_id = glCreateShader(GL_VERTEX_SHADER);
+        shader.type = GL_VERTEX_SHADER;
+    }
+    else if (type == ShaderType::FRAGMENT)
+    {
+        shader.gl_id = glCreateShader(GL_FRAGMENT_SHADER);
+        shader.type = GL_FRAGMENT_SHADER;
+    }
 
-                // Try to create shader.
-                if (m_shaderDescriptor == 0)
-                    createGLShader();
+    if (shader.gl_id == 0)
+    {
+        glog << "Failed to create a shader" << logwarn;
+        return{};
+    }
 
-                if (m_shaderDescriptor == 0 || m_type == Type::UNDEFINED)
-                {
-                    glog << "Can not compile GLSL shader due to undefined type" << logwarn;
-                    return false;
-                }
+    // Compile the shader.
+    const char *pdata = data.c_str();
+    glShaderSource(shader.gl_id, 1, &pdata, nullptr);
+    glCompileShader(shader.gl_id);
 
-                if (m_shaderData.empty())
-                {
-                    glog << "Empty shader data" << logwarn;
-                    return false;
-                }
+    int compileOk;
+    glGetShaderiv(shader.gl_id, GL_COMPILE_STATUS, &compileOk);
+    if (compileOk == GL_FALSE)
+    {
+        glog << "Failed to compile a shader" << logwarn;
+        glog << "\n" << data << logmess;
+        PrintShaderLog(shader.gl_id);
 
-                const char *pdata = m_shaderData.c_str();
-                glShaderSource(m_shaderDescriptor, 1, &pdata, nullptr);
-                glCompileShader(m_shaderDescriptor);
+        return{};
+    }
 
-                int compileOk;
-                glGetShaderiv(m_shaderDescriptor, GL_COMPILE_STATUS, &compileOk);
-                if (compileOk == GL_FALSE)
-                {
-                    glog << "Failed to compile a shader" << logwarn;
-                    glog << "\n" << m_shaderData << logmess;
-                    shaderLog(m_shaderDescriptor);
+    printOpenGLError();
 
-                    return false;
-                }
+    m_shaders[shaderDescr.id] = shader;
 
-                setCompiled(true);
-
-                return true;
-            }
-
-            void Shader::setShaderData(const std::string &data)
-            {
-                m_shaderData = data;
-                setCompiled(false);
-            }
-
-            Shader::Shader(Type type)
-                : m_type(type)
-            {
-            }
-
-            Shader::~Shader()
-            {
-                if (m_shaderDescriptor != 0)
-                    glDeleteShader(m_shaderDescriptor);
-            }
-
-            shared_ptr<Shader> Shader::createFromFile(const std::string &filePath)
-            {
-
-            }
-
-            shared_ptr<Shader> Shader::createFromString(const std::string &shaderData, Type type)
-            {
-
-            }
-
-            }
-*/
-
-    ShaderDescriptor d;
-    d.id = 1;
-
-    return d;
+    return shaderDescr;
 }
 
 void RenderBackendGL::destroyShader(ShaderDescriptor shader)
 {
+    DESCRIPTOR_CHECK(shader);
 
+    const auto &shaderGL = m_shaders[shader.id];
+
+    if (shaderGL.gl_id != 0)
+        glDeleteShader(shaderGL.gl_id);
+
+    printOpenGLError();
+
+    m_shaders.erase(shader.id);
 }
 
 df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor vertexShader, ShaderDescriptor fragmentShader)
 {
-    /*
-    bool GpuProgram::compileShaders()
+    DESCRIPTOR_CHECK_RETURN_INVALID(vertexShader);
+    DESCRIPTOR_CHECK_RETURN_INVALID(fragmentShader);
+
+    GpuProgramDescriptor programDescr = { m_gpuProgramsBag.getNew() };
+    if (!programDescr.valid())
     {
-        assert(!m_programDescriptor);
-
-        m_programDescriptor = glCreateProgram();
-
-        for (auto shader : m_shaders)
-        {
-            if (!shader || !shader->compile())
-            {
-                glog << "Failed to compile shaders in" << getGUID() << logwarn;
-                return false;
-            }
-        }
-
-        return true;
+        glog << "Failed to create a gpu program" << logwarn;
+        return{};
     }
 
-    bool GpuProgram::attachShaders()
+    ProgramGL program;
+
+    program.gl_id = glCreateProgram();
+    if (program.gl_id == 0)
     {
-        if (!m_programDescriptor)
-            return false;
-
-        for (auto shader : m_shaders)
-            glAttachShader(m_programDescriptor, shader->m_shaderDescriptor);
-
-        glBindAttribLocation(m_programDescriptor, VertexFormat::POSITION_3, "a_vertex3");
-        glBindAttribLocation(m_programDescriptor, VertexFormat::NORMAL_3, "a_normal");
-        glBindAttribLocation(m_programDescriptor, VertexFormat::TX_2, "a_txCoord");
-        glBindAttribLocation(m_programDescriptor, VertexFormat::COLOR_4, "a_vertexColor");
-        glBindAttribLocation(m_programDescriptor, VertexFormat::TANGENT_3, "a_tangent");
-        glBindAttribLocation(m_programDescriptor, VertexFormat::BITANGENT_3, "a_bitangent");
-
-        glLinkProgram(m_programDescriptor);
-
-        int linkOk;
-        glGetProgramiv(m_programDescriptor, GL_LINK_STATUS, &linkOk);
-        if (linkOk == GL_FALSE)
-        {
-            glog << "GPU program linkage failed" << logwarn;
-            gpuProgramLog(m_programDescriptor);
-            return false;
-        }
-
-        requestUniforms();
-
-        printOpenGLError();
-
-        return true;
+        glog << "Failed to create a GPU program" << logwarn;
+        return{};
     }
 
-    void GpuProgram::bind()
+    const auto &vertexShaderGL = m_shaders[vertexShader.id];
+    const auto &fragmentShaderGL = m_shaders[fragmentShader.id];
+
+    assert(vertexShaderGL.gl_id && fragmentShaderGL.gl_id);
+
+    glAttachShader(program.gl_id, vertexShaderGL.gl_id);
+    glAttachShader(program.gl_id, fragmentShaderGL.gl_id);
+
+    // TODO: use VAO + refactor this.
+    glBindAttribLocation(program.gl_id, VertexFormat::POSITION_3, "a_vertex3");
+    glBindAttribLocation(program.gl_id, VertexFormat::NORMAL_3, "a_normal");
+    glBindAttribLocation(program.gl_id, VertexFormat::TX_2, "a_txCoord");
+    glBindAttribLocation(program.gl_id, VertexFormat::COLOR_4, "a_vertexColor");
+    glBindAttribLocation(program.gl_id, VertexFormat::TANGENT_3, "a_tangent");
+    glBindAttribLocation(program.gl_id, VertexFormat::BITANGENT_3, "a_bitangent");
+
+    glLinkProgram(program.gl_id);
+
+    int linkOk;
+    glGetProgramiv(program.gl_id, GL_LINK_STATUS, &linkOk);
+    if (linkOk == GL_FALSE)
     {
-        if (!isInitialized())
-            return;
+        glog << "GPU program linkage failed" << logwarn;
+        PrintGpuProgramLog(program.gl_id);
 
-        assert(m_programDescriptor);
+        glDeleteProgram(program.gl_id);
 
-        glUseProgram(m_programDescriptor);
+        return{};
     }
 
-    void GpuProgram::unbind()
-    {
-        glUseProgram(0);
-    }
+    printOpenGLError();
 
-    GpuProgramUniform *GpuProgram::getCustomUniform(const std::string &name)
-    {
-        for (size_t i = 0; i < m_customUniforms.size(); i++)
-        {
-            if (m_customUniforms[i].getName() == name)
-                return &m_customUniforms[i];
-        }
+    m_programs[programDescr.id] = program;
 
-        return nullptr;
-    }
-
-    GpuProgramUniform* GpuProgram::getSamplerUniform(const std::string &name)
-    {
-        for (size_t i = 0; i < m_samplerUniforms.size(); i++)
-        {
-            if (m_samplerUniforms[i].getName() == name)
-                return &m_samplerUniforms[i];
-        }
-
-        return nullptr;
-    }
-
-    */
-
-GpuProgramDescriptor d;
-d.id = 1;
-
-return d;
+    return programDescr;
 }
 
 void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor program)
 {
-    /*
-    if (m_programDescriptor == 0)
-        return;
+    DESCRIPTOR_CHECK(program);
 
-    unbind();
-    useProgram(0);!
+    const auto &programGL = m_programs[program.id];
 
-    for (auto shader : m_shaders)
-    {
-        if (shader->m_shaderDescriptor != 0)
-            glDetachShader(m_programDescriptor, shader->m_shaderDescriptor);
-    }
+    glUseProgram(0);
+    if (programGL.gl_id)
+        glDeleteProgram(programGL.gl_id);
 
-    glDeleteProgram(m_programDescriptor);
-    */
+    printOpenGLError();
+
+    m_programs.erase(program.id);
 }
 
 void RenderBackendGL::bindGpuProgram(GpuProgramDescriptor program)
 {
-    // TODO_render
+    DESCRIPTOR_CHECK(program);
+
+    const auto &programGL = m_programs[program.id];
+    if (programGL.gl_id == 0)
+    {
+        assert(false);
+        return;
+    }
+
+    glUseProgram(programGL.gl_id);
 }
 
 void RenderBackendGL::requestUniforms(GpuProgramDescriptor program, std::vector<UniformDescriptor> &outDescr, std::vector<std::string> &outNames)
 {
-    // TODO_render
-    /*
+    DESCRIPTOR_CHECK(program);
+
+    const auto &programGL = m_programs[program.id];
+
     int total = -1;
-    glGetProgramiv(m_programDescriptor, GL_ACTIVE_UNIFORMS, &total);
+    glGetProgramiv(programGL.gl_id, GL_ACTIVE_UNIFORMS, &total);
 
     for (int i = 0; i < total; i++)
     {
-        GLenum type = GL_ZERO;
+        UniformDescriptor uniformDescr = { m_uniformsBag.getNew() };
+        if (!uniformDescr.valid())
+        {
+            glog << "Failed to request uniforms" << logwarn;
+            outDescr.clear();
+            return;
+        }
+
+        outDescr.push_back(uniformDescr);
+    }
+
+    for (int i = 0; i < total; i++)
+    {
+        GLenum type = GL_INVALID_ENUM;
         int nameLength = -1, uniformVarSize = -1;
         char name[100];
 
-        glGetActiveUniform(m_programDescriptor, i, sizeof(name) - 1, &nameLength, &uniformVarSize, &type, name);
+        glGetActiveUniform(programGL.gl_id, i, sizeof(name) - 1, &nameLength, &uniformVarSize, &type, name);
         name[nameLength] = 0;
 
-        GpuProgramUniform uni(name);
-        uni.m_location = glGetUniformLocation(m_programDescriptor, name);
-        uni.m_glType = type;
-        uni.m_isSampler = isSampler(type);
+        outNames.push_back(name);
 
-        if (uni.isShared())
-            m_sharedUniforms.push_back(uni);
-        else if (uni.isSampler())
-            m_samplerUniforms.push_back(uni);
-        else
-            m_customUniforms.push_back(uni);
+        UniformGL uniformGL;
+        uniformGL.type = type;
+        uniformGL.location = glGetUniformLocation(programGL.gl_id, name);
+
+        m_uniforms[outDescr[i].id] = uniformGL;
     }
-
-    */
 }
 
 void RenderBackendGL::setUniformValue(UniformDescriptor uniform, const void *data)

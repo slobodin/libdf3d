@@ -50,7 +50,7 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
 
     for (const auto &s : geometry) 
     {
-        m_submeshes.push_back(HardwareSubMesh());
+        m_submeshes.push_back({});
         HardwareSubMesh &hs = m_submeshes.back();
 
         if (auto mtl = s.getMaterial())

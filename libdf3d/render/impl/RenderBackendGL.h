@@ -36,27 +36,59 @@ class Texture;
 
 class RenderBackendGL : public IRenderBackend
 {
-    RenderBackendCaps m_caps;
-
     struct VertexBufferGL
     {
-        GLuint id;
+        GLuint gl_id = 0;
         unique_ptr<VertexFormat> format;
         size_t sizeInBytes = 0;
     };
 
     struct IndexBufferGL
     {
-        GLuint id;
+        GLuint gl_id = 0;
         size_t sizeInBytes = 0;
     };
 
+    struct TextureGL
+    {
+        GLuint gl_id = 0;
+        GLenum type = GL_INVALID_ENUM;
+        size_t sizeInBytes = 0;
+    };
+
+    struct ShaderGL
+    {
+        GLuint gl_id = 0;
+        GLenum type = GL_INVALID_ENUM;
+    };
+
+    struct ProgramGL
+    {
+        GLuint gl_id = 0;
+    };
+
+    struct UniformGL
+    {
+        GLenum type;
+        GLint location;
+    };
+
+    RenderBackendCaps m_caps;
+
     utils::DescriptorsBag m_vertexBuffersBag;
     utils::DescriptorsBag m_indexBuffersBag;
+    utils::DescriptorsBag m_texturesBag;
+    utils::DescriptorsBag m_shadersBag;
+    utils::DescriptorsBag m_gpuProgramsBag;
+    utils::DescriptorsBag m_uniformsBag;
 
     // TODO_render: use array
     std::unordered_map<int16_t, VertexBufferGL> m_vertexBuffers;
     std::unordered_map<int16_t, IndexBufferGL> m_indexBuffers;
+    std::unordered_map<int16_t, TextureGL> m_textures;
+    std::unordered_map<int16_t, ShaderGL> m_shaders;
+    std::unordered_map<int16_t, ProgramGL> m_programs;
+    std::unordered_map<int16_t, UniformGL> m_uniforms;
 
     shared_ptr<Texture> m_whiteTexture;
 
