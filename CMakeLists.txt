@@ -131,6 +131,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/render/impl/RenderBackendGL.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/IRenderBackend.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramSharedState.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.h
@@ -218,6 +219,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/impl/RenderBackendGL.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramSharedState.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.cpp

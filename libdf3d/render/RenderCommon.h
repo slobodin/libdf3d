@@ -75,7 +75,7 @@ enum class FaceCullMode
     FRONT_AND_BACK
 };
 
-// TODO_render: move
+// TODO_render: move + macro
 static const int16_t INVALID_DESCRIPTOR = -1;
 
 struct VertexBufferDescriptor
@@ -113,6 +113,14 @@ struct GpuProgramDescriptor
     bool valid() const { return id != INVALID_DESCRIPTOR; }
 };
 
+struct UniformDescriptor
+{
+    int16_t id = INVALID_DESCRIPTOR;
+
+    bool valid() const { return id != INVALID_DESCRIPTOR; }
+};
+
+// TODO_render
 // FIXME: move to namespace.
 
 extern const DF3D_DLL int ANISOTROPY_LEVEL_MAX;

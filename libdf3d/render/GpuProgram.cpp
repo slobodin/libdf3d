@@ -74,6 +74,11 @@ GpuProgram::GpuProgram(GpuProgramDescriptor descr)
     : m_descriptor(descr)
 {
     assert(m_descriptor.valid());
+
+
+    // TODO_render: get shared uniforms FUK YEAH
+
+
 }
 
 GpuProgram::~GpuProgram()

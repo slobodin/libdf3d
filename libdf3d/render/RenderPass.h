@@ -9,10 +9,18 @@ class GpuProgram;
 
 class DF3D_DLL RenderPassParam
 {
+    std::string m_name;
+    UniformDescriptor m_descr;
+
 public:
-    RenderPassParam();
+    RenderPassParam(const std::string &name);
     // TODO_render: copy ctor
     ~RenderPassParam();
+
+    UniformDescriptor getUniform() { return m_descr; }
+    void setUniform(UniformDescriptor descr) { m_descr = descr; }
+
+    const std::string& getName() const { return m_name; }
 
     void setValue(float val);
     void setValue(const glm::vec4 &val);
@@ -30,9 +38,7 @@ class DF3D_DLL RenderPass
     shared_ptr<GpuProgram> m_gpuProgram;
     std::vector<RenderPassParam> m_params;
 
-    //! Face culling mode.
     FaceCullMode m_faceCullMode = FaceCullMode::BACK;
-    //! Blending.
     BlendingMode m_blendMode = BlendingMode::NONE;
 
     bool m_isTransparent = false;
@@ -41,17 +47,17 @@ class DF3D_DLL RenderPass
     bool m_depthWrite = true;
 
 public:
-    //! Creates a pass with default parameters.
     RenderPass(const std::string &name = "");
     ~RenderPass();
 
     void setGpuProgram(shared_ptr<GpuProgram> newProgram);
     shared_ptr<GpuProgram> getGpuProgram() const;
 
-    PassParamHandle getPassParamHandle(const std::string &name) const;
-    // NOTE: do not cache return value.
+    PassParamHandle getPassParamHandle(const std::string &name);
+    // NOTE: do not cache return value as vector can be reallocated. Use PassParamHandle instead.
     RenderPassParam* getPassParam(PassParamHandle idx);
     RenderPassParam* getPassParam(const std::string &name);
+    std::vector<RenderPassParam>& getPassParams() { return m_params; }
 
     void setFaceCullMode(FaceCullMode mode);
     void setBlendMode(BlendingMode mode);
@@ -66,8 +72,6 @@ public:
     const std::string& getName() const { return m_name; }
     FaceCullMode getFaceCullMode() const { return m_faceCullMode; }
     BlendingMode getBlendingMode() const { return m_blendMode; }
-
-    void updateProgramParams();
 };
 
 }

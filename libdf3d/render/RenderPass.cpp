@@ -6,7 +6,8 @@
 
 namespace df3d {
 
-RenderPassParam::RenderPassParam()
+RenderPassParam::RenderPassParam(const std::string &name)
+    : m_name(name)
 {
 
 }
@@ -70,22 +71,28 @@ shared_ptr<GpuProgram> RenderPass::getGpuProgram() const
     return m_gpuProgram;
 }
 
-PassParamHandle RenderPass::getPassParamHandle(const std::string &name) const
+PassParamHandle RenderPass::getPassParamHandle(const std::string &name)
 {
-    // TODO_render
-    return 0;
+    auto found = std::find_if(m_params.begin(), m_params.end(), [&name](const RenderPassParam &it) { return it.getName() == name; });
+    if (found == m_params.end())
+    {
+        RenderPassParam newparam(name);
+        m_params.push_back(newparam);
+        return m_params.size() - 1;
+    }
+
+    return std::distance(m_params.begin(), found);
 }
 
 RenderPassParam* RenderPass::getPassParam(PassParamHandle idx)
 {
-    // TODO_render
-    return &m_params.at(42);
+    assert(idx >= 0 && idx < m_params.size());
+    return &m_params[idx];
 }
 
 RenderPassParam* RenderPass::getPassParam(const std::string &name)
 {
-    // TODO_render:
-    return nullptr;
+    return getPassParam(getPassParamHandle(name));
 }
 
 void RenderPass::setFaceCullMode(FaceCullMode mode)
@@ -112,48 +119,6 @@ void RenderPass::enableDepthWrite(bool enable)
 void RenderPass::enableLighting(bool enable)
 {
     m_lightingEnabled = enable;
-}
-
-void RenderPass::updateProgramParams()
-{
-    // TODO_render
-    /*
-    // Update shared uniforms.
-    size_t uniCount = program->getSharedUniformsCount();
-
-    for (size_t i = 0; i < uniCount; i++)
-        m_programState->updateSharedUniform(program->getSharedUniform(i));
-
-    // Update custom uniforms.
-    auto &passParams = pass->getPassParams();
-    uniCount = passParams.size();
-
-    for (size_t i = 0; i < uniCount; i++)
-        passParams[i].updateTo(program);
-
-    // Update samplers.
-    auto &samplers = pass->getSamplers();
-    int textureUnit = 0;
-    for (size_t i = 0; i < samplers.size(); i++)
-    {
-        shared_ptr<Texture> texture = samplers[i].texture;
-        if (!texture)
-            texture = m_whiteTexture;
-
-        glActiveTexture(GL_TEXTURE0 + textureUnit);
-
-        auto bound = texture->bind();
-        if (!bound)
-        {
-            texture = m_whiteTexture;
-            texture->bind();
-        }
-
-        samplers[i].update(program, textureUnit);
-
-        textureUnit++;
-    }
-    */
 }
 
 }

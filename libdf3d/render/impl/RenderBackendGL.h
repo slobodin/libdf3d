@@ -88,9 +88,6 @@ public:
     void bindGpuProgram(GpuProgramDescriptor program) override;
 
     void setViewport(int x, int y, int width, int height) override;
-    void setWorldMatrix(const glm::mat4 &worldm) override;
-    void setCameraMatrix(const glm::mat4 &viewm) override;
-    void setProjectionMatrix(const glm::mat4 &projm) override;
 
     void clearColorBuffer(const glm::vec4 &color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)) override;
     void clearDepthBuffer() override;

@@ -21,7 +21,7 @@ void WorldRenderingParams::setAmbientLight(float ra, float ga, float ba)
     m_ambientLight.b = utils::clamp(ba, 0.0f, 1.0f);
 }
 
-glm::vec3 WorldRenderingParams::getAmbientLight() const
+const glm::vec3& WorldRenderingParams::getAmbientLight() const
 {
     return m_ambientLight;
 }
@@ -42,7 +42,7 @@ float WorldRenderingParams::getFogDensity() const
     return m_fogDensity;
 }
 
-glm::vec3 WorldRenderingParams::getFogColor() const
+const glm::vec3& WorldRenderingParams::getFogColor() const
 {
     return m_fogColor;
 }

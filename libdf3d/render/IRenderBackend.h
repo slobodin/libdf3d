@@ -14,6 +14,7 @@ struct RenderBackendCaps
 class PixelBuffer;
 class TextureCreationParams;
 
+// Inspired by https://github.com/bkaradzic/bgfx
 class IRenderBackend
 {
 public:
@@ -54,9 +55,6 @@ public:
     virtual void bindGpuProgram(GpuProgramDescriptor program) = 0;
 
     virtual void setViewport(int x, int y, int width, int height) = 0;
-    virtual void setWorldMatrix(const glm::mat4 &worldm) = 0;
-    virtual void setCameraMatrix(const glm::mat4 &viewm) = 0;
-    virtual void setProjectionMatrix(const glm::mat4 &projm) = 0;
 
     virtual void clearColorBuffer(const glm::vec4 &color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)) = 0;
     virtual void clearDepthBuffer() = 0;

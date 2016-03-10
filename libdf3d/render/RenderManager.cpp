@@ -19,6 +19,7 @@
 #include "Viewport.h"
 #include "RenderQueue.h"
 #include "IRenderBackend.h"
+#include "GpuProgramSharedState.h"
 
 namespace df3d {
 
@@ -36,6 +37,7 @@ void RenderManager::onFrameBegin()
     m_depthTestOverriden = false;
     m_depthWriteOverriden = false;
 
+    m_sharedState->clear();
     m_renderBackend->frameBegin();
 
     m_renderBackend->clearColorBuffer();
@@ -59,18 +61,15 @@ void RenderManager::doRenderWorld(World &world)
 
     world.collectRenderOperations(m_renderQueue.get());
 
-    m_renderBackend->setProjectionMatrix(world.getCamera()->getProjectionMatrix());
+    m_sharedState->setProjectionMatrix(world.getCamera()->getProjectionMatrix());
 
     m_renderBackend->clearColorBuffer();
     m_renderBackend->clearDepthBuffer();
 
-    // TODO_render
-    /*
-    m_renderer->setAmbientLight(world.getRenderingParams().getAmbientLight());
-    m_renderer->enableFog(world.getRenderingParams().getFogDensity(), world.getRenderingParams().getFogColor());
-    */
+    m_sharedState->setAmbientColor(world.getRenderingParams().getAmbientLight());
+    m_sharedState->setFog(world.getRenderingParams().getFogDensity(), world.getRenderingParams().getFogColor());
 
-    m_renderBackend->setCameraMatrix(world.getCamera()->getViewMatrix());
+    m_sharedState->setViewMatrix(world.getCamera()->getViewMatrix());
 
     m_renderQueue->sort();
 
@@ -84,7 +83,7 @@ void RenderManager::doRenderWorld(World &world)
 
     for (const auto &op : m_renderQueue->litOpaqueOperations)
     {
-        m_renderBackend->setWorldMatrix(op.worldTransform);
+        m_sharedState->setWorldMatrix(op.worldTransform);
 
         // TODO_render
         /*
@@ -107,15 +106,12 @@ void RenderManager::doRenderWorld(World &world)
 
     for (const auto &op : m_renderQueue->litOpaqueOperations)
     {
-        m_renderBackend->setWorldMatrix(op.worldTransform);
+        m_sharedState->setWorldMatrix(op.worldTransform);
         // TODO: bind pass only once
 
         for (const auto &light : m_renderQueue->lights)
         {
-            // TODO_render
-            /*
-            m_renderer->setLight(*light);
-            */
+            m_sharedState->setLight(*light);
 
             // TODO_render: update ONLY light uniforms.
             bindPass(op.passProps);
@@ -153,16 +149,16 @@ void RenderManager::doRenderWorld(World &world)
         }
     }
 
-    m_renderBackend->setProjectionMatrix(glm::ortho(0.0f, (float)m_viewport.width(), (float)m_viewport.height(), 0.0f));
-    m_renderBackend->setCameraMatrix(glm::mat4(1.0f));
+    m_sharedState->setProjectionMatrix(glm::ortho(0.0f, (float)m_viewport.width(), (float)m_viewport.height(), 0.0f));
+    m_sharedState->setViewMatrix(glm::mat4(1.0f));
 
     // 2D ops pass.
     for (const auto &op : m_renderQueue->sprite2DOperations)
         drawRenderOperation(op);
 
     // Draw GUI.
-    m_renderBackend->setProjectionMatrix(glm::ortho(0.0f, (float)m_viewport.width(), (float)m_viewport.height(), 0.0f));
-    m_renderBackend->setCameraMatrix(glm::mat4(1.0f));
+    m_sharedState->setProjectionMatrix(glm::ortho(0.0f, (float)m_viewport.width(), (float)m_viewport.height(), 0.0f));
+    m_sharedState->setViewMatrix(glm::mat4(1.0f));
 
     svc().guiManager().getContext()->Render();
 }
@@ -180,7 +176,48 @@ void RenderManager::bindPass(RenderPass *pass)
     }
 
     m_renderBackend->bindGpuProgram(gpuProgram->getDescriptor());
-    pass->updateProgramParams();
+
+    // Update pass uniforms.
+    {
+            // TODO_render
+            /*
+            // Update shared uniforms.
+            size_t uniCount = program->getSharedUniformsCount();
+
+            for (size_t i = 0; i < uniCount; i++)
+                m_programState->updateSharedUniform(program->getSharedUniform(i));
+
+            // Update custom uniforms.
+            auto &passParams = pass->getPassParams();
+            uniCount = passParams.size();
+
+            for (size_t i = 0; i < uniCount; i++)
+                passParams[i].updateTo(program);
+
+            // Update samplers.
+            auto &samplers = pass->getSamplers();
+            int textureUnit = 0;
+            for (size_t i = 0; i < samplers.size(); i++)
+            {
+                shared_ptr<Texture> texture = samplers[i].texture;
+                if (!texture)
+                    texture = m_whiteTexture;
+
+                glActiveTexture(GL_TEXTURE0 + textureUnit);
+
+                auto bound = texture->bind();
+                if (!bound)
+                {
+                    texture = m_whiteTexture;
+                    texture->bind();
+                }
+
+                samplers[i].update(program, textureUnit);
+
+                textureUnit++;
+            }
+            */
+    }
 
     if (!m_depthTestOverriden)
         m_renderBackend->enableDepthTest(pass->isDepthTestEnabled());
@@ -198,6 +235,7 @@ RenderManager::RenderManager(EngineInitParams params)
     m_viewport = Viewport(0, 0, params.windowWidth, params.windowHeight);
 
     m_renderBackend = IRenderBackend::create();
+    m_sharedState = make_unique<GpuProgramSharedState>();
 }
 
 RenderManager::~RenderManager()
@@ -222,7 +260,7 @@ void RenderManager::drawRenderOperation(const RenderOperation &op)
         return;
     }
 
-    m_renderBackend->setWorldMatrix(op.worldTransform);
+    m_sharedState->setWorldMatrix(op.worldTransform);
     m_renderBackend->bindVertexBuffer(op.vertexBuffer);
     if (op.indexBuffer.valid())
         m_renderBackend->bindIndexBuffer(op.indexBuffer);

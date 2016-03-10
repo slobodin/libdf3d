@@ -13,6 +13,7 @@ class RenderQueue;
 class RenderPass;
 class World;
 class RenderOperation;
+class GpuProgramSharedState;
 
 class DF3D_DLL RenderManager : utils::NonCopyable
 {
@@ -21,6 +22,7 @@ class DF3D_DLL RenderManager : utils::NonCopyable
     EngineInitParams m_initParams;
     unique_ptr<RenderQueue> m_renderQueue;
     unique_ptr<IRenderBackend> m_renderBackend;
+    unique_ptr<GpuProgramSharedState> m_sharedState;
 
     Viewport m_viewport;
 
