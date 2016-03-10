@@ -363,33 +363,34 @@ class MaterialLibParser
             }
         }
 
-        // Get material shader and sampler params.
-        // Do not allow to use several shader{} and shader_params{} nodes.
-        bool shaderSet = false;
+        // Set other pass params before setting a gpu program.
+        // Do not allow to use several shader_params{} nodes.
         bool shaderParamsSet = false;
         for (const auto &n : node.children)
         {
-            if (n->type == SHADER_TYPE && !shaderSet)
+            if (n->type == SAMPLER_TYPE)
             {
-                auto gpuProgram = parseShaderNode(*n);
-                pass->setGpuProgram(gpuProgram);
-                shaderSet = true;
+                auto texture = parseSamplerNode(*n);
+                pass->getPassParam(n->name)->setValue(texture);
             }
             else if (n->type == SHADER_PARAMS_TYPE && !shaderParamsSet)
             {
                 parseShaderParamsNode(*n, pass);
                 shaderParamsSet = true;
             }
-            else if (n->type == SAMPLER_TYPE)
-            {
-                auto texture = parseSamplerNode(*n);
-                pass->getPassParam(n->name)->setValue(texture);
-            }
         }
 
-        // FIXME: implicit assumption. Setting up default lighting when no shader provided.
-        if (pass->isLit() && !pass->getGpuProgram())
-            pass->setGpuProgram(svc().resourceManager().getFactory().createSimpleLightingGpuProgram());
+        // Get material shader.
+        // Do not allow to use several shader{} nodes.
+        for (const auto &n : node.children)
+        {
+            if (n->type == SHADER_TYPE)
+            {
+                auto gpuProgram = parseShaderNode(*n);
+                pass->setGpuProgram(gpuProgram);
+                break;
+            }
+        }
 
         return pass;
     }
@@ -403,6 +404,8 @@ class MaterialLibParser
             std::string embedProgramName = embedProgramFound->second;
             if (embedProgramName == "colored")
                 return svc().resourceManager().getFactory().createColoredGpuProgram();
+            else if (embedProgramName == "simple_lighting")
+                return svc().resourceManager().getFactory().createSimpleLightingGpuProgram();
             else
             {
                 glog << "Invalid embed program name" << embedProgramName << logwarn;
@@ -432,10 +435,8 @@ class MaterialLibParser
     shared_ptr<Texture> parseSamplerNode(const MaterialLibNode &node)
     {
         if (!utils::contains_key(node.keyValues, "type"))
-        {
-            glog << "Can not parse sampler. Missing texture type." << logwarn;
+            // Assuming using empty white texture.
             return nullptr;
-        }
 
         auto type = node.keyValues.find("type")->second;
         auto creationParams = getTextureCreationParams(node.keyValues, m_libPath);

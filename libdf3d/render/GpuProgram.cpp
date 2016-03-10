@@ -162,6 +162,14 @@ UniformDescriptor GpuProgram::getCustomUniform(const std::string &name)
     return{};
 }
 
+std::vector<std::string> GpuProgram::getCustomUniformNames() const
+{
+    std::vector<std::string> result;
+    for (const auto &kv : m_customUniforms)
+        result.push_back(kv.first);
+    return result;
+}
+
 ShaderDescriptor GpuProgramManualLoader::createShaderFromFile(const std::string &path) const
 {
     auto file = svc().fileSystem().openFile(path);

@@ -230,11 +230,14 @@ void RenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandl
         m_guipass = make_shared<RenderPass>();
 
         m_guipass->setFaceCullMode(FaceCullMode::NONE);
-        m_guipass->setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
         m_guipass->enableDepthTest(false);
         m_guipass->enableDepthWrite(false);
         m_guipass->setBlendMode(BlendingMode::ALPHA);
+
         m_diffuseMapParam = m_guipass->getPassParamHandle("diffuseMap");
+        m_guipass->getPassParam("material_diffuse")->setValue(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+        m_guipass->setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
     }
 
     auto geom = (CompiledGeometry *)geometry;

@@ -282,7 +282,7 @@ void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
 
 void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diffuseColor)
 {
-    m_pimpl->data.getData(e).pass.getPassParam("diffuseMap")->setValue(diffuseColor);
+    m_pimpl->data.getData(e).pass.getPassParam("material_diffuse")->setValue(diffuseColor);
 }
 
 void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
@@ -297,15 +297,17 @@ void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
 
     data.holder = e;
     data.pass.setFaceCullMode(FaceCullMode::NONE);
-    data.pass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
     data.pass.enableDepthTest(false);
     data.pass.enableDepthWrite(false);
     data.pass.setBlendMode(BlendingMode::ALPHA);
+    data.pass.getPassParam("material_diffuse")->setValue(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
     data.op.worldTransform = m_world->sceneGraph().getWorldTransform(e);
 
     m_pimpl->data.add(e, data);
 
     useTexture(e, texturePath);
+
+    m_pimpl->data.getData(e).pass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
 }
 
 void Sprite2DComponentProcessor::remove(Entity e)

@@ -2,13 +2,14 @@
 
 #include "GpuProgram.h"
 #include "IRenderBackend.h"
+#include <libdf3d/utils/Utils.h>
 
 namespace df3d {
 
 RenderPassParam::RenderPassParam(const std::string &name)
     : m_name(name)
 {
-
+    memset(&m_value, 0, sizeof(m_value));
 }
 
 RenderPassParam::~RenderPassParam()
@@ -52,11 +53,7 @@ void RenderPassParam::updateToProgram(IRenderBackend &backend, GpuProgram &progr
         return;
 #endif
 
-    if (m_descr.valid())
-    {
-        backend.setUniformValue(m_descr, &m_value);
-    }
-    else
+    if (!m_descr.valid())
     {
         auto descr = program.getCustomUniform(m_name);
         if (!descr.valid())
@@ -70,6 +67,9 @@ void RenderPassParam::updateToProgram(IRenderBackend &backend, GpuProgram &progr
 
         m_descr = descr;
     }
+
+    if (m_descr.valid())
+        backend.setUniformValue(m_descr, &m_value);
 }
 
 RenderPass::RenderPass(const std::string &name)
@@ -98,6 +98,19 @@ void RenderPass::setGpuProgram(shared_ptr<GpuProgram> newProgram)
     }
 
     m_gpuProgram = newProgram;
+
+#ifdef _DEBUG
+    auto customUniforms = m_gpuProgram->getCustomUniformNames();
+    std::set<std::string> paramsSet;
+    for (const auto &passParam : m_params)
+        paramsSet.insert(passParam.getName());
+
+    for (const auto &uniformName : customUniforms)
+    {
+        if (!utils::contains_key(paramsSet, uniformName))
+            glog << "A uniform" << uniformName << "doesn't have a value in render pass params" << logwarn;
+    }
+#endif
 }
 
 shared_ptr<GpuProgram> RenderPass::getGpuProgram() const

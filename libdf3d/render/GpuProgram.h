@@ -62,6 +62,7 @@ public:
 
     // NOTE: this method is supposed to be used rarely
     UniformDescriptor getCustomUniform(const std::string &name);
+    std::vector<std::string> getCustomUniformNames() const;
 
     GpuProgramDescriptor getDescriptor() const { return m_descriptor; }
 };

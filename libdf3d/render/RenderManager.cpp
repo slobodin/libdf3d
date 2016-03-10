@@ -76,8 +76,8 @@ void RenderManager::loadEmbedResources()
         factory.createGpuProgram(AMBIENT_PASS_PROGRAM_EMBED_PATH, ambient_vert, ambient_frag)->setResident(true);
     }
 
-    m_ambientPassProps.setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
     m_ambientMtlParam = m_ambientPassProps.getPassParamHandle("material_ambient");
+    m_ambientPassProps.setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
 }
 
 void RenderManager::onFrameBegin()
@@ -124,6 +124,7 @@ void RenderManager::doRenderWorld(World &world)
 
     m_renderQueue->sort();
 
+    /*
     // Ambient pass.
     m_blendModeOverriden = true;
     m_depthTestOverriden = true;
@@ -174,6 +175,7 @@ void RenderManager::doRenderWorld(World &world)
     m_blendModeOverriden = false;
     m_depthTestOverriden = false;
     m_depthWriteOverriden = false;
+    */
 
     // Opaque pass without lights.
     for (const auto &op : m_renderQueue->notLitOpaqueOperations)
@@ -204,9 +206,6 @@ void RenderManager::doRenderWorld(World &world)
         drawRenderOperation(op);
 
     // Draw GUI.
-    m_sharedState->setProjectionMatrix(glm::ortho(0.0f, (float)m_viewport.width(), (float)m_viewport.height(), 0.0f));
-    m_sharedState->setViewMatrix(glm::mat4(1.0f));
-
     svc().guiManager().getContext()->Render();
 }
 
@@ -292,11 +291,11 @@ void RenderManager::drawRenderOperation(const RenderOperation &op)
     }
 
     m_sharedState->setWorldMatrix(op.worldTransform);
+    bindPass(op.passProps);
+
     m_renderBackend->bindVertexBuffer(op.vertexBuffer);
     if (op.indexBuffer.valid())
         m_renderBackend->bindIndexBuffer(op.indexBuffer);
-
-    bindPass(op.passProps);
 
     m_renderBackend->draw(op.type, op.numberOfElements);
 }
