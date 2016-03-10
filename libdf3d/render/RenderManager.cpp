@@ -87,10 +87,7 @@ void RenderManager::doRenderWorld(World &world)
     {
         m_sharedState->setWorldMatrix(op.worldTransform);
 
-        // TODO_render
-        /*
-        m_ambientPassProps->setAmbientColor(op.passProps->getAmbientColor());
-        */
+        m_ambientPassProps.getPassParam(m_ambientMtlParam)->setValue(op.passProps->getAmbientColor());
 
         bindPass(&m_ambientPassProps);
 
@@ -183,42 +180,21 @@ void RenderManager::bindPass(RenderPass *pass)
         // Shared uniforms.
         m_sharedState->updateSharedUniforms(*gpuProgram);
 
+        int textureUnit = 0;
         // Custom uniforms.
         auto &passParams = pass->getPassParams();
         for (auto &passParam : passParams)
         {
-            // TODO_render
-            /*
-            for (size_t i = 0; i < uniCount; i++)
-            passParams[i].updateTo(program);
-            */
-        }
-
-        // Samplers.
-        {
-            /* TODO_render
-                        auto &samplers = pass->getSamplers();
-            int textureUnit = 0;
-            for (size_t i = 0; i < samplers.size(); i++)
+            if (passParam.getTexture())
             {
-                shared_ptr<Texture> texture = samplers[i].texture;
-                if (!texture)
-                    texture = m_whiteTexture;
+                passParam.setValue(textureUnit);
 
-                glActiveTexture(GL_TEXTURE0 + textureUnit);
-
-                auto bound = texture->bind();
-                if (!bound)
-                {
-                    texture = m_whiteTexture;
-                    texture->bind();
-                }
-
-                samplers[i].update(program, textureUnit);
+                m_renderBackend->bindTexture(passParam.getTexture()->getDescriptor(), textureUnit);
 
                 textureUnit++;
             }
-            */
+
+            passParam.updateToProgram(*m_renderBackend, *gpuProgram);
         }
     }
 

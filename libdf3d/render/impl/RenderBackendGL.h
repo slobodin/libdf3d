@@ -77,7 +77,7 @@ public:
     TextureDescriptor createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params) override;
     void destroyTexture(TextureDescriptor t) override;
 
-    void bindTexture(TextureDescriptor t) override;
+    void bindTexture(TextureDescriptor t, int unit) override;
 
     ShaderDescriptor createShader(ShaderType type, const std::string &data) override;
     void destroyShader(ShaderDescriptor shader) override;

@@ -51,12 +51,17 @@ class GpuProgram : public Resource
     GpuProgramDescriptor m_descriptor;
     std::vector<SharedUniform> m_sharedUniforms;
 
+    std::unordered_map<std::string, UniformDescriptor> m_customUniforms;
+
     GpuProgram(GpuProgramDescriptor descr);
 
 public:
     ~GpuProgram();
 
     const std::vector<SharedUniform>& getSharedUniforms() const { return m_sharedUniforms; }
+
+    // NOTE: this method is supposed to be used rarely
+    UniformDescriptor getCustomUniform(const std::string &name);
 
     GpuProgramDescriptor getDescriptor() const { return m_descriptor; }
 };

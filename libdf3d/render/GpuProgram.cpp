@@ -142,12 +142,24 @@ GpuProgram::GpuProgram(GpuProgramDescriptor descr)
 
             m_sharedUniforms.push_back(suni);
         }
+        else
+        {
+            m_customUniforms[uniformNames[i]] = uniforms[i];
+        }
     }
 }
 
 GpuProgram::~GpuProgram()
 {
     svc().renderManager().getBackend().destroyGpuProgram(m_descriptor);
+}
+
+UniformDescriptor GpuProgram::getCustomUniform(const std::string &name)
+{
+    auto found = m_customUniforms.find(name);
+    if (found != m_customUniforms.end())
+        return found->second;
+    return{};
 }
 
 ShaderDescriptor GpuProgramManualLoader::createShaderFromFile(const std::string &path) const

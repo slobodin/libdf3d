@@ -6,27 +6,41 @@ namespace df3d {
 
 class Texture;
 class GpuProgram;
+class IRenderBackend;
 
 class DF3D_DLL RenderPassParam
 {
     std::string m_name;
     UniformDescriptor m_descr;
 
+#ifdef _DEBUG
+    bool m_bindingFailed = false;
+#endif
+
+    union
+    {
+        int intVal;
+        float floatVal;
+        float vec4Val[4];
+    } m_value;
+
+    shared_ptr<Texture> m_texture;
+
 public:
     RenderPassParam(const std::string &name);
-    // TODO_render: copy ctor
     ~RenderPassParam();
-
-    UniformDescriptor getUniform() { return m_descr; }
-    void setUniform(UniformDescriptor descr) { m_descr = descr; }
 
     const std::string& getName() const { return m_name; }
 
+    void setValue(int val);
     void setValue(float val);
     void setValue(const glm::vec4 &val);
     void setValue(shared_ptr<Texture> texture);
 
     shared_ptr<Texture> getTexture();
+
+    // TODO_render think about this method.
+    void updateToProgram(IRenderBackend &backend, GpuProgram &program);
 };
 
 using PassParamHandle = size_t;

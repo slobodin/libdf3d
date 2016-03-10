@@ -1,8 +1,7 @@
 #include "RenderPass.h"
 
-#include <libdf3d/base/EngineController.h>
-#include <libdf3d/resources/ResourceManager.h>
-#include <libdf3d/resources/ResourceFactory.h>
+#include "GpuProgram.h"
+#include "IRenderBackend.h"
 
 namespace df3d {
 
@@ -17,25 +16,59 @@ RenderPassParam::~RenderPassParam()
 
 }
 
+void RenderPassParam::setValue(int val)
+{
+    m_value.intVal = val;
+}
+
 void RenderPassParam::setValue(float val)
 {
-    // TODO_render
+    m_value.floatVal = val;
 }
 
 void RenderPassParam::setValue(const glm::vec4 &val)
 {
-    // TODO_render
+    m_value.vec4Val[0] = val.x;
+    m_value.vec4Val[1] = val.y;
+    m_value.vec4Val[2] = val.z;
+    m_value.vec4Val[3] = val.w;
 }
 
 void RenderPassParam::setValue(shared_ptr<Texture> texture)
 {
-    // TODO_render
+    m_texture = texture;
 }
 
 shared_ptr<Texture> RenderPassParam::getTexture()
 {
-    // TODO_render
-    return nullptr;
+    return m_texture;
+}
+
+void RenderPassParam::updateToProgram(IRenderBackend &backend, GpuProgram &program)
+{
+#ifdef _DEBUG
+    if (m_bindingFailed)
+        return;
+#endif
+
+    if (m_descr.valid())
+    {
+        backend.setUniformValue(m_descr, &m_value);
+    }
+    else
+    {
+        auto descr = program.getCustomUniform(m_name);
+        if (!descr.valid())
+        {
+#ifdef _DEBUG
+            glog << "Failed to lookup uniform" << m_name << "in a shader" << logwarn;
+            m_bindingFailed = true;
+            return;
+#endif
+        }
+
+        m_descr = descr;
+    }
 }
 
 RenderPass::RenderPass(const std::string &name)

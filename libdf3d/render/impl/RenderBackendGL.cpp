@@ -618,7 +618,7 @@ void RenderBackendGL::destroyTexture(TextureDescriptor t)
     */
 }
 
-void RenderBackendGL::bindTexture(TextureDescriptor t)
+void RenderBackendGL::bindTexture(TextureDescriptor t, int unit)
 {
     /*
     if (!isInitialized())
@@ -639,6 +639,30 @@ void RenderBackendGL::bindTexture(TextureDescriptor t)
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_glid);
 
     return true;*/
+
+    /* TODO_render
+    auto &samplers = pass->getSamplers();
+
+    for (size_t i = 0; i < samplers.size(); i++)
+    {
+    shared_ptr<Texture> texture = samplers[i].texture;
+    if (!texture)
+    texture = m_whiteTexture;
+
+    glActiveTexture(GL_TEXTURE0 + textureUnit);
+
+    auto bound = texture->bind();
+    if (!bound)
+    {
+    texture = m_whiteTexture;
+    texture->bind();
+    }
+
+    samplers[i].update(program, textureUnit);
+
+
+    }
+    */
 }
 
 df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std::string &data)
