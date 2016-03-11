@@ -76,7 +76,10 @@ int BulletDebugDraw::getDebugMode() const
 void BulletDebugDraw::clean()
 {
     if (m_vertexBuffer.valid())
+    {
         svc().renderManager().getBackend().destroyVertexBuffer(m_vertexBuffer);
+        m_vertexBuffer = {};
+    }
     m_vertexData.clear();
 }
 
