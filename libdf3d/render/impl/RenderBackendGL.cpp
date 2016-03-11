@@ -416,7 +416,7 @@ void RenderBackendGL::updateIndexBuffer(IndexBufferDescriptor ib, size_t indices
 {
     DESCRIPTOR_CHECK(ib);
 
-    const auto &indexBuffer = m_vertexBuffers[ib.id];
+    const auto &indexBuffer = m_indexBuffers[ib.id];
 
     auto bytesUpdating = indicesCount * sizeof(INDICES_TYPE);
 

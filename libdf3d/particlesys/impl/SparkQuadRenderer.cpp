@@ -57,7 +57,6 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
     nbParticles = std::max(nbParticles, INITIAL_CAPACITY);
 
     // Allocate main memory storage copy (no glMapBuffer on ES2.0)
-    delete [] m_vertexData;
     m_vertexData = new SpkVertexData[nbParticles * QUAD_VERTICES_PER_PARTICLE];
 
     // Allocate GPU storage.
@@ -103,6 +102,9 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
 
 void ParticleSystemBuffers_Quad::draw(size_t nbOfParticles, RenderPass *passProps, const glm::mat4 &m)
 {
+    if (nbOfParticles == 0)
+        return;
+
     assert(nbOfParticles <= m_particlesAllocated);
 
     // Refill GPU with new data (only vertices have been changed).

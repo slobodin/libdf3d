@@ -152,15 +152,18 @@ void RenderManager::doRenderWorld(World &world)
 
     for (const auto &op : m_renderQueue->litOpaqueOperations)
     {
+        if (!op.passProps->getGpuProgram())
+            continue;
+
         m_sharedState->setWorldMatrix(op.worldTransform);
-        // TODO: bind pass only once
+
+        bindPass(op.passProps);
 
         for (const auto &light : m_renderQueue->lights)
         {
             m_sharedState->setLight(*light);
 
-            // TODO_render: update ONLY light uniforms.
-            bindPass(op.passProps);
+            m_sharedState->updateSharedUniforms(*op.passProps->getGpuProgram());
 
             m_renderBackend->bindVertexBuffer(op.vertexBuffer);
             if (op.indexBuffer.valid())
@@ -179,8 +182,7 @@ void RenderManager::doRenderWorld(World &world)
         drawRenderOperation(op);
 
     // VFX pass.
-    // TODO_render
-    //world.vfx().draw();
+    world.vfx().draw();
 
     // Transparent pass.
     for (const auto &op : m_renderQueue->transparentOperations)
