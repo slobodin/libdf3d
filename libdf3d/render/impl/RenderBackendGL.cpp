@@ -301,6 +301,9 @@ void RenderBackendGL::frameBegin()
     m_uniformsBag.cleanup();
 
     m_indexedDrawCall = false;
+    m_currentProgram = {};
+    m_currentVertexBuffer = {};
+    m_currentIndexBuffer = {};
 
     glUseProgram(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -363,6 +366,9 @@ void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
 {
     DESCRIPTOR_CHECK(vb);
 
+    if (vb.id == m_currentVertexBuffer.id)
+        return;
+
     const auto &vertexBuffer = m_vertexBuffers[vb.id];
     assert(vertexBuffer.gl_id != 0);
 
@@ -378,6 +384,7 @@ void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
     }
 
     m_indexedDrawCall = false;
+    m_currentVertexBuffer = vb;
 }
 
 void RenderBackendGL::updateVertexBuffer(VertexBufferDescriptor vb, size_t verticesCount, const void *data)
@@ -440,12 +447,16 @@ void RenderBackendGL::bindIndexBuffer(IndexBufferDescriptor ib)
 {
     DESCRIPTOR_CHECK(ib);
 
+    if (ib.id == m_currentIndexBuffer.id)
+        return;
+
     const auto &indexBuffer = m_indexBuffers[ib.id];
     assert(indexBuffer.gl_id != 0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id);
 
     m_indexedDrawCall = true;
+    m_currentIndexBuffer = ib;
 }
 
 void RenderBackendGL::updateIndexBuffer(IndexBufferDescriptor ib, size_t indicesCount, const void *data)
@@ -802,11 +813,15 @@ void RenderBackendGL::bindGpuProgram(GpuProgramDescriptor program)
 {
     DESCRIPTOR_CHECK(program);
 
-    const auto &programGL = m_programs[program.id];
+    if (program.id == m_currentProgram.id)
+        return;
 
+    const auto &programGL = m_programs[program.id];
     assert(programGL.gl_id != 0);
 
     glUseProgram(programGL.gl_id);
+
+    m_currentProgram = program;
 }
 
 void RenderBackendGL::requestUniforms(GpuProgramDescriptor program, std::vector<UniformDescriptor> &outDescr, std::vector<std::string> &outNames)

@@ -94,7 +94,11 @@ class RenderBackendGL : public IRenderBackend
 
     std::unordered_map<int16_t, std::vector<UniformDescriptor>> m_programUniforms;
 
-    bool m_indexedDrawCall = false; // FIXME
+    // Some cached state.
+    GpuProgramDescriptor m_currentProgram;
+    VertexBufferDescriptor m_currentVertexBuffer;
+    IndexBufferDescriptor m_currentIndexBuffer;
+    bool m_indexedDrawCall = false;
 
 public:
     RenderBackendGL();
