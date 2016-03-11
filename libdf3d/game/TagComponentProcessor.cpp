@@ -63,7 +63,8 @@ void TagComponentProcessor::remove(Entity e)
             arrFound->second.erase(e);
         }
 
-        assert(m_tagLookup.erase(e) == 1);
+        auto count = m_tagLookup.erase(e);
+        assert(count == 1);
     }
 }
 

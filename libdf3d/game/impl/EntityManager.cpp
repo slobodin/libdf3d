@@ -38,7 +38,8 @@ void EntityManager::destroy(Entity e)
 {
     assert(e.valid());
 
-    assert(m_entities.erase(e) == 1);
+    auto count = m_entities.erase(e);
+    assert(count == 1);
     // NOTE: component data should be destroyed later via World::cleanStep
 
     m_removed.push_back(e.id);
