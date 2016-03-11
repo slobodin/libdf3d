@@ -93,10 +93,7 @@ void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
 
     assert(!m_vertexBuffer.valid());
 
-    m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(m_vertexData.getFormat(),
-                                                                           m_vertexData.getVerticesCount(),
-                                                                           m_vertexData.getRawData(),
-                                                                           GpuBufferUsageType::STREAM);
+    m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(m_vertexData, GpuBufferUsageType::STREAM);
 
     RenderOperation op;
     op.passProps = m_pass.get();

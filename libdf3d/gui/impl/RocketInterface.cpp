@@ -203,13 +203,13 @@ Rocket::Core::CompiledGeometryHandle RenderInterface::CompileGeometry(Rocket::Co
     }
 
     // Set up vertex buffer.
-    auto vertexBuffer = m_backend.createVertexBuffer(vertexFormat, num_vertices, vertexData.getRawData(), GpuBufferUsageType::STATIC);
+    auto vertexBuffer = m_backend.createVertexBuffer(vertexData, GpuBufferUsageType::STREAM);
 
     // FIXME: this is not 64 bit
     static_assert(sizeof(INDICES_TYPE) == sizeof(int), "rocket indices should be the same as render::INDICES_TYPE");
 
     // Set up index buffer
-    auto indexBuffer = m_backend.createIndexBuffer(num_indices, indices, GpuBufferUsageType::STATIC);
+    auto indexBuffer = m_backend.createIndexBuffer(num_indices, indices, GpuBufferUsageType::STREAM);
 
     CompiledGeometry *geom = new CompiledGeometry();
     geom->texture = m_textures[texture];        // NOTE: can be nullptr. It's okay.

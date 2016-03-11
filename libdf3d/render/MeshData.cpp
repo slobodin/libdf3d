@@ -64,12 +64,8 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
         }
 
         const auto &vertexData = s.getVertexData();
-        const auto &vFormat = vertexData.getFormat();
-        size_t verticesCount = vertexData.getVerticesCount();
-        const void *rawData = vertexData.getRawData();
-        auto vbUsageHint = s.getVertexBufferUsageHint();
 
-        hs.vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(vFormat, verticesCount, rawData, vbUsageHint);
+        hs.vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(vertexData, s.getVertexBufferUsageHint());
 
         if (s.hasIndices())
         {
@@ -84,7 +80,7 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
         }
         else
         {
-            hs.numElementsToRender = verticesCount;
+            hs.numElementsToRender = vertexData.getVerticesCount();
             m_trianglesCount += s.getVertexData().getVerticesCount() / 3;
         }
     }

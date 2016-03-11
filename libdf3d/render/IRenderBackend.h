@@ -71,6 +71,12 @@ public:
 
     // NOTE: do not support other backends for now. So it's static.
     static unique_ptr<IRenderBackend> create();
+
+    // Some helpers as template methods.
+    VertexBufferDescriptor createVertexBuffer(const VertexData &data, GpuBufferUsageType usage)
+    {
+        return createVertexBuffer(data.getFormat(), data.getVerticesCount(), data.getRawData(), usage);
+    }
 };
 
 }

@@ -52,10 +52,7 @@ static VertexBufferDescriptor createQuad(const VertexFormat &vf, float x, float 
         v.setColor({ 1.0f, 1.0f, 1.0f, 1.0f });
     }
 
-    return svc().renderManager().getBackend().createVertexBuffer(vf,
-                                                                 vertexData.getVerticesCount(),
-                                                                 vertexData.getRawData(),
-                                                                 usage);
+    return svc().renderManager().getBackend().createVertexBuffer(vertexData, usage);
 }
 
 struct Sprite2DComponentProcessor::Impl
