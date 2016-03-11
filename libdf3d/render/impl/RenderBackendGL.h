@@ -69,8 +69,8 @@ class RenderBackendGL : public IRenderBackend
 
     struct UniformGL
     {
-        GLenum type;
-        GLint location;
+        GLenum type = GL_INVALID_ENUM;
+        GLint location = -1;
     };
 
     RenderBackendCaps m_caps;

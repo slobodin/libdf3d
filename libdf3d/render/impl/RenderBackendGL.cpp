@@ -378,6 +378,7 @@ void RenderBackendGL::updateVertexBuffer(VertexBufferDescriptor vb, size_t verti
     DESCRIPTOR_CHECK(vb);
 
     const auto &vertexBuffer = m_vertexBuffers[vb.id];
+    assert(vertexBuffer.gl_id != 0);
 
     auto bytesUpdating = verticesCount * vertexBuffer.format->getVertexSize();
 
@@ -445,6 +446,7 @@ void RenderBackendGL::updateIndexBuffer(IndexBufferDescriptor ib, size_t indices
     DESCRIPTOR_CHECK(ib);
 
     const auto &indexBuffer = m_indexBuffers[ib.id];
+    assert(indexBuffer.gl_id != 0);
 
     auto bytesUpdating = indicesCount * sizeof(INDICES_TYPE);
 
@@ -617,8 +619,7 @@ void RenderBackendGL::bindTexture(TextureDescriptor t, int unit)
     DESCRIPTOR_CHECK(t);
 
     const auto &texture = m_textures[t.id];
-    assert(texture.gl_id != 0);
-    assert(texture.type != GL_INVALID_ENUM);
+    assert(texture.gl_id != 0 && texture.type != GL_INVALID_ENUM);
 
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(texture.type, texture.gl_id);
@@ -760,7 +761,7 @@ void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor program)
     const auto &programGL = m_programs[program.id];
 
     glUseProgram(0);
-    if (programGL.gl_id)
+    if (programGL.gl_id != 0)
         glDeleteProgram(programGL.gl_id);
 
     m_programs[program.id] = {};
@@ -773,11 +774,8 @@ void RenderBackendGL::bindGpuProgram(GpuProgramDescriptor program)
     DESCRIPTOR_CHECK(program);
 
     const auto &programGL = m_programs[program.id];
-    if (programGL.gl_id == 0)
-    {
-        assert(false);
-        return;
-    }
+
+    assert(programGL.gl_id != 0);
 
     glUseProgram(programGL.gl_id);
 }
@@ -787,6 +785,8 @@ void RenderBackendGL::requestUniforms(GpuProgramDescriptor program, std::vector<
     DESCRIPTOR_CHECK(program);
 
     const auto &programGL = m_programs[program.id];
+
+    assert(programGL.gl_id != 0);
 
     int total = -1;
     glGetProgramiv(programGL.gl_id, GL_ACTIVE_UNIFORMS, &total);
@@ -829,6 +829,9 @@ void RenderBackendGL::setUniformValue(UniformDescriptor uniform, const void *dat
     DESCRIPTOR_CHECK(uniform);
 
     const auto &uniformGL = m_uniforms[uniform.id];
+
+    assert(uniformGL.type != GL_INVALID_ENUM && uniformGL.location != -1);
+
     switch (uniformGL.type)
     {
     case GL_SAMPLER_2D:
