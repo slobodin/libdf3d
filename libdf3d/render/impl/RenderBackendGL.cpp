@@ -9,19 +9,14 @@ namespace df3d {
 
 static std::string CheckGLError()
 {
-#if defined(DF3D_DESKTOP)
-    std::string errString;
-
-    GLenum errCode = glGetError();
-    if (errCode != GL_NO_ERROR)
-        errString = (char *)gluErrorString(errCode);
-
-    return errString;
-#else
     GLenum errCode = glGetError();
     if (errCode == GL_NO_ERROR)
         return "";
 
+#if defined(DF3D_DESKTOP)
+    std::string errString = (char *)gluErrorString(errCode);
+    return errString;
+#else
     switch (errCode)
     {
     case GL_INVALID_ENUM:
