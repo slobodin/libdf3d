@@ -84,8 +84,6 @@ DF3D_MAKE_DESCRIPTOR(ShaderDescriptor);
 DF3D_MAKE_DESCRIPTOR(GpuProgramDescriptor);
 DF3D_MAKE_DESCRIPTOR(UniformDescriptor);
 
-// TODO_render // FIXME: move to namespace.
-
 namespace render_constants {
 
 extern const DF3D_DLL int ANISOTROPY_LEVEL_MAX;
