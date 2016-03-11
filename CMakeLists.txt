@@ -246,7 +246,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/script/ScriptManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/DescriptorsBag.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MathUtils.cpp

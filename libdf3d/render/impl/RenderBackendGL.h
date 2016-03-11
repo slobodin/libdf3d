@@ -75,12 +75,12 @@ class RenderBackendGL : public IRenderBackend
 
     RenderBackendCaps m_caps;
 
-    utils::DescriptorsBag m_vertexBuffersBag;
-    utils::DescriptorsBag m_indexBuffersBag;
-    utils::DescriptorsBag m_texturesBag;
-    utils::DescriptorsBag m_shadersBag;
-    utils::DescriptorsBag m_gpuProgramsBag;
-    utils::DescriptorsBag m_uniformsBag;
+    utils::DescriptorsBag<int16_t> m_vertexBuffersBag;
+    utils::DescriptorsBag<int16_t> m_indexBuffersBag;
+    utils::DescriptorsBag<int16_t> m_texturesBag;
+    utils::DescriptorsBag<int16_t> m_shadersBag;
+    utils::DescriptorsBag<int16_t> m_gpuProgramsBag;
+    utils::DescriptorsBag<int16_t> m_uniformsBag;
 
     static const int MAX_SIZE = 0xFFF;      // 4k is enough for now.
 
