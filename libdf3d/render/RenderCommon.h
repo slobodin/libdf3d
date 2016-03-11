@@ -91,6 +91,19 @@ extern const DF3D_DLL int NO_ANISOTROPY;
 
 }
 
+struct DF3D_DLL FrameStats
+{
+    size_t drawCalls = 0;
+    size_t totalTriangles = 0;
+    size_t totalLines = 0;
+
+    size_t textures = 0;
+    size_t textureMemoryBytes = 0;
+
+    size_t vertexDataBytes = 0;
+    size_t indexDataBytes = 0;
+};
+
 // FIXME: don't like it.
 class DF3D_DLL RenderingCapabilities
 {

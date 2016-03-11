@@ -1,7 +1,6 @@
 #include "RenderManager.h"
 
 #include <libdf3d/base/EngineController.h>
-#include <libdf3d/base/FrameStats.h>
 #include <libdf3d/base/DebugConsole.h>
 #include <libdf3d/resources/ResourceManager.h>
 #include <libdf3d/resources/ResourceFactory.h>
@@ -320,6 +319,11 @@ const Viewport& RenderManager::getViewport() const
 const RenderingCapabilities& RenderManager::getRenderingCapabilities() const
 {
     return m_initParams.renderingCaps;
+}
+
+const FrameStats& RenderManager::getFrameStats() const
+{
+    return m_renderBackend->getFrameStats();
 }
 
 IRenderBackend& RenderManager::getBackend()

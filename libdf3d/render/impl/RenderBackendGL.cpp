@@ -284,8 +284,15 @@ const RenderBackendCaps& RenderBackendGL::getCaps() const
     return m_caps;
 }
 
+const FrameStats& RenderBackendGL::getFrameStats() const
+{
+    return m_stats;
+}
+
 void RenderBackendGL::frameBegin()
 {
+    m_stats.drawCalls = m_stats.totalLines = m_stats.totalTriangles = 0;
+
     m_vertexBuffersBag.cleanup();
     m_indexBuffersBag.cleanup();
     m_texturesBag.cleanup();
@@ -538,6 +545,9 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixe
 
     m_textures[textureDescr.id] = texture;
 
+    m_stats.textures++;
+    m_stats.textureMemoryBytes += texture.sizeInBytes;
+
     return textureDescr;
 }
 
@@ -595,6 +605,9 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
 
     m_textures[textureDescr.id] = texture;
 
+    m_stats.textures++;
+    m_stats.textureMemoryBytes += texture.sizeInBytes;
+
     return textureDescr;
 }
 
@@ -608,6 +621,10 @@ void RenderBackendGL::destroyTexture(TextureDescriptor t)
     glBindTexture(texture.type, 0);
     if (texture.gl_id)
         glDeleteTextures(1, &texture.gl_id);
+
+    assert(m_stats.textures > 0 && m_stats.textureMemoryBytes >= texture.sizeInBytes);
+    m_stats.textures--;
+    m_stats.textureMemoryBytes -= texture.sizeInBytes;
 
     m_textures[t.id] = {};
 
@@ -981,6 +998,22 @@ void RenderBackendGL::draw(RopType type, size_t numberOfElements)
         glDrawElements(GetGLDrawMode(type), numberOfElements, GL_UNSIGNED_INT, nullptr);
     else
         glDrawArrays(GetGLDrawMode(type), 0, numberOfElements);
+
+    // Update stats.
+    {
+        m_stats.drawCalls++;
+        switch (type)
+        {
+        case RopType::LINES:
+            m_stats.totalLines += numberOfElements / 2;
+            break;
+        case RopType::TRIANGLES:
+            m_stats.totalTriangles += numberOfElements / 3;
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 unique_ptr<IRenderBackend> IRenderBackend::create()

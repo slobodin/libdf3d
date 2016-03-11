@@ -74,6 +74,7 @@ class RenderBackendGL : public IRenderBackend
     };
 
     RenderBackendCaps m_caps;
+    FrameStats m_stats;
 
     utils::DescriptorsBag<int16_t> m_vertexBuffersBag;
     utils::DescriptorsBag<int16_t> m_indexBuffersBag;
@@ -100,6 +101,7 @@ public:
     ~RenderBackendGL();
 
     const RenderBackendCaps& getCaps() const override;
+    const FrameStats& getFrameStats() const override;
 
     void frameBegin() override;
     void frameEnd() override;

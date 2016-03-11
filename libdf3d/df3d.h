@@ -15,7 +15,6 @@
 #include <libdf3d/utils/DescriptorsBag.h>
 
 #include <libdf3d/base/EngineController.h>
-#include <libdf3d/base/FrameStats.h>
 #include <libdf3d/base/DebugConsole.h>
 #include <libdf3d/base/TimeManager.h>
 #include <libdf3d/base/StringTable.h>
