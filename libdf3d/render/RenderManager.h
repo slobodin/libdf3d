@@ -1,65 +1,62 @@
 #pragma once
 
 #include "RenderCommon.h"
+#include "Viewport.h"
+#include "RenderPass.h"
 #include <libdf3d/base/EngineInitParams.h>
 
 namespace df3d {
 
-class RendererBackend;
-class VertexBuffer;
-class GpuProgram;
-class RenderTarget;
-class RenderTargetScreen;
-class RenderTargetTexture;
+class IRenderBackend;
 class Viewport;
 class Material;
 class RenderQueue;
-class RenderPass;
-class RenderOperation;
-class Camera;
 class World;
+class RenderOperation;
+class GpuProgramSharedState;
 
-// Forward renderer.
-class RenderManager : utils::NonCopyable
+class DF3D_DLL RenderManager : utils::NonCopyable
 {
     friend class EngineController;
 
-    unique_ptr<RendererBackend> m_renderer;
     EngineInitParams m_initParams;
-
-    // Ambient pass support.
-    unique_ptr<RenderPass> m_ambientPassProps;
-
-    unique_ptr<RenderTargetScreen> m_screenRt;
-
-    // For postfx support.
-    unique_ptr<RenderTargetTexture> m_textureRt;
-    shared_ptr<VertexBuffer> m_quadVb;
-    unique_ptr<RenderTargetTexture> m_postProcessPassBuffers[2];
-
     unique_ptr<RenderQueue> m_renderQueue;
+    unique_ptr<IRenderBackend> m_renderBackend;
+    unique_ptr<GpuProgramSharedState> m_sharedState;
 
-    void createQuadRenderOperation();
-    void createRenderTargets(const Viewport &vp);
-    void createAmbientPassProps();
+    Viewport m_viewport;
 
-    void postProcessPass(shared_ptr<Material> material);
+    // Forward rendering stuff.
+    unique_ptr<RenderPass> m_ambientPassProps;
+    PassParamHandle m_ambientMtlParam;
+    bool m_blendModeOverriden = false;
+    bool m_depthTestOverriden = false;
+    bool m_depthWriteOverriden = false;
+
+    shared_ptr<Texture> m_whiteTexture;
 
     void loadEmbedResources();
     void onFrameBegin();
     void onFrameEnd();
     void doRenderWorld(World &world);
 
+    void bindPass(RenderPass *pass);
+
 public:
     RenderManager(EngineInitParams params);
     ~RenderManager();
 
+    void initialize();
+    void shutdown();
+
     void drawWorld(World &world);
+    void drawRenderOperation(const RenderOperation &op);
 
-    const RenderTargetScreen& getScreenRenderTarget() const;
+    const Viewport& getViewport() const;
     const RenderingCapabilities& getRenderingCapabilities() const;
+    const FrameStats& getFrameStats() const;
 
-    RendererBackend* getRenderer();
+    IRenderBackend& getBackend();
 };
 
 }

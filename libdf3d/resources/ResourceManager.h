@@ -50,13 +50,15 @@ private:
     void doRequest(DecodeRequest req);
 
     shared_ptr<Resource> findResource(const std::string &guid) const;
-    shared_ptr<Resource> loadManual(shared_ptr<ManualResourceLoader> loader);
+    shared_ptr<Resource> loadManual(ManualResourceLoader &loader);
     shared_ptr<Resource> loadFromFS(const std::string &path, shared_ptr<FSResourceLoader> loader);
 
 public:
     ResourceManager();
     ~ResourceManager();
 
+    void initialize();
+    void shutdown();
     void poll();
 
     //! All resources creation is going through this factory.

@@ -10,10 +10,9 @@
 #include <libdf3d/render/GpuProgram.h>
 #include <libdf3d/render/Texture.h>
 #include <libdf3d/render/RenderOperation.h>
-#include <libdf3d/render/VertexIndexBuffer.h>
 #include <libdf3d/render/RenderPass.h>
-#include <libdf3d/render/RendererBackend.h>
-#include <libdf3d/render/Texture2D.h>
+#include <libdf3d/render/IRenderBackend.h>
+#include <libdf3d/render/Texture.h>
 #include <libdf3d/render/Viewport.h>
 #include <libdf3d/render/RenderCommon.h>
 
@@ -158,12 +157,14 @@ void SystemInterface::JoinPath(Rocket::Core::String& translated_path, const Rock
 struct CompiledGeometry
 {
     shared_ptr<Texture> texture;
-    shared_ptr<VertexBuffer> vb;
-    shared_ptr<IndexBuffer> ib;
+    VertexBufferDescriptor vertexBuffer;
+    IndexBufferDescriptor indexBuffer;
+    size_t count;
 };
 
 RenderInterface::RenderInterface()
-    : m_textureId(0)
+    : m_textureId(0),
+    m_backend(svc().renderManager().getBackend())
 {
 
 }
@@ -187,13 +188,12 @@ Rocket::Core::CompiledGeometryHandle RenderInterface::CompileGeometry(Rocket::Co
                                                                          int *indices, int num_indices,
                                                                          Rocket::Core::TextureHandle texture)
 {
-    VertexFormat vertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
-
     // FIXME: can map directly to vertexBuffer if Rocket::Core::Vertex is the same layout as internal vertex buffer storage.
-    VertexData vertexData(vertexFormat);
+    VertexData vertexData(vertex_formats::p3_tx2_c4);
+    vertexData.allocVertices(num_vertices);
     for (int i = 0; i < num_vertices; i++)
     {
-        auto v = vertexData.allocVertex();
+        auto v = vertexData.getVertex(i);
 
         v.setPosition({ vertices[i].position.x, vertices[i].position.y, 0.0f });
         v.setTx({ vertices[i].tex_coord.x, vertices[i].tex_coord.y });
@@ -201,20 +201,19 @@ Rocket::Core::CompiledGeometryHandle RenderInterface::CompileGeometry(Rocket::Co
     }
 
     // Set up vertex buffer.
-    auto vertexBuffer = make_shared<VertexBuffer>(vertexFormat);
-    vertexBuffer->alloc(vertexData, GpuBufferUsageType::STATIC);
+    auto vertexBuffer = m_backend.createVertexBuffer(vertexData, GpuBufferUsageType::STREAM);
 
     // FIXME: this is not 64 bit
     static_assert(sizeof(INDICES_TYPE) == sizeof(int), "rocket indices should be the same as render::INDICES_TYPE");
 
     // Set up index buffer
-    auto indexBuffer = make_shared<IndexBuffer>();
-    indexBuffer->alloc(num_indices, indices, GpuBufferUsageType::STATIC);
+    auto indexBuffer = m_backend.createIndexBuffer(num_indices, indices, GpuBufferUsageType::STREAM);
 
     CompiledGeometry *geom = new CompiledGeometry();
     geom->texture = m_textures[texture];        // NOTE: can be nullptr. It's okay.
-    geom->vb = vertexBuffer;
-    geom->ib = indexBuffer;
+    geom->vertexBuffer = vertexBuffer;
+    geom->indexBuffer = indexBuffer;
+    geom->count = num_indices;
 
     return (Rocket::Core::CompiledGeometryHandle)geom;
 }
@@ -229,40 +228,49 @@ void RenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandl
     {
         m_guipass = make_shared<RenderPass>();
 
-        m_guipass->setFaceCullMode(RenderPass::FaceCullMode::NONE);
-        m_guipass->setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
+        m_guipass->setFaceCullMode(FaceCullMode::NONE);
         m_guipass->enableDepthTest(false);
         m_guipass->enableDepthWrite(false);
-        m_guipass->setBlendMode(RenderPass::BlendingMode::ALPHA);
+        m_guipass->setBlendMode(BlendingMode::ALPHA);
+
+        m_diffuseMapParam = m_guipass->getPassParamHandle("diffuseMap");
+        m_guipass->getPassParam("material_diffuse")->setValue(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+        m_guipass->setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
     }
 
     auto geom = (CompiledGeometry *)geometry;
 
-    m_guipass->setSampler("diffuseMap", geom->texture);
+    m_guipass->getPassParam(m_diffuseMapParam)->setValue(geom->texture);
 
     RenderOperation op;
-    op.vertexData = geom->vb.get();
-    op.indexData = geom->ib.get();
+    op.vertexBuffer = geom->vertexBuffer;
+    op.indexBuffer = geom->indexBuffer;
     op.passProps = m_guipass.get();
+    op.numberOfElements = geom->count;
     op.worldTransform = glm::translate(glm::vec3(translation.x, translation.y, 0.0f));
 
-    svc().renderManager().getRenderer()->drawOperation(op);
+    svc().renderManager().drawRenderOperation(op);
 }
 
 void RenderInterface::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry)
 {
     auto geom = (CompiledGeometry *)geometry;
+
+    m_backend.destroyVertexBuffer(geom->vertexBuffer);
+    m_backend.destroyIndexBuffer(geom->indexBuffer);
+
     delete geom;
 }
 
 void RenderInterface::EnableScissorRegion(bool enable)
 {
-    svc().renderManager().getRenderer()->enableScissorTest(enable);
+    m_backend.enableScissorTest(enable);
 }
 
 void RenderInterface::SetScissorRegion(int x, int y, int width, int height)
 {
-    svc().renderManager().getRenderer()->setScissorRegion(x, (int)svc().getScreenSize().y - (y + height), width, height);
+    m_backend.setScissorRegion(x, (int)svc().getScreenSize().y - (y + height), width, height);
 }
 
 bool RenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle,
@@ -272,7 +280,7 @@ bool RenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle,
     TextureCreationParams params;
     params.setFiltering(TextureFiltering::BILINEAR);
     params.setMipmapped(false);
-    params.setAnisotropyLevel(NO_ANISOTROPY);
+    params.setAnisotropyLevel(render_constants::NO_ANISOTROPY);
 
     auto texture = svc().resourceManager().getFactory().createTexture(source.CString(), params, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->isInitialized())
@@ -281,8 +289,8 @@ bool RenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle,
     m_textures[++m_textureId] = texture;
     texture_handle = m_textureId;
 
-    texture_dimensions.x = texture->getOriginalWidth();
-    texture_dimensions.y = texture->getOriginalHeight();
+    texture_dimensions.x = texture->getTextureInfo().width;
+    texture_dimensions.y = texture->getTextureInfo().height;
 
     return true;
 }
@@ -293,7 +301,7 @@ bool RenderInterface::GenerateTexture(Rocket::Core::TextureHandle& texture_handl
 {
     TextureCreationParams params;
     params.setMipmapped(false);
-    params.setAnisotropyLevel(NO_ANISOTROPY);
+    params.setAnisotropyLevel(render_constants::NO_ANISOTROPY);
     params.setFiltering(TextureFiltering::BILINEAR);
 
     auto pb = make_unique<PixelBuffer>(source_dimensions.x, source_dimensions.y, source, PixelFormat::RGBA);

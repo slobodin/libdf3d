@@ -15,7 +15,7 @@
 
 namespace df3d {
 
-void printfunc(HSQUIRRELVM v, const SQChar *s, ...)
+static void printfunc(HSQUIRRELVM v, const SQChar *s, ...)
 {
     va_list arglist;
     va_start(arglist, s);
@@ -29,6 +29,16 @@ void printfunc(HSQUIRRELVM v, const SQChar *s, ...)
 }
 
 ScriptManager::ScriptManager()
+{
+
+}
+
+ScriptManager::~ScriptManager()
+{
+
+}
+
+void ScriptManager::initialize()
 {
     glog << "Starting Squirrel" << logmess;
 
@@ -55,9 +65,10 @@ ScriptManager::ScriptManager()
     //script_impl::bindDf3d(m_squirrel);
 }
 
-ScriptManager::~ScriptManager()
+void ScriptManager::shutdown()
 {
     sq_close(m_squirrel);
+    m_squirrel = nullptr;
 }
 
 bool ScriptManager::doFile(const std::string &fileName)
@@ -93,9 +104,7 @@ bool ScriptManager::doString(const SQChar *str)
     if (!squirrelScript.CompileString(str, errMsg))
     {
         glog << "Failed to compile squirrel script:" << errMsg.c_str() << logwarn;
-#ifdef _DEBUG
         DEBUG_BREAK();
-#endif
 
         return false;
     }
@@ -103,9 +112,8 @@ bool ScriptManager::doString(const SQChar *str)
     if (!squirrelScript.Run(errMsg))
     {
         glog << "Failed to run squirrel script:" << errMsg.c_str() << logwarn;
-#ifdef _DEBUG
         DEBUG_BREAK();
-#endif
+
         return false;
     }
 

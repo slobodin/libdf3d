@@ -3,7 +3,6 @@
 #include "DebugConsole.h"
 #include "TimeManager.h"
 #include "StringTable.h"
-#include "FrameStats.h"
 #include <libdf3d/render/RenderManager.h>
 #include <libdf3d/3d/Camera.h>
 #include <libdf3d/game/World.h>
@@ -13,7 +12,6 @@
 #include <libdf3d/io/FileSystem.h>
 #include <libdf3d/gui/GuiManager.h>
 #include <libdf3d/audio/AudioManager.h>
-#include <libdf3d/render/RenderTargetScreen.h>
 #include <libdf3d/platform/AppDelegate.h>
 #include <libdf3d/script/ScriptManager.h>
 #include <libdf3d/utils/JsonUtils.h>
@@ -47,9 +45,6 @@ void EngineController::initialize(EngineInitParams params)
         // Create timer.
         m_timer = make_unique<Timer>();
 
-        // Create frame stats.
-        m_frameStats = make_unique<FrameStats>();
-
 #ifdef DF3D_WINDOWS
         platform_impl::CrashHandler::setup();
 #endif
@@ -59,20 +54,19 @@ void EngineController::initialize(EngineInitParams params)
 
         // Init resource manager.
         m_resourceManager = make_unique<ResourceManager>();
+        m_resourceManager->initialize();
 
         // Init render system.
         m_renderManager = make_unique<RenderManager>(params);
+        m_renderManager->initialize();
 
         // Init GUI.
-        m_guiManager = make_unique<GuiManager>(params.windowWidth, params.windowHeight);
+        m_guiManager = make_unique<GuiManager>();
+        m_guiManager->initialize(params.windowWidth, params.windowHeight);
 
         // Init audio subsystem.
         m_audioManager = make_unique<AudioManager>();
-
-        // Load embedded resources.
-        glog << "Loading embedded resources" << logdebug;
-
-        m_renderManager->loadEmbedResources();
+        m_audioManager->initialize();
 
         // Create console.
         if (params.createConsole)
@@ -86,6 +80,7 @@ void EngineController::initialize(EngineInitParams params)
 
         // Startup squirrel.
         m_scriptManager = make_unique<ScriptManager>();
+        m_scriptManager->initialize();
 
         // Allow to a client to listen system time.
         m_systemTimeManager = make_unique<TimeManager>();
@@ -109,9 +104,17 @@ void EngineController::shutdown()
 
     m_world->destroyWorld();
     m_world.reset();
+
+    m_debugConsole.reset();
+
+    m_audioManager->shutdown();
+    m_scriptManager->shutdown();
+    m_guiManager->shutdown();
+    m_renderManager->shutdown();
+    m_resourceManager->shutdown();
+
     m_systemTimeManager.reset();
     m_scriptManager.reset();
-    m_debugConsole.reset();
     m_guiManager.reset();
     m_renderManager.reset();
     m_resourceManager.reset();
@@ -119,7 +122,6 @@ void EngineController::shutdown()
     m_audioManager.reset();
     m_inputManager.reset();
     m_timer.reset();
-    m_frameStats.reset();
 }
 
 void EngineController::step()
@@ -134,8 +136,6 @@ void EngineController::step()
     m_systemTimeManager->update(m_timer->getFrameDelta(TimeChannel::SYSTEM));
     m_world->update();
 
-    // Clear frame stats.
-    m_frameStats->reset();
     // Run frame.
     m_renderManager->drawWorld(*m_world);
 
@@ -149,19 +149,9 @@ void EngineController::setStringTable(const std::string &stringTablePath)
     m_stringTable = make_unique<StringTable>(stringTablePath);
 }
 
-const FrameStats& EngineController::getFrameStats() const
-{
-    return *m_frameStats;
-}
-
-FrameStats& EngineController::getFrameStats()
-{
-    return *m_frameStats;
-}
-
 glm::vec2 EngineController::getScreenSize() const
 {
-    const auto &vp = m_renderManager->getScreenRenderTarget().getViewport();
+    const auto &vp = m_renderManager->getViewport();
     return glm::vec2(vp.width(), vp.height());
 }
 

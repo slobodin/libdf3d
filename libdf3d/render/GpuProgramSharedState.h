@@ -2,14 +2,12 @@
 
 namespace df3d {
 
-class GpuProgramUniform;
-class RenderPass;
 class GpuProgram;
+class Light;
+class Viewport;
 
-class GpuProgramState
+class GpuProgramSharedState
 {
-    friend class RendererBackend;
-
     glm::mat4 m_worldMatrix;
     glm::mat4 m_viewMatrix;
     glm::mat4 m_projMatrix;
@@ -54,12 +52,9 @@ class GpuProgramState
 
     void resetFlags();
 
-    RenderPass *m_currentPass = nullptr;
-    GpuProgram *m_currentShader = nullptr;
-
 public:
-    GpuProgramState() = default;
-    ~GpuProgramState() = default;
+    GpuProgramSharedState() = default;
+    ~GpuProgramSharedState() = default;
 
     const glm::mat4& getWorldMatrix();
     const glm::mat4& getViewMatrix();
@@ -74,21 +69,15 @@ public:
     void setWorldMatrix(const glm::mat4 &worldm);
     void setViewMatrix(const glm::mat4 &viewm);
     void setProjectionMatrix(const glm::mat4 &projm);
+    void setViewPort(const Viewport &viewport);
 
-    void onFrameBegin();
-    void onFrameEnd();
+    void setFog(float density, const glm::vec3 &color);
+    void setAmbientColor(const glm::vec3 &color);
+    void setLight(const Light &light);
 
-    void updateSharedUniform(const GpuProgramUniform &uniform);
+    void clear();
 
-    // TODO:
-    // Get shader uniform.
+    void updateSharedUniforms(const GpuProgram &program);
 };
-
-// render pass have:
-// shared uniforms
-// its own uniforms
-
-// for each uniform in pass
-// uniform->bind to program
 
 }

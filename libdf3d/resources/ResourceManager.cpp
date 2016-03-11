@@ -40,11 +40,11 @@ shared_ptr<Resource> ResourceManager::findResource(const std::string &fullPath) 
     return found->second;
 }
 
-shared_ptr<Resource> ResourceManager::loadManual(shared_ptr<ManualResourceLoader> loader)
+shared_ptr<Resource> ResourceManager::loadManual(ManualResourceLoader &loader)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-    auto resource = shared_ptr<Resource>(loader->load());
+    auto resource = shared_ptr<Resource>(loader.load());
     if (!resource)
     {
         glog << "Failed to manual load a resource" << logwarn;
@@ -124,16 +124,27 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
 
 ResourceManager::ResourceManager()
 {
+
+}
+
+ResourceManager::~ResourceManager()
+{
+
+}
+
+void ResourceManager::initialize()
+{
     m_threadPool = make_unique<utils::ThreadPool>(2);
     m_factory = make_unique<ResourceFactory>(this);
 }
 
-ResourceManager::~ResourceManager()
+void ResourceManager::shutdown()
 {
     //std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     m_threadPool.reset(nullptr);
     m_loadedResources.clear();
+    m_decodedResources.clear();
 }
 
 void ResourceManager::poll()

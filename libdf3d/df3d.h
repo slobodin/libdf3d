@@ -12,9 +12,9 @@
 #include <libdf3d/utils/MeshUtils.h>
 #include <libdf3d/utils/Dict.h>
 #include <libdf3d/utils/Any.h>
+#include <libdf3d/utils/DescriptorsBag.h>
 
 #include <libdf3d/base/EngineController.h>
-#include <libdf3d/base/FrameStats.h>
 #include <libdf3d/base/DebugConsole.h>
 #include <libdf3d/base/TimeManager.h>
 #include <libdf3d/base/StringTable.h>
@@ -34,6 +34,7 @@
 #include <libdf3d/math/OBB.h>
 #include <libdf3d/math/ConvexHull.h>
 
+#include <libdf3d/render/RenderCommon.h>
 #include <libdf3d/render/Material.h>
 #include <libdf3d/render/MaterialLib.h>
 #include <libdf3d/render/Technique.h>
@@ -41,8 +42,9 @@
 #include <libdf3d/render/Viewport.h>
 #include <libdf3d/render/Vertex.h>
 #include <libdf3d/render/MeshData.h>
-#include <libdf3d/render/VertexIndexBuffer.h>
 #include <libdf3d/render/RenderQueue.h>
+#include <libdf3d/render/IRenderBackend.h>
+#include <libdf3d/render/RenderManager.h>
 
 #include <libdf3d/input/InputEvents.h>
 #include <libdf3d/input/InputManager.h>

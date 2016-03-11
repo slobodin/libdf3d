@@ -1,40 +1,70 @@
 #pragma once
 
 #include <libdf3d/resources/Resource.h>
-#include "GpuProgramUniform.h"
+#include "RenderCommon.h"
 
 namespace df3d {
 
-class Shader;
+enum class SharedUniformType
+{
+    WORLD_VIEW_PROJECTION_MATRIX_UNIFORM,
+    WORLD_VIEW_MATRIX_UNIFORM,
+    WORLD_VIEW_3X3_MATRIX_UNIFORM,
+    VIEW_INVERSE_MATRIX_UNIFORM,
+    VIEW_MATRIX_UNIFORM,
+    WORLD_INVERSE_MATRIX_UNIFORM,
+    WORLD_MATRIX_UNIFORM,
+    NORMAL_MATRIX_UNIFORM,
+    PROJECTION_MATRIX_UNIFORM,
+
+    CAMERA_POSITION_UNIFORM,
+
+    GLOBAL_AMBIENT_UNIFORM,
+
+    FOG_DENSITY_UNIFORM,
+    FOG_COLOR_UNIFORM,
+
+    PIXEL_SIZE_UNIFORM,
+
+    ELAPSED_TIME_UNIFORM,
+
+    SCENE_LIGHT_DIFFUSE_UNIFORM,
+    SCENE_LIGHT_SPECULAR_UNIFORM,
+    SCENE_LIGHT_POSITION_UNIFORM,
+    SCENE_LIGHT_KC_UNIFORM,
+    SCENE_LIGHT_KL_UNIFORM,
+    SCENE_LIGHT_KQ_UNIFORM,
+
+    COUNT
+};
+
+struct SharedUniform
+{
+    SharedUniformType type;
+    UniformDescriptor descr;
+};
 
 class GpuProgram : public Resource
 {
     friend class GpuProgramManualLoader;
 
-    unsigned int m_programDescriptor = 0;
+    GpuProgramDescriptor m_descriptor;
+    std::vector<SharedUniform> m_sharedUniforms;
 
-    std::vector<shared_ptr<Shader>> m_shaders;
-    std::vector<GpuProgramUniform> m_sharedUniforms;
-    std::vector<GpuProgramUniform> m_customUniforms;
-    std::vector<GpuProgramUniform> m_samplerUniforms;
+    std::unordered_map<std::string, UniformDescriptor> m_customUniforms;
 
-    bool compileShaders();
-    bool attachShaders();
-    void requestUniforms();
-
-    GpuProgram(const std::vector<shared_ptr<Shader>> &shaders);
+    GpuProgram(GpuProgramDescriptor descr);
 
 public:
     ~GpuProgram();
 
-    void bind();
-    void unbind();
+    const std::vector<SharedUniform>& getSharedUniforms() const { return m_sharedUniforms; }
 
-    const GpuProgramUniform &getSharedUniform(size_t idx) const { return m_sharedUniforms[idx]; }
-    size_t getSharedUniformsCount() const { return m_sharedUniforms.size(); }
+    // NOTE: this method is supposed to be used rarely
+    UniformDescriptor getCustomUniform(const std::string &name);
+    std::vector<std::string> getCustomUniformNames() const;
 
-    GpuProgramUniform* getCustomUniform(const std::string &name);
-    GpuProgramUniform* getSamplerUniform(const std::string &name);
+    GpuProgramDescriptor getDescriptor() const { return m_descriptor; }
 };
 
 class GpuProgramManualLoader : public ManualResourceLoader
@@ -44,6 +74,9 @@ class GpuProgramManualLoader : public ManualResourceLoader
     std::string m_fragmentData;
 
     std::string m_vertexShaderPath, m_fragmentShaderPath;
+
+    ShaderDescriptor createShaderFromFile(const std::string &path) const;
+    ShaderDescriptor createShaderFromString(const std::string &data, ShaderType shaderType) const;
 
 public:
     GpuProgramManualLoader(const std::string &guid, const std::string &vertexData, const std::string &fragmentData);

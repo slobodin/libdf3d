@@ -126,10 +126,10 @@ void bindBase(Table &df3dNamespace)
 {
     {
         Enumeration blendingMode;
-        blendingMode.Const("NONE", static_cast<int>(RenderPass::BlendingMode::NONE));
-        blendingMode.Const("ADDALPHA", static_cast<int>(RenderPass::BlendingMode::ADDALPHA));
-        blendingMode.Const("ALPHA", static_cast<int>(RenderPass::BlendingMode::ALPHA));
-        blendingMode.Const("ADD", static_cast<int>(RenderPass::BlendingMode::ADD));
+        blendingMode.Const("NONE", static_cast<int>(BlendingMode::NONE));
+        blendingMode.Const("ADDALPHA", static_cast<int>(BlendingMode::ADDALPHA));
+        blendingMode.Const("ALPHA", static_cast<int>(BlendingMode::ALPHA));
+        blendingMode.Const("ADD", static_cast<int>(BlendingMode::ADD));
 
         ConstTable().Enum("BlendingMode", blendingMode);
     }

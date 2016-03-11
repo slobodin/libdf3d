@@ -21,12 +21,12 @@ public:
     ~WorldRenderingParams();
 
     void setAmbientLight(float ra, float ga, float ba);
-    glm::vec3 getAmbientLight() const;
+    const glm::vec3& getAmbientLight() const;
 
     void setFog(float density, const glm::vec3 &color);
     void setFog(float density, float r, float g, float b);
     float getFogDensity() const;
-    glm::vec3 getFogColor() const;
+    const glm::vec3& getFogColor() const;
 
     void setPostProcessMaterial(shared_ptr<Material> material);
     shared_ptr<Material> getPostProcessMaterial() const;

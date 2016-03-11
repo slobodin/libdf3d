@@ -2,12 +2,9 @@
 
 #include "SparkCommon.h"
 
-#include <libdf3d/render/Vertex.h>
+#include <libdf3d/render/RenderCommon.h>
 
 namespace df3d {
-
-class VertexBuffer;
-class IndexBuffer;
 
 namespace particlesys_impl {
 
@@ -17,12 +14,10 @@ class MyRenderBuffer;
 class ParticleSystemBuffers_Quad
 {
     const size_t INITIAL_CAPACITY = 64;
-    const VertexFormat VERTEX_FORMAT = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
 
     size_t m_particlesAllocated = 0;
-
-    unique_ptr<VertexBuffer> m_vb;
-    unique_ptr<IndexBuffer> m_ib;
+    VertexBufferDescriptor m_vertexBuffer;
+    IndexBufferDescriptor m_indexBuffer;
 
 #pragma pack(push, 1)
     struct SpkVertexData
@@ -40,6 +35,8 @@ class ParticleSystemBuffers_Quad
     size_t m_currentVertexIndex = 0;
     size_t m_currentColorIndex = 0;
     size_t m_currentTexCoordIndex = 0;
+
+    void cleanup();
 
 public:
     ParticleSystemBuffers_Quad();

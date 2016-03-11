@@ -3,21 +3,37 @@
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/render/RenderManager.h>
 #include <libdf3d/render/RenderPass.h>
-#include <libdf3d/render/RendererBackend.h>
-#include <libdf3d/render/VertexIndexBuffer.h>
+#include <libdf3d/render/IRenderBackend.h>
 #include <libdf3d/render/RenderQueue.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/resources/ResourceFactory.h>
 
 namespace df3d { namespace physics_impl {
 
+static unique_ptr<RenderPass> CreateDebugDrawPass()
+{
+    auto pass = make_unique<RenderPass>("bullet_debug_draw_pass");
+    pass->setFaceCullMode(FaceCullMode::NONE);
+    pass->setBlendMode(BlendingMode::ALPHA);
+    pass->getPassParam("material_diffuse")->setValue(glm::vec4(1.0f, 1.0f, 1.0f, 0.7f));
+    // FIXME: force to use default white texture because using colored shader.
+    pass->getPassParam("diffuseMap")->setValue(nullptr);
+
+    auto program = svc().resourceManager().getFactory().createColoredGpuProgram();
+    pass->setGpuProgram(program);
+
+    return pass;
+}
+
 BulletDebugDraw::BulletDebugDraw()
-    : m_vertexData(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 }))
+    : m_vertexData(vertex_formats::p3_tx2_c4)
 {
 
 }
 
 BulletDebugDraw::~BulletDebugDraw()
 {
-
+    clean();
 }
 
 void BulletDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)
@@ -59,7 +75,11 @@ int BulletDebugDraw::getDebugMode() const
 
 void BulletDebugDraw::clean()
 {
-    m_vertexBuffer.reset();
+    if (m_vertexBuffer.valid())
+    {
+        svc().renderManager().getBackend().destroyVertexBuffer(m_vertexBuffer);
+        m_vertexBuffer = {};
+    }
     m_vertexData.clear();
 }
 
@@ -69,19 +89,17 @@ void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
         return;
 
     if (!m_pass)
-    {
-        m_pass = make_shared<RenderPass>(RenderPass::createDebugDrawPass());
-        m_pass->setDiffuseColor(1.0f, 1.0f, 1.0f, 0.7f);
-        m_pass->setSampler("diffuseMap", std::shared_ptr<Texture>());          // FIXME: force to use default white texture because using colored shader.
-    }
+        m_pass = CreateDebugDrawPass();
 
-    m_vertexBuffer = make_shared<VertexBuffer>(m_vertexData.getFormat());
-    m_vertexBuffer->alloc(m_vertexData, GpuBufferUsageType::STREAM);
+    assert(!m_vertexBuffer.valid());
+
+    m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(m_vertexData, GpuBufferUsageType::STREAM);
 
     RenderOperation op;
     op.passProps = m_pass.get();
-    op.vertexData = m_vertexBuffer.get();
-    op.type = RenderOperation::Type::LINES;
+    op.vertexBuffer = m_vertexBuffer;
+    op.numberOfElements = m_vertexData.getVerticesCount();
+    op.type = RopType::LINES;
 
     ops->debugDrawOperations.push_back(op);
 }

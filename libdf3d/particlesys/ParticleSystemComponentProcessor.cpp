@@ -10,8 +10,6 @@
 #include <libdf3d/3d/SceneGraphComponentProcessor.h>
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/base/TimeManager.h>
-#include <libdf3d/render/Vertex.h>
-#include <libdf3d/render/VertexIndexBuffer.h>
 #include <libdf3d/utils/JsonUtils.h>
 
 namespace df3d {

@@ -6,7 +6,7 @@
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/resources/ResourceManager.h>
 #include <libdf3d/resources/ResourceFactory.h>
-#include <libdf3d/render/Texture2D.h>
+#include <libdf3d/render/Texture.h>
 #include <libdf3d/render/RenderPass.h>
 #include <libdf3d/utils/JsonUtils.h>
 

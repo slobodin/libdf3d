@@ -1,12 +1,5 @@
 "                                           \n\
 \
-struct Material                             \n\
-{                                           \n\
-    vec4 diffuse;                           \n\
-    vec4 specular;                          \n\
-    float shininess;                        \n\
-};                                          \n\
-\
 struct Light                                \n\
 {                                           \n\
     vec3 diffuse;                           \n\
@@ -23,7 +16,9 @@ uniform mat4 u_worldViewMatrix;               \n\
 uniform mat4 u_worldViewProjectionMatrix;     \n\
 uniform mat3 u_normalMatrix;                  \n\
 \
-uniform Material material;                  \n\
+uniform vec4 material_diffuse;                  \n\
+uniform vec4 material_specular;                  \n\
+uniform float material_shininess;                  \n\
 uniform vec4 u_globalAmbient;                 \n\
 uniform Light current_light;                \n\
 \
@@ -46,12 +41,12 @@ void illuminate()                                           \n\
     // FIXME: L is inverted because only dir lights.        \n\
     // Clamping just for sanity check (can't be more than 1.0) \n\
     float lambertDiffuse = clamp(dot(N, -L), 0.0, 1.0);     \n\
-    vec3 diffuse = material.diffuse.rgb * current_light.diffuse * lambertDiffuse;\n\
+    vec3 diffuse = material_diffuse.rgb * current_light.diffuse * lambertDiffuse;\n\
 \
     // Compute specular light. NOTE: Phong model.           \n\
     vec3 r = reflect( L, N );                               \n\
-    float phongSpecular = pow(clamp(dot(r, V), 0.0, 1.0), material.shininess); \n\
-    vec3 specular = material.specular.rgb * current_light.specular * phongSpecular; \n\
+    float phongSpecular = pow(clamp(dot(r, V), 0.0, 1.0), material_shininess); \n\
+    vec3 specular = material_specular.rgb * current_light.specular * phongSpecular; \n\
 \
     color.rgb += diffuse + specular;                        \n\
 }                                                           \n\

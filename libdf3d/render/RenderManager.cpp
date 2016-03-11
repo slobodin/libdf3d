@@ -1,7 +1,6 @@
 #include "RenderManager.h"
 
 #include <libdf3d/base/EngineController.h>
-#include <libdf3d/base/FrameStats.h>
 #include <libdf3d/base/DebugConsole.h>
 #include <libdf3d/resources/ResourceManager.h>
 #include <libdf3d/resources/ResourceFactory.h>
@@ -9,103 +8,99 @@
 #include <libdf3d/game/World.h>
 #include <libdf3d/gui/GuiManager.h>
 #include <libdf3d/particlesys/ParticleSystemComponentProcessor.h>
-#include "RendererBackend.h"
-#include "VertexIndexBuffer.h"
 #include "RenderOperation.h"
 #include "MeshData.h"
-#include "Texture2D.h"
+#include "Texture.h"
 #include "Material.h"
 #include "Technique.h"
 #include "RenderPass.h"
-#include "RenderTargetScreen.h"
-#include "RenderTargetTexture.h"
 #include "GpuProgram.h"
 #include "Viewport.h"
 #include "RenderQueue.h"
+#include "IRenderBackend.h"
+#include "GpuProgramSharedState.h"
 
 namespace df3d {
 
-void RenderManager::createQuadRenderOperation()
-{
-    RenderPass passThrough;
-    passThrough.setFrontFaceWinding(RenderPass::WindingOrder::CCW);
-    passThrough.setFaceCullMode(RenderPass::FaceCullMode::BACK);
-    passThrough.setGpuProgram(svc().resourceManager().getFactory().createRttQuadProgram());
-    passThrough.setBlendMode(RenderPass::BlendingMode::NONE);
-    passThrough.enableDepthTest(false);
-    passThrough.enableDepthWrite(false);
-
-    m_quadVb = createQuad(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2 }), 0.0f, 0.0f, 2.0, 2.0f, GpuBufferUsageType::STATIC);
-}
-
-void RenderManager::createRenderTargets(const Viewport &vp)
-{
-    m_screenRt = make_unique<RenderTargetScreen>(vp);
-    m_textureRt = make_unique<RenderTargetTexture>(vp);
-
-    for (size_t i = 0; i < 2; i++)
-        m_postProcessPassBuffers[i] = make_unique<RenderTargetTexture>(vp);
-}
-
-void RenderManager::createAmbientPassProps()
-{
-    m_ambientPassProps = make_unique<RenderPass>();
-
-    m_ambientPassProps->setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
-}
-
-void RenderManager::postProcessPass(shared_ptr<Material> material)
-{
-    auto tech = material->getCurrentTechnique();
-
-    size_t passCount = tech->getPassCount();
-
-    for (size_t passidx = 0; passidx < passCount; passidx++)
-    {
-        RenderTarget *rt = nullptr;
-
-        // Last pass.
-        if ((passidx + 1) == passCount)
-            rt = m_screenRt.get();
-        else
-            rt = m_postProcessPassBuffers[passidx % 2].get();
-
-        rt->bind();
-
-        m_renderer->clearColorBuffer();
-        m_renderer->clearDepthBuffer();
-
-        RenderOperation quadRo;
-
-        quadRo.vertexData = m_quadVb.get();
-        quadRo.passProps = tech->getPass(passidx).get();
-        quadRo.passProps->setSampler("sceneTexture", m_textureRt->getTexture());
-        if (passidx != 0)
-            quadRo.passProps->setSampler("prevPassBuffer", m_postProcessPassBuffers[(passidx - 1) % 2]->getTexture());
-
-        m_renderer->drawOperation(quadRo);
-
-        rt->unbind();
-    }
-}
-
 void RenderManager::loadEmbedResources()
 {
-    m_renderer->loadResources();
+    // Create white texture.
+    {
+        const auto w = 8;
+        const auto h = 8;
+        const auto pf = PixelFormat::RGBA;
 
-    createRenderTargets(Viewport(0, 0, m_initParams.windowWidth, m_initParams.windowHeight));
-    createQuadRenderOperation();
-    createAmbientPassProps();
+        auto data = new unsigned char[w * h * 4];
+        memset(data, 255, w * h * 4);
+
+        TextureCreationParams params;
+        params.setFiltering(TextureFiltering::NEAREST);
+        params.setMipmapped(false);
+        params.setWrapMode(TextureWrapMode::WRAP);
+        params.setAnisotropyLevel(render_constants::NO_ANISOTROPY);
+
+        auto pb = make_unique<PixelBuffer>(w, h, data, pf);
+
+        m_whiteTexture = svc().resourceManager().getFactory().createTexture(std::move(pb), params);
+        m_whiteTexture->setResident(true);
+
+        delete[] data;
+    }
+
+    // Load resident GPU programs.
+    {
+        const std::string simple_lighting_vert =
+#include "impl/embed_glsl/simple_lighting_vert.h"
+            ;
+        const std::string simple_lighting_frag =
+#include "impl/embed_glsl/simple_lighting_frag.h"
+            ;
+        const std::string colored_vert =
+#include "impl/embed_glsl/colored_vert.h"
+            ;
+        const std::string colored_frag =
+#include "impl/embed_glsl/colored_frag.h"
+            ;
+        const std::string ambient_vert =
+#include "impl/embed_glsl/ambient_vert.h"
+            ;
+        const std::string ambient_frag =
+#include "impl/embed_glsl/ambient_frag.h"
+            ;
+
+        auto &factory = svc().resourceManager().getFactory();
+
+        factory.createGpuProgram(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH, simple_lighting_vert, simple_lighting_frag)->setResident(true);
+        factory.createGpuProgram(COLORED_PROGRAM_EMBED_PATH, colored_vert, colored_frag)->setResident(true);
+        factory.createGpuProgram(AMBIENT_PASS_PROGRAM_EMBED_PATH, ambient_vert, ambient_frag)->setResident(true);
+    }
+
+    m_ambientPassProps = make_unique<RenderPass>();
+    m_ambientMtlParam = m_ambientPassProps->getPassParamHandle("material_ambient");
+    m_ambientPassProps->setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
 }
 
 void RenderManager::onFrameBegin()
 {
-    m_renderer->beginFrame();
+    m_blendModeOverriden = false;
+    m_depthTestOverriden = false;
+    m_depthWriteOverriden = false;
+
+    m_sharedState->clear();
+    m_renderBackend->frameBegin();
+
+    m_renderBackend->clearColorBuffer();
+    m_renderBackend->clearDepthBuffer();
+    m_renderBackend->clearStencilBuffer();
+    m_renderBackend->enableDepthTest(true);
+    m_renderBackend->enableDepthWrite(true);
+    m_renderBackend->enableScissorTest(false);
+    m_renderBackend->setBlendingMode(BlendingMode::NONE);
 }
 
 void RenderManager::onFrameEnd()
 {
-    m_renderer->endFrame();
+    m_renderBackend->frameEnd();
 }
 
 void RenderManager::doRenderWorld(World &world)
@@ -115,79 +110,83 @@ void RenderManager::doRenderWorld(World &world)
 
     world.collectRenderOperations(m_renderQueue.get());
 
-    auto postProcessingEnabled = world.getRenderingParams().getPostProcessMaterial() != nullptr;
+    m_renderBackend->setViewport(m_viewport.x(), m_viewport.y(), m_viewport.width(), m_viewport.height());
+    m_sharedState->setViewPort(m_viewport);
+    m_sharedState->setProjectionMatrix(world.getCamera()->getProjectionMatrix());
+    m_sharedState->setViewMatrix(world.getCamera()->getViewMatrix());
 
-    RenderTarget *rt = nullptr;
-    if (postProcessingEnabled)
-        rt = m_textureRt.get();
-    else
-        rt = m_screenRt.get();
+    m_renderBackend->clearColorBuffer();
+    m_renderBackend->clearDepthBuffer();
 
-    // Draw whole scene to the texture or to the screen (depends on postprocess option).
-    rt->bind();
-    m_renderer->setProjectionMatrix(world.getCamera()->getProjectionMatrix());
-
-    m_renderer->clearColorBuffer();
-    m_renderer->clearDepthBuffer();
-
-    m_renderer->setAmbientLight(world.getRenderingParams().getAmbientLight());
-    m_renderer->enableFog(world.getRenderingParams().getFogDensity(), world.getRenderingParams().getFogColor());
-
-    m_renderer->setCameraMatrix(world.getCamera()->getViewMatrix());
+    m_sharedState->setAmbientColor(world.getRenderingParams().getAmbientLight());
+    m_sharedState->setFog(world.getRenderingParams().getFogDensity(), world.getRenderingParams().getFogColor());
 
     m_renderQueue->sort();
 
     // Ambient pass.
-    m_renderer->enableBlendModeOverride(RenderPass::BlendingMode::NONE);
-    m_renderer->enableDepthTestOverride(true);
-    m_renderer->enableDepthWriteOverride(true);
+    m_blendModeOverriden = true;
+    m_depthTestOverriden = true;
+    m_depthWriteOverriden = true;
+    m_renderBackend->setBlendingMode(BlendingMode::NONE);
+    m_renderBackend->enableDepthTest(true);
+    m_renderBackend->enableDepthWrite(true);
 
     for (const auto &op : m_renderQueue->litOpaqueOperations)
     {
-        m_renderer->setWorldMatrix(op.worldTransform);
+        m_sharedState->setWorldMatrix(op.worldTransform);
 
-        m_ambientPassProps->setAmbientColor(op.passProps->getAmbientColor());
-        m_ambientPassProps->setEmissiveColor(op.passProps->getEmissiveColor());
+        m_ambientPassProps->getPassParam(m_ambientMtlParam)->setValue(op.passProps->getAmbientColor());
 
-        m_renderer->bindPass(m_ambientPassProps.get());
+        bindPass(m_ambientPassProps.get());
 
-        m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);
+        m_renderBackend->bindVertexBuffer(op.vertexBuffer);
+        if (op.indexBuffer.valid())
+            m_renderBackend->bindIndexBuffer(op.indexBuffer);
+
+        m_renderBackend->draw(op.type, op.numberOfElements);
     }
 
     // Opaque pass with lights on.
-    m_renderer->enableBlendModeOverride(RenderPass::BlendingMode::ADD);
-    m_renderer->enableDepthWriteOverride(false);
+    m_renderBackend->setBlendingMode(BlendingMode::ADD);
+    m_renderBackend->enableDepthWrite(false);
 
     for (const auto &op : m_renderQueue->litOpaqueOperations)
     {
-        m_renderer->setWorldMatrix(op.worldTransform);
-        // TODO: bind pass only once
+        if (!op.passProps->getGpuProgram())
+            continue;
+
+        m_sharedState->setWorldMatrix(op.worldTransform);
+
+        bindPass(op.passProps);
 
         for (const auto &light : m_renderQueue->lights)
         {
-            m_renderer->setLight(*light);
+            m_sharedState->setLight(*light);
 
-            // TODO: update ONLY light uniforms.
-            m_renderer->bindPass(op.passProps);
-            m_renderer->drawVertexBuffer(op.vertexData, op.indexData, op.type);
+            m_sharedState->updateSharedUniforms(*op.passProps->getGpuProgram());
+
+            m_renderBackend->bindVertexBuffer(op.vertexBuffer);
+            if (op.indexBuffer.valid())
+                m_renderBackend->bindIndexBuffer(op.indexBuffer);
+            m_renderBackend->draw(op.type, op.numberOfElements);
         }
     }
 
     // Rendering others as usual.
-    m_renderer->disableBlendModeOverride();
-    m_renderer->disableDepthTestOverride();
-    m_renderer->disableDepthWriteOverride();
+    m_blendModeOverriden = false;
+    m_depthTestOverriden = false;
+    m_depthWriteOverriden = false;
 
     // Opaque pass without lights.
     for (const auto &op : m_renderQueue->notLitOpaqueOperations)
-        m_renderer->drawOperation(op);
+        drawRenderOperation(op);
 
     // VFX pass.
     world.vfx().draw();
 
     // Transparent pass.
     for (const auto &op : m_renderQueue->transparentOperations)
-        m_renderer->drawOperation(op);
+        drawRenderOperation(op);
 
     // Debug draw pass.
     if (auto console = svc().debugConsole())
@@ -195,43 +194,94 @@ void RenderManager::doRenderWorld(World &world)
         if (console->getCVars().get<bool>(CVAR_DEBUG_DRAW))
         {
             for (const auto &op : m_renderQueue->debugDrawOperations)
-                m_renderer->drawOperation(op);
+                drawRenderOperation(op);
         }
     }
 
-    m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)rt->getViewport().width(), (float)rt->getViewport().height(), 0.0f));
-    m_renderer->setCameraMatrix(glm::mat4(1.0f));
+    m_sharedState->setProjectionMatrix(glm::ortho(0.0f, (float)m_viewport.width(), (float)m_viewport.height(), 0.0f));
+    m_sharedState->setViewMatrix(glm::mat4(1.0f));
 
     // 2D ops pass.
     for (const auto &op : m_renderQueue->sprite2DOperations)
-        m_renderer->drawOperation(op);
-
-    // Do post process if enabled.
-    if (postProcessingEnabled)
-    {
-        rt->unbind();
-        postProcessPass(world.getRenderingParams().getPostProcessMaterial());
-    }
+        drawRenderOperation(op);
 
     // Draw GUI.
-    m_screenRt->bind();
-
-    m_renderer->setProjectionMatrix(glm::ortho(0.0f, (float)m_screenRt->getViewport().width(), (float)m_screenRt->getViewport().height(), 0.0f));
-    m_renderer->setCameraMatrix(glm::mat4(1.0f));
-
     svc().guiManager().getContext()->Render();
+}
+
+void RenderManager::bindPass(RenderPass *pass)
+{
+    if (!pass)
+        return;
+
+    auto gpuProgram = pass->getGpuProgram();
+    if (!gpuProgram)
+    {
+        glog << "Failed to bind pass. No GPU program" << logwarn;
+        return;
+    }
+
+    m_renderBackend->bindGpuProgram(gpuProgram->getDescriptor());
+
+    // Update pass uniforms.
+    {
+        // Shared uniforms.
+        m_sharedState->updateSharedUniforms(*gpuProgram);
+
+        int textureUnit = 0;
+        // Custom uniforms.
+        auto &passParams = pass->getPassParams();
+        for (auto &passParam : passParams)
+        {
+            if (passParam.hasTexture())
+            {
+                if (passParam.getTexture() && passParam.getTexture()->isInitialized())
+                    m_renderBackend->bindTexture(passParam.getTexture()->getDescriptor(), textureUnit);
+                else
+                    m_renderBackend->bindTexture(m_whiteTexture->getDescriptor(), textureUnit);
+
+                passParam.setValue(textureUnit);
+
+                textureUnit++;
+            }
+
+            passParam.updateToProgram(*m_renderBackend, *gpuProgram);
+        }
+    }
+
+    if (!m_depthTestOverriden)
+        m_renderBackend->enableDepthTest(pass->isDepthTestEnabled());
+    if (!m_depthWriteOverriden)
+        m_renderBackend->enableDepthWrite(pass->isDepthWriteEnabled());
+    if (!m_blendModeOverriden)
+        m_renderBackend->setBlendingMode(pass->getBlendingMode());
+    m_renderBackend->setCullFaceMode(pass->getFaceCullMode());
 }
 
 RenderManager::RenderManager(EngineInitParams params)
     : m_renderQueue(make_unique<RenderQueue>()),
     m_initParams(params)
 {
-    m_renderer = make_unique<RendererBackend>();
+    m_viewport = Viewport(0, 0, params.windowWidth, params.windowHeight);
 }
 
 RenderManager::~RenderManager()
 {
 
+}
+
+void RenderManager::initialize()
+{
+    m_renderBackend = IRenderBackend::create();
+    m_sharedState = make_unique<GpuProgramSharedState>();
+
+    loadEmbedResources();
+}
+
+void RenderManager::shutdown()
+{
+    m_whiteTexture.reset();
+    m_ambientPassProps.reset();
 }
 
 void RenderManager::drawWorld(World &world)
@@ -243,9 +293,27 @@ void RenderManager::drawWorld(World &world)
     onFrameEnd();
 }
 
-const RenderTargetScreen& RenderManager::getScreenRenderTarget() const
+void RenderManager::drawRenderOperation(const RenderOperation &op)
 {
-    return *m_screenRt;
+    if (op.numberOfElements == 0)
+    {
+        assert(false);
+        return;
+    }
+
+    m_sharedState->setWorldMatrix(op.worldTransform);
+    bindPass(op.passProps);
+
+    m_renderBackend->bindVertexBuffer(op.vertexBuffer);
+    if (op.indexBuffer.valid())
+        m_renderBackend->bindIndexBuffer(op.indexBuffer);
+
+    m_renderBackend->draw(op.type, op.numberOfElements);
+}
+
+const Viewport& RenderManager::getViewport() const
+{
+    return m_viewport;
 }
 
 const RenderingCapabilities& RenderManager::getRenderingCapabilities() const
@@ -253,9 +321,14 @@ const RenderingCapabilities& RenderManager::getRenderingCapabilities() const
     return m_initParams.renderingCaps;
 }
 
-RendererBackend* RenderManager::getRenderer()
+const FrameStats& RenderManager::getFrameStats() const
 {
-    return m_renderer.get();
+    return m_renderBackend->getFrameStats();
+}
+
+IRenderBackend& RenderManager::getBackend()
+{
+    return *m_renderBackend;
 }
 
 }

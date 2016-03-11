@@ -1,33 +1,25 @@
 #pragma once
 
+#include <libdf3d/render/RenderCommon.h>
+
 namespace df3d {
 
-class VertexBuffer;
-class IndexBuffer;
 class RenderPass;
 
 //! Render batch.
 class RenderOperation
 {
 public:
-    enum class Type
-    {
-        LINES,
-        TRIANGLES,
-        LINE_STRIP
-    };
-
-    Type type = Type::TRIANGLES;
+    RopType type = RopType::TRIANGLES;
     glm::mat4 worldTransform;
 
-    IndexBuffer *indexData = nullptr;
-    VertexBuffer *vertexData = nullptr;
+    VertexBufferDescriptor vertexBuffer;
+    IndexBufferDescriptor indexBuffer;
     RenderPass *passProps = nullptr;
+    size_t numberOfElements = 0;
 
     RenderOperation() = default;
     ~RenderOperation() = default;
-
-    bool isEmpty() const;
 };
 
 class RenderOperation2D : public RenderOperation

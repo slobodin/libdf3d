@@ -9,8 +9,6 @@ namespace particlesys_impl {
 
 class TrailsParticleSystemRenderer : public ParticleSystemRenderer
 {
-    const VertexFormat VERTEX_FORMAT = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
-
     spark_description(TrailsParticleSystemRenderer, ParticleSystemRenderer)();
 
 private:

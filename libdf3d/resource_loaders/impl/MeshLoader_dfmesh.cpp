@@ -4,14 +4,18 @@
 
 namespace df3d { namespace resource_loaders_impl {
 
-unique_ptr<SubMesh> MeshLoader_dfmesh::createSubmesh()
+unique_ptr<SubMesh> MeshLoader_dfmesh::createSubmesh(std::vector<float> &&vertexData, IndexArray &&indexData)
 {
     auto vertexFormat = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::NORMAL_3,
                                      VertexFormat::TX_2, VertexFormat::COLOR_4,
                                      VertexFormat::TANGENT_3, VertexFormat::BITANGENT_3 });
+
     auto submesh = make_unique<SubMesh>(vertexFormat);
     submesh->setVertexBufferUsageHint(GpuBufferUsageType::STATIC);
     submesh->setIndexBufferUsageHint(GpuBufferUsageType::STATIC);
+
+    submesh->getVertexData() = std::move(VertexData(vertexFormat, std::move(vertexData)));
+    submesh->getIndices() = std::move(indexData);
 
     return submesh;
 }
@@ -64,14 +68,11 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<FileDataSo
 
         std::string materialId = smHeader.materialId;
 
-        result->submeshes.push_back(std::move(*createSubmesh()));
+        result->submeshes.push_back(std::move(*createSubmesh(std::move(vertexData), std::move(indices))));
         if (!materialId.empty())
             result->materialNames.push_back(make_unique<std::string>(materialId));
         else
             result->materialNames.push_back(nullptr);
-
-        result->submeshes.back().getVertexData().setWithRawData(std::move(vertexData));
-        result->submeshes.back().getIndices() = std::move(indices);
     }
 
     // TODO: deserialize bounding volumes.
