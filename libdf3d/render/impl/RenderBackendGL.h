@@ -82,13 +82,14 @@ class RenderBackendGL : public IRenderBackend
     utils::DescriptorsBag m_gpuProgramsBag;
     utils::DescriptorsBag m_uniformsBag;
 
-    // TODO_render: use array
-    std::unordered_map<int16_t, VertexBufferGL> m_vertexBuffers;
-    std::unordered_map<int16_t, IndexBufferGL> m_indexBuffers;
-    std::unordered_map<int16_t, TextureGL> m_textures;
-    std::unordered_map<int16_t, ShaderGL> m_shaders;
-    std::unordered_map<int16_t, ProgramGL> m_programs;
-    std::unordered_map<int16_t, UniformGL> m_uniforms;
+    static const int MAX_SIZE = 0xFFF;      // 4k is enough for now.
+
+    VertexBufferGL m_vertexBuffers[MAX_SIZE];
+    IndexBufferGL m_indexBuffers[MAX_SIZE];
+    TextureGL m_textures[MAX_SIZE];
+    ShaderGL m_shaders[MAX_SIZE];
+    ProgramGL m_programs[MAX_SIZE];
+    UniformGL m_uniforms[MAX_SIZE];
 
     bool m_indexedDrawCall = false; // FIXME
 

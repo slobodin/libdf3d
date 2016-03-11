@@ -210,6 +210,12 @@ static void PrintGpuProgramLog(unsigned int program)
 }
 
 RenderBackendGL::RenderBackendGL()
+    : m_vertexBuffersBag(MAX_SIZE),
+    m_indexBuffersBag(MAX_SIZE),
+    m_texturesBag(MAX_SIZE),
+    m_shadersBag(MAX_SIZE),
+    m_gpuProgramsBag(MAX_SIZE),
+    m_uniformsBag(MAX_SIZE)
 {
 #ifdef DF3D_DESKTOP
     // Init GLEW.
@@ -255,6 +261,17 @@ RenderBackendGL::RenderBackendGL()
     }
 
     printOpenGLError();
+
+#ifdef _DEBUG
+    size_t totalStorage = sizeof(m_vertexBuffers) +
+        sizeof(m_indexBuffers) +
+        sizeof(m_textures) +
+        sizeof(m_shaders) +
+        sizeof(m_programs) +
+        sizeof(m_uniforms);
+
+    glog << "RenderBackendGL storage" << totalStorage / 1024 << "KB" << logdebug;
+#endif
 }
 
 RenderBackendGL::~RenderBackendGL()
@@ -269,6 +286,13 @@ const RenderBackendCaps& RenderBackendGL::getCaps() const
 
 void RenderBackendGL::frameBegin()
 {
+    m_vertexBuffersBag.cleanup();
+    m_indexBuffersBag.cleanup();
+    m_texturesBag.cleanup();
+    m_shadersBag.cleanup();
+    m_gpuProgramsBag.cleanup();
+    m_uniformsBag.cleanup();
+
     m_indexedDrawCall = false;
 
     glUseProgram(0);
@@ -323,7 +347,9 @@ void RenderBackendGL::destroyVertexBuffer(VertexBufferDescriptor vb)
     if (vertexBuffer.gl_id)
         glDeleteBuffers(1, &vertexBuffer.gl_id);
 
-    m_vertexBuffers.erase(vb.id);
+    m_vertexBuffers[vb.id] = {};
+
+    m_vertexBuffersBag.release(vb.id);
 }
 
 void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
@@ -397,7 +423,9 @@ void RenderBackendGL::destroyIndexBuffer(IndexBufferDescriptor ib)
     if (indexBuffer.gl_id != 0)
         glDeleteBuffers(1, &indexBuffer.gl_id);
 
-    m_indexBuffers.erase(ib.id);
+    m_indexBuffers[ib.id] = {};
+
+    m_indexBuffersBag.release(ib.id);
 }
 
 void RenderBackendGL::bindIndexBuffer(IndexBufferDescriptor ib)
@@ -579,7 +607,9 @@ void RenderBackendGL::destroyTexture(TextureDescriptor t)
     if (texture.gl_id)
         glDeleteTextures(1, &texture.gl_id);
 
-    m_textures.erase(t.id);
+    m_textures[t.id] = {};
+
+    m_texturesBag.release(t.id);
 }
 
 void RenderBackendGL::bindTexture(TextureDescriptor t, int unit)
@@ -660,7 +690,9 @@ void RenderBackendGL::destroyShader(ShaderDescriptor shader)
     if (shaderGL.gl_id != 0)
         glDeleteShader(shaderGL.gl_id);
 
-    m_shaders.erase(shader.id);
+    m_shaders[shader.id] = {};
+
+    m_shadersBag.release(shader.id);
 }
 
 df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor vertexShader, ShaderDescriptor fragmentShader)
@@ -731,7 +763,9 @@ void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor program)
     if (programGL.gl_id)
         glDeleteProgram(programGL.gl_id);
 
-    m_programs.erase(program.id);
+    m_programs[program.id] = {};
+
+    m_gpuProgramsBag.release(program.id);
 }
 
 void RenderBackendGL::bindGpuProgram(GpuProgramDescriptor program)
@@ -759,6 +793,7 @@ void RenderBackendGL::requestUniforms(GpuProgramDescriptor program, std::vector<
 
     for (int i = 0; i < total; i++)
     {
+        // TODO_render: fuk
         UniformDescriptor uniformDescr = { m_uniformsBag.getNew() };
         if (!uniformDescr.valid())
         {
