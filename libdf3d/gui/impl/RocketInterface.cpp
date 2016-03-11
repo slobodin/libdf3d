@@ -163,7 +163,8 @@ struct CompiledGeometry
 };
 
 RenderInterface::RenderInterface()
-    : m_textureId(0)
+    : m_textureId(0),
+    m_backend(svc().renderManager().getBackend())
 {
 
 }
@@ -202,13 +203,13 @@ Rocket::Core::CompiledGeometryHandle RenderInterface::CompileGeometry(Rocket::Co
     }
 
     // Set up vertex buffer.
-    auto vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(vertexFormat, num_vertices, vertexData.getRawData(), GpuBufferUsageType::STATIC);
+    auto vertexBuffer = m_backend.createVertexBuffer(vertexFormat, num_vertices, vertexData.getRawData(), GpuBufferUsageType::STATIC);
 
     // FIXME: this is not 64 bit
     static_assert(sizeof(INDICES_TYPE) == sizeof(int), "rocket indices should be the same as render::INDICES_TYPE");
 
     // Set up index buffer
-    auto indexBuffer = svc().renderManager().getBackend().createIndexBuffer(num_indices, indices, GpuBufferUsageType::STATIC);
+    auto indexBuffer = m_backend.createIndexBuffer(num_indices, indices, GpuBufferUsageType::STATIC);
 
     CompiledGeometry *geom = new CompiledGeometry();
     geom->texture = m_textures[texture];        // NOTE: can be nullptr. It's okay.
@@ -258,20 +259,20 @@ void RenderInterface::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHand
 {
     auto geom = (CompiledGeometry *)geometry;
 
-    svc().renderManager().getBackend().destroyVertexBuffer(geom->vertexBuffer);
-    svc().renderManager().getBackend().destroyIndexBuffer(geom->indexBuffer);
+    m_backend.destroyVertexBuffer(geom->vertexBuffer);
+    m_backend.destroyIndexBuffer(geom->indexBuffer);
 
     delete geom;
 }
 
 void RenderInterface::EnableScissorRegion(bool enable)
 {
-    svc().renderManager().getBackend().enableScissorTest(enable);
+    m_backend.enableScissorTest(enable);
 }
 
 void RenderInterface::SetScissorRegion(int x, int y, int width, int height)
 {
-    svc().renderManager().getBackend().setScissorRegion(x, (int)svc().getScreenSize().y - (y + height), width, height);
+    m_backend.setScissorRegion(x, (int)svc().getScreenSize().y - (y + height), width, height);
 }
 
 bool RenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle,

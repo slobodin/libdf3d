@@ -102,7 +102,12 @@ MeshData::MeshData(const std::vector<SubMesh> &geometry)
 
 MeshData::~MeshData()
 {
-
+    for (const auto &hs : m_submeshes)
+    {
+        svc().renderManager().getBackend().destroyVertexBuffer(hs.vertexBuffer);
+        if (hs.indexBuffer.valid())
+            svc().renderManager().getBackend().destroyIndexBuffer(hs.indexBuffer);
+    }
 }
 
 void MeshData::setMaterial(const Material &newMaterial)

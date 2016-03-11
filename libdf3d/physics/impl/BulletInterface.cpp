@@ -33,7 +33,7 @@ BulletDebugDraw::BulletDebugDraw()
 
 BulletDebugDraw::~BulletDebugDraw()
 {
-
+    clean();
 }
 
 void BulletDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)
@@ -87,6 +87,8 @@ void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
 
     if (!m_pass)
         m_pass = CreateDebugDrawPass();
+
+    assert(!m_vertexBuffer.valid());
 
     m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(m_vertexData.getFormat(),
                                                                            m_vertexData.getVerticesCount(),

@@ -243,11 +243,17 @@ GpuProgram* GpuProgramManualLoader::load()
         fragmentShader = createShaderFromString(m_fragmentData, ShaderType::FRAGMENT);
     }
 
+    if (!(vertexShader.valid() && fragmentShader.valid()))
+        return nullptr;
+
     auto gpuProgramDescriptor = svc().renderManager().getBackend().createGpuProgram(vertexShader, fragmentShader);
+    if (!gpuProgramDescriptor.valid())
+        return nullptr;
 
     auto program = new GpuProgram(gpuProgramDescriptor);
     program->setGUID(m_resourceGuid);
 
+    // Safely delete the shaders as do not need them.
     svc().renderManager().getBackend().destroyShader(vertexShader);
     svc().renderManager().getBackend().destroyShader(fragmentShader);
     return program;

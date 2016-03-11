@@ -9,6 +9,7 @@
 namespace df3d { 
 
 class FileDataSource;
+class IRenderBackend;
 
 namespace gui_impl {
 
@@ -64,6 +65,8 @@ class RenderInterface : public Rocket::Core::RenderInterface
 
     std::unordered_map<uint32_t, shared_ptr<Texture>> m_textures;
     uint32_t m_textureId;
+
+    IRenderBackend &m_backend;
 
 public:
     RenderInterface();
