@@ -39,10 +39,10 @@ void ParticleSystemBuffers_Quad::cleanup()
 ParticleSystemBuffers_Quad::ParticleSystemBuffers_Quad()
 {
     // Some assertions for this performance workaround.
-    assert(sizeof(SpkVertexData) == vertex_formats::p3_tx2_c4.getVertexSize());
-    assert(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::POSITION_3) == 0);
-    assert(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::TX_2) == sizeof(SPK::Vector3D));
-    assert(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::COLOR_4) == sizeof(SPK::Vector3D) + sizeof(float) * 2);
+    DF3D_ASSERT(sizeof(SpkVertexData) == vertex_formats::p3_tx2_c4.getVertexSize(), "sanity check");
+    DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::POSITION_3) == 0, "sanity check");
+    DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::TX_2) == sizeof(SPK::Vector3D), "sanity check");
+    DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::COLOR_4) == sizeof(SPK::Vector3D) + sizeof(float) * 2, "sanity check");
 }
 
 ParticleSystemBuffers_Quad::~ParticleSystemBuffers_Quad()
@@ -105,7 +105,7 @@ void ParticleSystemBuffers_Quad::draw(size_t nbOfParticles, RenderPass *passProp
     if (nbOfParticles == 0)
         return;
 
-    assert(nbOfParticles <= m_particlesAllocated);
+    DF3D_ASSERT(nbOfParticles <= m_particlesAllocated, "sanity check");
 
     // Refill GPU with new data (only vertices have been changed).
     svc().renderManager().getBackend().updateVertexBuffer(m_vertexBuffer, nbOfParticles * QUAD_VERTICES_PER_PARTICLE, m_vertexData);

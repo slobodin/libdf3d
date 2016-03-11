@@ -36,7 +36,7 @@ PixelBuffer::PixelBuffer(int w, int h, const unsigned char *data, PixelFormat fo
 {
     m_dataSize = m_w * m_h * GetPixelSizeForFormat(m_format);
 
-    assert(m_dataSize != 0);
+    DF3D_ASSERT(m_dataSize != 0, "sanity check");
 
     m_data = new unsigned char[m_dataSize];
     memcpy(m_data, data, m_dataSize);
@@ -104,7 +104,7 @@ TextureDescriptor Texture::getDescriptor() const
 
 void Texture::setDescriptor(TextureDescriptor descr)
 {
-    assert(descr.valid());
+    DF3D_ASSERT(descr.valid(), "sanity check");
 
     if (m_descr.valid())
     {

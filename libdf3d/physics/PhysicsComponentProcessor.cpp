@@ -186,7 +186,7 @@ struct PhysicsComponentProcessor::Impl
             auto meshFileData = svc().fileSystem().openFile(data.mesh.lock()->getFilePath());
             auto softwareMesh = LoadMeshDataFromFile_Workaround(meshFileData);
 
-            assert(data.params->mass == 0.0f);
+            DF3D_ASSERT(data.params->mass == 0.0f, "body should not be dynamic");
 
             auto bulletMesh = new btTriangleMesh(sizeof(INDICES_TYPE) == 4, false);
 
@@ -196,7 +196,7 @@ struct PhysicsComponentProcessor::Impl
 
                 if (submesh.hasIndices())
                 {
-                    assert(false && "Unsupported");
+                    DF3D_ASSERT(false, "not implemented");
                 }
                 else
                 {
@@ -225,7 +225,7 @@ struct PhysicsComponentProcessor::Impl
             return colShape;
         }
         default:
-            assert(false && "Undefined physics shape!");
+            DF3D_ASSERT(false, "undefined physics shape!");
         }
 
         return nullptr;
@@ -233,7 +233,7 @@ struct PhysicsComponentProcessor::Impl
 
     void initialize(Data &data)
     {
-        assert(!data.initialized);
+        DF3D_ASSERT(!data.initialized, "physics body already initialized");
 
         btCollisionShape *colShape = createCollisionShape(data);
         if (!colShape)
@@ -345,7 +345,7 @@ btRigidBody* PhysicsComponentProcessor::getBody(Entity e)
 glm::vec3 PhysicsComponentProcessor::getCenterOfMass(Entity e)
 {
     auto body = m_pimpl->data.getData(e).body;
-    assert(body);
+    DF3D_ASSERT(body, "null body");
     return btToGlm(body->getCenterOfMassPosition());
 }
 
@@ -406,7 +406,7 @@ void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationPara
 
 void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, short mask)
 {
-    assert(body);
+    DF3D_ASSERT(body, "null body");
 
     if (m_pimpl->data.contains(e))
     {

@@ -120,7 +120,7 @@ std::string FileSystem::fullPath(const std::string &path)
 
 bool FileSystem::addDirectoryResourceContainer(const std::string &dirPath)
 {
-    assert("Not implemented");
+    DF3D_ASSERT(false, "not implemented");
 
     return false;
 }

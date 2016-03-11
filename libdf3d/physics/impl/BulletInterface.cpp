@@ -91,7 +91,7 @@ void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
     if (!m_pass)
         m_pass = CreateDebugDrawPass();
 
-    assert(!m_vertexBuffer.valid());
+    DF3D_ASSERT(!m_vertexBuffer.valid(), "bullet debug draw: invalid vertex buffer");
 
     m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(m_vertexData, GpuBufferUsageType::STREAM);
 

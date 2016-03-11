@@ -7,7 +7,7 @@ const char ResourceContainer::MAGIC[4] = { 'D', 'F', 'R', 'E' };
 ResourceContainer::ResourceContainer(shared_ptr<FileDataSource> archiveFile)
     : m_archiveFile(archiveFile)
 {
-    assert(m_archiveFile);
+    DF3D_ASSERT(m_archiveFile, "sanity check");
 
     Header header;
     m_archiveFile->getAsObjects(&header, 1);

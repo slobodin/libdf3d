@@ -78,7 +78,7 @@ public:
     {
         // TODO_ecs: use utils::getTypeId, no rtti.
         auto found = m_userProcessors.find(std::type_index(typeid(T)));
-        assert(found != m_userProcessors.end());
+        DF3D_ASSERT(found != m_userProcessors.end(), "failed to lookup a component data processor");
         return static_cast<T&>(*found->second);
     }
 

@@ -48,7 +48,7 @@ public:
     */
     void setNbSamples(size_t nbSamples)
     {
-        assert(nbSamples >= 2 && "GLLineTrailRenderer::setNbSamples(size_t) - The number of samples cannot be less than 2");
+        DF3D_ASSERT(nbSamples >= 2, "GLLineTrailRenderer::setNbSamples(size_t) - The number of samples cannot be less than 2");
         m_nbSamples = nbSamples;
     }
 
@@ -71,7 +71,7 @@ public:
     */
     void setDuration(float duration)
     {
-        assert(m_nbSamples > 0.0f && "GLLineTrailRenderer::setDuration(float) - The duration cannot be less or equal to 0.0f");
+        DF3D_ASSERT(m_nbSamples > 0.0f, "GLLineTrailRenderer::setDuration(float) - The duration cannot be less or equal to 0.0f");
         m_duration = duration;
     }
 

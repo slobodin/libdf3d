@@ -98,7 +98,7 @@ public:
             { MessageType::MT_NONE, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED }
         };
 
-        assert(m_consoleColors.size() == (int)MessageType::COUNT);
+        DF3D_ASSERT(m_consoleColors.size() == (int)MessageType::COUNT, "sanity check");
     }
 
     virtual void writeBuffer(const std::string &buffer, MessageType type) override
@@ -153,7 +153,7 @@ public:
             { (int)MessageType::MT_NONE, ANDROID_LOG_UNKNOWN }
         };
 
-        assert(m_priorities.size() == (int)MessageType::COUNT);
+        DF3D_ASSERT(m_priorities.size() == (int)MessageType::COUNT, "sanity check");
     }
 
     virtual void writeBuffer(const std::string &buffer, MessageType type) override

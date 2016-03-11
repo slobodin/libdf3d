@@ -180,7 +180,7 @@ void World::pauseSimulation(bool paused)
 void World::addUserComponentProcessor(unique_ptr<EntityComponentProcessor> processor)
 {
     auto idx = std::type_index(typeid(*processor));
-    assert(!utils::contains_key(m_userProcessors, idx));
+    DF3D_ASSERT(!utils::contains_key(m_userProcessors, idx), "already have this component processor");
 
     m_userProcessors.insert(std::make_pair(idx, std::move(processor)));
 }

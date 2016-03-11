@@ -39,7 +39,7 @@ public:
 
     ComponentInstance lookup(Entity e) const
     {
-        assert(e.valid());
+        DF3D_ASSERT(e.valid(), "looking up invalid entity");
 
         if (e.id >= (Entity::IdType)m_lookup.size())
             return {};
@@ -49,8 +49,8 @@ public:
 
     void add(Entity e, const T &componentData)
     {
-        assert(e.valid());
-        assert(!contains(e));
+        DF3D_ASSERT(e.valid(), "adding invalid entity");
+        DF3D_ASSERT(!contains(e), "entity already present");
 
         if (e.id >= (Entity::IdType)m_lookup.size())
             grow(e.id);
@@ -64,12 +64,12 @@ public:
 
     void remove(Entity e)
     {
-        assert(e.valid());
-        assert(m_data.size() == m_holders.size());
-        assert(m_data.size() > 0);
+        DF3D_ASSERT(e.valid(), "removing invalid entity");
+        DF3D_ASSERT(m_data.size() == m_holders.size(), "sanity check");
+        DF3D_ASSERT(m_data.size() > 0, "can't remove from empty container");
 
         auto compInstance = lookup(e);
-        assert(compInstance.valid());
+        DF3D_ASSERT(compInstance.valid(), "failed to lookup entity data");
 
         if (m_destructionCallback)
             m_destructionCallback(getData(compInstance));
@@ -95,20 +95,20 @@ public:
 
     bool contains(Entity e)
     {
-        assert(e.valid());
+        DF3D_ASSERT(e.valid(), "invalid entity");
         return lookup(e).valid();
     }
 
     const T& getData(ComponentInstance inst) const
     {
-        assert(inst.valid());
+        DF3D_ASSERT(inst.valid(), "invalid component instance");
 
         return m_data[inst.id];
     }
 
     T& getData(ComponentInstance inst)
     {
-        assert(inst.valid());
+        DF3D_ASSERT(inst.valid(), "invalid component instance");
 
         return m_data[inst.id];
     }
@@ -127,7 +127,7 @@ public:
 
     size_t getSize() const
     {
-        assert(m_data.size() == m_holders.size());
+        DF3D_ASSERT(m_data.size() == m_holders.size(), "sanity check");
 
         return m_data.size();
     }

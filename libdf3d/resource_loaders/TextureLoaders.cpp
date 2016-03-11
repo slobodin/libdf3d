@@ -34,7 +34,7 @@ static void skip(void *user, int n)
     if (n < 0)
     {
         // TODO:
-        assert(false);
+        DF3D_ASSERT(false, "not implemented");
     }
 
     auto dataSource = static_cast<FileDataSource*>(user);

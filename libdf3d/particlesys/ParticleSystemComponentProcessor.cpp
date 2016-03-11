@@ -117,7 +117,7 @@ void ParticleSystemComponentProcessor::useConstantStep(float time)
 void ParticleSystemComponentProcessor::stop(Entity e)
 {
     // TODO:
-    assert(false);
+    DF3D_ASSERT(false, "not implemented");
 }
 
 void ParticleSystemComponentProcessor::pause(Entity e, bool paused)

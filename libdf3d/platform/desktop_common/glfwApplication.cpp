@@ -204,7 +204,7 @@ glfwApplication *g_application = nullptr;
 
 void glfwAppRun()
 {
-    assert(g_application && "App must be initialized first!");
+    DF3D_ASSERT(g_application, "app must be initialized first!");
 
     g_application->run();
 
@@ -223,7 +223,7 @@ void Application::setupDelegate(unique_ptr<AppDelegate> appDelegate)
 
 void Application::setTitle(const std::string &title)
 {
-    assert(platform_impl::g_application);
+    DF3D_ASSERT(platform_impl::g_application, "failed to set title");
     platform_impl::g_application->setTitle(title);
 }
 

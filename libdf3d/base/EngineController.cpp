@@ -34,7 +34,7 @@ EngineController::~EngineController()
 
 void EngineController::initialize(EngineInitParams params)
 {
-    assert(!m_initialized);
+    DF3D_ASSERT(!m_initialized, "engine controller already initialized");
 
     glog << "Initializing df3d engine" << logmess;
 
@@ -100,7 +100,7 @@ void EngineController::initialize(EngineInitParams params)
 
 void EngineController::shutdown()
 {
-    assert(m_initialized);
+    DF3D_ASSERT(m_initialized, "failed to shutdown the engine, it's not initialized");
 
     m_world->destroyWorld();
     m_world.reset();

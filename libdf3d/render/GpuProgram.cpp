@@ -121,15 +121,14 @@ static SharedUniformType GetSharedTypeForUniform(const std::string &name)
 GpuProgram::GpuProgram(GpuProgramDescriptor descr)
     : m_descriptor(descr)
 {
-    assert(m_descriptor.valid());
+    DF3D_ASSERT(m_descriptor.valid(), "invalid GPU program descriptor");
 
     std::vector<UniformDescriptor> uniforms;
     std::vector<std::string> uniformNames;
 
     svc().renderManager().getBackend().requestUniforms(m_descriptor, uniforms, uniformNames);
 
-    // Sanity check.
-    assert(uniforms.size() == uniformNames.size());
+    DF3D_ASSERT(uniforms.size() == uniformNames.size(), "sanity check");
 
     for (size_t i = 0; i < uniforms.size(); i++)
     {
@@ -225,7 +224,7 @@ GpuProgramManualLoader::GpuProgramManualLoader(const std::string &vertexShaderPa
     m_vertexShaderPath(vertexShaderPath),
     m_fragmentShaderPath(fragmentShaderPath)
 {
-    assert(vertexShaderPath != fragmentShaderPath);
+    DF3D_ASSERT(vertexShaderPath != fragmentShaderPath, "equal shader paths");
 }
 
 GpuProgram* GpuProgramManualLoader::load()

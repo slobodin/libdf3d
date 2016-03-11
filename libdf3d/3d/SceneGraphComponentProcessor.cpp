@@ -234,7 +234,7 @@ Entity SceneGraphComponentProcessor::getByName(Entity parent, const std::string 
     if (name.empty())
         return {};
 
-    assert(parent.valid());
+    DF3D_ASSERT(parent.valid(), "invalid parent");
 
     for (const auto &compData : m_pimpl->data.rawData())
     {
@@ -323,7 +323,7 @@ void SceneGraphComponentProcessor::attachChildren(Entity parent, const std::vect
 {
     for (auto c : children)
     {
-        assert(!getParent(c).valid());
+        DF3D_ASSERT(!getParent(c).valid(), "already have a parent");
         m_pimpl->data.getData(c).parent = parent;
     }
 
@@ -347,7 +347,7 @@ void SceneGraphComponentProcessor::detachChild(Entity parent, Entity child)
     childData.parent = Entity();
 
     auto found = std::find(parentData.children.begin(), parentData.children.end(), child);
-    assert(found != parentData.children.end());
+    DF3D_ASSERT(found != parentData.children.end(), "can't detach child");
 
     parentData.children.erase(found);
     m_pimpl->updateWorldTransformation(childData);

@@ -60,7 +60,7 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
 {
     auto meshdata = static_cast<MeshData*>(resource);
 
-    assert(m_mesh);
+    DF3D_ASSERT(m_mesh, "sanity check");
 
     meshdata->m_aabb = m_mesh->aabb;
     meshdata->m_obb = m_mesh->obb;
@@ -74,7 +74,7 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
     // Leaving null material in submesh, do not set default as it will be set later. mb it's wrong design?
     if (auto mtlLib = svc().resourceManager().getFactory().createMaterialLib(mtlLibPath))
     {
-        assert(m_mesh->submeshes.size() == m_mesh->materialNames.size());
+        DF3D_ASSERT(m_mesh->submeshes.size() == m_mesh->materialNames.size(), "sanity check");
 
         for (size_t i = 0; i < m_mesh->submeshes.size(); i++)
         {

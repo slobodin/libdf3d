@@ -409,7 +409,7 @@ static SPK::Ref<ParticleSystemRenderer> createRenderer(const Json::Value &render
     }
     else if (rendererType == "line")
     {
-        assert(false && "Not implemented");
+        DF3D_ASSERT(false, "not implemented");
         //renderer = LineParticleSystemRenderer::create(100.0f, 100.0f);
     }
     else

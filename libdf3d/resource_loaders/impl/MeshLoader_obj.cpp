@@ -27,8 +27,7 @@ unique_ptr<SubMesh> MeshLoader_obj::createSubmesh(const std::string &materialNam
     submesh->setVertexBufferUsageHint(GpuBufferUsageType::STATIC);
     submesh->setIndexBufferUsageHint(GpuBufferUsageType::STATIC);
 
-    // Sanity check.
-    assert(m_materialNameLookup.find(submesh.get()) == m_materialNameLookup.end());
+    DF3D_ASSERT(m_materialNameLookup.find(submesh.get()) == m_materialNameLookup.end(), "sanity check");
 
     m_materialNameLookup[submesh.get()] = materialName;     // Store the material name in order to load it on the next stage.
 

@@ -142,7 +142,7 @@ BoundingSphere StaticMeshComponentProcessor::getBoundingSphere(Entity e)
 OBB StaticMeshComponentProcessor::getOBB(Entity e)
 {
     // FIXME: mb cache if transformation hasn't been changed?
-    assert(false && "Not implemented");
+    DF3D_ASSERT(false, "not implemented");
     return OBB();
 }
 

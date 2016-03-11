@@ -37,7 +37,7 @@ void InputManager::cleanStep()
 
 const Touch& InputManager::getTouch(size_t idx) const
 {
-    assert(idx >= 0 && idx < getTouchesCount());
+    DF3D_ASSERT(idx >= 0 && idx < getTouchesCount(), "sanity check");
     return m_currentTouches[idx];
 }
 

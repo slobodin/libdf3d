@@ -58,7 +58,7 @@ bool AABB::isValid() const
 bool AABB::contains(const glm::vec3 &point) const
 {
     // TODO:
-    assert(false);
+    DF3D_ASSERT(false, "not implemented");
     return true;
 }
 
@@ -75,7 +75,7 @@ bool AABB::intersects(const AABB &other) const
 bool AABB::intersects(const BoundingSphere &sphere) const
 {
     // TODO:
-    assert(false);
+    DF3D_ASSERT(false, "not implemented");
     return false;
 }
 

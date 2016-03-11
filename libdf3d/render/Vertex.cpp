@@ -29,7 +29,7 @@ VertexFormat::VertexFormat(const std::vector<VertexAttribute> &attribs)
             m_counts[attrib] = 4;
             break;
         default:
-            assert(false);
+            DF3D_ASSERT(false, "sanity check");
         }
     }
 }
@@ -69,7 +69,7 @@ size_t VertexFormat::getAttributeSize(VertexAttribute attrib) const
         break;
     }
 
-    assert(false && "no such attribute in vertex format");
+    DF3D_ASSERT(false, "no such attribute in vertex format");
     return 0;
 }
 
@@ -161,7 +161,7 @@ VertexData::VertexData(const VertexFormat &format, std::vector<float> &&data)
 
 void VertexData::allocVertices(size_t verticesCount)
 {
-    assert(verticesCount > 0);
+    DF3D_ASSERT(verticesCount > 0, "invalid vertices count");
 
     m_data.assign(m_format.getVertexSize() * verticesCount / sizeof(float), 0.0f);
 
@@ -183,7 +183,7 @@ Vertex VertexData::allocVertex()
 
 Vertex VertexData::getVertex(size_t idx)
 {
-    assert(idx < m_verticesCount);
+    DF3D_ASSERT(idx < m_verticesCount, "sanity check");
 
     return Vertex(m_format, m_data.data() + m_format.getVertexSize() * idx / sizeof(float));
 }

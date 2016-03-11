@@ -58,13 +58,13 @@ void TagComponentProcessor::remove(Entity e)
         for (auto tag : tags->second)
         {
             auto arrFound = m_entities.find(tag);
-            assert(arrFound != m_entities.end());
+            DF3D_ASSERT(arrFound != m_entities.end(), "failed to remove tags from entity");
 
             arrFound->second.erase(e);
         }
 
         auto count = m_tagLookup.erase(e);
-        assert(count == 1);
+        DF3D_ASSERT(count == 1, "failed to remove tags from entity");
     }
 }
 

@@ -93,7 +93,7 @@ void RenderPass::setGpuProgram(shared_ptr<GpuProgram> newProgram)
     if (m_gpuProgram)
     {
         glog << "Can't set GPU program twice!!!! Should fix that" << logwarn;
-        assert(false);
+        DF3D_ASSERT(false, "not implemented");
         return;
     }
 
@@ -133,7 +133,7 @@ PassParamHandle RenderPass::getPassParamHandle(const std::string &name)
 
 RenderPassParam* RenderPass::getPassParam(PassParamHandle idx)
 {
-    assert(idx >= 0 && idx < m_params.size());
+    DF3D_ASSERT(idx >= 0 && idx < m_params.size(), "sanity check");
     return &m_params[idx];
 }
 
