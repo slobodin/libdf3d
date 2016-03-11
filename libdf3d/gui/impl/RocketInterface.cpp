@@ -188,10 +188,8 @@ Rocket::Core::CompiledGeometryHandle RenderInterface::CompileGeometry(Rocket::Co
                                                                          int *indices, int num_indices,
                                                                          Rocket::Core::TextureHandle texture)
 {
-    VertexFormat vertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
-
     // FIXME: can map directly to vertexBuffer if Rocket::Core::Vertex is the same layout as internal vertex buffer storage.
-    VertexData vertexData(vertexFormat);
+    VertexData vertexData(vertex_formats::p3_tx2_c4);
     vertexData.allocVertices(num_vertices);
     for (int i = 0; i < num_vertices; i++)
     {
@@ -282,7 +280,7 @@ bool RenderInterface::LoadTexture(Rocket::Core::TextureHandle &texture_handle,
     TextureCreationParams params;
     params.setFiltering(TextureFiltering::BILINEAR);
     params.setMipmapped(false);
-    params.setAnisotropyLevel(NO_ANISOTROPY);
+    params.setAnisotropyLevel(render_constants::NO_ANISOTROPY);
 
     auto texture = svc().resourceManager().getFactory().createTexture(source.CString(), params, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->isInitialized())
@@ -303,7 +301,7 @@ bool RenderInterface::GenerateTexture(Rocket::Core::TextureHandle& texture_handl
 {
     TextureCreationParams params;
     params.setMipmapped(false);
-    params.setAnisotropyLevel(NO_ANISOTROPY);
+    params.setAnisotropyLevel(render_constants::NO_ANISOTROPY);
     params.setFiltering(TextureFiltering::BILINEAR);
 
     auto pb = make_unique<PixelBuffer>(source_dimensions.x, source_dimensions.y, source, PixelFormat::RGBA);

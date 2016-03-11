@@ -99,4 +99,9 @@ public:
     void clear();
 };
 
+namespace vertex_formats
+{
+    extern const DF3D_DLL VertexFormat p3_tx2_c4;
+}
+
 }

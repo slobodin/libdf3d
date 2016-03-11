@@ -5,6 +5,7 @@
 #include <libdf3d/render/RenderPass.h>
 #include <libdf3d/render/IRenderBackend.h>
 #include <libdf3d/render/RenderOperation.h>
+#include <libdf3d/render/Vertex.h>
 #include <libdf3d/3d/Camera.h>
 #include <libdf3d/game/World.h>
 
@@ -38,10 +39,10 @@ void ParticleSystemBuffers_Quad::cleanup()
 ParticleSystemBuffers_Quad::ParticleSystemBuffers_Quad()
 {
     // Some assertions for this performance workaround.
-    assert(sizeof(SpkVertexData) == VERTEX_FORMAT.getVertexSize());
-    assert(VERTEX_FORMAT.getOffsetTo(VertexFormat::POSITION_3) == 0);
-    assert(VERTEX_FORMAT.getOffsetTo(VertexFormat::TX_2) == sizeof(SPK::Vector3D));
-    assert(VERTEX_FORMAT.getOffsetTo(VertexFormat::COLOR_4) == sizeof(SPK::Vector3D) + sizeof(float) * 2);
+    assert(sizeof(SpkVertexData) == vertex_formats::p3_tx2_c4.getVertexSize());
+    assert(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::POSITION_3) == 0);
+    assert(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::TX_2) == sizeof(SPK::Vector3D));
+    assert(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::COLOR_4) == sizeof(SPK::Vector3D) + sizeof(float) * 2);
 }
 
 ParticleSystemBuffers_Quad::~ParticleSystemBuffers_Quad()
@@ -60,7 +61,7 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
     m_vertexData = new SpkVertexData[nbParticles * QUAD_VERTICES_PER_PARTICLE];
 
     // Allocate GPU storage.
-    m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(VERTEX_FORMAT,
+    m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(vertex_formats::p3_tx2_c4,
                                                                            nbParticles * QUAD_VERTICES_PER_PARTICLE,
                                                                            nullptr,
                                                                            GpuBufferUsageType::DYNAMIC);

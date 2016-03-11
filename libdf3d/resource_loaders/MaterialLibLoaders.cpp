@@ -98,7 +98,7 @@ static TextureCreationParams getTextureCreationParams(const std::map<std::string
         else if (keyval.first == "anisotropy")
         {
             if (keyval.second == "max")
-                retRes.setAnisotropyLevel(ANISOTROPY_LEVEL_MAX);
+                retRes.setAnisotropyLevel(render_constants::ANISOTROPY_LEVEL_MAX);
             else
                 retRes.setAnisotropyLevel(utils::from_string<int>(keyval.second));
         }

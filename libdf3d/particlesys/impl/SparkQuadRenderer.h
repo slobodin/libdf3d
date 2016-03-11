@@ -3,7 +3,6 @@
 #include "SparkCommon.h"
 
 #include <libdf3d/render/RenderCommon.h>
-#include <libdf3d/render/Vertex.h>
 
 namespace df3d {
 
@@ -15,7 +14,6 @@ class MyRenderBuffer;
 class ParticleSystemBuffers_Quad
 {
     const size_t INITIAL_CAPACITY = 64;
-    const VertexFormat VERTEX_FORMAT = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
 
     size_t m_particlesAllocated = 0;
     VertexBufferDescriptor m_vertexBuffer;

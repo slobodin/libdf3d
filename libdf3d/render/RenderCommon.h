@@ -86,15 +86,19 @@ DF3D_MAKE_DESCRIPTOR(UniformDescriptor);
 
 // TODO_render // FIXME: move to namespace.
 
+namespace render_constants {
+
 extern const DF3D_DLL int ANISOTROPY_LEVEL_MAX;
 extern const DF3D_DLL int NO_ANISOTROPY;
+
+}
 
 // FIXME: don't like it.
 class DF3D_DLL RenderingCapabilities
 {
     TextureFiltering m_textureFiltering = TextureFiltering::TRILINEAR;
     bool m_mipmaps = true;
-    int m_anisotropyMax = ANISOTROPY_LEVEL_MAX;
+    int m_anisotropyMax = render_constants::ANISOTROPY_LEVEL_MAX;
 
 public:
     void setFiltering(TextureFiltering f) { m_textureFiltering = f; }

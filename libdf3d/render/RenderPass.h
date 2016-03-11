@@ -41,7 +41,6 @@ public:
     shared_ptr<Texture> getTexture();
     bool hasTexture() { return m_hasTexture; }
 
-    // TODO_render think about this method.
     void updateToProgram(IRenderBackend &backend, GpuProgram &program);
 };
 

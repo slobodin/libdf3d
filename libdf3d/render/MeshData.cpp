@@ -50,22 +50,21 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
 
     for (const auto &s : geometry) 
     {
-        m_submeshes.push_back({});
-        HardwareSubMesh &hs = m_submeshes.back();
+        RenderOperation op;
 
         if (auto mtl = s.getMaterial())
         {
-            hs.material = make_unique<Material>(*mtl);
+            m_submeshMaterials.push_back(make_unique<Material>(*mtl));
         }
         else
         {
             glog << "Setting up default material in" << getFilePath() << logwarn;
-            hs.material = make_unique<Material>(getFilePath());
+            m_submeshMaterials.push_back(make_unique<Material>(getFilePath()));
         }
 
         const auto &vertexData = s.getVertexData();
 
-        hs.vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(vertexData, s.getVertexBufferUsageHint());
+        op.vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(vertexData, s.getVertexBufferUsageHint());
 
         if (s.hasIndices())
         {
@@ -73,16 +72,18 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
             const void *indexData = s.getIndices().data();
             auto ibUsageHint = s.getIndexBufferUsageHint();
 
-            hs.indexBuffer = svc().renderManager().getBackend().createIndexBuffer(indicesCount, indexData, ibUsageHint);
-            hs.numElementsToRender = indicesCount;
+            op.indexBuffer = svc().renderManager().getBackend().createIndexBuffer(indicesCount, indexData, ibUsageHint);
+            op.numberOfElements = indicesCount;
 
             m_trianglesCount += s.getIndices().size() / 3;
         }
         else
         {
-            hs.numElementsToRender = vertexData.getVerticesCount();
+            op.numberOfElements = vertexData.getVerticesCount();
             m_trianglesCount += s.getVertexData().getVerticesCount() / 3;
         }
+
+        m_submeshes.push_back(op);
     }
 }
 
@@ -114,8 +115,8 @@ void MeshData::setMaterial(const Material &newMaterial)
         return;
     }
 
-    for (auto &s : m_submeshes)
-        *s.material = newMaterial;
+    for (auto &s : m_submeshMaterials)
+        *s = newMaterial;
 }
 
 void MeshData::setMaterial(const Material &newMaterial, size_t submeshIdx)
@@ -132,14 +133,14 @@ void MeshData::setMaterial(const Material &newMaterial, size_t submeshIdx)
         return;
     }
 
-    *m_submeshes[submeshIdx].material = newMaterial;
+    *m_submeshMaterials[submeshIdx] = newMaterial;
 }
 
 Material& MeshData::getMaterial(size_t submeshIdx)
 {
     assert(isInitialized());
 
-    return *m_submeshes.at(submeshIdx).material;
+    return *m_submeshMaterials.at(submeshIdx);
 }
 
 size_t MeshData::getSubMeshesCount() const
@@ -192,36 +193,35 @@ const ConvexHull* MeshData::getConvexHull() const
 
 void MeshData::populateRenderQueue(RenderQueue *ops, const glm::mat4 &transformation)
 {
+    // Sanity check.
+    assert(m_submeshes.size() == m_submeshMaterials.size());
+
     // Include all the submeshes.
-    for (const auto &sm : m_submeshes)
+    for (size_t i = 0; i < m_submeshes.size(); i++)
     {
-        auto tech = sm.material->getCurrentTechnique();
+        auto tech = m_submeshMaterials[i]->getCurrentTechnique();
         if (!tech)
             continue;
 
         size_t passCount = tech->getPassCount();
         for (size_t passidx = 0; passidx < passCount; passidx++)
         {
-            // TODO_render: just use renderoperation without HardwareSubmesh.
-            RenderOperation newoperation;
             auto passProps = tech->getPass(passidx);
+            auto &op = m_submeshes[i];
 
-            newoperation.worldTransform = transformation;
-            newoperation.vertexBuffer = sm.vertexBuffer;
-            newoperation.indexBuffer = sm.indexBuffer;
-            newoperation.passProps = passProps.get();
-            newoperation.numberOfElements = sm.numElementsToRender;
+            op.worldTransform = transformation;
+            op.passProps = passProps.get();
 
             if (passProps->isTransparent())
             {
-                ops->transparentOperations.push_back(newoperation);
+                ops->transparentOperations.push_back(op);
             }
             else
             {
                 if (passProps->isLit())
-                    ops->litOpaqueOperations.push_back(newoperation);
+                    ops->litOpaqueOperations.push_back(op);
                 else
-                    ops->notLitOpaqueOperations.push_back(newoperation);
+                    ops->notLitOpaqueOperations.push_back(op);
             }
         }
     }

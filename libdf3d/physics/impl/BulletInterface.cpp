@@ -26,7 +26,7 @@ static unique_ptr<RenderPass> CreateDebugDrawPass()
 }
 
 BulletDebugDraw::BulletDebugDraw()
-    : m_vertexData(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 }))
+    : m_vertexData(vertex_formats::p3_tx2_c4)
 {
 
 }

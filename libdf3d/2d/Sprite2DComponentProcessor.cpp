@@ -75,8 +75,7 @@ struct Sprite2DComponentProcessor::Impl
 
     Impl()
     {
-        vertexBuffer = createQuad(VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 }),
-                                  0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
+        vertexBuffer = createQuad(vertex_formats::p3_tx2_c4, 0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
     }
 
     ~Impl()
@@ -245,7 +244,7 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
     TextureCreationParams params;
     params.setFiltering(TextureFiltering::BILINEAR);
     params.setMipmapped(false);
-    params.setAnisotropyLevel(NO_ANISOTROPY);
+    params.setAnisotropyLevel(render_constants::NO_ANISOTROPY);
 
     auto texture = svc().resourceManager().getFactory().createTexture(pathToTexture, params, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->isInitialized())

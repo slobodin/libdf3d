@@ -490,7 +490,7 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixe
         if (params.getAnisotropyLevel() != 1)
         {
             float aniso = m_caps.maxAnisotropy;
-            if (params.getAnisotropyLevel() != ANISOTROPY_LEVEL_MAX)
+            if (params.getAnisotropyLevel() != render_constants::ANISOTROPY_LEVEL_MAX)
             {
                 aniso = (float)params.getAnisotropyLevel();
             }

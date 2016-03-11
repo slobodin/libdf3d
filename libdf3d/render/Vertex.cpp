@@ -194,4 +194,11 @@ void VertexData::clear()
     m_data.clear();
 }
 
+namespace vertex_formats
+{
+
+const VertexFormat p3_tx2_c4 = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
+
+}
+
 }
