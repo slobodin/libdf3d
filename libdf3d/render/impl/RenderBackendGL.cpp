@@ -660,8 +660,6 @@ void RenderBackendGL::destroyShader(ShaderDescriptor shader)
     if (shaderGL.gl_id != 0)
         glDeleteShader(shaderGL.gl_id);
 
-    printOpenGLError();
-
     m_shaders.erase(shader.id);
 }
 
@@ -732,8 +730,6 @@ void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor program)
     glUseProgram(0);
     if (programGL.gl_id)
         glDeleteProgram(programGL.gl_id);
-
-    printOpenGLError();
 
     m_programs.erase(program.id);
 }
@@ -931,8 +927,6 @@ void RenderBackendGL::draw(RopType type, size_t numberOfElements)
         glDrawElements(GetGLDrawMode(type), numberOfElements, GL_UNSIGNED_INT, nullptr);
     else
         glDrawArrays(GetGLDrawMode(type), 0, numberOfElements);
-
-    printOpenGLError();
 }
 
 unique_ptr<IRenderBackend> IRenderBackend::create()
