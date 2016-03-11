@@ -113,14 +113,13 @@ void RenderManager::doRenderWorld(World &world)
     m_renderBackend->setViewport(m_viewport.x(), m_viewport.y(), m_viewport.width(), m_viewport.height());
     m_sharedState->setViewPort(m_viewport);
     m_sharedState->setProjectionMatrix(world.getCamera()->getProjectionMatrix());
+    m_sharedState->setViewMatrix(world.getCamera()->getViewMatrix());
 
     m_renderBackend->clearColorBuffer();
     m_renderBackend->clearDepthBuffer();
 
     m_sharedState->setAmbientColor(world.getRenderingParams().getAmbientLight());
     m_sharedState->setFog(world.getRenderingParams().getFogDensity(), world.getRenderingParams().getFogColor());
-
-    m_sharedState->setViewMatrix(world.getCamera()->getViewMatrix());
 
     m_renderQueue->sort();
 

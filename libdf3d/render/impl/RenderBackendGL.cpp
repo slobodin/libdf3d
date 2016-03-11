@@ -52,7 +52,7 @@ static void CheckAndPrintGLError(const char *file, int line)
 #endif
 
 #if defined(_DEBUG) || defined(DEBUG)
-#define DESCRIPTOR_CHECK(descr) do { if (!descr.valid()) { glog << "Invalid descriptor" << logwarn; return; } } while (0);
+#define DESCRIPTOR_CHECK(descr) do { if (!descr.valid()) { glog << "Invalid descriptor" << logwarn; DEBUG_BREAK(); return; } } while (0);
 #else
 #define DESCRIPTOR_CHECK(descr) do { if (!descr.valid()) return; } while (0);
 #endif
@@ -432,7 +432,7 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixe
     TextureDescriptor textureDescr = { m_texturesBag.getNew() };
     if (!textureDescr.valid())
     {
-        glog << "Failed to create a texture buffer" << logwarn;
+        glog << "Failed to create a 2d texture" << logwarn;
         return{};
     }
 
@@ -513,21 +513,26 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixe
 
 df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params)
 {
-    // TODO_render
-    /*
-    m_sizeInBytes = 0;
+    TextureDescriptor textureDescr = { m_texturesBag.getNew() };
+    if (!textureDescr.valid())
+    {
+        glog << "Failed to create a cube texture" << logwarn;
+        return{};
+    }
 
-    glGenTextures(1, &m_glid);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_glid);
+    TextureGL texture;
+
+    glGenTextures(1, &texture.gl_id);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture.gl_id);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    setupGlWrapMode(GL_TEXTURE_CUBE_MAP, m_params.getWrapMode());
-    setupGlTextureFiltering(GL_TEXTURE_CUBE_MAP, m_params.getFiltering(), m_params.isMipmapped());
+    SetupGLWrapMode(GL_TEXTURE_CUBE_MAP, params.getWrapMode());
+    SetupGLTextureFiltering(GL_TEXTURE_CUBE_MAP, params.getFiltering(), params.isMipmapped());
 
     for (int i = 0; i < (size_t)CubeFace::COUNT; i++)
     {
         GLint glPixelFormat = 0;
-        switch (images[i]->getFormat())
+        switch (pixels[i]->getFormat())
         {
         case PixelFormat::RGB:
         case PixelFormat::BGR:
@@ -541,25 +546,26 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
             return false;
         }
 
-        auto data = images[i]->getData();
-        auto width = images[i]->getWidth();
-        auto height = images[i]->getHeight();
-        glTexImage2D(MapSidesToGl.find((CubeFace)i)->second, 0, glPixelFormat, width, height, 0, glPixelFormat, GL_UNSIGNED_BYTE, data);
+        auto data = pixels[i]->getData();
+        auto width = pixels[i]->getWidth();
+        auto height = pixels[i]->getHeight();
+        glTexImage2D(MapSidesToGL.find((CubeFace)i)->second, 0, glPixelFormat, width, height, 0, glPixelFormat, GL_UNSIGNED_BYTE, data);
 
-        m_sizeInBytes += images[i]->getSizeInBytes();
+        texture.sizeInBytes += pixels[i]->getSizeInBytes();
     }
 
-    if (m_params.isMipmapped())
+    if (params.isMipmapped())
         glGenerateMipmap(GL_TEXTURE_2D);
+
+    texture.type = GL_TEXTURE_CUBE_MAP;
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-    svc().getFrameStats().addTexture(*this);
-
     printOpenGLError();
 
-    return true;*/
-    return{};
+    m_textures[textureDescr.id] = texture;
+
+    return textureDescr;
 }
 
 void RenderBackendGL::destroyTexture(TextureDescriptor t)
@@ -567,6 +573,7 @@ void RenderBackendGL::destroyTexture(TextureDescriptor t)
     DESCRIPTOR_CHECK(t);
 
     const auto &texture = m_textures[t.id];
+    assert(texture.type != GL_INVALID_ENUM);
 
     glBindTexture(texture.type, 0);
     if (texture.gl_id)
@@ -581,9 +588,10 @@ void RenderBackendGL::bindTexture(TextureDescriptor t, int unit)
 
     const auto &texture = m_textures[t.id];
     assert(texture.gl_id != 0);
+    assert(texture.type != GL_INVALID_ENUM);
 
-    glBindTexture(texture.type, texture.gl_id);
     glActiveTexture(GL_TEXTURE0 + unit);
+    glBindTexture(texture.type, texture.gl_id);
 }
 
 df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std::string &data)

@@ -257,6 +257,10 @@ void RenderInterface::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandl
 void RenderInterface::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry)
 {
     auto geom = (CompiledGeometry *)geometry;
+
+    svc().renderManager().getBackend().destroyVertexBuffer(geom->vertexBuffer);
+    svc().renderManager().getBackend().destroyIndexBuffer(geom->indexBuffer);
+
     delete geom;
 }
 
