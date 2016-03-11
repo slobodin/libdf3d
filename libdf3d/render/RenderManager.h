@@ -11,7 +11,6 @@ class IRenderBackend;
 class Viewport;
 class Material;
 class RenderQueue;
-class RenderPass;
 class World;
 class RenderOperation;
 class GpuProgramSharedState;
@@ -28,7 +27,7 @@ class DF3D_DLL RenderManager : utils::NonCopyable
     Viewport m_viewport;
 
     // Forward rendering stuff.
-    RenderPass m_ambientPassProps;
+    unique_ptr<RenderPass> m_ambientPassProps;
     PassParamHandle m_ambientMtlParam;
     bool m_blendModeOverriden = false;
     bool m_depthTestOverriden = false;
@@ -46,6 +45,9 @@ class DF3D_DLL RenderManager : utils::NonCopyable
 public:
     RenderManager(EngineInitParams params);
     ~RenderManager();
+
+    void initialize();
+    void shutdown();
 
     void drawWorld(World &world);
     void drawRenderOperation(const RenderOperation &op);

@@ -57,6 +57,8 @@ public:
     ResourceManager();
     ~ResourceManager();
 
+    void initialize();
+    void shutdown();
     void poll();
 
     //! All resources creation is going through this factory.

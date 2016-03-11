@@ -91,6 +91,8 @@ class RenderBackendGL : public IRenderBackend
     ProgramGL m_programs[MAX_SIZE];
     UniformGL m_uniforms[MAX_SIZE];
 
+    std::unordered_map<int16_t, std::vector<UniformDescriptor>> m_programUniforms;
+
     bool m_indexedDrawCall = false; // FIXME
 
 public:

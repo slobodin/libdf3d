@@ -15,6 +15,16 @@ struct AudioManager::Impl
 AudioManager::AudioManager()
     : m_pimpl(new AudioManager::Impl())
 {
+
+}
+
+AudioManager::~AudioManager()
+{
+
+}
+
+void AudioManager::initialize()
+{
     glog << "Initializing OpenAL" << logmess;
 
     std::string devices;
@@ -45,7 +55,7 @@ AudioManager::AudioManager()
     printOpenALError();
 }
 
-AudioManager::~AudioManager()
+void AudioManager::shutdown()
 {
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(m_pimpl->m_context);

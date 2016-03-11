@@ -58,20 +58,19 @@ void EngineController::initialize(EngineInitParams params)
 
         // Init resource manager.
         m_resourceManager = make_unique<ResourceManager>();
+        m_resourceManager->initialize();
 
         // Init render system.
         m_renderManager = make_unique<RenderManager>(params);
+        m_renderManager->initialize();
 
         // Init GUI.
-        m_guiManager = make_unique<GuiManager>(params.windowWidth, params.windowHeight);
+        m_guiManager = make_unique<GuiManager>();
+        m_guiManager->initialize(params.windowWidth, params.windowHeight);
 
         // Init audio subsystem.
         m_audioManager = make_unique<AudioManager>();
-
-        // Load embedded resources.
-        glog << "Loading embedded resources" << logdebug;
-
-        m_renderManager->loadEmbedResources();
+        m_audioManager->initialize();
 
         // Create console.
         if (params.createConsole)
@@ -85,6 +84,7 @@ void EngineController::initialize(EngineInitParams params)
 
         // Startup squirrel.
         m_scriptManager = make_unique<ScriptManager>();
+        m_scriptManager->initialize();
 
         // Allow to a client to listen system time.
         m_systemTimeManager = make_unique<TimeManager>();
@@ -108,9 +108,17 @@ void EngineController::shutdown()
 
     m_world->destroyWorld();
     m_world.reset();
+
+    m_debugConsole.reset();
+
+    m_audioManager->shutdown();
+    m_scriptManager->shutdown();
+    m_guiManager->shutdown();
+    m_renderManager->shutdown();
+    m_resourceManager->shutdown();
+
     m_systemTimeManager.reset();
     m_scriptManager.reset();
-    m_debugConsole.reset();
     m_guiManager.reset();
     m_renderManager.reset();
     m_resourceManager.reset();

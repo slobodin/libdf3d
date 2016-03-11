@@ -76,8 +76,9 @@ void RenderManager::loadEmbedResources()
         factory.createGpuProgram(AMBIENT_PASS_PROGRAM_EMBED_PATH, ambient_vert, ambient_frag)->setResident(true);
     }
 
-    m_ambientMtlParam = m_ambientPassProps.getPassParamHandle("material_ambient");
-    m_ambientPassProps.setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
+    m_ambientPassProps = make_unique<RenderPass>();
+    m_ambientMtlParam = m_ambientPassProps->getPassParamHandle("material_ambient");
+    m_ambientPassProps->setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
 }
 
 void RenderManager::onFrameBegin()
@@ -135,9 +136,9 @@ void RenderManager::doRenderWorld(World &world)
     {
         m_sharedState->setWorldMatrix(op.worldTransform);
 
-        m_ambientPassProps.getPassParam(m_ambientMtlParam)->setValue(op.passProps->getAmbientColor());
+        m_ambientPassProps->getPassParam(m_ambientMtlParam)->setValue(op.passProps->getAmbientColor());
 
-        bindPass(&m_ambientPassProps);
+        bindPass(m_ambientPassProps.get());
 
         m_renderBackend->bindVertexBuffer(op.vertexBuffer);
         if (op.indexBuffer.valid())
@@ -263,14 +264,25 @@ RenderManager::RenderManager(EngineInitParams params)
     m_initParams(params)
 {
     m_viewport = Viewport(0, 0, params.windowWidth, params.windowHeight);
-
-    m_renderBackend = IRenderBackend::create();
-    m_sharedState = make_unique<GpuProgramSharedState>();
 }
 
 RenderManager::~RenderManager()
 {
 
+}
+
+void RenderManager::initialize()
+{
+    m_renderBackend = IRenderBackend::create();
+    m_sharedState = make_unique<GpuProgramSharedState>();
+
+    loadEmbedResources();
+}
+
+void RenderManager::shutdown()
+{
+    m_whiteTexture.reset();
+    m_ambientPassProps.reset();
 }
 
 void RenderManager::drawWorld(World &world)

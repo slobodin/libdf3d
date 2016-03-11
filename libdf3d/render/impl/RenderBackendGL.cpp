@@ -767,6 +767,18 @@ void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor program)
     m_programs[program.id] = {};
 
     m_gpuProgramsBag.release(program.id);
+
+    // Destroy associated uniforms
+    {
+        auto programUniformsFound = m_programUniforms.find(program.id);
+        if (programUniformsFound != m_programUniforms.end())
+        {
+            for (auto uniDescr : programUniformsFound->second)
+                m_uniformsBag.release(uniDescr.id);
+
+            m_programUniforms.erase(programUniformsFound);
+        }
+    }
 }
 
 void RenderBackendGL::bindGpuProgram(GpuProgramDescriptor program)
@@ -793,7 +805,6 @@ void RenderBackendGL::requestUniforms(GpuProgramDescriptor program, std::vector<
 
     for (int i = 0; i < total; i++)
     {
-        // TODO_render: fuk
         UniformDescriptor uniformDescr = { m_uniformsBag.getNew() };
         if (!uniformDescr.valid())
         {
@@ -804,6 +815,9 @@ void RenderBackendGL::requestUniforms(GpuProgramDescriptor program, std::vector<
 
         outDescr.push_back(uniformDescr);
     }
+
+    m_programUniforms[program.id] = {};
+    auto programUniformsMap = m_programUniforms.find(program.id);
 
     for (int i = 0; i < total; i++)
     {
@@ -821,6 +835,8 @@ void RenderBackendGL::requestUniforms(GpuProgramDescriptor program, std::vector<
         uniformGL.location = glGetUniformLocation(programGL.gl_id, name);
 
         m_uniforms[outDescr[i].id] = uniformGL;
+
+        programUniformsMap->second.push_back(outDescr[i]);
     }
 }
 
