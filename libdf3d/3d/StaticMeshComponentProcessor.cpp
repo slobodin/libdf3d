@@ -156,6 +156,11 @@ void StaticMeshComponentProcessor::disableFrustumCulling(Entity e, bool disable)
     m_pimpl->data.getData(e).frustumCullingDisabled = disable;
 }
 
+bool StaticMeshComponentProcessor::isVisible(Entity e)
+{
+    return m_pimpl->data.getData(e).visible;
+}
+
 void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath)
 {
     add(e, meshFilePath, ResourceLoadingMode::ASYNC);

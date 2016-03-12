@@ -388,6 +388,8 @@ void SceneGraphComponentProcessor::add(Entity e)
     data.holder = e;
 
     m_pimpl->data.add(e, data);
+
+    m_pimpl->updateWorldTransformation(m_pimpl->data.getData(e));
 }
 
 }

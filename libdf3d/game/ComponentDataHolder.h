@@ -23,7 +23,7 @@ private:
         // TODO_ecs: may become big if too much entities. Use hashmap in that case.
         m_lookup.resize((id + 1) * 2);
         if (m_lookup.size() > 1000)
-            glog << "ComponentDataHolder size" << m_lookup.size() << logdebug;
+            glog << "ComponentDataHolder count:" << m_lookup.size() << "size KB:" << (m_lookup.size() * sizeof(T)) / 1024 << logdebug;
     }
 
 public:

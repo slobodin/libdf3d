@@ -38,6 +38,8 @@ public:
     void setVisible(Entity e, bool visible);
     void disableFrustumCulling(Entity e, bool disable);
 
+    bool isVisible(Entity e);
+
     void add(Entity e, const std::string &meshFilePath);
     void add(Entity e, const std::string &meshFilePath, ResourceLoadingMode lm);
     void add(Entity e, shared_ptr<MeshData> meshData);
