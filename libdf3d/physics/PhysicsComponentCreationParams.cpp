@@ -42,6 +42,7 @@ PhysicsComponentCreationParams::PhysicsComponentCreationParams(const Json::Value
     root["group"] >> group;
     root["mask"] >> mask;
     root["disableDeactivation"] >> disableDeactivation;
+    root["noContactResponse"] >> noContactResponse;
 }
 
 }

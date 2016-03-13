@@ -24,6 +24,7 @@ struct DF3D_DLL PhysicsComponentCreationParams
     short group = -1;
     short mask = -1;
     bool disableDeactivation = false;
+    bool noContactResponse = false;
 
     PhysicsComponentCreationParams();
     ~PhysicsComponentCreationParams();

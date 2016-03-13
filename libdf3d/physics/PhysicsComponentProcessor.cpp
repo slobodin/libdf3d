@@ -270,6 +270,9 @@ struct PhysicsComponentProcessor::Impl
 
         data.body->setUserIndex(data.holder.id);
 
+        if (data.params->noContactResponse)
+            data.body->setCollisionFlags(data.body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+
         data.initialized = true;
         data.params.reset();
     }
