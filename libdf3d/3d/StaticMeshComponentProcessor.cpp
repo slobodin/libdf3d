@@ -177,7 +177,9 @@ void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath
     Impl::Data data;
     data.meshData = svc().resourceManager().getFactory().createMeshData(meshFilePath, lm);
     data.holder = e;
-    data.holderTransformation = m_world->sceneGraph().getWorldTransform(e);
+
+    glm::quat tmp;
+    m_world->sceneGraph().getWorldTransformMeshWorkaround(e, data.holderTransformation, data.holderPosition, tmp, data.holderScale);
 
     m_pimpl->data.add(e, data);
 }
