@@ -41,6 +41,7 @@ SET(TB_RENDERER_GL OFF CACHE BOOL "" FORCE)
 SET(TB_RENDERER_GLES_1 OFF CACHE BOOL "" FORCE)
 SET(TB_UNIT_TESTING OFF CACHE BOOL "" FORCE)
 SET(TB_IMAGE ON CACHE BOOL "" FORCE)
+include_directories(${PROJECT_SOURCE_DIR}/third-party/turbobadger/src/tb)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/turbobadger)
 
 OPTION(ALSOFT_DLOPEN OFF)
@@ -379,7 +380,8 @@ target_link_libraries(libdf3d
     vorbis
     RocketCore
     RocketControls
-    squirrel)
+    squirrel
+    TurboBadgerLib)
 
 if (DF3D_DESKTOP)
     target_link_libraries(libdf3d glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${DF3D_OPENAL_LIBNAME})
