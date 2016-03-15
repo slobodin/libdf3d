@@ -8,6 +8,9 @@ namespace df3d {
 TBManager::TBManager()
 {
     tb::tb_core_init(gui_impl::CreateRenderer());
+
+    void register_tbbf_font_renderer();
+    register_tbbf_font_renderer();
 }
 
 TBManager::~TBManager()
