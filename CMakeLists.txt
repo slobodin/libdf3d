@@ -119,6 +119,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketRefWrapper.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketKeyCodesAdapter.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/TBInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.h
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileDataSource.h
@@ -213,6 +214,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/TbManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketKeyCodesAdapter.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/TBInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.cpp

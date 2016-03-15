@@ -2,6 +2,7 @@
 
 #include "impl/RocketInterface.h"
 #include "impl/RocketKeyCodesAdapter.h"
+#include "TbManager.h"
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/input/InputEvents.h>
 
@@ -54,6 +55,12 @@ void GuiManager::initialize(int contextWidth, int contextHeight)
     // do not implement all methods.
     SetSystemInterface(m_systemInterface.get());
 #endif
+
+
+
+
+    TBManager *t = new TBManager();
+
 }
 
 void GuiManager::shutdown()
