@@ -235,4 +235,9 @@ void TextureCubeFSLoader::onDecoded(Resource *resource)
         m_pixelBuffers[i].reset();
 }
 
+unique_ptr<PixelBuffer> GetPixelBufferFromSource(shared_ptr<FileDataSource> source)
+{
+    return loadPixelBuffer(source);
+}
+
 }
