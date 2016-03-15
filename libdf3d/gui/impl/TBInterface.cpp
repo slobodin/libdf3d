@@ -4,8 +4,23 @@
 #include <tb_system.h>
 #include <renderers/tb_renderer_batcher.h>
 #include <tb_bitmap_fragment.h>
+#include <Windows.h>
 
 namespace df3d { namespace gui_impl {
+
+class TBFileImpl : public tb::TBFile
+{
+public:
+    long Size() override
+    {
+        return 0;
+    }
+
+    size_t Read(void *buf, size_t elemSize, size_t count) override
+    {
+        return 0;
+    }
+};
 
 class TBImageLoaderImpl : public tb::TBImageLoader
 {
@@ -72,7 +87,68 @@ TBImageLoader *TBImageLoader::CreateFromFile(const char *filename)
 
 void TBSystem::RescheduleTimer(double fire_time)
 {
+
+}
+
+TBFile* TBFile::Open(const char *filename, TBFileMode mode)
+{
+    return new df3d::gui_impl::TBFileImpl();
+}
+
+void TBClipboard::Empty()
+{
+
+}
+
+bool TBClipboard::HasText()
+{
+    return false;
+}
+
+bool TBClipboard::SetText(const char *text)
+{
+    return false;
+}
+
+bool TBClipboard::GetText(TBStr &text)
+{
+    return false;
+}
+
+double TBSystem::GetTimeMS()
+{
+    using namespace std::chrono;
+
+    return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+}
+
+int TBSystem::GetLongClickDelayMS()
+{
+    return 500;
+}
+
+int TBSystem::GetPanThreshold()
+{
+    return 5 * GetDPI() / 96;
+}
+
+int TBSystem::GetPixelsPerLine()
+{
+    return 40 * GetDPI() / 96;
+}
+
+int TBSystem::GetDPI()
+{
+    HDC hdc = GetDC(nullptr);
+    int DPI_x = GetDeviceCaps(hdc, LOGPIXELSX);
+    ReleaseDC(nullptr, hdc);
+
+    return DPI_x;
 }
 
 }
 
+void TBDebugOut(const char *str)
+{
+    df3d::glog << str << df3d::logdebug;
+}
