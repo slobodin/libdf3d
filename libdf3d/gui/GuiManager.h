@@ -22,8 +22,11 @@ class DF3D_DLL GuiManager : utils::NonCopyable
     Rocket::Core::Context *m_rocketContext = nullptr;
 
 public:
-    GuiManager(int contextWidth, int contextHeight);
+    GuiManager();
     ~GuiManager();
+
+    void initialize(int contextWidth, int contextHeight);
+    void shutdown();
 
     RocketDocument loadDocument(const std::string &name);
 

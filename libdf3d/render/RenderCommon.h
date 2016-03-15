@@ -43,17 +43,73 @@ enum class CubeFace
     COUNT
 };
 
-// FIXME: move to namespace.
+enum class ShaderType
+{
+    VERTEX,
+    FRAGMENT,
+
+    UNDEFINED
+};
+
+enum class RopType
+{
+    LINES,
+    TRIANGLES,
+    LINE_STRIP
+};
+
+// TODO: refactor blending mode.
+enum class BlendingMode
+{
+    NONE,
+    ADDALPHA,
+    ALPHA,
+    ADD
+};
+
+enum class FaceCullMode
+{
+    NONE,
+    FRONT,
+    BACK,
+    FRONT_AND_BACK
+};
+
+#define DF3D_MAKE_DESCRIPTOR(name) struct name { int16_t id; name(int16_t id = -1) : id(id) { } bool valid() const { return id != -1; } }
+
+DF3D_MAKE_DESCRIPTOR(VertexBufferDescriptor);
+DF3D_MAKE_DESCRIPTOR(IndexBufferDescriptor);
+DF3D_MAKE_DESCRIPTOR(TextureDescriptor);
+DF3D_MAKE_DESCRIPTOR(ShaderDescriptor);
+DF3D_MAKE_DESCRIPTOR(GpuProgramDescriptor);
+DF3D_MAKE_DESCRIPTOR(UniformDescriptor);
+
+namespace render_constants {
 
 extern const DF3D_DLL int ANISOTROPY_LEVEL_MAX;
 extern const DF3D_DLL int NO_ANISOTROPY;
+
+}
+
+struct DF3D_DLL FrameStats
+{
+    size_t drawCalls = 0;
+    size_t totalTriangles = 0;
+    size_t totalLines = 0;
+
+    size_t textures = 0;
+    size_t textureMemoryBytes = 0;
+
+    size_t vertexDataBytes = 0;
+    size_t indexDataBytes = 0;
+};
 
 // FIXME: don't like it.
 class DF3D_DLL RenderingCapabilities
 {
     TextureFiltering m_textureFiltering = TextureFiltering::TRILINEAR;
     bool m_mipmaps = true;
-    int m_anisotropyMax = ANISOTROPY_LEVEL_MAX;
+    int m_anisotropyMax = render_constants::ANISOTROPY_LEVEL_MAX;
 
 public:
     void setFiltering(TextureFiltering f) { m_textureFiltering = f; }

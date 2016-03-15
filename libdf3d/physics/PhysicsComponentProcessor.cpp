@@ -16,6 +16,8 @@
 #include <libdf3d/base/TimeManager.h>
 #include <libdf3d/game/ComponentDataHolder.h>
 #include <libdf3d/game/World.h>
+#include <libdf3d/io/FileSystem.h>
+#include <libdf3d/resource_loaders/MeshLoaders.h>
 
 namespace df3d {
 
@@ -77,12 +79,13 @@ struct PhysicsComponentProcessor::Impl
 
     struct Data
     {
+        weak_ptr<MeshData> mesh;
+        shared_ptr<PhysicsComponentCreationParams> params;
         Entity holder;
-
         btRigidBody *body = nullptr;
         bool initialized = false;
-        weak_ptr<MeshData> meshData;
-        shared_ptr<PhysicsComponentCreationParams> params;
+
+        btStridingMeshInterface *meshInterface = nullptr;
     };
 
     ComponentDataHolder<Data> data;
@@ -127,11 +130,8 @@ struct PhysicsComponentProcessor::Impl
         delete debugDraw;
     }
 
-    void initialize(Data &data)
+    btCollisionShape* createCollisionShape(Data &data)
     {
-        assert(!data.initialized);
-
-        btCollisionShape *colShape = nullptr;
         switch (data.params->shape)
         {
         case CollisionShapeType::BOX:
@@ -140,49 +140,107 @@ struct PhysicsComponentProcessor::Impl
             if (!aabb.isValid())
             {
                 glog << "Can not create box shape for rigid body. AABB is invalid" << logwarn;
-                return;
+                return nullptr;
             }
 
             auto half = (aabb.maxPoint() - aabb.minPoint()) / 2.0f;
-            colShape = new btBoxShape(btVector3(half.x, half.y, half.z));
+            return new btBoxShape(btVector3(half.x, half.y, half.z));
         }
-        break;
         case CollisionShapeType::SPHERE:
         {
             auto sphere = svc().world().staticMesh().getBoundingSphere(data.holder);
             if (!sphere.isValid())
             {
                 glog << "Can not create sphere shape for rigid body. Bounding sphere is invalid" << logwarn;
-                return;
+                return  nullptr;
             }
 
             auto radius = sphere.getRadius();
-            colShape = new btSphereShape(radius);
+            return new btSphereShape(radius);
         }
-        break;
         case CollisionShapeType::CONVEX_HULL:
         {
-            auto convexHull = data.meshData.lock()->getConvexHull();
+            auto convexHull = data.mesh.lock()->getConvexHull();
             if (!convexHull || !convexHull->isValid())
             {
                 glog << "Can not create convex hull shape for rigid body. Hull is invalid" << logwarn;
-                return;
+                return nullptr;
             }
 
             const auto &vertices = convexHull->getVertices();
-            std::vector<btVector3> tempPoints;
-            for (const auto &v : vertices)
-                tempPoints.push_back({ v.x, v.y, v.z });
+            std::vector<btVector3> tempPoints(vertices.size());
+            for (size_t i = 0; i < vertices.size(); i++)
+                tempPoints[i] = glmTobt(vertices[i]);
 
-            colShape = new btConvexHullShape((btScalar*)tempPoints.data(), tempPoints.size());
+            auto colShape = new btConvexHullShape((btScalar*)tempPoints.data(), tempPoints.size());
 
-            // FIXME: what to do if scale has changed?
+            // FIXME: what to do if scale has been changed?
             auto scale = svc().world().sceneGraph().getLocalScale(data.holder);
             colShape->setLocalScaling(glmTobt(scale));
+
+            return colShape;
         }
-        break;
+        case CollisionShapeType::STATIC_TRIANGLE_MESH:
+        {
+            // FIXME: XXX! Reading the mesh twice! This is a workaround.
+            auto meshFileData = svc().fileSystem().openFile(data.mesh.lock()->getFilePath());
+            auto softwareMesh = LoadMeshDataFromFile_Workaround(meshFileData);
+
+            DF3D_ASSERT(data.params->mass == 0.0f, "body should not be dynamic");
+
+            auto bulletMesh = new btTriangleMesh(sizeof(INDICES_TYPE) == 4, false);
+
+            for (size_t smIdx = 0; smIdx < softwareMesh->submeshes.size(); smIdx++)
+            {
+                auto &submesh = softwareMesh->submeshes[smIdx];
+
+                if (submesh.hasIndices())
+                {
+                    DF3D_ASSERT(false, "not implemented");
+                }
+                else
+                {
+                    for (size_t i = 0; i < submesh.getVertexData().getVerticesCount(); i += 3)
+                    {
+                        auto v1 = submesh.getVertexData().getVertex(i + 0);
+                        auto v2 = submesh.getVertexData().getVertex(i + 1);
+                        auto v3 = submesh.getVertexData().getVertex(i + 2);
+
+                        glm::vec3 p1, p2, p3;
+                        v1.getPosition(&p1);
+                        v2.getPosition(&p2);
+                        v3.getPosition(&p3);
+
+                        bulletMesh->addTriangle(glmTobt(p1), glmTobt(p2), glmTobt(p3));
+                    }
+                }
+            }
+
+            data.meshInterface = bulletMesh;
+
+            auto colShape = new btBvhTriangleMeshShape(bulletMesh, true);
+            auto scale = svc().world().sceneGraph().getLocalScale(data.holder);
+            colShape->setLocalScaling(glmTobt(scale));
+
+            return colShape;
+        }
         default:
-            assert(false);
+            DF3D_ASSERT(false, "undefined physics shape!");
+        }
+
+        return nullptr;
+    }
+
+    void initialize(Data &data)
+    {
+        DF3D_ASSERT(!data.initialized, "physics body already initialized");
+
+        btCollisionShape *colShape = createCollisionShape(data);
+        if (!colShape)
+        {
+            glog << "Failed to create a collision shape" << logwarn;
+            data.initialized = true;
+            data.params.reset();
             return;
         }
 
@@ -212,6 +270,9 @@ struct PhysicsComponentProcessor::Impl
 
         data.body->setUserIndex(data.holder.id);
 
+        if (data.params->noContactResponse)
+            data.body->setCollisionFlags(data.body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+
         data.initialized = true;
         data.params.reset();
     }
@@ -228,7 +289,7 @@ void PhysicsComponentProcessor::update()
     {
         if (!data.initialized)
         {
-            if (data.meshData.lock()->isInitialized())
+            if (data.mesh.lock()->isInitialized())
                 m_pimpl->initialize(data);
         }
     }
@@ -269,6 +330,7 @@ PhysicsComponentProcessor::PhysicsComponentProcessor(World *w)
             auto shape = data.body->getCollisionShape();
             delete shape;
             delete data.body;
+            delete data.meshInterface;
         }
     });
 }
@@ -286,7 +348,7 @@ btRigidBody* PhysicsComponentProcessor::getBody(Entity e)
 glm::vec3 PhysicsComponentProcessor::getCenterOfMass(Entity e)
 {
     auto body = m_pimpl->data.getData(e).body;
-    assert(body);
+    DF3D_ASSERT(body, "null body");
     return btToGlm(body->getCenterOfMassPosition());
 }
 
@@ -326,7 +388,7 @@ void PhysicsComponentProcessor::teleportOrientation(Entity e, const glm::quat &o
     }
 }
 
-void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> meshData)
+void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> mesh)
 {
     if (m_pimpl->data.contains(e))
     {
@@ -335,11 +397,11 @@ void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationPara
     }
 
     Impl::Data data;
-    data.meshData = meshData;
+    data.mesh = mesh;
     data.holder = e;
     data.params = make_shared<PhysicsComponentCreationParams>(params);
 
-    if (meshData->isInitialized())
+    if (mesh->isInitialized())
         m_pimpl->initialize(data);
 
     m_pimpl->data.add(e, data);
@@ -347,7 +409,7 @@ void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationPara
 
 void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, short mask)
 {
-    assert(body);
+    DF3D_ASSERT(body, "null body");
 
     if (m_pimpl->data.contains(e))
     {

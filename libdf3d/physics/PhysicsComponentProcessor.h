@@ -35,7 +35,7 @@ public:
     void teleportPosition(Entity e, const glm::vec3 &pos);
     void teleportOrientation(Entity e, const glm::quat &orient);
 
-    void add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> meshData);
+    void add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> mesh);
     // NOTE: body should not be added to the Physics World as it will be added via this processor.
     void add(Entity e, btRigidBody *body, short group = -1, short mask = -1);
     void remove(Entity e);

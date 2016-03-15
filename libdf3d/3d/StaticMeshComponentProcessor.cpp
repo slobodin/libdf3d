@@ -14,15 +14,13 @@ namespace df3d {
 
 struct StaticMeshComponentProcessor::Impl
 {
-    // TODO_ecs: more cache friendly layout.
     struct Data
     {
-        shared_ptr<MeshData> meshData;
-        Entity holder;
         glm::mat4 holderTransformation;
         glm::vec3 holderPosition;
+        Entity holder;
         glm::vec3 holderScale;
-
+        shared_ptr<MeshData> meshData;
         bool visible = true;
         bool frustumCullingDisabled = false;
     };
@@ -144,7 +142,7 @@ BoundingSphere StaticMeshComponentProcessor::getBoundingSphere(Entity e)
 OBB StaticMeshComponentProcessor::getOBB(Entity e)
 {
     // FIXME: mb cache if transformation hasn't been changed?
-    assert(false && "Not implemented");
+    DF3D_ASSERT(false, "not implemented");
     return OBB();
 }
 
@@ -158,6 +156,16 @@ void StaticMeshComponentProcessor::disableFrustumCulling(Entity e, bool disable)
     m_pimpl->data.getData(e).frustumCullingDisabled = disable;
 }
 
+bool StaticMeshComponentProcessor::isVisible(Entity e)
+{
+    return m_pimpl->data.getData(e).visible;
+}
+
+void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath)
+{
+    add(e, meshFilePath, ResourceLoadingMode::ASYNC);
+}
+
 void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath, ResourceLoadingMode lm)
 {
     if (m_pimpl->data.contains(e))
@@ -169,7 +177,9 @@ void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath
     Impl::Data data;
     data.meshData = svc().resourceManager().getFactory().createMeshData(meshFilePath, lm);
     data.holder = e;
-    data.holderTransformation = m_world->sceneGraph().getWorldTransform(e);
+
+    glm::quat tmp;
+    m_world->sceneGraph().getWorldTransformMeshWorkaround(e, data.holderTransformation, data.holderPosition, tmp, data.holderScale);
 
     m_pimpl->data.add(e, data);
 }

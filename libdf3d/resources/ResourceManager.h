@@ -8,7 +8,6 @@ namespace utils { class ThreadPool; }
 
 class Resource;
 class ResourceFactory;
-class FileDataSource;
 class ManualResourceLoader;
 class FSResourceLoader;
 
@@ -29,7 +28,7 @@ private:
 
     struct DecodeRequest
     {
-        shared_ptr<FileDataSource> source;
+        std::string resourcePath;
         shared_ptr<Resource> resource;
         shared_ptr<FSResourceLoader> loader;
 
@@ -51,13 +50,15 @@ private:
     void doRequest(DecodeRequest req);
 
     shared_ptr<Resource> findResource(const std::string &guid) const;
-    shared_ptr<Resource> loadManual(shared_ptr<ManualResourceLoader> loader);
+    shared_ptr<Resource> loadManual(ManualResourceLoader &loader);
     shared_ptr<Resource> loadFromFS(const std::string &path, shared_ptr<FSResourceLoader> loader);
 
 public:
     ResourceManager();
     ~ResourceManager();
 
+    void initialize();
+    void shutdown();
     void poll();
 
     //! All resources creation is going through this factory.

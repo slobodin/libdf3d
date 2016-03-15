@@ -1,11 +1,12 @@
 #include "ParticleSystemUtils.h"
 
 #include "impl/ParticleSystemLoader.h"
-#include "impl/SparkInterface.h"
+#include "impl/SparkQuadRenderer.h"
+#include "impl/SparkLineTrailRenderer.h"
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/resources/ResourceManager.h>
 #include <libdf3d/resources/ResourceFactory.h>
-#include <libdf3d/render/Texture2D.h>
+#include <libdf3d/render/Texture.h>
 #include <libdf3d/render/RenderPass.h>
 #include <libdf3d/utils/JsonUtils.h>
 
@@ -44,6 +45,11 @@ SPK::Ref<SPK::Renderer> ParticleSystemUtils::createQuadRenderer(const glm::vec2 
     quadRenderer->m_pass->enableDepthTest(depthTest);
 
     return quadRenderer;
+}
+
+SPK::Ref<SPK::Renderer> ParticleSystemUtils::createTrailRenderer(size_t nbSamples, float duration, float width, bool depthTest)
+{
+    return particlesys_impl::TrailsParticleSystemRenderer::create(nbSamples, duration, width);
 }
 
 void ParticleSystemUtils::enableFaceCulling(SPK::Ref<SPK::Renderer> renderer, bool enable)

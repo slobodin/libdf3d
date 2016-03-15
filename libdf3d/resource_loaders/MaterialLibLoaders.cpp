@@ -9,30 +9,18 @@
 #include <libdf3d/render/Technique.h>
 #include <libdf3d/render/RenderPass.h>
 #include <libdf3d/render/GpuProgram.h>
-#include <libdf3d/render/Texture2D.h>
-#include <libdf3d/render/TextureCube.h>
+#include <libdf3d/render/Texture.h>
+#include <libdf3d/render/IRenderBackend.h>
 #include <libdf3d/utils/Utils.h>
 
 namespace df3d {
 
-std::map<std::string, RenderPass::WindingOrder> woValues =
+std::map<std::string, FaceCullMode> faceCullModeValues =
 {
-    { "CW", RenderPass::WindingOrder::CW },
-    { "CCW", RenderPass::WindingOrder::CCW }
-};
-
-std::map<std::string, RenderPass::PolygonMode> polygonModeValues =
-{
-    { "FILL", RenderPass::PolygonMode::FILL },
-    { "WIRE", RenderPass::PolygonMode::WIRE }
-};
-
-std::map<std::string, RenderPass::FaceCullMode> faceCullModeValues =
-{
-    { "NONE", RenderPass::FaceCullMode::NONE },
-    { "BACK", RenderPass::FaceCullMode::BACK },
-    { "FRONT", RenderPass::FaceCullMode::FRONT },
-    { "FRONT_AND_BACK", RenderPass::FaceCullMode::FRONT_AND_BACK }
+    { "NONE", FaceCullMode::NONE },
+    { "BACK", FaceCullMode::BACK },
+    { "FRONT", FaceCullMode::FRONT },
+    { "FRONT_AND_BACK", FaceCullMode::FRONT_AND_BACK }
 };
 
 std::map<std::string, TextureFiltering> textureFilteringValues =
@@ -48,11 +36,11 @@ std::map<std::string, TextureWrapMode> textureWrapValues =
     { "CLAMP", TextureWrapMode::CLAMP }
 };
 
-std::map<std::string, RenderPass::BlendingMode> blendModeValues =
+std::map<std::string, BlendingMode> blendModeValues =
 {
-    { "NONE", RenderPass::BlendingMode::NONE },
-    { "ALPHA", RenderPass::BlendingMode::ALPHA },
-    { "ADDALPHA", RenderPass::BlendingMode::ADDALPHA }
+    { "NONE", BlendingMode::NONE },
+    { "ALPHA", BlendingMode::ALPHA },
+    { "ADDALPHA", BlendingMode::ADDALPHA }
 };
 
 std::map<std::string, bool> boolValues =
@@ -110,7 +98,7 @@ static TextureCreationParams getTextureCreationParams(const std::map<std::string
         else if (keyval.first == "anisotropy")
         {
             if (keyval.second == "max")
-                retRes.setAnisotropyLevel(ANISOTROPY_LEVEL_MAX);
+                retRes.setAnisotropyLevel(render_constants::ANISOTROPY_LEVEL_MAX);
             else
                 retRes.setAnisotropyLevel(utils::from_string<int>(keyval.second));
         }
@@ -330,40 +318,24 @@ class MaterialLibParser
             {
                 auto color = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
                 val >> color.r >> color.g >> color.b >> color.a;
-                pass->setDiffuseColor(color);
+                pass->getPassParam("material_diffuse")->setValue(color);
             }
             else if (keyval.first == "specular")
             {
                 auto color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
                 val >> color.r >> color.g >> color.b >> color.a;
-                pass->setSpecularColor(color);
-            }
-            else if (keyval.first == "emissive")
-            {
-                auto color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-                val >> color.r >> color.g >> color.b >> color.a;
-                pass->setEmissiveColor(color);
+                pass->getPassParam("material_specular")->setValue(color);
             }
             else if (keyval.first == "shininess")
             {
                 float shininess = 64.0f;
                 val >> shininess;
-                pass->setShininess(shininess);
+                pass->getPassParam("material_shininess")->setValue(shininess);
             }
             else if (keyval.first == "cull_face")
             {
-                std::function<void(RenderPass::FaceCullMode)> fn = std::bind(&RenderPass::setFaceCullMode, pass.get(), std::placeholders::_1);
+                std::function<void(FaceCullMode)> fn = std::bind(&RenderPass::setFaceCullMode, pass.get(), std::placeholders::_1);
                 setPassParam(keyval.first, keyval.second, faceCullModeValues, fn, m_libPath);
-            }
-            else if (keyval.first == "front_face")
-            {
-                std::function<void(RenderPass::WindingOrder)> fn = std::bind(&RenderPass::setFrontFaceWinding, pass.get(), std::placeholders::_1);
-                setPassParam(keyval.first, keyval.second, woValues, fn, m_libPath);
-            }
-            else if (keyval.first == "polygon_mode")
-            {
-                std::function<void(RenderPass::PolygonMode)> fn = std::bind(&RenderPass::setPolygonDrawMode, pass.get(), std::placeholders::_1);
-                setPassParam(keyval.first, keyval.second, polygonModeValues, fn, m_libPath);
             }
             else if (keyval.first == "depth_test")
             {
@@ -382,38 +354,43 @@ class MaterialLibParser
             }
             else if (keyval.first == "blend")
             {
-                std::function<void(RenderPass::BlendingMode)> fn = std::bind(&RenderPass::setBlendMode, pass.get(), std::placeholders::_1);
+                std::function<void(BlendingMode)> fn = std::bind(&RenderPass::setBlendMode, pass.get(), std::placeholders::_1);
                 setPassParam(keyval.first, keyval.second, blendModeValues, fn, m_libPath);
+            }
+            else
+            {
+                glog << "Unknown parameter in a material" << keyval.first << logwarn;
             }
         }
 
-        // Get material shader and sampler params.
-        // Do not allow to use several shader{} and shader_params{} nodes.
-        bool shaderSet = false;
+        // Set other pass params before setting a gpu program.
+        // Do not allow to use several shader_params{} nodes.
         bool shaderParamsSet = false;
         for (const auto &n : node.children)
         {
-            if (n->type == SHADER_TYPE && !shaderSet)
+            if (n->type == SAMPLER_TYPE)
             {
-                auto gpuProgram = parseShaderNode(*n);
-                pass->setGpuProgram(gpuProgram);
-                shaderSet = true;
+                auto texture = parseSamplerNode(*n);
+                pass->getPassParam(n->name)->setValue(texture);
             }
             else if (n->type == SHADER_PARAMS_TYPE && !shaderParamsSet)
             {
                 parseShaderParamsNode(*n, pass);
                 shaderParamsSet = true;
             }
-            else if (n->type == SAMPLER_TYPE)
-            {
-                auto texture = parseSamplerNode(*n);
-                pass->setSampler(n->name, texture);
-            }
         }
 
-        // FIXME: implicit assumption. Setting up default lighting when no shader provided.
-        if (pass->isLit() && !pass->getGpuProgram())
-            pass->setGpuProgram(svc().resourceManager().getFactory().createSimpleLightingGpuProgram());
+        // Get material shader.
+        // Do not allow to use several shader{} nodes.
+        for (const auto &n : node.children)
+        {
+            if (n->type == SHADER_TYPE)
+            {
+                auto gpuProgram = parseShaderNode(*n);
+                pass->setGpuProgram(gpuProgram);
+                break;
+            }
+        }
 
         return pass;
     }
@@ -427,8 +404,8 @@ class MaterialLibParser
             std::string embedProgramName = embedProgramFound->second;
             if (embedProgramName == "colored")
                 return svc().resourceManager().getFactory().createColoredGpuProgram();
-            else if (embedProgramName == "quad_render")
-                return svc().resourceManager().getFactory().createRttQuadProgram();
+            else if (embedProgramName == "simple_lighting")
+                return svc().resourceManager().getFactory().createSimpleLightingGpuProgram();
             else
             {
                 glog << "Invalid embed program name" << embedProgramName << logwarn;
@@ -452,22 +429,14 @@ class MaterialLibParser
     void parseShaderParamsNode(MaterialLibNode &node, shared_ptr<RenderPass> pass)
     {
         for (auto it : node.keyValues)
-        {
-            RenderPassParam param;
-            param.name = it.first;
-            param.value = utils::from_string<float>(it.second);
-
-            pass->addPassParam(param);
-        }
+            pass->getPassParam(it.first)->setValue(utils::from_string<float>(it.second));
     }
 
     shared_ptr<Texture> parseSamplerNode(const MaterialLibNode &node)
     {
         if (!utils::contains_key(node.keyValues, "type"))
-        {
-            glog << "Can not parse sampler. Missing texture type." << logwarn;
+            // Assuming using empty white texture.
             return nullptr;
-        }
 
         auto type = node.keyValues.find("type")->second;
         auto creationParams = getTextureCreationParams(node.keyValues, m_libPath);
@@ -489,7 +458,7 @@ class MaterialLibParser
         return nullptr;
 
         // TODO: other types are:
-        // TEXTURE_1D TEXTURE_2D TEXTURE_3D 
+        // TEXTURE_1D TEXTURE_2D TEXTURE_3D
     }
 
 public:
@@ -561,8 +530,8 @@ MaterialLib* MaterialLibFSLoader::createDummy()
 
 bool MaterialLibFSLoader::decode(shared_ptr<FileDataSource> source)
 {
-    std::string filedata(source->getSize(), 0);
-    source->getRaw(&filedata[0], source->getSize());
+    std::string filedata(source->getSizeInBytes(), 0);
+    source->getRaw(&filedata[0], source->getSizeInBytes());
 
     std::istringstream input(std::move(filedata));
 

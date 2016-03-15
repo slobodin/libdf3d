@@ -1,7 +1,9 @@
 #include "FileSystem.h"
 
 #include "FileDataSource.h"
-#include <libdf3d/io/FileSystemHelpers.h>
+#include "FileSystemHelpers.h"
+#include "MemoryDataSource.h"
+#include <libdf3d/resources/ResourceContainer.h>
 #include <libdf3d/utils/Utils.h>
 
 namespace df3d {
@@ -10,13 +12,6 @@ std::string FileSystem::canonicalPath(const std::string &rawPath)
 {
     if (rawPath.empty())
         return "";
-
-    // NOTE:
-    // Can't AAssetManager_open from paths like 'foo1/../bar1/foo/'
-#ifndef DF3D_ANDROID
-    if (!FileSystemHelpers::pathExists(rawPath))
-        return "";
-#endif
 
     auto result = rawPath;
 
@@ -67,7 +62,7 @@ FileSystem::~FileSystem()
 
 }
 
-shared_ptr<FileDataSource> FileSystem::openFile(const std::string &filePath) const
+shared_ptr<FileDataSource> FileSystem::openFile(const std::string &filePath)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
@@ -75,19 +70,37 @@ shared_ptr<FileDataSource> FileSystem::openFile(const std::string &filePath) con
     if (fullP.empty())
         return nullptr;
 
-    auto fileSource = FileSystemHelpers::openFile(fullP);
-    if (!fileSource->valid())
-        return nullptr;
+    // Try to find in resource containers.
+    auto found = m_resContainerLookup.find(fullP);
+    if (found != m_resContainerLookup.end())
+    {
+        auto archiveFile = found->second.container->getFile();
+        const auto &entry = found->second.container->getEntries().at(found->second.entryIdx);
 
-    return fileSource;
+        // We do not return this container because we want thread safety.
+        // FIXME: figure out how to avoid copying memory and get concurrent access to a resource pack file.
+        auto resContainer = make_shared<ResourceContainerDataSource>(archiveFile, entry);
+
+        auto size = resContainer->getSizeInBytes();
+
+        //glog << "Allocating" << size << "bytes for" << entry.fileName << "from pack" << archiveFile->getPath() << logdebug;
+
+        auto buffer = make_unique<unsigned char[]>(size);
+        resContainer->getRaw(buffer.get(), size);
+
+        return make_shared<MemoryDataSource>(std::move(buffer), size, entry.fileName);
+    }
+
+    // Try to find in regular file system.
+    return FileSystemHelpers::openFile(fullP);
 }
 
-bool FileSystem::fileExists(const std::string &filePath) const
+bool FileSystem::fileExists(const std::string &filePath)
 {
     return openFile(filePath) != nullptr;
 }
 
-std::string FileSystem::fullPath(const std::string &path) const
+std::string FileSystem::fullPath(const std::string &path)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
@@ -103,6 +116,66 @@ std::string FileSystem::fullPath(const std::string &path) const
     }
 
     return "";
+}
+
+bool FileSystem::addDirectoryResourceContainer(const std::string &dirPath)
+{
+    DF3D_ASSERT(false, "not implemented");
+
+    return false;
+}
+
+bool FileSystem::addArchiveResourceContainer(const std::string &archivePath)
+{
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+    auto archiveFullP = fullPath(archivePath);
+    if (archiveFullP.empty())
+        return false;
+
+    auto archiveFile = FileSystemHelpers::openFile(archiveFullP);
+    if (!archiveFile)
+        return false;
+
+    auto containerFound = std::find_if(m_resourceContainers.begin(), m_resourceContainers.end(), 
+                                       [&archiveFullP](const unique_ptr<ResourceContainer> &cont) {
+        return cont->getFile()->getPath() == archiveFullP;
+    });
+
+    if (containerFound != m_resourceContainers.end())
+    {
+        glog << "Resource container" << archiveFullP << "already added" << logwarn;
+        return false;
+    }
+
+    auto resContainer = make_unique<ResourceContainer>(archiveFile);
+
+    for (size_t i = 0; i < resContainer->getEntries().size(); i++)
+    {
+        ResourceContainerCachedEntry cachedEntry;
+        cachedEntry.container = resContainer.get();
+        cachedEntry.entryIdx = i;
+
+        auto resPath = std::string(resContainer->getEntries()[i].fileName);
+
+        resPath = fullPath(resPath);
+        if (resPath.empty())
+        {
+            glog << "Invalid entry path in a resource container" << logwarn;
+            continue;
+        }
+
+#ifdef _DEBUG
+        if (utils::contains_key(m_resContainerLookup, resPath))
+            glog << "A resource with path" << resPath << "already presented in cache" << logwarn;
+#endif
+
+        m_resContainerLookup[resPath] = cachedEntry;
+    }
+
+    m_resourceContainers.push_back(std::move(resContainer));
+
+    return true;
 }
 
 std::string FileSystem::getFileDirectory(const std::string &filePath)

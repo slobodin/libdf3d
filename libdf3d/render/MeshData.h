@@ -7,11 +7,10 @@
 #include <libdf3d/math/ConvexHull.h>
 #include "Vertex.h"
 #include "RenderCommon.h"
+#include "RenderOperation.h"
 
 namespace df3d {
 
-class VertexBuffer;
-class IndexBuffer;
 class RenderQueue;
 class MeshDataManualLoader;
 class MeshDataFSLoader;
@@ -61,16 +60,8 @@ class DF3D_DLL MeshData : public Resource
 
     size_t m_trianglesCount = 0;
 
-    struct HardwareSubMesh
-    {
-        shared_ptr<VertexBuffer> vb;
-        shared_ptr<IndexBuffer> ib;
-        unique_ptr<Material> material;
-
-        HardwareSubMesh() = default;
-    };
-
-    std::vector<HardwareSubMesh> m_submeshes;
+    std::vector<RenderOperation> m_submeshes;
+    std::vector<unique_ptr<Material>> m_submeshMaterials;
 
     // Bounding volumes in model space.
     AABB m_aabb;

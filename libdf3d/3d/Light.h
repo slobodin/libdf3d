@@ -12,14 +12,12 @@ public:
         // FIXME:
         // Rewrite shaders.
         DIRECTIONAL,
-        POINT,
+        OMNI,
         SPOT
     };
 
 private:
     Type m_type;
-
-    bool m_isEnabled = true;
 
     glm::vec3 m_diffuse;
     glm::vec3 m_specular;
@@ -36,10 +34,6 @@ public:
     Light(Type type);
     ~Light();
 
-    void turnon() { m_isEnabled = true; }
-    void turnoff() { m_isEnabled = false; }
-
-    bool enabled() const { return m_isEnabled; }
     Type getType() const { return m_type; }
 
     void setDirection(const glm::vec3 &dir);
@@ -49,8 +43,8 @@ public:
     void setSpecularIntensity(float rs, float gs, float bs);
     void setName(const std::string &name) { m_name = name; }
 
-    const glm::vec3 &getDiffuseColor() const { return m_diffuse; }
-    const glm::vec3 &getSpecularColor() const { return m_specular; }
+    const glm::vec3& getDiffuseColor() const { return m_diffuse; }
+    const glm::vec3& getSpecularColor() const { return m_specular; }
     glm::vec3 getDirection() const { return m_direction; }
     glm::vec3 getPosition() const;
     const std::string& getName() const { return m_name; }

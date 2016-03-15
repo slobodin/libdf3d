@@ -10,6 +10,9 @@ class DF3D_DLL AudioManager : utils::NonCopyable
 public:
     AudioManager();
     ~AudioManager();
+
+    void initialize();
+    void shutdown();
 };
 
 }

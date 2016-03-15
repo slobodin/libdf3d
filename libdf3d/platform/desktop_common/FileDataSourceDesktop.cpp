@@ -13,19 +13,13 @@ FileDataSourceDesktop::FileDataSourceDesktop(const std::string &fileName)
 
 FileDataSourceDesktop::~FileDataSourceDesktop()
 {
-    close();
+    if (m_file)
+        fclose(m_file);
 }
 
 bool FileDataSourceDesktop::valid() const
 {
     return m_file != nullptr;
-}
-
-void FileDataSourceDesktop::close()
-{
-    if (m_file)
-        fclose(m_file);
-    m_file = nullptr;
 }
 
 size_t FileDataSourceDesktop::getRaw(void *buffer, size_t sizeInBytes)
@@ -35,12 +29,12 @@ size_t FileDataSourceDesktop::getRaw(void *buffer, size_t sizeInBytes)
     return fread(buffer, 1, sizeInBytes, m_file);
 }
 
-int64_t FileDataSourceDesktop::getSize()
+size_t FileDataSourceDesktop::getSizeInBytes()
 {
     if (!m_file)
         return 0;
 
-    int64_t result = 0;
+    size_t result = 0;
     if (seek(0, std::ios_base::end))
     {
         result = tell();
@@ -50,14 +44,14 @@ int64_t FileDataSourceDesktop::getSize()
     return result;
 }
 
-int64_t FileDataSourceDesktop::tell()
+size_t FileDataSourceDesktop::tell()
 {
     if (!m_file)
         return -1;
     return ftell(m_file);
 }
 
-bool FileDataSourceDesktop::seek(int64_t offset, std::ios_base::seekdir origin)
+bool FileDataSourceDesktop::seek(size_t offset, std::ios_base::seekdir origin)
 {
     int whence;
     if (origin == std::ios_base::cur)

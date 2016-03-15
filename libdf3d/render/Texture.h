@@ -1,7 +1,6 @@
 #pragma once
 
 #include <libdf3d/resources/Resource.h>
-#include "OpenGLCommon.h"
 #include "RenderCommon.h"
 
 namespace df3d {
@@ -47,32 +46,29 @@ public:
     void setWrapMode(TextureWrapMode wrapMode);
 };
 
+struct TextureInfo
+{
+    size_t width = 0;
+    size_t height = 0;
+    bool isCubemap = false;
+    size_t sizeInBytes = 0;
+};
+
 class Texture : public Resource
 {
-protected:
-    TextureCreationParams m_params;
+    TextureDescriptor m_descr;
+    TextureInfo m_info;
 
-    GLuint m_glid = 0;
-
-    // Helpers.
-    static bool isPot(size_t v);
-    static size_t getNextPot(size_t v);
-    static GLint getGlFilteringMode(TextureFiltering filtering, bool mipmapped);
-    static GLint getGlWrapMode(TextureWrapMode mode);
-
-    static void setupGlTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped);
-    static void setupGlWrapMode(GLenum glType, TextureWrapMode wrapMode);
-
-    Texture(TextureCreationParams params);
-    
 public:
-    unsigned getGLId() const { return m_glid; }
-    const TextureCreationParams& getParams() const { return m_params; }
+    Texture(TextureDescriptor descr = {}, const TextureInfo &info = {});
+    ~Texture();
 
-    virtual bool bind() = 0;
-    virtual void unbind() = 0;
+    // Texture is owning this descriptor.
+    TextureDescriptor getDescriptor() const;
+    void setDescriptor(TextureDescriptor descr);
 
-    virtual size_t getSizeInBytes() const = 0;
+    void setTextureInfo(const TextureInfo &info) { m_info = info; }
+    const TextureInfo& getTextureInfo() const { return m_info; }
 };
 
 }

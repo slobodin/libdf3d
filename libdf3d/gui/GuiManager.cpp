@@ -11,7 +11,17 @@
 
 namespace df3d {
 
-GuiManager::GuiManager(int contextWidth, int contextHeight)
+GuiManager::GuiManager()
+{
+
+}
+
+GuiManager::~GuiManager()
+{
+
+}
+
+void GuiManager::initialize(int contextWidth, int contextHeight)
 {
     glog << "Initializing libRocket" << logmess;
 
@@ -46,10 +56,12 @@ GuiManager::GuiManager(int contextWidth, int contextHeight)
 #endif
 }
 
-GuiManager::~GuiManager()
+void GuiManager::shutdown()
 {
     m_rocketContext->RemoveReference();
     Rocket::Core::Shutdown();
+
+    m_rocketContext = nullptr;
 }
 
 RocketDocument GuiManager::loadDocument(const std::string &name)

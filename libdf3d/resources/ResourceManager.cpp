@@ -17,9 +17,14 @@ void ResourceManager::doRequest(DecodeRequest req)
     glog << "ASYNC decoding" << req.source->getPath() << logdebug;
     */
 
-    req.result = req.loader->decode(req.source);
-    if (!req.result)
-        glog << "ASYNC decoding failed" << logwarn;
+    if (auto source = svc().fileSystem().openFile(req.resourcePath))
+    {
+        req.result = req.loader->decode(source);
+        if (!req.result)
+            glog << "ASYNC decoding failed" << logwarn;
+    }
+    else
+        glog << "Failed to ASYNC decode a resource. Failed to open file" << logwarn;
 
     m_decodedResources.push(req);
 }
@@ -35,11 +40,11 @@ shared_ptr<Resource> ResourceManager::findResource(const std::string &fullPath) 
     return found->second;
 }
 
-shared_ptr<Resource> ResourceManager::loadManual(shared_ptr<ManualResourceLoader> loader)
+shared_ptr<Resource> ResourceManager::loadManual(ManualResourceLoader &loader)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-    auto resource = shared_ptr<Resource>(loader->load());
+    auto resource = shared_ptr<Resource>(loader.load());
     if (!resource)
     {
         glog << "Failed to manual load a resource" << logwarn;
@@ -49,9 +54,7 @@ shared_ptr<Resource> ResourceManager::loadManual(shared_ptr<ManualResourceLoader
     resource->m_initialized = true;
 
     // FIXME: maybe check in cache and return existing instead?
-#ifdef _DEBUG
-    assert(!isResourceExist(resource->getGUID()));
-#endif
+    DF3D_ASSERT(!isResourceExist(resource->getGUID()), "resource already exists");
 
     m_loadedResources[resource->getGUID()] = resource;
 
@@ -89,7 +92,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
     DecodeRequest req;
     req.loader = loader;
     req.resource = resource;
-    req.source = svc().fileSystem().openFile(guid);
+    req.resourcePath = guid;
 
     if (loader->loadingMode == ResourceLoadingMode::ASYNC)
         m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, req));
@@ -99,7 +102,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
         glog << "Decoding" << req.source->getPath() << logdebug;
         */
 
-        req.result = loader->decode(req.source);
+        req.result = loader->decode(svc().fileSystem().openFile(req.resourcePath));
         if (req.result)
         {
             loader->onDecoded(resource.get());
@@ -119,16 +122,27 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
 
 ResourceManager::ResourceManager()
 {
+
+}
+
+ResourceManager::~ResourceManager()
+{
+
+}
+
+void ResourceManager::initialize()
+{
     m_threadPool = make_unique<utils::ThreadPool>(2);
     m_factory = make_unique<ResourceFactory>(this);
 }
 
-ResourceManager::~ResourceManager()
+void ResourceManager::shutdown()
 {
     //std::lock_guard<std::recursive_mutex> lock(m_lock);
 
     m_threadPool.reset(nullptr);
     m_loadedResources.clear();
+    m_decodedResources.clear();
 }
 
 void ResourceManager::poll()

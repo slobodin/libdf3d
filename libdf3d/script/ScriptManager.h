@@ -14,6 +14,9 @@ public:
     ScriptManager();
     ~ScriptManager();
 
+    void initialize();
+    void shutdown();
+
     bool doFile(const std::string &fileName);
     bool doString(const SQChar *str);
 

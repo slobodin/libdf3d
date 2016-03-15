@@ -7,27 +7,23 @@ namespace df3d {
 
 struct SceneGraphComponentProcessor::Impl
 {
-    // TODO_ecs: play with layout.
     // TODO_ecs: return dirty flag back?
     struct Data
     {
         //! Accumulated node world transform (including parent).
         glm::mat4 worldTransform;
-
         glm::mat4 localTransform;
-        bool localTransformDirty = true;
-        //! Node local position.
-        glm::vec3 position;
         //! Node local orientation.
         glm::quat orientation;
+        //! Node local position.
+        glm::vec3 position;
+        Entity holder;
         //! Node local scale.
         glm::vec3 scaling = glm::vec3(1.0f, 1.0f, 1.0f);
-
-        std::string name;
-
-        Entity holder;
         Entity parent;
         std::vector<Entity> children;
+        std::string name;
+        bool localTransformDirty = true;
     };
 
     ComponentDataHolder<Data> data;
@@ -238,7 +234,7 @@ Entity SceneGraphComponentProcessor::getByName(Entity parent, const std::string 
     if (name.empty())
         return {};
 
-    assert(parent.valid());
+    DF3D_ASSERT(parent.valid(), "invalid parent");
 
     for (const auto &compData : m_pimpl->data.rawData())
     {
@@ -327,7 +323,7 @@ void SceneGraphComponentProcessor::attachChildren(Entity parent, const std::vect
 {
     for (auto c : children)
     {
-        assert(!getParent(c).valid());
+        DF3D_ASSERT(!getParent(c).valid(), "already have a parent");
         m_pimpl->data.getData(c).parent = parent;
     }
 
@@ -351,7 +347,7 @@ void SceneGraphComponentProcessor::detachChild(Entity parent, Entity child)
     childData.parent = Entity();
 
     auto found = std::find(parentData.children.begin(), parentData.children.end(), child);
-    assert(found != parentData.children.end());
+    DF3D_ASSERT(found != parentData.children.end(), "can't detach child");
 
     parentData.children.erase(found);
     m_pimpl->updateWorldTransformation(childData);
@@ -392,6 +388,8 @@ void SceneGraphComponentProcessor::add(Entity e)
     data.holder = e;
 
     m_pimpl->data.add(e, data);
+
+    m_pimpl->updateWorldTransformation(m_pimpl->data.getData(e));
 }
 
 }

@@ -1,6 +1,5 @@
 #include "Vertex.h"
 
-#include "OpenGLCommon.h"
 #include <libdf3d/utils/Utils.h>
 
 namespace df3d {
@@ -30,7 +29,7 @@ VertexFormat::VertexFormat(const std::vector<VertexAttribute> &attribs)
             m_counts[attrib] = 4;
             break;
         default:
-            assert(false);
+            DF3D_ASSERT(false, "sanity check");
         }
     }
 }
@@ -70,46 +69,8 @@ size_t VertexFormat::getAttributeSize(VertexAttribute attrib) const
         break;
     }
 
-    assert(false && "no such attribute in vertex format");
+    DF3D_ASSERT(false, "no such attribute in vertex format");
     return 0;
-}
-
-void VertexFormat::enableGLAttributes()
-{
-    for (auto attrib : m_attribs)
-    {
-        glEnableVertexAttribArray(attrib);
-        size_t offs = getOffsetTo(attrib);
-        glVertexAttribPointer(attrib, m_counts[attrib], GL_FLOAT, GL_FALSE, getVertexSize(), (const GLvoid*)offs);
-    }
-}
-
-void VertexFormat::disableGLAttributes()
-{
-    for (auto attrib : m_attribs)
-        glDisableVertexAttribArray(attrib);
-}
-
-bool VertexFormat::operator== (const VertexFormat &other) const
-{
-    if (m_size != other.m_size)
-        return false;
-
-    if (m_attribs.size() != other.m_attribs.size())
-        return 0;
-
-    for (size_t i = 0; i < m_attribs.size(); i++)
-    {
-        if (m_attribs[i] != other.m_attribs[i])
-            return false;
-    }
-
-    return true;
-}
-
-bool VertexFormat::operator!= (const VertexFormat &other) const
-{
-    return !(*this == other);
 }
 
 Vertex::Vertex(const VertexFormat &format, float *vertexData)
@@ -191,15 +152,16 @@ VertexData::VertexData(const VertexFormat &format)
 
 }
 
-void VertexData::setWithRawData(std::vector<float> &&data)
+VertexData::VertexData(const VertexFormat &format, std::vector<float> &&data)
+    : m_data(std::move(data)),
+    m_format(format)
 {
-    m_data = std::move(data);
     m_verticesCount = (m_data.size() * sizeof(float)) / m_format.getVertexSize();
 }
 
 void VertexData::allocVertices(size_t verticesCount)
 {
-    assert(verticesCount > 0);
+    DF3D_ASSERT(verticesCount > 0, "invalid vertices count");
 
     m_data.assign(m_format.getVertexSize() * verticesCount / sizeof(float), 0.0f);
 
@@ -221,7 +183,7 @@ Vertex VertexData::allocVertex()
 
 Vertex VertexData::getVertex(size_t idx)
 {
-    assert(idx < m_verticesCount);
+    DF3D_ASSERT(idx < m_verticesCount, "sanity check");
 
     return Vertex(m_format, m_data.data() + m_format.getVertexSize() * idx / sizeof(float));
 }
@@ -230,6 +192,13 @@ void VertexData::clear()
 {
     m_verticesCount = 0;
     m_data.clear();
+}
+
+namespace vertex_formats
+{
+
+const VertexFormat p3_tx2_c4 = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
+
 }
 
 }

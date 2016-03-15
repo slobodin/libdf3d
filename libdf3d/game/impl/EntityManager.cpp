@@ -2,19 +2,8 @@
 
 namespace df3d { namespace game_impl {
 
-Entity::IdType EntityManager::getNextId()
-{
-    if (!m_available.empty())
-    {
-        auto res = m_available.front();
-        m_available.pop_front();
-        return res;
-    }
-
-    return m_next++;
-}
-
 EntityManager::EntityManager()
+    : m_bag(std::numeric_limits<Entity::IdType>::max() - 1)
 {
 
 }
@@ -27,7 +16,7 @@ EntityManager::~EntityManager()
 Entity EntityManager::create()
 {
     Entity e;
-    e.id = getNextId();
+    e.id = m_bag.getNew();
 
     m_entities.insert(e);
 
@@ -36,17 +25,18 @@ Entity EntityManager::create()
 
 void EntityManager::destroy(Entity e)
 {
-    assert(e.valid());
+    DF3D_ASSERT(e.valid(), "can't destroy invalid entity");
 
-    assert(m_entities.erase(e) == 1);
+    auto count = m_entities.erase(e);
+    DF3D_ASSERT(count == 1, "failed to destroy an entity");
     // NOTE: component data should be destroyed later via World::cleanStep
 
-    m_removed.push_back(e.id);
+    m_bag.release(e.id);
 }
 
 bool EntityManager::alive(Entity e) const
 {
-    assert(e.valid());
+    DF3D_ASSERT(e.valid(), "invalid entity");
 
     return m_entities.find(e) != m_entities.end();
 }
@@ -58,8 +48,7 @@ size_t EntityManager::size() const
 
 void EntityManager::cleanStep()
 {
-    m_available.insert(m_available.end(), m_removed.begin(), m_removed.end());
-    m_removed.clear();
+    m_bag.cleanup();
 }
 
 } }

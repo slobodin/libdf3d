@@ -52,6 +52,12 @@ using std::static_pointer_cast;
 #undef min
 #endif
 
+#ifdef _DEBUG
+#define DF3D_ASSERT(cond, msg) { if (!(cond)) { df3d::glog << "Assertion failed:" << msg << df3d::logcritical; assert(cond); } }
+#else
+#define DF3D_ASSERT(cond, msg) { assert(cond); }
+#endif
+
 namespace df3d {
 
 enum class ResourceLoadingMode

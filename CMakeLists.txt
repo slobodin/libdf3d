@@ -55,6 +55,7 @@ endif()
 
 # TODO: if build tools
 add_subdirectory(${PROJECT_SOURCE_DIR}/tools/obj_to_dfmesh)
+add_subdirectory(${PROJECT_SOURCE_DIR}/tools/data_archiver)
 
 if (DF3D_DESKTOP)
     set(DF3D_USE_ROCKET_DEBUGGER TRUE)
@@ -81,7 +82,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/DebugConsole.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/FrameStats.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/StringTable.h
     ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.h
@@ -113,6 +113,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileDataSource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystemHelpers.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/io/MemoryDataSource.h
     ${PROJECT_SOURCE_DIR}/libdf3d/io/Storage.h
     ${PROJECT_SOURCE_DIR}/libdf3d/math/AABB.h
     ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingSphere.h
@@ -121,38 +122,33 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemUtils.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkInterface.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkCommon.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkLineTrailRenderer.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkQuadRenderer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/ParticleSystemLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentCreationParams.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/impl/RenderBackendGL.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/IRenderBackend.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramSharedState.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/OpenGLCommon.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RendererBackend.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderCommon.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderOperation.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderPass.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderQueue.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTarget.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetScreen.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetTexture.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Shader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Technique.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture2D.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/TextureCube.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Vertex.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/VertexIndexBuffer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Viewport.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceContainer.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/AudioLoaders.h
@@ -166,6 +162,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/script/ScriptManager.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Any.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/utils/DescriptorsBag.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.h
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/MathUtils.h
@@ -191,7 +188,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/base/DebugConsole.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/impl/ConsoleWindowRmlSource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/FrameStats.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/StringTable.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.cpp
@@ -209,6 +205,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/io/MemoryDataSource.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/io/Storage.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/math/AABB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingSphere.cpp
@@ -217,35 +214,30 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemUtils.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkInterface.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkCommon.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkLineTrailRenderer.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkQuadRenderer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/ParticleSystemLoader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentCreationParams.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/impl/RenderBackendGL.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramState.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramUniform.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramSharedState.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/OpenGLCommon.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RendererBackend.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderCommon.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderOperation.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderPass.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderQueue.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetScreen.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderTargetTexture.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Shader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Technique.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture2D.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/TextureCube.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Vertex.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/VertexIndexBuffer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/render/Viewport.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.cpp
+    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceContainer.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/AudioLoaders.cpp

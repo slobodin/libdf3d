@@ -1,40 +1,15 @@
 Physics component refactor
 loaders minor fixes
 scene graph?
-node components refactor
-services - make all pointers (mb?)
-rename df3dServices to Services
 tests for utils
 
-json utils separate (namespace)
-separate utils!
 math utils into a file
-SceneSerializzer - rename or delete
-
 
 Tests for gram shcmidt ortogonolization
 
-
 group sorted geometry into batches in order to check state changes and to support instancing.
 
-app_startup.exe + gamemodule + df3d.dll
-
-Tests:
-utils
-filesystem
-
-
-binding params in shader, all generalized, no emissive etc.
-
 buffer pingponging
-scene rendering policy
-
-serializers(node, scene, components loaders) into separate module
-
-
-
-remove unused code
-
 
 
 PBR + remove embed shaders

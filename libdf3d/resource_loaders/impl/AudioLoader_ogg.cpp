@@ -25,13 +25,13 @@ int seekOgg(void *datasource, ogg_int64_t offset, int whence)
     switch (whence)
     {
     case SEEK_SET:
-        res = file->seek((long)offset, std::ios_base::beg);
+        res = file->seek(offset, std::ios_base::beg);
         break;
     case SEEK_CUR:
-        res = file->seek((long)offset, std::ios_base::cur);
+        res = file->seek(offset, std::ios_base::cur);
         break;
     case SEEK_END:
-        res = file->seek((long)offset, std::ios_base::end);
+        res = file->seek(offset, std::ios_base::end);
         break;
     default:
         return -1;

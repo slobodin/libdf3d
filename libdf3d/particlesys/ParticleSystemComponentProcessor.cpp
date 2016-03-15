@@ -1,7 +1,8 @@
 #include "ParticleSystemComponentProcessor.h"
 
 #include "impl/ParticleSystemLoader.h"
-#include "impl/SparkInterface.h"
+#include "impl/SparkCommon.h"
+#include "impl/SparkQuadRenderer.h"
 #include "ParticleSystemUtils.h"
 #include <libdf3d/game/ComponentDataHolder.h>
 #include <libdf3d/game/World.h>
@@ -9,8 +10,6 @@
 #include <libdf3d/3d/SceneGraphComponentProcessor.h>
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/base/TimeManager.h>
-#include <libdf3d/render/Vertex.h>
-#include <libdf3d/render/VertexIndexBuffer.h>
 #include <libdf3d/utils/JsonUtils.h>
 
 namespace df3d {
@@ -118,7 +117,7 @@ void ParticleSystemComponentProcessor::useConstantStep(float time)
 void ParticleSystemComponentProcessor::stop(Entity e)
 {
     // TODO:
-    assert(false);
+    DF3D_ASSERT(false, "not implemented");
 }
 
 void ParticleSystemComponentProcessor::pause(Entity e, bool paused)

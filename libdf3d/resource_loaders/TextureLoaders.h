@@ -1,8 +1,7 @@
 #pragma once
 
 #include <libdf3d/resources/Resource.h>
-#include <libdf3d/render/Texture2D.h>
-#include <libdf3d/render/TextureCube.h>
+#include <libdf3d/render/Texture.h>
 
 namespace df3d {
 
@@ -14,7 +13,7 @@ class Texture2DManualLoader : public ManualResourceLoader
 public:
     Texture2DManualLoader(unique_ptr<PixelBuffer> pixelBuffer, TextureCreationParams params);
 
-    Texture2D* load() override;
+    Texture* load() override;
 };
 
 class Texture2DFSLoader : public FSResourceLoader
@@ -27,7 +26,7 @@ class Texture2DFSLoader : public FSResourceLoader
 public:
     Texture2DFSLoader(const std::string &path, const TextureCreationParams &params, ResourceLoadingMode lm);
 
-    Texture2D* createDummy() override;
+    Texture* createDummy() override;
     bool decode(shared_ptr<FileDataSource> source) override;
     void onDecoded(Resource *resource) override;
 };
@@ -37,12 +36,12 @@ class TextureCubeFSLoader : public FSResourceLoader
     std::string m_jsonPath;
     TextureCreationParams m_params;
 
-    unique_ptr<PixelBuffer> m_pixelBuffers[(int)CubeFace::COUNT];
+    unique_ptr<PixelBuffer> m_pixelBuffers[(size_t)CubeFace::COUNT];
 
 public:
     TextureCubeFSLoader(const std::string &path, const TextureCreationParams &params, ResourceLoadingMode lm);
 
-    TextureCube* createDummy() override;
+    Texture* createDummy() override;
     bool decode(shared_ptr<FileDataSource> source) override;
     void onDecoded(Resource *resource) override;
 };

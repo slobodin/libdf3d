@@ -1,10 +1,11 @@
 #include "ParticleSystemLoader.h"
 
-#include "SparkInterface.h"
+#include "SparkCommon.h"
+#include "SparkQuadRenderer.h"
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/resources/ResourceManager.h>
 #include <libdf3d/resources/ResourceFactory.h>
-#include <libdf3d/render/Texture2D.h>
+#include <libdf3d/render/Texture.h>
 #include <libdf3d/render/RenderPass.h>
 #include <libdf3d/utils/Utils.h>
 #include <libdf3d/utils/JsonUtils.h>
@@ -408,7 +409,7 @@ static SPK::Ref<ParticleSystemRenderer> createRenderer(const Json::Value &render
     }
     else if (rendererType == "line")
     {
-        assert(false && "Not implemented");
+        DF3D_ASSERT(false, "not implemented");
         //renderer = LineParticleSystemRenderer::create(100.0f, 100.0f);
     }
     else

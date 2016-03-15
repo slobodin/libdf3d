@@ -1,10 +1,6 @@
 #include "Camera.h"
 
 #include <libdf3d/base/EngineController.h>
-#include <libdf3d/render/RendererBackend.h>
-#include <libdf3d/render/Viewport.h>
-#include <libdf3d/render/RenderTargetScreen.h>
-#include <libdf3d/render/RenderManager.h>
 
 namespace df3d {
 
@@ -123,8 +119,6 @@ const Frustum &Camera::getFrustum()
 glm::vec3 Camera::screenToViewPoint(float x, float y, float z) const
 {
     const auto &screenSize = svc().getScreenSize();
-
-    //float z = svc().renderManager().getRenderer()->readDepthBuffer(x, h - y - 1);
 
     glm::vec4 viewport = glm::vec4(0.0f, 0.0f, screenSize.x, screenSize.y);
     auto viewPos = glm::unProject(glm::vec3(x, screenSize.y - y - 1, z), getViewMatrix(), getProjectionMatrix(), viewport);
