@@ -55,7 +55,8 @@ enum class RopType
 {
     LINES,
     TRIANGLES,
-    LINE_STRIP
+    LINE_STRIP,
+    TRIANGLE_STRIP
 };
 
 // TODO: refactor blending mode.

@@ -166,6 +166,8 @@ static GLenum GetGLDrawMode(RopType type)
         return GL_TRIANGLES;
     case RopType::LINE_STRIP:
         return GL_LINE_STRIP;
+    case RopType::TRIANGLE_STRIP:
+        return GL_TRIANGLE_STRIP;
     default:
         break;
     }
