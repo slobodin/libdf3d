@@ -3,6 +3,14 @@
 #include "RocketRefWrapper.h"
 #include <Rocket/Core.h>
 
+namespace tb {
+class TBRenderer;
+class TBSkin;
+class TBWidgetsReader;
+class TBLanguage;
+class TBFontManager;
+}
+
 namespace df3d {
 
 namespace gui_impl {
@@ -43,6 +51,12 @@ public:
         el->RemoveReference();
         return el;
     }
+
+    tb::TBRenderer* getRenderer();
+    tb::TBSkin* getSkin();
+    tb::TBWidgetsReader* getWidgetsReader();
+    tb::TBLanguage* getLang();
+    tb::TBFontManager* getFontManager();
 };
 
 }

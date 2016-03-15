@@ -46,6 +46,6 @@ public:
     void onDecoded(Resource *resource) override;
 };
 
-unique_ptr<PixelBuffer> GetPixelBufferFromSource(shared_ptr<FileDataSource> source);
+unique_ptr<PixelBuffer> GetPixelBufferFromSource(shared_ptr<FileDataSource> source, int reqComp);
 
 }

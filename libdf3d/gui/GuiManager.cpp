@@ -1,8 +1,9 @@
 #include "GuiManager.h"
 
+#include <tb_core.h>
+#include "impl/TBInterface.h"
 #include "impl/RocketInterface.h"
 #include "impl/RocketKeyCodesAdapter.h"
-#include "TbManager.h"
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/input/InputEvents.h>
 
@@ -57,14 +58,16 @@ void GuiManager::initialize(int contextWidth, int contextHeight)
 #endif
 
 
+    tb::tb_core_init(gui_impl::CreateRenderer());
 
-
-    TBManager *t = new TBManager();
-
+    void register_tbbf_font_renderer();
+    register_tbbf_font_renderer();
 }
 
 void GuiManager::shutdown()
 {
+    tb::tb_core_shutdown();
+
     m_rocketContext->RemoveReference();
     Rocket::Core::Shutdown();
 
@@ -97,6 +100,31 @@ bool GuiManager::isDebuggerVisible() const
 #else
     return false;
 #endif
+}
+
+tb::TBRenderer* GuiManager::getRenderer()
+{
+    return tb::g_renderer;
+}
+
+tb::TBSkin* GuiManager::getSkin()
+{
+    return tb::g_tb_skin;
+}
+
+tb::TBWidgetsReader* GuiManager::getWidgetsReader()
+{
+    return tb::g_widgets_reader;
+}
+
+tb::TBLanguage* GuiManager::getLang()
+{
+    return tb::g_tb_lng;
+}
+
+tb::TBFontManager* GuiManager::getFontManager()
+{
+    return tb::g_font_manager;
 }
 
 }

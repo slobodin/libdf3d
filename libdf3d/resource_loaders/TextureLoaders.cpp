@@ -48,7 +48,7 @@ static int eof(void *user)
     return dataSource->tell() >= dataSource->getSizeInBytes();
 }
 
-static unique_ptr<PixelBuffer> loadPixelBuffer(shared_ptr<FileDataSource> source)
+static unique_ptr<PixelBuffer> loadPixelBuffer(shared_ptr<FileDataSource> source, int reqComp = 0)
 {
     if (!source)
     {
@@ -63,7 +63,7 @@ static unique_ptr<PixelBuffer> loadPixelBuffer(shared_ptr<FileDataSource> source
     auto dataSource = source.get();
 
     int x, y, bpp;
-    auto pixels = stbi_load_from_callbacks(&callbacks, dataSource, &x, &y, &bpp, 0);
+    auto pixels = stbi_load_from_callbacks(&callbacks, dataSource, &x, &y, &bpp, reqComp);
     if (!pixels)
     {
         glog << "Can not load image" << source->getPath() << logwarn;
@@ -235,9 +235,9 @@ void TextureCubeFSLoader::onDecoded(Resource *resource)
         m_pixelBuffers[i].reset();
 }
 
-unique_ptr<PixelBuffer> GetPixelBufferFromSource(shared_ptr<FileDataSource> source)
+unique_ptr<PixelBuffer> GetPixelBufferFromSource(shared_ptr<FileDataSource> source, int reqComp)
 {
-    return loadPixelBuffer(source);
+    return loadPixelBuffer(source, reqComp);
 }
 
 }

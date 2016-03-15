@@ -2,7 +2,7 @@
 
 #include <tb_core.h>
 #include <tb_system.h>
-#include <renderers/tb_renderer_batcher.h>
+#include <tb_renderer.h>
 #include <tb_bitmap_fragment.h>
 #include <Windows.h>
 
@@ -15,6 +15,9 @@
 #include <libdf3d/resource_loaders/TextureLoaders.h>
 
 namespace df3d { namespace gui_impl {
+
+#define VER_COL(r, g, b, a) (((a)<<24) + ((b)<<16) + ((g)<<8) + r)
+#define VER_COL_OPACITY(a) (0x00ffffff + (((tb::uint32)a) << 24))
 
 class TBFileImpl : public tb::TBFile
 {
@@ -63,6 +66,11 @@ public:
         memcpy(m_data.get(), buffer.getData(), buffer.getSizeInBytes());
     }
 
+    ~TBImageLoaderImpl()
+    {
+
+    }
+
     int Width() override
     {
         return m_width;
@@ -79,18 +87,216 @@ public:
     }
 };
 
-class TBRendererImpl : public tb::TBRendererBatcher
+class TBRendererImpl : public tb::TBRenderer
 {
+    tb::uint8 m_opacity = 255;
+    tb::TBRect m_screen_rect;
+    tb::TBRect m_clip_rect;
+    int m_translation_x = 0;
+    int m_translation_y = 0;
+
+    float m_u = 0.0f, m_v = 0.0f, m_uu = 0.0f, m_vv = 0.0f;
+
+    /** A batch which should be rendered. */
+    class Batch
+    {
+    public:
+        Batch() : vertex_count(0), bitmap(nullptr), fragment(nullptr), batch_id(0), is_flushing(false) {}
+        void Flush(TBRendererImpl *batch_renderer)
+        {
+            using namespace tb;
+
+            if (!vertex_count || is_flushing)
+                return;
+
+            // Prevent re-entrancy. Calling fragment->GetBitmap may end up calling TBBitmap::SetData
+            // which will end up flushing any existing batch with that bitmap.
+            is_flushing = true;
+
+            if (fragment)
+            {
+                // Now it's time to ensure the bitmap data is up to date. A call to GetBitmap
+                // with TB_VALIDATE_ALWAYS should guarantee that its data is validated.
+                TBBitmap *frag_bitmap = fragment->GetBitmap(TB_VALIDATE_ALWAYS);
+                ((void)frag_bitmap); // silence warning about unused variable
+                assert(frag_bitmap == bitmap);
+            }
+
+            batch_renderer->RenderBatch(this);
+
+            vertex_count = 0;
+
+            batch_id++; // Will overflow eventually, but that doesn't really matter.
+
+            is_flushing = false;
+        }
+
+        Vertex *Reserve(TBRendererImpl *batch_renderer, int count)
+        {
+            //assert(count < VERTEX_BATCH_SIZE);
+            //if (vertex_count + count > VERTEX_BATCH_SIZE)
+            //    Flush(batch_renderer);
+            //Vertex *ret = &vertex[vertex_count];
+            //vertex_count += count;
+            //return ret;
+            return nullptr;
+        }
+
+        //Vertex vertex[VERTEX_BATCH_SIZE];
+        int vertex_count;
+
+        tb::TBBitmap *bitmap;
+        tb::TBBitmapFragment *fragment;
+
+        tb::uint32 batch_id;
+        bool is_flushing;
+    };
+
+
 public:
     void BeginPaint(int render_target_w, int render_target_h) override
     {
-        TBRendererBatcher::BeginPaint(render_target_w, render_target_h);
-        // TODO_tb
+        m_screen_rect.Set(0, 0, render_target_w, render_target_h);
+        m_clip_rect = m_screen_rect;
     }
 
     virtual void EndPaint()
     {
-        TBRendererBatcher::EndPaint();
+        FlushAllInternal();
+    }
+
+    void Translate(int dx, int dy) override
+    {
+        m_translation_x += dx;
+        m_translation_y += dy;
+    }
+
+    void SetOpacity(float opacity) override
+    {
+        tb::int8 opacity8 = (tb::uint8)(opacity * 255);
+        if (opacity8 == m_opacity)
+            return;
+        m_opacity = opacity8;
+    }
+
+    float GetOpacity() override
+    {
+        return m_opacity / 255.f;
+    }
+
+    tb::TBRect SetClipRect(const tb::TBRect &rect, bool add_to_current) override
+    {
+        tb::TBRect old_clip_rect = m_clip_rect;
+        m_clip_rect = rect;
+        m_clip_rect.x += m_translation_x;
+        m_clip_rect.y += m_translation_y;
+
+        if (add_to_current)
+            m_clip_rect = m_clip_rect.Clip(old_clip_rect);
+
+        FlushAllInternal();
+        SetClipRect(m_clip_rect);
+
+        old_clip_rect.x -= m_translation_x;
+        old_clip_rect.y -= m_translation_y;
+        return old_clip_rect;
+    }
+
+    tb::TBRect GetClipRect() override
+    {
+        tb::TBRect curr_clip_rect = m_clip_rect;
+        curr_clip_rect.x -= m_translation_x;
+        curr_clip_rect.y -= m_translation_y;
+        return curr_clip_rect;
+    }
+
+    void DrawBitmap(const tb::TBRect &dst_rect, const tb::TBRect &src_rect, tb::TBBitmapFragment *bitmap_fragment) override
+    {
+        if (tb::TBBitmap *bitmap = bitmap_fragment->GetBitmap(tb::TB_VALIDATE_FIRST_TIME))
+            AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y),
+                            src_rect.Offset(bitmap_fragment->m_rect.x, bitmap_fragment->m_rect.y),
+                            VER_COL_OPACITY(m_opacity), bitmap, bitmap_fragment);
+    }
+
+    void DrawBitmap(const tb::TBRect &dst_rect, const tb::TBRect &src_rect, tb::TBBitmap *bitmap) override
+    {
+        AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y), src_rect, VER_COL_OPACITY(m_opacity), bitmap, nullptr);
+    }
+
+    void DrawBitmapColored(const tb::TBRect &dst_rect, const tb::TBRect &src_rect, const tb::TBColor &color, tb::TBBitmapFragment *bitmap_fragment) override
+    {
+        if (tb::TBBitmap *bitmap = bitmap_fragment->GetBitmap(tb::TB_VALIDATE_FIRST_TIME))
+        {
+            tb::uint32 a = (color.a * m_opacity) / 255;
+            AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y),
+                            src_rect.Offset(bitmap_fragment->m_rect.x, bitmap_fragment->m_rect.y),
+                            VER_COL(color.r, color.g, color.b, a), bitmap, bitmap_fragment);
+        }
+    }
+
+    void DrawBitmapColored(const tb::TBRect &dst_rect, const tb::TBRect &src_rect, const tb::TBColor &color, tb::TBBitmap *bitmap) override
+    {
+        tb::uint32 a = (color.a * m_opacity) / 255;
+        AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y),
+                        src_rect, VER_COL(color.r, color.g, color.b, a), bitmap, nullptr);
+    }
+
+    void DrawBitmapTile(const tb::TBRect &dst_rect, tb::TBBitmap *bitmap) override
+    {
+        AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y),
+                        tb::TBRect(0, 0, dst_rect.w, dst_rect.h),
+                        VER_COL_OPACITY(m_opacity), bitmap, nullptr);
+    }
+
+    void DrawRect(const tb::TBRect &dst_rect, const tb::TBColor &color) override
+    {
+        if (dst_rect.IsEmpty())
+            return;
+        // Top
+        DrawRectFill(tb::TBRect(dst_rect.x, dst_rect.y, dst_rect.w, 1), color);
+        // Bottom
+        DrawRectFill(tb::TBRect(dst_rect.x, dst_rect.y + dst_rect.h - 1, dst_rect.w, 1), color);
+        // Left
+        DrawRectFill(tb::TBRect(dst_rect.x, dst_rect.y + 1, 1, dst_rect.h - 2), color);
+        // Right
+        DrawRectFill(tb::TBRect(dst_rect.x + dst_rect.w - 1, dst_rect.y + 1, 1, dst_rect.h - 2), color);
+    }
+
+    void DrawRectFill(const tb::TBRect &dst_rect, const tb::TBColor &color) override
+    {
+        if (dst_rect.IsEmpty())
+            return;
+        tb::uint32 a = (color.a * m_opacity) / 255;
+        AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y),
+                        tb::TBRect(), VER_COL(color.r, color.g, color.b, a), nullptr, nullptr);
+    }
+
+    void FlushBitmap(tb::TBBitmap *bitmap)
+    {
+        // Flush the batch if it's using this bitmap (that is about to change or be deleted)
+        //if (batch.vertex_count && bitmap == batch.bitmap)
+            //batch.Flush(this);
+    }
+
+    void FlushBitmapFragment(tb::TBBitmapFragment *bitmap_fragment) override
+    {
+        // Flush the batch if it is using this fragment (that is about to change or be deleted)
+        // We know if it is in use in the current batch if its batch_id matches the current
+        // batch_id in our (one and only) batch.
+        // If we switch to a more advance batching system with multiple batches, we need to
+        // solve this a bit differently.
+        //if (batch.vertex_count && bitmap_fragment->m_batch_id == batch.batch_id)
+        //    batch.Flush(this);
+    }
+
+    void AddQuadInternal(const tb::TBRect &dst_rect, const tb::TBRect &src_rect, tb::uint32 color, tb::TBBitmap *bitmap, tb::TBBitmapFragment *fragment)
+    {
+
+    }
+
+    void FlushAllInternal()
+    {
+        //batch.Flush(this);
     }
 
     tb::TBBitmap* CreateBitmap(int width, int height, tb::uint32 *data) override
@@ -98,12 +304,12 @@ public:
         return nullptr;
     }
 
-    void RenderBatch(Batch *batch) override
+    void RenderBatch(Batch *batch)
     {
 
     }
 
-    void SetClipRect(const tb::TBRect &rect) override
+    void SetClipRect(const tb::TBRect &rect)
     {
         // TODO_tb
         /*
@@ -131,7 +337,7 @@ TBImageLoader* TBImageLoader::CreateFromFile(const char *filename)
     if (!file)
         return nullptr;
 
-    auto pixels = df3d::GetPixelBufferFromSource(file);
+    auto pixels = df3d::GetPixelBufferFromSource(file, 4);
     if (!pixels)
         return nullptr;
 
