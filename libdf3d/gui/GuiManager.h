@@ -9,6 +9,7 @@ class TBSkin;
 class TBWidgetsReader;
 class TBLanguage;
 class TBFontManager;
+class TBWidget;
 }
 
 namespace df3d {
@@ -29,12 +30,15 @@ class DF3D_DLL GuiManager : utils::NonCopyable
 
     Rocket::Core::Context *m_rocketContext = nullptr;
 
+    unique_ptr<tb::TBWidget> m_root;
+
 public:
     GuiManager();
     ~GuiManager();
 
     void initialize(int contextWidth, int contextHeight);
     void shutdown();
+    void update();
 
     RocketDocument loadDocument(const std::string &name);
 
@@ -51,6 +55,8 @@ public:
         el->RemoveReference();
         return el;
     }
+
+    tb::TBWidget* getRoot() { return m_root.get(); }
 
     tb::TBRenderer* getRenderer();
     tb::TBSkin* getSkin();

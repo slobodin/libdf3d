@@ -1,6 +1,7 @@
 #include "GuiManager.h"
 
 #include <tb_core.h>
+#include <animation/tb_widget_animation.h>
 #include "impl/TBInterface.h"
 #include "impl/RocketInterface.h"
 #include "impl/RocketKeyCodesAdapter.h"
@@ -62,16 +63,32 @@ void GuiManager::initialize(int contextWidth, int contextHeight)
 
     void register_tbbf_font_renderer();
     register_tbbf_font_renderer();
+
+    tb::TBWidgetsAnimationManager::Init();
+
+    m_root = make_unique<tb::TBWidget>();
+    m_root->SetRect(tb::TBRect(0, 0, contextWidth, contextHeight));
 }
 
 void GuiManager::shutdown()
 {
+    tb::TBWidgetsAnimationManager::Shutdown();
+
+    m_root.reset();
+
     tb::tb_core_shutdown();
 
     m_rocketContext->RemoveReference();
     Rocket::Core::Shutdown();
 
     m_rocketContext = nullptr;
+}
+
+void GuiManager::update()
+{
+    tb::TBAnimationManager::Update();
+    m_root->InvokeProcessStates();
+    m_root->InvokeProcess();
 }
 
 RocketDocument GuiManager::loadDocument(const std::string &name)
