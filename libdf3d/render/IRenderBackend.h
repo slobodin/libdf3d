@@ -41,8 +41,9 @@ public:
 
     virtual TextureDescriptor createTexture2D(const PixelBuffer &pixels, const TextureCreationParams &params) = 0;
     virtual TextureDescriptor createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params) = 0;
+    virtual void updateTexture(TextureDescriptor t, int w, int h, const void *data) = 0;
     virtual void destroyTexture(TextureDescriptor t) = 0;
-    
+
     virtual void bindTexture(TextureDescriptor t, int unit) = 0;
 
     virtual ShaderDescriptor createShader(ShaderType type, const std::string &data) = 0;
