@@ -10,14 +10,15 @@
 #include <libdf3d/render/Texture.h>
 #include <libdf3d/render/RenderManager.h>
 #include <libdf3d/render/IRenderBackend.h>
+#include <libdf3d/render/RenderPass.h>
+#include <libdf3d/render/RenderOperation.h>
+#include <libdf3d/resources/ResourceManager.h>
+#include <libdf3d/resources/ResourceFactory.h>
 #include <libdf3d/io/FileSystem.h>
 #include <libdf3d/io/FileDataSource.h>
 #include <libdf3d/resource_loaders/TextureLoaders.h>
 
 namespace df3d { namespace gui_impl {
-
-#define VER_COL(r, g, b, a) (((a)<<24) + ((b)<<16) + ((g)<<8) + r)
-#define VER_COL_OPACITY(a) (0x00ffffff + (((tb::uint32)a) << 24))
 
 class TBFileImpl : public tb::TBFile
 {
@@ -87,6 +88,8 @@ public:
     }
 };
 
+// NOTE: this is crap.
+
 class TBRendererImpl : public tb::TBRenderer
 {
     tb::uint8 m_opacity = 255;
@@ -97,11 +100,81 @@ class TBRendererImpl : public tb::TBRenderer
 
     float m_u = 0.0f, m_v = 0.0f, m_uu = 0.0f, m_vv = 0.0f;
 
+    class TBBitmapImpl : public tb::TBBitmap
+    {
+    public:
+        TBBitmapImpl(TBRendererImpl *renderer)
+            : m_renderer(renderer)
+        {
+
+        }
+
+        ~TBBitmapImpl()
+        {
+            m_renderer->FlushBitmap(this);
+            svc().resourceManager().unloadResource(m_texture);
+        }
+
+        bool Init(int width, int height, tb::uint32 *data)
+        {
+            assert(width == tb::TBGetNearestPowerOfTwo(width));
+            assert(height == tb::TBGetNearestPowerOfTwo(height));
+
+            m_w = width;
+            m_h = height;
+
+            auto buffer = make_unique<PixelBuffer>(m_w, m_h, (unsigned char *)data, PixelFormat::RGBA);
+            TextureCreationParams params;
+            params.setMipmapped(false);
+            params.setAnisotropyLevel(render_constants::NO_ANISOTROPY);
+            params.setFiltering(TextureFiltering::BILINEAR);
+
+            m_texture = svc().resourceManager().getFactory().createTexture(std::move(buffer), params);
+            return true;
+        }
+
+        int Width() override { return m_w; }
+        int Height() override { return m_h; }
+
+        void SetData(tb::uint32 *data) override
+        {
+            svc().renderManager().getBackend().updateTexture(m_texture->getDescriptor(), m_w, m_h, data);
+        }
+
+    public:
+        TBRendererImpl *m_renderer;
+        int m_w = 0, m_h = 0;
+        shared_ptr<Texture> m_texture;
+    };
+
     /** A batch which should be rendered. */
     class Batch
     {
+        static const size_t VERTEX_BATCH_SIZE = 1 * 2048;
+
     public:
-        Batch() : vertex_count(0), bitmap(nullptr), fragment(nullptr), batch_id(0), is_flushing(false) {}
+        struct VertexTB
+        {
+            glm::vec3 pos;
+            glm::vec2 uv;
+            glm::vec4 color;
+        };
+
+        Batch()
+        {
+            DF3D_ASSERT(sizeof(VertexTB) == vertex_formats::p3_tx2_c4.getVertexSize(), "sanity check");
+            DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::POSITION_3) == 0, "sanity check");
+            DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::TX_2) == sizeof(glm::vec3), "sanity check");
+            DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::COLOR_4) == sizeof(glm::vec3) + sizeof(glm::vec2), "sanity check");
+
+            m_vb = svc().renderManager().getBackend().createVertexBuffer(vertex_formats::p3_tx2_c4, VERTEX_BATCH_SIZE, nullptr, df3d::GpuBufferUsageType::DYNAMIC);
+        }
+
+        ~Batch()
+        {
+            svc().renderManager().getBackend().destroyVertexBuffer(m_vb);
+        }
+
         void Flush(TBRendererImpl *batch_renderer)
         {
             using namespace tb;
@@ -122,6 +195,8 @@ class TBRendererImpl : public tb::TBRenderer
                 assert(frag_bitmap == bitmap);
             }
 
+            svc().renderManager().getBackend().updateVertexBuffer(m_vb, vertex_count, vertex);
+
             batch_renderer->RenderBatch(this);
 
             vertex_count = 0;
@@ -131,29 +206,52 @@ class TBRendererImpl : public tb::TBRenderer
             is_flushing = false;
         }
 
-        Vertex *Reserve(TBRendererImpl *batch_renderer, int count)
+        VertexTB* Reserve(TBRendererImpl *batch_renderer, int count)
         {
-            //assert(count < VERTEX_BATCH_SIZE);
-            //if (vertex_count + count > VERTEX_BATCH_SIZE)
-            //    Flush(batch_renderer);
-            //Vertex *ret = &vertex[vertex_count];
-            //vertex_count += count;
-            //return ret;
-            return nullptr;
+            assert(count < VERTEX_BATCH_SIZE);
+            if (vertex_count + count > VERTEX_BATCH_SIZE)
+                Flush(batch_renderer);
+
+            VertexTB *ret = &vertex[vertex_count];
+            vertex_count += count;
+            return ret;
         }
 
-        //Vertex vertex[VERTEX_BATCH_SIZE];
-        int vertex_count;
+        VertexTB vertex[VERTEX_BATCH_SIZE];
 
-        tb::TBBitmap *bitmap;
-        tb::TBBitmapFragment *fragment;
+        df3d::VertexBufferDescriptor m_vb;
+        int vertex_count = 0;
 
-        tb::uint32 batch_id;
-        bool is_flushing;
+        tb::TBBitmap *bitmap = nullptr;
+        tb::TBBitmapFragment *fragment = nullptr;
+
+        tb::uint32 batch_id = 0;
+        bool is_flushing = false;
     };
 
+    Batch m_batch;
+    RenderPass m_guipass;
+    PassParamHandle m_diffuseMapParam;
 
 public:
+    TBRendererImpl()
+    {
+        m_guipass.setFaceCullMode(FaceCullMode::NONE);
+        m_guipass.enableDepthTest(false);
+        m_guipass.enableDepthWrite(false);
+        m_guipass.setBlendMode(BlendingMode::ALPHA);
+        m_diffuseMapParam = m_guipass.getPassParamHandle("diffuseMap");
+        m_guipass.getPassParam(m_diffuseMapParam)->setValue(nullptr);
+        m_guipass.getPassParam("material_diffuse")->setValue(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+        m_guipass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
+    }
+
+    ~TBRendererImpl()
+    {
+
+    }
+
     void BeginPaint(int render_target_w, int render_target_h) override
     {
         m_screen_rect.Set(0, 0, render_target_w, render_target_h);
@@ -195,7 +293,8 @@ public:
             m_clip_rect = m_clip_rect.Clip(old_clip_rect);
 
         FlushAllInternal();
-        SetClipRect(m_clip_rect);
+
+        df3d::svc().renderManager().getBackend().setScissorRegion(m_clip_rect.x, m_screen_rect.h - (m_clip_rect.y + m_clip_rect.h), m_clip_rect.w, m_clip_rect.h);
 
         old_clip_rect.x -= m_translation_x;
         old_clip_rect.y -= m_translation_y;
@@ -215,12 +314,12 @@ public:
         if (tb::TBBitmap *bitmap = bitmap_fragment->GetBitmap(tb::TB_VALIDATE_FIRST_TIME))
             AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y),
                             src_rect.Offset(bitmap_fragment->m_rect.x, bitmap_fragment->m_rect.y),
-                            VER_COL_OPACITY(m_opacity), bitmap, bitmap_fragment);
+                            tb::TBColor(255, 255, 255, m_opacity), bitmap, bitmap_fragment);
     }
 
     void DrawBitmap(const tb::TBRect &dst_rect, const tb::TBRect &src_rect, tb::TBBitmap *bitmap) override
     {
-        AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y), src_rect, VER_COL_OPACITY(m_opacity), bitmap, nullptr);
+        AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y), src_rect, tb::TBColor(255, 255, 255, m_opacity), bitmap, nullptr);
     }
 
     void DrawBitmapColored(const tb::TBRect &dst_rect, const tb::TBRect &src_rect, const tb::TBColor &color, tb::TBBitmapFragment *bitmap_fragment) override
@@ -230,7 +329,7 @@ public:
             tb::uint32 a = (color.a * m_opacity) / 255;
             AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y),
                             src_rect.Offset(bitmap_fragment->m_rect.x, bitmap_fragment->m_rect.y),
-                            VER_COL(color.r, color.g, color.b, a), bitmap, bitmap_fragment);
+                            tb::TBColor(color.r, color.g, color.b, a), bitmap, bitmap_fragment);
         }
     }
 
@@ -238,14 +337,14 @@ public:
     {
         tb::uint32 a = (color.a * m_opacity) / 255;
         AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y),
-                        src_rect, VER_COL(color.r, color.g, color.b, a), bitmap, nullptr);
+                        src_rect, tb::TBColor(color.r, color.g, color.b, a), bitmap, nullptr);
     }
 
     void DrawBitmapTile(const tb::TBRect &dst_rect, tb::TBBitmap *bitmap) override
     {
         AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y),
                         tb::TBRect(0, 0, dst_rect.w, dst_rect.h),
-                        VER_COL_OPACITY(m_opacity), bitmap, nullptr);
+                        tb::TBColor(255, 255, 255, m_opacity), bitmap, nullptr);
     }
 
     void DrawRect(const tb::TBRect &dst_rect, const tb::TBColor &color) override
@@ -268,14 +367,14 @@ public:
             return;
         tb::uint32 a = (color.a * m_opacity) / 255;
         AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y),
-                        tb::TBRect(), VER_COL(color.r, color.g, color.b, a), nullptr, nullptr);
+                        tb::TBRect(), color, nullptr, nullptr);
     }
 
     void FlushBitmap(tb::TBBitmap *bitmap)
     {
         // Flush the batch if it's using this bitmap (that is about to change or be deleted)
-        //if (batch.vertex_count && bitmap == batch.bitmap)
-            //batch.Flush(this);
+        if (m_batch.vertex_count && bitmap == m_batch.bitmap)
+            m_batch.Flush(this);
     }
 
     void FlushBitmapFragment(tb::TBBitmapFragment *bitmap_fragment) override
@@ -285,39 +384,94 @@ public:
         // batch_id in our (one and only) batch.
         // If we switch to a more advance batching system with multiple batches, we need to
         // solve this a bit differently.
-        //if (batch.vertex_count && bitmap_fragment->m_batch_id == batch.batch_id)
-        //    batch.Flush(this);
+        if (m_batch.vertex_count && bitmap_fragment->m_batch_id == m_batch.batch_id)
+            m_batch.Flush(this);
     }
 
-    void AddQuadInternal(const tb::TBRect &dst_rect, const tb::TBRect &src_rect, tb::uint32 color, tb::TBBitmap *bitmap, tb::TBBitmapFragment *fragment)
+    void AddQuadInternal(const tb::TBRect &dst_rect, const tb::TBRect &src_rect, const tb::TBColor &color, tb::TBBitmap *bitmap, tb::TBBitmapFragment *fragment)
     {
+        if (m_batch.bitmap != bitmap)
+        {
+            m_batch.Flush(this);
+            m_batch.bitmap = bitmap;
+        }
+        m_batch.fragment = fragment;
+        if (bitmap)
+        {
+            int bitmap_w = bitmap->Width();
+            int bitmap_h = bitmap->Height();
+            m_u = (float)src_rect.x / bitmap_w;
+            m_v = (float)src_rect.y / bitmap_h;
+            m_uu = (float)(src_rect.x + src_rect.w) / bitmap_w;
+            m_vv = (float)(src_rect.y + src_rect.h) / bitmap_h;
+        }
 
+        glm::vec4 glmcolor = { color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f };
+
+        auto ver = m_batch.Reserve(this, 6);
+        ver[0].pos.x = (float)dst_rect.x;
+        ver[0].pos.y = (float)(dst_rect.y + dst_rect.h);
+        ver[0].uv.x = m_u;
+        ver[0].uv.y = m_vv;
+        ver[0].color = glmcolor;
+        ver[1].pos.x = (float)(dst_rect.x + dst_rect.w);
+        ver[1].pos.y = (float)(dst_rect.y + dst_rect.h);
+        ver[1].uv.x = m_uu;
+        ver[1].uv.y = m_vv;
+        ver[1].color = glmcolor;
+        ver[2].pos.x = (float)dst_rect.x;
+        ver[2].pos.y = (float)dst_rect.y;
+        ver[2].uv.x = m_u;
+        ver[2].uv.y = m_v;
+        ver[2].color = glmcolor;
+
+        ver[3].pos.x = (float)dst_rect.x;
+        ver[3].pos.y = (float)dst_rect.y;
+        ver[3].uv.x = m_u;
+        ver[3].uv.y = m_v;
+        ver[3].color = glmcolor;
+        ver[4].pos.x = (float)(dst_rect.x + dst_rect.w);
+        ver[4].pos.y = (float)(dst_rect.y + dst_rect.h);
+        ver[4].uv.x = m_uu;
+        ver[4].uv.y = m_vv;
+        ver[4].color = glmcolor;
+        ver[5].pos.x = (float)(dst_rect.x + dst_rect.w);
+        ver[5].pos.y = (float)dst_rect.y;
+        ver[5].uv.x = m_uu;
+        ver[5].uv.y = m_v;
+        ver[5].color = glmcolor;
+
+        // Update fragments batch id (See FlushBitmapFragment)
+        if (fragment)
+            fragment->m_batch_id = m_batch.batch_id;
     }
 
     void FlushAllInternal()
     {
-        //batch.Flush(this);
+        m_batch.Flush(this);
     }
 
     tb::TBBitmap* CreateBitmap(int width, int height, tb::uint32 *data) override
     {
-        return nullptr;
+        auto bitmap = new TBBitmapImpl(this);
+        bitmap->Init(width, height, data);
+        return bitmap;
     }
 
     void RenderBatch(Batch *batch)
     {
+        shared_ptr<Texture> texture = nullptr;
+        if (batch->bitmap)
+            texture = static_cast<TBBitmapImpl*>(batch->bitmap)->m_texture;
 
-    }
+        m_guipass.getPassParam(m_diffuseMapParam)->setValue(texture);
 
-    void SetClipRect(const tb::TBRect &rect)
-    {
-        // TODO_tb
-        /*
+        RenderOperation op;
+        op.vertexBuffer = batch->m_vb;
+        op.passProps = &m_guipass;
+        op.numberOfElements = batch->vertex_count;
 
-        glScissor(x, y, width, height);
-
-        glScissor(m_clip_rect.x, m_screen_rect.h - (m_clip_rect.y + m_clip_rect.h), m_clip_rect.w, m_clip_rect.h);
-        */
+        svc().renderManager().drawRenderOperation(op);
     }
 };
 
