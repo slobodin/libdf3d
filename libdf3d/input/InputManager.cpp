@@ -135,12 +135,8 @@ void InputManager::setMousePosition(int x, int y)
 
 void InputManager::setMouseWheelDelta(float delta)
 {
-    //if (auto root = df3d::svc().guiManager().getRoot())
-        //root->InvokeWheel()
-
-    // TODO_tb
-    //if (GetBackend(window)->GetRoot())
-    //    GetBackend(window)->GetRoot()->InvokeWheel(mouse_x, mouse_y, (int)x, -(int)y, GetModifierKeys());
+    if (auto root = df3d::svc().guiManager().getRoot())
+        root->InvokeWheel(m_mouseState.position.x, m_mouseState.position.y, 0, delta, tb::TB_MODIFIER_NONE);
     m_mouseState.wheelDelta = delta;
 }
 

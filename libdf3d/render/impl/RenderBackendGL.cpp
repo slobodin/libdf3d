@@ -340,6 +340,8 @@ df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFor
 
     m_vertexBuffers[vb.id] = std::move(vertexBuffer);
 
+    m_currentVertexBuffer = {};
+
     return vb;
 }
 
@@ -357,13 +359,15 @@ void RenderBackendGL::destroyVertexBuffer(VertexBufferDescriptor vb)
     m_vertexBuffers[vb.id] = {};
 
     m_vertexBuffersBag.release(vb.id);
+
+    m_currentVertexBuffer = {};
 }
 
 void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
 {
     DESCRIPTOR_CHECK(vb);
 
-    // TODO_tb
+    // FIXME:
     //if (m_currentVertexBuffer.valid() && vb.id == m_currentVertexBuffer.id)
     //    return;
 
@@ -399,6 +403,9 @@ void RenderBackendGL::updateVertexBuffer(VertexBufferDescriptor vb, size_t verti
 
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id);
     glBufferSubData(GL_ARRAY_BUFFER, 0, bytesUpdating, data);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    m_currentVertexBuffer = {};
 }
 
 df3d::IndexBufferDescriptor RenderBackendGL::createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage)
@@ -418,10 +425,12 @@ df3d::IndexBufferDescriptor RenderBackendGL::createIndexBuffer(size_t indicesCou
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(INDICES_TYPE), data, GetGLBufferUsageType(usage));
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     indexBuffer.sizeInBytes = indicesCount * sizeof(INDICES_TYPE);
 
     m_indexBuffers[ib.id] = indexBuffer;
+    m_currentIndexBuffer = {};
 
     return ib;
 }
@@ -439,13 +448,14 @@ void RenderBackendGL::destroyIndexBuffer(IndexBufferDescriptor ib)
     m_indexBuffers[ib.id] = {};
 
     m_indexBuffersBag.release(ib.id);
+
+    m_currentIndexBuffer = {};
 }
 
 void RenderBackendGL::bindIndexBuffer(IndexBufferDescriptor ib)
 {
     DESCRIPTOR_CHECK(ib);
 
-    // TODO_tb
     //if (m_currentIndexBuffer.valid() && ib.id == m_currentIndexBuffer.id)
     //    return;
 
@@ -472,6 +482,9 @@ void RenderBackendGL::updateIndexBuffer(IndexBufferDescriptor ib, size_t indices
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id);
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, bytesUpdating, data);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    m_currentIndexBuffer = {};
 }
 
 df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixels, const TextureCreationParams &params)
