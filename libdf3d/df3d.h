@@ -80,3 +80,16 @@
 #include <libdf3d/particlesys/ParticleSystemUtils.h>
 
 #include <libdf3d/script/ScriptManager.h>
+
+// turbobadger stuff
+#include <tb_language.h>
+#include <tb_skin.h>
+#include <tb_widgets.h>
+#include <tb_message_window.h>
+#include <tb_editfield.h>
+#include <tb_font_renderer.h>
+#include <tb_node_tree.h>
+#include <tb_widgets_reader.h>
+#include <tb_tab_container.h>
+#include <tb_scroll_container.h>
+#include <image/tb_image_widget.h>

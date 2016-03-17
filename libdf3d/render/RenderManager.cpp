@@ -20,6 +20,9 @@
 #include "IRenderBackend.h"
 #include "GpuProgramSharedState.h"
 
+#include <tb_widgets.h>
+#include <animation/tb_widget_animation.h>
+
 namespace df3d {
 
 void RenderManager::loadEmbedResources()
@@ -206,7 +209,15 @@ void RenderManager::doRenderWorld(World &world)
         drawRenderOperation(op);
 
     // Draw GUI.
-    svc().guiManager().getContext()->Render();
+    svc().guiManager().getRenderer()->BeginPaint(m_viewport.width(), m_viewport.height());
+    svc().guiManager().getRoot()->InvokePaint(tb::TBWidget::PaintProps());
+    svc().guiManager().getRenderer()->EndPaint();
+
+    // If animations are running, reinvalidate immediately
+    if (tb::TBAnimationManager::HasAnimationsRunning())
+        svc().guiManager().getRoot()->Invalidate();
+
+    //svc().guiManager().getContext()->Render();
 }
 
 void RenderManager::bindPass(RenderPass *pass)

@@ -256,6 +256,8 @@ public:
     {
         m_screen_rect.Set(0, 0, render_target_w, render_target_h);
         m_clip_rect = m_screen_rect;
+
+        df3d::svc().renderManager().getBackend().enableScissorTest(true);
     }
 
     virtual void EndPaint()
