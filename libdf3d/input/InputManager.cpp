@@ -3,7 +3,6 @@
 #include "InputEvents.h"
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/gui/GuiManager.h>
-#include <libdf3d/gui/impl/RocketKeyCodesAdapter.h>
 #include <tb_widgets.h>
 
 namespace df3d {
@@ -109,8 +108,6 @@ void InputManager::onMouseButtonPressed(MouseButton button, int x, int y)
     if (auto root = df3d::svc().guiManager().getRoot())
         root->InvokePointerDown(x, y, 1, tb::TB_MODIFIER_NONE, ShouldEmulateTouchEvent());
 
-    df3d::svc().guiManager().getContext()->ProcessMouseButtonDown(gui_impl::convertToRocketMouseButtonIdx(button), 0);
-
     m_mouseState.buttons.at((size_t)button) = MouseState::PRESSED;
 }
 
@@ -121,8 +118,6 @@ void InputManager::onMouseButtonReleased(MouseButton button, int x, int y)
     if (auto root = df3d::svc().guiManager().getRoot())
         root->InvokePointerUp(x, y, tb::TB_MODIFIER_NONE, ShouldEmulateTouchEvent());
 
-    df3d::svc().guiManager().getContext()->ProcessMouseButtonUp(gui_impl::convertToRocketMouseButtonIdx(button), 0);
-
     m_mouseState.buttons.at((size_t)button) = MouseState::RELEASED;
 }
 
@@ -130,8 +125,6 @@ void InputManager::setMousePosition(int x, int y)
 {
     m_mouseState.position = glm::ivec2(x, y);
     m_mouseState.delta = m_mouseState.position - m_prevMouseState.position;
-    // Force move event in order to pass coords to libRocket. wtf?
-    df3d::svc().guiManager().getContext()->ProcessMouseMove(x, y, 0);
 
     if (auto root = df3d::svc().guiManager().getRoot())
     {
@@ -148,33 +141,22 @@ void InputManager::setMouseWheelDelta(float delta)
     // TODO_tb
     //if (GetBackend(window)->GetRoot())
     //    GetBackend(window)->GetRoot()->InvokeWheel(mouse_x, mouse_y, (int)x, -(int)y, GetModifierKeys());
-    df3d::svc().guiManager().getContext()->ProcessMouseWheel(static_cast<int>(delta), 0);
     m_mouseState.wheelDelta = delta;
 }
 
 void InputManager::onKeyUp(const KeyCode &keyCode, KeyModifier modifiers)
 {
-    auto rocketCode = gui_impl::convertToRocketKeyCode(keyCode);
-    auto rocketModifiers = gui_impl::convertToRocketModifier(modifiers);
-
-    svc().guiManager().getContext()->ProcessKeyUp(rocketCode, rocketModifiers);
-
     m_keyboardState.keyboard.at((size_t)keyCode) = KeyboardState::RELEASED;
 }
 
 void InputManager::onKeyDown(const KeyCode &keyCode, KeyModifier modifiers)
 {
-    auto rocketCode = gui_impl::convertToRocketKeyCode(keyCode);
-    auto rocketModifiers = gui_impl::convertToRocketModifier(modifiers);
-
-    svc().guiManager().getContext()->ProcessKeyDown(rocketCode, rocketModifiers);
-
     m_keyboardState.keyboard.at((size_t)keyCode) = KeyboardState::PRESSED;
 }
 
 void InputManager::onTextInput(unsigned int codepoint)
 {
-    svc().guiManager().getContext()->ProcessTextInput(codepoint);
+
 }
 
 void InputManager::onTouch(int id, int x, int y, Touch::State state)

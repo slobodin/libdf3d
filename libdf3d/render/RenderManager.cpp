@@ -216,8 +216,6 @@ void RenderManager::doRenderWorld(World &world)
     // If animations are running, reinvalidate immediately
     if (tb::TBAnimationManager::HasAnimationsRunning())
         svc().guiManager().getRoot()->Invalidate();
-
-    //svc().guiManager().getContext()->Render();
 }
 
 void RenderManager::bindPass(RenderPass *pass)

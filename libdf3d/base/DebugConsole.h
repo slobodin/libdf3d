@@ -2,9 +2,9 @@
 
 #include <libdf3d/utils/Utils.h>
 
-namespace df3d {
-
 namespace tb { class TBWidget; }
+
+namespace df3d {
 
 extern const DF3D_DLL std::string CVAR_DEBUG_DRAW;
 // TODO:
