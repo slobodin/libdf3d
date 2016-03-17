@@ -1,6 +1,3 @@
 [submodule "third-party/openal-soft"]
 	path = third-party/openal-soft
 	url = ../../kcat/openal-soft.git
-[submodule "third-party/turbobadger"]
-	path = third-party/turbobadger
-	url = ../../flaming0/turbobadger.git
