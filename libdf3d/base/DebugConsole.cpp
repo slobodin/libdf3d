@@ -4,8 +4,6 @@
 #include <libdf3d/gui/GuiManager.h>
 #include <libdf3d/utils/Utils.h>
 
-#include <Rocket/Core.h>
-
 extern const char *ConsoleRml;
 extern const char *ConsoleRcss;
 
@@ -13,6 +11,8 @@ namespace df3d {
 
 const std::string CVAR_DEBUG_DRAW = "df3d_debug_draw";
 
+// TODO_tb
+/*
 class DebugConsole::ConsoleWindow : public Rocket::Core::ElementDocument, public Rocket::Core::EventListener
 {
     std::string m_prevCommand;
@@ -63,7 +63,7 @@ public:
         m_historyElement = GetElementById("previous_commands");
     }
 };
-
+*/
 void DebugConsole::registerDefaultCommands()
 {
     ConsoleCommand helpCommand;
@@ -124,6 +124,7 @@ void DebugConsole::onConsoleInput(const std::string &str)
 
 void DebugConsole::updateHistory(const std::string &commandResult)
 {
+    /*
     if (!commandResult.empty())
     {
         m_history += commandResult + "\n";
@@ -131,14 +132,17 @@ void DebugConsole::updateHistory(const std::string &commandResult)
     }
 
     m_menu->m_inputText->SetAttribute("value", "");
+    */
 }
 
 DebugConsole::DebugConsole()
 {
+    /*
     Rocket::Core::Factory::RegisterElementInstancer("__debug_console_window", new Rocket::Core::ElementInstancerGeneric<ConsoleWindow>())->RemoveReference();
     m_menu = svc().guiManager().createDocument<ConsoleWindow>("__debug_console_window");
     m_menu->m_parent = this;
     m_menu->Hide();
+    */
 
     registerDefaultCommands();
 }
@@ -150,17 +154,17 @@ DebugConsole::~DebugConsole()
 
 bool DebugConsole::isVisible() const
 {
-    return m_menu->IsVisible();
+    return false;
 }
 
 void DebugConsole::show()
 {
-    m_menu->Show();
+
 }
 
 void DebugConsole::hide()
 {
-    m_menu->Hide();
+
 }
 
 void DebugConsole::registerCommand(const ConsoleCommand &command)

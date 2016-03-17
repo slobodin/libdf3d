@@ -57,7 +57,6 @@
 #include <libdf3d/resources/ResourceFactory.h>
 
 #include <libdf3d/gui/GuiManager.h>
-#include <libdf3d/gui/RocketRefWrapper.h>
 
 #include <libdf3d/physics/PhysicsHelpers.h>
 #include <libdf3d/physics/PhysicsComponentProcessor.h>

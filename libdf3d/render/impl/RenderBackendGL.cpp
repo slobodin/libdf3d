@@ -363,8 +363,9 @@ void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
 {
     DESCRIPTOR_CHECK(vb);
 
-    if (vb.id == m_currentVertexBuffer.id)
-        return;
+    // TODO_tb
+    //if (m_currentVertexBuffer.valid() && vb.id == m_currentVertexBuffer.id)
+    //    return;
 
     const auto &vertexBuffer = m_vertexBuffers[vb.id];
     DF3D_ASSERT(vertexBuffer.gl_id != 0, "sanity check");
@@ -444,8 +445,9 @@ void RenderBackendGL::bindIndexBuffer(IndexBufferDescriptor ib)
 {
     DESCRIPTOR_CHECK(ib);
 
-    if (ib.id == m_currentIndexBuffer.id)
-        return;
+    // TODO_tb
+    //if (m_currentIndexBuffer.valid() && ib.id == m_currentIndexBuffer.id)
+    //    return;
 
     const auto &indexBuffer = m_indexBuffers[ib.id];
     DF3D_ASSERT(indexBuffer.gl_id != 0, "sanity check");
@@ -546,6 +548,7 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixe
 
     texture.sizeInBytes = pixels.getSizeInBytes();        // TODO: mipmaps!
     texture.type = GL_TEXTURE_2D;
+    texture.pixelFormat = glPixelFormat;
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -617,6 +620,18 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
     m_stats.textureMemoryBytes += texture.sizeInBytes;
 
     return textureDescr;
+}
+
+void RenderBackendGL::updateTexture(TextureDescriptor t, int w, int h, const void *data)
+{
+    // FIXME: works only for 2d textures.
+    DESCRIPTOR_CHECK(t);
+
+    const auto &texture = m_textures[t.id];
+    DF3D_ASSERT(texture.type != GL_INVALID_ENUM, "sanity check");
+
+    glBindTexture(GL_TEXTURE_2D, texture.gl_id);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, texture.pixelFormat, GL_UNSIGNED_BYTE, data);
 }
 
 void RenderBackendGL::destroyTexture(TextureDescriptor t)

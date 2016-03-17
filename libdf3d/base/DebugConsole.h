@@ -1,9 +1,10 @@
 #pragma once
 
 #include <libdf3d/utils/Utils.h>
-#include <libdf3d/gui/RocketRefWrapper.h>
 
 namespace df3d {
+
+namespace tb { class TBWidget; }
 
 extern const DF3D_DLL std::string CVAR_DEBUG_DRAW;
 // TODO:
@@ -43,12 +44,12 @@ public:
 
 class DF3D_DLL DebugConsole : utils::NonCopyable
 {
+    friend class ConsoleWindow;
+
     CVarsContainer m_cvars;
     std::unordered_map<std::string, ConsoleCommand> m_consoleCommands;
 
-    class ConsoleWindow;
-    RocketRefWrapper<ConsoleWindow> m_menu;
-    friend class ConsoleWindow;
+    tb::TBWidget *m_root;
 
     std::string m_history;
 

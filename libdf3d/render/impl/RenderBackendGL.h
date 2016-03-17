@@ -54,6 +54,7 @@ class RenderBackendGL : public IRenderBackend
         GLuint gl_id = 0;
         GLenum type = GL_INVALID_ENUM;
         size_t sizeInBytes = 0;
+        GLint pixelFormat = 0;
     };
 
     struct ShaderGL
@@ -124,6 +125,7 @@ public:
 
     TextureDescriptor createTexture2D(const PixelBuffer &pixels, const TextureCreationParams &params) override;
     TextureDescriptor createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params) override;
+    void updateTexture(TextureDescriptor t, int w, int h, const void *data) override;
     void destroyTexture(TextureDescriptor t) override;
 
     void bindTexture(TextureDescriptor t, int unit) override;
