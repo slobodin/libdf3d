@@ -31,6 +31,7 @@ class DF3D_DLL GuiManager : utils::NonCopyable
     Rocket::Core::Context *m_rocketContext = nullptr;
 
     unique_ptr<tb::TBWidget> m_root;
+    int m_width, m_height;
 
 public:
     GuiManager();
@@ -39,11 +40,11 @@ public:
     void initialize(int contextWidth, int contextHeight);
     void shutdown();
     void update();
+    void replaceRoot();
 
     RocketDocument loadDocument(const std::string &name);
 
-    void showDebugger(bool show);
-    bool isDebuggerVisible() const;
+    void showDebugger();
 
     Rocket::Core::Context* getContext() { return m_rocketContext; }
 

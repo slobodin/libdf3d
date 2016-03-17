@@ -1,6 +1,7 @@
 #include "GuiManager.h"
 
 #include <tb_core.h>
+#include <tb_debug.h>
 #include <animation/tb_widget_animation.h>
 #include "impl/TBInterface.h"
 #include "impl/RocketInterface.h"
@@ -27,6 +28,9 @@ GuiManager::~GuiManager()
 void GuiManager::initialize(int contextWidth, int contextHeight)
 {
     glog << "Initializing libRocket" << logmess;
+
+    m_width = contextWidth;
+    m_height = contextHeight;
 
     using namespace Rocket;
 
@@ -66,8 +70,7 @@ void GuiManager::initialize(int contextWidth, int contextHeight)
 
     tb::TBWidgetsAnimationManager::Init();
 
-    m_root = make_unique<tb::TBWidget>();
-    m_root->SetRect(tb::TBRect(0, 0, contextWidth, contextHeight));
+    replaceRoot();
 }
 
 void GuiManager::shutdown()
@@ -91,6 +94,12 @@ void GuiManager::update()
     m_root->InvokeProcess();
 }
 
+void GuiManager::replaceRoot()
+{
+    m_root = make_unique<tb::TBWidget>();
+    m_root->SetRect(tb::TBRect(0, 0, m_width, m_height));
+}
+
 RocketDocument GuiManager::loadDocument(const std::string &name)
 {
     auto doc = m_rocketContext->LoadDocument(name.c_str());
@@ -101,21 +110,10 @@ RocketDocument GuiManager::loadDocument(const std::string &name)
     return doc;
 }
 
-void GuiManager::showDebugger(bool show)
+void GuiManager::showDebugger()
 {
-#ifdef ENABLE_ROCKET_DEBUGGER
-    Rocket::Debugger::SetVisible(show);
-#else
-    glog << "GuiManager::showDebugger failed. Debugger is not enabled" << logwarn;
-#endif
-}
-
-bool GuiManager::isDebuggerVisible() const
-{
-#ifdef ENABLE_ROCKET_DEBUGGER
-    return Rocket::Debugger::IsVisible();
-#else
-    return false;
+#ifdef _DEBUG
+    ShowDebugInfoSettingsWindow(m_root.get());
 #endif
 }
 
