@@ -12,8 +12,6 @@ public class Df3dActivity extends Activity {
     static
     {
         System.loadLibrary("openal");
-        System.loadLibrary("RocketCore");
-        System.loadLibrary("RocketControls");
 
         // TODO: load client library from meta-data.
         System.loadLibrary("ships3d");

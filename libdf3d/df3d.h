@@ -92,4 +92,5 @@
 #include <tb_widgets_reader.h>
 #include <tb_tab_container.h>
 #include <tb_scroll_container.h>
+#include <tb_inline_select.h>
 #include <image/tb_image_widget.h>
