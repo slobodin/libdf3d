@@ -7,7 +7,6 @@ include_directories(
     ${DF3D_ROOT}/third-party
     ${DF3D_ROOT}/third-party/bullet/src
     ${DF3D_ROOT}/third-party/spark/include
-    ${DF3D_ROOT}/third-party/libRocket/Include
     ${DF3D_ROOT}/third-party/sqrat
     ${DF3D_ROOT}/third-party/squirrel/include
 )
