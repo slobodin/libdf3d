@@ -1,6 +1,3 @@
-[submodule "third-party/libRocket"]
-	path = third-party/libRocket
-	url = https://github.com/libRocket/libRocket.git
 [submodule "third-party/openal-soft"]
 	path = third-party/openal-soft
 	url = ../../kcat/openal-soft.git
