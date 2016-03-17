@@ -27,7 +27,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/bullet)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/ogg)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/vorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/libRocket/Build)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/squirrel)
 
 SET(TB_BUILD_DEMO OFF CACHE BOOL "" FORCE)
@@ -67,11 +66,6 @@ endif()
 # TODO: if build tools
 add_subdirectory(${PROJECT_SOURCE_DIR}/tools/obj_to_dfmesh)
 add_subdirectory(${PROJECT_SOURCE_DIR}/tools/data_archiver)
-
-if (DF3D_DESKTOP)
-    set(DF3D_USE_ROCKET_DEBUGGER TRUE)
-    add_definitions(-DENABLE_ROCKET_DEBUGGER)
-endif()
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
@@ -115,9 +109,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/SceneGraphComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/VfxComponentLoader.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/RocketRefWrapper.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketKeyCodesAdapter.h
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/TBInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.h
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputManager.h
@@ -210,8 +201,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityManager.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/WorldLoader.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketInterface.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/RocketKeyCodesAdapter.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/TBInterface.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/libdf3d/input/InputManager.cpp
@@ -348,7 +337,6 @@ include_directories(${PROJECT_SOURCE_DIR}/
                     ${PROJECT_SOURCE_DIR}/third-party/
                     ${PROJECT_SOURCE_DIR}/third-party/bullet/src
                     ${PROJECT_SOURCE_DIR}/third-party/spark/include
-                    ${PROJECT_SOURCE_DIR}/third-party/libRocket/Include
                     ${PROJECT_SOURCE_DIR}/third-party/glfw/include
                     ${PROJECT_SOURCE_DIR}/third-party/squirrel/include
                     ${PROJECT_SOURCE_DIR}/third-party/openal-soft/include)
@@ -378,8 +366,6 @@ target_link_libraries(libdf3d
     ogg
     spark
     vorbis
-    RocketCore
-    RocketControls
     squirrel
     TurboBadgerLib)
 
@@ -395,10 +381,6 @@ endif()
 
 if (ANDROID)
     target_link_libraries(libdf3d OpenSLES ${DF3D_OPENAL_LIBNAME} GLESv2 log android)
-endif()
-
-if (DF3D_USE_ROCKET_DEBUGGER)
-    target_link_libraries(libdf3d RocketDebugger)
 endif()
 
 set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "$(PROJECT_SOURCE_DIR)/libdf3d/df3d_pch.h")
