@@ -340,6 +340,17 @@ static void parseSparkModifiers(SPK::Ref<SPK::Group> group, const Json::Value &m
             modifierJson["value"] >> val;
             group->addModifier(SPK::Friction::create(val));
         }
+        else if (type == "random_force")
+        {
+            glm::vec3 minForce, maxForce;
+            float minPeriod = 1.0f, maxPeriod = 1.0f;
+            modifierJson["minForce"] >> minForce;
+            modifierJson["maxForce"] >> maxForce;
+            modifierJson["minPeriod"] >> minPeriod;
+            modifierJson["maxPeriod"] >> maxPeriod;
+
+            group->addModifier(SPK::RandomForce::create(glmToSpk(minForce),glmToSpk(maxForce), minPeriod, maxPeriod));
+        }
         else
         {
             df3d::glog << "Unknown particle system modifier" << type << df3d::logwarn;
