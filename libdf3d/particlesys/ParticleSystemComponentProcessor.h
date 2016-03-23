@@ -46,6 +46,7 @@ public:
 
     void stop(Entity e);
     void pause(Entity e, bool paused);
+    void setVisible(Entity e, bool visible);
     void setSystemLifeTime(Entity e, float lifeTime);
     void setWorldTransformed(Entity e, bool worldTransformed);
 
@@ -53,6 +54,7 @@ public:
     SPK::Ref<SPK::System> getSystem(Entity e) const;
     bool isWorldTransformed(Entity e) const;
     bool isPlaying(Entity e) const;
+    bool isVisible(Entity e) const;
 
     void add(Entity e, const std::string &vfxResource);
     void add(Entity e, const ParticleSystemCreationParams &params);
