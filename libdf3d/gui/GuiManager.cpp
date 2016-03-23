@@ -2,10 +2,13 @@
 
 #include <tb_core.h>
 #include <tb_debug.h>
+#include <tb_system.h>
 #include <animation/tb_widget_animation.h>
 #include "impl/TBInterface.h"
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/input/InputEvents.h>
+
+void register_tbbf_font_renderer();
 
 namespace df3d {
 
@@ -28,12 +31,13 @@ void GuiManager::initialize(int contextWidth, int contextHeight)
 
     tb::tb_core_init(gui_impl::CreateRenderer());
 
-    void register_tbbf_font_renderer();
     register_tbbf_font_renderer();
 
     tb::TBWidgetsAnimationManager::Init();
 
     replaceRoot();
+
+    glog << "Device DPI" << tb::TBSystem::GetDPI() << logmess;
 }
 
 void GuiManager::shutdown()

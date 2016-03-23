@@ -1,6 +1,13 @@
 #include "FileDataSourceAndroid.h"
 
-namespace df3d { namespace platform_impl {
+namespace df3d {
+
+AAssetManager* AndroidGetAssetManager()
+{
+    return platform_impl::FileDataSourceAndroid::getAAssetManager();
+}
+
+namespace platform_impl {
 
 AAssetManager *FileDataSourceAndroid::m_assetMgr = nullptr;
 

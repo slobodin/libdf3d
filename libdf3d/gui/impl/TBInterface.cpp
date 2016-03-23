@@ -4,7 +4,6 @@
 #include <tb_system.h>
 #include <tb_renderer.h>
 #include <tb_bitmap_fragment.h>
-#include <Windows.h>
 
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/render/Texture.h>
@@ -17,6 +16,20 @@
 #include <libdf3d/io/FileSystem.h>
 #include <libdf3d/io/FileDataSource.h>
 #include <libdf3d/resource_loaders/TextureLoaders.h>
+
+#if defined(DF3D_ANDROID)
+#include <sys/types.h>
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <android/configuration.h>
+
+namespace df3d { AAssetManager* AndroidGetAssetManager(); }
+
+#endif
+
+#if defined(DF3D_WINDOWS)
+#include <Windows.h>
+#endif
 
 namespace df3d { namespace gui_impl {
 
@@ -260,7 +273,7 @@ public:
         df3d::svc().renderManager().getBackend().enableScissorTest(true);
     }
 
-    virtual void EndPaint()
+    virtual void EndPaint() override
     {
         FlushAllInternal();
     }
@@ -557,26 +570,52 @@ int TBSystem::GetLongClickDelayMS()
 
 int TBSystem::GetPanThreshold()
 {
+#if defined(DF3D_DESKTOP)
     return 5 * GetDPI() / 96;
+#elif defined(DF3D_ANDROID)
+    return 5 * GetDPI() / 120;
+#else
+#error "Unsupported"
+#endif
 }
 
 int TBSystem::GetPixelsPerLine()
 {
+#if defined(DF3D_DESKTOP)
     return 40 * GetDPI() / 96;
+#elif defined(DF3D_ANDROID)
+    return 40 * GetDPI() / 120;
+#else
+#error "Unsupported"
+#endif
 }
 
 int TBSystem::GetDPI()
 {
+#if defined(DF3D_WINDOWS)
     HDC hdc = GetDC(nullptr);
     int DPI_x = GetDeviceCaps(hdc, LOGPIXELSX);
     ReleaseDC(nullptr, hdc);
 
     return DPI_x;
+#elif defined(DF3D_ANDROID)
+    AConfiguration *config = AConfiguration_new();
+    AConfiguration_fromAssetManager(config, df3d::AndroidGetAssetManager());
+    int32_t density = AConfiguration_getDensity(config);
+    AConfiguration_delete(config);
+    if (density == 0 || density == ACONFIGURATION_DENSITY_NONE)
+        return 120;
+    return density;
+#else
+#error "Unsupported"
+#endif
 }
 
 }
 
+#ifdef TB_RUNTIME_DEBUG_INFO
 void TBDebugOut(const char *str)
 {
     df3d::glog << str << df3d::logdebug;
 }
+#endif
