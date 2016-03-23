@@ -9,6 +9,7 @@
 #include <libdf3d/input/InputEvents.h>
 
 void register_tbbf_font_renderer();
+void register_freetype_font_renderer();
 
 namespace df3d {
 
@@ -32,6 +33,7 @@ void GuiManager::initialize(int contextWidth, int contextHeight)
     tb::tb_core_init(gui_impl::CreateRenderer());
 
     register_tbbf_font_renderer();
+    register_freetype_font_renderer();
 
     tb::TBWidgetsAnimationManager::Init();
 
