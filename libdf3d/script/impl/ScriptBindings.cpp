@@ -242,6 +242,7 @@ void bindGame(Table &df3dNamespace)
         Class<Entity> entityClass(vm, _SC("Entity"));
         entityClass
             .Ctor()
+            .Prop(_SC("id"), &Entity::getId)
             .Prop(_SC("valid"), &Entity::valid)
             ;
 
