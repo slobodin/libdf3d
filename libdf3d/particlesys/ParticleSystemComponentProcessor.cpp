@@ -23,6 +23,7 @@ struct ParticleSystemComponentProcessor::Impl
         Entity holder;
         glm::mat4 holderTransform;
         bool paused = false;
+        bool visible = true;
         bool worldTransformed = true;
         float systemLifeTime = -1.0f;
         float systemAge = 0.0f;
@@ -125,6 +126,11 @@ void ParticleSystemComponentProcessor::pause(Entity e, bool paused)
     m_pimpl->data.getData(e).paused = paused;
 }
 
+void ParticleSystemComponentProcessor::setVisible(Entity e, bool visible)
+{
+    m_pimpl->data.getData(e).visible = visible;
+}
+
 void ParticleSystemComponentProcessor::setSystemLifeTime(Entity e, float lifeTime)
 {
     m_pimpl->data.getData(e).systemLifeTime = lifeTime;
@@ -153,6 +159,11 @@ bool ParticleSystemComponentProcessor::isWorldTransformed(Entity e) const
 bool ParticleSystemComponentProcessor::isPlaying(Entity e) const
 {
     return !m_pimpl->data.getData(e).paused;
+}
+
+bool ParticleSystemComponentProcessor::isVisible(Entity e) const
+{
+    return !m_pimpl->data.getData(e).visible;
 }
 
 void ParticleSystemComponentProcessor::add(Entity e, const std::string &vfxResource)
@@ -198,7 +209,7 @@ void ParticleSystemComponentProcessor::draw()
 {
     for (const auto &compData : m_pimpl->data.rawData())
     {
-        if (compData.paused)
+        if (compData.paused || !compData.visible)
             continue;
 
         glm::mat4 transf;
