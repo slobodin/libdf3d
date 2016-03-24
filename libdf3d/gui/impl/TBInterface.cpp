@@ -606,6 +606,9 @@ int TBSystem::GetDPI()
     if (density == 0 || density == ACONFIGURATION_DENSITY_NONE)
         return 120;
     return density;
+#elif defined(DF3D_MACOSX)
+    // FIXME:
+    return 128;
 #else
 #error "Unsupported"
 #endif

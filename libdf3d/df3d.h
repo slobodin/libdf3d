@@ -81,6 +81,7 @@
 #include <libdf3d/script/ScriptManager.h>
 
 // turbobadger stuff
+#include <tb_core.h>
 #include <tb_language.h>
 #include <tb_skin.h>
 #include <tb_widgets.h>
