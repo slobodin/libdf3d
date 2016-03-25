@@ -48,6 +48,12 @@ inline bool contains_key(const C &container, const T &key)
 }
 
 template<typename T>
+inline const T& random_vector_element(const std::vector<T> &vect)
+{
+    return vect[std::rand() % vect.size()];
+}
+
+template<typename T>
 inline std::string to_string(const T &v)
 {
     std::ostringstream os;
