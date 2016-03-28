@@ -70,9 +70,7 @@ enum class PixelFormat
 {
     INVALID,
     RGB,
-    BGR,
     RGBA,
-    GRAYSCALE,
     DEPTH
 };
 

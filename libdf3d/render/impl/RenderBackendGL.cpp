@@ -58,6 +58,22 @@ static void CheckAndPrintGLError(const char *file, int line)
 #define DESCRIPTOR_CHECK_RETURN_INVALID(descr) do { if (!descr.valid()) return {}; } while (0);
 #endif
 
+static int GetPixelSizeForFormat(PixelFormat format)
+{
+    switch (format)
+    {
+    case PixelFormat::RGB:
+        return 3;
+    case PixelFormat::RGBA:
+        return 4;
+    case PixelFormat::INVALID:
+    default:
+        glog << "Invalid pixel format. Can't get size." << logwarn;
+    }
+
+    return 0;
+}
+
 static bool IsPot(size_t v)
 {
     return v && !(v & (v - 1));
@@ -487,7 +503,7 @@ void RenderBackendGL::updateIndexBuffer(IndexBufferDescriptor ib, size_t indices
     m_currentIndexBuffer = {};
 }
 
-df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixels, const TextureCreationParams &params)
+df3d::TextureDescriptor RenderBackendGL::createTexture2D(int width, int height, PixelFormat format, const uint8_t *data, const TextureCreationParams &params)
 {
     TextureDescriptor textureDescr = { m_texturesBag.getNew() };
     if (!textureDescr.valid())
@@ -497,24 +513,20 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixe
     }
 
     auto maxSize = m_caps.maxTextureSize;
-    if (pixels.getWidth() > maxSize || pixels.getHeight() > maxSize)
+    if (width > maxSize || height > maxSize)
     {
         glog << "Failed to create texture. Size is too big." << logwarn;
         return{};
     }
 
     GLint glPixelFormat = 0;
-    switch (pixels.getFormat())
+    switch (format)
     {
     case PixelFormat::RGB:
-    case PixelFormat::BGR:
         glPixelFormat = GL_RGB;
         break;
     case PixelFormat::RGBA:
         glPixelFormat = GL_RGBA;
-        break;
-    case PixelFormat::GRAYSCALE:
-        glPixelFormat = GL_LUMINANCE;   // FIXME: is it valid on ES?
         break;
     case PixelFormat::DEPTH:
         glPixelFormat = GL_DEPTH_COMPONENT16;
@@ -534,13 +546,13 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixe
     SetupGLTextureFiltering(GL_TEXTURE_2D, params.getFiltering(), params.isMipmapped());
 
     // Init empty texture.
-    if (pixels.getFormat() == PixelFormat::DEPTH)
-        glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, pixels.getWidth(), pixels.getHeight(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    if (format == PixelFormat::DEPTH)
+        glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
     else
-        glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, pixels.getWidth(), pixels.getHeight(), 0, glPixelFormat, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, width, height, 0, glPixelFormat, GL_UNSIGNED_BYTE, nullptr);
 
-    if (pixels.getData())
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pixels.getWidth(), pixels.getHeight(), glPixelFormat, GL_UNSIGNED_BYTE, pixels.getData());
+    if (data)
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, glPixelFormat, GL_UNSIGNED_BYTE, data);
 
     if (params.isMipmapped())
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -559,7 +571,7 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(const PixelBuffer &pixe
         }
     }
 
-    texture.sizeInBytes = pixels.getSizeInBytes();        // TODO: mipmaps!
+    texture.sizeInBytes = width * height * GetPixelSizeForFormat(format);   // TODO: mipmaps!
     texture.type = GL_TEXTURE_2D;
     texture.pixelFormat = glPixelFormat;
 
@@ -599,7 +611,6 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
         switch (pixels[i]->getFormat())
         {
         case PixelFormat::RGB:
-        case PixelFormat::BGR:
             glPixelFormat = GL_RGB;
             break;
         case PixelFormat::RGBA:

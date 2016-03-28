@@ -33,7 +33,7 @@ void RenderManager::loadEmbedResources()
         const auto h = 8;
         const auto pf = PixelFormat::RGBA;
 
-        auto data = new unsigned char[w * h * 4];
+        auto data = new uint8_t[w * h * 4];
         memset(data, 255, w * h * 4);
 
         TextureCreationParams params;

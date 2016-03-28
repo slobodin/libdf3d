@@ -68,7 +68,7 @@ public:
 
 class TBImageLoaderImpl : public tb::TBImageLoader
 {
-    unique_ptr<unsigned char[]> m_data;
+    unique_ptr<uint8_t[]> m_data;
     int m_width, m_height;
 
 public:
@@ -76,7 +76,7 @@ public:
         : m_width(buffer.getWidth()),
         m_height(buffer.getHeight())
     {
-        m_data.reset(new unsigned char[buffer.getSizeInBytes()]);
+        m_data.reset(new uint8_t[buffer.getSizeInBytes()]);
         memcpy(m_data.get(), buffer.getData(), buffer.getSizeInBytes());
     }
 
@@ -136,7 +136,7 @@ class TBRendererImpl : public tb::TBRenderer
             m_w = width;
             m_h = height;
 
-            auto buffer = make_unique<PixelBuffer>(m_w, m_h, (unsigned char *)data, PixelFormat::RGBA);
+            auto buffer = make_unique<PixelBuffer>(m_w, m_h, (uint8_t *)data, PixelFormat::RGBA);
             TextureCreationParams params;
             params.setMipmapped(false);
             params.setAnisotropyLevel(render_constants::NO_ANISOTROPY);

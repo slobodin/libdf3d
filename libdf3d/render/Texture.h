@@ -10,18 +10,18 @@ class PixelBuffer : utils::NonCopyable
     PixelFormat m_format = PixelFormat::INVALID;
     int m_w = 0;
     int m_h = 0;
-    unsigned char *m_data = nullptr;
+    uint8_t *m_data = nullptr;
     size_t m_dataSize = 0;
 
 public:
-    PixelBuffer(int w, int h, PixelFormat format);
-    PixelBuffer(int w, int h, const unsigned char *data, PixelFormat format);
+    //! Copies the data
+    PixelBuffer(int w, int h, const uint8_t *data, PixelFormat format);
     ~PixelBuffer();
 
     int getWidth() const { return m_w; }
     int getHeight() const { return m_h; }
     PixelFormat getFormat() const { return m_format; }
-    const unsigned char* getData() const { return m_data; }
+    const uint8_t* getData() const { return m_data; }
     size_t getSizeInBytes() const { return m_dataSize; }
 };
 

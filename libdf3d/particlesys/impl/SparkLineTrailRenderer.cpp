@@ -48,7 +48,7 @@ void TrailsParticleSystemRenderer::init(const SPK::Particle& particle, SPK::Data
     Vector3D* vertexIt = SPK_GET_DATA(Vector3DArrayData, dataSet, VERTEX_BUFFER_INDEX).getParticleData(index);
     Color* colorIt = SPK_GET_DATA(ColorArrayData, dataSet, COLOR_BUFFER_INDEX).getParticleData(index);
     float* ageIt = SPK_GET_DATA(FloatArrayData, dataSet, AGE_DATA_INDEX).getParticleData(index);
-    unsigned char* startAlphaIt = SPK_GET_DATA(ArrayData<unsigned char>, dataSet, START_ALPHA_DATA_INDEX).getParticleData(index);
+    uint8_t* startAlphaIt = SPK_GET_DATA(ArrayData<uint8_t>, dataSet, START_ALPHA_DATA_INDEX).getParticleData(index);
 
     // Gets the particle's values
     const Vector3D& pos = particle.position();
@@ -81,7 +81,7 @@ void TrailsParticleSystemRenderer::update(const SPK::Group& group, SPK::DataSet*
     Vector3D* vertexIt = SPK_GET_DATA(Vector3DArrayData, dataSet, VERTEX_BUFFER_INDEX).getData();
     Color* colorIt = SPK_GET_DATA(ColorArrayData, dataSet, COLOR_BUFFER_INDEX).getData();
     float* ageIt = SPK_GET_DATA(FloatArrayData, dataSet, AGE_DATA_INDEX).getData();
-    unsigned char* startAlphaIt = SPK_GET_DATA(ArrayData<unsigned char>, dataSet, START_ALPHA_DATA_INDEX).getData();
+    uint8_t* startAlphaIt = SPK_GET_DATA(ArrayData<uint8_t>, dataSet, START_ALPHA_DATA_INDEX).getData();
 
     for (ConstGroupIterator particleIt(group); !particleIt.end(); ++particleIt)
     {
@@ -93,7 +93,7 @@ void TrailsParticleSystemRenderer::update(const SPK::Group& group, SPK::DataSet*
             std::memmove(vertexIt + 2, vertexIt + 1, (m_nbSamples - 1) * sizeof(Vector3D));
             std::memmove(colorIt + 2, colorIt + 1, (m_nbSamples - 1) * sizeof(Color));
             std::memmove(ageIt + 1, ageIt, (m_nbSamples - 1) * sizeof(float));
-            std::memmove(startAlphaIt + 1, startAlphaIt, (m_nbSamples - 1) * sizeof(unsigned char));
+            std::memmove(startAlphaIt + 1, startAlphaIt, (m_nbSamples - 1) * sizeof(uint8_t));
 
             // post degenerated vertex copy
             std::memcpy(vertexIt + (m_nbSamples + 1), vertexIt + m_nbSamples, sizeof(Vector3D));
@@ -114,7 +114,7 @@ void TrailsParticleSystemRenderer::update(const SPK::Group& group, SPK::DataSet*
         for (size_t i = 0; i < m_nbSamples - 1; ++i)
         {
             float ratio = 1.0f - (age - *(ageIt++)) / m_duration;
-            (colorIt++)->a = static_cast<unsigned char>(*(startAlphaIt++) * (ratio > 0.0f ? ratio : 0.0f));
+            (colorIt++)->a = static_cast<uint8_t>(*(startAlphaIt++) * (ratio > 0.0f ? ratio : 0.0f));
         }
         ++colorIt;
     }
@@ -128,7 +128,7 @@ void TrailsParticleSystemRenderer::createData(SPK::DataSet& dataSet, const SPK::
     dataSet.setData(VERTEX_BUFFER_INDEX, SPK_NEW(Vector3DArrayData, group.getCapacity(), m_nbSamples + 2));
     dataSet.setData(COLOR_BUFFER_INDEX, SPK_NEW(ColorArrayData, group.getCapacity(), m_nbSamples + 2));
     dataSet.setData(AGE_DATA_INDEX, SPK_NEW(FloatArrayData, group.getCapacity(), m_nbSamples));
-    dataSet.setData(START_ALPHA_DATA_INDEX, SPK_NEW(ArrayData<unsigned char>, group.getCapacity(), m_nbSamples));
+    dataSet.setData(START_ALPHA_DATA_INDEX, SPK_NEW(ArrayData<uint8_t>, group.getCapacity(), m_nbSamples));
 
     // Inits the buffers
     for (ConstGroupIterator particleIt(group); !particleIt.end(); ++particleIt)

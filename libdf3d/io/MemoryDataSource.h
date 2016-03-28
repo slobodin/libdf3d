@@ -6,12 +6,12 @@ namespace df3d {
 
 class MemoryDataSource : public FileDataSource
 {
-    unique_ptr<unsigned char[]> m_buffer;
-    unsigned char *m_current;
+    unique_ptr<uint8_t[]> m_buffer;
+    uint8_t *m_current;
     int32_t m_size;
 
 public:
-    MemoryDataSource(unique_ptr<unsigned char[]> &&buffer, int32_t size, const std::string &fileName);
+    MemoryDataSource(unique_ptr<uint8_t[]> &&buffer, int32_t size, const std::string &fileName);
     ~MemoryDataSource();
 
     bool valid() const override;

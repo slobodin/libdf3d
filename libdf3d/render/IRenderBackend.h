@@ -39,7 +39,7 @@ public:
     virtual void bindIndexBuffer(IndexBufferDescriptor ib) = 0;
     virtual void updateIndexBuffer(IndexBufferDescriptor ib, size_t indicesCount, const void *data) = 0;
 
-    virtual TextureDescriptor createTexture2D(const PixelBuffer &pixels, const TextureCreationParams &params) = 0;
+    virtual TextureDescriptor createTexture2D(int width, int height, PixelFormat format, const uint8_t *data, const TextureCreationParams &params) = 0;
     virtual TextureDescriptor createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params) = 0;
     virtual void updateTexture(TextureDescriptor t, int w, int h, const void *data) = 0;
     virtual void destroyTexture(TextureDescriptor t) = 0;

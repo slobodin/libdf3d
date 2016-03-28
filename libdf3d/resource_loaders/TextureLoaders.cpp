@@ -79,8 +79,6 @@ static unique_ptr<PixelBuffer> loadPixelBuffer(shared_ptr<FileDataSource> source
         fmt = PixelFormat::RGB;
     else if (bpp == STBI_rgb_alpha)
         fmt = PixelFormat::RGBA;
-    else if (bpp == STBI_grey)
-        fmt = PixelFormat::GRAYSCALE;
     else
         glog << "Parsed image with an invalid bpp" << logwarn;
 
@@ -99,7 +97,13 @@ Texture2DManualLoader::Texture2DManualLoader(unique_ptr<PixelBuffer> pixelBuffer
 
 Texture* Texture2DManualLoader::load()
 {
-    auto descr = svc().renderManager().getBackend().createTexture2D(*m_pixelBuffer, m_params);
+    auto descr = svc().renderManager().getBackend().createTexture2D(
+        m_pixelBuffer->getWidth(),
+        m_pixelBuffer->getHeight(),
+        m_pixelBuffer->getFormat(),
+        m_pixelBuffer->getData(),
+        m_params);
+
     if (!descr.valid())
         return nullptr;
 
@@ -135,7 +139,12 @@ void Texture2DFSLoader::onDecoded(Resource *resource)
 {
     auto texture = static_cast<Texture*>(resource);
 
-    auto descr = svc().renderManager().getBackend().createTexture2D(*m_pixelBuffer, m_params);
+    auto descr = svc().renderManager().getBackend().createTexture2D(
+        m_pixelBuffer->getWidth(), 
+        m_pixelBuffer->getHeight(),
+        m_pixelBuffer->getFormat(),
+        m_pixelBuffer->getData(),
+        m_params);
     if (descr.valid())
     {
         texture->setDescriptor(descr);

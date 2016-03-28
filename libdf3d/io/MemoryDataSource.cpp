@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-MemoryDataSource::MemoryDataSource(unique_ptr<unsigned char[]> &&buffer, int32_t size, const std::string &fileName)
+MemoryDataSource::MemoryDataSource(unique_ptr<uint8_t[]> &&buffer, int32_t size, const std::string &fileName)
     : FileDataSource(fileName),
     m_buffer(std::move(buffer)),
     m_size(size)

@@ -6,17 +6,14 @@
 
 namespace df3d {
 
-int GetPixelSizeForFormat(PixelFormat format)
+static int GetPixelSizeForFormat(PixelFormat format)
 {
     switch (format)
     {
     case PixelFormat::RGB:
-    case PixelFormat::BGR:
         return 3;
     case PixelFormat::RGBA:
         return 4;
-    case PixelFormat::GRAYSCALE:
-        return 1;
     case PixelFormat::INVALID:
     default:
         glog << "Invalid pixel format. Can't get size." << logwarn;
@@ -25,20 +22,14 @@ int GetPixelSizeForFormat(PixelFormat format)
     return 0;
 }
 
-PixelBuffer::PixelBuffer(int w, int h, PixelFormat format)
-    : m_w(w), m_h(h), m_format(format)
-{
-
-}
-
-PixelBuffer::PixelBuffer(int w, int h, const unsigned char *data, PixelFormat format)
+PixelBuffer::PixelBuffer(int w, int h, const uint8_t *data, PixelFormat format)
     : m_w(w), m_h(h), m_format(format)
 {
     m_dataSize = m_w * m_h * GetPixelSizeForFormat(m_format);
 
     DF3D_ASSERT(m_dataSize != 0, "sanity check");
 
-    m_data = new unsigned char[m_dataSize];
+    m_data = new uint8_t[m_dataSize];
     memcpy(m_data, data, m_dataSize);
 }
 

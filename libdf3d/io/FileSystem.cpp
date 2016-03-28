@@ -85,7 +85,7 @@ shared_ptr<FileDataSource> FileSystem::openFile(const std::string &filePath)
 
         //glog << "Allocating" << size << "bytes for" << entry.fileName << "from pack" << archiveFile->getPath() << logdebug;
 
-        auto buffer = make_unique<unsigned char[]>(size);
+        auto buffer = make_unique<uint8_t[]>(size);
         resContainer->getRaw(buffer.get(), size);
 
         return make_shared<MemoryDataSource>(std::move(buffer), size, entry.fileName);

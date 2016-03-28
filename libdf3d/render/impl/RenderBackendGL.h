@@ -123,7 +123,7 @@ public:
     void bindIndexBuffer(IndexBufferDescriptor ib) override;
     void updateIndexBuffer(IndexBufferDescriptor ib, size_t indicesCount, const void *data) override;
 
-    TextureDescriptor createTexture2D(const PixelBuffer &pixels, const TextureCreationParams &params) override;
+    TextureDescriptor createTexture2D(int width, int height, PixelFormat format, const uint8_t *data, const TextureCreationParams &params) override;
     TextureDescriptor createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params) override;
     void updateTexture(TextureDescriptor t, int w, int h, const void *data) override;
     void destroyTexture(TextureDescriptor t) override;
