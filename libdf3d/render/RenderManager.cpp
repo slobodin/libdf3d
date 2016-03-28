@@ -126,7 +126,7 @@ void RenderManager::doRenderWorld(World &world)
 
     m_renderQueue->sort();
 
-    // Ambient pass.
+    // Ambient pass + Early Z.
     m_blendModeOverriden = true;
     m_depthTestOverriden = true;
     m_depthWriteOverriden = true;
