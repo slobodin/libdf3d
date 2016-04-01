@@ -13,6 +13,7 @@ public class Df3dRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         // TODO:
         // Context recreate also here.
+        // TODO: research setPreserveEGLContextOnPause.
 
         NativeBindings.init(m_width, m_height);
     }
