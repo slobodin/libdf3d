@@ -8,16 +8,23 @@ class WindowsStorage : public Storage
 {
     void saveToFileSystem(const std::string &data) override
     {
-        std::ofstream of(m_fileName);
-        of << data;
+        std::ofstream of(m_fileName, std::ios::out | std::ios::binary);
+        of.write(data.c_str(), data.size());
     }
 
     bool getFromFileSystem(std::string &outStr) override
     {
-        std::ifstream ifs(m_fileName);
+        std::ifstream ifs(m_fileName, std::ios::in | std::ios::binary);
         if (ifs)
         {
-            ifs >> outStr;
+            size_t fileSize = 0;
+            ifs.seekg(0, std::ios_base::end);
+            fileSize = ifs.tellg();
+            ifs.seekg(0, std::ios_base::beg);
+
+            outStr.resize(fileSize);
+            ifs.read(&outStr[0], fileSize);
+
             return true;
         }
 
