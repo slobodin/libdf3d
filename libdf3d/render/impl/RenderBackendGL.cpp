@@ -519,17 +519,21 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(int width, int height, 
         return{};
     }
 
-    GLint glPixelFormat = 0;
+    GLint pixelDataFormat = 0;
+    GLint glInternalFormat = 0;
     switch (format)
     {
     case PixelFormat::RGB:
-        glPixelFormat = GL_RGB;
+        pixelDataFormat = GL_RGB;
+        glInternalFormat = GL_RGB;
         break;
     case PixelFormat::RGBA:
-        glPixelFormat = GL_RGBA;
+        pixelDataFormat = GL_RGBA;
+        glInternalFormat = GL_RGBA;
         break;
     case PixelFormat::DEPTH:
-        glPixelFormat = GL_DEPTH_COMPONENT16;
+        pixelDataFormat = GL_DEPTH_COMPONENT;
+        glInternalFormat = GL_DEPTH_COMPONENT16;
         break;
     default:
         glog << "Invalid GL texture pixel format" << logwarn;
@@ -547,12 +551,12 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(int width, int height, 
 
     // Init empty texture.
     if (format == PixelFormat::DEPTH)
-        glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, width, height, 0, pixelDataFormat, GL_FLOAT, nullptr);
     else
-        glTexImage2D(GL_TEXTURE_2D, 0, glPixelFormat, width, height, 0, glPixelFormat, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, width, height, 0, pixelDataFormat, GL_UNSIGNED_BYTE, nullptr);
 
     if (data)
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, glPixelFormat, GL_UNSIGNED_BYTE, data);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, pixelDataFormat, GL_UNSIGNED_BYTE, data);
 
     if (params.isMipmapped())
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -573,7 +577,7 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(int width, int height, 
 
     texture.sizeInBytes = width * height * GetPixelSizeForFormat(format);   // TODO: mipmaps!
     texture.type = GL_TEXTURE_2D;
-    texture.pixelFormat = glPixelFormat;
+    texture.pixelFormat = pixelDataFormat;
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
