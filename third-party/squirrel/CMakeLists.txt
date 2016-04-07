@@ -12,6 +12,7 @@ set(squirrel_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/include/sqstdstring.h
     ${PROJECT_SOURCE_DIR}/include/sqstdsystem.h
     ${PROJECT_SOURCE_DIR}/include/squirrel.h
+    ${PROJECT_SOURCE_DIR}/include/sqconfig.h
 
     ${PROJECT_SOURCE_DIR}/squirrel/sqarray.h
     ${PROJECT_SOURCE_DIR}/squirrel/sqclass.h
