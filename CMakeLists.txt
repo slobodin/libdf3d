@@ -257,6 +257,9 @@ set(libdf3d_SRC_LIST
 )
 
 add_definitions(-DBULLET_FORCE_NO_ALIGNMENT)
+if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+    add_definitions(-DSCRAT_NO_ERROR_CHECKING)
+endif()
 
 set(third_party_SRC_FILES
     ${PROJECT_SOURCE_DIR}/third-party/json/jsoncpp.cpp
