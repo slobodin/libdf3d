@@ -244,8 +244,9 @@ void RenderManager::bindPass(RenderPass *pass)
         {
             if (passParam.hasTexture())
             {
-                if (passParam.getTexture() && passParam.getTexture()->isInitialized())
-                    m_renderBackend->bindTexture(passParam.getTexture()->getDescriptor(), textureUnit);
+                auto texture = passParam.getTexture();
+                if (texture && texture->isInitialized())
+                    m_renderBackend->bindTexture(texture->getDescriptor(), textureUnit);
                 else
                     m_renderBackend->bindTexture(m_whiteTexture->getDescriptor(), textureUnit);
 
