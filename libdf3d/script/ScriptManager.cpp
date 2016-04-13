@@ -109,6 +109,7 @@ bool ScriptManager::doString(const SQChar *str)
         return false;
     }
 
+#if !defined (SCRAT_NO_ERROR_CHECKING)
     if (!squirrelScript.Run(errMsg))
     {
         glog << "Failed to run squirrel script:" << errMsg.c_str() << logwarn;
@@ -116,6 +117,9 @@ bool ScriptManager::doString(const SQChar *str)
 
         return false;
     }
+#else 
+    squirrelScript.Run();
+#endif
 
     return true;
 }
