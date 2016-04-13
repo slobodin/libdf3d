@@ -86,7 +86,7 @@ void TimeManager::unsubscribeUpdate(Handle handle)
 
 void TimeManager::enqueueForNextUpdate(UpdateFn &&callback)
 {
-    m_pendingListeners.push(std::move(callback));
+    m_newListeners.push(std::move(callback));
 }
 
 void TimeManager::enqueueAction(UpdateFn &&callback, float delay)
@@ -105,6 +105,9 @@ void TimeManager::update(float dt)
     UpdateFn worker;
     while (m_pendingListeners.tryPop(worker))
         worker();
+
+    while (m_newListeners.tryPop(worker))
+        m_pendingListeners.push(std::move(worker));
 
     // Update client code.
     for (auto &listener : m_timeListeners)

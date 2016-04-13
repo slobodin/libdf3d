@@ -74,6 +74,7 @@ private:
 
     std::list<TimeSubscriber> m_timeListeners;
     utils::ConcurrentQueue<UpdateFn> m_pendingListeners;
+    utils::ConcurrentQueue<UpdateFn> m_newListeners;
     std::list<Action> m_actions;
     Handle m_nextHandle;
 
