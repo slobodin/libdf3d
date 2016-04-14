@@ -69,35 +69,6 @@ namespace SPK
 		static Ref<System> create(bool initialize = true);
 		~System();
 
-		////////////////////////////
-		// Controllers management //
-		////////////////////////////
-
-		/**
-		* @brief Adds a controller to the system
-		*/
-		void addController(const Ref<Controller>& ctrl);
-
-		/**
-		* @brief Removes a controller from the system
-		*/
-		void removeController(const Ref<Controller>& ctrl);
-
-		/**
-		* @brief Removes all controllers in the system
-		*/
-		void removeAllControllers();
-
-		/**
-		* @brief Returns the i-th controller
-		*/
-		const Ref<Controller>& getController(size_t i) const;
-
-		/**
-		* @brief Returns the number of controllers in the system
-		*/
-		size_t getNbControllers() const;
-
 		///////////////////////
 		// Groups management //
 		///////////////////////
@@ -315,7 +286,6 @@ namespace SPK
 	protected :
 
 		std::vector<Ref<Group> > groups; // vector containing all the groups of the system
-		std::vector<Ref<Controller> > controllers;
 
 		System(bool initialize = true);
 		System(const System& system);
@@ -369,28 +339,6 @@ namespace SPK
 	inline size_t System::getNbGroups() const
 	{
 		return groups.size();
-	}
-
-	inline void System::addController(const Ref<Controller>& ctrl)
-	{
-		if(ctrl)
-			controllers.push_back(ctrl);
-	}
-
-	inline void System::removeAllControllers()
-	{
-		controllers.clear();
-	}
-
-	inline const Ref<Controller>& System::getController(size_t i) const
-	{
-		SPK_ASSERT(i < getNbControllers(),"System::getController(size_t) - Index of controller is out of bounds : " << i);
-		return controllers[i];
-	}
-
-	inline size_t System::getNbControllers() const
-	{
-		return controllers.size();
 	}
 
 	inline void System::enableAABBComputation(bool AABB)

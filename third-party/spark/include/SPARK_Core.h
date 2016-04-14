@@ -34,7 +34,6 @@
 #include "Core/SPK_DataSet.h"
 #include "Core/SPK_ArrayData.h"
 #include "Core/SPK_DataHandler.h"
-#include "Core/SPK_Controller.h"
 #include "Core/SPK_Zone.h"
 #include "Core/SPK_Interpolator.h"
 #include "Core/SPK_Emitter.h"

@@ -109,11 +109,6 @@ namespace SPK
 	private:
 		friend class System;
 		template<typename T> friend class Ref;
-		template<typename T> friend class ValueControl;
-		friend SPK_PREFIX ConnectionStatus connect(const Ref<SPKObject>&, const std::string&, const Ref<SPKObject>&,
-			const std::string&, unsigned int, const std::string&);
-		friend SPK_PREFIX void disconnect(const Ref<SPKObject>&, const std::string&, const Ref<SPKObject>&,
-			const std::string&, unsigned int, const std::string&);
 		
 	protected :
 

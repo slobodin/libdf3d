@@ -121,19 +121,6 @@ namespace SPK
 		}
 	}
 
-	void System::removeController(const Ref<Controller>& ctrl)
-	{
-		std::vector<Ref<Controller> >::iterator it = std::find(controllers.begin(), controllers.end(), ctrl.get());
-		if (it != controllers.end())
-		{
-			controllers.erase(it);
-		}
-		else
-		{
-			SPK_LOG_WARNING("System::removeController(Controller*) - The controller " << ctrl.get() << " was not found in the system and cannot be removed");
-		}
-	}
-
 	size_t System::getNbParticles() const
 	{
 		size_t nbParticles = 0;

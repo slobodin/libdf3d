@@ -12,7 +12,6 @@ set(spark_HEADER_LIST
     ${SPARK_HEADERS_ROOT}/Core/SPK_Action.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_ArrayData.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Color.h
-    ${SPARK_HEADERS_ROOT}/Core/SPK_Controller.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_DataHandler.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_DataSet.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_DEF.h
