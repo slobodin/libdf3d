@@ -447,7 +447,6 @@ namespace SPK
 		if(id >= graph.size())
 			return;
 
-		description::graph::elementRemoved(this, id);
 		swapEntries(id, graph.size() - 1);
 		unsigned int sortedId = graph[graph.size() - 1].id;
 		graph.erase(graph.begin() + (graph.size() - 1));
@@ -527,7 +526,6 @@ namespace SPK
 	template<typename T>
 	inline void GraphInterpolator<T>::clearGraph()
 	{
-		description::graph::elementsCleared(this);
 		graph.clear();
 		sortedGraph.clear();
 	}
