@@ -110,10 +110,6 @@ namespace SPK
 
 	public :
 		spark_description(SphericEmitter, Emitter)
-		(
-			spk_attribute(Vector3D, direction, setDirection, getDirection);
-			spk_attribute(Pair<float>, angles, setAngles, getAngleMin, getAngleMax);
-		);
 
 	protected :
 

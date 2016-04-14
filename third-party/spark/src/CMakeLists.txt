@@ -11,27 +11,19 @@ set(spark_HEADER_LIST
     ${SPARK_HEADERS_ROOT}/SPARK_Core.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Action.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_ArrayData.h
-    ${SPARK_HEADERS_ROOT}/Core/SPK_Attributes.h
-    ${SPARK_HEADERS_ROOT}/Core/SPK_ClassDescription.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Color.h
-    ${SPARK_HEADERS_ROOT}/Core/SPK_ConnectionIterators.h
-    ${SPARK_HEADERS_ROOT}/Core/SPK_Connections.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Controller.h
-    ${SPARK_HEADERS_ROOT}/Core/SPK_Controls.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_DataHandler.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_DataSet.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_DEF.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_DescriptionDefines.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Emitter.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Enum.h
-    ${SPARK_HEADERS_ROOT}/Core/SPK_Factory.h
-    ${SPARK_HEADERS_ROOT}/Core/SPK_Getters.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Group.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Interpolator.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Iterator.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Logger.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_MemoryTracer.h
-    ${SPARK_HEADERS_ROOT}/Core/SPK_Meta.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Modifier.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Object.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Octree.h
@@ -39,24 +31,12 @@ set(spark_HEADER_LIST
     ${SPARK_HEADERS_ROOT}/Core/SPK_Reference.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_RenderBuffer.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Renderer.h
-    ${SPARK_HEADERS_ROOT}/Core/SPK_Setters.h
-    ${SPARK_HEADERS_ROOT}/Core/SPK_StaticDescription.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_System.h
-    ${SPARK_HEADERS_ROOT}/Core/SPK_Traits.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Transform.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Transformable.h
-    ${SPARK_HEADERS_ROOT}/Core/SPK_TypeOperations.h
-    ${SPARK_HEADERS_ROOT}/Core/SPK_Types.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Vector3D.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_Zone.h
     ${SPARK_HEADERS_ROOT}/Core/SPK_ZonedModifier.h
-    ${SPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Buffer.h
-    ${SPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Context.h
-    ${SPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Deserializer.h
-    ${SPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Loader.h
-    ${SPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Manager.h
-    ${SPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Saver.h
-    ${SPARK_HEADERS_ROOT}/Core/IO/SPK_IO_Serializer.h
     ${SPARK_HEADERS_ROOT}/Extensions/Actions/SPK_ActionSet.h
     ${SPARK_HEADERS_ROOT}/Extensions/Actions/SPK_SpawnParticlesAction.h
     ${SPARK_HEADERS_ROOT}/Extensions/Emitters/SPK_NormalEmitter.h
@@ -69,9 +49,6 @@ set(spark_HEADER_LIST
     ${SPARK_HEADERS_ROOT}/Extensions/Interpolators/SPK_RandomInitializer.h
     ${SPARK_HEADERS_ROOT}/Extensions/Interpolators/SPK_RandomInterpolator.h
     ${SPARK_HEADERS_ROOT}/Extensions/Interpolators/SPK_SimpleInterpolator.h
-    ${SPARK_HEADERS_ROOT}/Extensions/IOConverters/SPK_IO_SPKCommon.h
-    ${SPARK_HEADERS_ROOT}/Extensions/IOConverters/SPK_IO_SPKLoader.h
-    ${SPARK_HEADERS_ROOT}/Extensions/IOConverters/SPK_IO_SPKSaver.h
     ${SPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_BasicModifiers.h
     ${SPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_Collider.h
     ${SPARK_HEADERS_ROOT}/Extensions/Modifiers/SPK_Destroyer.h
@@ -95,11 +72,9 @@ set(spark_HEADER_LIST
 )
 
 set(spark_SRC_LIST
-    ${PROJECT_SOURCE_DIR}/Core/SPK_Connections.cpp
     ${PROJECT_SOURCE_DIR}/Core/SPK_DataSet.cpp
     ${PROJECT_SOURCE_DIR}/Core/SPK_DEF.cpp
     ${PROJECT_SOURCE_DIR}/Core/SPK_Emitter.cpp
-    ${PROJECT_SOURCE_DIR}/Core/SPK_Factory.cpp
     ${PROJECT_SOURCE_DIR}/Core/SPK_Group.cpp
     ${PROJECT_SOURCE_DIR}/Core/SPK_Logger.cpp
     ${PROJECT_SOURCE_DIR}/Core/SPK_MemoryTracer.cpp
@@ -109,19 +84,14 @@ set(spark_SRC_LIST
     ${PROJECT_SOURCE_DIR}/Core/SPK_System.cpp
     ${PROJECT_SOURCE_DIR}/Core/SPK_Transform.cpp
     ${PROJECT_SOURCE_DIR}/Core/SPK_Transformable.cpp
-    ${PROJECT_SOURCE_DIR}/Core/SPK_Types.cpp
     ${PROJECT_SOURCE_DIR}/Core/SPK_Zone.cpp
     ${PROJECT_SOURCE_DIR}/Core/SPK_ZonedModifier.cpp
-    # ${PROJECT_SOURCE_DIR}/Core/IO/SPK_IO_Buffer.cpp
-    # ${PROJECT_SOURCE_DIR}/Core/IO/SPK_IO_Manager.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Actions/SPK_ActionSet.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Actions/SPK_SpawnParticlesAction.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Emitters/SPK_NormalEmitter.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Emitters/SPK_RandomEmitter.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Emitters/SPK_SphericEmitter.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Emitters/SPK_StraightEmitter.cpp
-    # ${PROJECT_SOURCE_DIR}/Extensions/IOConverters/SPK_IO_SPKLoader.cpp
-    # ${PROJECT_SOURCE_DIR}/Extensions/IOConverters/SPK_IO_SPKSaver.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Modifiers/SPK_BasicModifiers.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Modifiers/SPK_Collider.cpp
     ${PROJECT_SOURCE_DIR}/Extensions/Modifiers/SPK_EmitterAttacher.cpp

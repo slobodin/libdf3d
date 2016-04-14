@@ -71,8 +71,4 @@
 #include "Extensions/Renderers/SPK_QuadRenderBehavior.h"
 #include "Extensions/Renderers/SPK_Oriented3DRenderBehavior.h"
 
-// IOConverters
-#include "Extensions/IOConverters/SPK_IO_SPKSaver.h"
-#include "Extensions/IOConverters/SPK_IO_SPKLoader.h"
-
 #endif

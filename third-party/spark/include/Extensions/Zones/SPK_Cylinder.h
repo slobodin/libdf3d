@@ -50,11 +50,6 @@ namespace SPK
 
 	public :
 		spark_description(Cylinder, Zone)
-		(
-			spk_attribute(Vector3D, axis, setAxis, getAxis);
-			spk_attribute(float, height, setHeight, getHeight);
-			spk_attribute(float, radius, setRadius, getRadius);
-		);
 
 	protected :
 

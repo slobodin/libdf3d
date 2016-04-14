@@ -105,10 +105,6 @@ namespace SPK
 
 	public:
 		spark_description(SPKObject, void)
-		(
-			spk_attribute(std::string, name, setName, getName);
-			spk_attribute(bool, shared, setShared, isShared);
-		);
 
 	private:
 		friend class System;

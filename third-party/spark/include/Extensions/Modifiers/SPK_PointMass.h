@@ -111,11 +111,6 @@ namespace SPK
 
 	public :
 		spark_description(PointMass, Modifier)
-		(
-			spk_attribute(Vector3D, position, setPosition, getPosition);
-			spk_attribute(float, mass, setMass, getMass);
-			spk_attribute(float, offset, setOffset, getOffset);
-		);
 
 	protected :
 

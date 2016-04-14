@@ -27,7 +27,7 @@ namespace SPK
 	template<typename T>
 	class RandomInterpolator : public Interpolator<T>
 	{
-		typedef typename Arg<T>::type Tv;
+		typedef T Tv;
 
 	public :
 
@@ -42,9 +42,6 @@ namespace SPK
 
 	public :
 		spark_description(RandomInterpolator, Interpolator<T>)
-		(
-//			spk_attribute(Quadruplet<T>, values, setValues, getMinBirthValue, getMaxBirthValue, getMinDeathValue, getMaxDeathValue);
-		);
 
 	private :
 
@@ -73,9 +70,6 @@ namespace SPK
 
 	typedef RandomInterpolator<Color> ColorRandomInterpolator;
 	typedef RandomInterpolator<float> FloatRandomInterpolator;
-
-	spark_description_specialization( ColorRandomInterpolator );
-	spark_description_specialization( FloatRandomInterpolator );
 
 	template<typename T>
 	inline Ref<RandomInterpolator<T> > RandomInterpolator<T>::create(const T& minBirthValue,const T& maxBirthValue,const T& minDeathValue,const T& maxDeathValue)

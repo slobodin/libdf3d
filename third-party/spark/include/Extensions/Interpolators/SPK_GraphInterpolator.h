@@ -109,7 +109,7 @@ namespace SPK
 	class GraphInterpolator : public Interpolator<T>
 	{
 	public :
-		typedef typename Arg<T>::type argType;
+		typedef T argType;
 
 		static  Ref<GraphInterpolator<T> > create();
 
@@ -235,19 +235,6 @@ namespace SPK
 
 	public :
 		spark_description(GraphInterpolator, Interpolator<T>)
-		(
-//			spk_attribute(InterpolationType, interpolationType, setType, getType);
-//			spk_attribute(Param, parameter, setParam, getInterpolatorParam);
-//			spk_attribute(bool, loop, enableLooping, isLoopingEnabled);
-//			spk_attribute(float, scale, setScaleXVariation, getScaleXVariation);
-//			spk_attribute(float, offset, setOffsetXVariation, getOffsetXVariation);
-//			spk_structure(graph, createEntry, removeEntry, clearGraph, getNbEntries)
-//			(
-//				spk_field(float, x, setX, getX);
-//				spk_field(T, y0, setY0, getY0);
-//				spk_field(T, y1, setY1, getY1);
-//			);
-		);
 
 	private :
 
@@ -295,9 +282,6 @@ namespace SPK
 
 	typedef GraphInterpolator<Color> ColorGraphInterpolator;
 	typedef GraphInterpolator<float> FloatGraphInterpolator;
-
-	spark_description_specialization( ColorGraphInterpolator );
-	spark_description_specialization( FloatGraphInterpolator );
 
 	template<typename T>
 	typename GraphInterpolator<T>::computeXFn GraphInterpolator<T>::COMPUTE_X_FN[4] =

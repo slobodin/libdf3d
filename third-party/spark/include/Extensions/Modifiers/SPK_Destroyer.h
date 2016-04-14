@@ -39,8 +39,6 @@ namespace SPK
 
 	public :
 		spark_description(Destroyer, ZonedModifier)
-		(
-		);
 
 	private :
 

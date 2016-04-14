@@ -311,11 +311,6 @@ namespace SPK
 		
 	public :
 		spark_description(System, Transformable)
-		(
-			spk_attribute(bool, computeAABB, enableAABBComputation, isAABBComputationEnabled);
-			spk_array(Ref<Group>, groups, addGroup, removeGroup, removeAllGroups, getGroup, getNbGroups);
-			spk_array(Ref<Controller>, controllers, addController, removeController, removeAllControllers, getController, getNbControllers);
-		);
 
 	protected :
 

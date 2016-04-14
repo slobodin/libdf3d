@@ -251,13 +251,6 @@ namespace SPK
 		// Transform
 		updateTransform();
 
-		// Controllers
-		for (std::vector<Ref<Controller> >::const_iterator it = controllers.begin(); it != controllers.end(); ++it)
-		{
-			(*it)->updateValues(deltaTime);
-			(*it)->propagate();
-		}
-
 		// Particles
 		bool alive = false;
 		for (std::vector<Ref<Group> >::const_iterator it = groups.begin(); it != groups.end(); ++it)

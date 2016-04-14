@@ -61,9 +61,6 @@ namespace SPK
 
 	public :
 		spark_description(Action, SPKObject)
-		(
-			spk_attribute(bool, active, setActive, isActive);
-		);
 
 	protected :	
 		Action();

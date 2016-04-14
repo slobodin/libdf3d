@@ -121,10 +121,6 @@ namespace SPK
 
 	public :
 		spark_description(Ring, Zone)
-		(
-			spk_attribute(Vector3D, normal, setNormal, getNormal);
-			spk_attribute(Pair<float>, radius, setRadius, getMinRadius, getMaxRadius);
-		);
 
 	protected :
 

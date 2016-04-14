@@ -92,9 +92,6 @@ namespace SPK
 
 	public :
 		spark_description(Zone, Transformable)
-		(
-			spk_attribute(Vector3D, position, setPosition, getPosition);
-		);
 
 	protected :
 

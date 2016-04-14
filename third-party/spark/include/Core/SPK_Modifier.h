@@ -76,10 +76,6 @@ namespace SPK
 
 	public :
 		spark_description(Modifier, Transformable)
-		(
-			spk_attribute(bool, active, setActive, isActive);
-			spk_attribute(bool, local, setLocalToSystem, isLocalToSystem);
-		);
 
 	protected :
 

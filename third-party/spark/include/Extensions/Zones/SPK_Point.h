@@ -37,8 +37,6 @@ namespace SPK
 
 	public :
 		spark_description(Point, Zone)
-		(
-		);
 
 	private :
 

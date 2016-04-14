@@ -51,12 +51,6 @@ namespace SPK
 
 	public :
 		spark_description(EmitterAttacher, Modifier)
-		(
-			spk_attribute(Ref<Emitter>, baseEmitter, setEmitter, getEmitter);
-			spk_attribute(Ref<Group>, targetGroup, setTargetGroup, getTargetGroup);
-			spk_attribute(bool, enableOrientation, enableEmitterOrientation, isEmitterOrientationEnabled);
-			spk_attribute(bool, enableRotation, enableEmitterRotation, isEmitterRotationEnabled);
-		);
 
 	protected :
 

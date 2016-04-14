@@ -138,11 +138,6 @@ namespace SPK
 
 	public :
 		spark_description(SpawnParticlesAction, Action)
-		(
-			spk_attribute(Ref<Emitter>, emitter, setEmitter, getEmitter);
-			spk_attribute(Ref<Group>, targetGroup, setTargetGroup, getTargetGroup);
-			spk_attribute(Pair<unsigned int>, quantity, setNb, getMinNb, getMaxNb);
-		);
 
 	private :
 

@@ -69,9 +69,6 @@ namespace SPK
 
 	public :
 		spark_description(StraightEmitter, Emitter)
-		(
-			spk_attribute(Vector3D, direction, setDirection, getDirection);
-		);
 
 	protected :
 

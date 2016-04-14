@@ -286,14 +286,6 @@ namespace SPK
 
 	public :
 		spark_description(LinearForce, ZonedModifier)
-		(
-			spk_attribute(Vector3D, value, setValue, getValue);
-			spk_attribute(bool, relative, setRelative, isRelative);
-			spk_attribute(bool, useSquaredSpeed, setUseSquaredSpeed, isSquaredSpeedUsed);
-			spk_attribute(float, coefficient, setCoef, getCoef);
-			spk_attribute(Param, parameter, setParam, getParam);
-			spk_attribute(Factor, factor, setFactor, getFactor);
-		);
 
 	protected :
 

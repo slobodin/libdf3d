@@ -109,11 +109,6 @@ namespace SPK
 
 	public :
 		spark_description(Renderer, SPKObject)
-		(
-			spk_attribute(bool, active, setActive, isActive);
-			//spk_attribute(float, alphaThreshold, setAlphaTestThreshold, getAlphaTestThreshold);
-			spk_attribute(unsigned int, renderingOptions, setRenderingOptions, getRenderingOptions);
-		);
 
 	protected :
 

@@ -38,8 +38,6 @@ namespace SPK
 
 	public :
 		spark_description(Interpolator, SPKObject)
-		(
-		);
 
 	protected :
 

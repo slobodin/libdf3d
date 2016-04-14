@@ -46,9 +46,6 @@ namespace SPK
 
 	public :
 		spark_description(ActionSet, Action)
-		(
-			spk_array(Ref<Action>, actions, addAction, removeAction, clearActions, getAction, getNbActions);
-		);
 
 	private :
 

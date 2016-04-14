@@ -44,8 +44,6 @@ namespace SPK
 
 	public :
 		spark_description(StaticEmitter, Emitter)
-		(
-		);
 
 	private :
 

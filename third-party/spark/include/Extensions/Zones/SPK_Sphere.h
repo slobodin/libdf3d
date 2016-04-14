@@ -48,9 +48,6 @@ namespace SPK
 
 	public :
 		spark_description(Sphere, Zone)
-		(
-			spk_attribute(float, radius, setRadius, getRadius);
-		);
 
 	private :
 

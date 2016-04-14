@@ -88,10 +88,6 @@ namespace SPK
 
 	public :
 		spark_description(NormalEmitter, Emitter)
-		(
-			spk_attribute(Ref<Zone>, normalZone, setNormalZone, getNormalZone);
-			spk_attribute(bool, inverted, setInverted, isInverted);
-		);
 
 	protected :
 

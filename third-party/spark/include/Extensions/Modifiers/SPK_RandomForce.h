@@ -119,10 +119,6 @@ namespace SPK
 
 	public :
 		spark_description(RandomForce, Modifier)
-		(
-			spk_attribute(Pair<Vector3D>, values, setVectors, getMinVector, getMaxVector);
-			spk_attribute(Pair<float>, periods, setPeriods, getMinPeriod, getMaxPeriod);
-		);
 
 	protected :
 

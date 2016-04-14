@@ -27,7 +27,7 @@ namespace SPK
 	template<typename T>
 	class SimpleInterpolator : public Interpolator<T>
 	{
-		typedef typename Arg<T>::type Tv;
+		typedef T Tv;
 
 	public:
 
@@ -39,9 +39,6 @@ namespace SPK
 
 	public :
 		spark_description(SimpleInterpolator, Interpolator<T>)
-		(
-//			spk_attribute(Pair<T>, values, setValues, getBirthValue, getDeathValue);
-		);
 
 	private :
 
@@ -57,9 +54,6 @@ namespace SPK
 
 	typedef SimpleInterpolator<Color> ColorSimpleInterpolator;
 	typedef SimpleInterpolator<float> FloatSimpleInterpolator;
-
-	spark_description_specialization( ColorSimpleInterpolator );
-	spark_description_specialization( FloatSimpleInterpolator );
 
 	template<typename T>
 	SimpleInterpolator<T>::SimpleInterpolator(Tv birthValue,Tv deathValue) :

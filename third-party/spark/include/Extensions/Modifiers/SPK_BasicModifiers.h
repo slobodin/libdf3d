@@ -36,9 +36,6 @@ namespace SPK
 
 	public :
 		spark_description(Gravity, Modifier)
-		(
-			spk_attribute(Vector3D, value, setValue, getValue);
-		);
 
 	protected :
 
@@ -68,9 +65,6 @@ namespace SPK
 
 	public :
 		spark_description(Friction, Modifier)
-		(
-			spk_attribute(float, value, setValue, getValue);
-		);
 
 	private :
 

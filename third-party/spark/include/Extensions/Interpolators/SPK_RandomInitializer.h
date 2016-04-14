@@ -27,7 +27,7 @@ namespace SPK
 	template<typename T>
 	class RandomInitializer : public Interpolator<T>
 	{
-		typedef typename Arg<T>::type Tv;
+		typedef T Tv;
 
 	public :
 
@@ -39,9 +39,6 @@ namespace SPK
 
 	public :
 		spark_description(RandomInitializer, Interpolator<T>)
-		(
-//			spk_attribute(Pair<T>, values, setValues, getMinValue, getMaxValue);
-		);
 
 	private :
 
@@ -57,9 +54,6 @@ namespace SPK
 
 	typedef RandomInitializer<Color> ColorRandomInitializer;
 	typedef RandomInitializer<float> FloatRandomInitializer;
-
-	spark_description_specialization( ColorRandomInitializer );
-	spark_description_specialization( FloatRandomInitializer );
 
 	template<typename T>
 	RandomInitializer<T>::RandomInitializer(Tv minValue,Tv maxValue) :

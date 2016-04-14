@@ -204,16 +204,6 @@ namespace SPK
 
 	public :
 		spark_description(Vortex, Modifier)
-		(
-			spk_attribute(Vector3D, position, setPosition, getPosition);
-			spk_attribute(Vector3D, direction, setDirection, getDirection);
-			spk_attribute(float, rotationSpeed, setRotationSpeed, getRotationSpeed);
-			spk_attribute(float, attractionSpeed, setAttractionSpeed, getAttractionSpeed);
-			spk_attribute(bool, angularRotationSpeed, setRotationSpeedAngular, isRotationSpeedAngular);
-			spk_attribute(bool, linearAttractionSpeed, setAttractionSpeedLinear, isAttractionSpeedLinear);
-			spk_attribute(float, eyeRadius, setEyeRadius, getEyeRadius);
-			spk_attribute(bool, killParticles, enableParticleKilling, isParticleKillingEnabled);
-		);
 
 	protected :
 

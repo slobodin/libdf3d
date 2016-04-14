@@ -64,11 +64,6 @@ namespace SPK
 
 	public:
 		spark_description( Transformable, SPKObject )
-		(
-			spk_attribute(Vector3D, positionVector, setTransformPosition, getTransformPosition);
-			spk_attribute(Vector3D, lookLHVector, setTransformLookLH, getTransformLookLH);
-			spk_attribute(Vector3D, upVector, setTransformUp, getTransformUp);
-		);
 
 	protected :
 

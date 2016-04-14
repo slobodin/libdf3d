@@ -74,10 +74,6 @@ namespace SPK
 
 	public :
 		spark_description(Obstacle, ZonedModifier)
-		(
-			spk_attribute(float, bouncingRatio, setBouncingRatio, getBouncingRatio);
-			spk_attribute(float, friction, setFriction, getFriction);
-		);
 
 	private :
 

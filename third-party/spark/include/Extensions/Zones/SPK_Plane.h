@@ -90,9 +90,6 @@ namespace SPK
 
 	public :
 		spark_description(Plane, Zone)
-		(
-			spk_attribute(Vector3D, normal, setNormal, getNormal);
-		);
 
 	protected :
 

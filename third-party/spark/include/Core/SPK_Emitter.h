@@ -204,14 +204,6 @@ namespace SPK
 
 	public :
 		spark_description(Emitter, Transformable)
-		(
-			spk_attribute(bool, active, setActive, isActive);
-			spk_attribute(Pair<int>, tank, setTank, getMinTank, getMaxTank);
-			spk_attribute(float, flow, setFlow, getFlow);
-			spk_attribute(Pair<float>, force, setForce, getForceMin, getForceMax);
-			spk_attribute(Ref<Zone>, zone, setZone, getZone);
-			spk_attribute(bool, fullzone, setUseFullZone, isFullZone);
-		);
 
 	protected :
 

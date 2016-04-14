@@ -83,9 +83,6 @@ namespace SPK
 
 	public :
 		spark_description(Collider, Modifier)
-		(
-			spk_attribute(float, elasticity, setElasticity, getElasticity);
-		);
 
 	private :
 

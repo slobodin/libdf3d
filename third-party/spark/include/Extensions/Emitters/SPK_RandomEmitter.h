@@ -46,8 +46,6 @@ namespace SPK
 
 	public :
 		spark_description(RandomEmitter, Emitter)
-		(
-		);
 
 	private :
 

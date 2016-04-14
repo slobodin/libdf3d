@@ -58,10 +58,6 @@ namespace SPK
 
 	public :
 		spark_description(Box, Zone)
-		(
-			spk_attribute(Vector3D, dimensions, setDimensions, getDimensions);
-			spk_attribute(Pair<Vector3D>, axis, setAxis, getZAxis, getYAxis);
-		);
 
 	protected :
 

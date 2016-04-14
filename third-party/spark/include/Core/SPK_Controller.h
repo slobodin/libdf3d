@@ -44,9 +44,6 @@ namespace SPK
 		virtual ~Controller() {}
 
 		spark_description(Controller, SPKObject)
-		(
-		);
-
 	protected:
 		friend class System;
 

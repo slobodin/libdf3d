@@ -93,10 +93,6 @@ namespace SPK
 
 	public :
 		spark_description(ZonedModifier, Modifier)
-		(
-			spk_attribute(Ref<Zone>, zone, setZone, getZone);
-			spk_attribute(ZoneTest, zoneTest, setZoneTest, getZoneTest);
-		);
 
 	protected :
 

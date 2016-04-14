@@ -27,7 +27,7 @@ namespace SPK
 	template<typename T>
 	class DefaultInitializer : public Interpolator<T>
 	{
-		typedef typename Arg<T>::type Tv;
+		typedef T Tv;
 
 	public :
 
@@ -38,9 +38,6 @@ namespace SPK
 
 	public :
 		spark_description(DefaultInitializer, Interpolator<T>)
-		(
-//			spk_attribute(T, value, setDefaultValue, getDefaultValue);
-		);
 
 	private :
 
@@ -92,9 +89,6 @@ namespace SPK
 	// Typedefs
 	typedef DefaultInitializer<Color> ColorDefaultInitializer;
 	typedef DefaultInitializer<float> FloatDefaultInitializer;
-
-	spark_description_specialization( ColorDefaultInitializer );
-	spark_description_specialization( FloatDefaultInitializer );
 }
 
 #endif
