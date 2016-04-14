@@ -86,7 +86,7 @@ public:
 //! A Renderer drawing particles as quads.
 class QuadParticleSystemRenderer : public ParticleSystemRenderer, public SPK::QuadRenderBehavior, public SPK::Oriented3DRenderBehavior
 {
-    spark_description(QuadParticleSystemRenderer, ParticleSystemRenderer)();
+    spark_description(QuadParticleSystemRenderer, ParticleSystemRenderer)
 private:
     mutable void (QuadParticleSystemRenderer::*m_renderParticle)(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const = nullptr;
 

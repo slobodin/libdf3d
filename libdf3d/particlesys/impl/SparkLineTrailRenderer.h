@@ -9,7 +9,7 @@ namespace particlesys_impl {
 
 class TrailsParticleSystemRenderer : public ParticleSystemRenderer
 {
-    spark_description(TrailsParticleSystemRenderer, ParticleSystemRenderer)();
+    spark_description(TrailsParticleSystemRenderer, ParticleSystemRenderer)
 
 private:
 #pragma pack(push, 1)

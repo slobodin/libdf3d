@@ -13,7 +13,7 @@ class ParticleSystemBuffers_Quad;
 
 class ParticleSystemRenderer : public SPK::Renderer
 {
-    spark_description(ParticleSystemRenderer, SPK::Renderer)();
+    spark_description(ParticleSystemRenderer, SPK::Renderer)
 
 public:
     shared_ptr<RenderPass> m_pass;
