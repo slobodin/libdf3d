@@ -16,4 +16,6 @@ public class NativeBindings {
     public static native void onTouchCancel(int pointerId, float x, float y);
 
     public static native void setAssetManager(AssetManager mgr);
+
+    public static native void servicesInitialized(Df3dAndroidServices services);
 }

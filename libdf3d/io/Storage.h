@@ -9,8 +9,8 @@ public:
     {
         virtual ~Encryptor() = default;
 
-        virtual std::string encode(const std::string &data) = 0;
-        virtual std::string decode(const std::string &data) = 0;
+        virtual void encode(uint8_t *data, size_t size) = 0;
+        virtual void decode(uint8_t *data, size_t size) = 0;
     };
 
 private:
@@ -22,8 +22,8 @@ protected:
 
     Storage(const std::string &filename);
 
-    virtual void saveToFileSystem(const std::string &data) = 0;
-    virtual bool getFromFileSystem(std::string &outStr) = 0;
+    virtual void saveToFileSystem(const uint8_t *data, size_t size) = 0;
+    virtual bool getFromFileSystem(uint8_t **data, size_t *size) = 0;
 
 public:
     static Storage *create(const std::string &filename);

@@ -1,4 +1,5 @@
 #include "../AppDelegate.h"
+#include "JNIHelpers.h"
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/platform/android/FileDataSourceAndroid.h>
 #include <libdf3d/input/InputManager.h>
@@ -47,6 +48,8 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
     g_appState.reset(new AndroidAppState());
     g_appState->javaVm = vm;
 
+    df3d::AndroidServices::init(vm);
+
     df3d::glog << "JNI_OnLoad success" << df3d::logmess;
 
     df3dInitialized();
@@ -63,6 +66,11 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_setAssetManager(JNIEnv* env, jobject cls, jobject assetManager)
 {
     df3d::platform_impl::FileDataSourceAndroid::setAssetManager(AAssetManager_fromJava(env, assetManager));
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_servicesInitialized(JNIEnv* env, jobject cls, jobject services)
+{
+    df3d::AndroidServices::setServicesObj(services);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_init(JNIEnv* env, jclass cls, jint jscreenWidth, jint jscreenHeight)

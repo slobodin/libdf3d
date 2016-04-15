@@ -6,13 +6,13 @@ namespace df3d { namespace platform_impl {
 
 class WindowsStorage : public Storage
 {
-    void saveToFileSystem(const std::string &data) override
+    void saveToFileSystem(const uint8_t *data, size_t size) override
     {
         std::ofstream of(m_fileName, std::ios::out | std::ios::binary);
-        of.write(data.c_str(), data.size());
+        of.write((const char *)data, size);
     }
 
-    bool getFromFileSystem(std::string &outStr) override
+    bool getFromFileSystem(uint8_t **data, size_t *size) override
     {
         std::ifstream ifs(m_fileName, std::ios::in | std::ios::binary);
         if (ifs)
@@ -22,8 +22,10 @@ class WindowsStorage : public Storage
             fileSize = ifs.tellg();
             ifs.seekg(0, std::ios_base::beg);
 
-            outStr.resize(fileSize);
-            ifs.read(&outStr[0], fileSize);
+            *data = new uint8_t[fileSize];
+            *size = fileSize;
+
+            ifs.read((char*)*data, fileSize);
 
             return true;
         }

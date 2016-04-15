@@ -9,6 +9,7 @@ import android.view.View;
 public class Df3dActivity extends Activity {
     private Df3dSurfaceView m_glSurfaceView = null;
     private AssetManager m_assetManager = null;
+    private Df3dAndroidServices services = null;
 
     static
     {
@@ -26,6 +27,8 @@ public class Df3dActivity extends Activity {
 
         enableFullscreen();
 
+        services = new Df3dAndroidServices(this);
+        NativeBindings.servicesInitialized(services);
         NativeBindings.setAssetManager(m_assetManager = getAssets());
 
         setContentView(m_glSurfaceView = new Df3dSurfaceView(this));

@@ -7,14 +7,14 @@ namespace df3d
 
 struct NullEncryptor : Storage::Encryptor
 {
-    std::string encode(const std::string &data) override
+    void encode(uint8_t *data, size_t size) override
     {
-        return data;
+        // pass
     }
 
-    std::string decode(const std::string &data) override
+    void decode(uint8_t *data, size_t size) override
     {
-        return data;
+        // pass
     }
 };
 
@@ -29,21 +29,33 @@ Storage::Storage(const std::string &filename)
 bool Storage::save()
 {
     Json::StreamWriterBuilder b;
-    b["indentation"] ="";
+    b["indentation"] = "";
 
     auto str = Json::writeString(b, getData());
-    saveToFileSystem(m_encryptor->encode(str));
+
+    uint8_t *data = (uint8_t*)&str[0];
+    m_encryptor->encode(data, str.size());
+
+    saveToFileSystem(data, str.size());
 
     return true;
 }
 
 bool Storage::load()
 {
-    std::string strData;
-    if (!getFromFileSystem(strData))
+    uint8_t *data = nullptr;
+    size_t size = 0;
+    if (!getFromFileSystem(&data, &size))
         return false;
 
-    auto jsonData = utils::json::fromSource(m_encryptor->decode(strData));
+    m_encryptor->decode(data, size);
+
+    std::string jsonSource;
+    jsonSource.assign((const char *)data, size);
+
+    delete[] data;
+
+    auto jsonData = utils::json::fromSource(jsonSource);
     if (jsonData.isNull())
         return false;
 
