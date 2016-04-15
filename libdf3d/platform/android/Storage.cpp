@@ -54,7 +54,7 @@ class AndroidStorage : public Storage
 
         df3d::glog << "AndroidStorage::getFromFileSystem got" << *size << "of data" << df3d::logdebug;
 
-        return size != 0;
+        return *size != 0;
     }
 
 public:
