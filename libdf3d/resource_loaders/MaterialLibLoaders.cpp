@@ -152,13 +152,6 @@ public:
         bool skippingLines = false;
         while (is >> tok)
         {
-            if (utils::starts_with(tok, "#endif"))
-            {
-                utils::skip_line(is);
-                skippingLines = false;
-                continue;
-            }
-
             if (skippingLines)
             {
                 utils::skip_line(is);
@@ -174,15 +167,6 @@ public:
             if (utils::starts_with(tok, "//"))
             {
                 utils::skip_line(is);
-                continue;
-            }
-
-            if (utils::starts_with(tok, "#ifdef"))
-            {
-                std::string define;
-                is >> define;
-
-                skippingLines = !utils::contains(MaterialLib::Defines, define);
                 continue;
             }
 
@@ -255,24 +239,36 @@ class MaterialLibParser
 
         auto material = make_shared<Material>(node.name);
 
-        std::string defaultTechniqueName;
-        for (const auto &n : node.children)
+        // FIXME: this is a workaround.
+        auto foundPrefTech = std::find_if(node.children.begin(), node.children.end(), [](const MaterialLibNode *node) {
+            return node->type == TECHNIQUE_TYPE && node->name == MaterialLib::PREFERRED_TECHNIQUE;
+        });
+
+        if (foundPrefTech != node.children.end())
         {
-            if (n->type == TECHNIQUE_TYPE)
+            auto technique = parseTechniqueNode(**foundPrefTech);
+            if (technique)
             {
-                auto technique = parseTechniqueNode(*n);
-                if (!technique)
-                    continue;
-
-                // Set first technique as default.
-                if (defaultTechniqueName.empty())
-                    defaultTechniqueName = technique->getName();
-
                 material->appendTechnique(*technique);
+                material->setCurrentTechnique(technique->getName());
             }
         }
+        else
+        {
+            for (const auto &n : node.children)
+            {
+                if (n->type == TECHNIQUE_TYPE)
+                {
+                    auto technique = parseTechniqueNode(*n);
+                    if (!technique)
+                        continue;
 
-        material->setCurrentTechnique(defaultTechniqueName);
+                    material->appendTechnique(*technique);
+                    material->setCurrentTechnique(technique->getName());
+                    break;
+                }
+            }
+        }
 
         return material;
     }

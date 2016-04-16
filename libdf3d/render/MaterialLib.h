@@ -14,7 +14,8 @@ class DF3D_DLL MaterialLib : public Resource
     std::unordered_map<std::string, shared_ptr<Material>> m_materials;
 
 public:
-    static std::vector<std::string> Defines;
+    // FIXME: get rid of this.
+    static std::string PREFERRED_TECHNIQUE;
 
     MaterialLib();
     ~MaterialLib();

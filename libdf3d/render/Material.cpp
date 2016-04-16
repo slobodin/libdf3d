@@ -14,7 +14,7 @@ shared_ptr<Technique> Material::findTechnique(const std::string &name)
     auto found = std::find_if(m_techniques.cbegin(), m_techniques.cend(), findFn);
     if (found == m_techniques.cend())
         return nullptr;
-    
+
     return *found;
 }
 

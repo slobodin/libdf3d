@@ -5,7 +5,7 @@
 
 namespace df3d {
 
-std::vector<std::string> MaterialLib::Defines;
+std::string MaterialLib::PREFERRED_TECHNIQUE;
 
 MaterialLib::MaterialLib()
 {
@@ -36,6 +36,13 @@ void MaterialLib::appendMaterial(shared_ptr<Material> material)
     {
         glog << "Trying to add duplicate material" << found->first << "to material library" << getGUID() << logwarn;
         return;
+    }
+
+    if (!PREFERRED_TECHNIQUE.empty())
+    {
+        auto tech = material->getTechnique(PREFERRED_TECHNIQUE);
+        if (tech)
+            material->setCurrentTechnique(PREFERRED_TECHNIQUE);
     }
 
     m_materials[material->getName()] = material;
