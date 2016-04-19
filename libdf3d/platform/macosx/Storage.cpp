@@ -4,12 +4,12 @@ namespace df3d { namespace platform_impl {
 
 class MacosxStorage : public Storage
 {
-    void saveToFileSystem(const std::string &data) override
+    void saveToFileSystem(const uint8_t *data, size_t size) override
     {
 
     }
 
-    bool getFromFileSystem(std::string &outStr) override
+    bool getFromFileSystem(uint8_t **data, size_t *size) override
     {
         return false;
     }
