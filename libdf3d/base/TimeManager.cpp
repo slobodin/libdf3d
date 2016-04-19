@@ -81,7 +81,7 @@ void TimeManager::unsubscribeUpdate(Handle handle)
     if (found)
         found->handle.id = -1;
     else
-        glog << "Trying to remove nonexistent time listener" << loggame;
+        glog << "Trying to remove nonexistent time listener" << logwarn;
 }
 
 void TimeManager::enqueueForNextUpdate(UpdateFn &&callback)
