@@ -14,13 +14,11 @@ public class Df3dSurfaceView extends GLSurfaceView {
     public Df3dSurfaceView(Context context) {
         super(context);
 
-        if(Build.VERSION.SDK_INT >= 11) {
-            try {
-//                setPreserveEGLContextOnPause(true);
-            }
-            catch(Exception e) {
-                e.printStackTrace();
-            }
+        try {
+            setPreserveEGLContextOnPause(true);
+        }
+        catch(Exception e) {
+            e.printStackTrace();
         }
 
         setEGLContextClientVersion(2);
@@ -62,13 +60,12 @@ public class Df3dSurfaceView extends GLSurfaceView {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        // FIXME: need to be called synchronously
-//        queueEvent(new Runnable() {
-//            @Override
-//            public void run() {
-//                NativeBindings.onSurfaceDestroyed();
-//            }
-//        });
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                NativeBindings.onSurfaceDestroyed();
+            }
+        });
 
         super.surfaceDestroyed(holder);
     }

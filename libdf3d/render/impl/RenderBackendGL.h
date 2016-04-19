@@ -39,7 +39,7 @@ class RenderBackendGL : public IRenderBackend
     struct VertexBufferGL
     {
         GLuint gl_id = 0;
-        unique_ptr<VertexFormat> format;
+        shared_ptr<VertexFormat> format;
         size_t sizeInBytes = 0;
     };
 
@@ -107,6 +107,8 @@ public:
 
     const RenderBackendCaps& getCaps() const override;
     const FrameStats& getFrameStats() const override;
+
+    void initialize() override;
 
     void frameBegin() override;
     void frameEnd() override;

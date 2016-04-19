@@ -242,18 +242,20 @@ class TBRendererImpl : public tb::TBRenderer
         bool is_flushing = false;
     };
 
-    Batch m_batch;
+    unique_ptr<Batch> m_batch;
     RenderPass m_guipass;
     PassParamHandle m_diffuseMapParam;
 
     void InvokeContextLost() override
     {
         m_guipass = {};
+        m_batch.reset();
         tb::TBRenderer::InvokeContextLost();
     }
 
     void InvokeContextRestored() override
     {
+        m_batch = make_unique<Batch>();
         createGuiPass();
         tb::TBRenderer::InvokeContextRestored();
     }
@@ -274,6 +276,7 @@ class TBRendererImpl : public tb::TBRenderer
 public:
     TBRendererImpl()
     {
+        m_batch = make_unique<Batch>();
         createGuiPass();
     }
 
@@ -405,8 +408,8 @@ public:
     void FlushBitmap(tb::TBBitmap *bitmap)
     {
         // Flush the batch if it's using this bitmap (that is about to change or be deleted)
-        if (m_batch.vertex_count && bitmap == m_batch.bitmap)
-            m_batch.Flush(this);
+        if (m_batch && m_batch->vertex_count && bitmap == m_batch->bitmap)
+            m_batch->Flush(this);
     }
 
     void FlushBitmapFragment(tb::TBBitmapFragment *bitmap_fragment) override
@@ -416,18 +419,21 @@ public:
         // batch_id in our (one and only) batch.
         // If we switch to a more advance batching system with multiple batches, we need to
         // solve this a bit differently.
-        if (m_batch.vertex_count && bitmap_fragment->m_batch_id == m_batch.batch_id)
-            m_batch.Flush(this);
+        if (m_batch && m_batch->vertex_count && bitmap_fragment->m_batch_id == m_batch->batch_id)
+            m_batch->Flush(this);
     }
 
     void AddQuadInternal(const tb::TBRect &dst_rect, const tb::TBRect &src_rect, const tb::TBColor &color, tb::TBBitmap *bitmap, tb::TBBitmapFragment *fragment)
     {
-        if (m_batch.bitmap != bitmap)
+        if (!m_batch)
+            return;
+
+        if (m_batch->bitmap != bitmap)
         {
-            m_batch.Flush(this);
-            m_batch.bitmap = bitmap;
+            m_batch->Flush(this);
+            m_batch->bitmap = bitmap;
         }
-        m_batch.fragment = fragment;
+        m_batch->fragment = fragment;
         if (bitmap)
         {
             int bitmap_w = bitmap->Width();
@@ -440,7 +446,7 @@ public:
 
         glm::vec4 glmcolor = { color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f };
 
-        auto ver = m_batch.Reserve(this, 6);
+        auto ver = m_batch->Reserve(this, 6);
         ver[0].pos.x = (float)dst_rect.x;
         ver[0].pos.y = (float)(dst_rect.y + dst_rect.h);
         ver[0].uv.x = m_u;
@@ -475,12 +481,13 @@ public:
 
         // Update fragments batch id (See FlushBitmapFragment)
         if (fragment)
-            fragment->m_batch_id = m_batch.batch_id;
+            fragment->m_batch_id = m_batch->batch_id;
     }
 
     void FlushAllInternal()
     {
-        m_batch.Flush(this);
+        if (m_batch)
+            m_batch->Flush(this);
     }
 
     tb::TBBitmap* CreateBitmap(int width, int height, tb::uint32 *data) override

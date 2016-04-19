@@ -57,7 +57,7 @@ public:
 
     const Viewport& getViewport() const;
     const RenderingCapabilities& getRenderingCapabilities() const;
-    const FrameStats& getFrameStats() const;
+    FrameStats getFrameStats() const;
 
     IRenderBackend& getBackend();
 };

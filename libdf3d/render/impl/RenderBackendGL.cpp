@@ -246,6 +246,42 @@ RenderBackendGL::RenderBackendGL()
         throw std::runtime_error("GL 2.1 unsupported");
 #endif
 
+    initialize();
+}
+
+RenderBackendGL::~RenderBackendGL()
+{
+
+}
+
+const RenderBackendCaps& RenderBackendGL::getCaps() const
+{
+    return m_caps;
+}
+
+const FrameStats& RenderBackendGL::getFrameStats() const
+{
+    return m_stats;
+}
+
+void RenderBackendGL::initialize()
+{
+    m_vertexBuffersBag = { MAX_SIZE };
+    m_indexBuffersBag = { MAX_SIZE };
+    m_texturesBag = { MAX_SIZE };
+    m_shadersBag = { MAX_SIZE };
+    m_gpuProgramsBag = { MAX_SIZE };
+    m_uniformsBag = { MAX_SIZE };
+
+    m_programUniforms.clear();
+
+    std::fill(std::begin(m_vertexBuffers), std::end(m_vertexBuffers), VertexBufferGL());
+    std::fill(std::begin(m_indexBuffers), std::end(m_indexBuffers), IndexBufferGL());
+    std::fill(std::begin(m_textures), std::end(m_textures), TextureGL());
+    std::fill(std::begin(m_shaders), std::end(m_shaders), ShaderGL());
+    std::fill(std::begin(m_programs), std::end(m_programs), ProgramGL());
+    std::fill(std::begin(m_uniforms), std::end(m_uniforms), UniformGL());
+
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glFrontFace(GL_CCW);
@@ -285,21 +321,6 @@ RenderBackendGL::RenderBackendGL()
 
     glog << "RenderBackendGL storage" << totalStorage / 1024 << "KB" << logdebug;
 #endif
-}
-
-RenderBackendGL::~RenderBackendGL()
-{
-
-}
-
-const RenderBackendCaps& RenderBackendGL::getCaps() const
-{
-    return m_caps;
-}
-
-const FrameStats& RenderBackendGL::getFrameStats() const
-{
-    return m_stats;
 }
 
 void RenderBackendGL::frameBegin()
@@ -346,10 +367,13 @@ df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFor
 
     VertexBufferGL vertexBuffer;
 
-    vertexBuffer.format = make_unique<VertexFormat>(format);
+    vertexBuffer.format = make_shared<VertexFormat>(format);
     vertexBuffer.sizeInBytes = verticesCount * format.getVertexSize();
 
     glGenBuffers(1, &vertexBuffer.gl_id);
+    if (vertexBuffer.gl_id == 0)
+        return{};
+
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id);
     glBufferData(GL_ARRAY_BUFFER, verticesCount * format.getVertexSize(), data, GetGLBufferUsageType(usage));
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -371,6 +395,8 @@ void RenderBackendGL::destroyVertexBuffer(VertexBufferDescriptor vb)
 
     if (vertexBuffer.gl_id)
         glDeleteBuffers(1, &vertexBuffer.gl_id);
+    else
+        return;
 
     m_vertexBuffers[vb.id] = {};
 
@@ -438,6 +464,8 @@ df3d::IndexBufferDescriptor RenderBackendGL::createIndexBuffer(size_t indicesCou
     IndexBufferGL indexBuffer;
 
     glGenBuffers(1, &indexBuffer.gl_id);
+    if (indexBuffer.gl_id == 0)
+        return {};
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(INDICES_TYPE), data, GetGLBufferUsageType(usage));
@@ -460,6 +488,8 @@ void RenderBackendGL::destroyIndexBuffer(IndexBufferDescriptor ib)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     if (indexBuffer.gl_id != 0)
         glDeleteBuffers(1, &indexBuffer.gl_id);
+    else
+        return;
 
     m_indexBuffers[ib.id] = {};
 
@@ -543,6 +573,9 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(int width, int height, 
     TextureGL texture;
 
     glGenTextures(1, &texture.gl_id);
+    if (texture.gl_id == 0)
+        return{};
+
     glBindTexture(GL_TEXTURE_2D, texture.gl_id);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -603,6 +636,9 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
     TextureGL texture;
 
     glGenTextures(1, &texture.gl_id);
+    if (texture.gl_id == 0)
+        return{};
+
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture.gl_id);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -667,7 +703,11 @@ void RenderBackendGL::destroyTexture(TextureDescriptor t)
     DESCRIPTOR_CHECK(t);
 
     const auto &texture = m_textures[t.id];
-    DF3D_ASSERT(texture.type != GL_INVALID_ENUM, "sanity check");
+    if (texture.type == GL_INVALID_ENUM)
+    {
+        DF3D_ASSERT(false, "sanity check");
+        return;
+    }
 
     glBindTexture(texture.type, 0);
     if (texture.gl_id)
@@ -758,6 +798,8 @@ void RenderBackendGL::destroyShader(ShaderDescriptor shader)
 
     if (shaderGL.gl_id != 0)
         glDeleteShader(shaderGL.gl_id);
+    else
+        return;
 
     m_shaders[shader.id] = {};
 
@@ -831,6 +873,8 @@ void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor program)
     glUseProgram(0);
     if (programGL.gl_id != 0)
         glDeleteProgram(programGL.gl_id);
+    else
+        return;
 
     m_programs[program.id] = {};
 

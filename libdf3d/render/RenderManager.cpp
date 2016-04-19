@@ -299,10 +299,14 @@ void RenderManager::loadEmbedResources()
 
 void RenderManager::forgetEmbedResources()
 {
-    m_whiteTexture->setResident(false);
-    m_simpleLightingProgram->setResident(false);
-    m_coloredProgram->setResident(false);
-    m_ambientPassProgram->setResident(false);
+    if (m_whiteTexture)
+        m_whiteTexture->setResident(false);
+    if (m_simpleLightingProgram)
+        m_simpleLightingProgram->setResident(false);
+    if (m_coloredProgram)
+        m_coloredProgram->setResident(false);
+    if (m_ambientPassProgram)
+        m_ambientPassProgram->setResident(false);
 
     m_whiteTexture.reset();
     m_ambientPassProps.reset();
@@ -313,6 +317,9 @@ void RenderManager::forgetEmbedResources()
 
 void RenderManager::drawWorld(World &world)
 {
+    if (!m_renderBackend)
+        return;
+
     onFrameBegin();
 
     doRenderWorld(world);
@@ -348,9 +355,11 @@ const RenderingCapabilities& RenderManager::getRenderingCapabilities() const
     return m_initParams.renderingCaps;
 }
 
-const FrameStats& RenderManager::getFrameStats() const
+FrameStats RenderManager::getFrameStats() const
 {
-    return m_renderBackend->getFrameStats();
+    if (m_renderBackend)
+        return m_renderBackend->getFrameStats();
+    return {};
 }
 
 IRenderBackend& RenderManager::getBackend()
