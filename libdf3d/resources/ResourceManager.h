@@ -85,6 +85,8 @@ public:
      */
     bool isResourceLoaded(const ResourceGUID &guid) const;
 
+    size_t getLoadedResourcesCount() const { return m_loadedResources.size(); }
+
     void addListener(Listener *listener);
     void removeListener(Listener *listener);
 };

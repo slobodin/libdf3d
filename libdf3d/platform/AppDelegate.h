@@ -18,6 +18,9 @@ public:
 
     virtual void onAppPaused() = 0;
     virtual void onAppResumed() = 0;
+
+    virtual void onRenderDestroyed() = 0;
+    virtual void onRenderRecreated() = 0;
 };
 
 class DF3D_DLL Application final

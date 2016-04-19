@@ -25,64 +25,6 @@
 
 namespace df3d {
 
-void RenderManager::loadEmbedResources()
-{
-    // Create white texture.
-    {
-        const auto w = 8;
-        const auto h = 8;
-        const auto pf = PixelFormat::RGBA;
-
-        auto data = new uint8_t[w * h * 4];
-        memset(data, 255, w * h * 4);
-
-        TextureCreationParams params;
-        params.setFiltering(TextureFiltering::NEAREST);
-        params.setMipmapped(false);
-        params.setWrapMode(TextureWrapMode::WRAP);
-        params.setAnisotropyLevel(render_constants::NO_ANISOTROPY);
-
-        auto pb = make_unique<PixelBuffer>(w, h, data, pf);
-
-        m_whiteTexture = svc().resourceManager().getFactory().createTexture(std::move(pb), params);
-        m_whiteTexture->setResident(true);
-
-        delete[] data;
-    }
-
-    // Load resident GPU programs.
-    {
-        const std::string simple_lighting_vert =
-#include "impl/embed_glsl/simple_lighting_vert.h"
-            ;
-        const std::string simple_lighting_frag =
-#include "impl/embed_glsl/simple_lighting_frag.h"
-            ;
-        const std::string colored_vert =
-#include "impl/embed_glsl/colored_vert.h"
-            ;
-        const std::string colored_frag =
-#include "impl/embed_glsl/colored_frag.h"
-            ;
-        const std::string ambient_vert =
-#include "impl/embed_glsl/ambient_vert.h"
-            ;
-        const std::string ambient_frag =
-#include "impl/embed_glsl/ambient_frag.h"
-            ;
-
-        auto &factory = svc().resourceManager().getFactory();
-
-        factory.createGpuProgram(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH, simple_lighting_vert, simple_lighting_frag)->setResident(true);
-        factory.createGpuProgram(COLORED_PROGRAM_EMBED_PATH, colored_vert, colored_frag)->setResident(true);
-        factory.createGpuProgram(AMBIENT_PASS_PROGRAM_EMBED_PATH, ambient_vert, ambient_frag)->setResident(true);
-    }
-
-    m_ambientPassProps = make_unique<RenderPass>();
-    m_ambientMtlParam = m_ambientPassProps->getPassParamHandle("material_ambient");
-    m_ambientPassProps->setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
-}
-
 void RenderManager::onFrameBegin()
 {
     m_blendModeOverriden = false;
@@ -290,8 +232,83 @@ void RenderManager::initialize()
 
 void RenderManager::shutdown()
 {
+    forgetEmbedResources();
+}
+
+void RenderManager::loadEmbedResources()
+{
+    // Create white texture.
+    {
+        const auto w = 8;
+        const auto h = 8;
+        const auto pf = PixelFormat::RGBA;
+
+        auto data = new uint8_t[w * h * 4];
+        memset(data, 255, w * h * 4);
+
+        TextureCreationParams params;
+        params.setFiltering(TextureFiltering::NEAREST);
+        params.setMipmapped(false);
+        params.setWrapMode(TextureWrapMode::WRAP);
+        params.setAnisotropyLevel(render_constants::NO_ANISOTROPY);
+
+        auto pb = make_unique<PixelBuffer>(w, h, data, pf);
+
+        m_whiteTexture = svc().resourceManager().getFactory().createTexture(std::move(pb), params);
+        m_whiteTexture->setResident(true);
+
+        delete[] data;
+    }
+
+    // Load resident GPU programs.
+    {
+        const std::string simple_lighting_vert =
+#include "impl/embed_glsl/simple_lighting_vert.h"
+            ;
+        const std::string simple_lighting_frag =
+#include "impl/embed_glsl/simple_lighting_frag.h"
+            ;
+        const std::string colored_vert =
+#include "impl/embed_glsl/colored_vert.h"
+            ;
+        const std::string colored_frag =
+#include "impl/embed_glsl/colored_frag.h"
+            ;
+        const std::string ambient_vert =
+#include "impl/embed_glsl/ambient_vert.h"
+            ;
+        const std::string ambient_frag =
+#include "impl/embed_glsl/ambient_frag.h"
+            ;
+
+        auto &factory = svc().resourceManager().getFactory();
+
+        m_simpleLightingProgram = factory.createGpuProgram(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH, simple_lighting_vert, simple_lighting_frag);
+        m_coloredProgram = factory.createGpuProgram(COLORED_PROGRAM_EMBED_PATH, colored_vert, colored_frag);
+        m_ambientPassProgram = factory.createGpuProgram(AMBIENT_PASS_PROGRAM_EMBED_PATH, ambient_vert, ambient_frag);
+
+        m_simpleLightingProgram->setResident(true);
+        m_coloredProgram->setResident(true);
+        m_ambientPassProgram->setResident(true);
+    }
+
+    m_ambientPassProps = make_unique<RenderPass>();
+    m_ambientMtlParam = m_ambientPassProps->getPassParamHandle("material_ambient");
+    m_ambientPassProps->setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
+}
+
+void RenderManager::forgetEmbedResources()
+{
+    m_whiteTexture->setResident(false);
+    m_simpleLightingProgram->setResident(false);
+    m_coloredProgram->setResident(false);
+    m_ambientPassProgram->setResident(false);
+
     m_whiteTexture.reset();
     m_ambientPassProps.reset();
+    m_simpleLightingProgram.reset();
+    m_coloredProgram.reset();
+    m_ambientPassProgram.reset();
 }
 
 void RenderManager::drawWorld(World &world)

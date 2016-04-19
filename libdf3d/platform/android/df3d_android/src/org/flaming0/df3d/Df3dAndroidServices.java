@@ -1,6 +1,7 @@
 package org.flaming0.df3d;
 
 import android.app.Activity;
+import android.util.Log;
 
 public class Df3dAndroidServices {
     private Df3dPreferences prefs = null;
@@ -16,4 +17,8 @@ public class Df3dAndroidServices {
     }
 
     public Object getLocalStorage() { return storage; }
+
+    public void exitApp(/*int exitCode*/) {
+        System.exit(0);
+    }
 }

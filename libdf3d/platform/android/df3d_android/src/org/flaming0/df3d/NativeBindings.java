@@ -10,6 +10,8 @@ public class NativeBindings {
     public static native void onPause();
     public static native void onDestroy();
 
+    public static native void onSurfaceDestroyed();
+
     public static native void onTouchDown(int pointerId, float x, float y);
     public static native void onTouchUp(int pointerId, float x, float y);
     public static native void onTouchMove(int pointerId, float x, float y);

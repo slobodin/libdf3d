@@ -88,6 +88,7 @@ public:
     void unsubscribeUpdate(Handle handle);
 
     void enqueueForNextUpdate(UpdateFn &&callback);
+    void clearNextUpdateQueue();
 
     void enqueueAction(UpdateFn &&callback, float delay);
 

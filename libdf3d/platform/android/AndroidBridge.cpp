@@ -91,8 +91,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_init(JNI
     }
     else
     {
-        // TODO:
-        // Recreate GL resources.
+        g_appState->appDelegate->onRenderRecreated();
     }
 }
 
@@ -113,6 +112,12 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onDestro
 
     g_appState->engine->shutdown();
     g_appState.reset();
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onSurfaceDestroyed(JNIEnv* env, jclass cls)
+{
+    if (g_appState)
+        g_appState->appDelegate->onRenderDestroyed();
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_draw(JNIEnv* env, jclass cls)

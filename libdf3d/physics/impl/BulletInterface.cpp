@@ -85,6 +85,8 @@ void BulletDebugDraw::clean()
 
 void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
 {
+    // TODO: rebinding issue.
+    /*
     if (m_vertexData.getVerticesCount() == 0)
         return;
 
@@ -102,6 +104,7 @@ void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
     op.type = RopType::LINES;
 
     ops->debugDrawOperations.push_back(op);
+    */
 }
 
 } }

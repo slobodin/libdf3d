@@ -34,8 +34,8 @@ class DF3D_DLL RenderManager : utils::NonCopyable
     bool m_depthWriteOverriden = false;
 
     shared_ptr<Texture> m_whiteTexture;
+    shared_ptr<GpuProgram> m_simpleLightingProgram, m_coloredProgram, m_ambientPassProgram;
 
-    void loadEmbedResources();
     void onFrameBegin();
     void onFrameEnd();
     void doRenderWorld(World &world);
@@ -48,6 +48,9 @@ public:
 
     void initialize();
     void shutdown();
+
+    void loadEmbedResources();
+    void forgetEmbedResources();
 
     void drawWorld(World &world);
     void drawRenderOperation(const RenderOperation &op);

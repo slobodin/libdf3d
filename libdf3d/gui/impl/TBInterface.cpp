@@ -246,8 +246,19 @@ class TBRendererImpl : public tb::TBRenderer
     RenderPass m_guipass;
     PassParamHandle m_diffuseMapParam;
 
-public:
-    TBRendererImpl()
+    void InvokeContextLost() override
+    {
+        m_guipass = {};
+        tb::TBRenderer::InvokeContextLost();
+    }
+
+    void InvokeContextRestored() override
+    {
+        createGuiPass();
+        tb::TBRenderer::InvokeContextRestored();
+    }
+
+    void createGuiPass()
     {
         m_guipass.setFaceCullMode(FaceCullMode::NONE);
         m_guipass.enableDepthTest(false);
@@ -258,6 +269,12 @@ public:
         m_guipass.getPassParam("material_diffuse")->setValue(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
         m_guipass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
+    }
+
+public:
+    TBRendererImpl()
+    {
+        createGuiPass();
     }
 
     ~TBRendererImpl()

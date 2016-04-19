@@ -2,15 +2,26 @@ package org.flaming0.df3d;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
 
 public class Df3dSurfaceView extends GLSurfaceView {
     private Df3dRenderer m_df3dRenderer = null;
 
     public Df3dSurfaceView(Context context) {
         super(context);
+
+        if(Build.VERSION.SDK_INT >= 11) {
+            try {
+//                setPreserveEGLContextOnPause(true);
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         setEGLContextClientVersion(2);
         setFocusableInTouchMode(true);
@@ -47,6 +58,19 @@ public class Df3dSurfaceView extends GLSurfaceView {
         });
 
         setRenderMode(RENDERMODE_WHEN_DIRTY);
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        // FIXME: need to be called synchronously
+//        queueEvent(new Runnable() {
+//            @Override
+//            public void run() {
+//                NativeBindings.onSurfaceDestroyed();
+//            }
+//        });
+
+        super.surfaceDestroyed(holder);
     }
 
     @Override

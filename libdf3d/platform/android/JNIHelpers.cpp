@@ -11,6 +11,7 @@ JavaVM *AndroidServices::m_vm = nullptr;
 pthread_key_t AndroidServices::m_envKey;
 jobject AndroidServices::m_prefs;
 jobject AndroidServices::m_localStorage;
+jobject AndroidServices::m_services;
 
 void AndroidServices::init(JavaVM *vm)
 {
@@ -31,6 +32,8 @@ void AndroidServices::setServicesObj(jobject jservices)
     m_localStorage = env->NewGlobalRef(m_localStorage);
 
     env->DeleteLocalRef(cls);
+
+    m_services = env->NewGlobalRef(jservices);
 }
 
 JNIEnv* AndroidServices::getEnv()
@@ -73,6 +76,16 @@ jbyteArray AndroidServices::createByteArray(const uint8_t *data, size_t size)
     jbyteArray result = env->NewByteArray(size);
     env->SetByteArrayRegion(result, 0, size, (const jbyte *)data);
     return result;
+}
+
+void AndroidServices::exitApp()
+{
+    auto env = getEnv();
+
+    jclass cls = env->GetObjectClass(m_services);
+    jmethodID methId = env->GetMethodID(cls, "exitApp", "()V");
+
+    env->CallVoidMethod(m_services, methId);
 }
 
 }
