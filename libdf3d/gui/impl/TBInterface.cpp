@@ -296,6 +296,7 @@ public:
     virtual void EndPaint() override
     {
         FlushAllInternal();
+        df3d::svc().renderManager().getBackend().enableScissorTest(false);
     }
 
     void Translate(int dx, int dy) override
