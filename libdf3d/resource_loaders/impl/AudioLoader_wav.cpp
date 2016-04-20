@@ -57,48 +57,55 @@ unique_ptr<AudioBufferFSLoader::PCMData> AudioLoader_wav::load(shared_ptr<FileDa
     if (format.subChunkSize > 16)
         source->seek(sizeof(short), std::ios_base::cur);
 
-    WAVEData data;
-    source->getAsObjects(&data, 1);
-
-    if (memcmp(data.subChunkID, "data", 4))
+    while (true)
     {
-        glog << "Invalid WAVE data" << source->getPath() << logwarn;
-        return nullptr;
+        WAVEData data;
+        if (!source->getAsObjects(&data, 1))
+            return nullptr;
+
+        if (memcmp(data.subChunkID, "data", 4) == 0)
+        {
+            char *sounddata = new char[data.subChunk2Size];
+
+            auto got = source->getRaw(sounddata, data.subChunk2Size);
+            if (got != data.subChunk2Size)
+            {
+                glog << "Error loading WAVE data" << source->getPath() << logwarn;
+                return nullptr;
+            }
+
+            AudioBufferFSLoader::PCMData::Format fmt;
+
+            if (format.numChannels == 1)
+            {
+                if (format.bitsPerSample == 8)
+                    fmt = AudioBufferFSLoader::PCMData::Format::MONO_8;
+                else if (format.bitsPerSample == 16)
+                    fmt = AudioBufferFSLoader::PCMData::Format::MONO_16;
+            }
+            else if (format.numChannels == 2)
+            {
+                if (format.bitsPerSample == 8)
+                    fmt = AudioBufferFSLoader::PCMData::Format::STEREO_8;
+                else if (format.bitsPerSample == 16)
+                    fmt = AudioBufferFSLoader::PCMData::Format::STEREO_16;
+            }
+
+            auto result = make_unique<AudioBufferFSLoader::PCMData>();
+            result->format = fmt;
+            result->data = sounddata;
+            result->dataSize = data.subChunk2Size;
+            result->sampleRate = format.sampleRate;
+
+            return result;
+        }
+        else
+        {
+            source->seek(data.subChunk2Size, std::ios_base::cur);
+        }
     }
 
-    char *sounddata = new char[data.subChunk2Size];
-
-    auto got = source->getRaw(sounddata, data.subChunk2Size);
-    if (got != data.subChunk2Size)
-    {
-        glog << "Error loading WAVE data" << source->getPath() << logwarn;
-        return nullptr;
-    }
-
-    AudioBufferFSLoader::PCMData::Format fmt;
-
-    if (format.numChannels == 1)
-    {
-        if (format.bitsPerSample == 8)
-            fmt = AudioBufferFSLoader::PCMData::Format::MONO_8;
-        else if (format.bitsPerSample == 16)
-            fmt = AudioBufferFSLoader::PCMData::Format::MONO_16;
-    }
-    else if (format.numChannels == 2)
-    {
-        if (format.bitsPerSample == 8)
-            fmt = AudioBufferFSLoader::PCMData::Format::STEREO_8;
-        else if (format.bitsPerSample == 16)
-            fmt = AudioBufferFSLoader::PCMData::Format::STEREO_16;
-    }
-
-    auto result = make_unique<AudioBufferFSLoader::PCMData>();
-    result->format = fmt;
-    result->data = sounddata;
-    result->dataSize = data.subChunk2Size;
-    result->sampleRate = format.sampleRate;
-
-    return result;
+    return nullptr;
 }
 
 } }
