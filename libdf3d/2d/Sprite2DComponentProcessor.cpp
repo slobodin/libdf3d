@@ -245,6 +245,7 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
     params.setFiltering(TextureFiltering::BILINEAR);
     params.setMipmapped(false);
     params.setAnisotropyLevel(render_constants::NO_ANISOTROPY);
+    params.setWrapMode(TextureWrapMode::CLAMP);
 
     auto texture = svc().resourceManager().getFactory().createTexture(pathToTexture, params, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->isInitialized())
