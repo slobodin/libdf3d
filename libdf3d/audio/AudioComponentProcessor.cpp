@@ -53,16 +53,6 @@ struct AudioComponentProcessor::Impl
 
 void AudioComponentProcessor::update()
 {
-    // Update camera position.
-    const auto &cam = *m_world->getCamera();
-    alListenerfv(AL_POSITION, glm::value_ptr(cam.getPosition()));
-
-    const auto &dir = cam.getDir();
-    const auto &up = cam.getUp();
-
-    ALfloat listenerOrientation[] = { dir.x, dir.y, dir.z, up.x, up.y, up.z };
-    alListenerfv(AL_ORIENTATION, listenerOrientation);
-
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
         compData.holderPos = m_world->sceneGraph().getWorldPosition(compData.holder);
@@ -118,6 +108,17 @@ void AudioComponentProcessor::pause(Entity e)
 
     if (getAudioState(compData.audioSourceId) != AudioComponentProcessor::State::PAUSED)
         alSourcePause(compData.audioSourceId);
+}
+
+void AudioComponentProcessor::setListenerPosition(const glm::vec3 &pos)
+{
+    alListenerfv(AL_POSITION, glm::value_ptr(pos));
+}
+
+void AudioComponentProcessor::setListenerOrientation(const glm::vec3 &dir, const glm::vec3 &up)
+{
+    ALfloat listenerOrientation[] = { dir.x, dir.y, dir.z, up.x, up.y, up.z };
+    alListenerfv(AL_ORIENTATION, listenerOrientation);
 }
 
 void AudioComponentProcessor::setPitch(Entity e, float pitch)

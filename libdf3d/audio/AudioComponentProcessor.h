@@ -36,6 +36,9 @@ public:
     void stop(Entity e);
     void pause(Entity e);
 
+    void setListenerPosition(const glm::vec3 &pos);
+    void setListenerOrientation(const glm::vec3 &dir, const glm::vec3 &up);
+
     void setPitch(Entity e, float pitch);
     void setGain(Entity e, float gain);
     void setLooped(Entity e, bool looped);
