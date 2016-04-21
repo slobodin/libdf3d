@@ -143,6 +143,12 @@ void AudioComponentProcessor::setLooped(Entity e, bool looped)
     alSourcei(compData.audioSourceId, AL_LOOPING, looped);
 }
 
+void AudioComponentProcessor::setRolloffFactor(Entity e, float factor)
+{
+    auto &compData = m_pimpl->data.getData(e);
+    alSourcef(compData.audioSourceId, AL_ROLLOFF_FACTOR, factor);
+}
+
 float AudioComponentProcessor::getPitch(Entity e) const
 {
     return m_pimpl->data.getData(e).pitch;

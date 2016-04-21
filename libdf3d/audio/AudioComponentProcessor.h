@@ -39,6 +39,7 @@ public:
     void setPitch(Entity e, float pitch);
     void setGain(Entity e, float gain);
     void setLooped(Entity e, bool looped);
+    void setRolloffFactor(Entity e, float factor);
 
     float getPitch(Entity e) const;
     float getGain(Entity e) const;
