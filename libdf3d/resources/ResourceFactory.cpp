@@ -25,9 +25,9 @@ ResourceFactory::~ResourceFactory()
 
 }
 
-shared_ptr<AudioBuffer> ResourceFactory::createAudioBuffer(const std::string &audioPath)
+shared_ptr<AudioBuffer> ResourceFactory::createAudioBuffer(const std::string &audioPath, bool streamed)
 {
-    auto loader = make_shared<AudioBufferFSLoader>(audioPath);
+    auto loader = make_shared<AudioBufferFSLoader>(audioPath, streamed);
 
     return static_pointer_cast<AudioBuffer>(m_holder->loadFromFS(audioPath, loader));
 }

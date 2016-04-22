@@ -25,6 +25,8 @@ private:
 
     World *m_world;
 
+    void streamThread();
+
     void update() override;
     void cleanStep(const std::list<Entity> &deleted) override;
 
@@ -49,7 +51,7 @@ public:
     bool isLooped(Entity e) const;
     State getState(Entity e) const;
 
-    void add(Entity e, const std::string &audioFilePath);
+    void add(Entity e, const std::string &audioFilePath, bool streamed = false);
     void remove(Entity e);
     bool has(Entity e);
 };

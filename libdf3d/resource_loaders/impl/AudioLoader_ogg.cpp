@@ -51,52 +51,135 @@ int closeOgg(void *datasource)
     return 0;
 }
 
-unique_ptr<AudioBufferFSLoader::PCMData> AudioLoader_ogg::load(shared_ptr<FileDataSource> source)
+static unique_ptr<OggVorbis_File> CreateVorbisFile(shared_ptr<FileDataSource> source)
 {
-    // TODO:
-    // Streaming.
-
     ov_callbacks ovCallbacks;
     ovCallbacks.close_func = closeOgg;
     ovCallbacks.read_func = readOgg;
     ovCallbacks.seek_func = seekOgg;
     ovCallbacks.tell_func = tellOgg;
 
-    OggVorbis_File oggVorbisFile;
+    auto oggVorbisFile = make_unique<OggVorbis_File>();
 
-    if (ov_open_callbacks(source.get(), &oggVorbisFile, NULL, -1, ovCallbacks) < 0)
+    if (ov_open_callbacks(source.get(), oggVorbisFile.get(), NULL, -1, ovCallbacks) < 0)
     {
         glog << "Failed to open ogg file" << source->getPath() << logwarn;
         return nullptr;
     }
+    return oggVorbisFile;
+}
 
-    auto ovInfo = ov_info(&oggVorbisFile, -1);
-    long pcmSize = (long)ov_pcm_total(&oggVorbisFile, -1) * ovInfo->channels * 2;
-
+static bool ReadOggBlock(long size, char *buffer, OggVorbis_File *oggVorbisFile)
+{
     // Read PCM.
-    auto audioData = new char[pcmSize];
     long totalGot = 0, got;
     int currentSection;
 
-    while (totalGot < pcmSize)
+    while (totalGot < size)
     {
-        got = (long)ov_read(&oggVorbisFile, audioData + totalGot, pcmSize - totalGot, 0, 2, 1, &currentSection);
+        got = (long)ov_read(oggVorbisFile, buffer + totalGot, size - totalGot, 0, 2, 1, &currentSection);
 
         if (got == 0)
+        {
+            // Done with loading.
             break;
-        else
+        }
+        else if (got > 0)
+        {
             totalGot += got;
+        }
+        else
+        {
+            glog << "Failed to read ogg data" << logwarn;
+            return false;
+        }
     }
 
-    auto result = make_unique<AudioBufferFSLoader::PCMData>();
-    result->format = ovInfo->channels == 1 ? AudioBufferFSLoader::PCMData::Format::MONO_16 : AudioBufferFSLoader::PCMData::Format::STEREO_16;
-    result->data = audioData;
-    result->dataSize = totalGot;
-    result->sampleRate = ovInfo->rate;
+    return true;
+}
 
-    ov_clear(&oggVorbisFile);
+class AudioStream_Ogg : public IAudioStream
+{
+    unique_ptr<OggVorbis_File> m_oggVorbisFile;
+    shared_ptr<FileDataSource> m_source;
+
+    size_t m_sampleRate;
+    ALuint m_format;
+
+public:
+    AudioStream_Ogg(shared_ptr<FileDataSource> source, unique_ptr<OggVorbis_File> oggFile)
+        : m_oggVorbisFile(std::move(oggFile)),
+        m_source(std::move(source))
+    {
+        auto ovInfo = ov_info(m_oggVorbisFile.get(), -1);
+
+        m_sampleRate = ovInfo->rate;
+        m_format = ovInfo->channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+    }
+
+    ~AudioStream_Ogg()
+    {
+        ov_clear(m_oggVorbisFile.get());
+    }
+
+    bool streamData(ALuint alBuffer, long dataSize, char *buffer, bool looped) override
+    {
+        long totalGot = 0, got;
+        int currentSection;
+
+        while (totalGot < dataSize)
+        {
+            got = ov_read(m_oggVorbisFile.get(), buffer + totalGot, dataSize - totalGot, 0, 2, 1, &currentSection);
+            if (got > 0)
+            {
+                totalGot += got;
+            }
+            else
+            {
+                if (looped)
+                    ov_pcm_seek(m_oggVorbisFile.get(), 0);
+                break;
+            }
+        }
+
+        if (totalGot > 0)
+            alBufferData(alBuffer, m_format, buffer, totalGot, m_sampleRate);
+
+        return (totalGot > 0) || looped;
+    }
+};
+
+unique_ptr<PCMData> AudioLoader_ogg::load(shared_ptr<FileDataSource> source)
+{
+    auto oggVorbisFile = CreateVorbisFile(source);
+    if (!oggVorbisFile)
+        return nullptr;
+
+    auto result = make_unique<PCMData>();
+
+    auto ovInfo = ov_info(oggVorbisFile.get(), -1);
+    long pcmSize = (long)ov_pcm_total(oggVorbisFile.get(), -1) * ovInfo->channels * 2;
+
+    result->totalSize = pcmSize;
+    result->sampleRate = ovInfo->rate;
+    result->format = ovInfo->channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+    result->data = new char[pcmSize];
+
+    if (!ReadOggBlock(pcmSize, result->data, oggVorbisFile.get()))
+        result.reset();
+
+    ov_clear(oggVorbisFile.get());
 
     return result;
+}
+
+unique_ptr<IAudioStream> AudioLoader_ogg::loadStreamed(shared_ptr<FileDataSource> source)
+{
+    auto oggVorbisFile = CreateVorbisFile(source);
+    if (!oggVorbisFile)
+        return nullptr;
+
+    return make_unique<AudioStream_Ogg>(source, std::move(oggVorbisFile));
 }
 
 } }

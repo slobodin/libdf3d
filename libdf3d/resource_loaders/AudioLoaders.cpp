@@ -9,35 +9,17 @@
 
 namespace df3d {
 
-ALenum convertALFormat(AudioBufferFSLoader::PCMData::Format format)
-{
-    switch (format)
-    {
-    case AudioBufferFSLoader::PCMData::Format::MONO_8:
-        return AL_FORMAT_MONO8;
-    case AudioBufferFSLoader::PCMData::Format::MONO_16:
-        return AL_FORMAT_MONO16;
-    case AudioBufferFSLoader::PCMData::Format::STEREO_8:
-        return AL_FORMAT_STEREO8;
-    case AudioBufferFSLoader::PCMData::Format::STEREO_16:
-        return AL_FORMAT_STEREO16;
-    default:
-        break;
-    }
-
-    return AL_INVALID_ENUM;
-}
-
-AudioBufferFSLoader::AudioBufferFSLoader(const std::string &path)
-    : FSResourceLoader(ResourceLoadingMode::IMMEDIATE),      // FIXME: can do streaming?
-    m_path(path)
+AudioBufferFSLoader::AudioBufferFSLoader(const std::string &path, bool streamed)
+    : FSResourceLoader(ResourceLoadingMode::IMMEDIATE),
+    m_path(path),
+    m_streamed(streamed)
 {
 
 }
 
 AudioBuffer* AudioBufferFSLoader::createDummy()
 {
-    return new AudioBuffer();
+    return new AudioBuffer(m_streamed);
 }
 
 bool AudioBufferFSLoader::decode(shared_ptr<FileDataSource> source)
@@ -45,23 +27,36 @@ bool AudioBufferFSLoader::decode(shared_ptr<FileDataSource> source)
     auto extension = svc().fileSystem().getFileExtension(source->getPath());
 
     if (extension == ".wav")
+    {
+        DF3D_ASSERT(!m_streamed, "streaming for wav is unsupported for now");   // FIXME:
         m_pcmData = resource_loaders_impl::AudioLoader_wav().load(source);
+        return m_pcmData != nullptr;
+    }
     else if (extension == ".ogg")
-        m_pcmData = resource_loaders_impl::AudioLoader_ogg().load(source);
+    {
+        if (m_streamed)
+        {
+            m_stream = resource_loaders_impl::AudioLoader_ogg().loadStreamed(source);
+            return m_stream != nullptr;
+        }
+        else
+        {
+            m_pcmData = resource_loaders_impl::AudioLoader_ogg().load(source);
+            return m_pcmData != nullptr;
+        }
+    }
 
-    return m_pcmData != nullptr;
+    return false;
 }
 
 void AudioBufferFSLoader::onDecoded(Resource *resource)
 {
     auto audioBuffer = static_cast<AudioBuffer*>(resource);
 
-    alBufferData(audioBuffer->getALId(), convertALFormat(m_pcmData->format), m_pcmData->data, m_pcmData->dataSize, m_pcmData->sampleRate);
-
-    // Explicitly remove PCM buffer in order to prevent caching.
-    m_pcmData.reset();
-
-    printOpenALError();
+    if (m_pcmData)
+        audioBuffer->init(std::move(m_pcmData));
+    else
+        audioBuffer->init(std::move(m_stream));
 }
 
 }

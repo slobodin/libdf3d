@@ -14,14 +14,16 @@ public:
         float pitch = 1.0f, gain = 1.0f;
         bool looped = false;
         bool autoplay = false;
+        bool stream = false;
 
         root["path"] >> path;
         root["pitch"] >> pitch;
         root["gain"] >> gain;
         root["looped"] >> looped;
         root["autoplay"] >> autoplay;
+        root["stream"] >> stream;
 
-        w.audio().add(e, path);
+        w.audio().add(e, path, stream);
         w.audio().setPitch(e, pitch);
         w.audio().setGain(e, gain);
         w.audio().setLooped(e, looped);

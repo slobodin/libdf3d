@@ -34,7 +34,7 @@ struct WAVEData
 
 #pragma pack(pop)
 
-unique_ptr<AudioBufferFSLoader::PCMData> AudioLoader_wav::load(shared_ptr<FileDataSource> source)
+unique_ptr<PCMData> AudioLoader_wav::load(shared_ptr<FileDataSource> source)
 {
     RIFFHeader header;
     source->getAsObjects(&header, 1);
@@ -57,6 +57,8 @@ unique_ptr<AudioBufferFSLoader::PCMData> AudioLoader_wav::load(shared_ptr<FileDa
     if (format.subChunkSize > 16)
         source->seek(sizeof(short), std::ios_base::cur);
 
+    auto result = make_unique<PCMData>();
+
     while (true)
     {
         WAVEData data;
@@ -74,27 +76,23 @@ unique_ptr<AudioBufferFSLoader::PCMData> AudioLoader_wav::load(shared_ptr<FileDa
                 return nullptr;
             }
 
-            AudioBufferFSLoader::PCMData::Format fmt;
-
             if (format.numChannels == 1)
             {
                 if (format.bitsPerSample == 8)
-                    fmt = AudioBufferFSLoader::PCMData::Format::MONO_8;
+                    result->format = AL_FORMAT_MONO8;
                 else if (format.bitsPerSample == 16)
-                    fmt = AudioBufferFSLoader::PCMData::Format::MONO_16;
+                    result->format = AL_FORMAT_MONO16;
             }
             else if (format.numChannels == 2)
             {
                 if (format.bitsPerSample == 8)
-                    fmt = AudioBufferFSLoader::PCMData::Format::STEREO_8;
+                    result->format = AL_FORMAT_STEREO8;
                 else if (format.bitsPerSample == 16)
-                    fmt = AudioBufferFSLoader::PCMData::Format::STEREO_16;
+                    result->format = AL_FORMAT_STEREO16;
             }
 
-            auto result = make_unique<AudioBufferFSLoader::PCMData>();
-            result->format = fmt;
             result->data = sounddata;
-            result->dataSize = data.subChunk2Size;
+            result->totalSize = data.subChunk2Size;
             result->sampleRate = format.sampleRate;
 
             return result;

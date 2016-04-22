@@ -42,14 +42,39 @@ struct AudioComponentProcessor::Impl
         Entity holder;
         glm::vec3 holderPos;
 
-        unsigned audioSourceId = 0;
+        ALuint audioSourceId = 0;
         float pitch = 1.0f;
         float gain = 1.0f;
         bool looped = false;
+
+        AudioBuffer *buffer = nullptr;
     };
 
     ComponentDataHolder<Data> data;
+
+    std::list<Data> streamingData;
+    unique_ptr<std::mutex> streamingMutex;
+    unique_ptr<std::thread> streamingThread;
+    bool streamingThreadActive = true;
 };
+
+void AudioComponentProcessor::streamThread()
+{
+    while (m_pimpl->streamingThreadActive)
+    {
+        m_pimpl->streamingMutex->lock();
+
+        for (auto &data : m_pimpl->streamingData)
+        {
+            if (data.buffer && getAudioState(data.audioSourceId) == State::PLAYING)
+                data.buffer->streamData(data.audioSourceId, data.looped);
+        }
+
+        m_pimpl->streamingMutex->unlock();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+}
 
 void AudioComponentProcessor::update()
 {
@@ -76,13 +101,39 @@ AudioComponentProcessor::AudioComponentProcessor(World *world)
     : m_pimpl(new Impl()),
     m_world(world)
 {
-    m_pimpl->data.setDestructionCallback([](const Impl::Data &data) {
+    m_pimpl->data.setDestructionCallback([this](const Impl::Data &data) {
+        if (data.buffer && data.buffer->isStreamed())
+        {
+            m_pimpl->streamingMutex->lock();
+
+            for (auto it = m_pimpl->streamingData.begin(); it != m_pimpl->streamingData.end(); it++)
+            {
+                if (it->audioSourceId == data.audioSourceId)
+                {
+                    m_pimpl->streamingData.erase(it);
+                    break;
+                }
+                else
+                    it++;
+            }
+
+            m_pimpl->streamingMutex->unlock();
+        }
+
         alDeleteSources(1, &data.audioSourceId);
     });
 }
 
 AudioComponentProcessor::~AudioComponentProcessor()
 {
+    m_pimpl->data.clear();
+
+    if (m_pimpl->streamingThread)
+    {
+        m_pimpl->streamingThreadActive = false;
+        m_pimpl->streamingThread->join();
+        m_pimpl->streamingThread.reset();
+    }
     //glog << "AudioComponentProcessor::~AudioComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
 }
 
@@ -141,7 +192,20 @@ void AudioComponentProcessor::setLooped(Entity e, bool looped)
 {
     auto &compData = m_pimpl->data.getData(e);
     compData.looped = looped;
-    alSourcei(compData.audioSourceId, AL_LOOPING, looped);
+    if (!compData.buffer->isStreamed())
+        alSourcei(compData.audioSourceId, AL_LOOPING, looped);
+
+    if (m_pimpl->streamingThread)
+    {
+        m_pimpl->streamingMutex->lock();
+
+        auto foundStreamed = std::find_if(m_pimpl->streamingData.begin(), m_pimpl->streamingData.end(),
+                                          [&compData](const Impl::Data &data) { return data.buffer == compData.buffer; });
+        if (foundStreamed != m_pimpl->streamingData.end())
+            foundStreamed->looped = looped;
+
+        m_pimpl->streamingMutex->unlock();
+    }
 }
 
 void AudioComponentProcessor::setRolloffFactor(Entity e, float factor)
@@ -170,18 +234,11 @@ AudioComponentProcessor::State AudioComponentProcessor::getState(Entity e) const
     return getAudioState(m_pimpl->data.getData(e).audioSourceId);
 }
 
-void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
+void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath, bool streamed)
 {
     if (m_pimpl->data.contains(e))
     {
         glog << "An entity already has an audio component" << logwarn;
-        return;
-    }
-
-    auto buffer = svc().resourceManager().getFactory().createAudioBuffer(audioFilePath);
-    if (!buffer || !buffer->isInitialized())
-    {
-        glog << "Can not add audio component to an entity. Audio path:" << audioFilePath << logwarn;
         return;
     }
 
@@ -196,14 +253,33 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath)
 
     alSourcef(data.audioSourceId, AL_PITCH, data.pitch);
     alSourcef(data.audioSourceId, AL_GAIN, data.gain);
-    alSourcei(data.audioSourceId, AL_BUFFER, buffer->getALId());
+
+    auto buffer = svc().resourceManager().getFactory().createAudioBuffer(audioFilePath, streamed);
+    if (buffer && buffer->isInitialized())
+        buffer->attachToSource(data.audioSourceId);
+    else
+        glog << "Can not add a buffer to an audio source. Audio path:" << audioFilePath << logwarn;
 
     printOpenALError();
 
     data.holder = e;
     data.holderPos = m_world->sceneGraph().getWorldPosition(e);
+    data.buffer = buffer.get();
 
     m_pimpl->data.add(e, data);
+
+    if (streamed)
+    {
+        if (!m_pimpl->streamingThread)
+        {
+            m_pimpl->streamingMutex.reset(new std::mutex());
+            m_pimpl->streamingThread.reset(new std::thread([this]() { streamThread(); }));
+        }
+
+        m_pimpl->streamingMutex->lock();
+        m_pimpl->streamingData.push_back(data);
+        m_pimpl->streamingMutex->unlock();
+    }
 }
 
 void AudioComponentProcessor::remove(Entity e)

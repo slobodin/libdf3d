@@ -24,7 +24,7 @@ public:
     ResourceFactory(ResourceManager *holder);
     ~ResourceFactory();
 
-    shared_ptr<AudioBuffer> createAudioBuffer(const std::string &audioPath);
+    shared_ptr<AudioBuffer> createAudioBuffer(const std::string &audioPath, bool streamed = false);
     shared_ptr<GpuProgram> createGpuProgram(const std::string &vertexShader, const std::string &fragmentShader);
     shared_ptr<GpuProgram> createGpuProgram(const std::string &guid, const std::string &vertexData, const std::string &fragmentData);
     shared_ptr<GpuProgram> createSimpleLightingGpuProgram();
