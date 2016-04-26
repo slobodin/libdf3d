@@ -178,6 +178,13 @@ void Sprite2DComponentProcessor::setZIdx(Entity e, float z)
 void Sprite2DComponentProcessor::setVisible(Entity e, bool visible)
 {
     m_pimpl->data.getData(e).visible = visible;
+
+    const auto &children = m_world->sceneGraph().getChildren(e);
+    for (auto child : children)
+    {
+        if (has(child))
+            setVisible(child, visible);
+    }
 }
 
 void Sprite2DComponentProcessor::setSize(Entity e, const glm::vec2 &size)
