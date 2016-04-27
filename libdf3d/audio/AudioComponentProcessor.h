@@ -38,6 +38,8 @@ public:
     void stop(Entity e);
     void pause(Entity e);
 
+    void setSoundVolume(float volume);
+
     void setListenerPosition(const glm::vec3 &pos);
     void setListenerOrientation(const glm::vec3 &dir, const glm::vec3 &up);
 

@@ -52,10 +52,16 @@ struct AudioComponentProcessor::Impl
 
     ComponentDataHolder<Data> data;
 
+    float soundVolume = 1.0f;
     std::list<Data> streamingData;
     unique_ptr<std::mutex> streamingMutex;
     unique_ptr<std::thread> streamingThread;
     bool streamingThreadActive = true;
+
+    float calcResultGain(float gain)
+    {
+        return soundVolume * gain;
+    }
 };
 
 void AudioComponentProcessor::streamThread()
@@ -161,6 +167,14 @@ void AudioComponentProcessor::pause(Entity e)
         alSourcePause(compData.audioSourceId);
 }
 
+void AudioComponentProcessor::setSoundVolume(float volume)
+{
+    m_pimpl->soundVolume = df3d::utils::clamp(volume, 0.0f, 1.0f);
+
+    for (const auto &data : m_pimpl->data.rawData())
+        alSourcef(data.audioSourceId, AL_GAIN, m_pimpl->calcResultGain(data.gain));
+}
+
 void AudioComponentProcessor::setListenerPosition(const glm::vec3 &pos)
 {
     alListenerfv(AL_POSITION, glm::value_ptr(pos));
@@ -185,7 +199,7 @@ void AudioComponentProcessor::setGain(Entity e, float gain)
     auto &compData = m_pimpl->data.getData(e);
 
     compData.gain = gain;
-    alSourcef(compData.audioSourceId, AL_GAIN, gain);
+    alSourcef(compData.audioSourceId, AL_GAIN, m_pimpl->calcResultGain(gain));
 }
 
 void AudioComponentProcessor::setLooped(Entity e, bool looped)
