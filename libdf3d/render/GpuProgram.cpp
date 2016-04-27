@@ -1,12 +1,60 @@
 #include "GpuProgram.h"
 
+#include <cctype>
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/io/FileDataSource.h>
 #include <libdf3d/io/FileSystem.h>
+#include <libdf3d/render/MaterialLib.h>
 #include <libdf3d/render/RenderManager.h>
 #include <libdf3d/render/IRenderBackend.h>
+#include <libdf3d/utils/Utils.h>
 
 namespace df3d {
+
+static std::string ShaderIfdefsParse(const std::string &shaderData)
+{
+    const std::string IFDEF_DIRECTIVE = "#ifdef";
+    const std::string ENDIF_DIRECTIVE = "#endif";
+    std::string res = shaderData;
+
+    size_t lastFoundIfdef = res.find(IFDEF_DIRECTIVE);
+    while (lastFoundIfdef != std::string::npos)
+    {
+        auto found = std::find_if(res.begin() + lastFoundIfdef + IFDEF_DIRECTIVE.size(), res.end(), [](char ch) { return !std::isspace(ch); });
+        if (found == res.end())
+            return shaderData;
+
+        auto foundEndif = res.find_first_of('#', std::distance(res.begin(), found));
+        if (foundEndif == std::string::npos)
+            return shaderData;
+
+        auto defineEnd = std::find_if(found, res.begin() + foundEndif, [](char ch) { return std::isspace(ch); });
+
+        std::string defineToken = std::string(found, defineEnd);
+
+        if (!df3d::utils::contains_key(MaterialLib::SHADER_DEFINES, defineToken))
+        {
+            auto beginErase = res.begin() + lastFoundIfdef;
+            auto endErase = res.begin() + foundEndif + ENDIF_DIRECTIVE.size();
+
+            res.erase(beginErase, endErase);
+        }
+        else
+        {
+            auto beginErase = res.begin() + lastFoundIfdef;
+
+            res.erase(beginErase, defineEnd);
+
+            foundEndif = res.find_first_of('#');        // Should be #endif
+
+            res.erase(foundEndif, ENDIF_DIRECTIVE.size());
+        }
+
+        lastFoundIfdef = res.find(IFDEF_DIRECTIVE, 0);
+    }
+
+    return res;
+}
 
 static std::string ShaderPreprocess(const std::string &shaderData)
 {
@@ -23,7 +71,7 @@ static std::string ShaderPreprocess(const std::string &shaderData)
         "#define LOWP\n"
         "#endif\n";
 
-    return versionPrefix + precisionPrefix + shaderData;
+    return versionPrefix + precisionPrefix + ShaderIfdefsParse(shaderData);
 }
 
 static std::string ShaderPreprocessInclude(std::string shaderData, const std::string &shaderFilePath)
@@ -64,7 +112,7 @@ static std::string ShaderPreprocessInclude(std::string shaderData, const std::st
 
         shaderData.replace(found, end - found + 1, includeData);
 
-        found = shaderData.find(INCLUDE_DIRECTIVE, found);
+        found = shaderData.find(INCLUDE_DIRECTIVE, 0);
     }
 
     return shaderData;
@@ -195,7 +243,7 @@ ShaderDescriptor GpuProgramManualLoader::createShaderFromFile(const std::string 
     std::string buffer(file->getSizeInBytes(), 0);
     file->getRaw(&buffer[0], buffer.size());
 
-    auto shaderStr = ShaderPreprocessInclude(ShaderPreprocess(buffer), file->getPath());
+    auto shaderStr = ShaderPreprocess(ShaderPreprocessInclude(buffer, file->getPath()));
 
     return svc().renderManager().getBackend().createShader(shaderType, shaderStr);
 }
