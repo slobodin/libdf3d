@@ -47,7 +47,7 @@ struct AudioComponentProcessor::Impl
         float gain = 1.0f;
         bool looped = false;
 
-        AudioBuffer *buffer = nullptr;
+        shared_ptr<AudioBuffer> buffer;
     };
 
     ComponentDataHolder<Data> data;
@@ -278,7 +278,7 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath, bo
 
     data.holder = e;
     data.holderPos = m_world->sceneGraph().getWorldPosition(e);
-    data.buffer = buffer.get();
+    data.buffer = buffer;
 
     m_pimpl->data.add(e, data);
 
