@@ -68,16 +68,12 @@ public:
 
 class TBImageLoaderImpl : public tb::TBImageLoader
 {
-    unique_ptr<uint8_t[]> m_data;
-    int m_width, m_height;
+    unique_ptr<PixelBuffer> m_data;
 
 public:
-    TBImageLoaderImpl(const PixelBuffer &buffer)
-        : m_width(buffer.getWidth()),
-        m_height(buffer.getHeight())
+    TBImageLoaderImpl(unique_ptr<PixelBuffer> buffer)
+        : m_data(std::move(buffer))
     {
-        m_data.reset(new uint8_t[buffer.getSizeInBytes()]);
-        memcpy(m_data.get(), buffer.getData(), buffer.getSizeInBytes());
     }
 
     ~TBImageLoaderImpl()
@@ -87,17 +83,17 @@ public:
 
     int Width() override
     {
-        return m_width;
+        return m_data->getWidth();
     }
 
     int Height() override
     {
-        return m_height;
+        return m_data->getHeight();
     }
 
     tb::uint32* Data() override
     {
-        return (tb::uint32*)m_data.get();
+        return (tb::uint32*)m_data->getData();
     }
 };
 
@@ -541,7 +537,7 @@ TBImageLoader* TBImageLoader::CreateFromFile(const char *filename)
         return nullptr;
     }
 
-    return new df3d::gui_impl::TBImageLoaderImpl(*pixels);
+    return new df3d::gui_impl::TBImageLoaderImpl(std::move(pixels));
 }
 
 void TBSystem::RescheduleTimer(double fire_time)
