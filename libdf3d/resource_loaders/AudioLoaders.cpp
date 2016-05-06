@@ -3,6 +3,7 @@
 #include <libdf3d/audio/impl/OpenALCommon.h>
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/io/FileSystem.h>
+#include <libdf3d/io/FileSystemHelpers.h>
 #include <libdf3d/io/FileDataSource.h>
 #include "impl/AudioLoader_wav.h"
 #include "impl/AudioLoader_ogg.h"
@@ -24,7 +25,7 @@ AudioBuffer* AudioBufferFSLoader::createDummy()
 
 bool AudioBufferFSLoader::decode(shared_ptr<FileDataSource> source)
 {
-    auto extension = svc().fileSystem().getFileExtension(source->getPath());
+    const auto extension = FileSystemHelpers::getFileExtension(source->getPath());
 
     if (extension == ".wav")
     {

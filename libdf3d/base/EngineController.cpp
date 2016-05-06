@@ -149,6 +149,11 @@ void EngineController::setStringTable(const std::string &stringTablePath)
     m_stringTable = make_unique<StringTable>(stringTablePath);
 }
 
+void EngineController::setFileSystem(unique_ptr<IFileSystem> fs)
+{
+    m_fileSystem = std::move(fs);
+}
+
 glm::vec2 EngineController::getScreenSize() const
 {
     const auto &vp = m_renderManager->getViewport();

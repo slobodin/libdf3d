@@ -4,6 +4,7 @@
 #include <libdf3d/resources/ResourceManager.h>
 #include <libdf3d/resources/ResourceFactory.h>
 #include <libdf3d/io/FileSystem.h>
+#include <libdf3d/io/FileSystemHelpers.h>
 #include <libdf3d/io/FileDataSource.h>
 #include <libdf3d/render/MaterialLib.h>
 #include <libdf3d/utils/MeshUtils.h>
@@ -46,7 +47,7 @@ MeshData* MeshDataFSLoader::createDummy()
 
 bool MeshDataFSLoader::decode(shared_ptr<FileDataSource> source)
 {
-    auto extension = svc().fileSystem().getFileExtension(source->getPath());
+    const auto extension = FileSystemHelpers::getFileExtension(source->getPath());
 
     if (extension == ".obj")
         m_mesh = resource_loaders_impl::MeshLoader_obj().load(source);
@@ -69,7 +70,7 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
 
     // Load all the materials.
     auto mtlLibPath = m_mesh->materialLibName;
-    mtlLibPath = FileSystem::pathConcatenate(FileSystem::getFileDirectory(m_path), mtlLibPath);
+    mtlLibPath = FileSystemHelpers::pathConcatenate(FileSystemHelpers::getFileDirectory(m_path), mtlLibPath);
 
     // Leaving null material in submesh, do not set default as it will be set later. mb it's wrong design?
     if (auto mtlLib = svc().resourceManager().getFactory().createMaterialLib(mtlLibPath))
@@ -99,7 +100,7 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
 
 unique_ptr<MeshDataFSLoader::Mesh> LoadMeshDataFromFile_Workaround(shared_ptr<FileDataSource> source)
 {
-    auto extension = svc().fileSystem().getFileExtension(source->getPath());
+    const auto extension = FileSystemHelpers::getFileExtension(source->getPath());
 
     if (extension == ".obj")
         return resource_loaders_impl::MeshLoader_obj().load(source);

@@ -4,6 +4,7 @@
 #include <libdf3d/render/RenderManager.h>
 #include <libdf3d/render/IRenderBackend.h>
 #include <libdf3d/io/FileSystem.h>
+#include <libdf3d/io/FileSystemHelpers.h>
 #include <libdf3d/io/FileDataSource.h>
 #include <libdf3d/utils/JsonUtils.h>
 
@@ -189,11 +190,11 @@ bool TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
     if (jsonRoot.empty())
         return false;
 
-    auto srcPathDir = svc().fileSystem().getFileDirectory(source->getPath());
+    auto srcPathDir = FileSystemHelpers::getFileDirectory(source->getPath());
 
     auto getSource = [&srcPathDir](const std::string &texturePath)
     {
-        auto fullPath = svc().fileSystem().pathConcatenate(srcPathDir, texturePath);
+        auto fullPath = FileSystemHelpers::pathConcatenate(srcPathDir, texturePath);
         return svc().fileSystem().openFile(fullPath);
     };
 

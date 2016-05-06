@@ -4,6 +4,7 @@
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/io/FileDataSource.h>
 #include <libdf3d/io/FileSystem.h>
+#include <libdf3d/io/FileSystemHelpers.h>
 #include <libdf3d/render/MaterialLib.h>
 #include <libdf3d/render/RenderManager.h>
 #include <libdf3d/render/IRenderBackend.h>
@@ -76,7 +77,7 @@ static std::string ShaderPreprocess(const std::string &shaderData)
 
 static std::string ShaderPreprocessInclude(std::string shaderData, const std::string &shaderFilePath)
 {
-    const std::string shaderDirectory = svc().fileSystem().getFileDirectory(shaderFilePath);
+    const std::string shaderDirectory = FileSystemHelpers::getFileDirectory(shaderFilePath);
     const std::string INCLUDE_DIRECTIVE = "#include";
     const size_t INCLUDE_DIRECTIVE_LEN = INCLUDE_DIRECTIVE.size();
 
@@ -99,7 +100,7 @@ static std::string ShaderPreprocessInclude(std::string shaderData, const std::st
             return shaderData;
         }
 
-        fileToInclude = FileSystem::pathConcatenate(shaderDirectory, fileToInclude);
+        fileToInclude = FileSystemHelpers::pathConcatenate(shaderDirectory, fileToInclude);
         auto file = svc().fileSystem().openFile(fileToInclude);
         if (!file || !file->valid())
         {
@@ -226,7 +227,7 @@ ShaderDescriptor GpuProgramManualLoader::createShaderFromFile(const std::string 
         return{};
     }
 
-    const std::string &ext = svc().fileSystem().getFileExtension(path);
+    const auto ext = FileSystemHelpers::getFileExtension(path);
 
     ShaderType shaderType;
 
