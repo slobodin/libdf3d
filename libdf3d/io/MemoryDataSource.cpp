@@ -42,14 +42,14 @@ size_t MemoryDataSource::tell()
     return m_current - m_buffer.get();
 }
 
-bool MemoryDataSource::seek(size_t offset, std::ios_base::seekdir origin)
+bool MemoryDataSource::seek(int32_t offset, std::ios_base::seekdir origin)
 {
     if (origin == std::ios_base::cur)
         m_current += offset;
     else if (origin == std::ios_base::beg)
         m_current = m_buffer.get() + offset;
     else if (origin == std::ios_base::end)
-        m_current = m_buffer.get() + m_size - offset;
+        m_current = m_buffer.get() + m_size + offset;
     else
         return false;
 

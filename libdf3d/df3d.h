@@ -50,8 +50,10 @@
 #include <libdf3d/input/InputManager.h>
 
 #include <libdf3d/io/FileSystem.h>
+#include <libdf3d/io/FileSystemHelpers.h>
 #include <libdf3d/io/FileDataSource.h>
 #include <libdf3d/io/Storage.h>
+#include <libdf3d/io/MemoryDataSource.h>
 
 #include <libdf3d/resources/ResourceManager.h>
 #include <libdf3d/resources/ResourceFactory.h>

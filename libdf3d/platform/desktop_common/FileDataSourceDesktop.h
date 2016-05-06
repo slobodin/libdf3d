@@ -18,7 +18,7 @@ public:
     size_t getSizeInBytes() override;
 
     size_t tell() override;
-    bool seek(size_t offset, std::ios_base::seekdir origin) override;
+    bool seek(int32_t offset, std::ios_base::seekdir origin) override;
 };
 
 } }

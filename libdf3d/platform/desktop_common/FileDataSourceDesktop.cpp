@@ -51,7 +51,7 @@ size_t FileDataSourceDesktop::tell()
     return ftell(m_file);
 }
 
-bool FileDataSourceDesktop::seek(size_t offset, std::ios_base::seekdir origin)
+bool FileDataSourceDesktop::seek(int32_t offset, std::ios_base::seekdir origin)
 {
     int whence;
     if (origin == std::ios_base::cur)

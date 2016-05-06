@@ -44,23 +44,23 @@ public:
     const std::vector<Entry>& getEntries() const { return m_entries; }
 };
 
-class ResourceContainerDataSource : public FileDataSource
-{
-    weak_ptr<FileDataSource> m_archiveFile;
-    ResourceContainer::Entry m_entry;
-    size_t m_internalPos = 0;
-
-public:
-    ResourceContainerDataSource(weak_ptr<FileDataSource> archiveFile, const ResourceContainer::Entry &entry);
-    ~ResourceContainerDataSource();
-
-    bool valid() const override;
-
-    size_t getRaw(void *buffer, size_t sizeInBytes) override;
-    size_t getSizeInBytes() override;
-
-    size_t tell() override;
-    bool seek(size_t offset, std::ios_base::seekdir origin) override;
-};
+//class ResourceContainerDataSource : public FileDataSource
+//{
+//    weak_ptr<FileDataSource> m_archiveFile;
+//    ResourceContainer::Entry m_entry;
+//    size_t m_internalPos = 0;
+//
+//public:
+//    ResourceContainerDataSource(weak_ptr<FileDataSource> archiveFile, const ResourceContainer::Entry &entry);
+//    ~ResourceContainerDataSource();
+//
+//    bool valid() const override;
+//
+//    size_t getRaw(void *buffer, size_t sizeInBytes) override;
+//    size_t getSizeInBytes() override;
+//
+//    size_t tell() override;
+//    bool seek(size_t offset, std::ios_base::seekdir origin) override;
+//};
 
 }
