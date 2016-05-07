@@ -2,12 +2,12 @@
 
 namespace df3d {
 
-MemoryDataSource::MemoryDataSource(unique_ptr<uint8_t[]> &&buffer, int32_t size, const std::string &fileName)
+MemoryDataSource::MemoryDataSource(const uint8_t *buffer, int32_t size, const std::string &fileName)
     : FileDataSource(fileName),
     m_buffer(std::move(buffer)),
     m_size(size)
 {
-    m_current = m_buffer.get();
+    m_current = m_buffer;
 }
 
 MemoryDataSource::~MemoryDataSource()
@@ -22,8 +22,8 @@ bool MemoryDataSource::valid() const
 
 size_t MemoryDataSource::getRaw(void *buffer, size_t sizeInBytes)
 {
-    if (m_current + sizeInBytes > m_buffer.get() + m_size)
-        sizeInBytes = m_buffer.get() + m_size - m_current;
+    if (m_current + sizeInBytes > m_buffer + m_size)
+        sizeInBytes = m_buffer + m_size - m_current;
 
     memcpy(buffer, m_current, sizeInBytes);
 
@@ -39,7 +39,7 @@ size_t MemoryDataSource::getSizeInBytes()
 
 size_t MemoryDataSource::tell()
 {
-    return m_current - m_buffer.get();
+    return m_current - m_buffer;
 }
 
 bool MemoryDataSource::seek(int32_t offset, std::ios_base::seekdir origin)
@@ -47,13 +47,13 @@ bool MemoryDataSource::seek(int32_t offset, std::ios_base::seekdir origin)
     if (origin == std::ios_base::cur)
         m_current += offset;
     else if (origin == std::ios_base::beg)
-        m_current = m_buffer.get() + offset;
+        m_current = m_buffer + offset;
     else if (origin == std::ios_base::end)
-        m_current = m_buffer.get() + m_size + offset;
+        m_current = m_buffer + m_size + offset;
     else
         return false;
 
-    return (m_current - m_buffer.get()) <= m_size;
+    return (m_current - m_buffer) <= m_size;
 }
 
 }
