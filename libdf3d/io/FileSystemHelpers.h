@@ -16,6 +16,7 @@ struct DF3D_DLL FileSystemHelpers
     static std::string getFilename(const std::string &filePath);
     static std::string getFilenameWithoutExtension(const std::string &filePath);
     static std::string canonicalPath(const std::string &rawPath);
+    static void convertSeparators(std::string &str);
 };
 
 }

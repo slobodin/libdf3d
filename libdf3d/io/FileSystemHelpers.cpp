@@ -124,4 +124,9 @@ std::string FileSystemHelpers::canonicalPath(const std::string &rawPath)
     return result;
 }
 
+void FileSystemHelpers::convertSeparators(std::string &str)
+{
+    std::replace(str.begin(), str.end(), '\\', '/');
+}
+
 }
