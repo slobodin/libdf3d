@@ -10,26 +10,26 @@ namespace df3d { namespace resource_loaders_impl {
 struct RIFFHeader
 {
     char chunkID[4];
-    long chunkSize;
+    uint32_t chunkSize;
     char format[4];
 };
 
 struct WAVEFormat
 {
     char subChunkID[4];
-    long subChunkSize;
-    short audioFormat;
-    short numChannels;
-    long sampleRate;
-    long byteRate;
-    short blockAlign;
-    short bitsPerSample;
+    uint32_t subChunkSize;
+    uint16_t audioFormat;
+    uint16_t numChannels;
+    uint32_t sampleRate;
+    uint32_t byteRate;
+    uint16_t blockAlign;
+    uint16_t bitsPerSample;
 };
 
 struct WAVEData
 {
     char subChunkID[4];
-    long subChunk2Size;
+    uint32_t subChunk2Size;
 };
 
 #pragma pack(pop)
@@ -39,7 +39,7 @@ unique_ptr<PCMData> AudioLoader_wav::load(shared_ptr<FileDataSource> source)
     RIFFHeader header;
     source->getAsObjects(&header, 1);
 
-    if (memcmp(header.chunkID, "RIFF", 4) || memcmp(header.format, "WAVE", 4))
+    if (strncmp(header.chunkID, "RIFF", 4) != 0 || strncmp(header.format, "WAVE", 4) != 0)
     {
         glog << "Invalid WAVE file header" << source->getPath() << logwarn;
         return nullptr;

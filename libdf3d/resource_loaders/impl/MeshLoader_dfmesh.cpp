@@ -14,7 +14,7 @@ unique_ptr<SubMesh> MeshLoader_dfmesh::createSubmesh(std::vector<float> &&vertex
     submesh->setVertexBufferUsageHint(GpuBufferUsageType::STATIC);
     submesh->setIndexBufferUsageHint(GpuBufferUsageType::STATIC);
 
-    submesh->getVertexData() = std::move(VertexData(vertexFormat, std::move(vertexData)));
+    submesh->getVertexData() = VertexData(vertexFormat, std::move(vertexData));
     submesh->getIndices() = std::move(indexData);
 
     return submesh;

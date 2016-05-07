@@ -399,7 +399,7 @@ public:
             return;
         tb::uint32 a = (color.a * m_opacity) / 255;
         AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y),
-                        tb::TBRect(), color, nullptr, nullptr);
+                        tb::TBRect(), tb::TBColor(color.r, color.g, color.b, a), nullptr, nullptr);
     }
 
     void FlushBitmap(tb::TBBitmap *bitmap)

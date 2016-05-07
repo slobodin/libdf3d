@@ -10,7 +10,6 @@
 namespace df3d {
 
 const char * const SIMPLE_LIGHTING_PROGRAM_EMBED_PATH = "__embed_simple_lighting_program";
-const char * const RTT_QUAD_PROGRAM_EMBED_PATH = "__embed_quad_render_program";
 const char * const COLORED_PROGRAM_EMBED_PATH = "__embed_colored_program";
 const char * const AMBIENT_PASS_PROGRAM_EMBED_PATH = "__embed_ambient_pass_program";
 
