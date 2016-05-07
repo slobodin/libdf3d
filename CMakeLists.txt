@@ -28,6 +28,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/ogg)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/vorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/squirrel)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/zlib)
 
 SET(TB_BUILD_DEMO OFF CACHE BOOL "" FORCE)
 SET(TB_GENERATE_CONFIG ON CACHE BOOL "" FORCE)
@@ -373,6 +374,7 @@ target_link_libraries(libdf3d
     vorbis
     squirrel
     ${FREETYPE_LIBRARY}
+    zlibstatic
     TurboBadgerLib)
 
 if (DF3D_DESKTOP)
