@@ -32,7 +32,7 @@
 #define spark_description( _classname_ , _parentobject_ )									\
 	public:																					\
 		template<typename, bool> friend struct SPK::meta::Cloner;							\
-		virtual SPK::Ref<SPK::SPKObject> clone() const										\
+		virtual SPK::Ref<SPK::SPKObject> clone() const override								\
 		{																					\
 			return SPK::meta::Cloner<_classname_ >::clone(this);							\
 		}																					\

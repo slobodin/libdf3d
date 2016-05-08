@@ -10,6 +10,7 @@
 
 namespace df3d { namespace physics_impl {
 
+/*
 static unique_ptr<RenderPass> CreateDebugDrawPass()
 {
     auto pass = make_unique<RenderPass>("bullet_debug_draw_pass");
@@ -24,6 +25,7 @@ static unique_ptr<RenderPass> CreateDebugDrawPass()
 
     return pass;
 }
+*/
 
 BulletDebugDraw::BulletDebugDraw()
     : m_vertexData(vertex_formats::p3_tx2_c4)

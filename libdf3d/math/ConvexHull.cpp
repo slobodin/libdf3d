@@ -64,7 +64,7 @@ void ConvexHull::constructFromGeometry(const std::vector<SubMesh> &submeshes)
     auto vertices = convexHull->getVertexPointer();
     for (int i = 0; i < convexHull->numVertices(); i++)
     {
-        auto p = convexHull->getVertexPointer()[i];
+        auto p = vertices[i];
 
         m_vertices.push_back({ p.x(), p.y(), p.z() });
     }

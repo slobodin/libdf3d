@@ -104,7 +104,7 @@ namespace SPK
 		virtual Ref<SPKObject> findByName(const std::string& name);
 
 	public:
-		spark_description(SPKObject, void)
+        virtual SPK::Ref<SPK::SPKObject> clone() const = 0;
 
 	private:
 		friend class System;

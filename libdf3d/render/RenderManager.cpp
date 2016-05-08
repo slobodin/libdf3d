@@ -211,8 +211,8 @@ void RenderManager::bindPass(RenderPass *pass)
 }
 
 RenderManager::RenderManager(EngineInitParams params)
-    : m_renderQueue(make_unique<RenderQueue>()),
-    m_initParams(params)
+    : m_initParams(params),
+    m_renderQueue(make_unique<RenderQueue>())
 {
     m_viewport = Viewport(0, 0, params.windowWidth, params.windowHeight);
 }

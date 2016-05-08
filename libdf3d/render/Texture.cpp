@@ -23,7 +23,7 @@ static int GetPixelSizeForFormat(PixelFormat format)
 }
 
 PixelBuffer::PixelBuffer(int w, int h, const uint8_t *data, PixelFormat format)
-    : m_w(w), m_h(h), m_format(format)
+    :  m_format(format), m_w(w), m_h(h)
 {
     m_dataSize = m_w * m_h * GetPixelSizeForFormat(m_format);
 

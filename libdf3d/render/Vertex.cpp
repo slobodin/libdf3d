@@ -80,8 +80,8 @@ Vertex::Vertex(const VertexFormat &format, float *vertexData)
 }
 
 Vertex::Vertex(const Vertex &other)
-    : m_format(other.m_format),
-    m_vertexData(other.m_vertexData)
+    : m_vertexData(other.m_vertexData),
+    m_format(other.m_format)
 {
 
 }

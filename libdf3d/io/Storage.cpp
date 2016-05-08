@@ -19,9 +19,9 @@ struct NullEncryptor : Storage::Encryptor
 };
 
 Storage::Storage(const std::string &filename)
-    : m_data(Json::ValueType::objectValue),
-    m_fileName(filename),
-    m_encryptor(make_unique<NullEncryptor>())
+    : m_encryptor(make_unique<NullEncryptor>()),
+    m_data(Json::ValueType::objectValue),
+    m_fileName(filename)
 {
 
 }
