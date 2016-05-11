@@ -581,7 +581,7 @@ double TBSystem::GetTimeMS()
 {
     using namespace std::chrono;
 
-    return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    return static_cast<double>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
 }
 
 int TBSystem::GetLongClickDelayMS()
