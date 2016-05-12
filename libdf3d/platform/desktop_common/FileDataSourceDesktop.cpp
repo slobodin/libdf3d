@@ -7,8 +7,18 @@ FileDataSourceDesktop::FileDataSourceDesktop(const std::string &fileName)
     m_file(nullptr)
 {
     m_file = fopen(fileName.c_str(), "rb");
-    if (!m_file)
+    if (m_file)
+    {
+        if (seek(0, std::ios_base::end))
+        {
+            m_sizeInBytes = tell();
+            seek(0, std::ios_base::beg);
+        }
+    }
+    else
+    {
         glog << "Can not open file" << fileName << logwarn;
+    }
 }
 
 FileDataSourceDesktop::~FileDataSourceDesktop()
@@ -31,17 +41,7 @@ size_t FileDataSourceDesktop::getRaw(void *buffer, size_t sizeInBytes)
 
 size_t FileDataSourceDesktop::getSizeInBytes()
 {
-    if (!m_file)
-        return 0;
-
-    size_t result = 0;
-    if (seek(0, std::ios_base::end))
-    {
-        result = tell();
-        seek(0, std::ios_base::beg);
-    }
-
-    return result;
+    return m_sizeInBytes;
 }
 
 size_t FileDataSourceDesktop::tell()

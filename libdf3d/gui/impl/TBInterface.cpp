@@ -527,7 +527,7 @@ TBImageLoader* TBImageLoader::CreateFromFile(const char *filename)
     if (!file)
         return nullptr;
 
-    auto pixels = df3d::GetPixelBufferFromSource(file, 4);
+    auto pixels = df3d::GetPixelBufferFromSource(file);
     if (!pixels)
         return nullptr;
 

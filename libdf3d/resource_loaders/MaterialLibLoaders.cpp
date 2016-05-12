@@ -527,7 +527,7 @@ MaterialLib* MaterialLibFSLoader::createDummy()
 bool MaterialLibFSLoader::decode(shared_ptr<FileDataSource> source)
 {
     std::string filedata(source->getSizeInBytes(), 0);
-    source->getRaw(&filedata[0], source->getSizeInBytes());
+    source->getRaw(&filedata[0], filedata.size());
 
     std::istringstream input(std::move(filedata));
 

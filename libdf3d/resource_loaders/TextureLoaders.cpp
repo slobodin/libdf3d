@@ -1,5 +1,6 @@
 #include "TextureLoaders.h"
 
+#include <zlib.h>
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/render/RenderManager.h>
 #include <libdf3d/render/IRenderBackend.h>
@@ -49,13 +50,72 @@ static int eof(void *user)
     return dataSource->tell() >= dataSource->getSizeInBytes();
 }
 
-static unique_ptr<PixelBuffer> loadPixelBuffer(shared_ptr<FileDataSource> source, int reqComp = 0)
+static unique_ptr<PixelBuffer> LoadRaw(shared_ptr<FileDataSource> source)
+{
+#pragma pack(push, 1)
+    struct RawHeader
+    {
+        char magic[4];
+        uint32_t format;
+        uint32_t width;
+        uint32_t height;
+    };
+#pragma pack(pop)
+
+    RawHeader header;
+    memset(&header, 0, sizeof(header));
+
+    source->getRaw(&header, sizeof(header));
+
+    if (strncmp(header.magic, "raw.", 4) != 0)
+    {
+        glog << "Invalid raw header" << logwarn;
+        return nullptr;
+    }
+
+    PixelFormat fmt = PixelFormat::INVALID;
+    if (header.format == 0)
+        fmt = PixelFormat::RGBA;
+    else if (header.format == 1)
+        fmt = PixelFormat::RGB;
+    else
+        glog << "Invalid raw pixel format" << logwarn;
+
+    if (fmt == PixelFormat::INVALID)
+        return nullptr;
+
+    const size_t compressedSize = source->getSizeInBytes() - sizeof(header);
+    unique_ptr<uint8_t[]> compressedData(new uint8_t[compressedSize]);
+
+    const size_t uncompressedSize = header.height * header.width * GetPixelSizeForFormat(fmt);
+    uint8_t *uncompressedData = new uint8_t[uncompressedSize];
+
+    source->seek(sizeof(header), std::ios_base::beg);
+    source->getRaw(compressedData.get(), compressedSize);
+
+    uLongf uncompressedSizeGot = uncompressedSize;
+    if (uncompress(uncompressedData, &uncompressedSizeGot, compressedData.get(), compressedSize) != Z_OK)
+    {
+        glog << "Failed to uncompress pixels" << logwarn;
+        delete[] uncompressedData;
+        return nullptr;
+    }
+
+    DF3D_ASSERT(uncompressedSizeGot == uncompressedSize, "sanity check");
+
+    return make_unique<PixelBuffer>(header.width, header.height, uncompressedData, fmt, false);
+}
+
+static unique_ptr<PixelBuffer> LoadPixelBuffer(shared_ptr<FileDataSource> source)
 {
     if (!source)
     {
         glog << "Failed to load pixel buffer from file source. Source is null." << logwarn;
         return nullptr;
     }
+
+    if (FileSystemHelpers::getFileExtension(source->getPath()) == ".raw")
+        return LoadRaw(source);
 
     stbi_io_callbacks callbacks;
     callbacks.read = read;
@@ -64,7 +124,7 @@ static unique_ptr<PixelBuffer> loadPixelBuffer(shared_ptr<FileDataSource> source
     auto dataSource = source.get();
 
     int x, y, bpp;
-    auto pixels = stbi_load_from_callbacks(&callbacks, dataSource, &x, &y, &bpp, reqComp);
+    auto pixels = stbi_load_from_callbacks(&callbacks, dataSource, &x, &y, &bpp, 0);
     if (!pixels)
     {
         glog << "Can not load image" << source->getPath() << logwarn;
@@ -132,7 +192,7 @@ Texture* Texture2DFSLoader::createDummy()
 
 bool Texture2DFSLoader::decode(shared_ptr<FileDataSource> source)
 {
-    m_pixelBuffer = loadPixelBuffer(source);
+    m_pixelBuffer = LoadPixelBuffer(source);
     return m_pixelBuffer != nullptr;
 }
 
@@ -184,7 +244,7 @@ Texture* TextureCubeFSLoader::createDummy()
 bool TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
 {
     std::string buffer(source->getSizeInBytes(), 0);
-    source->getRaw(&buffer[0], source->getSizeInBytes());
+    source->getRaw(&buffer[0], buffer.size());
 
     auto jsonRoot = utils::json::fromSource(buffer);
     if (jsonRoot.empty())
@@ -198,12 +258,12 @@ bool TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
         return svc().fileSystem().openFile(fullPath);
     };
 
-    m_pixelBuffers[(size_t)CubeFace::POSITIVE_X] = loadPixelBuffer(getSource(jsonRoot["positive_x"].asString()));
-    m_pixelBuffers[(size_t)CubeFace::NEGATIVE_X] = loadPixelBuffer(getSource(jsonRoot["negative_x"].asString()));
-    m_pixelBuffers[(size_t)CubeFace::POSITIVE_Y] = loadPixelBuffer(getSource(jsonRoot["positive_y"].asString()));
-    m_pixelBuffers[(size_t)CubeFace::NEGATIVE_Y] = loadPixelBuffer(getSource(jsonRoot["negative_y"].asString()));
-    m_pixelBuffers[(size_t)CubeFace::POSITIVE_Z] = loadPixelBuffer(getSource(jsonRoot["positive_z"].asString()));
-    m_pixelBuffers[(size_t)CubeFace::NEGATIVE_Z] = loadPixelBuffer(getSource(jsonRoot["negative_z"].asString()));
+    m_pixelBuffers[(size_t)CubeFace::POSITIVE_X] = LoadPixelBuffer(getSource(jsonRoot["positive_x"].asString()));
+    m_pixelBuffers[(size_t)CubeFace::NEGATIVE_X] = LoadPixelBuffer(getSource(jsonRoot["negative_x"].asString()));
+    m_pixelBuffers[(size_t)CubeFace::POSITIVE_Y] = LoadPixelBuffer(getSource(jsonRoot["positive_y"].asString()));
+    m_pixelBuffers[(size_t)CubeFace::NEGATIVE_Y] = LoadPixelBuffer(getSource(jsonRoot["negative_y"].asString()));
+    m_pixelBuffers[(size_t)CubeFace::POSITIVE_Z] = LoadPixelBuffer(getSource(jsonRoot["positive_z"].asString()));
+    m_pixelBuffers[(size_t)CubeFace::NEGATIVE_Z] = LoadPixelBuffer(getSource(jsonRoot["negative_z"].asString()));
 
     for (auto &pb : m_pixelBuffers)
     {
@@ -245,9 +305,9 @@ void TextureCubeFSLoader::onDecoded(Resource *resource)
         m_pixelBuffers[i].reset();
 }
 
-unique_ptr<PixelBuffer> GetPixelBufferFromSource(shared_ptr<FileDataSource> source, int reqComp)
+unique_ptr<PixelBuffer> GetPixelBufferFromSource(shared_ptr<FileDataSource> source)
 {
-    return loadPixelBuffer(source, reqComp);
+    return LoadPixelBuffer(source);
 }
 
 }

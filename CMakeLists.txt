@@ -345,6 +345,8 @@ include_directories(${PROJECT_SOURCE_DIR}/
                     ${PROJECT_SOURCE_DIR}/third-party/spark/include
                     ${PROJECT_SOURCE_DIR}/third-party/glfw/include
                     ${PROJECT_SOURCE_DIR}/third-party/squirrel/include
+                    ${CMAKE_CURRENT_BINARY_DIR}/third-party/zlib
+                    ${PROJECT_SOURCE_DIR}/third-party/zlib
                     ${PROJECT_SOURCE_DIR}/third-party/openal-soft/include)
 
 if(MSVC)

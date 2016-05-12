@@ -14,8 +14,7 @@ class PixelBuffer : utils::NonCopyable
     size_t m_dataSize = 0;
 
 public:
-    //! Copies the data
-    PixelBuffer(int w, int h, const uint8_t *data, PixelFormat format);
+    PixelBuffer(int w, int h, uint8_t *data, PixelFormat format, bool copyData = true);
     ~PixelBuffer();
 
     int getWidth() const { return m_w; }
@@ -70,5 +69,7 @@ public:
     void setTextureInfo(const TextureInfo &info) { m_info = info; }
     const TextureInfo& getTextureInfo() const { return m_info; }
 };
+
+int GetPixelSizeForFormat(PixelFormat format);
 
 }

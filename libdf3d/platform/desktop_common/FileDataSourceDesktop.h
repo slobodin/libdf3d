@@ -7,6 +7,7 @@ namespace df3d { namespace platform_impl {
 class DF3D_DLL FileDataSourceDesktop : public FileDataSource
 {
     FILE *m_file = nullptr;
+    size_t m_sizeInBytes = 0;
 
 public:
     FileDataSourceDesktop(const std::string &fileName);

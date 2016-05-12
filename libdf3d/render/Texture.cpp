@@ -6,7 +6,7 @@
 
 namespace df3d {
 
-static int GetPixelSizeForFormat(PixelFormat format)
+int GetPixelSizeForFormat(PixelFormat format)
 {
     switch (format)
     {
@@ -22,15 +22,19 @@ static int GetPixelSizeForFormat(PixelFormat format)
     return 0;
 }
 
-PixelBuffer::PixelBuffer(int w, int h, const uint8_t *data, PixelFormat format)
+PixelBuffer::PixelBuffer(int w, int h, uint8_t *data, PixelFormat format, bool copyData)
     :  m_format(format), m_w(w), m_h(h)
 {
     m_dataSize = m_w * m_h * GetPixelSizeForFormat(m_format);
-
     DF3D_ASSERT(m_dataSize != 0, "sanity check");
 
-    m_data = new uint8_t[m_dataSize];
-    memcpy(m_data, data, m_dataSize);
+    if (copyData)
+    {
+        m_data = new uint8_t[m_dataSize];
+        memcpy(m_data, data, m_dataSize);
+    }
+    else
+        m_data = data;
 }
 
 PixelBuffer::~PixelBuffer()

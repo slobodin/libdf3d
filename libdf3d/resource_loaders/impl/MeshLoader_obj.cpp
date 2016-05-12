@@ -172,7 +172,7 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSourc
 
     // Parse obj. TODO: can use stream directly.
     std::string buffer(source->getSizeInBytes(), 0);
-    source->getRaw(&buffer[0], source->getSizeInBytes());
+    source->getRaw(&buffer[0], buffer.size());
 
     std::istringstream input(std::move(buffer));
     std::string tok;
