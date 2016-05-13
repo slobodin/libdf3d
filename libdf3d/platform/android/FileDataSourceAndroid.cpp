@@ -11,12 +11,12 @@ namespace platform_impl {
 
 AAssetManager *FileDataSourceAndroid::m_assetMgr = nullptr;
 
-FileDataSourceAndroid::FileDataSourceAndroid(const char *fileName)
+FileDataSourceAndroid::FileDataSourceAndroid(const std::string &fileName)
     : FileDataSource(fileName),
     m_file(nullptr),
     m_current(0)
 {
-    m_file = AAssetManager_open(m_assetMgr, fileName, AASSET_MODE_UNKNOWN);
+    m_file = AAssetManager_open(m_assetMgr, fileName.c_str(), AASSET_MODE_UNKNOWN);
     if (!m_file)
         glog << "Can not open file" << fileName << logwarn;
 }
@@ -58,7 +58,7 @@ size_t FileDataSourceAndroid::tell()
     return m_current;
 }
 
-bool FileDataSourceAndroid::seek(size_t offset, std::ios_base::seekdir origin)
+bool FileDataSourceAndroid::seek(int32_t offset, std::ios_base::seekdir origin)
 {
     int whence;
     if (origin == std::ios_base::cur)

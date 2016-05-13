@@ -58,22 +58,6 @@ static void CheckAndPrintGLError(const char *file, int line)
 #define DESCRIPTOR_CHECK_RETURN_INVALID(descr) do { if (!descr.valid()) return {}; } while (0);
 #endif
 
-static int GetPixelSizeForFormat(PixelFormat format)
-{
-    switch (format)
-    {
-    case PixelFormat::RGB:
-        return 3;
-    case PixelFormat::RGBA:
-        return 4;
-    case PixelFormat::INVALID:
-    default:
-        glog << "Invalid pixel format. Can't get size." << logwarn;
-    }
-
-    return 0;
-}
-
 static bool IsPot(size_t v)
 {
     return v && !(v & (v - 1));

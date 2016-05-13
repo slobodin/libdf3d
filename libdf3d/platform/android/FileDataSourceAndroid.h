@@ -12,7 +12,7 @@ class DF3D_DLL FileDataSourceAndroid : public FileDataSource
     size_t m_current = 0;
 
 public:
-    FileDataSourceAndroid(const char *fileName);
+    FileDataSourceAndroid(const std::string &fileName);
     ~FileDataSourceAndroid();
 
     bool valid() const override;
@@ -21,7 +21,7 @@ public:
     size_t getSizeInBytes() override;
 
     size_t tell() override;
-    bool seek(size_t offset, std::ios_base::seekdir origin) override;
+    bool seek(int32_t offset, std::ios_base::seekdir origin) override;
 
     static void setAssetManager(AAssetManager *mgr);
 
