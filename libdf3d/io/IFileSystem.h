@@ -4,7 +4,7 @@ namespace df3d {
 
 class FileDataSource;
 
-class IFileSystem : utils::NonCopyable
+class DF3D_DLL IFileSystem : utils::NonCopyable
 {
 public:
     IFileSystem() = default;
