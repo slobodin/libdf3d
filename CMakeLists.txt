@@ -5,7 +5,7 @@ project(libdf3d)
 set(DF3D_ROOT ${PROJECT_SOURCE_DIR})
 
 include(${PROJECT_SOURCE_DIR}/cmake/libdf3d.cmake)
-include(${PROJECT_SOURCE_DIR}/cmake/cotire.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/PrecompiledHeader.cmake)
 
 if (WINDOWS AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_win32" CACHE PATH "third-party")
@@ -71,7 +71,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/tools/data_archiver)
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.h
     ${PROJECT_SOURCE_DIR}/libdf3d/df3d_config.h
     ${PROJECT_SOURCE_DIR}/libdf3d/libdf3d_dll.h
     ${PROJECT_SOURCE_DIR}/libdf3d/2d/Sprite2DComponentProcessor.h
@@ -367,7 +366,11 @@ add_library(libdf3d ${DF3D_LIBRARY_TYPE}
     ${libdf3d_HEADER_LIST}
     ${libdf3d_SRC_LIST}
     ${third_party_SRC_FILES}
+    df3d_pch.h
+    df3d_pch.cpp
 )
+
+add_precompiled_header(libdf3d df3d_pch.h FORCEINCLUDE SOURCE_CXX df3d_pch.cpp)
 
 target_link_libraries(libdf3d
     LinearMath
@@ -395,6 +398,3 @@ endif()
 if (ANDROID)
     target_link_libraries(libdf3d OpenSLES ${DF3D_OPENAL_LIBNAME} GLESv2 log android)
 endif()
-
-set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "$(PROJECT_SOURCE_DIR)/libdf3d/df3d_pch.h")
-cotire(libdf3d)
