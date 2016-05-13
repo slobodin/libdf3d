@@ -9,8 +9,8 @@ public:
     {
         virtual ~Encryptor() = default;
 
-        virtual void encode(uint8_t *data, size_t size) = 0;
-        virtual void decode(uint8_t *data, size_t size) = 0;
+        virtual std::vector<uint8_t> encode(const std::vector<uint8_t> &input) = 0;
+        virtual std::vector<uint8_t> decode(const std::vector<uint8_t> &input) = 0;
     };
 
 private:

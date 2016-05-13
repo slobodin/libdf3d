@@ -7,14 +7,14 @@ namespace df3d
 
 struct NullEncryptor : Storage::Encryptor
 {
-    void encode(uint8_t *data, size_t size) override
+    std::vector<uint8_t> encode(const std::vector<uint8_t> &input) override
     {
-        // pass
+        return input;
     }
 
-    void decode(uint8_t *data, size_t size) override
+    std::vector<uint8_t> decode(const std::vector<uint8_t> &input) override
     {
-        // pass
+        return input;
     }
 };
 
@@ -33,10 +33,12 @@ bool Storage::save()
 
     auto str = Json::writeString(b, getData());
 
-    uint8_t *data = (uint8_t*)&str[0];
-    m_encryptor->encode(data, str.size());
+    std::vector<uint8_t> input;
+    input.assign(str.begin(), str.end());
 
-    saveToFileSystem(data, str.size());
+    auto output = m_encryptor->encode(input);
+
+    saveToFileSystem(&output[0], output.size());
 
     return true;
 }
@@ -48,10 +50,13 @@ bool Storage::load()
     if (!getFromFileSystem(&data, &size))
         return false;
 
-    m_encryptor->decode(data, size);
+    std::vector<uint8_t> input;
+    input.assign(data, data + size);
+
+    auto output = m_encryptor->decode(input);
 
     std::string jsonSource;
-    jsonSource.assign((const char *)data, size);
+    jsonSource.assign(output.begin(), output.end());
 
     delete[] data;
 
