@@ -132,4 +132,6 @@ inline void to_lower(std::string &str)
         c = std::tolower(c);
 }
 
+bool inflateUncompress(uint8_t *dest, size_t destLen, const uint8_t *source, size_t sourceLen);
+
 } }
