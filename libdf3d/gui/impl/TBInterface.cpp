@@ -527,13 +527,13 @@ TBImageLoader* TBImageLoader::CreateFromFile(const char *filename)
     if (!file)
         return nullptr;
 
-    auto pixels = df3d::GetPixelBufferFromSource(file);
+    auto pixels = df3d::GetPixelBufferFromSource(file, true);
     if (!pixels)
         return nullptr;
 
     if (pixels->getFormat() != df3d::PixelFormat::RGBA)
     {
-        df3d::glog << "Unsupported tb image format" << df3d::logwarn;
+        df3d::glog << "Unsupported tb image format" << filename << df3d::logwarn;
         return nullptr;
     }
 

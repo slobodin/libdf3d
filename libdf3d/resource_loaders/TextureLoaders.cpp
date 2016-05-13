@@ -1,6 +1,7 @@
 #include "TextureLoaders.h"
 
 #include <zlib.h>
+#include <webp/decode.h>
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/render/RenderManager.h>
 #include <libdf3d/render/IRenderBackend.h>
@@ -106,7 +107,46 @@ static unique_ptr<PixelBuffer> LoadRaw(shared_ptr<FileDataSource> source)
     return make_unique<PixelBuffer>(header.width, header.height, uncompressedData, fmt, false);
 }
 
-static unique_ptr<PixelBuffer> LoadPixelBuffer(shared_ptr<FileDataSource> source)
+static unique_ptr<PixelBuffer> LoadWebp(shared_ptr<FileDataSource> source, bool forceRgba)
+{
+    std::vector<uint8_t> pixels(source->getSizeInBytes());
+    source->getRaw(&pixels[0], pixels.size());
+
+    WebPBitstreamFeatures features;
+    if (WebPGetFeatures(pixels.data(), pixels.size(), &features) != VP8_STATUS_OK)
+    {
+        glog << "Failed to load a texture: WebPGetInfo failed" << logwarn;
+        return nullptr;
+    }
+
+    PixelFormat format;
+    int width = -1, height = -1;
+    uint8_t *decoded = nullptr;
+    if (features.has_alpha || forceRgba)
+    {
+        decoded = WebPDecodeRGBA(pixels.data(), pixels.size(), &width, &height);
+        format = PixelFormat::RGBA;
+    }
+    else
+    {
+        decoded = WebPDecodeRGB(pixels.data(), pixels.size(), &width, &height);
+        format = PixelFormat::RGB;
+    }
+
+    if (!decoded)
+    {
+        glog << "Failed to decode a webp texture" << logwarn;
+        return nullptr;
+    }
+
+    auto result = make_unique<PixelBuffer>(width, height, decoded, format);
+
+    WebPFree(decoded);
+
+    return result;
+}
+
+static unique_ptr<PixelBuffer> LoadPixelBuffer(shared_ptr<FileDataSource> source, bool forceRgba = false)
 {
     if (!source)
     {
@@ -114,7 +154,10 @@ static unique_ptr<PixelBuffer> LoadPixelBuffer(shared_ptr<FileDataSource> source
         return nullptr;
     }
 
-    if (FileSystemHelpers::getFileExtension(source->getPath()) == ".raw")
+    const auto ext = FileSystemHelpers::getFileExtension(source->getPath());
+    if (ext == ".webp")
+        return LoadWebp(source, forceRgba);
+    else if (ext == ".raw")
         return LoadRaw(source);
 
     stbi_io_callbacks callbacks;
@@ -305,9 +348,9 @@ void TextureCubeFSLoader::onDecoded(Resource *resource)
         m_pixelBuffers[i].reset();
 }
 
-unique_ptr<PixelBuffer> GetPixelBufferFromSource(shared_ptr<FileDataSource> source)
+unique_ptr<PixelBuffer> GetPixelBufferFromSource(shared_ptr<FileDataSource> source, bool forceRgba)
 {
-    return LoadPixelBuffer(source);
+    return LoadPixelBuffer(source, forceRgba);
 }
 
 }
