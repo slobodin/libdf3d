@@ -51,6 +51,11 @@ inline glm::vec2 getScreenSize()
     return df3d::svc().getScreenSize();
 }
 
+inline bool executeFile(const char *filename)
+{
+    return df3d::svc().scripts().doFile(filename);
+}
+
 void bindGlm(Table &df3dNamespace)
 {
     using namespace glm;
@@ -133,6 +138,8 @@ void bindBase(Table &df3dNamespace)
 
         ConstTable().Enum("BlendingMode", blendingMode);
     }
+
+    df3dNamespace.Func(_SC("executeFile"), &executeFile);
 }
 
 void bindProcessors(Table &df3dNamespace)
