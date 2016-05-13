@@ -34,7 +34,7 @@
 #include <memory>
 #include <iterator>
 
-#include <libdf3d/df3d_config.h>
-#include <libdf3d/libdf3d_dll.h>
+#include "df3d_config.h"
+#include "libdf3d_dll.h"
 
 #include <libdf3d/base/Common.h>
