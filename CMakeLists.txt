@@ -29,6 +29,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/vorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/squirrel)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/zlib)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/webp)
 
 SET(TB_BUILD_DEMO OFF CACHE BOOL "" FORCE)
 SET(TB_GENERATE_CONFIG ON CACHE BOOL "" FORCE)
@@ -347,6 +348,7 @@ include_directories(${PROJECT_SOURCE_DIR}/
                     ${PROJECT_SOURCE_DIR}/third-party/squirrel/include
                     ${CMAKE_CURRENT_BINARY_DIR}/third-party/zlib
                     ${PROJECT_SOURCE_DIR}/third-party/zlib
+                    ${PROJECT_SOURCE_DIR}/third-party/webp
                     ${PROJECT_SOURCE_DIR}/third-party/openal-soft/include)
 
 if(MSVC)
@@ -377,7 +379,8 @@ target_link_libraries(libdf3d
     squirrel
     ${FREETYPE_LIBRARY}
     zlibstatic
-    TurboBadgerLib)
+    TurboBadgerLib
+    webp)
 
 if (DF3D_DESKTOP)
     target_link_libraries(libdf3d glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${DF3D_OPENAL_LIBNAME})
