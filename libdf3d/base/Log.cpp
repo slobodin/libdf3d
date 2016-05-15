@@ -41,10 +41,10 @@ public:
             std::cout << "[message]: ";
             break;
         case Log::LogChannel::CHANNEL_WARN:
-            std::cout << "[warning]: ";
+            std::cout << "[WARNING]: ";
             break;
         case Log::LogChannel::CHANNEL_CRITICAL:
-            std::cout << "[critical]: ";
+            std::cout << "[!!!CRITICAL!!!]: ";
             break;
         case Log::LogChannel::CHANNEL_GAME:
             std::cout << "[game]: ";
