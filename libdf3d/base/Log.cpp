@@ -104,9 +104,9 @@ public:
     {
     }
 
-    virtual void writeBuffer(const std::string &buffer, MessageType type) override
+    void writeBuffer(const char *buffer, Log::LogChannel channel) override
     {
-        OutputDebugStringA(buffer.c_str());
+        OutputDebugStringA(buffer);
         OutputDebugStringA("\n");
     }
 };
@@ -117,28 +117,26 @@ public:
 
 class AndroidLoggerImpl : public LoggerImpl
 {
-    std::unordered_map<int, android_LogPriority> m_priorities;
+    std::unordered_map<Log::LogChannel, android_LogPriority> m_priorities;
 
 public:
     AndroidLoggerImpl()
     {
         m_priorities =
         {
-            { (int)MessageType::MT_DEBUG, ANDROID_LOG_DEBUG },
-            { (int)MessageType::MT_MESSAGE, ANDROID_LOG_INFO },
-            { (int)MessageType::MT_WARNING, ANDROID_LOG_WARN },
-            { (int)MessageType::MT_CRITICAL, ANDROID_LOG_FATAL },
-            { (int)MessageType::MT_GAME, ANDROID_LOG_INFO },
-            { (int)MessageType::MT_SCRIPT, ANDROID_LOG_INFO },
-            { (int)MessageType::MT_NONE, ANDROID_LOG_UNKNOWN }
+            { Log::LogChannel::CHANNEL_DEBUG, ANDROID_LOG_DEBUG },
+            { Log::LogChannel::CHANNEL_MESS, ANDROID_LOG_INFO },
+            { Log::LogChannel::CHANNEL_WARN, ANDROID_LOG_WARN },
+            { Log::LogChannel::CHANNEL_CRITICAL, ANDROID_LOG_FATAL },
+            { Log::LogChannel::CHANNEL_GAME, ANDROID_LOG_INFO },
         };
 
-        DF3D_ASSERT(m_priorities.size() == (int)MessageType::COUNT, "sanity check");
+        assert(m_priorities.size() == (size_t)Log::LogChannel::CHANNEL_COUNT);
     }
 
-    virtual void writeBuffer(const std::string &buffer, MessageType type) override
+    void writeBuffer(const char *buffer, Log::LogChannel channel) override
     {
-        __android_log_print(m_priorities[(int)type], "df3d_android", "%s", buffer.c_str());
+        __android_log_print(m_priorities[channel], "df3d_android", "%s", buffer);
     }
 };
 
