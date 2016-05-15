@@ -26,7 +26,7 @@ void InputManager::cleanStep()
         m_currentTouches[m_touchesCount++] = kv.second;
         if (m_touchesCount >= MAX_TOUCHES)
         {
-            glog << "Touch limit exceeded" << logwarn;
+            DFLOG_WARN("Touch limit exceeded");
             break;
         }
     }
@@ -174,7 +174,7 @@ void InputManager::onTouch(int id, int x, int y, Touch::State state)
         }
         else
         {
-            glog << "InputManager::onTouch touchdown failed, already have this touch" << logwarn;
+            DFLOG_WARN("InputManager::onTouch touchdown failed, already have this touch");
         }
     }
         break;
@@ -191,7 +191,7 @@ void InputManager::onTouch(int id, int x, int y, Touch::State state)
         }
         else
         {
-            glog << "InputManager::onTouch touchmove failed, no such touch" << logwarn;
+            DFLOG_WARN("InputManager::onTouch touchmove failed, no such touch");
         }
     }
         break;
@@ -207,7 +207,7 @@ void InputManager::onTouch(int id, int x, int y, Touch::State state)
         }
         else
         {
-            glog << "InputManager::onTouch touchup failed, no such touch" << logwarn;
+            DFLOG_WARN("InputManager::onTouch touchup failed, no such touch");
         }
     }
         break;

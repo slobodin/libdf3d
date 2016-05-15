@@ -17,7 +17,7 @@ FileDataSourceDesktop::FileDataSourceDesktop(const std::string &fileName)
     }
     else
     {
-        glog << "Can not open file" << fileName << logwarn;
+        DFLOG_WARN("Can not open file %s", fileName.c_str());
     }
 }
 

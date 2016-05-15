@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Entity.h"
+#include <libdf3d/utils/Utils.h>
 
 namespace df3d {
 
@@ -23,7 +24,7 @@ private:
         // TODO_ecs: may become big if too much entities. Use hashmap in that case.
         m_lookup.resize((id + 1) * 2);
         if (m_lookup.size() > 1000)
-            glog << "ComponentDataHolder count:" << m_lookup.size() << "size KB:" << (m_lookup.size() * sizeof(T)) / 1024 << logdebug;
+            DFLOG_DEBUG("ComponentDataHolder count: %d, size KB: %d", m_lookup.size(), utils::sizeKB(m_lookup.size() * sizeof(T)));
     }
 
 public:

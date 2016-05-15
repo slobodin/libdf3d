@@ -9,7 +9,7 @@ DebugDrawComponentProcessor::DebugDrawComponentProcessor()
 
 DebugDrawComponentProcessor::~DebugDrawComponentProcessor()
 {
-    /*glog << "DebugDrawComponentProcessor::~DebugDrawComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;*/
+
 }
 
 }

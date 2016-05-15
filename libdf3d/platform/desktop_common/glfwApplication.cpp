@@ -137,7 +137,7 @@ public:
 
         if (df3dCode == KeyCode::UNDEFINED)
         {
-            glog << "Undefined key input!" << logwarn;
+            DFLOG_WARN("Undefined key input!");
             return;
         }
 

@@ -168,7 +168,7 @@ void RenderManager::bindPass(RenderPass *pass)
     auto gpuProgram = pass->getGpuProgram();
     if (!gpuProgram)
     {
-        glog << "Failed to bind pass. No GPU program" << logwarn;
+        DFLOG_WARN("Failed to bind pass. No GPU program");
         return;
     }
 

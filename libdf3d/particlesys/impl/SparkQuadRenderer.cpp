@@ -223,7 +223,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
         }
         break;
     case SPK::TEXTURE_MODE_3D:
-        glog << "3D texture for particle systems is not implemented" << logwarn;
+        DFLOG_WARN("3D texture for particle systems is not implemented");
         return;
     default:
         break;

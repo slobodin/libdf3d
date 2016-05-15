@@ -63,7 +63,7 @@ static unique_ptr<OggVorbis_File> CreateVorbisFile(shared_ptr<FileDataSource> so
 
     if (ov_open_callbacks(source.get(), oggVorbisFile.get(), NULL, -1, ovCallbacks) < 0)
     {
-        glog << "Failed to open ogg file" << source->getPath() << logwarn;
+        DFLOG_WARN("Failed to open ogg file %s", source->getPath().c_str());
         return nullptr;
     }
     return oggVorbisFile;
@@ -90,7 +90,7 @@ static bool ReadOggBlock(long size, char *buffer, OggVorbis_File *oggVorbisFile)
         }
         else
         {
-            glog << "Failed to read ogg data" << logwarn;
+            DFLOG_WARN("Failed to read ogg data");
             return false;
         }
     }

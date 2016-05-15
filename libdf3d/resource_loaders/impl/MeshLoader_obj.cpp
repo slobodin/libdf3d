@@ -217,7 +217,7 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSourc
     {
         if (computeNormals)
         {
-            glog << "Computing normals in" << source->getPath() << logdebug;
+            DFLOG_DEBUG("Computing normals in %s", source->getPath().c_str());
             utils::mesh::computeNormals(*s.second);
         }
 

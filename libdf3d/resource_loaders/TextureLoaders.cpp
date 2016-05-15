@@ -70,7 +70,7 @@ static unique_ptr<PixelBuffer> LoadRaw(shared_ptr<FileDataSource> source)
 
     if (strncmp(header.magic, "raw.", 4) != 0)
     {
-        glog << "Invalid raw header" << logwarn;
+        DFLOG_WARN("Invalid raw header");
         return nullptr;
     }
 
@@ -80,7 +80,7 @@ static unique_ptr<PixelBuffer> LoadRaw(shared_ptr<FileDataSource> source)
     else if (header.format == 1)
         fmt = PixelFormat::RGB;
     else
-        glog << "Invalid raw pixel format" << logwarn;
+        DFLOG_WARN("Invalid raw pixel format");
 
     if (fmt == PixelFormat::INVALID)
         return nullptr;
@@ -97,7 +97,7 @@ static unique_ptr<PixelBuffer> LoadRaw(shared_ptr<FileDataSource> source)
     uLongf uncompressedSizeGot = uncompressedSize;
     if (uncompress(uncompressedData, &uncompressedSizeGot, compressedData.get(), compressedSize) != Z_OK)
     {
-        glog << "Failed to uncompress pixels" << logwarn;
+        DFLOG_WARN("Failed to uncompress pixels while loading raw texture.");
         delete[] uncompressedData;
         return nullptr;
     }
@@ -115,7 +115,7 @@ static unique_ptr<PixelBuffer> LoadWebp(shared_ptr<FileDataSource> source, bool 
     WebPBitstreamFeatures features;
     if (WebPGetFeatures(pixels.data(), pixels.size(), &features) != VP8_STATUS_OK)
     {
-        glog << "Failed to load a texture: WebPGetInfo failed" << logwarn;
+        DFLOG_WARN("Failed to load a texture: WebPGetInfo failed");
         return nullptr;
     }
 
@@ -135,7 +135,7 @@ static unique_ptr<PixelBuffer> LoadWebp(shared_ptr<FileDataSource> source, bool 
 
     if (!decoded)
     {
-        glog << "Failed to decode a webp texture" << logwarn;
+        DFLOG_WARN("Failed to decode a WEBP texture");
         return nullptr;
     }
 
@@ -150,7 +150,7 @@ static unique_ptr<PixelBuffer> LoadPixelBuffer(shared_ptr<FileDataSource> source
 {
     if (!source)
     {
-        glog << "Failed to load pixel buffer from file source. Source is null." << logwarn;
+        DFLOG_WARN("Failed to load pixel buffer from file source. Source is null.");
         return nullptr;
     }
 
@@ -170,9 +170,9 @@ static unique_ptr<PixelBuffer> LoadPixelBuffer(shared_ptr<FileDataSource> source
     auto pixels = stbi_load_from_callbacks(&callbacks, dataSource, &x, &y, &bpp, 0);
     if (!pixels)
     {
-        glog << "Can not load image" << source->getPath() << logwarn;
+        DFLOG_WARN("Can not load image %s", source->getPath().c_str());
 #ifdef STB_DO_ERROR_PRINT
-        glog << stbi_failure_reason() << logwarn;
+        DFLOG_WARN(stbi_failure_reason());
 #endif
         return nullptr;
     }
@@ -184,7 +184,7 @@ static unique_ptr<PixelBuffer> LoadPixelBuffer(shared_ptr<FileDataSource> source
     else if (bpp == STBI_rgb_alpha)
         fmt = PixelFormat::RGBA;
     else
-        glog << "Parsed image with an invalid bpp" << logwarn;
+        DFLOG_WARN("Parsed image with an invalid bpp");
 
     auto result = make_unique<PixelBuffer>(x, y, pixels, fmt);
 
@@ -262,10 +262,6 @@ void Texture2DFSLoader::onDecoded(Resource *resource)
         texture->setTextureInfo(info);
     }
 
-    /*
-    glog << "Cleaning up" << m_pixelBuffer->getSizeInBytes() / 1024.0f << "KB of CPU copy of pixel data" << logdebug;
-    */
-
     // Explicitly remove CPU copy of pixel buffer in order to prevent caching.
     // Instead, will load new copy from FS when rebinding occurs.
     m_pixelBuffer.reset();
@@ -323,7 +319,7 @@ void TextureCubeFSLoader::onDecoded(Resource *resource)
     {
         if (!pb)
         {
-            glog << "Failed to decode cube texture. Image(s) invalid." << logwarn;
+            DFLOG_WARN("Failed to decode cube texture. Image(s) invalid.");
             return;
         }
     }

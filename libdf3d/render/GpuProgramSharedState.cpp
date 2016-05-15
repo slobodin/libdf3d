@@ -244,7 +244,7 @@ void GpuProgramSharedState::updateSharedUniforms(const GpuProgram &program)
             break;
         case SharedUniformType::COUNT:
         default:
-            glog << "Can not set shared value to a not shared uniform" << logwarn;
+            DFLOG_WARN("Can not set shared value to a not shared uniform");
             break;
         }
 

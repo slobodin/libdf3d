@@ -36,7 +36,7 @@ void EngineController::initialize(EngineInitParams params)
 {
     DF3D_ASSERT(!m_initialized, "engine controller already initialized");
 
-    glog << "Initializing df3d engine" << logmess;
+    DFLOG_MESS("Initializing df3d engine");
 
     try
     {
@@ -86,14 +86,14 @@ void EngineController::initialize(EngineInitParams params)
         m_systemTimeManager = make_unique<TimeManager>();
 
         m_initialized = true;
-        glog << "Engine initialized" << logmess;
+        DFLOG_MESS("Engine initialized");
 
         // FIXME: may have big delta. Client code is initialized next.
         m_timer->update();
     }
     catch (std::exception &e)
     {
-        glog << "Engine initialization failed due to" << e.what() << logcritical;
+        DFLOG_CRITICAL("Engine initialization failed due to %s", e.what());
         throw;
     }
 }

@@ -171,13 +171,13 @@ void DebugConsole::registerCommand(const ConsoleCommand &command)
 {
     if (command.name.empty())
     {
-        glog << "Command name should not be empty" << logwarn;
+        DFLOG_WARN("Command name should not be empty");
         return;
     }
 
     if (df3d::utils::contains_key(m_consoleCommands, command.name))
     {
-        glog << "Console command with name" << command.name << "already registered" << logwarn;
+        DFLOG_WARN("Console command with name %s already registered", command.name.c_str());
         return;
     }
 
@@ -190,7 +190,7 @@ void DebugConsole::unregisterCommand(const ConsoleCommand &command)
     if (found != m_consoleCommands.end())
         m_consoleCommands.erase(found);
     else
-        glog << "DebugConsole::unregisterCommand failed. No such command" << command.name << logwarn;
+        DFLOG_WARN("DebugConsole::unregisterCommand failed. No such command %s", command.name.c_str());
 }
 
 }

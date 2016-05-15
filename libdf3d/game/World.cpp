@@ -103,7 +103,7 @@ void World::destroyWorld()
     m_camera.reset();
     m_timeMgr.reset();
 
-    glog << "World::destroyWorld alive entities:" << m_entityManager->size() << logdebug;
+    DFLOG_DEBUG("World::destroyWorld alive entities: %d", m_entityManager->size());
 
     m_entityManager.reset();
 }
@@ -147,7 +147,7 @@ void World::destroy(Entity e)
     }
     else
     {
-        glog << "Failed to destroy an entity. Entity is not alive!" << logwarn;
+        DFLOG_WARN("Failed to destroy an entity. Entity is not alive!");
     }
 }
 
@@ -163,7 +163,7 @@ void World::destroyWithChildren(Entity e)
     }
     else
     {
-        glog << "Failed to destroy an entity. Entity is not alive!" << logwarn;
+        DFLOG_WARN("Failed to destroy an entity. Entity is not alive!");
     }
 }
 

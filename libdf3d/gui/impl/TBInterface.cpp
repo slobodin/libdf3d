@@ -533,7 +533,7 @@ TBImageLoader* TBImageLoader::CreateFromFile(const char *filename)
 
     if (pixels->getFormat() != df3d::PixelFormat::RGBA)
     {
-        df3d::glog << "Unsupported tb image format" << filename << df3d::logwarn;
+        DFLOG_WARN("Unsupported tb image format. Filename: %s", filename);
         return nullptr;
     }
 
@@ -640,6 +640,6 @@ int TBSystem::GetDPI()
 #ifdef TB_RUNTIME_DEBUG_INFO
 void TBDebugOut(const char *str)
 {
-    df3d::glog << str << df3d::logdebug;
+    DFLOG_DEBUG(str);
 }
 #endif

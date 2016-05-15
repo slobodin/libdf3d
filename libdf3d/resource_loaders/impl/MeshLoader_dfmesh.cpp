@@ -32,19 +32,19 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<FileDataSo
 
     if (strncmp((const char *)&header.magic, "DFME", 4) != 0)
     {
-        glog << "Invalid dfmesh magic" << logwarn;
+        DFLOG_WARN("Invalid dfmesh magic");
         return nullptr;
     }
 
     if (header.version != DFMESH_VERSION)
     {
-        glog << "Unsupported dfmesh version" << header.version << logwarn;
+        DFLOG_WARN("Unsupported dfmesh version %d", header.version);
         return nullptr;
     }
 
     if (header.indexSize != sizeof(df3d::INDICES_TYPE))
     {
-        glog << "Unsupported dfmesh indices" << logwarn;
+        DFLOG_WARN("Unsupported dfmesh indices");
         return nullptr;
     }
 

@@ -22,7 +22,7 @@ Material::Material(const std::string &name)
     : m_name(name)
 {
     if (name.empty())
-        glog << "Creating material with empty name" << logwarn;
+        DFLOG_WARN("Creating material with an empty name");
 }
 
 Material::Material(const Material &other)
@@ -58,7 +58,7 @@ void Material::appendTechnique(const Technique &technique)
 {
     if (findTechnique(technique.getName()))
     {
-        glog << "Trying to add duplicate technique" << technique.getName() << "to material" << m_name << logwarn;
+        DFLOG_WARN("Trying to add duplicate technique %s to material %s", technique.getName().c_str(), m_name.c_str());
         return;
     }
 
@@ -74,7 +74,7 @@ void Material::setCurrentTechnique(const std::string &name)
     if (found)
         m_currentTechnique = found;
     else
-        glog << "Trying to set empty technique" << name << "to material" << m_name << logwarn;
+        DFLOG_WARN("Trying to set empty technique %s to material %s", name.c_str(), m_name.c_str());
 }
 
 shared_ptr<Technique> Material::getCurrentTechnique()

@@ -25,7 +25,7 @@ AudioManager::~AudioManager()
 
 void AudioManager::initialize()
 {
-    glog << "Initializing OpenAL" << logmess;
+    DFLOG_MESS("Initializing OpenAL");
 
     std::string devices;
     if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT") != AL_FALSE)
@@ -39,8 +39,8 @@ void AudioManager::initialize()
     else
         defaultDevice = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 
-    glog << "Available playback devices:" << devices << logmess;
-    glog << "Default playback device:" << defaultDevice << logmess;
+    DFLOG_MESS("Available playback devices: %s", devices.c_str());
+    DFLOG_MESS("Default playback device: %s", defaultDevice.c_str());
 
     m_pimpl->m_device = alcOpenDevice(nullptr);
     if (!m_pimpl->m_device)

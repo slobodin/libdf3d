@@ -100,7 +100,6 @@ ParticleSystemComponentProcessor::ParticleSystemComponentProcessor(World *world)
 
 ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor()
 {
-    //glog << "ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
     m_pimpl->data.clear();
     SPK_DUMP_MEMORY
 }
@@ -175,7 +174,7 @@ void ParticleSystemComponentProcessor::add(Entity e, const ParticleSystemCreatio
 {
     if (m_pimpl->data.contains(e))
     {
-        glog << "An entity already has a particle system component" << logwarn;
+        DFLOG_WARN("An entity already has a particle system component");
         return;
     }
 
@@ -193,7 +192,7 @@ void ParticleSystemComponentProcessor::remove(Entity e)
 {
     if (!m_pimpl->data.contains(e))
     {
-        glog << "Failed to remove particle system component from an entity. Component is not attached" << logwarn;
+        DFLOG_WARN("Failed to remove particle system component from an entity. Component is not attached");
         return;
     }
 

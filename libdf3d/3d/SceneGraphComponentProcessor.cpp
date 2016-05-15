@@ -98,7 +98,7 @@ SceneGraphComponentProcessor::SceneGraphComponentProcessor()
 
 SceneGraphComponentProcessor::~SceneGraphComponentProcessor()
 {
-    //glog << "SceneGraphComponentProcessor::~SceneGraphComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
+
 }
 
 void SceneGraphComponentProcessor::setPosition(Entity e, const glm::vec3 &newPosition)
@@ -306,7 +306,7 @@ void SceneGraphComponentProcessor::attachChild(Entity parent, Entity child)
 {
     if (getParent(child).valid())
     {
-        glog << "Can not add child entity. An entity already has a parent" << logwarn;
+        DFLOG_WARN("Can not add child entity. An entity already has a parent");
         return;
     }
 
@@ -337,7 +337,7 @@ void SceneGraphComponentProcessor::detachChild(Entity parent, Entity child)
 {
     if (!getParent(child).valid())
     {
-        glog << "Can not detach entity. An entity has no parent" << logwarn;
+        DFLOG_WARN("Can not detach entity. An entity has no parent");
         return;
     }
 
@@ -380,7 +380,7 @@ void SceneGraphComponentProcessor::add(Entity e)
 {
     if (m_pimpl->data.contains(e))
     {
-        glog << "An entity already has a scene graph component" << logwarn;
+        DFLOG_WARN("An entity already has a scene graph component");
         return;
     }
 

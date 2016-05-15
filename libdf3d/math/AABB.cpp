@@ -88,7 +88,7 @@ void AABB::getCorners(std::vector<glm::vec3> &output) const
 {
     if (output.size() != 8)
     {
-        glog << "Can not get corners of an AABB. Invalid input." << logwarn;
+        DFLOG_WARN("Can not get corners of an AABB. Invalid input.");
         return;
     }
 

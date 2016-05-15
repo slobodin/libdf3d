@@ -70,7 +70,7 @@ void setPassParam(const std::string &param, const std::string &valueStr, const s
         acceptedString.pop_back();
         acceptedString.pop_back();
 
-        glog << "Invalid pass parameter" << param << "found while parsing" << libName << ". Accepted values are :" << acceptedString << logwarn;
+        DFLOG_WARN("Invalid pass parameter %s found while parsing %s. Accepted values are: %s", param.c_str(), libName.c_str(), acceptedString.c_str());
     }
 }
 
@@ -233,7 +233,7 @@ class MaterialLibParser
     {
         if (node.name.empty())
         {
-            glog << "Invalid material name found while parsing" << m_libPath << logwarn;
+            DFLOG_WARN("Invalid material name found while parsing %s", m_libPath.c_str());
             return nullptr;
         }
 
@@ -277,7 +277,7 @@ class MaterialLibParser
     {
         if (node.name.empty())
         {
-            glog << "Invalid technique name found while parsing" << m_libPath << logwarn;
+            DFLOG_WARN("Invalid technique name found while parsing %s", m_libPath.c_str());
             return nullptr;
         }
 
@@ -355,7 +355,7 @@ class MaterialLibParser
             }
             else
             {
-                glog << "Unknown parameter in a material" << keyval.first << logwarn;
+                DFLOG_WARN("Unknown parameter in a material %s", keyval.first.c_str());
             }
         }
 
@@ -404,7 +404,7 @@ class MaterialLibParser
                 return svc().resourceManager().getFactory().createSimpleLightingGpuProgram();
             else
             {
-                glog << "Invalid embed program name" << embedProgramName << logwarn;
+                DFLOG_WARN("Invalid embed program name %s", embedProgramName.c_str());
                 return nullptr;
             }
         }
@@ -415,7 +415,7 @@ class MaterialLibParser
 
         if (vshader == node.keyValues.end() || fshader == node.keyValues.end())
         {
-            glog << "Invalid shader properties found while parsing" << m_libPath << logwarn;
+            DFLOG_WARN("Invalid shader properties found while parsing %s", m_libPath.c_str());
             return nullptr;
         }
 
@@ -450,7 +450,7 @@ class MaterialLibParser
             return svc().resourceManager().getFactory().createCubeTexture(path, creationParams, ResourceLoadingMode::ASYNC);
         }
 
-        glog << "Unknown texture type" << type << logwarn;
+        DFLOG_WARN("Unknown texture type %s", type.c_str());
         return nullptr;
 
         // TODO: other types are:
@@ -469,7 +469,7 @@ public:
         auto root = MaterialLibNode::createTree(input);
         if (!root)
         {
-            glog << "Can not parse material library" << m_libPath << logwarn;
+            DFLOG_WARN("Can not parse material library %s", m_libPath.c_str());
             return false;
         }
 

@@ -58,8 +58,8 @@ TimeManager::~TimeManager()
 
     if (aliveCount > 0)
     {
-        glog << "TimeManager::~TimeManager total listeners:" << m_timeListeners.size() << logwarn;
-        glog << "TimeManager::~TimeManager alive listeners:" << aliveCount << logwarn;
+        DFLOG_WARN("TimeManager::~TimeManager total listeners: %d", m_timeListeners.size());
+        DFLOG_WARN("TimeManager::~TimeManager alive listeners: %d", aliveCount);
     }
 #endif
 }
@@ -81,7 +81,7 @@ void TimeManager::unsubscribeUpdate(Handle handle)
     if (found)
         found->handle.id = -1;
     else
-        glog << "Trying to remove nonexistent time listener" << logwarn;
+        DFLOG_WARN("Trying to remove nonexistent time listener");
 }
 
 void TimeManager::enqueueForNextUpdate(UpdateFn &&callback)

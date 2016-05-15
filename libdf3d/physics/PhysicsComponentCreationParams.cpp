@@ -32,7 +32,7 @@ PhysicsComponentCreationParams::PhysicsComponentCreationParams(const Json::Value
     else if (shapeStr == "static_triangle_mesh")
         shape = CollisionShapeType::STATIC_TRIANGLE_MESH;
     else
-        glog << "Unsupported rigid body shape" << shapeStr << logwarn;
+        DFLOG_WARN("Unsupported rigid body shape %s", shapeStr.c_str());
 
     root["mass"] >> mass;
     root["friction"] >> friction;

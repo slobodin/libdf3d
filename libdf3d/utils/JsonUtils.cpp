@@ -16,7 +16,7 @@ Json::Value fromFile(const std::string &path)
         fileSource->getRaw(&buffer[0], buffer.size());
     }
     else
-        glog << "Couldn't load json configs from" << path << logwarn;
+        DFLOG_WARN("Couldn't load json configs from %s", path.c_str());
 
     return fromSource(buffer);
 }
@@ -28,7 +28,7 @@ Json::Value fromSource(const std::string &data)
 
     if (!reader.parse(data, root))
     {
-        glog << "Failed to parse json. Error:" << reader.getFormattedErrorMessages() << logwarn;
+        DFLOG_WARN("Failed to parse json. Error: %s", reader.getFormattedErrorMessages().c_str());
         return{};
     }
 

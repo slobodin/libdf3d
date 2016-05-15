@@ -17,15 +17,14 @@ namespace df3d {
 
 static void printfunc(HSQUIRRELVM v, const SQChar *s, ...)
 {
+#ifndef DF3D_DISABLE_LOGGING
     va_list arglist;
     va_start(arglist, s);
 
-    char buffer[1024] = { 0 };
-    scvsprintf(buffer, 1024, s, arglist);
-
-    glog.printWithoutFormat(buffer, logscript);
+    glog.vprint(Log::CHANNEL_DEBUG, s, arglist);
 
     va_end(arglist);
+#endif
 }
 
 ScriptManager::ScriptManager()
@@ -40,7 +39,7 @@ ScriptManager::~ScriptManager()
 
 void ScriptManager::initialize()
 {
-    glog << "Starting Squirrel" << logmess;
+    DFLOG_MESS("Starting Squirrel");
 
     m_squirrel = sq_open(1024);
 
@@ -82,7 +81,7 @@ bool ScriptManager::doFile(const std::string &fileName)
         std::string buffer(file->getSizeInBytes(), 0);
         file->getRaw(&buffer[0], buffer.size());
 
-        glog << "Executing" << fileName << logmess;
+        DFLOG_MESS("Executing %s", fileName.c_str());
         m_executedFiles.insert(file->getPath());
 
         file.reset();
@@ -91,7 +90,7 @@ bool ScriptManager::doFile(const std::string &fileName)
     }
     else
     {
-        glog << "Failed to execute" << fileName << ". File doesn't exist" << logwarn;
+        DFLOG_WARN("Failed to execute %s. File doesn't exist", fileName.c_str());
         return false;
     }
 }
@@ -103,7 +102,7 @@ bool ScriptManager::doString(const SQChar *str)
     Sqrat::string errMsg;
     if (!squirrelScript.CompileString(str, errMsg))
     {
-        glog << "Failed to compile squirrel script:" << errMsg.c_str() << logwarn;
+        DFLOG_WARN("Failed to compile squirrel script: %s", errMsg.c_str());
         DEBUG_BREAK();
 
         return false;
@@ -112,7 +111,7 @@ bool ScriptManager::doString(const SQChar *str)
 #if !defined (SCRAT_NO_ERROR_CHECKING)
     if (!squirrelScript.Run(errMsg))
     {
-        glog << "Failed to run squirrel script:" << errMsg.c_str() << logwarn;
+        DFLOG_WARN("Failed to run squirrel script: %s", errMsg.c_str());
         DEBUG_BREAK();
 
         return false;
@@ -127,7 +126,7 @@ bool ScriptManager::doString(const SQChar *str)
 void ScriptManager::gc()
 {
     if (!SQ_SUCCEEDED(sq_collectgarbage(m_squirrel)))
-        glog << "Squirrel: Failed to collect garbage" << logscript;
+        DFLOG_WARN("Squirrel: Failed to collect garbage");
 }
 
 }

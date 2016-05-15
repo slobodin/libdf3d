@@ -59,7 +59,7 @@ void RenderPassParam::updateToProgram(IRenderBackend &backend, GpuProgram &progr
         if (!descr.valid())
         {
 #ifdef _DEBUG
-            glog << "Failed to lookup uniform" << m_name << "in a shader" << logwarn;
+            DFLOG_WARN("Failed to lookup uniform %s in a shader", m_name.c_str());
             m_bindingFailed = true;
             return;
 #endif
@@ -86,13 +86,13 @@ void RenderPass::setGpuProgram(shared_ptr<GpuProgram> newProgram)
 {
     if (!newProgram)
     {
-        glog << "Failed to set empty gpu program to a render pass" << logwarn;
+        DFLOG_WARN("Failed to set empty gpu program to a render pass");
         return;
     }
 
     if (m_gpuProgram)
     {
-        glog << "Can't set GPU program twice!!!! Should fix that" << logwarn;
+        DFLOG_WARN("Can't set GPU program twice!!!! Should fix that");
         DF3D_ASSERT(false, "not implemented");
         return;
     }
@@ -108,7 +108,7 @@ void RenderPass::setGpuProgram(shared_ptr<GpuProgram> newProgram)
     for (const auto &uniformName : customUniforms)
     {
         if (!utils::contains_key(paramsSet, uniformName))
-            glog << "A uniform" << uniformName << "doesn't have a value in render pass params" << logwarn;
+            DFLOG_WARN("A uniform %s doesn't have a value in render pass params", uniformName.c_str());
     }
 #endif
 }

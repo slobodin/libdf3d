@@ -48,7 +48,7 @@ static void parsePostProcessOption(const Json::Value &postFxNode, World &w)
 
     if (mtlLib.empty() || mtlName.empty())
     {
-        glog << "Invalid postprocess option. Either materialName or materialLib field is empty." << logwarn;
+        DFLOG_WARN("Invalid postprocess option. Either materialName or materialLib field is empty.");
         return;
     }
 

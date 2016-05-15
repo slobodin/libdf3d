@@ -20,7 +20,7 @@ void Resource::setGUID(const ResourceGUID &guid)
 { 
     if (!IsGUIDValid(guid))
     {
-        glog << "Trying to set invalid guid" << guid << logwarn;
+        DFLOG_WARN("Trying to set invalid guid %s", guid.c_str());
         return;
     }
 

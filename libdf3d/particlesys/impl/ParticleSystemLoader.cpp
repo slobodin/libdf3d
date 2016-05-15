@@ -74,7 +74,7 @@ static SPK::Ref<SPK::ColorInterpolator> parseSparkColorInterpolator(const Json::
     const auto &dataJson = interpolatorJson["data"];
     if (dataJson.empty())
     {
-        glog << "Failed to parse spark color interpolator. Empty data field" << logwarn;
+        DFLOG_WARN("Failed to parse spark color interpolator. Empty data field");
         return SPK_NULL_REF;
     }
 
@@ -84,7 +84,7 @@ static SPK::Ref<SPK::ColorInterpolator> parseSparkColorInterpolator(const Json::
     else if (typeStr == "graph")
         return parseSparkGraphColorInterpolator(dataJson);
 
-    glog << "Unknown spark color interpolator type" << typeStr << logwarn;
+    DFLOG_WARN("Unknown spark color interpolator type: %s", typeStr.c_str());
     return SPK_NULL_REF;
 }
 
@@ -155,7 +155,7 @@ static SPK::Ref<SPK::FloatInterpolator> parseSparkParamInterpolator(const Json::
     const auto &dataJson = interpolatorJson["data"];
     if (dataJson.empty())
     {
-        glog << "Failed to parse spark float interpolator. Empty data field" << logwarn;
+        DFLOG_WARN("Failed to parse spark float interpolator. Empty data field");
         return SPK_NULL_REF;
     }
 
@@ -171,7 +171,7 @@ static SPK::Ref<SPK::FloatInterpolator> parseSparkParamInterpolator(const Json::
     else if (typeStr == "randomInitializer")
         return parseSparkRandomInitializer(dataJson);
 
-    glog << "Unknown spark float interpolator type" << typeStr << logwarn;
+    DFLOG_WARN("Unknown spark float interpolator type: %s", typeStr.c_str());
     return SPK_NULL_REF;
 }
 
@@ -180,7 +180,7 @@ static SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
     const auto &zoneJson = emitterJson["Zone"];
     if (zoneJson.empty())
     {
-        glog << "Emitter has no zone" << logwarn;
+        DFLOG_WARN("Emitter has no zone");
         return SPK_NULL_REF;
     }
 
@@ -250,7 +250,7 @@ static SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
     }
     else
     {
-        glog << "Unknown zone type" << zoneType << logwarn;
+        DFLOG_WARN("Unknown zone type %s", zoneType.c_str());
         return SPK_NULL_REF;
     }
 
@@ -296,7 +296,7 @@ static SPK::Ref<SPK::Emitter> parseSparkEmitter(const Json::Value &emitterJson)
     }
     else
     {
-        glog << "Unknown emitter type" << emitterType << logwarn;
+        DFLOG_WARN("Unknown emitter type %s", emitterType.c_str());
     }
 
     // Check for valid emitter.
@@ -353,7 +353,7 @@ static void parseSparkModifiers(SPK::Ref<SPK::Group> group, const Json::Value &m
         }
         else
         {
-            df3d::glog << "Unknown particle system modifier" << type << df3d::logwarn;
+            DFLOG_WARN("Unknown particle system modifier %s", type.c_str());
         }
     }
 }
@@ -362,7 +362,7 @@ static SPK::Ref<ParticleSystemRenderer> createRenderer(const Json::Value &render
 {
     if (rendererJson.empty())
     {
-        df3d::glog << "No renderer description in JSON particle system. Crashing" << df3d::logwarn;
+        DFLOG_WARN("No renderer description in JSON particle system. May crash...");
         return SPK_NULL_REF;
     }
 
@@ -387,7 +387,7 @@ static SPK::Ref<ParticleSystemRenderer> createRenderer(const Json::Value &render
             if (found != StringToSparkDirection.end())
                 quadRenderer->setOrientation(found->second);
             else
-                glog << "Unknown spark particle system orientation" << logwarn;
+                DFLOG_WARN("Unknown spark particle system orientation %s", orientationStr.c_str());
         }
 
         std::string pathToTexture;
@@ -425,7 +425,7 @@ static SPK::Ref<ParticleSystemRenderer> createRenderer(const Json::Value &render
     }
     else
     {
-        glog << "Failed to init particle system: unknown renderer type. Crashing." << logwarn;
+        DFLOG_WARN("Failed to init particle system: unknown renderer type. Crashing...");
         return SPK_NULL_REF;
     }
 
@@ -445,7 +445,7 @@ static SPK::Ref<ParticleSystemRenderer> createRenderer(const Json::Value &render
     else if (blending == "alpha")
         spkBlending = SPK::BLEND_MODE_ALPHA;
     else
-        glog << "Unknown blending mode" << blending << logwarn;
+        DFLOG_WARN("Unknown blending mode %s", blending.c_str());
 
     // FIXME: can share renderer.
     renderer->enableRenderingOption(SPK::RENDERING_OPTION_DEPTH_WRITE, depthWrite);
@@ -460,7 +460,7 @@ SPK::Ref<SPK::System> ParticleSystemLoader::createSpkSystem(const Json::Value &r
     const auto &groupsJson = root["groups"];
     if (groupsJson.empty())
     {
-        glog << "Failed to parse particle system configs. Groups node wasn't found" << logwarn;
+        DFLOG_WARN("Failed to parse particle system configs. Groups node wasn't found");
         return SPK_NULL_REF;
     }
 
@@ -478,12 +478,12 @@ SPK::Ref<SPK::System> ParticleSystemLoader::createSpkSystem(const Json::Value &r
             if (emitter)
                 emitters.push_back(emitter);
             else
-                glog << "Failed to parse particle system group emitter" << logwarn;
+                DFLOG_WARN("Failed to parse particle system group emitter");
         }
 
         if (emitters.empty())
         {
-            glog << "Particle system group has no emitters" << logwarn;
+            DFLOG_WARN("Particle system group has no emitters");
             continue;
         }
 
@@ -528,7 +528,7 @@ SPK::Ref<SPK::System> ParticleSystemLoader::createSpkSystem(const Json::Value &r
             auto key = it.key().asString();
             if (!utils::contains_key(StringToSparkParam, key))
             {
-                glog << "Unknown spark param interpolator" << key << logwarn;
+                DFLOG_WARN("Unknown spark param interpolator %s", key.c_str());
                 continue;
             }
 
@@ -544,7 +544,7 @@ SPK::Ref<SPK::System> ParticleSystemLoader::createSpkSystem(const Json::Value &r
 
     if (systemGroups.empty())
     {
-        glog << "Particle system has no groups" << logwarn;
+        DFLOG_WARN("Particle system has no groups");
         return SPK_NULL_REF;
     }
 

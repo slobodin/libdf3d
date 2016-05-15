@@ -57,7 +57,7 @@ void BulletDebugDraw::drawContactPoint(const btVector3 &PointOnB, const btVector
 
 void BulletDebugDraw::reportErrorWarning(const char *warningString)
 {
-    glog << "Bullet physics:" << warningString << logwarn;
+    DFLOG_WARN("Bullet physics warning: %s", warningString);
 }
 
 void BulletDebugDraw::draw3dText(const btVector3 &location, const char *textString)

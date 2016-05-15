@@ -15,27 +15,14 @@
 
 namespace df3d {
 
-const size_t MAX_LOG_SIZE = 2 << 18;
-
-enum class MessageType
-{
-    MT_DEBUG,
-    MT_MESSAGE,
-    MT_WARNING,
-    MT_CRITICAL,
-    MT_GAME,
-    MT_SCRIPT,
-    MT_NONE,
-
-    COUNT
-};
+#ifndef DF3D_DISABLE_LOGGING
 
 class LoggerImpl
 {
 public:
     virtual ~LoggerImpl() = default;
 
-    virtual void writeBuffer(const std::string &buffer, MessageType type) = 0;
+    virtual void writeBuffer(const char *buffer, Log::LogChannel channel) = 0;
 };
 
 class StdoutLogger : public LoggerImpl
@@ -43,29 +30,24 @@ class StdoutLogger : public LoggerImpl
 public:
     StdoutLogger() = default;
 
-    virtual void writeBuffer(const std::string &buffer, MessageType type) override
+    void writeBuffer(const char *buffer, Log::LogChannel channel) override
     {
-        switch (type)
+        switch (channel)
         {
-        case MessageType::MT_DEBUG:
+        case Log::LogChannel::CHANNEL_DEBUG:
             std::cout << "[debug]: ";
             break;
-        case MessageType::MT_MESSAGE:
+        case Log::LogChannel::CHANNEL_MESS:
             std::cout << "[message]: ";
             break;
-        case MessageType::MT_WARNING:
+        case Log::LogChannel::CHANNEL_WARN:
             std::cout << "[warning]: ";
             break;
-        case MessageType::MT_CRITICAL:
+        case Log::LogChannel::CHANNEL_CRITICAL:
             std::cout << "[critical]: ";
             break;
-        case MessageType::MT_GAME:
+        case Log::LogChannel::CHANNEL_GAME:
             std::cout << "[game]: ";
-            break;
-        case MessageType::MT_SCRIPT:
-            std::cout << "[script]: ";
-            break;
-        case MessageType::MT_NONE:
             break;
         default:
             break;
@@ -80,7 +62,7 @@ public:
 class WindowsLoggerImpl : public StdoutLogger
 {
     HANDLE m_consoleHandle = nullptr;
-    std::unordered_map<MessageType, WORD> m_consoleColors;
+    std::unordered_map<Log::LogChannel, WORD> m_consoleColors;
 
 public:
     WindowsLoggerImpl()
@@ -89,24 +71,22 @@ public:
 
         m_consoleColors =
         {
-            { MessageType::MT_DEBUG, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED },
-            { MessageType::MT_MESSAGE, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY },
-            { MessageType::MT_WARNING, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY },
-            { MessageType::MT_CRITICAL, FOREGROUND_RED | FOREGROUND_INTENSITY },
-            { MessageType::MT_GAME, FOREGROUND_GREEN | FOREGROUND_INTENSITY },
-            { MessageType::MT_SCRIPT, FOREGROUND_GREEN | FOREGROUND_INTENSITY },
-            { MessageType::MT_NONE, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED }
+            { Log::LogChannel::CHANNEL_DEBUG, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED },
+            { Log::LogChannel::CHANNEL_MESS, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY },
+            { Log::LogChannel::CHANNEL_WARN, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY },
+            { Log::LogChannel::CHANNEL_CRITICAL, FOREGROUND_RED | FOREGROUND_INTENSITY },
+            { Log::LogChannel::CHANNEL_GAME, FOREGROUND_GREEN | FOREGROUND_INTENSITY }
         };
 
-        DF3D_ASSERT(m_consoleColors.size() == (int)MessageType::COUNT, "sanity check");
+        assert(m_consoleColors.size() == (size_t)Log::LogChannel::CHANNEL_COUNT);
     }
 
-    virtual void writeBuffer(const std::string &buffer, MessageType type) override
+    void writeBuffer(const char *buffer, Log::LogChannel channel) override
     {
         if (m_consoleHandle)
-            SetConsoleTextAttribute(m_consoleHandle, m_consoleColors[type]);
+            SetConsoleTextAttribute(m_consoleHandle, m_consoleColors[channel]);
 
-        StdoutLogger::writeBuffer(buffer, type);
+        StdoutLogger::writeBuffer(buffer, channel);
 
         if (m_consoleHandle)
             SetConsoleTextAttribute(m_consoleHandle, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
@@ -189,48 +169,31 @@ Log& Log::instance()
     return m_instance;
 }
 
-Log& Log::operator<< (const LoggerManipulator &man)
+void Log::print(LogChannel channel, const char *fmt, ...)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-#if 0
-    // Print time.
-    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    std::cerr << std::ctime(&now);
+    va_list argptr;
+    va_start(argptr, fmt);
+
+    vprint(channel, fmt, argptr);
+
+    va_end(argptr);
+}
+
+void Log::vprint(LogChannel channel, const char *fmt, va_list argList)
+{
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+    char buf[4096];
+
+    vsnprintf(buf, sizeof(buf), fmt, argList);  // TODO: check count and warn if overflow occurs.
+
+    m_impl->writeBuffer(buf, channel);
+}
+
 #endif
 
-    m_impl->writeBuffer(m_buffer.str(), man.getMessageType());
-
-    m_logData += m_buffer.str();
-    m_logData += "\n";
-
-    if (m_logData.size() > MAX_LOG_SIZE)
-    {
-        m_logData.clear();
-        m_logData.shrink_to_fit();
-    }
-
-    m_buffer.str("");
-
-    return *this;
-}
-
-void Log::printWithoutFormat(const char *str, const LoggerManipulator &manipulator)
-{
-    m_impl->writeBuffer(str, manipulator.getMessageType());
-}
-
-const std::string &Log::logData() const
-{
-    return m_logData;
-}
-
 Log& glog = Log::instance();
-const LoggerManipulator logdebug = LoggerManipulator(MessageType::MT_DEBUG);
-const LoggerManipulator logmess = LoggerManipulator(MessageType::MT_MESSAGE);
-const LoggerManipulator logwarn = LoggerManipulator(MessageType::MT_WARNING);
-const LoggerManipulator logcritical = LoggerManipulator(MessageType::MT_CRITICAL);
-const LoggerManipulator loggame = LoggerManipulator(MessageType::MT_GAME);
-const LoggerManipulator logscript = LoggerManipulator(MessageType::MT_SCRIPT);
 
 }

@@ -25,7 +25,7 @@ GuiManager::~GuiManager()
 
 void GuiManager::initialize(int contextWidth, int contextHeight)
 {
-    glog << "Initializing turbobadger" << logmess;
+    DFLOG_MESS("Initializing turbobadger");
 
     m_width = contextWidth;
     m_height = contextHeight;
@@ -39,7 +39,7 @@ void GuiManager::initialize(int contextWidth, int contextHeight)
 
     replaceRoot();
 
-    glog << "Device DPI" << tb::TBSystem::GetDPI() << logmess;
+    DFLOG_MESS("Device DPI: %d", tb::TBSystem::GetDPI());
 }
 
 void GuiManager::shutdown()
@@ -62,7 +62,7 @@ void GuiManager::replaceRoot()
 {
     if (!tb::tb_core_is_initialized())
     {
-        glog << "Failed to replace gui root. Context is not initialized" << logwarn;
+        DFLOG_WARN("Failed to replace GUI root. Context is not initialized");
         return;
     }
 

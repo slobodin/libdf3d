@@ -159,7 +159,7 @@ Sprite2DComponentProcessor::Sprite2DComponentProcessor(World *world)
 
 Sprite2DComponentProcessor::~Sprite2DComponentProcessor()
 {
-    //glog << "Sprite2DComponentProcessor::~Sprite2DComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
+
 }
 
 void Sprite2DComponentProcessor::setAnchorPoint(Entity e, const glm::vec2 &pt)
@@ -257,7 +257,7 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
     auto texture = svc().resourceManager().getFactory().createTexture(pathToTexture, params, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->isInitialized())
     {
-        glog << "Failed to init Sprite2DComponent with texture" << pathToTexture << logwarn;
+        DFLOG_WARN("Failed to init Sprite2DComponent with texture %s", pathToTexture.c_str());
         return;
     }
 
@@ -293,7 +293,7 @@ void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
 {
     if (m_pimpl->data.contains(e))
     {
-        glog << "An entity already has a sprite2d component" << logwarn;
+        DFLOG_WARN("An entity already has a sprite2d component");
         return;
     }
 
@@ -318,7 +318,7 @@ void Sprite2DComponentProcessor::remove(Entity e)
 {
     if (!m_pimpl->data.contains(e))
     {
-        glog << "Failed to remove sprite2 component from an entity. Component is not attached" << logwarn;
+        DFLOG_WARN("Failed to remove sprite2 component from an entity. Component is not attached");
         return;
     }
 

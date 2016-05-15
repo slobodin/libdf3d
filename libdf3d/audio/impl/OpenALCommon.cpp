@@ -24,7 +24,7 @@ void checkAndPrintALError(const char *file, int line)
 #ifdef _DEBUG
     auto err = checkALError();
     if (!err.empty())
-        glog << "OpenAL error:" << err << ". File:" << file << ". Line:" << line << logwarn;
+        DFLOG_WARN("OpenAL error: %s. File: %s, line: %d", err.c_str(), file, line);
 #endif
 }
 

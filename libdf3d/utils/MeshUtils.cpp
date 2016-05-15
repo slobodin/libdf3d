@@ -128,7 +128,7 @@ void computeNormals(SubMesh &submesh)
     }
     else
     {
-        glog << "Cannot compute normals for triangle list mesh type." << logwarn;
+        DFLOG_WARN("Cannot compute normals for triangle list mesh type.");
     }
 }
 
@@ -194,7 +194,7 @@ void computeTangentBasis(SubMesh &submesh)
         //    else
         //        v.tangent.w = 1.0f;
         //}
-        glog << "Can not compute tangent space basis for indexed mesh." << logwarn;
+        DFLOG_WARN("Can not compute tangent space basis for indexed mesh.");
     }
     else
     {

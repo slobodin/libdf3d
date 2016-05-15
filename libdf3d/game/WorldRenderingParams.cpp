@@ -61,7 +61,7 @@ Light* WorldRenderingParams::getLightByName(const std::string &name)
 {
     if (name.empty())
     {
-        glog << "Failed to find a light with empty name" << logwarn;
+        DFLOG_WARN("Failed to find a light with empty name");
         return nullptr;
     }
 

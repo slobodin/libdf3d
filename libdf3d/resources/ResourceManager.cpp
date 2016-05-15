@@ -13,18 +13,16 @@ namespace df3d {
 
 void ResourceManager::doRequest(DecodeRequest req)
 {
-    /*
-    glog << "ASYNC decoding" << req.source->getPath() << logdebug;
-    */
+    //DFLOG_DEBUG("ASYNC decoding %s", req.resource->getFilePath().c_str());
 
     if (auto source = svc().fileSystem().openFile(req.resourcePath))
     {
         req.result = req.loader->decode(source);
         if (!req.result)
-            glog << "ASYNC decoding failed" << logwarn;
+            DFLOG_WARN("ASYNC decoding failed");
     }
     else
-        glog << "Failed to ASYNC decode a resource. Failed to open file" << logwarn;
+        DFLOG_WARN("Failed to ASYNC decode a resource. Failed to open file");
 
     m_decodedResources.push(req);
 }
@@ -47,7 +45,7 @@ shared_ptr<Resource> ResourceManager::loadManual(ManualResourceLoader &loader)
     auto resource = shared_ptr<Resource>(loader.load());
     if (!resource)
     {
-        glog << "Failed to manual load a resource" << logwarn;
+        DFLOG_WARN("Failed to manual load a resource");
         return nullptr;
     }
 
@@ -73,7 +71,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
     auto guid = CreateGUIDFromPath(path);
     if (!IsGUIDValid(guid))
     {
-        glog << "Can't load resource. The path" << path << "doesn't exist or it's a directory." << logwarn;
+        DFLOG_WARN("Can't load resource. The path %s doesn't exist or it's a directory.", path.c_str());
         return nullptr;
     }
 
@@ -98,9 +96,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
         m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, req));
     else
     {
-        /*
-        glog << "Decoding" << req.source->getPath() << logdebug;
-        */
+        //DFLOG_DEBUG("Decoding %s", req.resource->getFilePath());
 
         req.result = loader->decode(svc().fileSystem().openFile(req.resourcePath));
         if (req.result)
@@ -110,7 +106,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
         }
         else
         {
-            glog << "Failed to decode a resource" << logwarn;
+            DFLOG_WARN("Failed to decode a resource");
         }
 
         for (auto listener : m_listeners)
@@ -229,7 +225,7 @@ void ResourceManager::addListener(Listener *listener)
 
     if (utils::contains(m_listeners, listener))
     {
-        glog << "Trying to add duplicate ResourceManager listener" << logwarn;
+        DFLOG_WARN("Trying to add duplicate ResourceManager listener");
         return;
     }
 
@@ -244,7 +240,7 @@ void ResourceManager::removeListener(Listener *listener)
     if (found != m_listeners.end())
         m_listeners.erase(found);
     else
-        glog << "ResourceManager::removeListener failed: listener doesn't exist" << logwarn;
+        DFLOG_WARN("ResourceManager::removeListener failed: listener doesn't exist");
 }
 
 }

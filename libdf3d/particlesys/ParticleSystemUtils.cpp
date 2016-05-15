@@ -18,8 +18,8 @@ ParticleSystemCreationParams ParticleSystemUtils::parseVfx(const std::string &vf
     auto spkSystem = particlesys_impl::ParticleSystemLoader::createSpkSystem(vfxJson);
     if (!spkSystem)
     {
-        glog << "Failed to parse particle system definition" << logwarn;
-        return ParticleSystemCreationParams();
+        DFLOG_WARN("Failed to parse particle system definition");
+        return{};
     }
 
     bool worldTransformed = true;

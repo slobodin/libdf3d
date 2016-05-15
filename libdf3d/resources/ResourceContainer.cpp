@@ -14,7 +14,7 @@ ResourceContainer::ResourceContainer(shared_ptr<FileDataSource> archiveFile)
 
     if (strncmp((const char *)&header.magic, "DFRE", 4) != 0)
     {
-        glog << "Invalid df3d resource container magic" << logwarn;
+        DFLOG_WARN("Invalid df3d resource container magic");
         return;
     }
 

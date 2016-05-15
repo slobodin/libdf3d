@@ -43,7 +43,7 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
 {
     if (root.empty())
     {
-        glog << "Failed to init an entity from Json node" << logwarn;
+        DFLOG_WARN("Failed to init an entity from Json node");
         return Entity();
     }
 
@@ -67,7 +67,7 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
         const auto &dataJson = componentJson["data"];
         if (dataJson.empty())
         {
-            glog << "Failed to init a component. Empty \"data\" field" << logwarn;
+            DFLOG_WARN("Failed to init a component. Empty \"data\" field");
             w.destroy(res);
             return Entity();
         }
@@ -75,13 +75,13 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
         auto componentType = componentJson["type"].asString();
         auto foundLoader = m_loaders.find(componentType);
         if (foundLoader == m_loaders.end())
-            glog << "Failed to parse entity description, unknown component" << componentType << logwarn;
+            DFLOG_WARN("Failed to parse entity description, unknown component %s", componentType.c_str());
         else
             loadHandlers.push({ componentType, [&dataJson, res, &w, foundLoader]() { foundLoader->second->loadComponent(dataJson, res, w); } });
     }
 
     if (loadHandlers.empty())
-        glog << "An entity has no components" << logwarn;
+        DFLOG_WARN("An entity has no components");
 
     while (!loadHandlers.empty())
     {

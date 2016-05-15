@@ -41,7 +41,7 @@ unique_ptr<PCMData> AudioLoader_wav::load(shared_ptr<FileDataSource> source)
 
     if (strncmp(header.chunkID, "RIFF", 4) != 0 || strncmp(header.format, "WAVE", 4) != 0)
     {
-        glog << "Invalid WAVE file header" << source->getPath() << logwarn;
+        DFLOG_WARN("Invalid WAVE file header: %s", source->getPath().c_str());
         return nullptr;
     }
 
@@ -50,7 +50,7 @@ unique_ptr<PCMData> AudioLoader_wav::load(shared_ptr<FileDataSource> source)
 
     if (memcmp(format.subChunkID, "fmt ", 4))
     {
-        glog << "Invalid WAVE format" << source->getPath() << logwarn;
+        DFLOG_WARN("Invalid WAVE format: %s", source->getPath().c_str());
         return nullptr;
     }
 
@@ -72,7 +72,7 @@ unique_ptr<PCMData> AudioLoader_wav::load(shared_ptr<FileDataSource> source)
             auto got = source->getRaw(sounddata, data.subChunk2Size);
             if (got != data.subChunk2Size)
             {
-                glog << "Error loading WAVE data" << source->getPath() << logwarn;
+                DFLOG_WARN("Error loading WAVE data: %s", source->getPath().c_str());
                 return nullptr;
             }
 

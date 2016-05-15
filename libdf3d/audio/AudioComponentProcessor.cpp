@@ -140,7 +140,6 @@ AudioComponentProcessor::~AudioComponentProcessor()
         m_pimpl->streamingThread->join();
         m_pimpl->streamingThread.reset();
     }
-    //glog << "AudioComponentProcessor::~AudioComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
 }
 
 void AudioComponentProcessor::play(Entity e)
@@ -252,7 +251,7 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath, bo
 {
     if (m_pimpl->data.contains(e))
     {
-        glog << "An entity already has an audio component" << logwarn;
+        DFLOG_WARN("An entity already has an audio component");
         return;
     }
 
@@ -261,7 +260,7 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath, bo
     alGenSources(1, &data.audioSourceId);
     if (!data.audioSourceId)
     {
-        glog << "Failed to create audio source" << logwarn;
+        DFLOG_WARN("Failed to create audio source");
         return;
     }
 
@@ -272,7 +271,7 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath, bo
     if (buffer && buffer->isInitialized())
         buffer->attachToSource(data.audioSourceId);
     else
-        glog << "Can not add a buffer to an audio source. Audio path:" << audioFilePath << logwarn;
+        DFLOG_WARN("Can not add a buffer to an audio source. Audio path: %s", audioFilePath.c_str());
 
     printOpenALError();
 
@@ -300,7 +299,7 @@ void AudioComponentProcessor::remove(Entity e)
 {
     if (!m_pimpl->data.contains(e))
     {
-        glog << "Failed to remove audio component from an entity. Component is not attached" << logwarn;
+        DFLOG_WARN("Failed to remove audio component from an entity. Component is not attached");
         return;
     }
 

@@ -5,24 +5,25 @@
 
 namespace df3d {
 
-enum class MessageType;
+#ifndef DF3D_DISABLE_LOGGING
+
 class LoggerImpl;
 
-class LoggerManipulator
-{
-    MessageType m_type;
-
-public:
-    LoggerManipulator(const MessageType type)
-        : m_type(type)
-    { }
-
-    MessageType getMessageType() const { return m_type; }
-};
-
-//! Simple log support.
 class DF3D_DLL Log
 {
+public:
+    enum LogChannel
+    {
+        CHANNEL_DEBUG,
+        CHANNEL_MESS,
+        CHANNEL_WARN,
+        CHANNEL_CRITICAL,
+        CHANNEL_GAME,
+
+        CHANNEL_COUNT
+    };
+
+private:
     std::stringstream m_buffer;
     std::recursive_mutex m_lock;
 
@@ -36,65 +37,26 @@ class DF3D_DLL Log
 public:
     static Log& instance();
 
-    template<typename T>
-    Log& operator<< (const T &t)
-    {
-        std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-        m_buffer << t << " ";
-
-        return *this;
-    }
-
-    Log& operator<< (const glm::vec2 &v)
-    {
-        std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-        m_buffer << "[x: " << v.x << " y: " << v.y << "] ";
-
-        return *this;
-    }
-
-    Log& operator<< (const glm::vec3 &v)
-    {
-        std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-        m_buffer << "[x: " << v.x << " y: " << v.y << " z: " << v.z << "] ";
-
-        return *this;
-    }
-
-    Log& operator<< (const glm::vec4 &v)
-    {
-        std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-        m_buffer << "[x: " << v.x << " y: " << v.y << " z: " << v.z << " w: " << v.w << "] ";
-
-        return *this;
-    }
-
-    Log& operator<< (const glm::quat &v)
-    {
-        std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-        m_buffer << "[x: " << v.x << " y: " << v.y << " z: " << v.z << " w: " << v.w << "] ";
-
-        return *this;
-    }
-
-    Log& operator<< (const LoggerManipulator &man);
-
-    void printWithoutFormat(const char *str, const LoggerManipulator &manipulator);
-
-    const std::string& logData() const;
+    void print(LogChannel channel, const char *fmt, ...);
+    void vprint(LogChannel channel, const char *fmt, va_list argList);
 };
 
 extern DF3D_DLL Log &glog;
-extern const DF3D_DLL LoggerManipulator logdebug;
-extern const DF3D_DLL LoggerManipulator logmess;
-extern const DF3D_DLL LoggerManipulator logwarn;
-extern const DF3D_DLL LoggerManipulator logcritical;
-extern const DF3D_DLL LoggerManipulator loggame;
-extern const DF3D_DLL LoggerManipulator logscript;
+
+#define DFLOG_DEBUG(...) df3d::glog.print(df3d::Log::CHANNEL_DEBUG, __VA_ARGS__)
+#define DFLOG_MESS(...) df3d::glog.print(df3d::Log::CHANNEL_MESS, __VA_ARGS__)
+#define DFLOG_WARN(...) df3d::glog.print(df3d::Log::CHANNEL_WARN, __VA_ARGS__)
+#define DFLOG_CRITICAL(...) df3d::glog.print(df3d::Log::CHANNEL_CRITICAL, __VA_ARGS__)
+#define DFLOG_GAME(...) df3d::glog.print(df3d::Log::CHANNEL_GAME, __VA_ARGS__)
+
+#else
+
+#define DFLOG_DEBUG(...) ((void)0)
+#define DFLOG_MESS(...) ((void)0)
+#define DFLOG_WARN(...) ((void)0)
+#define DFLOG_CRITICAL(...) ((void)0)
+#define DFLOG_GAME(...) ((void)0)
+
+#endif
 
 }

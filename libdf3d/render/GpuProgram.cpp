@@ -89,14 +89,14 @@ static std::string ShaderPreprocessInclude(std::string shaderData, const std::st
 
         if (start == end || start == std::string::npos || end == std::string::npos)
         {
-            glog << "Failed to preprocess shader: invalid include directive" << logwarn;
+            DFLOG_WARN("Failed to preprocess a shader: invalid include directive");
             return shaderData;
         }
 
         auto fileToInclude = shaderData.substr(start + 1, end - start - 1);
         if (fileToInclude.empty())
         {
-            glog << "Failed to preprocess shader: empty include path" << logwarn;
+            DFLOG_WARN("Failed to preprocess a shader: empty include path");
             return shaderData;
         }
 
@@ -104,7 +104,7 @@ static std::string ShaderPreprocessInclude(std::string shaderData, const std::st
         auto file = svc().fileSystem().openFile(fileToInclude);
         if (!file || !file->valid())
         {
-            glog << "Failed to preprocess shader: file" << fileToInclude << "not found" << logwarn;
+            DFLOG_WARN("Failed to preprocess a shader: file %s is not found", fileToInclude.c_str());
             return shaderData;
         }
 
@@ -223,7 +223,7 @@ ShaderDescriptor GpuProgramManualLoader::createShaderFromFile(const std::string 
     auto file = svc().fileSystem().openFile(path);
     if (!file)
     {
-        glog << "Can not create shader. File" << path << "doesn't exist" << logwarn;
+        DFLOG_WARN("Can not create a shader. File %s doesn't exist", path.c_str());
         return{};
     }
 
@@ -237,7 +237,7 @@ ShaderDescriptor GpuProgramManualLoader::createShaderFromFile(const std::string 
         shaderType = ShaderType::FRAGMENT;
     else
     {
-        glog << "Can not decode a shader because it's type is undefined" << path << logwarn;
+        DFLOG_WARN("Can not decode a shader because it's type is undefined: %s", path.c_str());
         return{};
     }
 
@@ -253,7 +253,7 @@ ShaderDescriptor GpuProgramManualLoader::createShaderFromString(const std::strin
 {
     if (shaderType == ShaderType::UNDEFINED)
     {
-        glog << "Failed to create shader of UNDEFINED type" << logwarn;
+        DFLOG_WARN("Failed to create shader of UNDEFINED type");
         return{};
     }
 

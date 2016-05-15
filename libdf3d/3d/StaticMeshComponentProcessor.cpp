@@ -98,7 +98,7 @@ StaticMeshComponentProcessor::StaticMeshComponentProcessor(World *world)
 
 StaticMeshComponentProcessor::~StaticMeshComponentProcessor()
 {
-    //glog << "StaticMeshComponentProcessor::~StaticMeshComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
+
 }
 
 shared_ptr<MeshData> StaticMeshComponentProcessor::getMeshData(Entity e) const
@@ -170,7 +170,7 @@ void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath
 {
     if (m_pimpl->data.contains(e))
     {
-        glog << "An entity already has a static mesh component" << logwarn;
+        DFLOG_WARN("An entity already has a static mesh component");
         return;
     }
 
@@ -188,7 +188,7 @@ void StaticMeshComponentProcessor::add(Entity e, shared_ptr<MeshData> meshData)
 {
     if (m_pimpl->data.contains(e))
     {
-        glog << "An entity already has a static mesh component" << logwarn;
+        DFLOG_WARN("An entity already has a static mesh component");
         return;
     }
 
@@ -204,7 +204,7 @@ void StaticMeshComponentProcessor::remove(Entity e)
 {
     if (!m_pimpl->data.contains(e))
     {
-        glog << "Failed to remove static mesh component from an entity. Component is not attached" << logwarn;
+        DFLOG_WARN("Failed to remove static mesh component from an entity. Component is not attached");
         return;
     }
 

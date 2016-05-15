@@ -4,6 +4,7 @@
 #include <libdf3d/render/Texture.h>
 #include <libdf3d/render/RenderOperation.h>
 #include <libdf3d/render/GpuProgram.h>
+#include <libdf3d/utils/Utils.h>
 
 namespace df3d {
 
@@ -37,7 +38,7 @@ static void CheckAndPrintGLError(const char *file, int line)
 {
     auto err = CheckGLError();
     if (!err.empty())
-        glog << "OpenGL error:" << err << ". File:" << file << ". Line:" << line << logwarn;
+        DFLOG_WARN("OpenGL error: %s. File: %s, line: %d", err.c_str(), file, line);
 }
 
 #if defined(_DEBUG) || defined(DEBUG)
@@ -47,13 +48,13 @@ static void CheckAndPrintGLError(const char *file, int line)
 #endif
 
 #if defined(_DEBUG) || defined(DEBUG)
-#define DESCRIPTOR_CHECK(descr) do { if (!descr.valid()) { glog << "Invalid descriptor" << logwarn; DEBUG_BREAK(); return; } } while (0);
+#define DESCRIPTOR_CHECK(descr) do { if (!descr.valid()) { DFLOG_WARN("Invalid descriptor"); DEBUG_BREAK(); return; } } while (0);
 #else
 #define DESCRIPTOR_CHECK(descr) do { if (!descr.valid()) return; } while (0);
 #endif
 
 #if defined(_DEBUG) || defined(DEBUG)
-#define DESCRIPTOR_CHECK_RETURN_INVALID(descr) do { if (!descr.valid()) { glog << "Invalid descriptor" << logwarn; return {}; } } while (0);
+#define DESCRIPTOR_CHECK_RETURN_INVALID(descr) do { if (!descr.valid()) { DFLOG_WARN("Invalid descriptor"); return {}; } } while (0);
 #else
 #define DESCRIPTOR_CHECK_RETURN_INVALID(descr) do { if (!descr.valid()) return {}; } while (0);
 #endif
@@ -192,7 +193,7 @@ static void PrintShaderLog(GLuint shader)
     unique_ptr<char> infoLog(new char[infologLen + 1]);
     glGetShaderInfoLog(shader, infologLen, nullptr, infoLog.get());
 
-    glog << "Shader info log:" << infoLog.get() << logmess;
+    DFLOG_MESS("Shader info log: %s", infoLog.get());
 }
 
 static void PrintGpuProgramLog(unsigned int program)
@@ -203,7 +204,7 @@ static void PrintGpuProgramLog(unsigned int program)
     unique_ptr<char> infoLog(new char[infologLen + 1]);
     glGetProgramInfoLog(program, infologLen, nullptr, infoLog.get());
 
-    glog << "GPU program info log:" << infoLog.get() << logmess;
+    DFLOG_MESS("GPU program info log: %s", infoLog.get());
 }
 
 RenderBackendGL::RenderBackendGL()
@@ -281,16 +282,16 @@ void RenderBackendGL::initialize()
     // Print GPU info.
     {
         const char *ver = (const char *)glGetString(GL_VERSION);
-        glog << "OpenGL version" << ver << logmess;
+        DFLOG_MESS("OpenGL version %s", ver);
 
         const char *card = (const char *)glGetString(GL_RENDERER);
         const char *vendor = (const char *)glGetString(GL_VENDOR);
-        glog << "Using" << card << vendor << logmess;
+        DFLOG_MESS("Using %s %s", card, vendor);
 
         const char *shaderVer = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
-        glog << "Shaders version" << shaderVer << logmess;
+        DFLOG_MESS("Shaders version %s", shaderVer);
 
-        glog << "Max texture size" << m_caps.maxTextureSize << logmess;
+        DFLOG_MESS("Max texture size %d", m_caps.maxTextureSize);
     }
 
     printOpenGLError();
@@ -303,7 +304,7 @@ void RenderBackendGL::initialize()
         sizeof(m_programs) +
         sizeof(m_uniforms);
 
-    glog << "RenderBackendGL storage" << totalStorage / 1024 << "KB" << logdebug;
+    DFLOG_DEBUG("RenderBackendGL storage %d KB", utils::sizeKB(totalStorage));
 #endif
 }
 
@@ -345,7 +346,7 @@ df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFor
     VertexBufferDescriptor vb = { m_vertexBuffersBag.getNew() };
     if (!vb.valid())
     {
-        glog << "Failed to create a vertex buffer" << logwarn;
+        DFLOG_WARN("Failed to create a vertex buffer");
         return{};
     }
 
@@ -441,7 +442,7 @@ df3d::IndexBufferDescriptor RenderBackendGL::createIndexBuffer(size_t indicesCou
     IndexBufferDescriptor ib = { m_indexBuffersBag.getNew() };
     if (!ib.valid())
     {
-        glog << "Failed to create an index buffer" << logwarn;
+        DFLOG_WARN("Failed to create an index buffer");
         return{};
     }
 
@@ -522,14 +523,14 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(int width, int height, 
     TextureDescriptor textureDescr = { m_texturesBag.getNew() };
     if (!textureDescr.valid())
     {
-        glog << "Failed to create a 2d texture" << logwarn;
+        DFLOG_WARN("Failed to create a 2d texture");
         return{};
     }
 
     auto maxSize = m_caps.maxTextureSize;
     if (width > maxSize || height > maxSize)
     {
-        glog << "Failed to create texture. Size is too big." << logwarn;
+        DFLOG_WARN("Failed to create a 2d texture: size is too big.");
         return{};
     }
 
@@ -550,7 +551,7 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(int width, int height, 
         glInternalFormat = GL_DEPTH_COMPONENT16;
         break;
     default:
-        glog << "Invalid GL texture pixel format" << logwarn;
+        DFLOG_WARN("Invalid GL texture pixel format");
         return{};
     }
 
@@ -613,7 +614,7 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
     TextureDescriptor textureDescr = { m_texturesBag.getNew() };
     if (!textureDescr.valid())
     {
-        glog << "Failed to create a cube texture" << logwarn;
+        DFLOG_WARN("Failed to create a cube texture");
         return{};
     }
 
@@ -641,7 +642,7 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
             glPixelFormat = GL_RGBA;
             break;
         default:
-            glog << "Invalid GL texture pixel format" << logwarn;
+            DFLOG_WARN("Invalid GL texture pixel format");
             return false;
         }
 
@@ -721,14 +722,14 @@ df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std:
 {
     if (data.empty())
     {
-        glog << "Failed to create a shader: empty shader data" << logwarn;
+        DFLOG_WARN("Failed to create a shader: empty shader data");
         return{};
     }
 
     ShaderDescriptor shaderDescr = { m_shadersBag.getNew() };
     if (!shaderDescr.valid())
     {
-        glog << "Failed to create a shader" << logwarn;
+        DFLOG_WARN("Failed to create a shader");
         return{};
     }
 
@@ -747,7 +748,7 @@ df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std:
 
     if (shader.gl_id == 0)
     {
-        glog << "Failed to create a shader" << logwarn;
+        DFLOG_WARN("Failed to create a shader");
         return{};
     }
 
@@ -760,8 +761,8 @@ df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std:
     glGetShaderiv(shader.gl_id, GL_COMPILE_STATUS, &compileOk);
     if (compileOk == GL_FALSE)
     {
-        glog << "Failed to compile a shader" << logwarn;
-        glog << "\n" << data << logmess;
+        DFLOG_WARN("Failed to compile a shader");
+        DFLOG_MESS("\n\n%s\n\n", data.c_str());
         PrintShaderLog(shader.gl_id);
 
         return{};
@@ -798,7 +799,7 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor ve
     GpuProgramDescriptor programDescr = { m_gpuProgramsBag.getNew() };
     if (!programDescr.valid())
     {
-        glog << "Failed to create a gpu program" << logwarn;
+        DFLOG_WARN("Failed to create a gpu program");
         return{};
     }
 
@@ -807,7 +808,7 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor ve
     program.gl_id = glCreateProgram();
     if (program.gl_id == 0)
     {
-        glog << "Failed to create a GPU program" << logwarn;
+        DFLOG_WARN("Failed to create a GPU program");
         return{};
     }
 
@@ -833,7 +834,7 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor ve
     glGetProgramiv(program.gl_id, GL_LINK_STATUS, &linkOk);
     if (linkOk == GL_FALSE)
     {
-        glog << "GPU program linkage failed" << logwarn;
+        DFLOG_WARN("GPU program linkage failed");
         PrintGpuProgramLog(program.gl_id);
 
         glDeleteProgram(program.gl_id);
@@ -908,7 +909,7 @@ void RenderBackendGL::requestUniforms(GpuProgramDescriptor program, std::vector<
         UniformDescriptor uniformDescr = { m_uniformsBag.getNew() };
         if (!uniformDescr.valid())
         {
-            glog << "Failed to request uniforms" << logwarn;
+            DFLOG_WARN("Failed to request uniforms");
             outDescr.clear();
             return;
         }
@@ -978,7 +979,7 @@ void RenderBackendGL::setUniformValue(UniformDescriptor uniform, const void *dat
         glUniformMatrix4fv(uniformGL.location, 1, GL_FALSE, (GLfloat *)data);
         break;
     default:
-        glog << "Failed to update GpuProgramUniform. Unknown uniform type" << logwarn;
+        DFLOG_WARN("Failed to update GpuProgramUniform. Unknown uniform type");
         break;
     }
 }

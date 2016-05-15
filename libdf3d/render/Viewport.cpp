@@ -15,7 +15,7 @@ void Viewport::setDimensions(int x, int y, int w, int h)
 {
     if (x < 0 || y < 0 || x >= w || y >= h)
     {
-        glog << "Trying to set invalid viewport dimensions" << logwarn;
+        DFLOG_WARN("Trying to set invalid viewport dimensions");
         return;
     }
 

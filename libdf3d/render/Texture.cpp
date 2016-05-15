@@ -16,7 +16,7 @@ int GetPixelSizeForFormat(PixelFormat format)
         return 4;
     case PixelFormat::INVALID:
     default:
-        glog << "Invalid pixel format. Can't get size." << logwarn;
+        DFLOG_WARN("Invalid pixel format. Can't get size.");
     }
 
     return 0;
@@ -65,7 +65,7 @@ void TextureCreationParams::setAnisotropyLevel(int anisotropy)
     float maxSupportedAniso = svc().renderManager().getBackend().getCaps().maxAnisotropy;
     if (anisotropy > maxSupportedAniso)
     {
-        glog << "Anisotropy level is bigger than supported. Setting maximum." << logwarn;
+        DFLOG_WARN("Anisotropy level is bigger than supported. Setting maximum.");
         m_anisotropyLevel = (int)maxSupportedAniso;
     }
     else
@@ -103,7 +103,7 @@ void Texture::setDescriptor(TextureDescriptor descr)
 
     if (m_descr.valid())
     {
-        glog << "Texture already has a descriptor" << logwarn;
+        DFLOG_WARN("Texture already has a descriptor");
         return;
     }
 

@@ -23,7 +23,7 @@ shared_ptr<Material> MaterialLib::getMaterial(const std::string &name) const
     auto found = m_materials.find(name);
     if (found == m_materials.end())
     {
-        glog << "Material with name" << name << "wasn't found in material library" << getGUID() << logwarn;
+        DFLOG_WARN("Material with name %s wasn't found in material library %s", name.c_str(), getGUID().c_str());
         return nullptr;
     }
 
@@ -35,7 +35,7 @@ void MaterialLib::appendMaterial(shared_ptr<Material> material)
     auto found = m_materials.find(material->getName());
     if (found != m_materials.end())
     {
-        glog << "Trying to add duplicate material" << found->first << "to material library" << getGUID() << logwarn;
+        DFLOG_WARN("Trying to add duplicate material %s to material library %s", found->first.c_str(), getGUID().c_str());
         return;
     }
 
@@ -49,7 +49,7 @@ void MaterialLib::appendMaterial(shared_ptr<Material> material)
     m_materials[material->getName()] = material;
 
     if (material->getTechniquesCount() == 0)
-        glog << "Material without techniques" << material->getName() << "has been added to library" << getGUID() << logwarn;
+        DFLOG_WARN("Material %s without techniques has been added to library %s", material->getName().c_str(), getGUID().c_str());
 }
 
 bool MaterialLib::isMaterialExists(const std::string &name)

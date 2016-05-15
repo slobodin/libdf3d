@@ -134,4 +134,14 @@ inline void to_lower(std::string &str)
 
 bool inflateUncompress(uint8_t *dest, size_t destLen, const uint8_t *source, size_t sourceLen);
 
+inline size_t sizeKB(size_t val)
+{
+    return (val + 1023) / 1024;
+}
+
+inline size_t sizeMB(size_t val)
+{
+    return (sizeKB(val) + 1023) / 1024;
+}
+
 } }

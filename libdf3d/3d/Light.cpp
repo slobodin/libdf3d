@@ -8,7 +8,7 @@ Light::Light(Type type)
     {
         // FIXME:
         // Support other light types!
-        glog << "Can not create light component. Unsupported light type" << logwarn;
+        DFLOG_WARN("Can not create light component. Unsupported light type");
         throw std::runtime_error("Not implemented!");
     }
 
@@ -31,7 +31,7 @@ void Light::setDirection(const glm::vec3 &dir)
 {
     if (m_type != Type::DIRECTIONAL)
     {
-        glog << "Trying to set direction to not directional light" << logwarn;
+        DFLOG_WARN("Trying to set direction to not directional light");
         return;
     }
 

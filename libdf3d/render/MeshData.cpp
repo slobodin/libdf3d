@@ -58,7 +58,7 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
         }
         else
         {
-            glog << "Setting up default material in" << getFilePath() << logwarn;
+            DFLOG_WARN("Setting up default material in %s", getFilePath().c_str());
             m_submeshMaterials.push_back(make_unique<Material>(getFilePath()));
         }
 
@@ -111,7 +111,7 @@ void MeshData::setMaterial(const Material &newMaterial)
 {
     if (!isInitialized())
     {
-        glog << "Can't set material because mesh is not initialized" << logwarn;
+        DFLOG_WARN("Can't set material because mesh is not initialized");
         return;
     }
 
@@ -123,13 +123,13 @@ void MeshData::setMaterial(const Material &newMaterial, size_t submeshIdx)
 {
     if (!isInitialized())
     {
-        glog << "Can't set material because mesh is not initialized" << logwarn;
+        DFLOG_WARN("Can't set material because mesh is not initialized");
         return;
     }
 
     if (submeshIdx >= getSubMeshesCount())
     {
-        glog << "Failed to set material to submesh" << submeshIdx << "because it does not exist" << logwarn;
+        DFLOG_WARN("Failed to set material to submesh %d because it does not exist", submeshIdx);
         return;
     }
 

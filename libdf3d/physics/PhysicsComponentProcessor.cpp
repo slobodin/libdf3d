@@ -139,7 +139,7 @@ struct PhysicsComponentProcessor::Impl
             auto aabb = svc().world().staticMesh().getAABB(data.holder);
             if (!aabb.isValid())
             {
-                glog << "Can not create box shape for rigid body. AABB is invalid" << logwarn;
+                DFLOG_WARN("Can not create box shape for rigid body. AABB is invalid");
                 return nullptr;
             }
 
@@ -151,7 +151,7 @@ struct PhysicsComponentProcessor::Impl
             auto sphere = svc().world().staticMesh().getBoundingSphere(data.holder);
             if (!sphere.isValid())
             {
-                glog << "Can not create sphere shape for rigid body. Bounding sphere is invalid" << logwarn;
+                DFLOG_WARN("Can not create sphere shape for rigid body. Bounding sphere is invalid");
                 return  nullptr;
             }
 
@@ -163,7 +163,7 @@ struct PhysicsComponentProcessor::Impl
             auto convexHull = data.mesh.lock()->getConvexHull();
             if (!convexHull || !convexHull->isValid())
             {
-                glog << "Can not create convex hull shape for rigid body. Hull is invalid" << logwarn;
+                DFLOG_WARN("Can not create convex hull shape for rigid body. Hull is invalid");
                 return nullptr;
             }
 
@@ -238,7 +238,7 @@ struct PhysicsComponentProcessor::Impl
         btCollisionShape *colShape = createCollisionShape(data);
         if (!colShape)
         {
-            glog << "Failed to create a collision shape" << logwarn;
+            DFLOG_WARN("Failed to create a collision shape.");
             data.initialized = true;
             data.params.reset();
             return;
@@ -337,7 +337,7 @@ PhysicsComponentProcessor::PhysicsComponentProcessor(World *w)
 
 PhysicsComponentProcessor::~PhysicsComponentProcessor()
 {
-    //glog << "PhysicsComponentProcessor::~PhysicsComponentProcessor alive entities" << m_pimpl->data.rawData().size() << logdebug;
+
 }
 
 btRigidBody* PhysicsComponentProcessor::getBody(Entity e)
@@ -392,7 +392,7 @@ void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationPara
 {
     if (m_pimpl->data.contains(e))
     {
-        glog << "An entity already has an physics component" << logwarn;
+        DFLOG_WARN("An entity already has an physics component");
         return;
     }
 
@@ -413,7 +413,7 @@ void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, sh
 
     if (m_pimpl->data.contains(e))
     {
-        glog << "An entity already has an physics component" << logwarn;
+        DFLOG_WARN("An entity already has an physics component");
         return;
     }
 
@@ -436,7 +436,7 @@ void PhysicsComponentProcessor::remove(Entity e)
 {
     if (!m_pimpl->data.contains(e))
     {
-        glog << "Failed to remove physics component from an entity. Component is not attached" << logwarn;
+        DFLOG_WARN("Failed to remove physics component from an entity. Component is not attached");
         return;
     }
 
