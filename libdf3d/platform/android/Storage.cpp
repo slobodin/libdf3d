@@ -20,9 +20,9 @@ class AndroidStorage : public Storage
 
         bool saveResult = env->CallBooleanMethod(prefsObj, methId, jfilename, jdata);
         if (!saveResult)
-            glog << "AndroidStorage::saveToFileSystem failed" << df3d::logwarn;
+            DFLOG_WARN("AndroidStorage::saveToFileSystem failed");
         else
-            df3d::glog << "AndroidStorage::saveToFileSystem success" << df3d::logdebug;
+            DFLOG_MESS("AndroidStorage::saveToFileSystem success");
 
         env->DeleteLocalRef(jdata);
         env->DeleteLocalRef(jfilename);
@@ -52,7 +52,7 @@ class AndroidStorage : public Storage
         env->DeleteLocalRef(jfilename);
         env->DeleteLocalRef(cls);
 
-        df3d::glog << "AndroidStorage::getFromFileSystem got" << *size << "of data" << df3d::logdebug;
+        DFLOG_DEBUG("AndroidStorage::getFromFileSystem got %d of data", *size);
 
         return *size != 0;
     }

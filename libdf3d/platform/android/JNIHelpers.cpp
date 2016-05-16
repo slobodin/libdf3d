@@ -18,7 +18,7 @@ void AndroidServices::init(JavaVM *vm)
     m_vm = vm;
     pthread_key_create(&m_envKey, detachCurrentThread);
 
-    df3d::glog << "AndroidServices::init success" << df3d::logdebug;
+    DFLOG_DEBUG("AndroidServices::init success");
 }
 
 void AndroidServices::setServicesObj(jobject jservices)
@@ -45,14 +45,13 @@ JNIEnv* AndroidServices::getEnv()
 
         switch (ret)
         {
-        case JNI_OK :
+        case JNI_OK:
             pthread_setspecific(m_envKey, env);
             return env;
-        case JNI_EDETACHED :
+        case JNI_EDETACHED:
             if (m_vm->AttachCurrentThread(&env, nullptr) < 0)
             {
-                glog << "Failed to AttachCurrentThread" << logwarn;
-
+                DFLOG_WARN("Failed to AttachCurrentThread");
                 return nullptr;
             }
             else
@@ -60,8 +59,8 @@ JNIEnv* AndroidServices::getEnv()
                 pthread_setspecific(m_envKey, env);
                 return env;
             }
-        default :
-            glog << "Failed to AndroidServices::getEnv" << logwarn;
+        default:
+            DFLOG_WARN("Failed to AndroidServices::getEnv");
             return nullptr;
         }
     }

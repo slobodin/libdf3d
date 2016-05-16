@@ -18,7 +18,7 @@ FileDataSourceAndroid::FileDataSourceAndroid(const std::string &fileName)
 {
     m_file = AAssetManager_open(m_assetMgr, fileName.c_str(), AASSET_MODE_UNKNOWN);
     if (!m_file)
-        glog << "Can not open file" << fileName << logwarn;
+        DFLOG_WARN("Can not open file %s", fileName.c_str());
 }
 
 FileDataSourceAndroid::~FileDataSourceAndroid()
@@ -85,11 +85,11 @@ bool FileDataSourceAndroid::seek(int32_t offset, std::ios_base::seekdir origin)
 void FileDataSourceAndroid::setAssetManager(AAssetManager *mgr)
 {
     if (!mgr)
-        glog << "Setting up NULL AAssetManager" << logwarn;
+        DFLOG_WARN("Setting up NULL AAssetManager");
 
     m_assetMgr = mgr;
 
-    glog << "AAssetManager was set up" << logmess;
+    DFLOG_MESS("AAssetManager was set up");
 }
 
 } }

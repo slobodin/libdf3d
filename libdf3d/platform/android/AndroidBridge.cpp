@@ -41,7 +41,7 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
     JNIEnv *env;
     if (vm->GetEnv((void **)(&env), JNI_VERSION_1_6) != JNI_OK)
     {
-        df3d::glog << "Failed to get environment" << df3d::logcritical;
+        DFLOG_CRITICAL("Failed to get environment");
         return -1;
     }
 
@@ -50,13 +50,13 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 
     df3d::AndroidServices::init(vm);
 
-    df3d::glog << "JNI_OnLoad success" << df3d::logmess;
+    DFLOG_MESS("JNI_OnLoad success");
 
     df3dInitialized();
 
     if (!g_appState->appDelegate)
     {
-        df3d::glog << "Game code must set up application delegate in df3dInitialized" << df3d::logcritical;
+        DFLOG_CRITICAL("Game code must set up application delegate in df3dInitialized");
         return -1;
     }
 
@@ -75,7 +75,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_services
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_init(JNIEnv* env, jclass cls, jint jscreenWidth, jint jscreenHeight)
 {
-    df3d::glog << "Doing native init" << df3d::logmess;
+    DFLOG_MESS("Doing native init...");
 
     if (!g_appState->engine)
     {
@@ -107,7 +107,8 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onPause(
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onDestroy(JNIEnv* env, jclass cls)
 {
-    df3d::glog << "Activity was destroyed" << df3d::logmess;
+    DFLOG_MESS("Activity is being destroyed");
+
     g_appState->appDelegate->onAppEnded();
 
     g_appState->engine->shutdown();
