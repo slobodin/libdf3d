@@ -9,7 +9,7 @@ namespace df3d {
 
 static bool ShouldEmulateTouchEvent()
 {
-    return false;
+    return true;
 }
 
 void InputManager::cleanStep()
