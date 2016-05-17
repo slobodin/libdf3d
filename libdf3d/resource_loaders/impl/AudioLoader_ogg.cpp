@@ -69,15 +69,16 @@ static unique_ptr<OggVorbis_File> CreateVorbisFile(shared_ptr<FileDataSource> so
     return oggVorbisFile;
 }
 
-static bool ReadOggBlock(long size, char *buffer, OggVorbis_File *oggVorbisFile)
+static bool ReadOggBlock(int32_t size, char *buffer, OggVorbis_File *oggVorbisFile)
 {
     // Read PCM.
-    long totalGot = 0, got;
+    int32_t totalGot = 0;
+    int32_t got;
     int currentSection;
 
     while (totalGot < size)
     {
-        got = (long)ov_read(oggVorbisFile, buffer + totalGot, size - totalGot, 0, 2, 1, &currentSection);
+        got = ov_read(oggVorbisFile, buffer + totalGot, size - totalGot, 0, 2, 1, &currentSection);
 
         if (got == 0)
         {
@@ -122,9 +123,10 @@ public:
         ov_clear(m_oggVorbisFile.get());
     }
 
-    bool streamData(ALuint alBuffer, long dataSize, char *buffer, bool looped) override
+    bool streamData(ALuint alBuffer, int32_t dataSize, char *buffer, bool looped) override
     {
-        long totalGot = 0, got;
+        int32_t totalGot = 0;
+        int32_t got;
         int currentSection;
 
         while (totalGot < dataSize)
@@ -158,7 +160,7 @@ unique_ptr<PCMData> AudioLoader_ogg::load(shared_ptr<FileDataSource> source)
     auto result = make_unique<PCMData>();
 
     auto ovInfo = ov_info(oggVorbisFile.get(), -1);
-    long pcmSize = (long)ov_pcm_total(oggVorbisFile.get(), -1) * ovInfo->channels * 2;
+    int32_t pcmSize = ov_pcm_total(oggVorbisFile.get(), -1) * ovInfo->channels * 2;
 
     result->totalSize = pcmSize;
     result->sampleRate = ovInfo->rate;

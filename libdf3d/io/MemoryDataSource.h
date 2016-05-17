@@ -19,7 +19,7 @@ public:
     size_t getRaw(void *buffer, size_t sizeInBytes) override;
     size_t getSizeInBytes() override;
 
-    size_t tell() override;
+    int32_t tell() override;
     bool seek(int32_t offset, std::ios_base::seekdir origin) override;
 };
 

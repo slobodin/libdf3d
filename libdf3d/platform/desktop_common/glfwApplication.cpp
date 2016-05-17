@@ -14,9 +14,11 @@ static void textInputCallback(GLFWwindow *window, unsigned int codepoint);
 static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 static void cursorPosCallback(GLFWwindow *window, double x, double y);
 
+#define DF3D_EMULATE_TOUCHES
+
 class glfwApplication
 {
-    GLFWwindow *window = nullptr;
+    GLFWwindow *m_window = nullptr;
     unique_ptr<AppDelegate> m_appDelegate;
     unique_ptr<EngineController> m_engine;
 
@@ -29,8 +31,8 @@ public:
 
     ~glfwApplication()
     {
-        if (window)
-            glfwDestroyWindow(window);
+        if (m_window)
+            glfwDestroyWindow(m_window);
         glfwTerminate();
     }
 
@@ -46,8 +48,8 @@ public:
 
         GLFWmonitor *monitor = params.fullscreen ? glfwGetPrimaryMonitor() : nullptr;
 
-        window = glfwCreateWindow(params.windowWidth, params.windowHeight, "libdf3d_window", monitor, nullptr);
-        if (!window)
+        m_window = glfwCreateWindow(params.windowWidth, params.windowHeight, "libdf3d_window", monitor, nullptr);
+        if (!m_window)
         {
             throw std::runtime_error("Failed to create glfw window");
             glfwTerminate();
@@ -56,20 +58,20 @@ public:
         // Center the window.
         auto videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         if (videoMode && !params.fullscreen)
-            glfwSetWindowPos(window, (videoMode->width - params.windowWidth) / 2, (videoMode->height - params.windowHeight) / 2);
+            glfwSetWindowPos(m_window, (videoMode->width - params.windowWidth) / 2, (videoMode->height - params.windowHeight) / 2);
 
-        glfwMakeContextCurrent(window);
-        glfwSetWindowUserPointer(window, this);
+        glfwMakeContextCurrent(m_window);
+        glfwSetWindowUserPointer(m_window, this);
 
         if (params.vsync)
             glfwSwapInterval(1);
 
         // Set input callbacks.
-        glfwSetMouseButtonCallback(window, mouseButtonCallback);
-        glfwSetKeyCallback(window, keyCallback);
-        glfwSetCharCallback(window, textInputCallback);
-        glfwSetScrollCallback(window, scrollCallback);
-        glfwSetCursorPosCallback(window, cursorPosCallback);
+        glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
+        glfwSetKeyCallback(m_window, keyCallback);
+        glfwSetCharCallback(m_window, textInputCallback);
+        glfwSetScrollCallback(m_window, scrollCallback);
+        glfwSetCursorPosCallback(m_window, cursorPosCallback);
 
         m_engine.reset(new EngineController());
         m_engine->initialize(params);
@@ -81,13 +83,13 @@ public:
     {
         using namespace std::chrono;
 
-        while (!glfwWindowShouldClose(window))
+        while (!glfwWindowShouldClose(m_window))
         {
             glfwPollEvents();
 
             m_engine->step();
 
-            glfwSwapBuffers(window);
+            glfwSwapBuffers(m_window);
         }
 
         m_appDelegate->onAppEnded();
@@ -97,13 +99,13 @@ public:
 
     void setTitle(const std::string &title)
     {
-        glfwSetWindowTitle(window, title.c_str());
+        glfwSetWindowTitle(m_window, title.c_str());
     }
 
     void onMouseButton(int button, int action, int mods)
     {
         double x, y;
-        glfwGetCursorPos(window, &x, &y);
+        glfwGetCursorPos(m_window, &x, &y);
 
         MouseButton df3dBtn;
 
@@ -120,6 +122,16 @@ public:
             svc().inputManager().onMouseButtonPressed(df3dBtn, (int)x, (int)y);
         else if (action == GLFW_RELEASE)
             svc().inputManager().onMouseButtonReleased(df3dBtn, (int)x, (int)y);
+
+#ifdef DF3D_EMULATE_TOUCHES
+        if (button == GLFW_MOUSE_BUTTON_LEFT)
+        {
+            if (action == GLFW_PRESS)
+                svc().inputManager().onTouch(0, (int)x, (int)y, Touch::State::DOWN);
+            else if (action == GLFW_RELEASE)
+                svc().inputManager().onTouch(0, (int)x, (int)y, Touch::State::UP);
+        }
+#endif
     }
 
     void onKey(int key, int scancode, int action, int mods)
@@ -160,6 +172,12 @@ public:
     void onCursorMove(double x, double y)
     {
         svc().inputManager().setMousePosition((int)x, (int)y);
+
+#ifdef DF3D_EMULATE_TOUCHES
+        int state = glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT);
+        if (state == GLFW_PRESS)
+            svc().inputManager().onTouch(0, (int)x, (int)y, Touch::State::MOVING);
+#endif
     }
 
     EngineController& getEngine() { return *m_engine; }

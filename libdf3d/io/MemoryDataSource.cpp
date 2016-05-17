@@ -37,7 +37,7 @@ size_t MemoryDataSource::getSizeInBytes()
     return m_size;
 }
 
-size_t MemoryDataSource::tell()
+int32_t MemoryDataSource::tell()
 {
     return m_current - m_buffer;
 }

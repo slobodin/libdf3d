@@ -44,7 +44,7 @@ size_t FileDataSourceDesktop::getSizeInBytes()
     return m_sizeInBytes;
 }
 
-size_t FileDataSourceDesktop::tell()
+int32_t FileDataSourceDesktop::tell()
 {
     if (!m_file)
         return -1;

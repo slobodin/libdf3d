@@ -9,7 +9,7 @@ Resource::Resource()
     : m_initialized(false),
     m_resident(false)
 {
-    static unsigned long resourcesCount = 0;
+    static int32_t resourcesCount = 0;
 
     std::ostringstream ss;
     ss << "unnamed_resource_" << resourcesCount++;

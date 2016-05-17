@@ -13,8 +13,7 @@ AAssetManager *FileDataSourceAndroid::m_assetMgr = nullptr;
 
 FileDataSourceAndroid::FileDataSourceAndroid(const std::string &fileName)
     : FileDataSource(fileName),
-    m_file(nullptr),
-    m_current(0)
+    m_file(nullptr)
 {
     m_file = AAssetManager_open(m_assetMgr, fileName.c_str(), AASSET_MODE_UNKNOWN);
     if (!m_file)
@@ -37,10 +36,7 @@ size_t FileDataSourceAndroid::getRaw(void *buffer, size_t sizeInBytes)
     if (!m_file)
         return 0;
 
-    auto bytesRead = AAsset_read(m_file, buffer, sizeInBytes);
-    m_current += bytesRead;
-
-    return bytesRead;
+    return AAsset_read(m_file, buffer, sizeInBytes);
 }
 
 size_t FileDataSourceAndroid::getSizeInBytes()
@@ -51,35 +47,24 @@ size_t FileDataSourceAndroid::getSizeInBytes()
     return AAsset_getLength(m_file);
 }
 
-size_t FileDataSourceAndroid::tell()
+int32_t FileDataSourceAndroid::tell()
 {
-    if (!m_file)
-        return -1;
-    return m_current;
+    return AAsset_getLength(m_file) - AAsset_getRemainingLength(m_file);
 }
 
 bool FileDataSourceAndroid::seek(int32_t offset, std::ios_base::seekdir origin)
 {
     int whence;
     if (origin == std::ios_base::cur)
-    {
         whence = SEEK_CUR;
-        m_current += offset;
-    }
     else if (origin == std::ios_base::beg)
-    {
         whence = SEEK_SET;
-        m_current = offset;
-    }
     else if (origin == std::ios_base::end)
-    {
         whence = SEEK_END;
-        m_current = getSizeInBytes() + offset;
-    }
     else
         return false;
 
-    return AAsset_seek(m_file, offset, whence) == 0;
+    return AAsset_seek(m_file, offset, whence) != -1;
 }
 
 void FileDataSourceAndroid::setAssetManager(AAssetManager *mgr)

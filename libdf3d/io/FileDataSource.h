@@ -23,7 +23,7 @@ public:
     virtual size_t getRaw(void *buffer, size_t sizeInBytes) = 0;
     virtual size_t getSizeInBytes() = 0;
 
-    virtual size_t tell() = 0;
+    virtual int32_t tell() = 0;
     virtual bool seek(int32_t offset, std::ios_base::seekdir origin) = 0;
 
     template<typename T>
