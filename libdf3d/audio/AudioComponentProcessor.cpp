@@ -66,6 +66,7 @@ struct AudioComponentProcessor::Impl
 
 void AudioComponentProcessor::streamThread()
 {
+    /*
     while (m_pimpl->streamingThreadActive)
     {
         m_pimpl->streamingMutex->lock();
@@ -80,6 +81,7 @@ void AudioComponentProcessor::streamThread()
 
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
+    */
 }
 
 void AudioComponentProcessor::update()
@@ -88,6 +90,7 @@ void AudioComponentProcessor::update()
     for (auto &compData : m_pimpl->data.rawData())
         compData.holderPos = m_world->sceneGraph().getWorldPosition(compData.holder);
 
+    /*
     for (auto &compData : m_pimpl->data.rawData())
     {
         // If it has stopped, then do not update it.
@@ -96,6 +99,7 @@ void AudioComponentProcessor::update()
 
         alSourcefv(compData.audioSourceId, AL_POSITION, glm::value_ptr(compData.holderPos));
     }
+    */
 }
 
 void AudioComponentProcessor::cleanStep(const std::list<Entity> &deleted)
@@ -107,6 +111,7 @@ AudioComponentProcessor::AudioComponentProcessor(World *world)
     : m_pimpl(new Impl()),
     m_world(world)
 {
+    /*
     m_pimpl->data.setDestructionCallback([this](const Impl::Data &data) {
         if (data.buffer && data.buffer->isStreamed())
         {
@@ -128,61 +133,75 @@ AudioComponentProcessor::AudioComponentProcessor(World *world)
 
         alDeleteSources(1, &data.audioSourceId);
     });
+    */
 }
 
 AudioComponentProcessor::~AudioComponentProcessor()
 {
     m_pimpl->data.clear();
 
+    /*
     if (m_pimpl->streamingThread)
     {
         m_pimpl->streamingThreadActive = false;
         m_pimpl->streamingThread->join();
         m_pimpl->streamingThread.reset();
-    }
+    }*/
 }
 
 void AudioComponentProcessor::play(Entity e)
 {
+    /*
     const auto &compData = m_pimpl->data.getData(e);
 
     if (getAudioState(compData.audioSourceId) != AudioComponentProcessor::State::PLAYING)
         alSourcePlay(compData.audioSourceId);
+        */
 }
 
 void AudioComponentProcessor::stop(Entity e)
 {
+    /*
     const auto &compData = m_pimpl->data.getData(e);
 
     if (getAudioState(compData.audioSourceId) != AudioComponentProcessor::State::STOPPED)
         alSourceStop(compData.audioSourceId);
+        */
 }
 
 void AudioComponentProcessor::pause(Entity e)
 {
+    /*
     const auto &compData = m_pimpl->data.getData(e);
 
     if (getAudioState(compData.audioSourceId) != AudioComponentProcessor::State::PAUSED)
         alSourcePause(compData.audioSourceId);
+        */
 }
 
 void AudioComponentProcessor::setSoundVolume(float volume)
 {
     m_pimpl->soundVolume = df3d::utils::clamp(volume, 0.0f, 1.0f);
 
+    /*
     for (const auto &data : m_pimpl->data.rawData())
         alSourcef(data.audioSourceId, AL_GAIN, m_pimpl->calcResultGain(data.gain));
+        */
 }
 
 void AudioComponentProcessor::setListenerPosition(const glm::vec3 &pos)
 {
+    /*
     alListenerfv(AL_POSITION, glm::value_ptr(pos));
+    */
 }
 
 void AudioComponentProcessor::setListenerOrientation(const glm::vec3 &dir, const glm::vec3 &up)
 {
+    /*
     ALfloat listenerOrientation[] = { dir.x, dir.y, dir.z, up.x, up.y, up.z };
     alListenerfv(AL_ORIENTATION, listenerOrientation);
+    */
 }
 
 void AudioComponentProcessor::setPitch(Entity e, float pitch)
@@ -190,7 +209,9 @@ void AudioComponentProcessor::setPitch(Entity e, float pitch)
     auto &compData = m_pimpl->data.getData(e);
 
     compData.pitch = pitch;
+    /*
     alSourcef(compData.audioSourceId, AL_PITCH, pitch);
+    */
 }
 
 void AudioComponentProcessor::setGain(Entity e, float gain)
@@ -198,13 +219,17 @@ void AudioComponentProcessor::setGain(Entity e, float gain)
     auto &compData = m_pimpl->data.getData(e);
 
     compData.gain = gain;
+    /*
     alSourcef(compData.audioSourceId, AL_GAIN, m_pimpl->calcResultGain(gain));
+    */
 }
 
 void AudioComponentProcessor::setLooped(Entity e, bool looped)
 {
     auto &compData = m_pimpl->data.getData(e);
     compData.looped = looped;
+
+    /*
     if (!compData.buffer->isStreamed())
         alSourcei(compData.audioSourceId, AL_LOOPING, looped);
 
@@ -219,12 +244,15 @@ void AudioComponentProcessor::setLooped(Entity e, bool looped)
 
         m_pimpl->streamingMutex->unlock();
     }
+    */
 }
 
 void AudioComponentProcessor::setRolloffFactor(Entity e, float factor)
 {
     auto &compData = m_pimpl->data.getData(e);
+    /*
     alSourcef(compData.audioSourceId, AL_ROLLOFF_FACTOR, factor);
+    */
 }
 
 float AudioComponentProcessor::getPitch(Entity e) const
@@ -244,7 +272,10 @@ bool AudioComponentProcessor::isLooped(Entity e) const
 
 AudioComponentProcessor::State AudioComponentProcessor::getState(Entity e) const
 {
+    return AudioComponentProcessor::State::STOPPED;
+    /*
     return getAudioState(m_pimpl->data.getData(e).audioSourceId);
+    */
 }
 
 void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath, bool streamed)
@@ -256,7 +287,7 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath, bo
     }
 
     Impl::Data data;
-
+    /*
     alGenSources(1, &data.audioSourceId);
     if (!data.audioSourceId)
     {
@@ -274,13 +305,17 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath, bo
         DFLOG_WARN("Can not add a buffer to an audio source. Audio path: %s", audioFilePath.c_str());
 
     printOpenALError();
+    */
 
     data.holder = e;
     data.holderPos = m_world->sceneGraph().getWorldPosition(e);
+    /*
     data.buffer = buffer;
+    */
 
     m_pimpl->data.add(e, data);
 
+    /*
     if (streamed)
     {
         if (!m_pimpl->streamingThread)
@@ -293,6 +328,7 @@ void AudioComponentProcessor::add(Entity e, const std::string &audioFilePath, bo
         m_pimpl->streamingData.push_back(data);
         m_pimpl->streamingMutex->unlock();
     }
+    */
 }
 
 void AudioComponentProcessor::remove(Entity e)
