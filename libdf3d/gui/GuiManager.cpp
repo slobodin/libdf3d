@@ -3,6 +3,7 @@
 #include <tb_core.h>
 #include <tb_debug.h>
 #include <tb_system.h>
+#include <tb_msg.h>
 #include <animation/tb_widget_animation.h>
 #include "impl/TBInterface.h"
 #include <libdf3d/base/EngineController.h>
@@ -56,6 +57,8 @@ void GuiManager::update()
     tb::TBAnimationManager::Update();
     m_root->InvokeProcessStates();
     m_root->InvokeProcess();
+
+    tb::TBMessageHandler::ProcessMessages();
 }
 
 void GuiManager::replaceRoot()
