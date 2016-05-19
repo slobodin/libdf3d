@@ -3,12 +3,12 @@ libdf3d
 Simple C++ game framework aimed for mobile platforms.
 
 #### Currently supported
-* desktop platforms: windows, linux, mac os x
+* desktop platforms: Windows, Linux, Mac OS X
 * android (partially)
 * windows phone (partially)
 
 #### Compiler
-* The project heavily uses c++11 and c++14 features.
+* The project uses some c++11 and c++14 features.
 
 Compile
 =======
