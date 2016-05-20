@@ -12,10 +12,18 @@
 #include <libdf3d/render/Texture.h>
 #include <libdf3d/render/IRenderBackend.h>
 #include <libdf3d/utils/Utils.h>
+#include <libdf3d/utils/JsonUtils.h>
 
 namespace df3d {
 
-std::map<std::string, FaceCullMode> faceCullModeValues =
+static const std::string MATERIAL_TYPE = "material";
+static const std::string TECHNIQUE_TYPE = "technique";
+static const std::string PASS_TYPE = "pass";
+static const std::string SHADER_TYPE = "shader";
+static const std::string SAMPLER_TYPE = "sampler";
+static const std::string SHADER_PARAMS_TYPE = "shader_params";
+
+static std::map<std::string, FaceCullMode> FaceCullModeValues =
 {
     { "NONE", FaceCullMode::NONE },
     { "BACK", FaceCullMode::BACK },
@@ -23,39 +31,34 @@ std::map<std::string, FaceCullMode> faceCullModeValues =
     { "FRONT_AND_BACK", FaceCullMode::FRONT_AND_BACK }
 };
 
-std::map<std::string, TextureFiltering> textureFilteringValues =
+static std::map<std::string, TextureFiltering> TextureFilteringValues =
 {
     { "NEAREST", TextureFiltering::NEAREST },
     { "BILINEAR", TextureFiltering::BILINEAR },
     { "TRILINEAR", TextureFiltering::TRILINEAR }
 };
 
-std::map<std::string, TextureWrapMode> textureWrapValues =
+static std::map<std::string, TextureWrapMode> TextureWrapValues =
 {
     { "WRAP", TextureWrapMode::WRAP },
     { "CLAMP", TextureWrapMode::CLAMP }
 };
 
-std::map<std::string, BlendingMode> blendModeValues =
+static std::map<std::string, BlendingMode> BlendModeValues =
 {
     { "NONE", BlendingMode::NONE },
     { "ALPHA", BlendingMode::ALPHA },
     { "ADDALPHA", BlendingMode::ADDALPHA }
 };
 
-std::map<std::string, bool> boolValues =
-{
-    { "true", true },
-    { "false", false },
-    { "1", true },
-    { "0", false }
-};
-
 template<typename V>
-void setPassParam(const std::string &param, const std::string &valueStr, const std::map<std::string, V> &acceptedValues, std::function<void(V)> setter, const std::string &libName)
+static void SetPassParam(const std::string &param, const std::string &valueStr, const std::map<std::string, V> &acceptedValues, std::function<void(V)> setter)
 {
     if (valueStr.empty())
+    {
+        DFLOG_WARN("Empty pass param value");
         return;
+    }
 
     auto found = acceptedValues.find(valueStr);
     if (found != acceptedValues.end())
@@ -70,426 +73,292 @@ void setPassParam(const std::string &param, const std::string &valueStr, const s
         acceptedString.pop_back();
         acceptedString.pop_back();
 
-        DFLOG_WARN("Invalid pass parameter %s found while parsing %s. Accepted values are: %s", param.c_str(), libName.c_str(), acceptedString.c_str());
+        DFLOG_WARN("Invalid pass parameter %s found while parsing. Accepted values are: %s", param.c_str(), acceptedString.c_str());
     }
 }
 
-static TextureCreationParams getTextureCreationParams(const std::map<std::string, std::string> &keyValues, const std::string &libName)
+static TextureCreationParams GetTextureCreationParams(const Json::Value &node)
 {
     TextureCreationParams retRes;
 
-    for (const auto &keyval : keyValues)
+    if (node.isMember("filtering"))
     {
-        if (keyval.first == "filtering")
-        {
-            std::function<void(TextureFiltering)> fn = std::bind(&TextureCreationParams::setFiltering, &retRes, std::placeholders::_1);
-            setPassParam(keyval.first, keyval.second, textureFilteringValues, fn, libName);
-        }
-        else if (keyval.first == "wrap_mode")
-        {
-            std::function<void(TextureWrapMode)> fn = std::bind(&TextureCreationParams::setWrapMode, &retRes, std::placeholders::_1);
-            setPassParam(keyval.first, keyval.second, textureWrapValues, fn, libName);
-        }
-        else if (keyval.first == "mipmaps")
-        {
-            std::function<void(bool)> fn = std::bind(&TextureCreationParams::setMipmapped, &retRes, std::placeholders::_1);
-            setPassParam(keyval.first, keyval.second, boolValues, fn, libName);
-        }
-        else if (keyval.first == "anisotropy")
-        {
-            if (keyval.second == "max")
-                retRes.setAnisotropyLevel(render_constants::ANISOTROPY_LEVEL_MAX);
-            else
-                retRes.setAnisotropyLevel(utils::from_string<int>(keyval.second));
-        }
+        std::function<void(TextureFiltering)> fn = std::bind(&TextureCreationParams::setFiltering, &retRes, std::placeholders::_1);
+        SetPassParam("filtering", node["filtering"].asString(), TextureFilteringValues, fn);
+    }
+    if (node.isMember("wrap_mode"))
+    {
+        std::function<void(TextureWrapMode)> fn = std::bind(&TextureCreationParams::setWrapMode, &retRes, std::placeholders::_1);
+        SetPassParam("wrap_mode", node["wrap_mode"].asString(), TextureWrapValues, fn);
+    }
+    if (node.isMember("mipmaps"))
+    {
+        bool hasMipmaps;
+        node["mipmaps"] >> hasMipmaps;
+        retRes.setMipmapped(hasMipmaps);
+    }
+    if (node.isMember("anisotropy"))
+    {
+        auto anisotropyJson = node["anisotropy"];
+        if (anisotropyJson.isString() && anisotropyJson.asString() == "max")
+            retRes.setAnisotropyLevel(render_constants::ANISOTROPY_LEVEL_MAX);
+        else
+            retRes.setAnisotropyLevel(anisotropyJson.asInt());
     }
 
     return retRes;
 }
 
-const std::string MATERIAL_TYPE = "material";
-const std::string TECHNIQUE_TYPE = "technique";
-const std::string PASS_TYPE = "pass";
-const std::string SHADER_TYPE = "shader";
-const std::string SAMPLER_TYPE = "sampler";
-const std::string SHADER_PARAMS_TYPE = "shader_params";
-
-const std::string NodesTypes[] = {
-    MATERIAL_TYPE,
-    TECHNIQUE_TYPE,
-    PASS_TYPE,
-    SHADER_TYPE,
-    SAMPLER_TYPE,
-    SHADER_PARAMS_TYPE
-};
-
-struct MaterialLibNode
+shared_ptr<GpuProgram> ParseShaderNode(const Json::Value &node)
 {
-private:
-    static bool isKeyWord(const std::string &name)
+    // First, check for embed program usage.
+    if (node.isMember("embed"))
     {
-        return utils::contains(NodesTypes, name);
-    }
-
-public:
-    std::string type;
-    std::string name;
-    std::map<std::string, std::string> keyValues;
-
-    std::vector<MaterialLibNode *> children;
-    MaterialLibNode(const std::string &nodeType)
-        : type(nodeType)
-    {
-    }
-
-    static MaterialLibNode *createTree(std::istringstream &is)
-    {
-        std::stack<MaterialLibNode *> nodesStack;
-
-        nodesStack.push(new MaterialLibNode("__root"));
-
-        std::string tok;
-        bool skippingLines = false;
-        while (is >> tok)
-        {
-            if (skippingLines)
-            {
-                utils::skip_line(is);
-                continue;
-            }
-
-            // Skip empty lines.
-            utils::trim_left(tok);
-            if (tok.empty())
-                continue;
-
-            // Skip comment lines.
-            if (utils::starts_with(tok, "//"))
-            {
-                utils::skip_line(is);
-                continue;
-            }
-
-            if (tok == "}")
-            {
-                auto child = nodesStack.top();
-
-                if (nodesStack.size() < 2)
-                    return nullptr;
-
-                nodesStack.pop();
-
-                auto last = nodesStack.top();
-                last->children.push_back(child);
-                continue;
-            }
-
-            if (isKeyWord(tok))
-            {
-                nodesStack.push(new MaterialLibNode(tok));
-
-                // Try to get name.
-                std::string name;
-                is >> name;
-                if (name != "{")
-                {
-                    nodesStack.top()->name = name;
-                    // Skip '{'
-                    is >> name;
-                }
-
-                continue;
-            }
-
-            // Must be a key value pair in this case.
-            auto last = nodesStack.top();
-            std::string value;
-            std::getline(is, value);
-
-            utils::trim(value);
-
-            last->keyValues[tok] = value;
-        }
-
-        return nodesStack.top();
-    }
-
-    static void clean(MaterialLibNode *&node)
-    {
-        for (auto &c : node->children)
-        {
-            clean(c);
-        }
-
-        delete node;
-    }
-};
-
-class MaterialLibParser
-{
-    std::string m_libPath;    // For logging.
-
-    shared_ptr<Material> parseMaterialNode(const MaterialLibNode &node)
-    {
-        if (node.name.empty())
-        {
-            DFLOG_WARN("Invalid material name found while parsing %s", m_libPath.c_str());
-            return nullptr;
-        }
-
-        auto material = make_shared<Material>(node.name);
-
-        // FIXME: this is a workaround.
-        auto foundPrefTech = std::find_if(node.children.begin(), node.children.end(), [](const MaterialLibNode *node) {
-            return node->type == TECHNIQUE_TYPE && node->name == MaterialLib::PREFERRED_TECHNIQUE;
-        });
-
-        if (foundPrefTech != node.children.end())
-        {
-            auto technique = parseTechniqueNode(**foundPrefTech);
-            if (technique)
-            {
-                material->appendTechnique(*technique);
-                material->setCurrentTechnique(technique->getName());
-            }
-        }
+        auto programName = node["embed"].asString();
+        if (programName == "colored")
+            return svc().resourceManager().getFactory().createColoredGpuProgram();
+        else if (programName == "simple_lighting")
+            return svc().resourceManager().getFactory().createSimpleLightingGpuProgram();
         else
         {
-            for (const auto &n : node.children)
-            {
-                if (n->type == TECHNIQUE_TYPE)
-                {
-                    auto technique = parseTechniqueNode(*n);
-                    if (!technique)
-                        continue;
-
-                    material->appendTechnique(*technique);
-                    material->setCurrentTechnique(technique->getName());
-                    break;
-                }
-            }
-        }
-
-        return material;
-    }
-
-    shared_ptr<Technique> parseTechniqueNode(const MaterialLibNode &node)
-    {
-        if (node.name.empty())
-        {
-            DFLOG_WARN("Invalid technique name found while parsing %s", m_libPath.c_str());
+            DFLOG_WARN("Invalid embed program name %s", programName.c_str());
             return nullptr;
         }
-
-        auto technique = make_shared<Technique>(node.name);
-
-        for (const auto &n : node.children)
-        {
-            if (n->type == PASS_TYPE)
-            {
-                auto pass = parsePassNode(*n);
-                if (pass)
-                    technique->appendPass(*pass);
-            }
-        }
-
-        return technique;
     }
 
-    shared_ptr<RenderPass> parsePassNode(const MaterialLibNode &node)
+    // Otherwise, create program from passed paths.
+    auto vshader = node["vertex"].asString();
+    auto fshader = node["fragment"].asString();
+
+    if (vshader.empty() || fshader.empty())
     {
-        auto pass = shared_ptr<RenderPass>(new RenderPass(node.name));
-
-        // Get material params.
-        for (auto &keyval : node.keyValues)
-        {
-            std::stringstream val(keyval.second);
-            if (keyval.first == "ambient")
-            {
-                auto color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-                val >> color.r >> color.g >> color.b >> color.a;
-                pass->setAmbientColor(color);
-            }
-            else if (keyval.first == "diffuse")
-            {
-                auto color = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
-                val >> color.r >> color.g >> color.b >> color.a;
-                pass->getPassParam("material_diffuse")->setValue(color);
-            }
-            else if (keyval.first == "specular")
-            {
-                auto color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-                val >> color.r >> color.g >> color.b >> color.a;
-                pass->getPassParam("material_specular")->setValue(color);
-            }
-            else if (keyval.first == "shininess")
-            {
-                float shininess = 64.0f;
-                val >> shininess;
-                pass->getPassParam("material_shininess")->setValue(shininess);
-            }
-            else if (keyval.first == "cull_face")
-            {
-                std::function<void(FaceCullMode)> fn = std::bind(&RenderPass::setFaceCullMode, pass.get(), std::placeholders::_1);
-                setPassParam(keyval.first, keyval.second, faceCullModeValues, fn, m_libPath);
-            }
-            else if (keyval.first == "depth_test")
-            {
-                std::function<void(bool)> fn = std::bind(&RenderPass::enableDepthTest, pass.get(), std::placeholders::_1);
-                setPassParam(keyval.first, keyval.second, boolValues, fn, m_libPath);
-            }
-            else if (keyval.first == "depth_write")
-            {
-                std::function<void(bool)> fn = std::bind(&RenderPass::enableDepthWrite, pass.get(), std::placeholders::_1);
-                setPassParam(keyval.first, keyval.second, boolValues, fn, m_libPath);
-            }
-            else if (keyval.first == "is_lit")
-            {
-                std::function<void(bool)> fn = std::bind(&RenderPass::enableLighting, pass.get(), std::placeholders::_1);
-                setPassParam(keyval.first, keyval.second, boolValues, fn, m_libPath);
-            }
-            else if (keyval.first == "blend")
-            {
-                std::function<void(BlendingMode)> fn = std::bind(&RenderPass::setBlendMode, pass.get(), std::placeholders::_1);
-                setPassParam(keyval.first, keyval.second, blendModeValues, fn, m_libPath);
-            }
-            else
-            {
-                DFLOG_WARN("Unknown parameter in a material %s", keyval.first.c_str());
-            }
-        }
-
-        // Set other pass params before setting a gpu program.
-        // Do not allow to use several shader_params{} nodes.
-        bool shaderParamsSet = false;
-        for (const auto &n : node.children)
-        {
-            if (n->type == SAMPLER_TYPE)
-            {
-                auto texture = parseSamplerNode(*n);
-                pass->getPassParam(n->name)->setValue(texture);
-            }
-            else if (n->type == SHADER_PARAMS_TYPE && !shaderParamsSet)
-            {
-                parseShaderParamsNode(*n, pass);
-                shaderParamsSet = true;
-            }
-        }
-
-        // Get material shader.
-        // Do not allow to use several shader{} nodes.
-        for (const auto &n : node.children)
-        {
-            if (n->type == SHADER_TYPE)
-            {
-                auto gpuProgram = parseShaderNode(*n);
-                pass->setGpuProgram(gpuProgram);
-                break;
-            }
-        }
-
-        return pass;
+        DFLOG_WARN("Invalid shader properties");
+        return nullptr;
     }
 
-    shared_ptr<GpuProgram> parseShaderNode(const MaterialLibNode &node)
+    return svc().resourceManager().getFactory().createGpuProgram(vshader, fshader);
+}
+
+void ParseShaderParamsNode(const Json::Value &node, shared_ptr<RenderPass> pass)
+{
+    for (auto it = node.begin(); it != node.end(); it++)
     {
-        // First, check for embed program usage.
-        auto embedProgramFound = node.keyValues.find("embed");
-        if (embedProgramFound != node.keyValues.end())
-        {
-            std::string embedProgramName = embedProgramFound->second;
-            if (embedProgramName == "colored")
-                return svc().resourceManager().getFactory().createColoredGpuProgram();
-            else if (embedProgramName == "simple_lighting")
-                return svc().resourceManager().getFactory().createSimpleLightingGpuProgram();
-            else
-            {
-                DFLOG_WARN("Invalid embed program name %s", embedProgramName.c_str());
-                return nullptr;
-            }
-        }
-
-        // Otherwise, create program from passed paths.
-        auto vshader = node.keyValues.find("vertex");
-        auto fshader = node.keyValues.find("fragment");
-
-        if (vshader == node.keyValues.end() || fshader == node.keyValues.end())
-        {
-            DFLOG_WARN("Invalid shader properties found while parsing %s", m_libPath.c_str());
-            return nullptr;
-        }
-
-        return svc().resourceManager().getFactory().createGpuProgram(vshader->second, fshader->second);
+        auto key = it.key().asString();
+        auto value = it->asFloat();
+        pass->getPassParam(key)->setValue(value);
     }
+}
 
-    void parseShaderParamsNode(MaterialLibNode &node, shared_ptr<RenderPass> pass)
+shared_ptr<Texture> ParseSamplerNode(const Json::Value &node)
+{
+    if (node.isMember("type"))
     {
-        for (auto it : node.keyValues)
-            pass->getPassParam(it.first)->setValue(utils::from_string<float>(it.second));
-    }
+        auto typeStr = node["type"].asString();
 
-    shared_ptr<Texture> parseSamplerNode(const MaterialLibNode &node)
-    {
-        if (!utils::contains_key(node.keyValues, "type"))
-            // Assuming using empty white texture.
-            return nullptr;
+        auto creationParams = GetTextureCreationParams(node);
 
-        auto type = node.keyValues.find("type")->second;
-        auto creationParams = getTextureCreationParams(node.keyValues, m_libPath);
-
-        if (type == "TEXTURE_2D")
+        if (typeStr == "TEXTURE_2D")
         {
-            std::string path = node.keyValues.find("path")->second;
+            auto path = node["path"].asString();
 
             return svc().resourceManager().getFactory().createTexture(path, creationParams, ResourceLoadingMode::ASYNC);
         }
-        else if (type == "TEXTURE_CUBE")
+        else if (typeStr == "TEXTURE_CUBE")
         {
-            std::string path = node.keyValues.find("path")->second;
+            auto path = node["path"].asString();
 
             return svc().resourceManager().getFactory().createCubeTexture(path, creationParams, ResourceLoadingMode::ASYNC);
         }
 
-        DFLOG_WARN("Unknown texture type %s", type.c_str());
+        DFLOG_WARN("Unknown texture type %s", typeStr.c_str());
         return nullptr;
 
         // TODO: other types are:
         // TEXTURE_1D TEXTURE_2D TEXTURE_3D
     }
-
-public:
-    MaterialLibParser(const std::string &libPath)
-        : m_libPath(libPath)
+    else
     {
+        // Assuming using empty white texture.
+        // FIXME:
+        return nullptr;
+    }
+}
 
+static shared_ptr<RenderPass> ParsePassNode(const Json::Value &node)
+{
+    auto pass = make_shared<RenderPass>();
+
+    // Get material params.
+    if (node.isMember("ambient"))
+    {
+        glm::vec4 color;
+        node["ambient"] >> color;
+        pass->setAmbientColor(color);
+    }
+    if (node.isMember("diffuse"))
+    {
+        glm::vec4 color;
+        node["diffuse"] >> color;
+        pass->getPassParam("material_diffuse")->setValue(color);
+    }
+    if (node.isMember("specular"))
+    {
+        glm::vec4 color;
+        node["specular"] >> color;
+        pass->getPassParam("material_specular")->setValue(color);
+    }
+    if (node.isMember("shininess"))
+    {
+        float shininess;
+        node["shininess"] >> shininess;
+        pass->getPassParam("material_shininess")->setValue(shininess);
+    }
+    if (node.isMember("cull_face"))
+    {
+        std::function<void(FaceCullMode)> fn = std::bind(&RenderPass::setFaceCullMode, pass.get(), std::placeholders::_1);
+        SetPassParam("cull_face", node["cull_face"].asString(), FaceCullModeValues, fn);
+    }
+    if (node.isMember("depth_test"))
+    {
+        bool depthTest;
+        node["depth_test"] >> depthTest;
+        pass->enableDepthTest(depthTest);
+    }
+    if (node.isMember("depth_write"))
+    {
+        bool depthWrite;
+        node["depth_write"] >> depthWrite;
+        pass->enableDepthWrite(depthWrite);
+    }
+    if (node.isMember("is_lit"))
+    {
+        bool isLit;
+        node["is_lit"] >> isLit;
+        pass->enableLighting(isLit);
+    }
+    if (node.isMember("blend"))
+    {
+        std::function<void(BlendingMode)> fn = std::bind(&RenderPass::setBlendMode, pass.get(), std::placeholders::_1);
+        SetPassParam("blend", node["blend"].asString(), BlendModeValues, fn);
     }
 
-    bool parse(std::istringstream &input, std::vector<shared_ptr<Material>> &output)
+    // Set other pass params before setting a gpu program.
+    if (node.isMember("samplers"))
     {
-        auto root = MaterialLibNode::createTree(input);
-        if (!root)
+        for (const auto &jsonSampler : node["samplers"])
         {
-            DFLOG_WARN("Can not parse material library %s", m_libPath.c_str());
-            return false;
-        }
-
-        for (const auto &n : root->children)
-        {
-            if (n->type == MATERIAL_TYPE)
+            auto samplerId = jsonSampler["id"].asString();
+            if (samplerId.empty())
             {
-                auto material = parseMaterialNode(*n);
-                if (material)
-                    output.push_back(material);
+                DFLOG_WARN("Empty sampler id!");
+                continue;
             }
+
+            pass->getPassParam(samplerId)->setValue(ParseSamplerNode(jsonSampler));
         }
-
-        // Clean up.
-        MaterialLibNode::clean(root);
-
-        return true;
     }
-};
+    if (node.isMember("shader_params"))
+    {
+        ParseShaderParamsNode(node["shader_params"], pass);
+    }
 
+    // Get material shader.
+    if (node.isMember("shader"))
+    {
+        auto gpuProgram = ParseShaderNode(node["shader"]);
+        pass->setGpuProgram(gpuProgram);
+    }
+
+    return pass;
+}
+
+static shared_ptr<Technique> ParseTechniqueNode(const Json::Value &node)
+{
+    std::string techName;
+    node["id"] >> techName;
+
+    if (techName.empty())
+    {
+        DFLOG_WARN("Invalid technique name found");
+        return nullptr;
+    }
+
+    auto technique = make_shared<Technique>(techName);
+
+    const auto &jsonPasses = node["passes"];
+
+    for (const auto &jsonPass : jsonPasses)
+    {
+        auto pass = ParsePassNode(jsonPass);
+        if (pass)
+            technique->appendPass(*pass);
+    }
+
+    return technique;
+}
+
+static shared_ptr<Material> ParseMaterialNode(const Json::Value &node)
+{
+    std::string materialName;
+    node["id"] >> materialName;
+
+    if (materialName.empty())
+    {
+        DFLOG_WARN("Invalid material name");
+        return nullptr;
+    }
+
+    auto material = make_shared<Material>(materialName);
+
+    const auto &jsonTechniques = node["techniques"];
+
+    // FIXME: this is a workaround.
+    auto foundPrefTech = std::find_if(jsonTechniques.begin(), jsonTechniques.end(), [](const Json::Value &node) {
+        return node["id"].asString() == MaterialLib::PREFERRED_TECHNIQUE;
+    });
+
+    if (foundPrefTech != jsonTechniques.end())
+    {
+        auto technique = ParseTechniqueNode(*foundPrefTech);
+        if (technique)
+        {
+            material->appendTechnique(*technique);
+            material->setCurrentTechnique(technique->getName());
+        }
+    }
+    else
+    {
+        for (const auto &jsonTech : jsonTechniques)
+        {
+            auto technique = ParseTechniqueNode(jsonTech);
+            if (!technique)
+                continue;
+
+            material->appendTechnique(*technique);
+            material->setCurrentTechnique(technique->getName());
+
+            // FIXME: workaround, using just the first technique.
+            break;
+        }
+    }
+
+    return material;
+}
+
+static bool ParseMaterialLib(const Json::Value &jsonRoot, std::vector<shared_ptr<Material>> &outMaterials)
+{
+    const auto &jsonMaterials = jsonRoot["materials"];
+    for (const auto &jsonMaterial : jsonMaterials)
+    {
+        auto material = ParseMaterialNode(jsonMaterial);
+        if (material)
+            outMaterials.push_back(material);
+    }
+
+    return true;
+}
+
+/*
 MaterialLibManualLoader::MaterialLibManualLoader(std::string &&materialData)
     : m_materialData(materialData)
 {
@@ -511,6 +380,7 @@ MaterialLib* MaterialLibManualLoader::load()
 
     return result;
 }
+*/
 
 MaterialLibFSLoader::MaterialLibFSLoader(const std::string &path)
     : FSResourceLoader(ResourceLoadingMode::IMMEDIATE),
@@ -529,17 +399,31 @@ bool MaterialLibFSLoader::decode(shared_ptr<FileDataSource> source)
     std::string filedata(source->getSizeInBytes(), 0);
     source->getRaw(&filedata[0], filedata.size());
 
-    std::istringstream input(std::move(filedata));
+    m_root = utils::json::fromSource(filedata);
+    if (m_root.isNull())
+    {
+        DFLOG_WARN("Failed to parse JSON in material lib '%s'", source->getPath().c_str());
+        return false;
+    }
 
-    return MaterialLibParser(m_path).parse(input, m_materials);
+    return true;
 }
 
 void MaterialLibFSLoader::onDecoded(Resource *resource)
 {
     auto mtlLib = static_cast<MaterialLib*>(resource);
 
-    for (const auto &material : m_materials)
-        mtlLib->appendMaterial(material);
+    std::vector<shared_ptr<Material>> materials;
+
+    if (ParseMaterialLib(m_root, materials))
+    {
+        for (const auto &material : materials)
+            mtlLib->appendMaterial(material);
+    }
+    else
+    {
+        DFLOG_WARN("Failed to properly init material lib '%s'", resource->getFilePath().c_str());
+    }
 }
 
 }

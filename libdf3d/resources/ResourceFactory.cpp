@@ -111,11 +111,13 @@ shared_ptr<MaterialLib> ResourceFactory::createMaterialLib(const std::string &mt
     return static_pointer_cast<MaterialLib>(m_holder->loadFromFS(mtlLibPath, loader));
 }
 
+/*
 shared_ptr<MaterialLib> ResourceFactory::createMaterialLibFromSource(std::string &&mtlLibData)
 {
     MaterialLibManualLoader loader(std::move(mtlLibData));
 
     return static_pointer_cast<MaterialLib>(m_holder->loadManual(loader));
 }
+*/
 
 }
