@@ -20,6 +20,7 @@
 #include <libdf3d/base/StringTable.h>
 
 #include <libdf3d/platform/AppDelegate.h>
+#include <libdf3d/platform/Platform.h>
 
 #include <libdf3d/2d/Sprite2DComponentProcessor.h>
 

@@ -138,6 +138,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/platform/Platform.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/impl/RenderBackendGL.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/IRenderBackend.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
@@ -332,6 +333,7 @@ if (DF3D_DESKTOP)
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/glfwApplication.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/glfwKeyCodes.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/PlatformImpl.cpp
     )
 endif()
 
