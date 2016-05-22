@@ -10,7 +10,7 @@ struct Entity
 
     Entity(IdType id = -1) : id(id) { }
 
-    IdType getId() const { return id; }
+    IdType getId() const { return id; }     // Squirrel workaround.
     bool valid() const { return id != -1; }
     bool operator== (const Entity &other) const { return other.id == id; }
     bool operator!= (const Entity &other) const { return other.id != id; }
