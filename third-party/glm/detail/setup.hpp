@@ -42,11 +42,11 @@
 #define GLM_VERSION_MAJOR			0
 #define GLM_VERSION_MINOR			9
 #define GLM_VERSION_PATCH			7
-#define GLM_VERSION_REVISION		1
+#define GLM_VERSION_REVISION		4
 
 #if(defined(GLM_MESSAGES) && !defined(GLM_MESSAGE_VERSION_DISPLAYED))
 #	define GLM_MESSAGE_VERSION_DISPLAYED
-#	pragma message ("GLM: version 0.9.7.1")
+#	pragma message ("GLM: version 0.9.7.4")
 #endif//GLM_MESSAGE
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -62,9 +62,12 @@
 #define GLM_PLATFORM_UNIX			0x00400000
 #define GLM_PLATFORM_QNXNTO			0x00800000
 #define GLM_PLATFORM_WINCE			0x01000000
+#define GLM_PLATFORM_CYGWIN			0x02000000
 
 #ifdef GLM_FORCE_PLATFORM_UNKNOWN
 #	define GLM_PLATFORM GLM_PLATFORM_UNKNOWN
+#elif defined(__CYGWIN__)
+#	define GLM_PLATFORM GLM_PLATFORM_CYGWIN
 #elif defined(__QNXNTO__)
 #	define GLM_PLATFORM GLM_PLATFORM_QNXNTO
 #elif defined(__APPLE__)
@@ -149,6 +152,7 @@
 #define GLM_COMPILER_GCC51			0x02000300
 #define GLM_COMPILER_GCC52			0x02000400
 #define GLM_COMPILER_GCC53			0x02000500
+#define GLM_COMPILER_GCC60			0x02000600
 
 // CUDA
 #define GLM_COMPILER_CUDA			0x10000000
@@ -199,7 +203,7 @@
 #		define GLM_COMPILER GLM_COMPILER_INTEL13
 #	elif __INTEL_COMPILER == 1400
 #		define GLM_COMPILER GLM_COMPILER_INTEL14
-#	elif __INTEL_COMPILER >= 1500
+#	elif __INTEL_COMPILER == 1500
 #		define GLM_COMPILER GLM_COMPILER_INTEL15
 #	elif __INTEL_COMPILER >= 1600
 #		define GLM_COMPILER GLM_COMPILER_INTEL16
@@ -310,6 +314,8 @@
 #		define GLM_COMPILER (GLM_COMPILER_GCC52)
 #	elif (__GNUC__ == 5) && (__GNUC_MINOR__ >= 3)
 #		define GLM_COMPILER (GLM_COMPILER_GCC53)
+#	elif (__GNUC__ >= 6)
+#		define GLM_COMPILER (GLM_COMPILER_GCC60)
 #	else
 #		define GLM_COMPILER (GLM_COMPILER_GCC)
 #	endif
@@ -369,7 +375,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // Platform
 
-// User defines: GLM_FORCE_PURE GLM_FORCE_SSE2 GLM_FORCE_SSE3 GLM_FORCE_AVX GLM_FORCE_AVX2
+// User defines: GLM_FORCE_PURE GLM_FORCE_SSE2 GLM_FORCE_SSE3 GLM_FORCE_AVX GLM_FORCE_AVX2 GLM_FORCE_AVX2
 
 #define GLM_ARCH_PURE		0x0000
 #define GLM_ARCH_ARM		0x0001
@@ -379,9 +385,12 @@
 #define GLM_ARCH_SSE4		0x0010
 #define GLM_ARCH_AVX		0x0020
 #define GLM_ARCH_AVX2		0x0040
+#define GLM_ARCH_AVX512		0x0080 // Skylake set
 
 #if defined(GLM_FORCE_PURE)
 #	define GLM_ARCH GLM_ARCH_PURE
+#elif defined(GLM_FORCE_AVX512)
+#	define GLM_ARCH (GLM_ARCH_AVX512 | GLM_ARCH_AVX2 | GLM_ARCH_AVX | GLM_ARCH_SSE4 | GLM_ARCH_SSE3 | GLM_ARCH_SSE2)
 #elif defined(GLM_FORCE_AVX2)
 #	define GLM_ARCH (GLM_ARCH_AVX2 | GLM_ARCH_AVX | GLM_ARCH_SSE4 | GLM_ARCH_SSE3 | GLM_ARCH_SSE2)
 #elif defined(GLM_FORCE_AVX)
@@ -393,13 +402,16 @@
 #elif defined(GLM_FORCE_SSE2)
 #	define GLM_ARCH (GLM_ARCH_SSE2)
 #elif (GLM_COMPILER & (GLM_COMPILER_APPLE_CLANG | GLM_COMPILER_LLVM | GLM_COMPILER_GCC)) || ((GLM_COMPILER & GLM_COMPILER_INTEL) && (GLM_PLATFORM & GLM_PLATFORM_LINUX))
-#	if(__AVX2__)
+//	This is Skylake set of instruction set
+#	if defined(__AVX512BW__) && defined(__AVX512F__) && defined(__AVX512CD__) && defined(__AVX512VL__) && defined(__AVX512DQ__)
+#		define GLM_ARCH (GLM_ARCH_AVX512 | GLM_ARCH_AVX2 | GLM_ARCH_AVX | GLM_ARCH_SSE3 | GLM_ARCH_SSE2)
+#	elif defined(__AVX2__)
 #		define GLM_ARCH (GLM_ARCH_AVX2 | GLM_ARCH_AVX | GLM_ARCH_SSE3 | GLM_ARCH_SSE2)
-#	elif(__AVX__)
+#	elif defined(__AVX__)
 #		define GLM_ARCH (GLM_ARCH_AVX | GLM_ARCH_SSE3 | GLM_ARCH_SSE2)
-#	elif(__SSE3__)
+#	elif defined(__SSE3__)
 #		define GLM_ARCH (GLM_ARCH_SSE3 | GLM_ARCH_SSE2)
-#	elif(__SSE2__)
+#	elif defined(__SSE2__)
 #		define GLM_ARCH (GLM_ARCH_SSE2)
 #	else
 #		define GLM_ARCH GLM_ARCH_PURE
@@ -455,13 +467,6 @@
 #endif//GLM_ARCH
 #if GLM_ARCH & GLM_ARCH_SSE2
 #	include <emmintrin.h>
-#	if(GLM_COMPILER == GLM_COMPILER_VC2005) // VC2005 is missing some intrinsics, workaround
-		inline float _mm_cvtss_f32(__m128 A) { return A.m128_f32[0]; }
-		inline __m128 _mm_castpd_ps(__m128d PD) { union { __m128 ps; __m128d pd; } c; c.pd = PD; return c.ps; }
-		inline __m128d _mm_castps_pd(__m128 PS) { union { __m128 ps; __m128d pd; } c; c.ps = PS; return c.pd; }
-		inline __m128i _mm_castps_si128(__m128 PS) { union { __m128 ps; __m128i pi; } c; c.ps = PS; return c.pi; }
-		inline __m128 _mm_castsi128_ps(__m128i PI) { union { __m128 ps; __m128i pi; } c; c.pi = PI; return c.ps; }
-#	endif
 #endif//GLM_ARCH
 
 #if defined(GLM_MESSAGES) && !defined(GLM_MESSAGE_ARCH_DISPLAYED)
@@ -577,29 +582,20 @@
 #		endif
 #	elif GLM_COMPILER & GLM_COMPILER_INTEL
 #		ifdef _MSC_EXTENSIONS
-#			if __cplusplus >= 201402L
-#				define GLM_LANG (GLM_LANG_CXX14 | GLM_LANG_CXXMS_FLAG)
-#			elif __cplusplus >= 201103L
-#				define GLM_LANG (GLM_LANG_CXX11 | GLM_LANG_CXXMS_FLAG)
-#			elif GLM_COMPILER >= GLM_COMPILER_INTEL13
-#				define GLM_LANG (GLM_LANG_CXX0X | GLM_LANG_CXXMS_FLAG)
-#			elif __cplusplus >= 199711L
-#				define GLM_LANG (GLM_LANG_CXX98 | GLM_LANG_CXXMS_FLAG)
-#			else
-#				define GLM_LANG (GLM_LANG_CXX | GLM_LANG_CXXMS_FLAG)
-#			endif
+#			define GLM_MSC_EXT GLM_LANG_CXXMS_FLAG
 #		else
-#			if __cplusplus >= 201402L
-#				define GLM_LANG (GLM_LANG_CXX14 | GLM_LANG_CXXMS_FLAG)
-#			elif __cplusplus >= 201103L
-#				define GLM_LANG (GLM_LANG_CXX11 | GLM_LANG_CXXMS_FLAG)
-#			elif GLM_COMPILER >= GLM_COMPILER_INTEL13
-#				define GLM_LANG (GLM_LANG_CXX0X | GLM_LANG_CXXMS_FLAG)
-#			elif __cplusplus >= 199711L
-#				define GLM_LANG (GLM_LANG_CXX98 | GLM_LANG_CXXMS_FLAG)
-#			else
-#				define GLM_LANG (GLM_LANG_CXX | GLM_LANG_CXXMS_FLAG)
-#			endif
+#			define GLM_MSC_EXT 0
+#		endif
+#		if __cplusplus >= 201402L
+#			define GLM_LANG (GLM_LANG_CXX14 | GLM_MSC_EXT)
+#		elif __cplusplus >= 201103L
+#			define GLM_LANG (GLM_LANG_CXX11 | GLM_MSC_EXT)
+#		elif __INTEL_CXX11_MODE__
+#			define GLM_LANG (GLM_LANG_CXX0X | GLM_MSC_EXT)
+#		elif __cplusplus >= 199711L
+#			define GLM_LANG (GLM_LANG_CXX98 | GLM_MSC_EXT)
+#		else
+#			define GLM_LANG (GLM_LANG_CXX | GLM_MSC_EXT)
 #		endif
 #	else // Unkown compiler
 #		if __cplusplus >= 201402L
@@ -650,7 +646,7 @@
 // http://gcc.gnu.org/projects/cxx0x.html
 // http://msdn.microsoft.com/en-us/library/vstudio/hh567368(v=vs.120).aspx
 
-#if GLM_PLATFORM == GLM_PLATFORM_ANDROID
+#if GLM_PLATFORM == GLM_PLATFORM_ANDROID || GLM_PLATFORM == GLM_PLATFORM_CYGWIN
 #	define GLM_HAS_CXX11_STL 0
 #elif GLM_COMPILER & (GLM_COMPILER_LLVM | GLM_COMPILER_APPLE_CLANG)
 #	if __has_include(<__config>) // libc++
@@ -808,7 +804,7 @@
 #	define GLM_HAS_BITSCAN_WINDOWS 0
 #else
 #	define GLM_HAS_BITSCAN_WINDOWS ((GLM_PLATFORM & GLM_PLATFORM_WINDOWS) && (\
-		(GLM_COMPILER & (GLM_COMPILER_VC | GLM_COMPILER_LLVM | GLM_COMPILER_INTEL))))
+		(GLM_COMPILER & (GLM_COMPILER_VC | GLM_COMPILER_INTEL))))
 #endif
 
 // OpenMP
@@ -1011,7 +1007,7 @@ namespace detail
 		}
 	}//namespace glm
 #	define GLM_COUNTOF(arr) glm::countof(arr)
-#elif _MSC_VER
+#elif defined(_MSC_VER)
 #	define GLM_COUNTOF(arr) _countof(arr)
 #else
 #	define GLM_COUNTOF(arr) sizeof(arr) / sizeof(arr[0])
