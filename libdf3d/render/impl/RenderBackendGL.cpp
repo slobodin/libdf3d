@@ -765,6 +765,11 @@ df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std:
         DFLOG_MESS("\n\n%s\n\n", data.c_str());
         PrintShaderLog(shader.gl_id);
 
+        m_shadersBag.release(shaderDescr.id);
+        glDeleteShader(shader.gl_id);
+
+        DEBUG_BREAK();
+
         return{};
     }
 
@@ -837,6 +842,7 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor ve
         DFLOG_WARN("GPU program linkage failed");
         PrintGpuProgramLog(program.gl_id);
 
+        m_gpuProgramsBag.release(programDescr.id);
         glDeleteProgram(program.gl_id);
 
         return{};
