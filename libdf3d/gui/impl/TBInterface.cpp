@@ -511,9 +511,9 @@ public:
     }
 };
 
-tb::TBRenderer* CreateRenderer()
+unique_ptr<tb::TBRenderer> CreateRenderer()
 {
-    return new TBRendererImpl();
+    return make_unique<TBRendererImpl>();
 }
 
 } }

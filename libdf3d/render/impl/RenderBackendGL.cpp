@@ -1067,10 +1067,6 @@ void RenderBackendGL::setCullFaceMode(FaceCullMode mode)
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
         break;
-    case FaceCullMode::FRONT_AND_BACK:
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_FRONT_AND_BACK);
-        break;
     default:
         break;
     }

@@ -19,8 +19,8 @@ public:
 private:
     Type m_type;
 
-    glm::vec3 m_diffuse;
-    glm::vec3 m_specular;
+    glm::vec4 m_diffuse;
+    glm::vec4 m_specular;
 
     float m_constantAttenuation;
     float m_linearAttenuation;
@@ -43,8 +43,8 @@ public:
     void setSpecularIntensity(float rs, float gs, float bs);
     void setName(const std::string &name) { m_name = name; }
 
-    const glm::vec3& getDiffuseColor() const { return m_diffuse; }
-    const glm::vec3& getSpecularColor() const { return m_specular; }
+    const glm::vec4& getDiffuseColor() const { return m_diffuse; }
+    const glm::vec4& getSpecularColor() const { return m_specular; }
     glm::vec3 getDirection() const { return m_direction; }
     glm::vec3 getPosition() const;
     const std::string& getName() const { return m_name; }

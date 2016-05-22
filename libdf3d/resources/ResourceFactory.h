@@ -37,7 +37,6 @@ public:
     shared_ptr<Texture> createTexture(unique_ptr<PixelBuffer> pixelBuffer, TextureCreationParams params);
     shared_ptr<Texture> createCubeTexture(const std::string &jsonPath, TextureCreationParams params, ResourceLoadingMode lm);
     shared_ptr<MaterialLib> createMaterialLib(const std::string &mtlLibPath);
-    //shared_ptr<MaterialLib> createMaterialLibFromSource(std::string &&mtlLibData);
 };
 
 }

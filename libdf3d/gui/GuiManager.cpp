@@ -31,7 +31,9 @@ void GuiManager::initialize(int contextWidth, int contextHeight)
     m_width = contextWidth;
     m_height = contextHeight;
 
-    tb::tb_core_init(gui_impl::CreateRenderer());
+    m_renderer = gui_impl::CreateRenderer();
+
+    tb::tb_core_init(m_renderer.get());
 
     register_tbbf_font_renderer();
     register_freetype_font_renderer();
@@ -50,6 +52,8 @@ void GuiManager::shutdown()
     m_root.reset();
 
     tb::tb_core_shutdown();
+
+    m_renderer.reset();
 }
 
 void GuiManager::update()

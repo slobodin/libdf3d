@@ -14,8 +14,8 @@ Light::Light(Type type)
 
     m_type = type;
 
-    m_diffuse.r = m_diffuse.g = m_diffuse.b = 1.0f;
-    m_specular.r = m_specular.g = m_specular.b = 1.0f;
+    m_diffuse.r = m_diffuse.g = m_diffuse.b = m_diffuse.a = 1.0f;
+    m_specular.r = m_specular.g = m_specular.b = m_specular.a = 1.0f;
 
     m_constantAttenuation = 1.0f;
     m_linearAttenuation = 1.0f;

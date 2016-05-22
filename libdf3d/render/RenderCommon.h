@@ -72,8 +72,7 @@ enum class FaceCullMode
 {
     NONE,
     FRONT,
-    BACK,
-    FRONT_AND_BACK
+    BACK
 };
 
 #define DF3D_MAKE_DESCRIPTOR(name) struct name { int16_t id; name(int16_t id = -1) : id(id) { } bool valid() const { return id != -1; } }

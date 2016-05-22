@@ -73,6 +73,7 @@ public:
 
     PassParamHandle getPassParamHandle(const std::string &name);
     // NOTE: do not cache return value as vector can be reallocated. Use PassParamHandle instead.
+    // TODO: refactor this.
     RenderPassParam* getPassParam(PassParamHandle idx);
     RenderPassParam* getPassParam(const std::string &name);
     std::vector<RenderPassParam>& getPassParams() { return m_params; }

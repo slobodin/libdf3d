@@ -125,7 +125,7 @@ void GpuProgramSharedState::setViewPort(const Viewport &viewport)
 void GpuProgramSharedState::setFog(float density, const glm::vec3 &color)
 {
     m_fogDensity = density;
-    m_fogColor = color;
+    m_fogColor = glm::vec4(color, 1.0f);
 }
 
 void GpuProgramSharedState::setAmbientColor(const glm::vec3 &color)

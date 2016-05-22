@@ -81,20 +81,8 @@
 */
 namespace SPK
 {
-// The code below regarding fixed size integer is an adaptation from SFML code
-// 32 bits integer types
-#if USHRT_MAX == 0xFFFFFFFF
-	typedef signed   short int32;
-	typedef unsigned short uint32;
-#elif UINT_MAX == 0xFFFFFFFF
-	typedef signed   int int32;
-	typedef unsigned int uint32;
-#elif ULONG_MAX == 0xFFFFFFFF
-	typedef signed   long int32;
-	typedef unsigned long uint32;
-#else
-#error No 32 bits integer type for this platform
-#endif
+using int32 = int32_t;
+using uint32 = uint32_t;
 
 	class Zone;
 

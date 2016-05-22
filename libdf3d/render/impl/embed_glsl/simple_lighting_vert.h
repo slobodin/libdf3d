@@ -2,8 +2,8 @@
 \
 struct Light                                \n\
 {                                           \n\
-    vec3 diffuse;                           \n\
-    vec3 specular;                          \n\
+    vec4 diffuse;                           \n\
+    vec4 specular;                          \n\
     // NOTE: Position in view space.        \n\
     vec4 position;                          \n\
 };                                          \n\
@@ -32,7 +32,7 @@ vec3 N;                                     \n\
 // Vector to the camera. NOTE: camera position at (0, 0, 0) \n\
 vec3 V;                                     \n\
 \
-void illuminate()                                           \n\
+vec4 illuminate()                                           \n\
 {                                                           \n\
     // Vector to the light source                           \n\
     vec3 L = normalize( current_light.position.xyz );       \n\
@@ -41,14 +41,14 @@ void illuminate()                                           \n\
     // FIXME: L is inverted because only dir lights.        \n\
     // Clamping just for sanity check (can't be more than 1.0) \n\
     float lambertDiffuse = clamp(dot(N, -L), 0.0, 1.0);     \n\
-    vec3 diffuse = material_diffuse.rgb * current_light.diffuse * lambertDiffuse;\n\
+    vec4 diffuse = material_diffuse * current_light.diffuse * lambertDiffuse;\n\
 \
     // Compute specular light. NOTE: Phong model.           \n\
     vec3 r = reflect( L, N );                               \n\
     float phongSpecular = pow(clamp(dot(r, V), 0.0, 1.0), material_shininess); \n\
-    vec3 specular = material_specular.rgb * current_light.specular * phongSpecular; \n\
+    vec4 specular = material_specular * current_light.specular * phongSpecular; \n\
 \
-    color.rgb += diffuse + specular;                        \n\
+    return diffuse + specular;                             \n\
 }                                                           \n\
 \
 void main()                                             \n\
@@ -57,9 +57,7 @@ void main()                                             \n\
     P = (u_worldViewMatrix * vec4(a_vertex3, 1.0)).xyz;                  \n\
     V = normalize( -P );                                \n\
 \
-    color = vec4(0.0, 0.0, 0.0, 1.0);                   \n\
-\
-    illuminate();                                       \n\
+    color = illuminate(); color.a = 1.0;                \n\
 \
     gl_Position = u_worldViewProjectionMatrix * vec4(a_vertex3, 1.0);     \n\
 \

@@ -16,6 +16,8 @@ class DF3D_DLL GuiManager : utils::NonCopyable
     unique_ptr<tb::TBWidget> m_root;
     int m_width, m_height;
 
+    unique_ptr<tb::TBRenderer> m_renderer;
+
 public:
     GuiManager();
     ~GuiManager();

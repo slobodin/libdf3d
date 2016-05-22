@@ -90,8 +90,8 @@ static void parseLights(const Json::Value &lightsNode, World &w)
         lightJson["id"] >> lightName;
 
         light.setDirection(utils::json::getOrDefault(lightJson["direction"], light.getDirection()));
-        light.setDiffuseIntensity(utils::json::getOrDefault(lightJson["diffuse"], light.getDiffuseColor()));
-        light.setSpecularIntensity(utils::json::getOrDefault(lightJson["specular"], light.getSpecularColor()));
+        light.setDiffuseIntensity(utils::json::getOrDefault(lightJson["diffuse"], glm::vec3(light.getDiffuseColor())));
+        light.setSpecularIntensity(utils::json::getOrDefault(lightJson["specular"], glm::vec3(light.getSpecularColor())));
         light.setName(lightName);
 
         w.getRenderingParams().addLight(light);

@@ -16,19 +16,11 @@
 
 namespace df3d {
 
-static const std::string MATERIAL_TYPE = "material";
-static const std::string TECHNIQUE_TYPE = "technique";
-static const std::string PASS_TYPE = "pass";
-static const std::string SHADER_TYPE = "shader";
-static const std::string SAMPLER_TYPE = "sampler";
-static const std::string SHADER_PARAMS_TYPE = "shader_params";
-
 static std::map<std::string, FaceCullMode> FaceCullModeValues =
 {
     { "NONE", FaceCullMode::NONE },
     { "BACK", FaceCullMode::BACK },
-    { "FRONT", FaceCullMode::FRONT },
-    { "FRONT_AND_BACK", FaceCullMode::FRONT_AND_BACK }
+    { "FRONT", FaceCullMode::FRONT }
 };
 
 static std::map<std::string, TextureFiltering> TextureFilteringValues =
@@ -357,30 +349,6 @@ static bool ParseMaterialLib(const Json::Value &jsonRoot, std::vector<shared_ptr
 
     return true;
 }
-
-/*
-MaterialLibManualLoader::MaterialLibManualLoader(std::string &&materialData)
-    : m_materialData(materialData)
-{
-
-}
-
-MaterialLib* MaterialLibManualLoader::load()
-{
-    std::istringstream input(std::move(m_materialData));
-
-    std::vector<shared_ptr<Material>> materials;
-
-    if (!MaterialLibParser("manual_loaded_material").parse(input, materials))
-        return nullptr;
-
-    auto result = new MaterialLib();
-    for (const auto &material : materials)
-        result->appendMaterial(material);
-
-    return result;
-}
-*/
 
 MaterialLibFSLoader::MaterialLibFSLoader(const std::string &path)
     : FSResourceLoader(ResourceLoadingMode::IMMEDIATE),

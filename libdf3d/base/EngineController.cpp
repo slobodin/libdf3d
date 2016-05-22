@@ -36,7 +36,7 @@ void EngineController::initialize(EngineInitParams params)
 {
     DF3D_ASSERT(!m_initialized, "engine controller already initialized");
 
-    DFLOG_MESS("Initializing df3d engine");
+    DFLOG_MESS("Initializing df3d engine, width %d, height %d", params.windowWidth, params.windowHeight);
 
     try
     {
