@@ -304,6 +304,7 @@ if (ANDROID)
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileSystemHelpers.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/AndroidBridge.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/JNIHelpers.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/PlatformImpl.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileDataSourceAndroid.cpp
     )
 endif()

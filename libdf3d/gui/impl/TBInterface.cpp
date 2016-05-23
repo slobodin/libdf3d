@@ -16,20 +16,7 @@
 #include <libdf3d/io/FileSystem.h>
 #include <libdf3d/io/FileDataSource.h>
 #include <libdf3d/resource_loaders/TextureLoaders.h>
-
-#if defined(DF3D_ANDROID)
-#include <sys/types.h>
-#include <android/asset_manager.h>
-#include <android/asset_manager_jni.h>
-#include <android/configuration.h>
-
-namespace df3d { AAssetManager* AndroidGetAssetManager(); }
-
-#endif
-
-#if defined(DF3D_WINDOWS)
-#include <Windows.h>
-#endif
+#include <libdf3d/platform/Platform.h>
 
 namespace df3d { namespace gui_impl {
 
@@ -613,26 +600,7 @@ int TBSystem::GetPixelsPerLine()
 
 int TBSystem::GetDPI()
 {
-#if defined(DF3D_WINDOWS)
-    HDC hdc = GetDC(nullptr);
-    int DPI_x = GetDeviceCaps(hdc, LOGPIXELSX);
-    ReleaseDC(nullptr, hdc);
-
-    return DPI_x;
-#elif defined(DF3D_ANDROID)
-    AConfiguration *config = AConfiguration_new();
-    AConfiguration_fromAssetManager(config, df3d::AndroidGetAssetManager());
-    int32_t density = AConfiguration_getDensity(config);
-    AConfiguration_delete(config);
-    if (density == 0 || density == ACONFIGURATION_DENSITY_NONE)
-        return 120;
-    return density;
-#elif defined(DF3D_MACOSX)
-    // FIXME:
-    return 128;
-#else
-#error "Unsupported"
-#endif
+    return df3d::Platform::getDPI();
 }
 
 }

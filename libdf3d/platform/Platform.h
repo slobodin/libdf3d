@@ -6,6 +6,7 @@ class DF3D_DLL Platform
 {
 public:
     static size_t getProcessMemoryUsed();
+    static int getDPI();
 };
 
 }

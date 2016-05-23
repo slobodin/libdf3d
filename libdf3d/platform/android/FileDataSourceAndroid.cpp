@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-AAssetManager* AndroidGetAssetManager()
+static AAssetManager* AndroidGetAssetManager()
 {
     return platform_impl::FileDataSourceAndroid::getAAssetManager();
 }

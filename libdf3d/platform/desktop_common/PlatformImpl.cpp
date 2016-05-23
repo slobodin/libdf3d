@@ -19,4 +19,17 @@ size_t Platform::getProcessMemoryUsed()
 #endif
 }
 
+int Platform::getDPI()
+{
+#if defined(DF3D_WINDOWS)
+    HDC hdc = GetDC(nullptr);
+    int dpiX = GetDeviceCaps(hdc, LOGPIXELSX);
+    ReleaseDC(nullptr, hdc);
+
+    return dpiX;
+#else
+#error "Not implemented"
+#endif
+}
+
 }
