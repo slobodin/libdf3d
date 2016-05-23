@@ -68,7 +68,6 @@ endif()
 # TODO: if build tools
 if (DF3D_DESKTOP)
     add_subdirectory(${PROJECT_SOURCE_DIR}/tools/obj_to_dfmesh)
-    add_subdirectory(${PROJECT_SOURCE_DIR}/tools/data_archiver)
 endif()
 
 set(libdf3d_HEADER_LIST

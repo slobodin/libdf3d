@@ -1086,6 +1086,7 @@ void RenderBackendGL::draw(RopType type, size_t numberOfElements)
         glDrawArrays(GetGLDrawMode(type), 0, numberOfElements);
 
     // Update stats.
+#ifdef _DEBUG
     {
         m_stats.drawCalls++;
         switch (type)
@@ -1100,6 +1101,7 @@ void RenderBackendGL::draw(RopType type, size_t numberOfElements)
             break;
         }
     }
+#endif
 }
 
 unique_ptr<IRenderBackend> IRenderBackend::create()

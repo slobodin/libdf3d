@@ -114,6 +114,8 @@ enum KeyModifier
 class DF3D_DLL Touch
 {
 public:
+    static const int INVALID_ID = -1;
+
     enum class State
     {
         UP,

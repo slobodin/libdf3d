@@ -21,6 +21,8 @@ void InputManager::cleanStep()
     m_mouseState.delta = glm::ivec2(0, 0);
 
     m_touchesCount = 0;
+
+    /*
     for (const auto &kv : m_touches)
     {
         m_currentTouches[m_touchesCount++] = kv.second;
@@ -38,6 +40,7 @@ void InputManager::cleanStep()
         else
             it++;
     }
+    */
 }
 
 const Touch& InputManager::getTouch(size_t idx) const
@@ -157,6 +160,19 @@ void InputManager::onTextInput(unsigned int codepoint)
 
 void InputManager::onTouch(int id, int x, int y, Touch::State state)
 {
+    if (m_listener)
+    {
+        Touch newTouch;
+        newTouch.id = id;
+        newTouch.x = x;
+        newTouch.y = y;
+        newTouch.state = state;
+
+        m_listener->onTouch(newTouch);
+    }
+
+    // FIXME:
+    /*
     switch (state)
     {
     case Touch::State::DOWN:
@@ -214,6 +230,7 @@ void InputManager::onTouch(int id, int x, int y, Touch::State state)
     default:
         break;
     }
+    */
 }
 
 }

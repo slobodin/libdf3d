@@ -188,7 +188,7 @@ struct PhysicsComponentProcessor::Impl
 
             DF3D_ASSERT(data.params->mass == 0.0f, "body should not be dynamic");
 
-            auto bulletMesh = new btTriangleMesh(sizeof(INDICES_TYPE) == 4, false);
+            auto bulletMesh = new btTriangleMesh(true, false);
 
             for (size_t smIdx = 0; smIdx < softwareMesh->submeshes.size(); smIdx++)
             {
