@@ -1,7 +1,6 @@
 *.suo
 *.sdf
 *.opensdf
-bin/
 build/
 ipch/
 *.user
