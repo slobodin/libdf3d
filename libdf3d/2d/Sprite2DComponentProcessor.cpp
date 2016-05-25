@@ -60,6 +60,7 @@ struct Sprite2DComponentProcessor::Impl
     struct Data
     {
         RenderPass pass;
+        PassParamHandle diffuseColorParam;
         RenderOperation2D op;
         glm::vec2 anchor = glm::vec2(0.5f, 0.5f);
         glm::vec2 textureOriginalSize;
@@ -286,7 +287,8 @@ void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
 
 void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diffuseColor)
 {
-    m_pimpl->data.getData(e).pass.getPassParam("material_diffuse")->setValue(diffuseColor);
+    auto &compData = m_pimpl->data.getData(e);
+    compData.pass.getPassParam(compData.diffuseColorParam)->setValue(diffuseColor);
 }
 
 void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
@@ -305,6 +307,7 @@ void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
     data.pass.enableDepthWrite(false);
     data.pass.setBlendMode(BlendingMode::ALPHA);
     data.pass.getPassParam("material_diffuse")->setValue(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    data.diffuseColorParam = data.pass.getPassParamHandle("material_diffuse");
     data.op.worldTransform = m_world->sceneGraph().getWorldTransform(e);
 
     m_pimpl->data.add(e, data);
