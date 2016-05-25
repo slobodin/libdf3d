@@ -1,7 +1,5 @@
 #pragma once
 
-#include <typeindex>
-
 #include "Entity.h"
 #include "WorldRenderingParams.h"
 #include <libdf3d/utils/Utils.h>
@@ -49,7 +47,7 @@ class DF3D_DLL World : utils::NonCopyable
 
     std::list<Entity> m_recentlyRemovedEntities;
 
-    std::unordered_map<std::type_index, ComponentProcessor> m_userProcessors;
+    std::unordered_map<uintptr_t, ComponentProcessor> m_userProcessors;
     std::vector<EntityComponentProcessor*> m_engineProcessors;
 
     void update();
@@ -72,12 +70,19 @@ public:
 
     void pauseSimulation(bool paused);
 
-    void addUserComponentProcessor(unique_ptr<EntityComponentProcessor> processor);
+    template<typename T>
+    void addUserComponentProcessor(unique_ptr<T> processor)
+    {
+        auto idx = utils::getTypeId<T>();
+        DF3D_ASSERT(!utils::contains_key(m_userProcessors, idx), "already have this component processor");
+
+        m_userProcessors.insert(std::make_pair(idx, std::move(processor)));
+    }
+
     template<typename T>
     T& getProcessor()
     {
-        // TODO_ecs: use utils::getTypeId, no rtti.
-        auto found = m_userProcessors.find(std::type_index(typeid(T)));
+        auto found = m_userProcessors.find(utils::getTypeId<T>());
         DF3D_ASSERT(found != m_userProcessors.end(), "failed to lookup a component data processor");
         return static_cast<T&>(*found->second);
     }
