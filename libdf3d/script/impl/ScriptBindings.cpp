@@ -1,6 +1,13 @@
 #include "ScriptBindings.h"
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4244) // possible loss of data
+#endif
 #include <sqrat/sqrat.h>
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #include <libdf3d/utils/Utils.h>
 #include <libdf3d/utils/MathUtils.h>
