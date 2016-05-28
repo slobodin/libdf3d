@@ -26,9 +26,9 @@ namespace SPK
 	Emitter::Emitter(const Ref<Zone>& zone,bool full,int tank,float flow,float forceMin,float forceMax) :
 		Transformable(),
 		active(true),
-		full(full),
+        flow(1.0f),
 		zone(!zone ? SPK_DEFAULT_ZONE : zone),
-		flow(1.0f),
+        full(full),
 		fraction(SPK_RANDOM(0.0f,1.0f))
 	{
 		setTank(tank);
@@ -39,12 +39,12 @@ namespace SPK
 	Emitter::Emitter(const Emitter& emitter) :
 		Transformable(emitter),
 		active(emitter.active),
-		full(emitter.full),
 		flow(emitter.flow),
 		minTank(emitter.minTank),
 		maxTank(emitter.maxTank),
 		forceMin(emitter.forceMin),
 		forceMax(emitter.forceMax),
+        full(emitter.full),
 		fraction(SPK_RANDOM(0.0f,1.0f))
 	{
 		zone = emitter.copyChild(emitter.zone);

@@ -126,8 +126,8 @@ namespace SPK
 
 	inline PointRenderBehavior::PointRenderBehavior(PointType type,float screenSize) :
 		type(type),
-		screenSize(screenSize),
-		worldSize(false)
+        worldSize(false),
+		screenSize(screenSize)
 	{}
 
 	inline bool PointRenderBehavior::setType(PointType type)
