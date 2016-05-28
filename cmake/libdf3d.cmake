@@ -47,22 +47,27 @@ endif()
 
 if (WINDOWS)
     add_definitions(-DWIN32 -D_WINDOWS -DDF3D_WINDOWS)
+    set(DF3D_PLATFORM "Windows")
 endif()
 
 if (ANDROID)
     add_definitions(-DDF3D_ANDROID)
+    set(DF3D_PLATFORM "Android")
 endif()
 
 if (WINDOWS_PHONE)
     add_definitions(-DDF3D_WINDOWS_PHONE)
+    set(DF3D_PLATFORM "Windows Phone")
 endif()
 
 if (LINUX)
     add_definitions(-DDF3D_LINUX)
+    set(DF3D_PLATFORM "Linux")
 endif()
 
 if (MACOSX)
     add_definitions(-DDF3D_MACOSX)
+    set(DF3D_PLATFORM "OSX")
 endif()
 
 if (DF3D_DESKTOP)
@@ -71,4 +76,5 @@ endif()
 
 if (IOS)
     add_definitions(-DDF3D_IOS)
+    set(DF3D_PLATFORM "iOS")
 endif()

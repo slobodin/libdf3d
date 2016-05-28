@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.1)
 
 project(webp)
 
-include(${PROJECT_SOURCE_DIR}/../../cmake/libdf3d.cmake)
-
 FILE(GLOB WEBP_DEC_SRCS
 	RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/dec/*c

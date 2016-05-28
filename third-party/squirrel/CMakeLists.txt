@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 
 project(squirrel)
 
-include(${PROJECT_SOURCE_DIR}/../../cmake/libdf3d.cmake)
+if (NOT DEFINED DF3D_PLATFORM)
+    message(FATAL_ERROR "Please, include libdf3d.cmake")
+endif()
 
 set(squirrel_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/include/sqstdaux.h

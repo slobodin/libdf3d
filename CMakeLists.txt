@@ -2,9 +2,14 @@ cmake_minimum_required(VERSION 3.1)
 
 project(libdf3d)
 
+if (NOT DEFINED DF3D_PLATFORM)
+    message(FATAL_ERROR "Please, include libdf3d.cmake")
+else()
+    message(STATUS "DF3D_PLATFORM is " ${DF3D_PLATFORM})
+endif()
+
 set(DF3D_ROOT ${PROJECT_SOURCE_DIR})
 
-include(${PROJECT_SOURCE_DIR}/cmake/libdf3d.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/cotire.cmake)
 
 if (WINDOWS AND NOT CMAKE_PREFIX_PATH)

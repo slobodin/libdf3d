@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.1)
 
 project(ogg)
 
-include(${PROJECT_SOURCE_DIR}/../../cmake/libdf3d.cmake)
-
 set(OGG_HEADERS_ROOT ${PROJECT_SOURCE_DIR})
 
 set(ogg_HEADER_LIST

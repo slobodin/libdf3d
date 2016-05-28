@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 2.8)
 
 project(spark)
 
-include(${PROJECT_SOURCE_DIR}/../../../cmake/libdf3d.cmake)
-
 set(SPARK_HEADERS_ROOT ${PROJECT_SOURCE_DIR}/../include)
 
 set(spark_HEADER_LIST
@@ -118,9 +116,5 @@ endif()
 if(MSVC)
     set_source_files_properties(${spark_SRC_LIST} PROPERTIES COMPILE_FLAGS "/wd\"4456\" /wd\"4838\" /wd\"4457\" /wd\"4458\"")
 endif(MSVC)
-
-if (WINDOWS_PHONE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-endif()
 
 add_library(spark STATIC ${spark_SRC_LIST} ${spark_HEADER_LIST})
