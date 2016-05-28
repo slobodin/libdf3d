@@ -3,6 +3,8 @@
 #if defined(DF3D_WINDOWS)
 #include <Windows.h>
 #include <psapi.h>
+#else
+
 #endif
 
 namespace df3d {
@@ -15,7 +17,8 @@ size_t Platform::getProcessMemoryUsed()
 
     return pmc.WorkingSetSize;
 #else
-#error "Not implemented"
+#warning Please implement
+    return 0;
 #endif
 }
 
@@ -28,7 +31,8 @@ int Platform::getDPI()
 
     return dpiX;
 #else
-#error "Not implemented"
+#warning Please implement
+    return 120;
 #endif
 }
 
