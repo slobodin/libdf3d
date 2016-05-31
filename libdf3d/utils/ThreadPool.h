@@ -19,6 +19,7 @@ public:
 
     void enqueue(const std::function<void ()> &fn);
     void clear();
+    size_t getJobsCount();
 };
 
 } }

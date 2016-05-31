@@ -81,4 +81,10 @@ void ThreadPool::clear()
     m_condition.notify_all();
 }
 
+size_t ThreadPool::getJobsCount()
+{
+    std::unique_lock<std::mutex> lock(m_mutex);
+    return m_jobs.size();
+}
+
 } }
