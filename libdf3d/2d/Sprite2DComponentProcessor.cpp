@@ -61,6 +61,7 @@ struct Sprite2DComponentProcessor::Impl
     {
         RenderPass pass;
         PassParamHandle diffuseColorParam;
+        PassParamHandle diffuseMapParam;
         RenderOperation2D op;
         glm::vec2 anchor = glm::vec2(0.5f, 0.5f);
         glm::vec2 textureOriginalSize;
@@ -243,10 +244,13 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
 {
     auto &compData = m_pimpl->data.getData(e);
 
-    if (auto texture = compData.pass.getPassParam("diffuseMap")->getTexture())
+    if (compData.diffuseMapParam != InvalidPassParamHandle)
     {
-        if (texture->getFilePath() == svc().fileSystem().fullPath(pathToTexture))
-            return;
+        if (auto texture = compData.pass.getPassParam(compData.diffuseMapParam)->getTexture())
+        {
+            if (texture->getFilePath() == svc().fileSystem().fullPath(pathToTexture))
+                return;
+        }
     }
 
     TextureCreationParams params;
@@ -265,7 +269,8 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
     if (compData.textureGuid == texture->getGUID())
         return;
 
-    compData.pass.getPassParam("diffuseMap")->setValue(texture);
+    compData.diffuseMapParam = compData.pass.getPassParamHandle("diffuseMap");
+    compData.pass.getPassParam(compData.diffuseMapParam)->setValue(texture);
     compData.textureOriginalSize = { texture->getTextureInfo().width, texture->getTextureInfo().height };
     compData.textureGuid = texture->getGUID();
 }
@@ -308,6 +313,7 @@ void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
     data.pass.setBlendMode(BlendingMode::ALPHA);
     data.pass.getPassParam("material_diffuse")->setValue(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
     data.diffuseColorParam = data.pass.getPassParamHandle("material_diffuse");
+    data.diffuseMapParam = InvalidPassParamHandle;
     data.op.worldTransform = m_world->sceneGraph().getWorldTransform(e);
 
     m_pimpl->data.add(e, data);

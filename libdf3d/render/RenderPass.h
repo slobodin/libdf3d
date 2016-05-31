@@ -45,6 +45,7 @@ public:
 };
 
 using PassParamHandle = size_t;
+static const PassParamHandle InvalidPassParamHandle = std::numeric_limits<size_t>::max();
 
 class DF3D_DLL RenderPass
 {
