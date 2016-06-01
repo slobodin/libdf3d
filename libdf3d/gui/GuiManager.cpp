@@ -33,7 +33,7 @@ void GuiManager::initialize(int contextWidth, int contextHeight)
 
     m_renderer = gui_impl::CreateRenderer();
 
-    tb::tb_core_init(m_renderer.get());
+    tb::tb_core_init(m_renderer.get(), m_width, m_height);
 
     register_tbbf_font_renderer();
     register_freetype_font_renderer();
