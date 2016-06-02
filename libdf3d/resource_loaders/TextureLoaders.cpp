@@ -120,30 +120,35 @@ static unique_ptr<PixelBuffer> LoadWebp(shared_ptr<FileDataSource> source, bool 
     }
 
     PixelFormat format;
-    int width = -1, height = -1;
+    size_t decodedSize = 0;
     uint8_t *decoded = nullptr;
+    bool result = false;
+
     if (features.has_alpha || forceRgba)
     {
-        decoded = WebPDecodeRGBA(pixels.data(), pixels.size(), &width, &height);
+        decodedSize = features.width * features.height * 4;
         format = PixelFormat::RGBA;
+        decoded = new uint8_t[decodedSize];
+
+        result = WebPDecodeRGBAInto(pixels.data(), pixels.size(), decoded, decodedSize, features.width * 4) != nullptr;
     }
     else
     {
-        decoded = WebPDecodeRGB(pixels.data(), pixels.size(), &width, &height);
+        decodedSize = features.width * features.height * 3;
         format = PixelFormat::RGB;
+        decoded = new uint8_t[decodedSize];
+
+        result = WebPDecodeRGBInto(pixels.data(), pixels.size(), decoded, decodedSize, features.width * 3) != nullptr;
     }
 
-    if (!decoded)
+    if (!result)
     {
-        DFLOG_WARN("Failed to decode a WEBP texture");
+        DFLOG_WARN("Failed to decode WEBP data");
+        delete[] decoded;
         return nullptr;
     }
 
-    auto result = make_unique<PixelBuffer>(width, height, decoded, format);
-
-    WebPFree(decoded);
-
-    return result;
+    return make_unique<PixelBuffer>(features.width, features.height, decoded, format, false);
 }
 
 static unique_ptr<PixelBuffer> LoadPixelBuffer(shared_ptr<FileDataSource> source, bool forceRgba = false)
