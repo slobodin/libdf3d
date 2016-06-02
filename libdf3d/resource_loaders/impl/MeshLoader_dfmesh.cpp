@@ -64,7 +64,8 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<FileDataSo
         source->getAsObjects(vertexData.data(), vertexData.size());
 
         IndexArray indices(smHeader.indexDataSizeInBytes / header.indexSize);
-        source->getAsObjects(indices.data(), indices.size());
+        if (indices.size() != 0)
+            source->getAsObjects(indices.data(), indices.size());
 
         std::string materialId = smHeader.materialId;
 
