@@ -59,11 +59,17 @@ OPTION(ALSOFT_TESTS OFF)
 OPTION(ALSOFT_CONFIG OFF)
 OPTION(ALSOFT_HRTF_DEFS OFF)
 OPTION(ALSOFT_INSTALL OFF)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/openal-soft)
-if(NOT WIN32)
-    SET(DF3D_OPENAL_LIBNAME openal)
+
+if (NOT IOS)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/openal-soft)
+    if(NOT WIN32)
+        SET(DF3D_OPENAL_LIBNAME openal)
+    else()
+        SET(DF3D_OPENAL_LIBNAME OpenAL32)
+    endif()
 else()
-    SET(DF3D_OPENAL_LIBNAME OpenAL32)
+    find_package(OpenAL REQUIRED)
+    SET(DF3D_OPENAL_LIBNAME ${OPENAL_LIBRARY})
 endif()
 
 # if (NOT ANDROID AND NOT IOS)
@@ -371,8 +377,13 @@ include_directories(${PROJECT_SOURCE_DIR}/
                     ${PROJECT_SOURCE_DIR}/third-party/squirrel/include
                     ${CMAKE_CURRENT_BINARY_DIR}/third-party/zlib
                     ${PROJECT_SOURCE_DIR}/third-party/zlib
-                    ${PROJECT_SOURCE_DIR}/third-party/webp
-                    ${PROJECT_SOURCE_DIR}/third-party/openal-soft/include)
+                    ${PROJECT_SOURCE_DIR}/third-party/webp)
+
+if (NOT IOS)
+    include_directories(${PROJECT_SOURCE_DIR}/third-party/openal-soft/include)
+else()
+    include_directories(${OPENAL_INCLUDE_DIR})
+endif()
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd\"4251\" /wd\"4457\" /wd\"4458\" /wd\"4138\"")
