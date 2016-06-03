@@ -367,13 +367,13 @@ if (DF3D_DESKTOP)
     find_package(OpenGL REQUIRED)
     include_directories(${GLEW_INCLUDE_DIRS})
     include_directories(${OPENGL_INCLUDE_DIR})
+    include_directories(${PROJECT_SOURCE_DIR}/third-party/glfw/include)
 endif()
 
 include_directories(${PROJECT_SOURCE_DIR}/
                     ${PROJECT_SOURCE_DIR}/third-party/
                     ${PROJECT_SOURCE_DIR}/third-party/bullet/src
                     ${PROJECT_SOURCE_DIR}/third-party/spark/include
-                    ${PROJECT_SOURCE_DIR}/third-party/glfw/include
                     ${PROJECT_SOURCE_DIR}/third-party/squirrel/include
                     ${CMAKE_CURRENT_BINARY_DIR}/third-party/zlib
                     ${PROJECT_SOURCE_DIR}/third-party/zlib
