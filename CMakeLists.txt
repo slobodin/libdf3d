@@ -316,13 +316,13 @@ endif()
 
 if (IOS)
     list(APPEND libdf3d_HEADER_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileDataSourceIOS.h
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/FileDataSourceIOS.h
     )
     list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/Storage.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileSystemHelpers.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/PlatformImpl.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileDataSourceIOS.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/Storage.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/FileSystemHelpers.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/PlatformImpl.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/FileDataSourceIOS.cpp
     )
 endif()
 
