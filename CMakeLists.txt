@@ -314,6 +314,18 @@ if (ANDROID)
     )
 endif()
 
+if (IOS)
+    list(APPEND libdf3d_HEADER_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileDataSourceIOS.h
+    )
+    list(APPEND libdf3d_SRC_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/Storage.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileSystemHelpers.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/PlatformImpl.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileDataSourceIOS.cpp
+    )
+endif()
+
 if (LINUX)
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/Storage.cpp
