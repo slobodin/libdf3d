@@ -303,9 +303,9 @@ namespace SPK
 		Interpolator<T>(true),
 		type(INTERPOLATOR_LIFETIME),
 		param(PARAM_SCALE),
+		loopingEnabled(false),
 		scaleXVariation(0.0f),
-		offsetXVariation(0.0f),
-		loopingEnabled(false)
+		offsetXVariation(0.0f)
 	{}
 
 	template<typename T>
@@ -315,9 +315,9 @@ namespace SPK
 		sortedGraph(interpolator.sortedGraph),
 		type(interpolator.type),
 		param(interpolator.param),
+		loopingEnabled(interpolator.loopingEnabled),
 		scaleXVariation(interpolator.scaleXVariation),
-		offsetXVariation(interpolator.scaleXVariation),
-		loopingEnabled(interpolator.loopingEnabled)
+		offsetXVariation(interpolator.scaleXVariation)
 	{}
 
 	template<typename T>
