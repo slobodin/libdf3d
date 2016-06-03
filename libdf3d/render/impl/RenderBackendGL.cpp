@@ -176,15 +176,6 @@ static GLenum GetGLDrawMode(RopType type)
     return GL_INVALID_ENUM;
 }
 
-static bool IsSampler(GLenum type)
-{
-#if defined(DF3D_DESKTOP)
-    return type == GL_SAMPLER_1D || type == GL_SAMPLER_2D || type == GL_SAMPLER_3D || type == GL_SAMPLER_CUBE;
-#else
-    return type == GL_SAMPLER_2D || type == GL_SAMPLER_CUBE;
-#endif
-}
-
 static void PrintShaderLog(GLuint shader)
 {
     int infologLen = 0;

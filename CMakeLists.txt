@@ -324,6 +324,8 @@ if (IOS)
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/PlatformImpl.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/FileDataSourceIOS.cpp
     )
+
+    set_source_files_properties("${PROJECT_SOURCE_DIR}/libdf3d/render/impl/RenderBackendGL.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
 
 if (LINUX)

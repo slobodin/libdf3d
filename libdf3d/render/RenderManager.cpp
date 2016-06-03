@@ -127,7 +127,7 @@ void RenderManager::doRenderWorld(World &world)
         drawRenderOperation(op);
 
     // VFX pass.
-    world.vfx().draw();
+    world.vfx().render();
 
     // Transparent pass.
     for (const auto &op : m_renderQueue->transparentOperations)

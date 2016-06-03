@@ -1,5 +1,10 @@
 #pragma once
 
+// Need to compile with "-x objective-c++". This also disables PCH.
+#if defined(DF3D_IOS)
+#include <libdf3d/df3d_pch.h>
+#endif
+
 #include <libdf3d/render/IRenderBackend.h>
 #include <libdf3d/utils/DescriptorsBag.h>
 

@@ -204,7 +204,7 @@ bool ParticleSystemComponentProcessor::has(Entity e)
     return m_pimpl->data.lookup(e).valid();
 }
 
-void ParticleSystemComponentProcessor::draw()
+void ParticleSystemComponentProcessor::render()
 {
     for (const auto &compData : m_pimpl->data.rawData())
     {

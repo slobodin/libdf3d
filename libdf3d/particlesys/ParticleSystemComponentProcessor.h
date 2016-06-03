@@ -62,7 +62,7 @@ public:
     bool has(Entity e);
 
     // FIXME: using this method because of optimizations & spark behaviour.
-    void draw();
+    void render();
 };
 
 }
