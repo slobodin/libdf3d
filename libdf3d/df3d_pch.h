@@ -1,6 +1,8 @@
 #pragma once
 
-#pragma warning(disable : 4458)
+#ifdef _MSC_VER
+#pragma warning(disable: 4458)  // Declaration hides class member
+#endif
 
 #include <cstdio>
 #include <cstdlib>
