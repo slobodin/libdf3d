@@ -38,14 +38,14 @@ namespace SPK
 	};
 
 	Logger::Logger() :
-		enabled(true),
+		innerStream(&std::cout),
 #ifdef _DEBUG
 		priorityLevel(LOG_PRIORITY_DEBUG), // default priority level is DEBUG in debug
 #else
 		priorityLevel(LOG_PRIORITY_INFO), // default priority level is INFO in release
 #endif
-		innerStream(&std::cout),
-		prefixFlag(LOG_PREFIX_TIME | LOG_PREFIX_LIB | LOG_PREFIX_PRIORITY)
+		prefixFlag(LOG_PREFIX_TIME | LOG_PREFIX_LIB | LOG_PREFIX_PRIORITY),
+		enabled(true)
 	{}
 
 	Logger& Logger::get()

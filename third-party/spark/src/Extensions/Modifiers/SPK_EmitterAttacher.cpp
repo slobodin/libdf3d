@@ -45,7 +45,6 @@ namespace SPK
 
 	EmitterAttacher::EmitterData::EmitterData(size_t nbParticles,Group* emittingGroup) :
 		data(SPK_NEW_ARRAY(Ref<Emitter>,nbParticles)),
-		dataSize(nbParticles),
 		group(emittingGroup)
 	{}
 

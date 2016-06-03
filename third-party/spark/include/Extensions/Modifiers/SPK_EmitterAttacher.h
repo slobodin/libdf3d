@@ -78,7 +78,6 @@ namespace SPK
 		private :
 
 			Ref<Emitter>* data;
-			size_t dataSize;
 
 			Group* group;
 

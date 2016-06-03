@@ -34,8 +34,8 @@ namespace SPK
 		const Ref<Zone>& normalZone,
 		bool inverted) :
 		Emitter(zone,full,tank,flow,forceMin,forceMax),
-		normalZone(),
-		inverted(inverted)
+		inverted(inverted),
+		normalZone()
 	{
 		setNormalZone(normalZone);
 	}

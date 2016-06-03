@@ -45,6 +45,8 @@ namespace SPK
 			if (checkZone(particle))
 				particle.kill(); // If the particle spawns inside a plain obstacle, it is killed
 			break;
+		default:
+			break;
 		}
 	}
 

@@ -30,8 +30,8 @@ namespace SPK
 		attractionSpeed(attractionSpeed),
 		angularSpeedEnabled(false),
 		linearSpeedEnabled(false),
-		killingParticleEnabled(false),
-		eyeRadius(0.0f)
+		eyeRadius(0.0f),
+		killingParticleEnabled(false)
 	{
 		setPosition(position);
 		setDirection(direction);
@@ -43,8 +43,8 @@ namespace SPK
 		attractionSpeed(vortex.attractionSpeed),
 		angularSpeedEnabled(vortex.angularSpeedEnabled),
 		linearSpeedEnabled(vortex.linearSpeedEnabled),
-		killingParticleEnabled(vortex.killingParticleEnabled),
-		eyeRadius(vortex.eyeRadius)
+		eyeRadius(vortex.eyeRadius),
+		killingParticleEnabled(vortex.killingParticleEnabled)
 	{
 		setPosition(vortex.position);
 		setDirection(vortex.direction);

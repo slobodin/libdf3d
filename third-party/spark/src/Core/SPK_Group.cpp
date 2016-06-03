@@ -39,6 +39,8 @@ namespace SPK
 		Transformable(SHARE_POLICY_FALSE),
 		system(system.get()),
 		nbEnabledParameters(0),
+		birthAction(),
+		deathAction(),
 		minLifeTime(1.0f),
 		maxLifeTime(1.0f),
 		immortal(false),
@@ -49,10 +51,8 @@ namespace SPK
 		AABBMax(),
         physicalRadius(1.0f),
 		graphicalRadius(1.0f),
-		nbBufferedParticles(0),
-		birthAction(),
-		deathAction(),
-		octree(NULL)
+		octree(NULL),
+		nbBufferedParticles(0)
 	{
 		reallocate(capacity);
 	}
@@ -69,10 +69,10 @@ namespace SPK
 		sortingEnabled(group.sortingEnabled),
 		AABBMin(group.AABBMin),
 		AABBMax(group.AABBMax),
-		graphicalRadius(group.graphicalRadius),
 		physicalRadius(group.physicalRadius),
-		nbBufferedParticles(0),
-		octree(NULL)
+		graphicalRadius(group.graphicalRadius),
+		octree(NULL),
+		nbBufferedParticles(0)
 	{
 		reallocate(group.getCapacity());
 

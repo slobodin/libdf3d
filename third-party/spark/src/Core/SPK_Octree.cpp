@@ -36,8 +36,8 @@ namespace SPK
 		group(*group),
 		cells(64),
 		nbCells(0),
-		nbParticles(0),
 		particleCells(NULL),
+		nbParticles(0),
 		minPos(NULL),
 		maxPos(NULL)
 	{}

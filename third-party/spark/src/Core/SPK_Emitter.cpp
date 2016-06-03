@@ -39,9 +39,9 @@ namespace SPK
 	Emitter::Emitter(const Emitter& emitter) :
 		Transformable(emitter),
 		active(emitter.active),
-		flow(emitter.flow),
 		minTank(emitter.minTank),
 		maxTank(emitter.maxTank),
+		flow(emitter.flow),
 		forceMin(emitter.forceMin),
 		forceMax(emitter.forceMax),
         full(emitter.full),

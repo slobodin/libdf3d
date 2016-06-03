@@ -33,8 +33,8 @@ namespace SPK
 		const Ref<Zone>& zone) :
 		Modifier(PRIORITY,NEEDS_DATASET,CALL_INIT,NEEDS_OCTREE),
 		ZONE_TEST_FLAG(ZONE_TEST_FLAG),
-		zoneTest(zoneTest),
-		zone()
+		zone(),
+		zoneTest(zoneTest)
 	{
 		setZone(zone,zoneTest);
 	}

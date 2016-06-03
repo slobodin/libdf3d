@@ -25,9 +25,9 @@
 namespace SPK
 {
 	QuadRenderBehavior::QuadRenderBehavior(float scaleX,float scaleY) :
+		texturingMode(TEXTURE_MODE_NONE),
 		scaleX(scaleX),
 		scaleY(scaleY),
-		texturingMode(TEXTURE_MODE_NONE),
 		textureAtlasNbX(1),
 		textureAtlasNbY(1),
 		textureAtlasW(1.0f),
