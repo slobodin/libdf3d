@@ -19,7 +19,6 @@ class ParticleSystemBuffers_Quad
     VertexBufferDescriptor m_vertexBuffer;
     IndexBufferDescriptor m_indexBuffer;
 
-#pragma pack(push, 1)
     struct SpkVertexData
     {
         SPK::Vector3D pos;
@@ -27,7 +26,6 @@ class ParticleSystemBuffers_Quad
         float tx_v;
         glm::vec4 color;
     };
-#pragma pack(pop)
 
     // CPU side storage, TODO: use glMapBuffer
     SpkVertexData *m_vertexData = nullptr;

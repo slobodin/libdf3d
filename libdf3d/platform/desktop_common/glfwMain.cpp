@@ -12,8 +12,6 @@ int main(int agrc, char **argv) try
 
     DFLOG_DEBUG("main finished");
 
-    std::cout << "main finished" << std::endl;
-
     return 0;
 }
 catch (std::exception &e)

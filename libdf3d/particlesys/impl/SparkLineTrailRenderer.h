@@ -12,7 +12,6 @@ class TrailsParticleSystemRenderer : public ParticleSystemRenderer
     spark_description(TrailsParticleSystemRenderer, ParticleSystemRenderer)
 
 private:
-#pragma pack(push, 1)
     struct SpkVertexData
     {
         SPK::Vector3D pos;
@@ -20,7 +19,6 @@ private:
         float tx_v;
         glm::vec4 color;
     };
-#pragma pack(pop)
 
     size_t m_nbSamples;
     float m_width;
