@@ -35,7 +35,8 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     endif()
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++14")
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -stdlib=libc++ -Wno-inconsistent-missing-override -Wall")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -stdlib=libc++ -Wno-inconsistent-missing-override -Wno-conversion -Wall")
 
     # CHECK_CXX_COMPILER_FLAG("-x objective-c++" HAVE_OBJC)
     # if(HAVE_OBJC)
@@ -90,5 +91,6 @@ endif()
 
 if (IOS)
     add_definitions(-DDF3D_IOS)
+    add_definitions(-DZ_HAVE_UNISTD_H) # Hack for zlib
     set(DF3D_PLATFORM "iOS")
 endif()
