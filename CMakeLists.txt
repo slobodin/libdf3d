@@ -322,13 +322,13 @@ endif()
 
 if (IOS)
     list(APPEND libdf3d_HEADER_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/FileDataSourceIOS.h
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.h
     )
     list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/Storage.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/FileSystemHelpers.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/PlatformImpl.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/FileDataSourceIOS.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/Storage.mm
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/FileSystemHelpers.mm
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/PlatformImpl.mm
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.cpp
     )
 
     set_source_files_properties("${PROJECT_SOURCE_DIR}/libdf3d/render/impl/RenderBackendGL.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
