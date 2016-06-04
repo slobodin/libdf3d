@@ -1,6 +1,6 @@
 #include <libdf3d/io/FileSystemHelpers.h>
 
-#include <libdf3d/platform/android/FileDataSourceAndroid.h>
+#include "FileDataSourceAndroid.h"
 
 namespace df3d {
 
