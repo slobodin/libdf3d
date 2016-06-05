@@ -8,17 +8,12 @@
 
 namespace df3d {
 
-static std::string CheckGLError()
+static const char* GLErrorCodeToString(GLenum errcode)
 {
-    GLenum errCode = glGetError();
-    if (errCode == GL_NO_ERROR)
-        return "";
-
 #if defined(DF3D_DESKTOP)
-    std::string errString = (char *)gluErrorString(errCode);
-    return errString;
+    return (const char *)gluErrorString(errcode);
 #else
-    switch (errCode)
+    switch (errcode)
     {
     case GL_INVALID_ENUM:
         return "Invalid enum";
@@ -34,17 +29,18 @@ static std::string CheckGLError()
 #endif
 }
 
-static void CheckAndPrintGLError(const char *file, int line)
-{
-    auto err = CheckGLError();
-    if (!err.empty())
-        DFLOG_WARN("OpenGL error: %s. File: %s, line: %d", err.c_str(), file, line);
-}
-
 #if defined(_DEBUG) || defined(DEBUG)
-#define printOpenGLError() CheckAndPrintGLError(__FILE__, __LINE__)
+#define GL_CHECK(call) do { \
+        call; \
+        GLenum errCode = glGetError(); \
+        if (errCode != GL_NO_ERROR) \
+        { \
+            DFLOG_WARN("OpenGL error: %s", GLErrorCodeToString(errCode)); \
+            DEBUG_BREAK();  \
+        } \
+    } while(0)
 #else
-#define printOpenGLError()
+#define GL_CHECK(call) call
 #endif
 
 #if defined(_DEBUG) || defined(DEBUG)
@@ -122,22 +118,18 @@ static GLint GetGLWrapMode(TextureWrapMode mode)
 
 static void SetupGLTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped)
 {
-    glTexParameteri(glType, GL_TEXTURE_MAG_FILTER, filtering == TextureFiltering::NEAREST ? GL_NEAREST : GL_LINEAR);
-    glTexParameteri(glType, GL_TEXTURE_MIN_FILTER, GetGLFilteringMode(filtering, mipmapped));
-
-    printOpenGLError();
+    GL_CHECK(glTexParameteri(glType, GL_TEXTURE_MAG_FILTER, filtering == TextureFiltering::NEAREST ? GL_NEAREST : GL_LINEAR));
+    GL_CHECK(glTexParameteri(glType, GL_TEXTURE_MIN_FILTER, GetGLFilteringMode(filtering, mipmapped)));
 }
 
 static void SetupGLWrapMode(GLenum glType, TextureWrapMode wrapMode)
 {
     auto wmGl = GetGLWrapMode(wrapMode);
-    glTexParameteri(glType, GL_TEXTURE_WRAP_S, wmGl);
-    glTexParameteri(glType, GL_TEXTURE_WRAP_T, wmGl);
+    GL_CHECK(glTexParameteri(glType, GL_TEXTURE_WRAP_S, wmGl));
+    GL_CHECK(glTexParameteri(glType, GL_TEXTURE_WRAP_T, wmGl));
 #if defined(DF3D_DESKTOP)
-    glTexParameteri(glType, GL_TEXTURE_WRAP_R, wmGl);
+    GL_CHECK(glTexParameteri(glType, GL_TEXTURE_WRAP_R, wmGl));
 #endif
-
-    printOpenGLError();
 }
 
 static GLenum GetGLBufferUsageType(GpuBufferUsageType t)
@@ -258,17 +250,17 @@ void RenderBackendGL::initialize()
     std::fill(std::begin(m_programs), std::end(m_programs), ProgramGL());
     std::fill(std::begin(m_uniforms), std::end(m_uniforms), UniformGL());
 
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    glFrontFace(GL_CCW);
+    GL_CHECK(glEnable(GL_DEPTH_TEST));
+    GL_CHECK(glDepthFunc(GL_LEQUAL));
+    GL_CHECK(glFrontFace(GL_CCW));
 
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    GL_CHECK(glPixelStorei(GL_PACK_ALIGNMENT, 1));
+    GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_caps.maxTextureSize);
+    GL_CHECK(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_caps.maxTextureSize));
     // TODO:
     // Check extension supported.
-    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &m_caps.maxAnisotropy);
+    GL_CHECK(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &m_caps.maxAnisotropy));
 
     // Print GPU info.
     {
@@ -284,9 +276,7 @@ void RenderBackendGL::initialize()
 
         DFLOG_MESS("Max texture size %d", m_caps.maxTextureSize);
     }
-
-    printOpenGLError();
-
+    
 #ifdef _DEBUG
     size_t totalStorage = sizeof(m_vertexBuffers) +
         sizeof(m_indexBuffers) +
@@ -315,19 +305,16 @@ void RenderBackendGL::frameBegin()
     m_currentVertexBuffer = {};
     m_currentIndexBuffer = {};
 
-    glUseProgram(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
-    // Clear previous frame GL error.
-    printOpenGLError();
+    GL_CHECK(glUseProgram(0));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+    GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
+    GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 }
 
 void RenderBackendGL::frameEnd()
 {
-    glFlush();
+    GL_CHECK(glFlush());
 }
 
 df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage)
@@ -346,13 +333,13 @@ df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFor
     vertexBuffer.format = make_shared<VertexFormat>(format);
     vertexBuffer.sizeInBytes = verticesCount * format.getVertexSize();
 
-    glGenBuffers(1, &vertexBuffer.gl_id);
+    GL_CHECK(glGenBuffers(1, &vertexBuffer.gl_id));
     if (vertexBuffer.gl_id == 0)
         return{};
 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id);
-    glBufferData(GL_ARRAY_BUFFER, verticesCount * format.getVertexSize(), data, GetGLBufferUsageType(usage));
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, verticesCount * format.getVertexSize(), data, GetGLBufferUsageType(usage)));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
     m_vertexBuffers[vb.id] = std::move(vertexBuffer);
 
@@ -367,10 +354,10 @@ void RenderBackendGL::destroyVertexBuffer(VertexBufferDescriptor vb)
 
     const auto &vertexBuffer = m_vertexBuffers[vb.id];
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
     if (vertexBuffer.gl_id)
-        glDeleteBuffers(1, &vertexBuffer.gl_id);
+        GL_CHECK(glDeleteBuffers(1, &vertexBuffer.gl_id));
     else
         return;
 
@@ -392,15 +379,15 @@ void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
     const auto &vertexBuffer = m_vertexBuffers[vb.id];
     DF3D_ASSERT(vertexBuffer.gl_id != 0, "sanity check");
 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id);
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id));
 
     const auto &format = *vertexBuffer.format;
 
     for (auto attrib : format.m_attribs)
     {
-        glEnableVertexAttribArray(attrib);
+        GL_CHECK(glEnableVertexAttribArray(attrib));
         size_t offs = format.getOffsetTo(attrib);
-        glVertexAttribPointer(attrib, format.m_counts[attrib], GL_FLOAT, GL_FALSE, format.getVertexSize(), (const GLvoid*)offs);
+        GL_CHECK(glVertexAttribPointer(attrib, format.m_counts[attrib], GL_FLOAT, GL_FALSE, format.getVertexSize(), (const GLvoid*)offs));
     }
 
     m_indexedDrawCall = false;
@@ -419,9 +406,9 @@ void RenderBackendGL::updateVertexBuffer(VertexBufferDescriptor vb, size_t verti
     DF3D_ASSERT(bytesUpdating <= vertexBuffer.sizeInBytes, "sanity check");
     DF3D_ASSERT(vertexBuffer.gl_id != 0, "sanity check");
 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, bytesUpdating, data);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id));
+    GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, 0, bytesUpdating, data));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
     m_currentVertexBuffer = {};
 }
@@ -439,13 +426,13 @@ df3d::IndexBufferDescriptor RenderBackendGL::createIndexBuffer(size_t indicesCou
 
     IndexBufferGL indexBuffer;
 
-    glGenBuffers(1, &indexBuffer.gl_id);
+    GL_CHECK(glGenBuffers(1, &indexBuffer.gl_id));
     if (indexBuffer.gl_id == 0)
         return {};
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(INDICES_TYPE), data, GetGLBufferUsageType(usage));
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id));
+    GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(INDICES_TYPE), data, GetGLBufferUsageType(usage)));
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
     indexBuffer.sizeInBytes = indicesCount * sizeof(INDICES_TYPE);
 
@@ -461,9 +448,9 @@ void RenderBackendGL::destroyIndexBuffer(IndexBufferDescriptor ib)
 
     const auto &indexBuffer = m_indexBuffers[ib.id];
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     if (indexBuffer.gl_id != 0)
-        glDeleteBuffers(1, &indexBuffer.gl_id);
+        GL_CHECK(glDeleteBuffers(1, &indexBuffer.gl_id));
     else
         return;
 
@@ -484,7 +471,7 @@ void RenderBackendGL::bindIndexBuffer(IndexBufferDescriptor ib)
     const auto &indexBuffer = m_indexBuffers[ib.id];
     DF3D_ASSERT(indexBuffer.gl_id != 0, "sanity check");
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id);
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id));
 
     m_indexedDrawCall = true;
     m_currentIndexBuffer = ib;
@@ -502,9 +489,9 @@ void RenderBackendGL::updateIndexBuffer(IndexBufferDescriptor ib, size_t indices
     DF3D_ASSERT(bytesUpdating <= indexBuffer.sizeInBytes, "sanity check");
     DF3D_ASSERT(indexBuffer.gl_id != 0, "sanity check");
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id);
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, bytesUpdating, data);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id));
+    GL_CHECK(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, bytesUpdating, data));
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
     m_currentIndexBuffer = {};
 }
@@ -548,27 +535,27 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(int width, int height, 
 
     TextureGL texture;
 
-    glGenTextures(1, &texture.gl_id);
+    GL_CHECK(glGenTextures(1, &texture.gl_id));
     if (texture.gl_id == 0)
         return{};
 
-    glBindTexture(GL_TEXTURE_2D, texture.gl_id);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture.gl_id));
+    GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
     SetupGLWrapMode(GL_TEXTURE_2D, params.getWrapMode());
     SetupGLTextureFiltering(GL_TEXTURE_2D, params.getFiltering(), params.isMipmapped());
 
     // Init empty texture.
     if (format == PixelFormat::DEPTH)
-        glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, width, height, 0, pixelDataFormat, GL_FLOAT, nullptr);
+        GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, width, height, 0, pixelDataFormat, GL_FLOAT, nullptr));
     else
-        glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, width, height, 0, pixelDataFormat, GL_UNSIGNED_BYTE, nullptr);
+        GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, width, height, 0, pixelDataFormat, GL_UNSIGNED_BYTE, nullptr));
 
     if (data)
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, pixelDataFormat, GL_UNSIGNED_BYTE, data);
+        GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, pixelDataFormat, GL_UNSIGNED_BYTE, data));
 
     if (params.isMipmapped())
-        glGenerateMipmap(GL_TEXTURE_2D);
+        GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
 
     if (GL_EXT_texture_filter_anisotropic)
     {
@@ -576,11 +563,9 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(int width, int height, 
         {
             float aniso = m_caps.maxAnisotropy;
             if (params.getAnisotropyLevel() != render_constants::ANISOTROPY_LEVEL_MAX)
-            {
                 aniso = (float)params.getAnisotropyLevel();
-            }
 
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
+            GL_CHECK(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso));
         }
     }
 
@@ -588,9 +573,7 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(int width, int height, 
     texture.type = GL_TEXTURE_2D;
     texture.pixelFormat = pixelDataFormat;
 
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    printOpenGLError();
+    GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 
     m_textures[textureDescr.id] = texture;
 
@@ -611,12 +594,12 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
 
     TextureGL texture;
 
-    glGenTextures(1, &texture.gl_id);
+    GL_CHECK(glGenTextures(1, &texture.gl_id));
     if (texture.gl_id == 0)
         return{};
 
-    glBindTexture(GL_TEXTURE_CUBE_MAP, texture.gl_id);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, texture.gl_id));
+    GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
     SetupGLWrapMode(GL_TEXTURE_CUBE_MAP, params.getWrapMode());
     SetupGLTextureFiltering(GL_TEXTURE_CUBE_MAP, params.getFiltering(), params.isMipmapped());
@@ -640,19 +623,17 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
         auto data = pixels[i]->getData();
         auto width = pixels[i]->getWidth();
         auto height = pixels[i]->getHeight();
-        glTexImage2D(MapSidesToGL.find((CubeFace)i)->second, 0, glPixelFormat, width, height, 0, glPixelFormat, GL_UNSIGNED_BYTE, data);
+        GL_CHECK(glTexImage2D(MapSidesToGL.find((CubeFace)i)->second, 0, glPixelFormat, width, height, 0, glPixelFormat, GL_UNSIGNED_BYTE, data));
 
         texture.sizeInBytes += pixels[i]->getSizeInBytes();
     }
 
     if (params.isMipmapped())
-        glGenerateMipmap(GL_TEXTURE_2D);
+        GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
 
     texture.type = GL_TEXTURE_CUBE_MAP;
 
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
-    printOpenGLError();
+    GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 
     m_textures[textureDescr.id] = texture;
 
@@ -670,8 +651,8 @@ void RenderBackendGL::updateTexture(TextureDescriptor t, int w, int h, const voi
     const auto &texture = m_textures[t.id];
     DF3D_ASSERT(texture.type != GL_INVALID_ENUM, "sanity check");
 
-    glBindTexture(GL_TEXTURE_2D, texture.gl_id);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, texture.pixelFormat, GL_UNSIGNED_BYTE, data);
+    GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture.gl_id));
+    GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, texture.pixelFormat, GL_UNSIGNED_BYTE, data));
 }
 
 void RenderBackendGL::destroyTexture(TextureDescriptor t)
@@ -685,9 +666,9 @@ void RenderBackendGL::destroyTexture(TextureDescriptor t)
         return;
     }
 
-    glBindTexture(texture.type, 0);
+    GL_CHECK(glBindTexture(texture.type, 0));
     if (texture.gl_id)
-        glDeleteTextures(1, &texture.gl_id);
+        GL_CHECK(glDeleteTextures(1, &texture.gl_id));
 
     DF3D_ASSERT(m_stats.textures > 0 && m_stats.textureMemoryBytes >= texture.sizeInBytes, "sanity check");
     m_stats.textures--;
@@ -705,8 +686,8 @@ void RenderBackendGL::bindTexture(TextureDescriptor t, int unit)
     const auto &texture = m_textures[t.id];
     DF3D_ASSERT(texture.gl_id != 0 && texture.type != GL_INVALID_ENUM, "sanity check");
 
-    glActiveTexture(GL_TEXTURE0 + unit);
-    glBindTexture(texture.type, texture.gl_id);
+    GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+    GL_CHECK(glBindTexture(texture.type, texture.gl_id));
 }
 
 df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std::string &data)
@@ -728,12 +709,12 @@ df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std:
 
     if (type == ShaderType::VERTEX)
     {
-        shader.gl_id = glCreateShader(GL_VERTEX_SHADER);
+        GL_CHECK(shader.gl_id = glCreateShader(GL_VERTEX_SHADER));
         shader.type = GL_VERTEX_SHADER;
     }
     else if (type == ShaderType::FRAGMENT)
     {
-        shader.gl_id = glCreateShader(GL_FRAGMENT_SHADER);
+        GL_CHECK(shader.gl_id = glCreateShader(GL_FRAGMENT_SHADER));
         shader.type = GL_FRAGMENT_SHADER;
     }
 
@@ -745,11 +726,11 @@ df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std:
 
     // Compile the shader.
     const char *pdata = data.c_str();
-    glShaderSource(shader.gl_id, 1, &pdata, nullptr);
-    glCompileShader(shader.gl_id);
+    GL_CHECK(glShaderSource(shader.gl_id, 1, &pdata, nullptr));
+    GL_CHECK(glCompileShader(shader.gl_id));
 
     int compileOk;
-    glGetShaderiv(shader.gl_id, GL_COMPILE_STATUS, &compileOk);
+    GL_CHECK(glGetShaderiv(shader.gl_id, GL_COMPILE_STATUS, &compileOk));
     if (compileOk == GL_FALSE)
     {
         DFLOG_WARN("Failed to compile a shader");
@@ -757,14 +738,12 @@ df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std:
         PrintShaderLog(shader.gl_id);
 
         m_shadersBag.release(shaderDescr.id);
-        glDeleteShader(shader.gl_id);
+        GL_CHECK(glDeleteShader(shader.gl_id));
 
         DEBUG_BREAK();
 
-        return{};
+        return {};
     }
-
-    printOpenGLError();
 
     m_shaders[shaderDescr.id] = shader;
 
@@ -778,7 +757,7 @@ void RenderBackendGL::destroyShader(ShaderDescriptor shader)
     const auto &shaderGL = m_shaders[shader.id];
 
     if (shaderGL.gl_id != 0)
-        glDeleteShader(shaderGL.gl_id);
+        GL_CHECK(glDeleteShader(shaderGL.gl_id));
     else
         return;
 
@@ -801,7 +780,7 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor ve
 
     ProgramGL program;
 
-    program.gl_id = glCreateProgram();
+    GL_CHECK(program.gl_id = glCreateProgram());
     if (program.gl_id == 0)
     {
         DFLOG_WARN("Failed to create a GPU program");
@@ -813,33 +792,31 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor ve
 
     DF3D_ASSERT(vertexShaderGL.gl_id && fragmentShaderGL.gl_id, "sanity check");
 
-    glAttachShader(program.gl_id, vertexShaderGL.gl_id);
-    glAttachShader(program.gl_id, fragmentShaderGL.gl_id);
+    GL_CHECK(glAttachShader(program.gl_id, vertexShaderGL.gl_id));
+    GL_CHECK(glAttachShader(program.gl_id, fragmentShaderGL.gl_id));
 
     // TODO: use VAO + refactor this.
-    glBindAttribLocation(program.gl_id, VertexFormat::POSITION_3, "a_vertex3");
-    glBindAttribLocation(program.gl_id, VertexFormat::NORMAL_3, "a_normal");
-    glBindAttribLocation(program.gl_id, VertexFormat::TX_2, "a_txCoord");
-    glBindAttribLocation(program.gl_id, VertexFormat::COLOR_4, "a_vertexColor");
-    glBindAttribLocation(program.gl_id, VertexFormat::TANGENT_3, "a_tangent");
-    glBindAttribLocation(program.gl_id, VertexFormat::BITANGENT_3, "a_bitangent");
+    GL_CHECK(glBindAttribLocation(program.gl_id, VertexFormat::POSITION_3, "a_vertex3"));
+    GL_CHECK(glBindAttribLocation(program.gl_id, VertexFormat::NORMAL_3, "a_normal"));
+    GL_CHECK(glBindAttribLocation(program.gl_id, VertexFormat::TX_2, "a_txCoord"));
+    GL_CHECK(glBindAttribLocation(program.gl_id, VertexFormat::COLOR_4, "a_vertexColor"));
+    GL_CHECK(glBindAttribLocation(program.gl_id, VertexFormat::TANGENT_3, "a_tangent"));
+    GL_CHECK(glBindAttribLocation(program.gl_id, VertexFormat::BITANGENT_3, "a_bitangent"));
 
-    glLinkProgram(program.gl_id);
+    GL_CHECK(glLinkProgram(program.gl_id));
 
     int linkOk;
-    glGetProgramiv(program.gl_id, GL_LINK_STATUS, &linkOk);
+    GL_CHECK(glGetProgramiv(program.gl_id, GL_LINK_STATUS, &linkOk));
     if (linkOk == GL_FALSE)
     {
         DFLOG_WARN("GPU program linkage failed");
         PrintGpuProgramLog(program.gl_id);
 
         m_gpuProgramsBag.release(programDescr.id);
-        glDeleteProgram(program.gl_id);
+        GL_CHECK(glDeleteProgram(program.gl_id));
 
         return{};
     }
-
-    printOpenGLError();
 
     m_programs[programDescr.id] = program;
 
@@ -852,9 +829,9 @@ void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor program)
 
     const auto &programGL = m_programs[program.id];
 
-    glUseProgram(0);
+    GL_CHECK(glUseProgram(0));
     if (programGL.gl_id != 0)
-        glDeleteProgram(programGL.gl_id);
+        GL_CHECK(glDeleteProgram(programGL.gl_id));
     else
         return;
 
@@ -885,7 +862,7 @@ void RenderBackendGL::bindGpuProgram(GpuProgramDescriptor program)
     const auto &programGL = m_programs[program.id];
     DF3D_ASSERT(programGL.gl_id != 0, "sanity check");
 
-    glUseProgram(programGL.gl_id);
+    GL_CHECK(glUseProgram(programGL.gl_id));
 
     m_currentProgram = program;
 }
@@ -899,7 +876,7 @@ void RenderBackendGL::requestUniforms(GpuProgramDescriptor program, std::vector<
     DF3D_ASSERT(programGL.gl_id != 0, "sanity check");
 
     int total = -1;
-    glGetProgramiv(programGL.gl_id, GL_ACTIVE_UNIFORMS, &total);
+    GL_CHECK(glGetProgramiv(programGL.gl_id, GL_ACTIVE_UNIFORMS, &total));
 
     for (int i = 0; i < total; i++)
     {
@@ -923,14 +900,14 @@ void RenderBackendGL::requestUniforms(GpuProgramDescriptor program, std::vector<
         int nameLength = -1, uniformVarSize = -1;
         char name[100];
 
-        glGetActiveUniform(programGL.gl_id, i, sizeof(name) - 1, &nameLength, &uniformVarSize, &type, name);
+        GL_CHECK(glGetActiveUniform(programGL.gl_id, i, sizeof(name) - 1, &nameLength, &uniformVarSize, &type, name));
         name[nameLength] = 0;
 
         outNames.push_back(name);
 
         UniformGL uniformGL;
         uniformGL.type = type;
-        uniformGL.location = glGetUniformLocation(programGL.gl_id, name);
+        GL_CHECK(uniformGL.location = glGetUniformLocation(programGL.gl_id, name));
 
         m_uniforms[outDescr[i].id] = uniformGL;
 
@@ -949,31 +926,31 @@ void RenderBackendGL::setUniformValue(UniformDescriptor uniform, const void *dat
     switch (uniformGL.type)
     {
     case GL_SAMPLER_2D:
-        glUniform1iv(uniformGL.location, 1, (GLint *)data);
+        GL_CHECK(glUniform1iv(uniformGL.location, 1, (GLint *)data));
         break;
     case GL_SAMPLER_CUBE:
-        glUniform1iv(uniformGL.location, 1, (GLint *)data);
+        GL_CHECK(glUniform1iv(uniformGL.location, 1, (GLint *)data));
         break;
     case GL_INT:
-        glUniform1iv(uniformGL.location, 1, (GLint *)data);
+        GL_CHECK(glUniform1iv(uniformGL.location, 1, (GLint *)data));
         break;
     case GL_FLOAT:
-        glUniform1fv(uniformGL.location, 1, (GLfloat *)data);
+        GL_CHECK(glUniform1fv(uniformGL.location, 1, (GLfloat *)data));
         break;
     case GL_FLOAT_VEC2:
-        glUniform2fv(uniformGL.location, 1, (GLfloat *)data);
+        GL_CHECK(glUniform2fv(uniformGL.location, 1, (GLfloat *)data));
         break;
     case GL_FLOAT_VEC3:
-        glUniform3fv(uniformGL.location, 1, (GLfloat *)data);
+        GL_CHECK(glUniform3fv(uniformGL.location, 1, (GLfloat *)data));
         break;
     case GL_FLOAT_VEC4:
-        glUniform4fv(uniformGL.location, 1, (GLfloat *)data);
+        GL_CHECK(glUniform4fv(uniformGL.location, 1, (GLfloat *)data));
         break;
     case GL_FLOAT_MAT3:
-        glUniformMatrix3fv(uniformGL.location, 1, GL_FALSE, (GLfloat *)data);
+        GL_CHECK(glUniformMatrix3fv(uniformGL.location, 1, GL_FALSE, (GLfloat *)data));
         break;
     case GL_FLOAT_MAT4:
-        glUniformMatrix4fv(uniformGL.location, 1, GL_FALSE, (GLfloat *)data);
+        GL_CHECK(glUniformMatrix4fv(uniformGL.location, 1, GL_FALSE, (GLfloat *)data));
         break;
     default:
         DFLOG_WARN("Failed to update GpuProgramUniform. Unknown uniform type");
@@ -983,46 +960,49 @@ void RenderBackendGL::setUniformValue(UniformDescriptor uniform, const void *dat
 
 void RenderBackendGL::setViewport(int x, int y, int width, int height)
 {
-    glViewport(x, y, width, height);
+    GL_CHECK(glViewport(x, y, width, height));
 }
 
 void RenderBackendGL::clearColorBuffer(const glm::vec4 &color)
 {
-    glClearColor(color.r, color.g, color.b, color.a);
-    glClear(GL_COLOR_BUFFER_BIT);
+    GL_CHECK(glClearColor(color.r, color.g, color.b, color.a));
+    GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
 }
 
 void RenderBackendGL::clearDepthBuffer()
 {
-    glClear(GL_DEPTH_BUFFER_BIT);
+    GL_CHECK(glClear(GL_DEPTH_BUFFER_BIT));
 }
 
 void RenderBackendGL::clearStencilBuffer()
 {
-    glClear(GL_STENCIL_BUFFER_BIT);
+    GL_CHECK(glClear(GL_STENCIL_BUFFER_BIT));
 }
 
 void RenderBackendGL::enableDepthTest(bool enable)
 {
     if (enable)
-        glEnable(GL_DEPTH_TEST);
+        GL_CHECK(glEnable(GL_DEPTH_TEST));
     else
-        glDisable(GL_DEPTH_TEST);
+        GL_CHECK(glDisable(GL_DEPTH_TEST));
 }
 
 void RenderBackendGL::enableDepthWrite(bool enable)
 {
-    glDepthMask(enable);
+    GL_CHECK(glDepthMask(enable));
 }
 
 void RenderBackendGL::enableScissorTest(bool enable)
 {
-    if (enable) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
+    if (enable) 
+        GL_CHECK(glEnable(GL_SCISSOR_TEST));
+    else
+        GL_CHECK(glDisable(GL_SCISSOR_TEST));
 }
 
 void RenderBackendGL::setScissorRegion(int x, int y, int width, int height)
 {
-    glScissor(x, y, width, height);
+    GL_CHECK(glScissor(x, y, width, height));
 }
 
 void RenderBackendGL::setBlendingMode(BlendingMode mode)
@@ -1030,19 +1010,19 @@ void RenderBackendGL::setBlendingMode(BlendingMode mode)
     switch (mode)
     {
     case BlendingMode::NONE:
-        glDisable(GL_BLEND);
+        GL_CHECK(glDisable(GL_BLEND));
         break;
     case BlendingMode::ADDALPHA:
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        GL_CHECK(glEnable(GL_BLEND));
+        GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE));
         break;
     case BlendingMode::ALPHA:
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        GL_CHECK(glEnable(GL_BLEND));
+        GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         break;
     case BlendingMode::ADD:
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE);
+        GL_CHECK(glEnable(GL_BLEND));
+        GL_CHECK(glBlendFunc(GL_ONE, GL_ONE));
         break;
     default:
         break;
@@ -1054,15 +1034,15 @@ void RenderBackendGL::setCullFaceMode(FaceCullMode mode)
     switch (mode)
     {
     case FaceCullMode::NONE:
-        glDisable(GL_CULL_FACE);
+        GL_CHECK(glDisable(GL_CULL_FACE));
         break;
     case FaceCullMode::FRONT:
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_FRONT);
+        GL_CHECK(glEnable(GL_CULL_FACE));
+        GL_CHECK(glCullFace(GL_FRONT));
         break;
     case FaceCullMode::BACK:
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
+        GL_CHECK(glEnable(GL_CULL_FACE));
+        GL_CHECK(glCullFace(GL_BACK));
         break;
     default:
         break;
@@ -1072,9 +1052,9 @@ void RenderBackendGL::setCullFaceMode(FaceCullMode mode)
 void RenderBackendGL::draw(RopType type, size_t numberOfElements)
 {
     if (m_indexedDrawCall)
-        glDrawElements(GetGLDrawMode(type), numberOfElements, GL_UNSIGNED_INT, nullptr);
+        GL_CHECK(glDrawElements(GetGLDrawMode(type), numberOfElements, GL_UNSIGNED_INT, nullptr));
     else
-        glDrawArrays(GetGLDrawMode(type), 0, numberOfElements);
+        GL_CHECK(glDrawArrays(GetGLDrawMode(type), 0, numberOfElements));
 
     // Update stats.
 #ifdef _DEBUG

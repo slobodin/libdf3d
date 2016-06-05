@@ -41,7 +41,7 @@ using std::static_pointer_cast;
 #if defined(DF3D_WINDOWS)
 #define DEBUG_BREAK() __debugbreak()
 #else
-#define DEBUG_BREAK() { }
+#define DEBUG_BREAK()
 #endif
 
 #if defined(max)
@@ -53,9 +53,9 @@ using std::static_pointer_cast;
 #endif
 
 #ifdef _DEBUG
-#define DF3D_ASSERT(cond, msg) { if (!(cond)) { DFLOG_CRITICAL("Assertion failed: %s", msg); DEBUG_BREAK(); } }
+#define DF3D_ASSERT(cond, msg) do { if (!(cond)) { DFLOG_CRITICAL("Assertion failed: %s", msg); DEBUG_BREAK(); } } while (0)
 #else
-#define DF3D_ASSERT(cond, msg) { assert(cond); }
+#define DF3D_ASSERT(cond, msg)
 #endif
 
 namespace df3d {
