@@ -17,11 +17,16 @@ class DF3D_DLL FPSCamera : public Camera
     TimeManager::Handle m_updateHandle;
 
 public:
-    FPSCamera(float velocity, bool freeMove = true, float damping = 0.5f);
+    FPSCamera(float velocity, bool freeMove, float damping, const glm::vec3 &position, float fov, float nearZ, float farZ);
     ~FPSCamera();
 
     void setFreeMove(bool freeMove) { m_freeMove = freeMove; }
     bool getFreeMove() const { return m_freeMove; }
+
+    static shared_ptr<FPSCamera> createDefault(float velocity)
+    {
+        return make_shared<FPSCamera>(velocity, true, 0.5f, glm::vec3(), 60.0f, 0.1f, 5000.0f);
+    }
 };
 
 }

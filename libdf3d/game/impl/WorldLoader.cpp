@@ -65,13 +65,13 @@ static void parseCamera(const Json::Value &cameraNode, World &w)
     if (cameraNode.empty())
         return;
 
-    auto camera = make_shared<Camera>();
-
     glm::vec3 position, rotation;
-    float fov = 60.0f;
+    float fov = Camera::DEFAULT_FOV;
     cameraNode["position"] >> position;
     cameraNode["rotation"] >> rotation;
     cameraNode["fov"] >> fov;
+
+    auto camera = make_shared<Camera>(position, fov, Camera::DEFAULT_NEAR_Z, Camera::DEFAULT_FAR_Z);
 
     camera->setPosition(position);
     camera->setOrientation(rotation);

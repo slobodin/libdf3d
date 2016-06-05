@@ -75,7 +75,7 @@ World::World()
     m_sceneGraph(new SceneGraphComponentProcessor()),
     m_sprite2D(new Sprite2DComponentProcessor(this)),
     m_tags(new TagComponentProcessor()),
-    m_camera(new Camera()),
+    m_camera(new Camera(glm::vec3(), Camera::DEFAULT_FOV, Camera::DEFAULT_NEAR_Z, Camera::DEFAULT_FAR_Z)),
     m_timeMgr(new TimeManager())
 {
     m_engineProcessors.push_back(m_audio.get());

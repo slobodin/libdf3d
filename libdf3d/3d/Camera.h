@@ -33,14 +33,15 @@ class DF3D_DLL Camera : utils::NonCopyable  // Should be polymorphic.
     void buildCameraMatrix();
 
 public:
+    static const float DEFAULT_NEAR_Z;
+    static const float DEFAULT_FAR_Z;
+    static const float DEFAULT_FOV;
+
     /** 
       * Initializes camera with position,
       * field of view, near and far clipping planes
       */
-    Camera(const glm::vec3 &position = glm::vec3(),
-           float fov = 60.f,
-           float nearZ = 0.1f,
-           float farZ = 5000.f);
+    Camera(const glm::vec3 &position, float fov, float nearZ, float farZ);
     virtual ~Camera();
 
     void setFov(float fov);
@@ -66,6 +67,11 @@ public:
     glm::vec3 screenToViewPoint(float x, float y, float z = 0.0f) const;
     glm::vec3 worldToScreenPoint(const glm::vec3 &world) const;
     utils::math::Ray createPickingRay(float x, float y);
+
+    static shared_ptr<df3d::Camera> createDefault(const glm::vec3 &pos = {})
+    {
+        return make_shared<df3d::Camera>(pos, DEFAULT_FOV, DEFAULT_NEAR_Z, DEFAULT_FAR_Z);
+    }
 };
 
 }

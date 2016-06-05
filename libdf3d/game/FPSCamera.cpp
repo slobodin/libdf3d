@@ -48,8 +48,9 @@ void FPSCamera::onUpdate()
         move(getRight() * dv);
 }
 
-FPSCamera::FPSCamera(float velocity, bool freeMove, float damping)
-    : m_freeMove(freeMove),
+FPSCamera::FPSCamera(float velocity, bool freeMove, float damping, const glm::vec3 &position, float fov, float nearZ, float farZ)
+    : Camera(position, fov, nearZ, farZ),
+    m_freeMove(freeMove),
     m_velocity(velocity),
     m_damping(damping)
 {

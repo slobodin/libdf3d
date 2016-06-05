@@ -4,6 +4,10 @@
 
 namespace df3d {
 
+const float Camera::DEFAULT_NEAR_Z = 1.0f;
+const float Camera::DEFAULT_FAR_Z = 5000.0f;
+const float Camera::DEFAULT_FOV = 60.0f;
+
 void Camera::buildProjectionMatrix()
 {
     const auto &screenSize = svc().getScreenSize();
