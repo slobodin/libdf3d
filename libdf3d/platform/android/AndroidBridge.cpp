@@ -176,6 +176,6 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchC
 
         df3d::svc().inputManager().onMouseButtonReleased(df3d::MouseButton::LEFT, x, y);
 
-        g_appState->primaryTouchId = -1;
+        g_appState->primaryTouchId = df3d::Touch::INVALID_ID;
     }
 }
