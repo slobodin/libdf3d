@@ -338,7 +338,7 @@ df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFor
         return{};
 
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id));
-    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, verticesCount * format.getVertexSize(), data, GetGLBufferUsageType(usage)));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, vertexBuffer.sizeInBytes, data, GetGLBufferUsageType(usage)));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
     m_vertexBuffers[vb.id] = std::move(vertexBuffer);
