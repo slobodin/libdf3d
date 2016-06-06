@@ -243,6 +243,9 @@ void RenderBackendGL::initialize()
 
     m_programUniforms.clear();
 
+    m_drawState = {};
+    m_indexedDrawCall = false;
+
     std::fill(std::begin(m_vertexBuffers), std::end(m_vertexBuffers), VertexBufferGL());
     std::fill(std::begin(m_indexBuffers), std::end(m_indexBuffers), IndexBufferGL());
     std::fill(std::begin(m_textures), std::end(m_textures), TextureGL());
@@ -250,9 +253,13 @@ void RenderBackendGL::initialize()
     std::fill(std::begin(m_programs), std::end(m_programs), ProgramGL());
     std::fill(std::begin(m_uniforms), std::end(m_uniforms), UniformGL());
 
-    GL_CHECK(glEnable(GL_DEPTH_TEST));
     GL_CHECK(glDepthFunc(GL_LEQUAL));
+    GL_CHECK(glDisable(GL_DEPTH_TEST));
+    GL_CHECK(glDepthMask(GL_FALSE));
     GL_CHECK(glFrontFace(GL_CCW));
+    GL_CHECK(glDisable(GL_SCISSOR_TEST));
+    GL_CHECK(glDisable(GL_CULL_FACE));
+    GL_CHECK(glDisable(GL_BLEND));
 
     GL_CHECK(glPixelStorei(GL_PACK_ALIGNMENT, 1));
     GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
@@ -540,7 +547,6 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(int width, int height, 
         return{};
 
     GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture.gl_id));
-    GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
     SetupGLWrapMode(GL_TEXTURE_2D, params.getWrapMode());
     SetupGLTextureFiltering(GL_TEXTURE_2D, params.getFiltering(), params.isMipmapped());
@@ -599,7 +605,6 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
         return{};
 
     GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, texture.gl_id));
-    GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
     SetupGLWrapMode(GL_TEXTURE_CUBE_MAP, params.getWrapMode());
     SetupGLTextureFiltering(GL_TEXTURE_CUBE_MAP, params.getFiltering(), params.isMipmapped());
@@ -729,6 +734,7 @@ df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std:
     GL_CHECK(glShaderSource(shader.gl_id, 1, &pdata, nullptr));
     GL_CHECK(glCompileShader(shader.gl_id));
 
+#ifdef _DEBUG
     int compileOk;
     GL_CHECK(glGetShaderiv(shader.gl_id, GL_COMPILE_STATUS, &compileOk));
     if (compileOk == GL_FALSE)
@@ -744,6 +750,7 @@ df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std:
 
         return {};
     }
+#endif
 
     m_shaders[shaderDescr.id] = shader;
 
@@ -805,6 +812,7 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor ve
 
     GL_CHECK(glLinkProgram(program.gl_id));
 
+#ifdef _DEBUG
     int linkOk;
     GL_CHECK(glGetProgramiv(program.gl_id, GL_LINK_STATUS, &linkOk));
     if (linkOk == GL_FALSE)
@@ -817,6 +825,7 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor ve
 
         return{};
     }
+#endif
 
     m_programs[programDescr.id] = program;
 
@@ -840,15 +849,13 @@ void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor program)
     m_gpuProgramsBag.release(program.id);
 
     // Destroy associated uniforms
+    auto programUniformsFound = m_programUniforms.find(program.id);
+    if (programUniformsFound != m_programUniforms.end())
     {
-        auto programUniformsFound = m_programUniforms.find(program.id);
-        if (programUniformsFound != m_programUniforms.end())
-        {
-            for (auto uniDescr : programUniformsFound->second)
-                m_uniformsBag.release(uniDescr.id);
+        for (auto uniDescr : programUniformsFound->second)
+            m_uniformsBag.release(uniDescr.id);
 
-            m_programUniforms.erase(programUniformsFound);
-        }
+        m_programUniforms.erase(programUniformsFound);
     }
 }
 
@@ -981,23 +988,38 @@ void RenderBackendGL::clearStencilBuffer()
 
 void RenderBackendGL::enableDepthTest(bool enable)
 {
+    if (m_drawState.depthTest == enable)
+        return;
+
     if (enable)
         GL_CHECK(glEnable(GL_DEPTH_TEST));
     else
         GL_CHECK(glDisable(GL_DEPTH_TEST));
+
+    m_drawState.depthTest = enable;
 }
 
 void RenderBackendGL::enableDepthWrite(bool enable)
 {
+    if (m_drawState.depthWrite == enable)
+        return;
+
     GL_CHECK(glDepthMask(enable));
+
+    m_drawState.depthWrite = enable;
 }
 
 void RenderBackendGL::enableScissorTest(bool enable)
 {
-    if (enable) 
+    if (m_drawState.scissorTest == enable)
+        return;
+
+    if (enable)
         GL_CHECK(glEnable(GL_SCISSOR_TEST));
     else
         GL_CHECK(glDisable(GL_SCISSOR_TEST));
+
+    m_drawState.scissorTest = enable;
 }
 
 void RenderBackendGL::setScissorRegion(int x, int y, int width, int height)
@@ -1007,6 +1029,9 @@ void RenderBackendGL::setScissorRegion(int x, int y, int width, int height)
 
 void RenderBackendGL::setBlendingMode(BlendingMode mode)
 {
+    if (m_drawState.blendingMode == mode)
+        return;
+
     switch (mode)
     {
     case BlendingMode::NONE:
@@ -1027,10 +1052,15 @@ void RenderBackendGL::setBlendingMode(BlendingMode mode)
     default:
         break;
     }
+
+    m_drawState.blendingMode = mode;
 }
 
 void RenderBackendGL::setCullFaceMode(FaceCullMode mode)
 {
+    //if (m_drawState.faceCullMode == mode)
+    //    return;
+
     switch (mode)
     {
     case FaceCullMode::NONE:
@@ -1047,6 +1077,8 @@ void RenderBackendGL::setCullFaceMode(FaceCullMode mode)
     default:
         break;
     }
+
+    m_drawState.faceCullMode = mode;
 }
 
 void RenderBackendGL::draw(RopType type, size_t numberOfElements)

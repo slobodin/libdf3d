@@ -106,6 +106,17 @@ class RenderBackendGL : public IRenderBackend
     IndexBufferDescriptor m_currentIndexBuffer;
     bool m_indexedDrawCall = false;
 
+    struct DrawState
+    {
+        BlendingMode blendingMode = BlendingMode::NONE;
+        FaceCullMode faceCullMode = FaceCullMode::NONE;
+        bool depthTest = false;
+        bool depthWrite = false;
+        bool scissorTest = false;
+    };
+
+    DrawState m_drawState;
+
 public:
     RenderBackendGL();
     ~RenderBackendGL();

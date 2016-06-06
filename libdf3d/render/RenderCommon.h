@@ -60,7 +60,7 @@ enum class RopType
 };
 
 // TODO: refactor blending mode.
-enum class BlendingMode
+enum class BlendingMode : int
 {
     NONE,
     ADDALPHA,
@@ -68,7 +68,7 @@ enum class BlendingMode
     ADD
 };
 
-enum class FaceCullMode
+enum class FaceCullMode : int
 {
     NONE,
     FRONT,

@@ -34,12 +34,12 @@ void RenderManager::onFrameBegin()
     m_sharedState->clear();
     m_renderBackend->frameBegin();
 
-    m_renderBackend->clearColorBuffer();
-    m_renderBackend->clearDepthBuffer();
-    m_renderBackend->clearStencilBuffer();
     m_renderBackend->enableDepthTest(true);
     m_renderBackend->enableDepthWrite(true);
     m_renderBackend->enableScissorTest(false);
+    m_renderBackend->clearColorBuffer();
+    m_renderBackend->clearDepthBuffer();
+    m_renderBackend->clearStencilBuffer();
     m_renderBackend->setBlendingMode(BlendingMode::NONE);
 }
 
@@ -59,9 +59,6 @@ void RenderManager::doRenderWorld(World &world)
     m_sharedState->setViewPort(m_viewport);
     m_sharedState->setProjectionMatrix(world.getCamera()->getProjectionMatrix());
     m_sharedState->setViewMatrix(world.getCamera()->getViewMatrix());
-
-    m_renderBackend->clearColorBuffer();
-    m_renderBackend->clearDepthBuffer();
 
     m_sharedState->setAmbientColor(world.getRenderingParams().getAmbientLight());
     m_sharedState->setFog(world.getRenderingParams().getFogDensity(), world.getRenderingParams().getFogColor());
