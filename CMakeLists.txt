@@ -273,7 +273,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.cpp
 )
 
-add_definitions(-DBULLET_FORCE_NO_ALIGNMENT)
 if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
     add_definitions(-DSCRAT_NO_ERROR_CHECKING)
 endif()

@@ -15,8 +15,6 @@ set(obj_to_dfmesh_SRC_LIST
     ${PROJECT_SOURCE_DIR}/main_obj_to_dfmesh.cpp
 )
 
-add_definitions(-DBULLET_FORCE_NO_ALIGNMENT)
-
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd\"4251\" /wd\"4457\" /wd\"4458\" /wd\"4138\"")
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS)    #  -DGLEW_STATIC

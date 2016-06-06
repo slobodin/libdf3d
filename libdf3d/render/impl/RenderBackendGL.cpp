@@ -314,7 +314,7 @@ void RenderBackendGL::frameBegin()
 
 void RenderBackendGL::frameEnd()
 {
-    GL_CHECK(glFlush());
+
 }
 
 df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage)
