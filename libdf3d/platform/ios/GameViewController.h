@@ -4,8 +4,13 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <GLKit/GLKit.h>
 
-@interface GameViewController : GLKViewController
+@class GLView;
+
+namespace df3d { class AppDelegate; }
+
+@interface GameViewController : UIViewController
+
+@property (strong, nonatomic) GLView *glView;
 
 @end

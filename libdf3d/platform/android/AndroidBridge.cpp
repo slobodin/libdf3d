@@ -52,11 +52,11 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 
     DFLOG_MESS("JNI_OnLoad success");
 
-    df3dInitialized();
+    df3dSetApplicationDelegate();
 
     if (!g_appState->appDelegate)
     {
-        DFLOG_CRITICAL("Game code must set up application delegate in df3dInitialized");
+        DFLOG_CRITICAL("Game code must set up application delegate in df3dSetApplicationDelegate");
         return -1;
     }
 

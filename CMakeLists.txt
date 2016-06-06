@@ -321,12 +321,18 @@ endif()
 
 if (IOS)
     list(APPEND libdf3d_HEADER_LIST
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/AppDelegate.h
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/GameViewController.h
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/GLView.h
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.h
     )
     list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/Storage.mm
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/AppDelegate.mm
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/GameViewController.mm
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/GLView.mm
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/FileSystemHelpers.mm
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/PlatformImpl.mm
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/Storage.mm
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.cpp
     )
 

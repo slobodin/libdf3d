@@ -7,112 +7,27 @@
 #import <OpenGLES/ES2/glext.h>
 
 #import <libdf3d/df3d.h>
-#import <libdf3d/platform/AppDelegate.h>
-
-namespace df3d {
-
-struct IOSAppState
-{
-    unique_ptr<df3d::AppDelegate> appDelegate;
-    unique_ptr<df3d::EngineController> engine;
-};
-
-static IOSAppState g_appState;
-
-void Application::setupDelegate(unique_ptr<AppDelegate> appDelegate)
-{
-    g_appState.appDelegate = std::move(appDelegate);
-}
-
-void Application::setTitle(const std::string &title)
-{
-
-}
-
-EngineController& svc() { return *g_appState.engine; }
-    
-}
+#import "GLView.h"
+#import "AppDelegate.h"
 
 @interface GameViewController () {
 
 }
-@property (strong, nonatomic) EAGLContext *context;
-@property (strong, nonatomic) GLKBaseEffect *effect;
-
-- (void)setupGL;
-- (void)tearDownGL;
 
 @end
 
 @implementation GameViewController {
     CGFloat contentScaleFactor;
     df3d::TouchID primaryTouchId;
+    int screenWidth;
+    int screenHeight;
 }
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
+    primaryTouchId = df3d::Touch::INVALID_ID;
+    contentScaleFactor = [[UIScreen mainScreen] scale];
 
-    self->contentScaleFactor = [UIScreen mainScreen].scale;
-    self->primaryTouchId = df3d::Touch::INVALID_ID;
-
-    df3dInitialized();
-
-    self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-
-    if (!self.context) {
-        NSLog(@"Failed to create ES context");
-    }
-
-    GLKView *view = (GLKView *)self.view;
-    view.multipleTouchEnabled = true;
-    view.context = self.context;
-    view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
-    view.drawableStencilFormat = GLKViewDrawableStencilFormat8;
-    view.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
-
-    [self setupGL];
-}
-
-- (void)dealloc
-{
-    [self tearDownGL];
-
-    if ([EAGLContext currentContext] == self.context) {
-        [EAGLContext setCurrentContext:nil];
-    }
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-
-    if ([self isViewLoaded] && ([[self view] window] == nil)) {
-        self.view = nil;
-
-        [self tearDownGL];
-
-        if ([EAGLContext currentContext] == self.context) {
-            [EAGLContext setCurrentContext:nil];
-        }
-        self.context = nil;
-    }
-
-    // Dispose of any resources that can be recreated.
-}
-
-- (BOOL)prefersStatusBarHidden {
-    return YES;
-}
-
-- (void)setupGL
-{
-    self.preferredFramesPerSecond = 30.0f;
-    [EAGLContext setCurrentContext:self.context];
-
-    df3d::g_appState.engine.reset(new df3d::EngineController());
-
-    int screenWidth, screenHeight;
     // Get screen size.
     if ([[[UIDevice currentDevice] systemVersion] floatValue] < 8.0)
     {
@@ -131,26 +46,31 @@ EngineController& svc() { return *g_appState.engine; }
     if (UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation))
         std::swap(screenWidth, screenHeight);
 
-    auto engineInitParams = df3d::g_appState.appDelegate->getInitParams();
+    _glView = [[GLView alloc] initWithFrame:self.view.bounds];
+    [self.view addSubview:_glView];
+
+    [super viewDidLoad];
+
+    df3dSetApplicationDelegate();
+
+    auto engineInitParams = GetIOSAppState().appDelegate->getInitParams();
     engineInitParams.windowWidth = screenWidth;
     engineInitParams.windowHeight = screenHeight;
 
-    df3d::g_appState.engine->initialize(engineInitParams);
-    if (!df3d::g_appState.appDelegate->onAppStarted())
+    GetIOSAppState().engine->initialize(engineInitParams);
+    if (!GetIOSAppState().appDelegate->onAppStarted())
         DFLOG_CRITICAL("Game code initialization failed");
 }
 
-- (void)tearDownGL
+- (void)dealloc
 {
-    df3d::g_appState.appDelegate->onAppEnded();
-    df3d::g_appState.engine->shutdown();
-
-    [EAGLContext setCurrentContext:self.context];
+    [_glView release];
+    [super dealloc];
 }
 
-- (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
+- (BOOL)prefersStatusBarHidden
 {
-    df3d::g_appState.engine->step();
+    return YES;
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event

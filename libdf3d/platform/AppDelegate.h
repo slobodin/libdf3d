@@ -33,4 +33,4 @@ public:
 }
 
 // Client code must call Application::setupDelegate here.
-extern "C" void df3dInitialized();
+extern "C" void df3dSetApplicationDelegate();

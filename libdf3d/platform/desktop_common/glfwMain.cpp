@@ -2,11 +2,11 @@
 #include <libdf3d/df3d.h>
 #include "glfwApplication.h"
 
-extern "C" void df3dInitialized();
+extern "C" void df3dSetApplicationDelegate();
 
 int main(int agrc, char **argv) try
 {
-    df3dInitialized();
+    df3dSetApplicationDelegate();
 
     df3d::platform_impl::glfwAppRun();
 
