@@ -40,6 +40,9 @@ using std::static_pointer_cast;
 // Common macros.
 #if defined(DF3D_WINDOWS)
 #define DEBUG_BREAK() __debugbreak()
+#elseif defined(DF3D_IOS)
+// FIXME: use asm("int 3") on simulator
+#define DEBUG_BREAK() asm("trap")
 #else
 #define DEBUG_BREAK()
 #endif
