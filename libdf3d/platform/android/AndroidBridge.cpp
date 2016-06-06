@@ -15,7 +15,7 @@ struct AndroidAppState
     unique_ptr<df3d::AppDelegate> appDelegate;
     unique_ptr<df3d::EngineController> engine;
 
-    int primaryTouchId = df3d::Touch::INVALID_ID;
+    df3d::TouchID primaryTouchId = df3d::Touch::INVALID_ID;
 };
 
 static unique_ptr<AndroidAppState> g_appState;

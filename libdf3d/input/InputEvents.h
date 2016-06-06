@@ -111,10 +111,12 @@ enum KeyModifier
     KM_SHIFT = 1 << 2
 };
 
+using TouchID = intptr_t;
+
 class DF3D_DLL Touch
 {
 public:
-    static const int INVALID_ID = -1;
+    static const TouchID INVALID_ID = -1;
 
     enum class State
     {
@@ -126,7 +128,7 @@ public:
         UNDEFINED
     };
 
-    int id = 0;
+    TouchID id = 0;
     int x = 0;
     int y = 0;
     int dx = 0;

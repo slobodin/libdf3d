@@ -36,11 +36,8 @@ int Platform::getDPI()
     NSString* code = [NSString stringWithCString:systemInfo.machine
                                         encoding:NSUTF8StringEncoding];
 
-    static NSDictionary* deviceNamesByCode = nil;
-
-    if (!deviceNamesByCode)
-    {
-        deviceNamesByCode = @{@"iPod1,1"        : @163,       // iPod Touch
+    NSDictionary* deviceNamesByCode =
+                            @{@"iPod1,1"        : @163,       // iPod Touch
                               @"iPod2,1"        : @163,       // iPod Touch Second Generation
                               @"iPod3,1"        : @163,       // iPod Touch Third Generation
                               @"iPod4,1"        : @326,       // iPod Touch Fourth Generation
@@ -110,8 +107,6 @@ int Platform::getDPI()
                               @"iPad6,7"        : @264,       // iPad Pro
                               @"iPad6,8"        : @264,       // iPad Pro
                               };
-
-    }
 
     NSInteger deviceDPIValue = [[deviceNamesByCode objectForKey:code] integerValue];
     if (!deviceDPIValue)

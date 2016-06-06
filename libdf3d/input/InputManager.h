@@ -17,8 +17,6 @@ class DF3D_DLL InputManager : utils::NonCopyable
 {
     friend class EngineController;
 
-    static const size_t MAX_TOUCHES = 16;
-
     struct MouseState
     {
         glm::ivec2 position;
@@ -52,10 +50,7 @@ class DF3D_DLL InputManager : utils::NonCopyable
     KeyboardState m_prevKeyboardState;
     KeyboardState m_keyboardState;
 
-    Touch m_currentTouches[MAX_TOUCHES];
-    size_t m_touchesCount = 0;
-    std::unordered_map<int, Touch> m_touches;
-
+    std::unordered_map<TouchID, Touch> m_touches;
     TouchListener *m_listener = nullptr;
 
     void cleanStep();
@@ -64,8 +59,6 @@ public:
     InputManager() = default;
     ~InputManager() = default;
 
-    const Touch& getTouch(size_t idx) const;
-    size_t getTouchesCount() const;
     void setTouchesListener(TouchListener *listener) { m_listener = listener; }
 
     const glm::ivec2& getMousePosition() const;
@@ -89,7 +82,7 @@ public:
     void onKeyUp(const KeyCode &keyCode, KeyModifier modifiers);
     void onKeyDown(const KeyCode &keyCode, KeyModifier modifiers);
     void onTextInput(unsigned int codepoint);
-    void onTouch(int id, int x, int y, Touch::State state);
+    void onTouch(TouchID id, int x, int y, Touch::State state);
 };
 
 }

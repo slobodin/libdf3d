@@ -604,7 +604,8 @@ int TBSystem::GetPixelsPerLine()
 
 int TBSystem::GetDPI()
 {
-    return df3d::Platform::getDPI();
+    static int dpi = df3d::Platform::getDPI();
+    return dpi;
 }
 
 }

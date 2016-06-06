@@ -19,39 +19,6 @@ void InputManager::cleanStep()
 
     m_mouseState.wheelDelta = 0.0f;
     m_mouseState.delta = glm::ivec2(0, 0);
-
-    m_touchesCount = 0;
-
-    /*
-    for (const auto &kv : m_touches)
-    {
-        m_currentTouches[m_touchesCount++] = kv.second;
-        if (m_touchesCount >= MAX_TOUCHES)
-        {
-            DFLOG_WARN("Touch limit exceeded");
-            break;
-        }
-    }
-
-    for (auto it = m_touches.begin(); it != m_touches.end(); )
-    {
-        if (it->second.state == Touch::State::UP || it->second.state == Touch::State::CANCEL)
-            it = m_touches.erase(it);
-        else
-            it++;
-    }
-    */
-}
-
-const Touch& InputManager::getTouch(size_t idx) const
-{
-    DF3D_ASSERT(idx >= 0 && idx < getTouchesCount(), "sanity check");
-    return m_currentTouches[idx];
-}
-
-size_t InputManager::getTouchesCount() const
-{
-    return m_touchesCount;
 }
 
 const glm::ivec2& InputManager::getMousePosition() const
@@ -158,7 +125,7 @@ void InputManager::onTextInput(unsigned int codepoint)
 
 }
 
-void InputManager::onTouch(int id, int x, int y, Touch::State state)
+void InputManager::onTouch(TouchID id, int x, int y, Touch::State state)
 {
     if (m_listener)
     {
@@ -171,8 +138,7 @@ void InputManager::onTouch(int id, int x, int y, Touch::State state)
         m_listener->onTouch(newTouch);
     }
 
-    // FIXME:
-    /*
+#ifdef _DEBUG
     switch (state)
     {
     case Touch::State::DOWN:
@@ -217,9 +183,7 @@ void InputManager::onTouch(int id, int x, int y, Touch::State state)
         auto found = m_touches.find(id);
         if (found != m_touches.end())
         {
-            found->second.state = state;
-            found->second.x = x;
-            found->second.y = y;
+            m_touches.erase(found);
         }
         else
         {
@@ -230,7 +194,7 @@ void InputManager::onTouch(int id, int x, int y, Touch::State state)
     default:
         break;
     }
-    */
+#endif
 }
 
 }
