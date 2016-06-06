@@ -582,6 +582,8 @@ int TBSystem::GetPanThreshold()
     return 5 * GetDPI() / 96;
 #elif defined(DF3D_ANDROID)
     return 5 * GetDPI() / 120;
+#elif defined(DF3D_IOS)
+    return 5 * GetDPI() / 120;
 #else
 #error "Unsupported"
 #endif
@@ -592,6 +594,8 @@ int TBSystem::GetPixelsPerLine()
 #if defined(DF3D_DESKTOP)
     return 40 * GetDPI() / 96;
 #elif defined(DF3D_ANDROID)
+    return 40 * GetDPI() / 120;
+#elif defined(DF3D_IOS)
     return 40 * GetDPI() / 120;
 #else
 #error "Unsupported"
