@@ -44,15 +44,15 @@ static const char* GLErrorCodeToString(GLenum errcode)
 #endif
 
 #if defined(_DEBUG) || defined(DEBUG)
-#define DESCRIPTOR_CHECK(descr) do { if (!descr.valid()) { DFLOG_WARN("Invalid descriptor"); DEBUG_BREAK(); return; } } while (0);
+#define DESCRIPTOR_CHECK(descr) do { if (!descr.valid()) { DFLOG_WARN("Invalid descriptor"); DEBUG_BREAK(); return; } } while (0)
 #else
-#define DESCRIPTOR_CHECK(descr) do { if (!descr.valid()) return; } while (0);
+#define DESCRIPTOR_CHECK(descr) do { if (!descr.valid()) return; } while (0)
 #endif
 
 #if defined(_DEBUG) || defined(DEBUG)
-#define DESCRIPTOR_CHECK_RETURN_INVALID(descr) do { if (!descr.valid()) { DFLOG_WARN("Invalid descriptor"); return {}; } } while (0);
+#define DESCRIPTOR_CHECK_RETURN_INVALID(descr) do { if (!descr.valid()) { DFLOG_WARN("Invalid descriptor"); return {}; } } while (0)
 #else
-#define DESCRIPTOR_CHECK_RETURN_INVALID(descr) do { if (!descr.valid()) return {}; } while (0);
+#define DESCRIPTOR_CHECK_RETURN_INVALID(descr) do { if (!descr.valid()) return {}; } while (0)
 #endif
 
 static bool IsPot(size_t v)
@@ -1058,8 +1058,8 @@ void RenderBackendGL::setBlendingMode(BlendingMode mode)
 
 void RenderBackendGL::setCullFaceMode(FaceCullMode mode)
 {
-    //if (m_drawState.faceCullMode == mode)
-    //    return;
+    if (m_drawState.faceCullMode == mode)
+        return;
 
     switch (mode)
     {
