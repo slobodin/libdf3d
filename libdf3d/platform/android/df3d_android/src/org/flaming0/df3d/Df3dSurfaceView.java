@@ -14,7 +14,6 @@ import javax.microedition.khronos.egl.EGLDisplay;
 
 public class Df3dSurfaceView extends GLSurfaceView {
     class Df3dConfigChooser implements EGLConfigChooser {
-        final private static String TAG = "Df3dConfigChooser";
         final private static int EGL_OPENGL_ES2_BIT = 4;
 
         private int[] mValue = new int[1];
@@ -109,6 +108,10 @@ public class Df3dSurfaceView extends GLSurfaceView {
                     bestS = s;
                     bestMatch = config;
                 }
+            }
+
+            if (bestMatch != null) {
+                Log.i("df3d_android", String.format("EGLConfig: Red %d Green %d Blue %d Depth %d Stencil %d", bestR, bestG, bestB, bestD, bestS));
             }
 
             return bestMatch;
