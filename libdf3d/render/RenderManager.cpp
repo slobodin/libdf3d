@@ -221,7 +221,7 @@ RenderManager::~RenderManager()
 
 void RenderManager::initialize()
 {
-    m_renderBackend = IRenderBackend::create(params.windowWidth, params.windowHeight);
+    m_renderBackend = IRenderBackend::create(m_initParams.windowWidth, m_initParams.windowHeight);
     m_sharedState = make_unique<GpuProgramSharedState>();
 
     loadEmbedResources();
