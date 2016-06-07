@@ -13,7 +13,7 @@ public class Df3dActivity extends Activity {
     private Df3dSurfaceView m_glSurfaceView = null;
     private AssetManager m_assetManager = null;
     private Df3dAndroidServices services = null;
-    private boolean hasFocus = false;
+    private Runnable setUiVisibilityRunnable = null;
 
     static
     {
@@ -38,7 +38,6 @@ public class Df3dActivity extends Activity {
         setContentView(m_glSurfaceView = new Df3dSurfaceView(this));
 
         final Window window = getWindow();
-
         if (window != null)
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
@@ -53,7 +52,7 @@ public class Df3dActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        resumeIfHasFocus();
+        m_glSurfaceView.onResume();
     }
 
     @Override
@@ -68,17 +67,9 @@ public class Df3dActivity extends Activity {
     {
         super.onWindowFocusChanged(hasFocus);
 
-        this.hasFocus = hasFocus;
-
-        if (hasFocus)
-            enableFullscreen();
-
-        resumeIfHasFocus();
-    }
-
-    private void resumeIfHasFocus() {
-        if (this.hasFocus)
-            m_glSurfaceView.onResume();
+        if (hasFocus && setUiVisibilityRunnable != null) {
+            setUiVisibilityRunnable.run();
+        }
     }
 
     private void enableFullscreen()
@@ -96,7 +87,15 @@ public class Df3dActivity extends Activity {
                 uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
             }
 
-            getWindow().getDecorView().setSystemUiVisibility(uiOptions);
+            final int opts = uiOptions;
+            setUiVisibilityRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    getWindow().getDecorView().setSystemUiVisibility(opts);
+                }
+            };
+
+            setUiVisibilityRunnable.run();
         } else {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
