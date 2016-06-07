@@ -274,6 +274,7 @@ public:
         m_clip_rect = m_screen_rect;
 
         df3d::svc().renderManager().getBackend().enableScissorTest(true);
+        df3d::svc().renderManager().getBackend().setScissorRegion(0, 0, render_target_w, render_target_h);
     }
 
     virtual void EndPaint() override
