@@ -117,8 +117,10 @@ class RenderBackendGL : public IRenderBackend
 
     DrawState m_drawState;
 
+    int m_width, m_height;
+
 public:
-    RenderBackendGL();
+    RenderBackendGL(int width, int height);
     ~RenderBackendGL();
 
     const RenderBackendCaps& getCaps() const override;

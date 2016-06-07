@@ -74,7 +74,7 @@ public:
     virtual void draw(RopType type, size_t numberOfElements) = 0;
 
     // NOTE: do not support other backends for now. So it's static.
-    static unique_ptr<IRenderBackend> create();
+    static unique_ptr<IRenderBackend> create(int width, int height);
 
     // Some helpers as template methods.
     VertexBufferDescriptor createVertexBuffer(const VertexData &data, GpuBufferUsageType usage)

@@ -43,6 +43,7 @@ public:
             throw std::runtime_error("Failed to init glfw");
 
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+        glfwWindowHint(GLFW_SAMPLES, 4);
 
         const auto params = m_appDelegate->getInitParams();
 

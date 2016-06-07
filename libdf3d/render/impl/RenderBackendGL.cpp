@@ -190,13 +190,15 @@ static void PrintGpuProgramLog(unsigned int program)
     DFLOG_MESS("GPU program info log: %s", infoLog.get());
 }
 
-RenderBackendGL::RenderBackendGL()
+RenderBackendGL::RenderBackendGL(int width, int height)
     : m_vertexBuffersBag(MAX_SIZE),
     m_indexBuffersBag(MAX_SIZE),
     m_texturesBag(MAX_SIZE),
     m_shadersBag(MAX_SIZE),
     m_gpuProgramsBag(MAX_SIZE),
-    m_uniformsBag(MAX_SIZE)
+    m_uniformsBag(MAX_SIZE),
+    m_width(width),
+    m_height(height)
 {
 #ifdef DF3D_DESKTOP
     // Init GLEW.
@@ -293,6 +295,10 @@ void RenderBackendGL::initialize()
         sizeof(m_uniforms);
 
     DFLOG_DEBUG("RenderBackendGL storage %d KB", utils::sizeKB(totalStorage));
+#endif
+
+#if defined(DF3D_DESKTOP)
+    glEnable(GL_MULTISAMPLE);
 #endif
 }
 
@@ -1107,9 +1113,9 @@ void RenderBackendGL::draw(RopType type, size_t numberOfElements)
 #endif
 }
 
-unique_ptr<IRenderBackend> IRenderBackend::create()
+unique_ptr<IRenderBackend> IRenderBackend::create(int width, int height)
 {
-    return make_unique<RenderBackendGL>();
+    return make_unique<RenderBackendGL>(width, height);
 }
 
 }
