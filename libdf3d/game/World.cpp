@@ -23,7 +23,7 @@ void World::update()
         m_physics->update();
 
         // Update client code.
-        m_timeMgr->update(svc().timer().getFrameDelta(TimeChannel::GAME));
+        m_timeMgr->update(svc().timer().getFrameDelta(TIME_CHANNEL_GAME));
         for (auto &userProcessor : m_userProcessors)
             userProcessor.second->update();
 

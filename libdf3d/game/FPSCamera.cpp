@@ -35,7 +35,7 @@ void FPSCamera::onUpdate()
         setOrientation(glm::vec3(-pitch, -yaw, 0.0f));
     }
 
-    float dt = svc().timer().getFrameDelta(TimeChannel::GAME);
+    float dt = svc().timer().getFrameDelta(TIME_CHANNEL_GAME);
     float dv = dt * m_velocity;
 
     if (svc().inputManager().getKey(KeyCode::KEY_UP))

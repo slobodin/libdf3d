@@ -61,7 +61,7 @@ void ParticleSystemComponentProcessor::update()
     for (auto &compData : m_pimpl->data.rawData())
         compData.holderTransform = m_world->sceneGraph().getWorldTransform(compData.holder);
 
-    auto dt = svc().timer().getFrameDelta(TimeChannel::GAME);
+    auto dt = svc().timer().getFrameDelta(TIME_CHANNEL_GAME);
     for (auto &compData : m_pimpl->data.rawData())
     {
         if (compData.paused)

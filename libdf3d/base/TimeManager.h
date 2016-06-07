@@ -4,12 +4,12 @@
 
 namespace df3d {
 
-enum class TimeChannel
+enum TimeChannel
 {
-    SYSTEM,
-    GAME,
+    TIME_CHANNEL_SYSTEM,
+    TIME_CHANNEL_GAME,
 
-    COUNT
+    TIME_CHANNEL_COUNT
 };
 
 class DF3D_DLL Timer
@@ -30,10 +30,10 @@ class DF3D_DLL Timer
 
     void update();
 
-    TimeInfo m_timers[static_cast<size_t>(TimeChannel::COUNT)];
+    TimeInfo m_timers[TIME_CHANNEL_COUNT];
 
-    TimeInfo& getTimeInfo(TimeChannel channel) { return m_timers[static_cast<size_t>(channel)]; }
-    const TimeInfo& getTimeInfo(TimeChannel channel) const { return m_timers[static_cast<size_t>(channel)]; }
+    TimeInfo& getTimeInfo(TimeChannel channel) { return m_timers[channel]; }
+    const TimeInfo& getTimeInfo(TimeChannel channel) const { return m_timers[channel]; }
 
 public:
     Timer();

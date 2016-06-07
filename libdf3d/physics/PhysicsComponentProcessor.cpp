@@ -294,7 +294,7 @@ void PhysicsComponentProcessor::update()
         }
     }
 
-    m_pimpl->dynamicsWorld->stepSimulation(svc().timer().getFrameDelta(TimeChannel::GAME), 10);
+    m_pimpl->dynamicsWorld->stepSimulation(svc().timer().getFrameDelta(TIME_CHANNEL_GAME), 10);
 }
 
 void PhysicsComponentProcessor::cleanStep(const std::list<Entity> &deleted)

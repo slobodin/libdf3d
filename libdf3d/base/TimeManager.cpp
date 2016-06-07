@@ -7,12 +7,18 @@ void Timer::update()
     m_timeElapsed = IntervalBetweenNowAnd(m_timeStarted);
     auto now = std::chrono::system_clock::now();
 
-    for (auto &timeInfo : m_timers)
+    for (size_t i = 0; i < TIME_CHANNEL_COUNT; i++)
     {
+        auto &timeInfo = m_timers[i];
+
         timeInfo.prevTime = timeInfo.currTime;
         timeInfo.currTime = now;
 
-        timeInfo.dt = IntervalBetween(timeInfo.currTime, timeInfo.prevTime) * timeInfo.scale;
+        auto dt = IntervalBetween(timeInfo.currTime, timeInfo.prevTime);
+        if (i == TIME_CHANNEL_GAME)
+            dt = std::min(dt, 1.0f);
+
+        timeInfo.dt = dt * timeInfo.scale;
     }
 }
 
