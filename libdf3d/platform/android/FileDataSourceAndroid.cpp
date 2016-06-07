@@ -2,11 +2,6 @@
 
 namespace df3d {
 
-static AAssetManager* AndroidGetAssetManager()
-{
-    return platform_impl::FileDataSourceAndroid::getAAssetManager();
-}
-
 namespace platform_impl {
 
 AAssetManager *FileDataSourceAndroid::m_assetMgr = nullptr;

@@ -16,8 +16,11 @@ public:
     virtual bool onAppStarted() = 0;
     virtual void onAppEnded() = 0;
 
-    virtual void onAppPaused() = 0;
-    virtual void onAppResumed() = 0;
+    virtual void onAppWillResignActive() = 0;
+    virtual void onAppDidEnterBackground() = 0;
+
+    virtual void onAppWillEnterForeground() = 0;
+    virtual void onAppDidBecomeActive() = 0;
 
     virtual void onRenderDestroyed() = 0;
     virtual void onRenderRecreated() = 0;

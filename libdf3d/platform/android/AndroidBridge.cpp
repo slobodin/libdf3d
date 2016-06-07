@@ -97,12 +97,14 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_init(JNI
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onResume(JNIEnv* env, jclass cls)
 {
-    g_appState->appDelegate->onAppResumed();
+    g_appState->appDelegate->onAppWillEnterForeground();
+    g_appState->appDelegate->onAppDidBecomeActive();
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onPause(JNIEnv* env, jclass cls)
 {
-    g_appState->appDelegate->onAppPaused();
+    g_appState->appDelegate->onAppWillResignActive();
+    g_appState->appDelegate->onAppDidEnterBackground();
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onDestroy(JNIEnv* env, jclass cls)
