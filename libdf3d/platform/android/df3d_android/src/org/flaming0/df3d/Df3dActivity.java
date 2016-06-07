@@ -36,6 +36,11 @@ public class Df3dActivity extends Activity {
         NativeBindings.setAssetManager(m_assetManager = getAssets());
 
         setContentView(m_glSurfaceView = new Df3dSurfaceView(this));
+
+        final Window window = getWindow();
+
+        if (window != null)
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
