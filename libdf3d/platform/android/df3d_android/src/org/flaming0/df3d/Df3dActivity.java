@@ -45,9 +45,8 @@ public class Df3dActivity extends Activity {
 
     @Override
     protected void onPause() {
-        super.onPause();
-
         m_glSurfaceView.onPause();
+        super.onPause();
     }
 
     @Override

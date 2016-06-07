@@ -260,24 +260,4 @@ public class Df3dSurfaceView extends GLSurfaceView {
 
         m_df3dRenderer.setWidthAndHeight(w, h);
     }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        super.onKeyDown(keyCode, event);
-
-        // TODO:
-        // Process key down.
-
-        return true;
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        super.onKeyUp(keyCode, event);
-
-        // TODO:
-        // Process key up.
-
-        return true;
-    }
 }
