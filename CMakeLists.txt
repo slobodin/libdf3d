@@ -148,6 +148,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsHelpers.h
     ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
+    ${PROJECT_SOURCE_DIR}/libdf3d/platform/LocalNotification.h
     ${PROJECT_SOURCE_DIR}/libdf3d/platform/Platform.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/impl/RenderBackendGL.h
     ${PROJECT_SOURCE_DIR}/libdf3d/render/IRenderBackend.h
@@ -314,6 +315,7 @@ if (ANDROID)
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileSystemHelpers.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/AndroidBridge.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/JNIHelpers.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/LocalNotification.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/PlatformImpl.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileDataSourceAndroid.cpp
     )
@@ -323,13 +325,12 @@ if (IOS)
     list(APPEND libdf3d_HEADER_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/AppDelegate.h
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/GameViewController.h
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/GLView.h
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.h
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/AppDelegate.mm
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/GameViewController.mm
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/GLView.mm
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/LocalNotification.mm
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/FileSystemHelpers.mm
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/PlatformImpl.mm
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/Storage.mm
@@ -361,6 +362,7 @@ if (DF3D_DESKTOP)
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/glfwApplication.cpp
+        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/LocalNotification.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/glfwKeyCodes.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.cpp
         ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/PlatformImpl.cpp

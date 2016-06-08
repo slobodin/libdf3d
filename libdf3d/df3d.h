@@ -21,6 +21,7 @@
 
 #include <libdf3d/platform/AppDelegate.h>
 #include <libdf3d/platform/Platform.h>
+#include <libdf3d/platform/LocalNotification.h>
 
 #include <libdf3d/2d/Sprite2DComponentProcessor.h>
 
