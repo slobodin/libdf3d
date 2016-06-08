@@ -25,8 +25,15 @@ AudioManager::~AudioManager()
 
 void AudioManager::initialize()
 {
-    /*
     DFLOG_MESS("Initializing OpenAL");
+
+#ifdef _DEBUG
+#if defined(DF3D_WINDOWS)
+    _putenv_s("ALSOFT_LOGLEVEL", "3");
+#elif defined(DF3D_ANDROID)
+    setenv("ALSOFT_LOGLEVEL", "3");
+#endif
+#endif
 
     std::string devices;
     if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT") != AL_FALSE)
@@ -54,16 +61,30 @@ void AudioManager::initialize()
     alcMakeContextCurrent(m_pimpl->m_context);
 
     printOpenALError();
-    */
 }
 
 void AudioManager::shutdown()
 {
-    /*
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(m_pimpl->m_context);
     alcCloseDevice(m_pimpl->m_device);
-    */
+}
+
+void AudioManager::suspend()
+{
+#ifdef ALC_SOFT_pause_device
+    DFLOG_DEBUG("Doing alcDevicePauseSOFT");
+    alcDevicePauseSOFT(m_pimpl->m_device);
+#endif
+}
+
+void AudioManager::resume()
+{
+    alcMakeContextCurrent(m_pimpl->m_context);
+#ifdef ALC_SOFT_pause_device
+    DFLOG_DEBUG("Doing alcDeviceResumeSOFT");
+    alcDeviceResumeSOFT(m_pimpl->m_device);
+#endif
 }
 
 }

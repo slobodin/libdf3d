@@ -13,6 +13,9 @@ public:
 
     void initialize();
     void shutdown();
+
+    void suspend();
+    void resume();
 };
 
 }

@@ -166,11 +166,13 @@ void ResourceManager::poll()
 
 void ResourceManager::suspend()
 {
+    DFLOG_DEBUG("Suspending resource manager");
     m_threadPool->suspend();
 }
 
 void ResourceManager::resume()
 {
+    DFLOG_GAME("Resuming resource manager");
     m_threadPool->resume();
 }
 

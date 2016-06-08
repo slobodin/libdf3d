@@ -152,8 +152,9 @@ void EngineController::suspend()
     DF3D_ASSERT(m_initialized, "EngineController must be initialized");
     if (!m_suspended)
     {
-        DFLOG_DEBUG("Suspending resource manager");
         df3d::svc().resourceManager().suspend();
+        df3d::svc().audioManager().suspend();
+
         m_suspended = true;
     }
 }
@@ -163,8 +164,8 @@ void EngineController::resume()
     DF3D_ASSERT(m_initialized, "EngineController must be initialized");
     if (m_suspended)
     {
-        DFLOG_GAME("Resuming resource manager");
         df3d::svc().resourceManager().resume();
+        df3d::svc().audioManager().resume();
         m_suspended = false;
     }
 }

@@ -4,8 +4,10 @@
 #include <al.h>
 #include <alc.h>
 #else
+#define AL_ALEXT_PROTOTYPES
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <AL/alext.h>
 #endif
 
 namespace df3d { namespace audio_impl {
