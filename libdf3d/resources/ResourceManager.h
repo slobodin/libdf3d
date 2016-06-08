@@ -61,6 +61,9 @@ public:
     void shutdown();
     void poll();
 
+    void suspend();
+    void resume();
+
     //! All resources creation is going through this factory.
     ResourceFactory& getFactory() { return *m_factory; }
 
@@ -70,6 +73,8 @@ public:
     void unloadResource(shared_ptr<Resource> resource);
     //! Unloads all resources with refcount equals to 1.
     void unloadUnused();
+
+    void clear();
 
     //! Checks whether or not resource is present in the resource manager cache.
     /*!

@@ -36,6 +36,7 @@ class DF3D_DLL EngineController : utils::NonCopyable
     unique_ptr<World> m_world;
 
     bool m_initialized = false;
+    bool m_suspended = false;
 
 public:
     EngineController();
@@ -47,8 +48,13 @@ public:
     void shutdown();
     void step();
 
+    void suspend();
+    void resume();
+
     void setStringTable(const std::string &stringTablePath);
     void setFileSystem(unique_ptr<IFileSystem> fs);
+
+    bool isInitialized() const { return m_initialized; }
 
     glm::vec2 getScreenSize() const;
 

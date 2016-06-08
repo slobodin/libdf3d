@@ -128,8 +128,9 @@ ResourceManager::~ResourceManager()
 
 void ResourceManager::initialize()
 {
-    m_threadPool = make_unique<utils::ThreadPool>(2);
     m_factory = make_unique<ResourceFactory>(this);
+
+    m_threadPool = make_unique<utils::ThreadPool>(2);
 }
 
 void ResourceManager::shutdown()
@@ -163,6 +164,16 @@ void ResourceManager::poll()
     }
 }
 
+void ResourceManager::suspend()
+{
+    m_threadPool->suspend();
+}
+
+void ResourceManager::resume()
+{
+    m_threadPool->resume();
+}
+
 void ResourceManager::unloadResource(const ResourceGUID &guid)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
@@ -182,9 +193,6 @@ void ResourceManager::unloadResource(shared_ptr<Resource> resource)
 void ResourceManager::unloadUnused()
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-    m_threadPool->clear();
-    m_decodedResources.clear();
 
     // Do this in such a way, because one resource can reference to an another.
     while (true)
@@ -206,6 +214,16 @@ void ResourceManager::unloadUnused()
         if (!somethingRemoved)
             break;
     }
+}
+
+void ResourceManager::clear()
+{
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+    m_threadPool = make_unique<utils::ThreadPool>(2);
+    m_decodedResources.clear();
+
+    unloadUnused();
 }
 
 bool ResourceManager::isResourceExist(const ResourceGUID &guid) const

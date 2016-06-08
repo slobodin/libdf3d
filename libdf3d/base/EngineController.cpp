@@ -126,6 +126,9 @@ void EngineController::shutdown()
 
 void EngineController::step()
 {
+    if (m_suspended)
+        return;
+
     m_timer->update();
 
     // Update some engine subsystems.
@@ -142,6 +145,28 @@ void EngineController::step()
     // Clean step for engine subsystems.
     m_inputManager->cleanStep();
     m_systemTimeManager->cleanStep();
+}
+
+void EngineController::suspend()
+{
+    DF3D_ASSERT(m_initialized, "EngineController must be initialized");
+    if (!m_suspended)
+    {
+        DFLOG_DEBUG("Suspending resource manager");
+        df3d::svc().resourceManager().suspend();
+        m_suspended = true;
+    }
+}
+
+void EngineController::resume()
+{
+    DF3D_ASSERT(m_initialized, "EngineController must be initialized");
+    if (m_suspended)
+    {
+        DFLOG_GAME("Resuming resource manager");
+        df3d::svc().resourceManager().resume();
+        m_suspended = false;
+    }
 }
 
 void EngineController::setStringTable(const std::string &stringTablePath)
