@@ -13,6 +13,7 @@ static void keyCallback(GLFWwindow *window, int key, int scancode, int action, i
 static void textInputCallback(GLFWwindow *window, unsigned int codepoint);
 static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 static void cursorPosCallback(GLFWwindow *window, double x, double y);
+static void windowFocusCallback(GLFWwindow *window, int focus);
 
 #define DF3D_EMULATE_TOUCHES
 
@@ -73,6 +74,7 @@ public:
         glfwSetCharCallback(m_window, textInputCallback);
         glfwSetScrollCallback(m_window, scrollCallback);
         glfwSetCursorPosCallback(m_window, cursorPosCallback);
+        glfwSetWindowFocusCallback(m_window, windowFocusCallback);
 
         m_engine.reset(new EngineController());
         m_engine->initialize(params);
@@ -181,6 +183,20 @@ public:
 #endif
     }
 
+    void onFocus(int focused)
+    {
+        if (focused == 1)
+        {
+            m_appDelegate->onAppWillEnterForeground();
+            m_appDelegate->onAppDidBecomeActive();
+        }
+        else
+        {
+            m_appDelegate->onAppWillResignActive();
+            m_appDelegate->onAppDidEnterBackground();
+        }
+    }
+
     EngineController& getEngine() { return *m_engine; }
 };
 
@@ -205,18 +221,25 @@ static void textInputCallback(GLFWwindow *window, unsigned int codepoint)
     app->onTextInput(codepoint);
 }
 
-void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
+static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
 {
     auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
 
     app->onScroll(xoffset, yoffset);
 }
 
-void cursorPosCallback(GLFWwindow *window, double x, double y)
+static void cursorPosCallback(GLFWwindow *window, double x, double y)
 {
     auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
 
     app->onCursorMove(x, y);
+}
+
+static void windowFocusCallback(GLFWwindow *window, int focus)
+{
+    auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
+
+    app->onFocus(focus);
 }
 
 glfwApplication *g_application = nullptr;
