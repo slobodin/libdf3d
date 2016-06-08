@@ -25,6 +25,7 @@ AudioManager::~AudioManager()
 
 void AudioManager::initialize()
 {
+    /*
     DFLOG_MESS("Initializing OpenAL");
 
     std::string devices;
@@ -53,13 +54,16 @@ void AudioManager::initialize()
     alcMakeContextCurrent(m_pimpl->m_context);
 
     printOpenALError();
+    */
 }
 
 void AudioManager::shutdown()
 {
+    /*
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(m_pimpl->m_context);
     alcCloseDevice(m_pimpl->m_device);
+    */
 }
 
 }
