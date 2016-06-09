@@ -67,9 +67,11 @@ static std::string ShaderPreprocess(const std::string &shaderData)
 
     std::string precisionPrefix = "#ifdef GL_ES\n"
         "#define LOWP lowp\n"
-        "precision mediump float;\n"
+        "#define MEDIUMP mediump\n"
+        "precision highp float;\n"
         "#else\n"
         "#define LOWP\n"
+        "#define MEDIUMP\n"
         "#endif\n";
 
     return versionPrefix + precisionPrefix + ShaderIfdefsParse(shaderData);

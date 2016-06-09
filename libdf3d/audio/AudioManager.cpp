@@ -31,7 +31,7 @@ void AudioManager::initialize()
 #if defined(DF3D_WINDOWS)
     _putenv_s("ALSOFT_LOGLEVEL", "3");
 #elif defined(DF3D_ANDROID)
-    setenv("ALSOFT_LOGLEVEL", "3");
+    setenv("ALSOFT_LOGLEVEL", "3", 1);
 #endif
 #endif
 

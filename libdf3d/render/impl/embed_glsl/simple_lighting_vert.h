@@ -16,10 +16,9 @@ uniform mat4 u_worldViewMatrix;               \n\
 uniform mat4 u_worldViewProjectionMatrix;     \n\
 uniform mat3 u_normalMatrix;                  \n\
 \
-uniform vec4 material_diffuse;                  \n\
-uniform vec4 material_specular;                  \n\
-uniform float material_shininess;                  \n\
-uniform vec4 u_globalAmbient;                 \n\
+uniform LOWP vec4 material_diffuse;                  \n\
+uniform LOWP vec4 material_specular;                  \n\
+uniform MEDIUMP float material_shininess;                  \n\
 uniform Light current_light;                \n\
 \
 varying LOWP vec4 color;                    \n\
@@ -28,9 +27,9 @@ varying LOWP vec2 UV;                       \n\
 // Vertex in view space                     \n\
 vec3 P;                                     \n\
 // Vertex normal (view space)               \n\
-vec3 N;                                     \n\
+MEDIUMP vec3 N;                                     \n\
 // Vector to the camera. NOTE: camera position at (0, 0, 0) \n\
-vec3 V;                                     \n\
+MEDIUMP vec3 V;                                     \n\
 \
 vec4 illuminate()                                           \n\
 {                                                           \n\

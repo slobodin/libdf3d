@@ -6,7 +6,7 @@ attribute vec4 a_vertexColor;               \n\
 \
 uniform mat4 u_worldViewProjectionMatrix;   \n\
 \
-uniform vec4 material_diffuse;                  \n\
+uniform LOWP vec4 material_diffuse;                  \n\
 \
 varying LOWP vec4 color;                    \n\
 varying LOWP vec2 UV;                       \n\

@@ -3,8 +3,8 @@
 attribute vec3 a_vertex3;                   \n\
 \
 uniform mat4 u_worldViewProjectionMatrix;   \n\
-uniform vec4 u_globalAmbient;               \n\
-uniform vec4 material_ambient;              \n\
+uniform LOWP vec4 u_globalAmbient;               \n\
+uniform LOWP vec4 material_ambient;              \n\
 \
 varying LOWP vec4 color;                    \n\
 \
