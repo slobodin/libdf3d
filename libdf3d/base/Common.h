@@ -44,7 +44,7 @@ using std::static_pointer_cast;
 // FIXME: use asm("int 3") on simulator
 #define DEBUG_BREAK() asm("trap")
 #else
-#define DEBUG_BREAK()
+#define DEBUG_BREAK() ((void) 0)
 #endif
 
 #if defined(max)
@@ -58,7 +58,7 @@ using std::static_pointer_cast;
 #ifdef _DEBUG
 #define DF3D_ASSERT(cond, msg) do { if (!(cond)) { DFLOG_CRITICAL("Assertion failed: %s", msg); DEBUG_BREAK(); } } while (0)
 #else
-#define DF3D_ASSERT(cond, msg)
+#define DF3D_ASSERT(cond, msg) ((void) 0)
 #endif
 
 namespace df3d {
