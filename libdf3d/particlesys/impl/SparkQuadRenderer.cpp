@@ -30,8 +30,6 @@ public:
 void ParticleSystemBuffers_Quad::cleanup()
 {
     delete[] m_vertexData;
-    if (m_vertexBuffer.valid())
-        svc().renderManager().getBackend().destroyVertexBuffer(m_vertexBuffer);
     if (m_indexBuffer.valid())
         svc().renderManager().getBackend().destroyIndexBuffer(m_indexBuffer);
 }
@@ -59,16 +57,6 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
     // Allocate main memory storage copy (no glMapBuffer on ES2.0)
     m_vertexData = new SpkVertexData[nbParticles * QUAD_VERTICES_PER_PARTICLE];
 
-    // Allocate GPU storage.
-    m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(vertex_formats::p3_tx2_c4,
-                                                                           nbParticles * QUAD_VERTICES_PER_PARTICLE,
-                                                                           nullptr,
-                                                                           GpuBufferUsageType::DYNAMIC);
-
-    m_indexBuffer = svc().renderManager().getBackend().createIndexBuffer(nbParticles * QUAD_INDICES_PER_PARTICLE,
-                                                                         nullptr,
-                                                                         GpuBufferUsageType::STATIC);
-
     positionAtStart();
 
     // Initialize the index array.
@@ -85,17 +73,9 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
     }
 
     // Initialize GPU storage of index array.
-    svc().renderManager().getBackend().updateIndexBuffer(m_indexBuffer, nbParticles * QUAD_INDICES_PER_PARTICLE, indexData.data());
-
-    // Initialize the texture array (CCW order).
-    for (size_t i = 0; i < nbParticles; ++i)
-    {
-        // FIXME: inverted UV's Y because of OpenGL.
-        setNextTexCoords(1.0f, 0.0f);
-        setNextTexCoords(0.0f, 0.0f);
-        setNextTexCoords(0.0f, 1.0f);
-        setNextTexCoords(1.0f, 1.0f);
-    }
+    m_indexBuffer = svc().renderManager().getBackend().createIndexBuffer(nbParticles * QUAD_INDICES_PER_PARTICLE,
+                                                                         indexData.data(),
+                                                                         GpuBufferUsageType::STATIC);
 
     m_particlesAllocated = nbParticles;
 }
@@ -107,18 +87,23 @@ void ParticleSystemBuffers_Quad::draw(size_t nbOfParticles, RenderPass *passProp
 
     DF3D_ASSERT(nbOfParticles <= m_particlesAllocated, "sanity check");
 
-    // Refill GPU with new data (only vertices have been changed).
-    svc().renderManager().getBackend().updateVertexBuffer(m_vertexBuffer, nbOfParticles * QUAD_VERTICES_PER_PARTICLE, m_vertexData);
+    // Stream draw is more efficient than updating existent vertex buffer on mobile GPU.
+    auto vb = svc().renderManager().getBackend().createVertexBuffer(vertex_formats::p3_tx2_c4,
+                                                                    nbOfParticles * QUAD_VERTICES_PER_PARTICLE,
+                                                                    m_vertexData,
+                                                                    GpuBufferUsageType::STREAM);
 
     RenderOperation op;
     op.type = RopType::TRIANGLES;
     op.indexBuffer = m_indexBuffer;
-    op.vertexBuffer = m_vertexBuffer;
+    op.vertexBuffer = vb;
     op.passProps = passProps;
     op.worldTransform = m;
     op.numberOfElements = nbOfParticles * QUAD_INDICES_PER_PARTICLE;
 
     svc().renderManager().drawRenderOperation(op);
+
+    svc().renderManager().getBackend().destroyVertexBuffer(vb);
 }
 
 void QuadParticleSystemRenderer::render2D(const SPK::Particle &particle, MyRenderBuffer &renderBuffer) const

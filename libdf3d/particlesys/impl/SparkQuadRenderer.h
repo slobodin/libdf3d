@@ -16,7 +16,6 @@ class ParticleSystemBuffers_Quad
     const size_t INITIAL_CAPACITY = 64;
 
     size_t m_particlesAllocated = 0;
-    VertexBufferDescriptor m_vertexBuffer;
     IndexBufferDescriptor m_indexBuffer;
 
     struct SpkVertexData
