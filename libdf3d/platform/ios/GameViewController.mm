@@ -7,27 +7,95 @@
 #import <OpenGLES/ES2/glext.h>
 
 #import <libdf3d/df3d.h>
-#import "GLView.h"
 #import "AppDelegate.h"
 
 @interface GameViewController () {
 
 }
+@property (strong, nonatomic) EAGLContext *context;
+
+- (void)setupGL;
+- (void)tearDownGL;
 
 @end
 
 @implementation GameViewController {
     CGFloat contentScaleFactor;
     df3d::TouchID primaryTouchId;
-    int screenWidth;
-    int screenHeight;
 }
 
 - (void)viewDidLoad
 {
-    primaryTouchId = df3d::Touch::INVALID_ID;
-    contentScaleFactor = [[UIScreen mainScreen] scale];
+    [super viewDidLoad];
 
+    contentScaleFactor = [UIScreen mainScreen].scale;
+    primaryTouchId = df3d::Touch::INVALID_ID;
+
+    df3dSetApplicationDelegate();
+
+    self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+
+    if (self.context)
+    {
+        GLKView *view = (GLKView *)self.view;
+        view.multipleTouchEnabled = true;
+        view.context = self.context;
+        view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
+        view.drawableStencilFormat = GLKViewDrawableStencilFormat8;
+        view.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
+        
+        [self setupGL];
+    }
+    else
+    {
+        NSLog(@"Failed to create ES context");
+    }
+}
+
+- (void)dealloc
+{
+    [self tearDownGL];
+
+    if ([EAGLContext currentContext] == self.context) {
+        [EAGLContext setCurrentContext:nil];
+    }
+
+    [self.context release];
+
+    [super dealloc];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+
+    if ([self isViewLoaded] && ([[self view] window] == nil)) {
+        self.view = nil;
+
+        [self tearDownGL];
+
+        if ([EAGLContext currentContext] == self.context) {
+            [EAGLContext setCurrentContext:nil];
+        }
+        [self.context release];
+        self.context = nil;
+    }
+
+    // Dispose of any resources that can be recreated.
+}
+
+- (BOOL)prefersStatusBarHidden {
+    return YES;
+}
+
+- (void)setupGL
+{
+    self.preferredFramesPerSecond = 60.0f;
+    [EAGLContext setCurrentContext:self.context];
+
+    GetIOSAppState().engine.reset(new df3d::EngineController());
+
+    int screenWidth, screenHeight;
     // Get screen size.
     if ([[[UIDevice currentDevice] systemVersion] floatValue] < 8.0)
     {
@@ -46,13 +114,6 @@
     if (UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation))
         std::swap(screenWidth, screenHeight);
 
-    _glView = [[GLView alloc] initWithFrame:self.view.bounds];
-    [self.view addSubview:_glView];
-
-    [super viewDidLoad];
-
-    df3dSetApplicationDelegate();
-
     auto engineInitParams = GetIOSAppState().appDelegate->getInitParams();
     engineInitParams.windowWidth = screenWidth;
     engineInitParams.windowHeight = screenHeight;
@@ -62,15 +123,14 @@
         DFLOG_CRITICAL("Game code initialization failed");
 }
 
-- (void)dealloc
+- (void)tearDownGL
 {
-    [_glView release];
-    [super dealloc];
+    [EAGLContext setCurrentContext:self.context];
 }
 
-- (BOOL)prefersStatusBarHidden
+- (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    return YES;
+    GetIOSAppState().engine->step();
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
