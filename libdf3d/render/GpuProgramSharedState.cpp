@@ -224,6 +224,26 @@ void GpuProgramSharedState::updateSharedUniforms(const GpuProgram &program)
         case SharedUniformType::ELAPSED_TIME_UNIFORM:
             data = &m_engineElapsedTime;
             break;
+        case SharedUniformType::COUNT:
+        default:
+            break;
+        }
+
+        if (data)
+            svc().renderManager().getBackend().setUniformValue(sharedUni.descr, data);
+    }
+}
+
+void GpuProgramSharedState::updateSharedLightUniforms(const GpuProgram &program)
+{
+    const auto &sharedUniforms = program.getSharedUniforms();
+
+    for (const auto &sharedUni : sharedUniforms)
+    {
+        const void *data = nullptr;
+
+        switch (sharedUni.type)
+        {
         case SharedUniformType::SCENE_LIGHT_DIFFUSE_UNIFORM:
             data = glm::value_ptr(m_currentLight.diffuseParam);
             break;
@@ -244,7 +264,6 @@ void GpuProgramSharedState::updateSharedUniforms(const GpuProgram &program)
             break;
         case SharedUniformType::COUNT:
         default:
-            DFLOG_WARN("Can not set shared value to a not shared uniform");
             break;
         }
 

@@ -78,6 +78,7 @@ public:
     void clear();
 
     void updateSharedUniforms(const GpuProgram &program);
+    void updateSharedLightUniforms(const GpuProgram &program);  // Forward rendering
 };
 
 }

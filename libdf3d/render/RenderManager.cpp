@@ -104,8 +104,8 @@ void RenderManager::doRenderWorld(World &world)
         for (const auto &light : m_renderQueue->lights)
         {
             m_sharedState->setLight(*light);
-
-            m_sharedState->updateSharedUniforms(*op.passProps->getGpuProgram());
+            // Update only light uniforms.
+            m_sharedState->updateSharedLightUniforms(*op.passProps->getGpuProgram());
 
             m_renderBackend->bindVertexBuffer(op.vertexBuffer);
             if (op.indexBuffer.valid())
