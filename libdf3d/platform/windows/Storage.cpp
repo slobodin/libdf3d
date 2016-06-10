@@ -1,7 +1,5 @@
 #include <libdf3d/io/Storage.h>
 
-#include <libdf3d/utils/JsonUtils.h>
-
 namespace df3d { namespace platform_impl {
 
 class WindowsStorage : public Storage

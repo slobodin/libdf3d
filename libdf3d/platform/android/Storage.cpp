@@ -1,7 +1,6 @@
 #include <libdf3d/io/Storage.h>
 
 #include "JNIHelpers.h"
-#include <libdf3d/utils/JsonUtils.h>
 
 namespace df3d { namespace platform_impl {
 
