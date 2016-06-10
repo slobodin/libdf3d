@@ -43,7 +43,8 @@
         view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
         view.drawableStencilFormat = GLKViewDrawableStencilFormat8;
         view.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
-        
+//        [view setDrawableMultisample:GLKViewDrawableMultisample4X];
+
         [self setupGL];
     }
     else
