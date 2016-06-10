@@ -14,6 +14,7 @@
 #include <stdexcept>
 #include <memory>
 #include <chrono>
+#include <csignal>
 
 #define GLM_FORCE_RADIANS
 //#define GLM_MESSAGES
@@ -41,8 +42,7 @@ using std::static_pointer_cast;
 #if defined(DF3D_WINDOWS)
 #define DEBUG_BREAK() __debugbreak()
 #elif defined(DF3D_IOS)
-// FIXME: use asm("int 3") on simulator
-#define DEBUG_BREAK() asm("trap")
+#define DEBUG_BREAK() std::raise(SIGTRAP)
 #else
 #define DEBUG_BREAK() ((void) 0)
 #endif
