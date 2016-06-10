@@ -11,6 +11,7 @@ set(ogg_HEADER_LIST
 )
 
 set(ogg_SRC_LIST
+    ${PROJECT_SOURCE_DIR}/bitwise.c
     ${PROJECT_SOURCE_DIR}/framing.c
 )
 
