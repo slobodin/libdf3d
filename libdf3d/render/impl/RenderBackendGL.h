@@ -113,6 +113,7 @@ class RenderBackendGL : public IRenderBackend
         bool depthTest = false;
         bool depthWrite = false;
         bool scissorTest = false;
+        bool blendingEnabled = false;
     };
 
     DrawState m_drawState;

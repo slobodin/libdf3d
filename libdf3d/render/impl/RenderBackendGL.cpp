@@ -1038,25 +1038,33 @@ void RenderBackendGL::setBlendingMode(BlendingMode mode)
     if (m_drawState.blendingMode == mode)
         return;
 
+    bool enableBlending = true;
+
     switch (mode)
     {
     case BlendingMode::NONE:
-        GL_CHECK(glDisable(GL_BLEND));
+        enableBlending = false;
         break;
     case BlendingMode::ADDALPHA:
-        GL_CHECK(glEnable(GL_BLEND));
         GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE));
         break;
     case BlendingMode::ALPHA:
-        GL_CHECK(glEnable(GL_BLEND));
         GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         break;
     case BlendingMode::ADD:
-        GL_CHECK(glEnable(GL_BLEND));
         GL_CHECK(glBlendFunc(GL_ONE, GL_ONE));
         break;
     default:
         break;
+    }
+
+    if (enableBlending != m_drawState.blendingEnabled)
+    {
+        if (enableBlending)
+            GL_CHECK(glEnable(GL_BLEND));
+        else
+            GL_CHECK(glDisable(GL_BLEND));
+        m_drawState.blendingEnabled = enableBlending;
     }
 
     m_drawState.blendingMode = mode;
