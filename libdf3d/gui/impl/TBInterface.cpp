@@ -162,13 +162,11 @@ class TBRendererImpl : public tb::TBRenderer
             DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::POSITION_3) == 0, "sanity check");
             DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::TX_2) == sizeof(glm::vec3), "sanity check");
             DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::COLOR_4) == sizeof(glm::vec3) + sizeof(glm::vec2), "sanity check");
-
-            m_vb = svc().renderManager().getBackend().createVertexBuffer(vertex_formats::p3_tx2_c4, VERTEX_BATCH_SIZE, nullptr, df3d::GpuBufferUsageType::DYNAMIC);
         }
 
         ~Batch()
         {
-            svc().renderManager().getBackend().destroyVertexBuffer(m_vb);
+
         }
 
         void Flush(TBRendererImpl *batch_renderer)
@@ -191,9 +189,11 @@ class TBRendererImpl : public tb::TBRenderer
                 assert(frag_bitmap == bitmap);
             }
 
-            svc().renderManager().getBackend().updateVertexBuffer(m_vb, vertex_count, vertex);
+            auto vb = svc().renderManager().getBackend().createVertexBuffer(vertex_formats::p3_tx2_c4, vertex_count, vertex, df3d::GpuBufferUsageType::STREAM);
 
-            batch_renderer->RenderBatch(this);
+            batch_renderer->RenderBatch(this, vb);
+
+            svc().renderManager().getBackend().destroyVertexBuffer(vb);
 
             vertex_count = 0;
 
@@ -215,7 +215,6 @@ class TBRendererImpl : public tb::TBRenderer
 
         VertexTB vertex[VERTEX_BATCH_SIZE];
 
-        df3d::VertexBufferDescriptor m_vb;
         int vertex_count = 0;
 
         tb::TBBitmap *bitmap = nullptr;
@@ -482,7 +481,7 @@ public:
         return bitmap;
     }
 
-    void RenderBatch(Batch *batch)
+    void RenderBatch(Batch *batch, VertexBufferDescriptor vb)
     {
         shared_ptr<Texture> texture = nullptr;
         if (batch->bitmap)
@@ -491,7 +490,7 @@ public:
         m_guipass.getPassParam(m_diffuseMapParam)->setValue(texture);
 
         RenderOperation op;
-        op.vertexBuffer = batch->m_vb;
+        op.vertexBuffer = vb;
         op.passProps = &m_guipass;
         op.numberOfElements = batch->vertex_count;
 
