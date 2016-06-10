@@ -12,7 +12,6 @@ set(squirrel_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/include/sqstdio.h
     ${PROJECT_SOURCE_DIR}/include/sqstdmath.h
     ${PROJECT_SOURCE_DIR}/include/sqstdstring.h
-    ${PROJECT_SOURCE_DIR}/include/sqstdsystem.h
     ${PROJECT_SOURCE_DIR}/include/squirrel.h
     ${PROJECT_SOURCE_DIR}/include/sqconfig.h
 
@@ -58,7 +57,6 @@ set(squirrel_SRC_LIST
     ${PROJECT_SOURCE_DIR}/sqstdlib/sqstdrex.cpp
     ${PROJECT_SOURCE_DIR}/sqstdlib/sqstdstream.cpp
     ${PROJECT_SOURCE_DIR}/sqstdlib/sqstdstring.cpp
-    ${PROJECT_SOURCE_DIR}/sqstdlib/sqstdsystem.cpp
 )
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
