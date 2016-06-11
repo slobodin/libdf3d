@@ -86,7 +86,7 @@ using std::static_pointer_cast;
 #else
 
 #define DF3D_VERIFY(cond) do { (void)(cond); } while(0)
-#define DF3D_ASSERT(cond, msg) ((void) 0)
+#define DF3D_ASSERT(cond) ((void) 0)
 #define DF3D_ASSERT_MESS(cond, msg) ((void) 0)
 
 #endif
