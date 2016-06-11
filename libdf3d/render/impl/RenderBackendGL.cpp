@@ -168,6 +168,7 @@ static GLenum GetGLDrawMode(RopType type)
     return GL_INVALID_ENUM;
 }
 
+#ifdef _DEBUG
 static void PrintShaderLog(GLuint shader)
 {
     int infologLen = 0;
@@ -189,6 +190,7 @@ static void PrintGpuProgramLog(unsigned int program)
 
     DFLOG_MESS("GPU program info log: %s", infoLog.get());
 }
+#endif
 
 RenderBackendGL::RenderBackendGL(int width, int height)
     : m_vertexBuffersBag(MAX_SIZE),
