@@ -4,7 +4,8 @@ IF(BUILD_BULLET3)
 	SUBDIRS(  BulletInverseDynamics  )
 ENDIF(BUILD_BULLET3)
 
-SUBDIRS(  BulletSoftBody BulletCollision BulletDynamics LinearMath )
+# SUBDIRS(  BulletSoftBody BulletCollision BulletDynamics LinearMath )
+SUBDIRS(  BulletCollision BulletDynamics LinearMath )
 
 
 IF(INSTALL_LIBS)
