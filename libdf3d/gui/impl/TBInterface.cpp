@@ -409,7 +409,7 @@ public:
 
     void AddQuadInternal(const tb::TBRect &dst_rect, const tb::TBRect &src_rect, const tb::TBColor &color, tb::TBBitmap *bitmap, tb::TBBitmapFragment *fragment)
     {
-        if (!m_batch)
+        if (UNLIKELY(!m_batch))
             return;
 
         if (m_batch->bitmap != bitmap)

@@ -47,6 +47,14 @@ using std::static_pointer_cast;
 #define DEBUG_BREAK() ((void) 0)
 #endif
 
+#ifndef _MSC_VER
+#define LIKELY(expr) __builtin_expect(!!(expr), 1)
+#define UNLIKELY(expr) __builtin_expect(!!(expr), 0)
+#else
+#define LIKELY(expr) expr
+#define UNLIKELY(expr) expr
+#endif
+
 #if defined(max)
 #undef max
 #endif

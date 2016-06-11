@@ -82,7 +82,7 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
 
 void ParticleSystemBuffers_Quad::draw(size_t nbOfParticles, RenderPass *passProps, const glm::mat4 &m)
 {
-    if (nbOfParticles == 0)
+    if (UNLIKELY(nbOfParticles == 0))
         return;
 
     DF3D_ASSERT(nbOfParticles <= m_particlesAllocated);

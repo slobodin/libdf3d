@@ -94,7 +94,7 @@ void RenderManager::doRenderWorld(World &world)
 
     for (const auto &op : m_renderQueue->litOpaqueOperations)
     {
-        if (!op.passProps->getGpuProgram())
+        if (UNLIKELY(!op.passProps->getGpuProgram()))
             continue;
 
         m_sharedState->setWorldMatrix(op.worldTransform);
@@ -159,11 +159,11 @@ void RenderManager::doRenderWorld(World &world)
 
 void RenderManager::bindPass(RenderPass *pass)
 {
-    if (!pass)
+    if (UNLIKELY(!pass))
         return;
 
     auto gpuProgram = pass->getGpuProgram();
-    if (!gpuProgram)
+    if (UNLIKELY(!gpuProgram))
     {
         DFLOG_WARN("Failed to bind pass. No GPU program");
         return;
@@ -314,7 +314,7 @@ void RenderManager::forgetEmbedResources()
 
 void RenderManager::drawWorld(World &world)
 {
-    if (!m_renderBackend)
+    if (UNLIKELY(!m_renderBackend))
         return;
 
     onFrameBegin();
@@ -326,7 +326,7 @@ void RenderManager::drawWorld(World &world)
 
 void RenderManager::drawRenderOperation(const RenderOperation &op)
 {
-    if (op.numberOfElements == 0)
+    if (UNLIKELY(op.numberOfElements == 0))
     {
         DF3D_ASSERT_MESS(false, "invalid elements count to draw");
         return;
