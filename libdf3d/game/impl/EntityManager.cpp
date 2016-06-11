@@ -27,8 +27,7 @@ void EntityManager::destroy(Entity e)
 {
     DF3D_ASSERT_MESS(e.valid(), "can't destroy invalid entity");
 
-    auto count = m_entities.erase(e);
-    DF3D_ASSERT_MESS(count == 1, "failed to destroy an entity");
+    DF3D_VERIFY(m_entities.erase(e) == 1);
     // NOTE: component data should be destroyed later via World::cleanStep
 
     m_bag.release(e.id);
