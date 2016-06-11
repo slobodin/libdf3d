@@ -8,7 +8,7 @@ namespace df3d { namespace utils { namespace mesh {
 void indexize()
 {
     // TODO:
-    DF3D_ASSERT(false, "not implemented");
+    DF3D_ASSERT_MESS(false, "not implemented");
 
     //std::map<render::Vertex, render::INDICES_TYPE> alreadyIndexed;
     //render::IndexArray indexBuffer;
@@ -65,7 +65,7 @@ void computeNormals(SubMesh &submesh)
     // Indexed.
     if (submesh.hasIndices())
     {
-        DF3D_ASSERT(false, "please check it works");
+        DF3D_ASSERT_MESS(false, "please check it works");
 
         const auto &indices = submesh.getIndices();
         for (size_t ind = 0; ind < indices.size(); ind += 3)

@@ -56,9 +56,31 @@ using std::static_pointer_cast;
 #endif
 
 #ifdef _DEBUG
-#define DF3D_ASSERT(cond, msg) do { if (!(cond)) { DFLOG_CRITICAL("Assertion failed: %s", msg); DEBUG_BREAK(); } } while (0)
+
+#define DF3D_ASSERT(cond) \
+    do { \
+        if (!(cond)) { \
+            DFLOG_CRITICAL("Assertion failed: %s. File: %s, line: %d", #cond, __FILE__, __LINE__); \
+            DEBUG_BREAK(); \
+        } \
+    } while (0)
+
+#define DF3D_ASSERT_MESS(cond, msg) \
+    do { \
+        if (!(cond)) { \
+            DFLOG_CRITICAL("Assertion failed: %s. File: %s, line: %d", msg, __FILE__, __LINE__); \
+            DEBUG_BREAK();\
+        } \
+    } while (0)
+
+#define DF3D_VERIFY(cond) DF3D_ASSERT(cond)
+
 #else
+
+#define DF3D_VERIFY(cond) do { (void)(cond); } while(0)
 #define DF3D_ASSERT(cond, msg) ((void) 0)
+#define DF3D_ASSERT_MESS(cond, msg) ((void) 0)
+
 #endif
 
 namespace df3d {

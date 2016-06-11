@@ -99,7 +99,7 @@ void ThreadPool::suspend()
 
 void ThreadPool::resume()
 {
-    DF3D_ASSERT(m_workers.empty(), "workers list must be empty");
+    DF3D_ASSERT(m_workers.empty());
 
     m_stop = false;
     m_workers.clear();

@@ -44,7 +44,7 @@ void SubMesh::setMaterial(shared_ptr<Material> material)
 
 void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
 {
-    DF3D_ASSERT(!isInitialized(), "mesh already initialized");
+    DF3D_ASSERT_MESS(!isInitialized(), "mesh is already initialized");
 
     m_trianglesCount = 0;
 
@@ -138,7 +138,7 @@ void MeshData::setMaterial(const Material &newMaterial, size_t submeshIdx)
 
 Material& MeshData::getMaterial(size_t submeshIdx)
 {
-    DF3D_ASSERT(isInitialized(), "mesh should be initialized");
+    DF3D_ASSERT_MESS(isInitialized(), "mesh should be initialized");
 
     return *m_submeshMaterials.at(submeshIdx);
 }
@@ -193,7 +193,7 @@ const ConvexHull* MeshData::getConvexHull() const
 
 void MeshData::populateRenderQueue(RenderQueue *ops, const glm::mat4 &transformation)
 {
-    DF3D_ASSERT(m_submeshes.size() == m_submeshMaterials.size(), "sanity check");
+    DF3D_ASSERT(m_submeshes.size() == m_submeshMaterials.size());
 
     // Include all the submeshes.
     for (size_t i = 0; i < m_submeshes.size(); i++)

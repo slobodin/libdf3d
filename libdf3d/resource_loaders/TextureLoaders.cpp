@@ -37,7 +37,7 @@ static void skip(void *user, int n)
     if (n < 0)
     {
         // TODO:
-        DF3D_ASSERT(false, "not implemented");
+        DF3D_ASSERT_MESS(false, "not implemented");
     }
 
     auto dataSource = static_cast<FileDataSource*>(user);
@@ -102,7 +102,7 @@ static unique_ptr<PixelBuffer> LoadRaw(shared_ptr<FileDataSource> source)
         return nullptr;
     }
 
-    DF3D_ASSERT(uncompressedSizeGot == uncompressedSize, "sanity check");
+    DF3D_ASSERT(uncompressedSizeGot == uncompressedSize);
 
     return make_unique<PixelBuffer>(header.width, header.height, uncompressedData, fmt, false);
 }

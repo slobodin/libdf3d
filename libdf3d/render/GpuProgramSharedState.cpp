@@ -150,7 +150,7 @@ void GpuProgramSharedState::setLight(const Light &light)
     }
     else if (light.getType() == Light::Type::OMNI)
     {
-        DF3D_ASSERT(false, "unsupported"); // TODO:
+        DF3D_ASSERT_MESS(false, "unsupported"); // TODO:
         auto pos = light.getPosition();
         m_currentLight.positionParam = getViewMatrix() * glm::vec4(pos, 1.0f);
     }

@@ -34,7 +34,7 @@ EngineController::~EngineController()
 
 void EngineController::initialize(EngineInitParams params)
 {
-    DF3D_ASSERT(!m_initialized, "engine controller already initialized");
+    DF3D_ASSERT_MESS(!m_initialized, "engine controller already initialized");
 
     DFLOG_MESS("Initializing df3d engine, width %d, height %d", params.windowWidth, params.windowHeight);
 
@@ -100,7 +100,7 @@ void EngineController::initialize(EngineInitParams params)
 
 void EngineController::shutdown()
 {
-    DF3D_ASSERT(m_initialized, "failed to shutdown the engine, it's not initialized");
+    DF3D_ASSERT_MESS(m_initialized, "failed to shutdown the engine, it's not initialized");
 
     m_world->destroyWorld();
     m_world.reset();
@@ -149,7 +149,7 @@ void EngineController::step()
 
 void EngineController::suspend()
 {
-    DF3D_ASSERT(m_initialized, "EngineController must be initialized");
+    DF3D_ASSERT_MESS(m_initialized, "EngineController must be initialized");
     if (!m_suspended)
     {
         df3d::svc().resourceManager().suspend();
@@ -161,7 +161,7 @@ void EngineController::suspend()
 
 void EngineController::resume()
 {
-    DF3D_ASSERT(m_initialized, "EngineController must be initialized");
+    DF3D_ASSERT_MESS(m_initialized, "EngineController must be initialized");
     if (m_suspended)
     {
         df3d::svc().resourceManager().resume();

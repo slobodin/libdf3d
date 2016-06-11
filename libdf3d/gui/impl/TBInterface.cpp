@@ -45,7 +45,7 @@ public:
     {
         if (elemSize != 1)
         {
-            DF3D_ASSERT(false, "not implemented");
+            DF3D_ASSERT_MESS(false, "not implemented");
             return 0;
         }
 
@@ -158,10 +158,10 @@ class TBRendererImpl : public tb::TBRenderer
 
         Batch()
         {
-            DF3D_ASSERT(sizeof(VertexTB) == vertex_formats::p3_tx2_c4.getVertexSize(), "sanity check");
-            DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::POSITION_3) == 0, "sanity check");
-            DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::TX_2) == sizeof(glm::vec3), "sanity check");
-            DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::COLOR_4) == sizeof(glm::vec3) + sizeof(glm::vec2), "sanity check");
+            DF3D_ASSERT(sizeof(VertexTB) == vertex_formats::p3_tx2_c4.getVertexSize());
+            DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::POSITION_3) == 0);
+            DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::TX_2) == sizeof(glm::vec3));
+            DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::COLOR_4) == sizeof(glm::vec3) + sizeof(glm::vec2));
         }
 
         ~Batch()

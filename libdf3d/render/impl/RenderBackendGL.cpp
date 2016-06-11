@@ -332,7 +332,7 @@ void RenderBackendGL::frameEnd()
 
 df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage)
 {
-    DF3D_ASSERT(verticesCount > 0, "sanity check");
+    DF3D_ASSERT(verticesCount > 0);
 
     VertexBufferDescriptor vb = { m_vertexBuffersBag.getNew() };
     if (!vb.valid())
@@ -390,7 +390,7 @@ void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
     //    return;
 
     const auto &vertexBuffer = m_vertexBuffers[vb.id];
-    DF3D_ASSERT(vertexBuffer.gl_id != 0, "sanity check");
+    DF3D_ASSERT(vertexBuffer.gl_id != 0);
 
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id));
 
@@ -412,12 +412,12 @@ void RenderBackendGL::updateVertexBuffer(VertexBufferDescriptor vb, size_t verti
     DESCRIPTOR_CHECK(vb);
 
     const auto &vertexBuffer = m_vertexBuffers[vb.id];
-    DF3D_ASSERT(vertexBuffer.gl_id != 0, "sanity check");
+    DF3D_ASSERT(vertexBuffer.gl_id != 0);
 
     auto bytesUpdating = verticesCount * vertexBuffer.format->getVertexSize();
 
-    DF3D_ASSERT(bytesUpdating <= vertexBuffer.sizeInBytes, "sanity check");
-    DF3D_ASSERT(vertexBuffer.gl_id != 0, "sanity check");
+    DF3D_ASSERT(bytesUpdating <= vertexBuffer.sizeInBytes);
+    DF3D_ASSERT(vertexBuffer.gl_id != 0);
 
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id));
     GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, 0, bytesUpdating, data));
@@ -428,7 +428,7 @@ void RenderBackendGL::updateVertexBuffer(VertexBufferDescriptor vb, size_t verti
 
 df3d::IndexBufferDescriptor RenderBackendGL::createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage)
 {
-    DF3D_ASSERT(indicesCount > 0, "sanity check");
+    DF3D_ASSERT(indicesCount > 0);
 
     IndexBufferDescriptor ib = { m_indexBuffersBag.getNew() };
     if (!ib.valid())
@@ -482,7 +482,7 @@ void RenderBackendGL::bindIndexBuffer(IndexBufferDescriptor ib)
     //    return;
 
     const auto &indexBuffer = m_indexBuffers[ib.id];
-    DF3D_ASSERT(indexBuffer.gl_id != 0, "sanity check");
+    DF3D_ASSERT(indexBuffer.gl_id != 0);
 
     GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id));
 
@@ -495,12 +495,12 @@ void RenderBackendGL::updateIndexBuffer(IndexBufferDescriptor ib, size_t indices
     DESCRIPTOR_CHECK(ib);
 
     const auto &indexBuffer = m_indexBuffers[ib.id];
-    DF3D_ASSERT(indexBuffer.gl_id != 0, "sanity check");
+    DF3D_ASSERT(indexBuffer.gl_id != 0);
 
     auto bytesUpdating = indicesCount * sizeof(INDICES_TYPE);
 
-    DF3D_ASSERT(bytesUpdating <= indexBuffer.sizeInBytes, "sanity check");
-    DF3D_ASSERT(indexBuffer.gl_id != 0, "sanity check");
+    DF3D_ASSERT(bytesUpdating <= indexBuffer.sizeInBytes);
+    DF3D_ASSERT(indexBuffer.gl_id != 0);
 
     GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id));
     GL_CHECK(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, bytesUpdating, data));
@@ -660,7 +660,7 @@ void RenderBackendGL::updateTexture(TextureDescriptor t, int w, int h, const voi
     DESCRIPTOR_CHECK(t);
 
     const auto &texture = m_textures[t.id];
-    DF3D_ASSERT(texture.type != GL_INVALID_ENUM, "sanity check");
+    DF3D_ASSERT(texture.type != GL_INVALID_ENUM);
 
     GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture.gl_id));
     GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, texture.pixelFormat, GL_UNSIGNED_BYTE, data));
@@ -673,7 +673,7 @@ void RenderBackendGL::destroyTexture(TextureDescriptor t)
     const auto &texture = m_textures[t.id];
     if (texture.type == GL_INVALID_ENUM)
     {
-        DF3D_ASSERT(false, "sanity check");
+        DF3D_ASSERT(false);
         return;
     }
 
@@ -681,7 +681,7 @@ void RenderBackendGL::destroyTexture(TextureDescriptor t)
     if (texture.gl_id)
         GL_CHECK(glDeleteTextures(1, &texture.gl_id));
 
-    DF3D_ASSERT(m_stats.textures > 0 && m_stats.textureMemoryBytes >= texture.sizeInBytes, "sanity check");
+    DF3D_ASSERT(m_stats.textures > 0 && m_stats.textureMemoryBytes >= texture.sizeInBytes);
     m_stats.textures--;
     m_stats.textureMemoryBytes -= texture.sizeInBytes;
 
@@ -695,7 +695,7 @@ void RenderBackendGL::bindTexture(TextureDescriptor t, int unit)
     DESCRIPTOR_CHECK(t);
 
     const auto &texture = m_textures[t.id];
-    DF3D_ASSERT(texture.gl_id != 0 && texture.type != GL_INVALID_ENUM, "sanity check");
+    DF3D_ASSERT(texture.gl_id != 0 && texture.type != GL_INVALID_ENUM);
 
     GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
     GL_CHECK(glBindTexture(texture.type, texture.gl_id));
@@ -803,7 +803,7 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor ve
     const auto &vertexShaderGL = m_shaders[vertexShader.id];
     const auto &fragmentShaderGL = m_shaders[fragmentShader.id];
 
-    DF3D_ASSERT(vertexShaderGL.gl_id && fragmentShaderGL.gl_id, "sanity check");
+    DF3D_ASSERT(vertexShaderGL.gl_id && fragmentShaderGL.gl_id);
 
     GL_CHECK(glAttachShader(program.gl_id, vertexShaderGL.gl_id));
     GL_CHECK(glAttachShader(program.gl_id, fragmentShaderGL.gl_id));
@@ -873,7 +873,7 @@ void RenderBackendGL::bindGpuProgram(GpuProgramDescriptor program)
         return;
 
     const auto &programGL = m_programs[program.id];
-    DF3D_ASSERT(programGL.gl_id != 0, "sanity check");
+    DF3D_ASSERT(programGL.gl_id != 0);
 
     GL_CHECK(glUseProgram(programGL.gl_id));
 
@@ -886,7 +886,7 @@ void RenderBackendGL::requestUniforms(GpuProgramDescriptor program, std::vector<
 
     const auto &programGL = m_programs[program.id];
 
-    DF3D_ASSERT(programGL.gl_id != 0, "sanity check");
+    DF3D_ASSERT(programGL.gl_id != 0);
 
     int total = -1;
     GL_CHECK(glGetProgramiv(programGL.gl_id, GL_ACTIVE_UNIFORMS, &total));
@@ -934,7 +934,7 @@ void RenderBackendGL::setUniformValue(UniformDescriptor uniform, const void *dat
 
     const auto &uniformGL = m_uniforms[uniform.id];
 
-    DF3D_ASSERT(uniformGL.type != GL_INVALID_ENUM && uniformGL.location != -1, "sanity check");
+    DF3D_ASSERT(uniformGL.type != GL_INVALID_ENUM && uniformGL.location != -1);
 
     switch (uniformGL.type)
     {

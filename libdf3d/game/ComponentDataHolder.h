@@ -40,7 +40,7 @@ public:
 
     ComponentInstance lookup(Entity e) const
     {
-        DF3D_ASSERT(e.valid(), "looking up invalid entity");
+        DF3D_ASSERT_MESS(e.valid(), "looking up invalid entity");
 
         if (e.id >= (Entity::IdType)m_lookup.size())
             return {};
@@ -50,8 +50,8 @@ public:
 
     void add(Entity e, const T &componentData)
     {
-        DF3D_ASSERT(e.valid(), "adding invalid entity");
-        DF3D_ASSERT(!contains(e), "entity already present");
+        DF3D_ASSERT_MESS(e.valid(), "adding invalid entity");
+        DF3D_ASSERT_MESS(!contains(e), "entity already present");
 
         if (e.id >= (Entity::IdType)m_lookup.size())
             grow(e.id);
@@ -65,12 +65,12 @@ public:
 
     void remove(Entity e)
     {
-        DF3D_ASSERT(e.valid(), "removing invalid entity");
-        DF3D_ASSERT(m_data.size() == m_holders.size(), "sanity check");
-        DF3D_ASSERT(m_data.size() > 0, "can't remove from empty container");
+        DF3D_ASSERT_MESS(e.valid(), "removing invalid entity");
+        DF3D_ASSERT_MESS(m_data.size() == m_holders.size(), "sanity check");
+        DF3D_ASSERT_MESS(m_data.size() > 0, "can't remove from empty container");
 
         auto compInstance = lookup(e);
-        DF3D_ASSERT(compInstance.valid(), "failed to lookup entity data");
+        DF3D_ASSERT_MESS(compInstance.valid(), "failed to lookup entity data");
 
         if (m_destructionCallback)
             m_destructionCallback(getData(compInstance));
@@ -96,20 +96,20 @@ public:
 
     bool contains(Entity e)
     {
-        DF3D_ASSERT(e.valid(), "invalid entity");
+        DF3D_ASSERT_MESS(e.valid(), "invalid entity");
         return lookup(e).valid();
     }
 
     const T& getData(ComponentInstance inst) const
     {
-        DF3D_ASSERT(inst.valid(), "invalid component instance");
+        DF3D_ASSERT_MESS(inst.valid(), "invalid component instance");
 
         return m_data[inst.id];
     }
 
     T& getData(ComponentInstance inst)
     {
-        DF3D_ASSERT(inst.valid(), "invalid component instance");
+        DF3D_ASSERT_MESS(inst.valid(), "invalid component instance");
 
         return m_data[inst.id];
     }
@@ -128,7 +128,7 @@ public:
 
     size_t getSize() const
     {
-        DF3D_ASSERT(m_data.size() == m_holders.size(), "sanity check");
+        DF3D_ASSERT_MESS(m_data.size() == m_holders.size(), "sanity check");
 
         return m_data.size();
     }

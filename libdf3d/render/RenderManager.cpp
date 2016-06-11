@@ -328,7 +328,7 @@ void RenderManager::drawRenderOperation(const RenderOperation &op)
 {
     if (op.numberOfElements == 0)
     {
-        DF3D_ASSERT(false, "invalid elements count to draw");
+        DF3D_ASSERT_MESS(false, "invalid elements count to draw");
         return;
     }
 

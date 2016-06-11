@@ -15,7 +15,7 @@ namespace df3d {
 
 static AudioComponentProcessor::State getAudioState(unsigned audioSourceId)
 {
-    DF3D_ASSERT(audioSourceId, "failed to set an audio state for invalid source");
+    DF3D_ASSERT_MESS(audioSourceId, "failed to set an audio state for invalid source");
 
     ALint state;
     alGetSourcei(audioSourceId, AL_SOURCE_STATE, &state);

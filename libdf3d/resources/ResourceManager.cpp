@@ -52,7 +52,7 @@ shared_ptr<Resource> ResourceManager::loadManual(ManualResourceLoader &loader)
     resource->m_initialized = true;
 
     // FIXME: maybe check in cache and return existing instead?
-    DF3D_ASSERT(!isResourceExist(resource->getGUID()), "resource already exists");
+    DF3D_ASSERT_MESS(!isResourceExist(resource->getGUID()), "resource already exists");
 
     m_loadedResources[resource->getGUID()] = resource;
 

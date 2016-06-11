@@ -25,10 +25,10 @@ Entity EntityManager::create()
 
 void EntityManager::destroy(Entity e)
 {
-    DF3D_ASSERT(e.valid(), "can't destroy invalid entity");
+    DF3D_ASSERT_MESS(e.valid(), "can't destroy invalid entity");
 
     auto count = m_entities.erase(e);
-    DF3D_ASSERT(count == 1, "failed to destroy an entity");
+    DF3D_ASSERT_MESS(count == 1, "failed to destroy an entity");
     // NOTE: component data should be destroyed later via World::cleanStep
 
     m_bag.release(e.id);
@@ -36,7 +36,7 @@ void EntityManager::destroy(Entity e)
 
 bool EntityManager::alive(Entity e) const
 {
-    DF3D_ASSERT(e.valid(), "invalid entity");
+    DF3D_ASSERT_MESS(e.valid(), "invalid entity");
 
     return m_entities.find(e) != m_entities.end();
 }

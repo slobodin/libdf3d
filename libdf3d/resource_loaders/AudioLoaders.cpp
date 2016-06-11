@@ -29,7 +29,7 @@ bool AudioBufferFSLoader::decode(shared_ptr<FileDataSource> source)
 
     if (extension == ".wav")
     {
-        DF3D_ASSERT(!m_streamed, "streaming for wav is unsupported for now");   // FIXME:
+        DF3D_ASSERT_MESS(!m_streamed, "streaming for wav is unsupported for now");   // FIXME:
         m_pcmData = resource_loaders_impl::AudioLoader_wav().load(source);
         return m_pcmData != nullptr;
     }

@@ -74,7 +74,7 @@ public:
     void addUserComponentProcessor(unique_ptr<T> processor)
     {
         auto idx = utils::getTypeId<T>();
-        DF3D_ASSERT(!utils::contains_key(m_userProcessors, idx), "already have this component processor");
+        DF3D_ASSERT_MESS(!utils::contains_key(m_userProcessors, idx), "already have this component processor");
 
         m_userProcessors.insert(std::make_pair(idx, std::move(processor)));
     }
@@ -83,7 +83,7 @@ public:
     T& getProcessor()
     {
         auto found = m_userProcessors.find(utils::getTypeId<T>());
-        DF3D_ASSERT(found != m_userProcessors.end(), "failed to lookup a component data processor");
+        DF3D_ASSERT_MESS(found != m_userProcessors.end(), "failed to lookup a component data processor");
         return static_cast<T&>(*found->second);
     }
 

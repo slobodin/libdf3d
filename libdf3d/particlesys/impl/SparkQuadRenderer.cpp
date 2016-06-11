@@ -37,10 +37,10 @@ void ParticleSystemBuffers_Quad::cleanup()
 ParticleSystemBuffers_Quad::ParticleSystemBuffers_Quad()
 {
     // Some assertions for this performance workaround.
-    DF3D_ASSERT(sizeof(SpkVertexData) == vertex_formats::p3_tx2_c4.getVertexSize(), "sanity check");
-    DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::POSITION_3) == 0, "sanity check");
-    DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::TX_2) == sizeof(SPK::Vector3D), "sanity check");
-    DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::COLOR_4) == sizeof(SPK::Vector3D) + sizeof(float) * 2, "sanity check");
+    DF3D_ASSERT(sizeof(SpkVertexData) == vertex_formats::p3_tx2_c4.getVertexSize());
+    DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::POSITION_3) == 0);
+    DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::TX_2) == sizeof(SPK::Vector3D));
+    DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::COLOR_4) == sizeof(SPK::Vector3D) + sizeof(float) * 2);
 }
 
 ParticleSystemBuffers_Quad::~ParticleSystemBuffers_Quad()
@@ -85,7 +85,7 @@ void ParticleSystemBuffers_Quad::draw(size_t nbOfParticles, RenderPass *passProp
     if (nbOfParticles == 0)
         return;
 
-    DF3D_ASSERT(nbOfParticles <= m_particlesAllocated, "sanity check");
+    DF3D_ASSERT(nbOfParticles <= m_particlesAllocated);
 
     // Stream draw is more efficient than updating existent vertex buffer on mobile GPU.
     auto vb = svc().renderManager().getBackend().createVertexBuffer(vertex_formats::p3_tx2_c4,
