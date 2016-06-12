@@ -81,7 +81,7 @@ bool ScriptManager::doFile(const std::string &fileName)
         std::string buffer(file->getSizeInBytes(), 0);
         file->getRaw(&buffer[0], buffer.size());
 
-        DFLOG_MESS("Executing %s", fileName.c_str());
+        DFLOG_DEBUG("Executing %s", fileName.c_str());
         m_executedFiles.insert(file->getPath());
 
         file.reset();
