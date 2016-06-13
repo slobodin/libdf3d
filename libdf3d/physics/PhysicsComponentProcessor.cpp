@@ -34,10 +34,10 @@ public:
         : m_world(w),
         m_holder(e)
     {
-        auto orientation = w.sceneGraph().getOrientation(m_holder);
+        auto orientation = w.sceneGraph().getWorldOrientation(m_holder);
         auto position = w.sceneGraph().getWorldPosition(m_holder);
 
-        m_transform = btTransform(btQuaternion(orientation.x, orientation.y, orientation.z, orientation.w), glmTobt(position));
+        m_transform = btTransform(glmTobt(orientation), glmTobt(position));
     }
 
     ~PhysicsComponentMotionState()
@@ -52,16 +52,8 @@ public:
 
     void setWorldTransform(const btTransform &worldTrans)
     {
-        auto rot = worldTrans.getRotation();
-
-        auto df3dPos = btToGlm(worldTrans.getOrigin());
-        auto df3dOrient = glm::quat(rot.w(), rot.x(), rot.y(), rot.z());
-        glm::mat4 ATTRIBUTE_ALIGNED16(df3dWorldTransf);
-        worldTrans.getOpenGLMatrix(glm::value_ptr(df3dWorldTransf));
-
-        m_world.sceneGraph().setTransform(m_holder, df3dPos, df3dOrient, df3dWorldTransf);
-
         m_transform = worldTrans;
+        m_world.sceneGraph().setWorldTransform(m_holder, worldTrans);
     }
 };
 

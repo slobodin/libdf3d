@@ -16,10 +16,8 @@ struct StaticMeshComponentProcessor::Impl
 {
     struct Data
     {
-        glm::mat4 holderTransformation;
-        glm::vec3 holderPosition;
+        Transform holderWorldTransform;
         Entity holder;
-        glm::vec3 holderScale;
         shared_ptr<MeshData> meshData;
         bool visible = true;
         bool frustumCullingDisabled = false;
@@ -37,16 +35,16 @@ struct StaticMeshComponentProcessor::Impl
         BoundingSphere sphere = *meshDataSphere;
 
         // Update transformation.
-        sphere.setPosition(compData.holderPosition);
+        sphere.setPosition(compData.holderWorldTransform.position);
 
         // FIXME: absolutely incorrect!!! Should take into account children.
         // TODO_ecs:
 
         // FIXME: wtf is this??? Why can't just scale radius?
         auto rad = sphere.getRadius() * utils::math::UnitVec3;
-        rad.x *= compData.holderScale.x;
-        rad.y *= compData.holderScale.y;
-        rad.z *= compData.holderScale.z;
+        rad.x *= compData.holderWorldTransform.scaling.x;
+        rad.y *= compData.holderWorldTransform.scaling.y;
+        rad.z *= compData.holderWorldTransform.scaling.z;
         sphere.setRadius(glm::length(rad));
 
         return sphere;
@@ -55,11 +53,10 @@ struct StaticMeshComponentProcessor::Impl
 
 void StaticMeshComponentProcessor::update()
 {
-    glm::quat tmp;
     // TODO_ecs: get only changed components.
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
-        m_world->sceneGraph().getWorldTransformMeshWorkaround(compData.holder, compData.holderTransformation, compData.holderPosition, tmp, compData.holderScale);
+        compData.holderWorldTransform = m_world->sceneGraph().getWorldTransform(compData.holder);
 }
 
 void StaticMeshComponentProcessor::draw(RenderQueue *ops)
@@ -80,7 +77,7 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
         }
 
         // TODO_ecs: remove this method.
-        compData.meshData->populateRenderQueue(ops, compData.holderTransformation);
+        compData.meshData->populateRenderQueue(ops, compData.holderWorldTransform.combined);
     }
 }
 
@@ -111,7 +108,7 @@ AABB StaticMeshComponentProcessor::getAABB(Entity e)
     // FIXME: mb cache if transformation hasn't been changed?
     auto &compData = m_pimpl->data.getData(e);
     // Update transformation.
-    compData.holderTransformation = m_world->sceneGraph().getWorldTransform(compData.holder);
+    compData.holderWorldTransform = m_world->sceneGraph().getWorldTransform(e);
 
     AABB transformedAABB;
 
@@ -126,7 +123,7 @@ AABB StaticMeshComponentProcessor::getAABB(Entity e)
     // Create new AABB from the corners of the original also applying world transformation.
     for (auto &p : aabbCorners)
     {
-        auto trp = compData.holderTransformation * glm::vec4(p, 1.0f);
+        auto trp = compData.holderWorldTransform.combined * glm::vec4(p, 1.0f);
         transformedAABB.updateBounds(glm::vec3(trp));
     }
 
@@ -168,20 +165,7 @@ void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath
 
 void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath, ResourceLoadingMode lm)
 {
-    if (m_pimpl->data.contains(e))
-    {
-        DFLOG_WARN("An entity already has a static mesh component");
-        return;
-    }
-
-    Impl::Data data;
-    data.meshData = svc().resourceManager().getFactory().createMeshData(meshFilePath, lm);
-    data.holder = e;
-
-    glm::quat tmp;
-    m_world->sceneGraph().getWorldTransformMeshWorkaround(e, data.holderTransformation, data.holderPosition, tmp, data.holderScale);
-
-    m_pimpl->data.add(e, data);
+    add(e, svc().resourceManager().getFactory().createMeshData(meshFilePath, lm));
 }
 
 void StaticMeshComponentProcessor::add(Entity e, shared_ptr<MeshData> meshData)
@@ -195,7 +179,7 @@ void StaticMeshComponentProcessor::add(Entity e, shared_ptr<MeshData> meshData)
     Impl::Data data;
     data.meshData = meshData;
     data.holder = e;
-    data.holderTransformation = m_world->sceneGraph().getWorldTransform(e);
+    data.holderWorldTransform = m_world->sceneGraph().getWorldTransform(e);
 
     m_pimpl->data.add(e, data);
 }

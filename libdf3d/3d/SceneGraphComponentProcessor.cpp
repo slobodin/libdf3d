@@ -1,6 +1,8 @@
 #include "SceneGraphComponentProcessor.h"
 
+#include <LinearMath/btTransform.h>
 #include <libdf3d/game/ComponentDataHolder.h>
+#include <libdf3d/physics/PhysicsHelpers.h>
 #include <libdf3d/utils/MathUtils.h>
 
 namespace df3d {
@@ -10,16 +12,9 @@ struct SceneGraphComponentProcessor::Impl
     // TODO_ecs: return dirty flag back?
     struct Data
     {
+        Transform wTransform;   // world transform
+        Transform lTransform;   // local transform
         std::string name;
-        //! Accumulated node world transform (including parent).
-        glm::mat4 worldTransform;
-        glm::mat4 localTransform;
-        //! Node local orientation.
-        glm::quat orientation;
-        //! Node local position.
-        glm::vec3 position;
-        //! Node local scale.
-        glm::vec3 scaling = glm::vec3(1.0f, 1.0f, 1.0f);
         Entity parent;
         Entity holder;
         std::vector<Entity> children;
@@ -33,21 +28,25 @@ struct SceneGraphComponentProcessor::Impl
         updateLocalTransform(component);
 
         if (component.parent.valid())
-            component.worldTransform = data.getData(component.parent).worldTransform * component.localTransform; // tr = parent * me
+        {
+            auto &myWTransform = component.wTransform;
+            const auto &myLTransform = component.lTransform;
+            const auto &parentWTransform = data.getData(component.parent).wTransform;
+
+            myWTransform.combined = parentWTransform.combined * myLTransform.combined; // tr = parent * me
+
+            component.wTransform.position = glm::vec3(component.wTransform.combined[3]);
+            component.wTransform.orientation = parentWTransform.orientation * myLTransform.orientation;
+            component.wTransform.scaling.x = parentWTransform.scaling.x * myLTransform.scaling.x;
+            component.wTransform.scaling.y = parentWTransform.scaling.y * myLTransform.scaling.y;
+            component.wTransform.scaling.y = parentWTransform.scaling.y * myLTransform.scaling.y;
+        }
         else
-            component.worldTransform = component.localTransform;
+        {
+            component.wTransform = component.lTransform;
+        }
 
         updateChildren(component);
-    }
-
-    void updateWorldTransformation(Data &component, const glm::mat4 &parentTransform)
-    {
-        updateLocalTransform(component);
-
-        component.worldTransform = parentTransform * component.localTransform; // tr = parent * me
-
-        for (auto child : component.children)
-            updateWorldTransformation(data.getData(child), component.worldTransform);
     }
 
     void updateLocalTransform(Data &component)
@@ -55,7 +54,8 @@ struct SceneGraphComponentProcessor::Impl
         if (component.localTransformDirty)
         {
             // Scale -> Rotation -> Translation
-            component.localTransform = glm::translate(component.position) * glm::toMat4(component.orientation) * glm::scale(component.scaling);
+            auto &lTransform = component.lTransform;
+            lTransform.combined = glm::translate(lTransform.position) * glm::toMat4(lTransform.orientation) * glm::scale(lTransform.scaling);
             component.localTransformDirty = false;
         }
     }
@@ -105,7 +105,7 @@ void SceneGraphComponentProcessor::setPosition(Entity e, const glm::vec3 &newPos
 {
     auto &compData = m_pimpl->data.getData(e);
 
-    compData.position = newPosition;
+    compData.lTransform.position = newPosition;
     compData.localTransformDirty = true;
 
     m_pimpl->updateWorldTransformation(compData);
@@ -115,7 +115,7 @@ void SceneGraphComponentProcessor::setScale(Entity e, const glm::vec3 &newScale)
 {
     auto &compData = m_pimpl->data.getData(e);
 
-    compData.scaling = newScale;
+    compData.lTransform.scaling = newScale;
     compData.localTransformDirty = true;
 
     m_pimpl->updateWorldTransformation(compData);
@@ -130,7 +130,7 @@ void SceneGraphComponentProcessor::setOrientation(Entity e, const glm::quat &new
 {
     auto &compData = m_pimpl->data.getData(e);
 
-    compData.orientation = newOrientation;
+    compData.lTransform.orientation = newOrientation;
     compData.localTransformDirty = true;
 
     m_pimpl->updateWorldTransformation(compData);
@@ -141,23 +141,31 @@ void SceneGraphComponentProcessor::setOrientation(Entity e, const glm::vec3 &eul
     setOrientation(e, glm::quat(glm::radians(eulerAngles)));
 }
 
-void SceneGraphComponentProcessor::setTransform(Entity e, const glm::vec3 &position, const glm::quat &orient, const glm::mat4 &transf)
+void SceneGraphComponentProcessor::setWorldTransform(Entity e, const btTransform &worldTrans)
 {
     auto &compData = m_pimpl->data.getData(e);
-    compData.position = position;
-    compData.orientation = orient;
-    compData.localTransform = transf * glm::scale(compData.scaling);
+
+    DF3D_ASSERT_MESS(!compData.parent.valid(), "physics not supported for children entities");
+
+    const auto btRot = worldTrans.getRotation();
+    glm::mat4 ATTRIBUTE_ALIGNED16(df3dWorldTransf);
+    worldTrans.getOpenGLMatrix(glm::value_ptr(df3dWorldTransf));
+
+    compData.wTransform.combined = df3dWorldTransf * glm::scale(compData.lTransform.scaling);
+    compData.wTransform.orientation = glm::quat(btRot.w(), btRot.x(), btRot.y(), btRot.z());
+    compData.wTransform.position = btToGlm(worldTrans.getOrigin());
+    compData.wTransform.scaling = compData.lTransform.scaling;
+    compData.lTransform = compData.wTransform;
     compData.localTransformDirty = false;
 
-    glm::mat4 parentTransf = compData.parent.valid() ? m_pimpl->data.getData(compData.parent).worldTransform : glm::mat4();
-    m_pimpl->updateWorldTransformation(compData, parentTransf);
+    m_pimpl->updateWorldTransformation(compData);
 }
 
 void SceneGraphComponentProcessor::translate(Entity e, const glm::vec3 &v)
 {
     auto &compData = m_pimpl->data.getData(e);
 
-    compData.position += v;
+    compData.lTransform.position += v;
     compData.localTransformDirty = true;
 
     m_pimpl->updateWorldTransformation(compData);
@@ -167,7 +175,7 @@ void SceneGraphComponentProcessor::scale(Entity e, const glm::vec3 &v)
 {
     auto &compData = m_pimpl->data.getData(e);
 
-    compData.scaling *= v;
+    compData.lTransform.scaling *= v;
     compData.localTransformDirty = true;
 
     m_pimpl->updateWorldTransformation(compData);
@@ -199,7 +207,7 @@ void SceneGraphComponentProcessor::rotateAxis(Entity e, float angle, const glm::
     q = glm::normalize(q);
 
     auto &compData = m_pimpl->data.getData(e);
-    compData.orientation = q * compData.orientation;
+    compData.lTransform.orientation = q * compData.lTransform.orientation;
     compData.localTransformDirty = true;
 
     m_pimpl->updateWorldTransformation(compData);
@@ -245,61 +253,68 @@ Entity SceneGraphComponentProcessor::getByName(Entity parent, const std::string 
     return {};
 }
 
-glm::vec3 SceneGraphComponentProcessor::getWorldPosition(Entity e) const
+const glm::vec3& SceneGraphComponentProcessor::getWorldPosition(Entity e) const
 {
-    return glm::vec3(m_pimpl->data.getData(e).worldTransform[3]);
+    return m_pimpl->data.getData(e).wTransform.position;
+}
+
+const glm::quat& SceneGraphComponentProcessor::getWorldOrientation(Entity e) const
+{
+    return m_pimpl->data.getData(e).wTransform.orientation;
+}
+
+glm::vec3 SceneGraphComponentProcessor::getWorldRotation(Entity e) const
+{
+    const auto &compData = m_pimpl->data.getData(e);
+
+    return glm::degrees(glm::eulerAngles(compData.wTransform.orientation));
 }
 
 glm::vec3 SceneGraphComponentProcessor::getLocalPosition(Entity e) const
 {
-    return m_pimpl->data.getData(e).position;
+    return m_pimpl->data.getData(e).lTransform.position;
 }
 
 const glm::vec3& SceneGraphComponentProcessor::getLocalScale(Entity e) const
 {
-    return m_pimpl->data.getData(e).scaling;
+    return m_pimpl->data.getData(e).lTransform.scaling;
 }
 
-const glm::quat& SceneGraphComponentProcessor::getOrientation(Entity e) const
+const glm::quat& SceneGraphComponentProcessor::getLocalOrientation(Entity e) const
 {
-    return m_pimpl->data.getData(e).orientation;
+    return m_pimpl->data.getData(e).lTransform.orientation;
 }
 
-const glm::mat4& SceneGraphComponentProcessor::getWorldTransform(Entity e) const
-{
-    return m_pimpl->data.getData(e).worldTransform;
-}
-
-void SceneGraphComponentProcessor::getWorldTransformMeshWorkaround(Entity e, glm::mat4 &outTr, glm::vec3 &outPos, glm::quat &outRot, glm::vec3 &outScale) const
+glm::vec3 SceneGraphComponentProcessor::getLocalRotation(Entity e) const
 {
     const auto &compData = m_pimpl->data.getData(e);
 
-    outTr = compData.worldTransform;
-    outPos = glm::vec3(compData.worldTransform[3]);
-    outRot = compData.orientation;
-    outScale = compData.scaling;
+    return glm::degrees(glm::eulerAngles(compData.lTransform.orientation));
 }
 
-glm::vec3 SceneGraphComponentProcessor::getRotation(Entity e) const
+const glm::mat4& SceneGraphComponentProcessor::getWorldTransformMatrix(Entity e) const
 {
-    const auto &compData = m_pimpl->data.getData(e);
+    return m_pimpl->data.getData(e).wTransform.combined;
+}
 
-    return glm::degrees(glm::eulerAngles(compData.orientation));
+const Transform& SceneGraphComponentProcessor::getWorldTransform(Entity e) const
+{
+    return m_pimpl->data.getData(e).wTransform;
 }
 
 glm::vec3 SceneGraphComponentProcessor::getWorldDirection(Entity e) const
 {
-    return glm::normalize(glm::vec3(getWorldTransform(e) * -utils::math::ZAxis));
+    return glm::normalize(glm::vec3(getWorldTransformMatrix(e) * -utils::math::ZAxis));
 }
 
 glm::vec3 SceneGraphComponentProcessor::getWorldUp(Entity e) const
 {
-    return glm::normalize(glm::vec3(getWorldTransform(e) * utils::math::YAxis));
+    return glm::normalize(glm::vec3(getWorldTransformMatrix(e) * utils::math::YAxis));
 }
 
 glm::vec3 SceneGraphComponentProcessor::getWorldRight(Entity e) const
 {
-    return glm::normalize(glm::vec3(getWorldTransform(e) * utils::math::XAxis));
+    return glm::normalize(glm::vec3(getWorldTransformMatrix(e) * utils::math::XAxis));
 }
 
 void SceneGraphComponentProcessor::attachChild(Entity parent, Entity child)

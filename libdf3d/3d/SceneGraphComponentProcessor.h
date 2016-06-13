@@ -3,7 +3,17 @@
 #include <libdf3d/game/Entity.h>
 #include <libdf3d/game/EntityComponentProcessor.h>
 
+class btTransform;
+
 namespace df3d {
+
+struct Transform
+{
+    glm::mat4 combined;
+    glm::quat orientation;
+    glm::vec3 position;
+    glm::vec3 scaling = glm::vec3(1.0f, 1.0f, 1.0f);
+};
 
 class DF3D_DLL SceneGraphComponentProcessor : public EntityComponentProcessor
 {
@@ -27,8 +37,8 @@ public:
     void setOrientation(Entity e, const glm::quat &newOrientation);
     //! Sets orientation using Euler angles (degrees).
     void setOrientation(Entity e, const glm::vec3 &eulerAngles);
-    // NOTE: this is used by physics processor. FIXME
-    void setTransform(Entity e, const glm::vec3 &position, const glm::quat &orient, const glm::mat4 &transf);
+    // NOTE: used by physics component processor.
+    void setWorldTransform(Entity e, const btTransform &worldTrans);
 
     void translate(Entity e, const glm::vec3 &v);
     void scale(Entity e, const glm::vec3 &v);
@@ -43,15 +53,18 @@ public:
     Entity getByName(const std::string &name) const;
     Entity getByName(Entity parent, const std::string &name) const;
 
-    // TODO_ecs: rename local rotation, local scaling
-    glm::vec3 getWorldPosition(Entity e) const;
+    const glm::vec3& getWorldPosition(Entity e) const;
+    const glm::quat& getWorldOrientation(Entity e) const;
+    glm::vec3 getWorldRotation(Entity e) const;
+
     glm::vec3 getLocalPosition(Entity e) const;
     const glm::vec3& getLocalScale(Entity e) const;
-    const glm::quat& getOrientation(Entity e) const;
-    const glm::mat4& getWorldTransform(Entity e) const;
-    // FIXME: remove this method.
-    void getWorldTransformMeshWorkaround(Entity e, glm::mat4 &outTr, glm::vec3 &outPos, glm::quat &outRot, glm::vec3 &outScale) const;
-    glm::vec3 getRotation(Entity e) const;
+    const glm::quat& getLocalOrientation(Entity e) const;
+    glm::vec3 getLocalRotation(Entity e) const;
+
+    const glm::mat4& getWorldTransformMatrix(Entity e) const;
+    const Transform& getWorldTransform(Entity e) const;
+
     glm::vec3 getWorldDirection(Entity e) const;
     glm::vec3 getWorldUp(Entity e) const;
     glm::vec3 getWorldRight(Entity e) const;
