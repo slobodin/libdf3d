@@ -75,14 +75,18 @@ enum class FaceCullMode : int
     BACK
 };
 
-#define DF3D_MAKE_DESCRIPTOR(name) struct name { int16_t id; name(int16_t id = -1) : id(id) { } bool valid() const { return id != -1; } }
+#define DF3D_MAKE_DESCRIPTOR(name) struct name { \
+    int16_t id; \
+    name(int16_t id = -1) : id(id) { } \
+    bool valid() const { return id != -1; } \
+    bool operator<(const name &other) const { return id < other.id; } };
 
-DF3D_MAKE_DESCRIPTOR(VertexBufferDescriptor);
-DF3D_MAKE_DESCRIPTOR(IndexBufferDescriptor);
-DF3D_MAKE_DESCRIPTOR(TextureDescriptor);
-DF3D_MAKE_DESCRIPTOR(ShaderDescriptor);
-DF3D_MAKE_DESCRIPTOR(GpuProgramDescriptor);
-DF3D_MAKE_DESCRIPTOR(UniformDescriptor);
+DF3D_MAKE_DESCRIPTOR(VertexBufferDescriptor)
+DF3D_MAKE_DESCRIPTOR(IndexBufferDescriptor)
+DF3D_MAKE_DESCRIPTOR(TextureDescriptor)
+DF3D_MAKE_DESCRIPTOR(ShaderDescriptor)
+DF3D_MAKE_DESCRIPTOR(GpuProgramDescriptor)
+DF3D_MAKE_DESCRIPTOR(UniformDescriptor)
 
 namespace render_constants {
 
@@ -98,10 +102,7 @@ struct DF3D_DLL FrameStats
     size_t totalLines = 0;
 
     size_t textures = 0;
-    size_t textureMemoryBytes = 0;
-
-    size_t vertexDataBytes = 0;
-    size_t indexDataBytes = 0;
+    size_t gpuMemBytes = 0;
 };
 
 // FIXME: don't like it.

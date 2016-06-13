@@ -233,6 +233,7 @@ const RenderBackendCaps& RenderBackendGL::getCaps() const
 
 const FrameStats& RenderBackendGL::getFrameStats() const
 {
+    m_stats.gpuMemBytes = m_gpuMemStats.getGpuMemBytes();
     return m_stats;
 }
 
@@ -360,6 +361,10 @@ df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFor
 
     m_currentVertexBuffer = {};
 
+#ifdef _DEBUG
+    m_gpuMemStats.addVertexBuffer(vb, vertexBuffer.sizeInBytes);
+#endif
+
     return vb;
 }
 
@@ -377,10 +382,12 @@ void RenderBackendGL::destroyVertexBuffer(VertexBufferDescriptor vb)
         return;
 
     m_vertexBuffers[vb.id] = {};
-
     m_vertexBuffersBag.release(vb.id);
-
     m_currentVertexBuffer = {};
+
+#ifdef _DEBUG
+    m_gpuMemStats.removeVertexBuffer(vb);
+#endif
 }
 
 void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
@@ -454,6 +461,10 @@ df3d::IndexBufferDescriptor RenderBackendGL::createIndexBuffer(size_t indicesCou
     m_indexBuffers[ib.id] = indexBuffer;
     m_currentIndexBuffer = {};
 
+#ifdef _DEBUG
+    m_gpuMemStats.addIndexBuffer(ib, indexBuffer.sizeInBytes);
+#endif
+
     return ib;
 }
 
@@ -470,10 +481,12 @@ void RenderBackendGL::destroyIndexBuffer(IndexBufferDescriptor ib)
         return;
 
     m_indexBuffers[ib.id] = {};
-
     m_indexBuffersBag.release(ib.id);
-
     m_currentIndexBuffer = {};
+
+#ifdef _DEBUG
+    m_gpuMemStats.removeIndexBuffer(ib);
+#endif
 }
 
 void RenderBackendGL::bindIndexBuffer(IndexBufferDescriptor ib)
@@ -583,7 +596,6 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(int width, int height, 
         }
     }
 
-    texture.sizeInBytes = width * height * GetPixelSizeForFormat(format);   // TODO: mipmaps!
     texture.type = GL_TEXTURE_2D;
     texture.pixelFormat = pixelDataFormat;
 
@@ -592,7 +604,10 @@ df3d::TextureDescriptor RenderBackendGL::createTexture2D(int width, int height, 
     m_textures[textureDescr.id] = texture;
 
     m_stats.textures++;
-    m_stats.textureMemoryBytes += texture.sizeInBytes;
+
+#ifdef _DEBUG
+    m_gpuMemStats.addTexture(textureDescr, width * height * GetPixelSizeForFormat(format));    // TODO: mipmaps!
+#endif
 
     return textureDescr;
 }
@@ -617,6 +632,8 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
     SetupGLWrapMode(GL_TEXTURE_CUBE_MAP, params.getWrapMode());
     SetupGLTextureFiltering(GL_TEXTURE_CUBE_MAP, params.getFiltering(), params.isMipmapped());
 
+    size_t textureSizeInBytes = 0;
+
     for (int i = 0; i < (size_t)CubeFace::COUNT; i++)
     {
         GLint glPixelFormat = 0;
@@ -638,7 +655,7 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
         auto height = pixels[i]->getHeight();
         GL_CHECK(glTexImage2D(MapSidesToGL.find((CubeFace)i)->second, 0, glPixelFormat, width, height, 0, glPixelFormat, GL_UNSIGNED_BYTE, data));
 
-        texture.sizeInBytes += pixels[i]->getSizeInBytes();
+        textureSizeInBytes += pixels[i]->getSizeInBytes();
     }
 
     if (params.isMipmapped())
@@ -651,7 +668,10 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
     m_textures[textureDescr.id] = texture;
 
     m_stats.textures++;
-    m_stats.textureMemoryBytes += texture.sizeInBytes;
+
+#ifdef _DEBUG
+    m_gpuMemStats.addTexture(textureDescr, textureSizeInBytes);    // TODO: mipmaps!
+#endif
 
     return textureDescr;
 }
@@ -683,13 +703,15 @@ void RenderBackendGL::destroyTexture(TextureDescriptor t)
     if (texture.gl_id)
         GL_CHECK(glDeleteTextures(1, &texture.gl_id));
 
-    DF3D_ASSERT(m_stats.textures > 0 && m_stats.textureMemoryBytes >= texture.sizeInBytes);
-    m_stats.textures--;
-    m_stats.textureMemoryBytes -= texture.sizeInBytes;
-
     m_textures[t.id] = {};
-
     m_texturesBag.release(t.id);
+
+    DF3D_ASSERT(m_stats.textures > 0);
+    m_stats.textures--;
+
+#ifdef _DEBUG
+    m_gpuMemStats.removeTexture(t);
+#endif
 }
 
 void RenderBackendGL::bindTexture(TextureDescriptor t, int unit)

@@ -39,6 +39,45 @@ namespace df3d {
 
 class Texture;
 
+class GpuMemoryStats
+{
+    std::map<TextureDescriptor, size_t> m_textures;
+    std::map<VertexBufferDescriptor, size_t> m_vertexBuffers;
+    std::map<IndexBufferDescriptor, size_t> m_indexBuffers;
+
+    int32_t m_total = 0;
+
+    template<typename T, typename V>
+    void addHelper(T &container, V value, size_t sizeInBytes)
+    {
+        DF3D_ASSERT(!utils::contains_key(container, value));
+        container[value] = sizeInBytes;
+        m_total += sizeInBytes;
+    }
+
+    template<typename T, typename V>
+    void removeHelper(T &container, V value)
+    {
+        auto found = container.find(value);
+        DF3D_ASSERT(found != container.end());
+        m_total -= found->second;
+        container.erase(found);
+        DF3D_ASSERT(m_total >= 0);
+    }
+
+public:
+    void addTexture(TextureDescriptor td, size_t sizeInBytes) { addHelper(m_textures, td, sizeInBytes); }
+    void removeTexture(TextureDescriptor td) { removeHelper(m_textures, td); }
+
+    void addVertexBuffer(VertexBufferDescriptor vb, size_t sizeInBytes) { addHelper(m_vertexBuffers, vb, sizeInBytes); }
+    void removeVertexBuffer(VertexBufferDescriptor vb) { removeHelper(m_vertexBuffers, vb); }
+
+    void addIndexBuffer(IndexBufferDescriptor ib, size_t sizeInBytes) { addHelper(m_indexBuffers, ib, sizeInBytes); }
+    void removeIndexBuffer(IndexBufferDescriptor ib) { removeHelper(m_indexBuffers, ib); }
+
+    size_t getGpuMemBytes() const { return m_total; }
+};
+
 class RenderBackendGL : public IRenderBackend
 {
     struct VertexBufferGL
@@ -58,7 +97,6 @@ class RenderBackendGL : public IRenderBackend
     {
         GLuint gl_id = 0;
         GLenum type = GL_INVALID_ENUM;
-        size_t sizeInBytes = 0;
         GLint pixelFormat = 0;
     };
 
@@ -80,7 +118,7 @@ class RenderBackendGL : public IRenderBackend
     };
 
     RenderBackendCaps m_caps;
-    FrameStats m_stats;
+    mutable FrameStats m_stats;
 
     utils::DescriptorsBag<int16_t> m_vertexBuffersBag;
     utils::DescriptorsBag<int16_t> m_indexBuffersBag;
@@ -119,6 +157,10 @@ class RenderBackendGL : public IRenderBackend
     DrawState m_drawState;
 
     int m_width, m_height;
+
+#ifdef _DEBUG
+    GpuMemoryStats m_gpuMemStats;
+#endif
 
 public:
     RenderBackendGL(int width, int height);
