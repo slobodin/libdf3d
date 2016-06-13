@@ -145,14 +145,13 @@ void SceneGraphComponentProcessor::setWorldTransform(Entity e, const btTransform
 {
     auto &compData = m_pimpl->data.getData(e);
 
-    DF3D_ASSERT_MESS(!compData.parent.valid(), "physics not supported for children entities");
+    DF3D_ASSERT_MESS(!compData.parent.valid(), "physics is not supported for entities without parent");
 
-    const auto btRot = worldTrans.getRotation();
     glm::mat4 ATTRIBUTE_ALIGNED16(df3dWorldTransf);
     worldTrans.getOpenGLMatrix(glm::value_ptr(df3dWorldTransf));
 
     compData.wTransform.combined = df3dWorldTransf * glm::scale(compData.lTransform.scaling);
-    compData.wTransform.orientation = glm::quat(btRot.w(), btRot.x(), btRot.y(), btRot.z());
+    compData.wTransform.orientation = btToGlm(worldTrans.getRotation());
     compData.wTransform.position = btToGlm(worldTrans.getOrigin());
     compData.wTransform.scaling = compData.lTransform.scaling;
     compData.lTransform = compData.wTransform;
