@@ -233,7 +233,9 @@ const RenderBackendCaps& RenderBackendGL::getCaps() const
 
 const FrameStats& RenderBackendGL::getFrameStats() const
 {
+#ifdef _DEBUG
     m_stats.gpuMemBytes = m_gpuMemStats.getGpuMemBytes();
+#endif
     return m_stats;
 }
 
