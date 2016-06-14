@@ -303,8 +303,6 @@ GpuProgram* GpuProgramManualLoader::load()
     auto program = new GpuProgram(gpuProgramDescriptor);
     program->setGUID(m_resourceGuid);
     
-    need to detach shaders first
-
     // Safely delete the shaders as do not need them.
     svc().renderManager().getBackend().destroyShader(vertexShader);
     svc().renderManager().getBackend().destroyShader(fragmentShader);

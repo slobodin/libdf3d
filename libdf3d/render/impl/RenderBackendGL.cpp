@@ -794,7 +794,11 @@ void RenderBackendGL::destroyShader(ShaderDescriptor shader)
     const auto &shaderGL = m_shaders[shader.id];
 
     if (shaderGL.gl_id != 0)
+    {
+        if (shaderGL.gl_program != 0)
+            GL_CHECK(glDetachShader(shaderGL.gl_program, shaderGL.gl_id));
         GL_CHECK(glDeleteShader(shaderGL.gl_id));
+    }
     else
         return;
 
@@ -824,8 +828,8 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor ve
         return{};
     }
 
-    const auto &vertexShaderGL = m_shaders[vertexShader.id];
-    const auto &fragmentShaderGL = m_shaders[fragmentShader.id];
+    auto &vertexShaderGL = m_shaders[vertexShader.id];
+    auto &fragmentShaderGL = m_shaders[fragmentShader.id];
 
     DF3D_ASSERT(vertexShaderGL.gl_id && fragmentShaderGL.gl_id);
 
@@ -856,6 +860,8 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor ve
         return{};
     }
 #endif
+
+    vertexShaderGL.gl_program = fragmentShaderGL.gl_program = program.gl_id;
 
     m_programs[programDescr.id] = program;
 

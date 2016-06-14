@@ -104,6 +104,7 @@ class RenderBackendGL : public IRenderBackend
     {
         GLuint gl_id = 0;
         GLenum type = GL_INVALID_ENUM;
+        GLuint gl_program = 0;
     };
 
     struct ProgramGL
