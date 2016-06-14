@@ -60,7 +60,7 @@ OPTION(ALSOFT_CONFIG OFF)
 OPTION(ALSOFT_HRTF_DEFS OFF)
 OPTION(ALSOFT_INSTALL OFF)
 
-if (NOT IOS)
+if (NOT IOS AND NOT MACOSX)
     add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/openal-soft)
     if(NOT WIN32)
         SET(DF3D_OPENAL_LIBNAME openal)
@@ -386,7 +386,7 @@ include_directories(${PROJECT_SOURCE_DIR}/
                     ${PROJECT_SOURCE_DIR}/third-party/zlib
                     ${PROJECT_SOURCE_DIR}/third-party/webp)
 
-if (NOT IOS)
+if (NOT IOS AND NOT MACOSX)
     include_directories(${PROJECT_SOURCE_DIR}/third-party/openal-soft/include)
 else()
     include_directories(${OPENAL_INCLUDE_DIR})

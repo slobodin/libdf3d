@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(DF3D_IOS)
+#if defined(DF3D_IOS) || defined(DF3D_MACOSX)
 #include <al.h>
 #include <alc.h>
 #else

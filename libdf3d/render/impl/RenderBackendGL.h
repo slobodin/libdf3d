@@ -7,6 +7,7 @@
 
 #include <libdf3d/render/IRenderBackend.h>
 #include <libdf3d/utils/DescriptorsBag.h>
+#include <libdf3d/utils/Utils.h>
 
 #if defined(DF3D_WINDOWS)
 #include <GL/glew.h>
