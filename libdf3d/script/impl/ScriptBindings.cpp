@@ -25,12 +25,12 @@ namespace df3d { namespace script_impl {
 
 inline float random_float()
 {
-    return utils::RandRangeEx(0.0f, 1.0f);
+    return utils::RandRange(0.0f, 1.0f);
 }
 
 inline float random_float_range(float a, float b)
 {
-    return utils::RandRangeEx(a, b);
+    return utils::RandRange(a, b);
 }
 
 inline int random_int_range(int a, int b)
