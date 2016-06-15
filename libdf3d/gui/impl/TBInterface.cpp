@@ -244,7 +244,7 @@ class TBRendererImpl : public tb::TBRenderer
 
     void createGuiPass()
     {
-        m_guipass.setFaceCullMode(FaceCullMode::NONE);
+        m_guipass.setFaceCullMode(FaceCullMode::BACK);
         m_guipass.enableDepthTest(false);
         m_guipass.enableDepthWrite(false);
         m_guipass.setBlendMode(BlendingMode::ALPHA);
