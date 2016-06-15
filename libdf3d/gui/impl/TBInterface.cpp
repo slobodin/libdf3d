@@ -496,11 +496,15 @@ public:
 
         m_guipass.getPassParam(m_diffuseMapParam)->setValue(texture);
 
+        // FIXME: refactor this!
+        DF3D_ASSERT(batch->vertex_count % 4 == 0);
+        int quadsCount = batch->vertex_count / 4;
+
         RenderOperation op;
         op.vertexBuffer = vb;
         op.indexBuffer = m_indexBuffer;
         op.passProps = &m_guipass;
-        op.numberOfElements = batch->vertex_count * 6;  // 6 indices per quad
+        op.numberOfElements = quadsCount * 6;  // 6 indices per quad
 
         svc().renderManager().drawRenderOperation(op);
     }
