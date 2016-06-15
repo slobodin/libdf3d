@@ -4,14 +4,35 @@
 #include <cctype>
 #include <string>
 #include <sstream>
+#include <random>
 
 namespace df3d { namespace utils {
 
-// FIXME: not uniform distribution.
+// NOTE: not uniform distribution.
 // Random number in closed interval [a..b]
-inline size_t RandRange(const size_t a, const size_t b) { return a + (rand() % (b - a + 1)); }
-inline int RandRange(const int a, const int b) { return a + (rand() % (b - a + 1)); }
-inline float RandRange(const float a, const float b) { return (rand() / (static_cast<float>(RAND_MAX) + 1.0f)) * (b - a) + a; }
+inline size_t RandRange(const size_t a, const size_t b)
+{
+    return a + (rand() % (b - a + 1)); 
+}
+
+inline int RandRange(const int a, const int b)
+{
+    return a + (rand() % (b - a + 1));
+}
+
+inline float RandRange(const float a, const float b)
+{
+    return static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (b - a))) + a;
+}
+
+// Random value in interval [a, b)
+inline float RandRangeEx(const float a, const float b)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(a, b);
+    return static_cast<float>(dis(gen));
+}
 
 inline void skip_line(std::istream &is)
 {
