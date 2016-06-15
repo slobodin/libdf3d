@@ -18,7 +18,8 @@
 #include <libdf3d/resource_loaders/TextureLoaders.h>
 #include <libdf3d/platform/Platform.h>
 
-namespace df3d { namespace gui_impl {
+namespace df3d {
+namespace gui_impl {
 
 class TBFileImpl : public tb::TBFile
 {
@@ -146,9 +147,9 @@ class TBRendererImpl : public tb::TBRenderer
     /** A batch which should be rendered. */
     class Batch
     {
+    public:
         static const size_t VERTEX_BATCH_SIZE = 1 * 2048;
 
-    public:
         struct VertexTB
         {
             glm::vec3 pos;
@@ -255,16 +256,33 @@ class TBRendererImpl : public tb::TBRenderer
         m_guipass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
     }
 
+    df3d::IndexBufferDescriptor m_indexBuffer;
+
 public:
     TBRendererImpl()
     {
         m_batch = make_unique<Batch>();
         createGuiPass();
+
+        // Initialize the index array.
+        IndexArray indexData(Batch::VERTEX_BATCH_SIZE * 6);
+        size_t currentIndex = 0;
+        for (size_t i = 0; i < Batch::VERTEX_BATCH_SIZE; ++i)
+        {
+            // 4 vertices per quad
+            indexData[currentIndex++] = 4 * i + 0;
+            indexData[currentIndex++] = 4 * i + 1;
+            indexData[currentIndex++] = 4 * i + 2;
+            indexData[currentIndex++] = 4 * i + 1;
+            indexData[currentIndex++] = 4 * i + 3;
+            indexData[currentIndex++] = 4 * i + 2;
+        }
+        m_indexBuffer = df3d::svc().renderManager().getBackend().createIndexBuffer(indexData.size(), indexData.data(), GpuBufferUsageType::STATIC);
     }
 
     ~TBRendererImpl()
     {
-
+        df3d::svc().renderManager().getBackend().destroyIndexBuffer(m_indexBuffer);
     }
 
     void BeginPaint(int render_target_w, int render_target_h) override
@@ -430,7 +448,7 @@ public:
 
         glm::vec4 glmcolor = { color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f };
 
-        auto ver = m_batch->Reserve(this, 6);
+        auto ver = m_batch->Reserve(this, 4);
         ver[0].pos.x = (float)dst_rect.x;
         ver[0].pos.y = (float)(dst_rect.y + dst_rect.h);
         ver[0].uv.x = m_u;
@@ -446,22 +464,11 @@ public:
         ver[2].uv.x = m_u;
         ver[2].uv.y = m_v;
         ver[2].color = glmcolor;
-
-        ver[3].pos.x = (float)dst_rect.x;
+        ver[3].pos.x = (float)(dst_rect.x + dst_rect.w);
         ver[3].pos.y = (float)dst_rect.y;
-        ver[3].uv.x = m_u;
+        ver[3].uv.x = m_uu;
         ver[3].uv.y = m_v;
         ver[3].color = glmcolor;
-        ver[4].pos.x = (float)(dst_rect.x + dst_rect.w);
-        ver[4].pos.y = (float)(dst_rect.y + dst_rect.h);
-        ver[4].uv.x = m_uu;
-        ver[4].uv.y = m_vv;
-        ver[4].color = glmcolor;
-        ver[5].pos.x = (float)(dst_rect.x + dst_rect.w);
-        ver[5].pos.y = (float)dst_rect.y;
-        ver[5].uv.x = m_uu;
-        ver[5].uv.y = m_v;
-        ver[5].color = glmcolor;
 
         // Update fragments batch id (See FlushBitmapFragment)
         if (fragment)
@@ -491,8 +498,9 @@ public:
 
         RenderOperation op;
         op.vertexBuffer = vb;
+        op.indexBuffer = m_indexBuffer;
         op.passProps = &m_guipass;
-        op.numberOfElements = batch->vertex_count;
+        op.numberOfElements = batch->vertex_count * 6;  // 6 indices per quad
 
         svc().renderManager().drawRenderOperation(op);
     }
@@ -503,7 +511,8 @@ unique_ptr<tb::TBRenderer> CreateRenderer()
     return make_unique<TBRendererImpl>();
 }
 
-} }
+}
+}
 
 namespace tb
 {
