@@ -197,26 +197,29 @@ class TBRendererImpl : public tb::TBRenderer
             svc().renderManager().getBackend().destroyVertexBuffer(vb);
 
             vertex_count = 0;
+            quadsCount = 0;
 
             batch_id++; // Will overflow eventually, but that doesn't really matter.
 
             is_flushing = false;
         }
 
-        VertexTB* Reserve(TBRendererImpl *batch_renderer, int count)
+        VertexTB* ReserveQuad(TBRendererImpl *batch_renderer)
         {
-            assert(count < VERTEX_BATCH_SIZE);
-            if (vertex_count + count > VERTEX_BATCH_SIZE)
+            if (vertex_count + 4 > VERTEX_BATCH_SIZE)
                 Flush(batch_renderer);
 
             VertexTB *ret = &vertex[vertex_count];
-            vertex_count += count;
+            vertex_count += 4;
+            quadsCount++;
+
             return ret;
         }
 
         VertexTB vertex[VERTEX_BATCH_SIZE];
 
         int vertex_count = 0;
+        int quadsCount = 0;
 
         tb::TBBitmap *bitmap = nullptr;
         tb::TBBitmapFragment *fragment = nullptr;
@@ -448,7 +451,7 @@ public:
 
         glm::vec4 glmcolor = { color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f };
 
-        auto ver = m_batch->Reserve(this, 4);
+        auto ver = m_batch->ReserveQuad(this);
         ver[0].pos.x = (float)dst_rect.x;
         ver[0].pos.y = (float)(dst_rect.y + dst_rect.h);
         ver[0].uv.x = m_u;
@@ -496,15 +499,11 @@ public:
 
         m_guipass.getPassParam(m_diffuseMapParam)->setValue(texture);
 
-        // FIXME: refactor this!
-        DF3D_ASSERT(batch->vertex_count % 4 == 0);
-        int quadsCount = batch->vertex_count / 4;
-
         RenderOperation op;
         op.vertexBuffer = vb;
         op.indexBuffer = m_indexBuffer;
         op.passProps = &m_guipass;
-        op.numberOfElements = quadsCount * 6;  // 6 indices per quad
+        op.numberOfElements = batch->quadsCount * 6;  // 6 indices per quad
 
         svc().renderManager().drawRenderOperation(op);
     }
