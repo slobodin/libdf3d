@@ -192,6 +192,21 @@ static void PrintGpuProgramLog(unsigned int program)
 }
 #endif
 
+void RenderBackendGL::destroyShader(ShaderDescriptor shader, GLuint programId)
+{
+    DESCRIPTOR_CHECK(shader);
+
+    const auto &shaderGL = m_shaders[shader.id];
+    DF3D_ASSERT(shaderGL.gl_id != 0);
+
+    GL_CHECK(glDetachShader(programId, shaderGL.gl_id));
+    GL_CHECK(glDeleteShader(shaderGL.gl_id));
+
+    m_shaders[shader.id] = {};
+
+    m_shadersBag.release(shader.id);
+}
+
 RenderBackendGL::RenderBackendGL(int width, int height)
     : m_vertexBuffersBag(MAX_SIZE),
     m_indexBuffersBag(MAX_SIZE),
@@ -290,7 +305,7 @@ void RenderBackendGL::initialize()
 
         DFLOG_MESS("Max texture size %d", m_caps.maxTextureSize);
     }
-    
+
 #ifdef _DEBUG
     size_t totalStorage = sizeof(m_vertexBuffers) +
         sizeof(m_indexBuffers) +
@@ -789,26 +804,6 @@ df3d::ShaderDescriptor RenderBackendGL::createShader(ShaderType type, const std:
     return shaderDescr;
 }
 
-void RenderBackendGL::destroyShader(ShaderDescriptor shader)
-{
-    DESCRIPTOR_CHECK(shader);
-
-    const auto &shaderGL = m_shaders[shader.id];
-
-    if (shaderGL.gl_id != 0)
-    {
-        if (shaderGL.gl_program != 0)
-            GL_CHECK(glDetachShader(shaderGL.gl_program, shaderGL.gl_id));
-        GL_CHECK(glDeleteShader(shaderGL.gl_id));
-    }
-    else
-        return;
-
-    m_shaders[shader.id] = {};
-
-    m_shadersBag.release(shader.id);
-}
-
 df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor vertexShader, ShaderDescriptor fragmentShader)
 {
     DESCRIPTOR_CHECK_RETURN_INVALID(vertexShader);
@@ -830,8 +825,8 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor ve
         return{};
     }
 
-    auto &vertexShaderGL = m_shaders[vertexShader.id];
-    auto &fragmentShaderGL = m_shaders[fragmentShader.id];
+    const auto &vertexShaderGL = m_shaders[vertexShader.id];
+    const auto &fragmentShaderGL = m_shaders[fragmentShader.id];
 
     DF3D_ASSERT(vertexShaderGL.gl_id && fragmentShaderGL.gl_id);
 
@@ -862,8 +857,8 @@ df3d::GpuProgramDescriptor RenderBackendGL::createGpuProgram(ShaderDescriptor ve
         return{};
     }
 #endif
-
-    vertexShaderGL.gl_program = fragmentShaderGL.gl_program = program.gl_id;
+    program.vshader = vertexShader;
+    program.fshader = fragmentShader;
 
     m_programs[programDescr.id] = program;
 
@@ -878,7 +873,11 @@ void RenderBackendGL::destroyGpuProgram(GpuProgramDescriptor program)
 
     GL_CHECK(glUseProgram(0));
     if (programGL.gl_id != 0)
+    {
+        destroyShader(programGL.vshader, programGL.gl_id);
+        destroyShader(programGL.fshader, programGL.gl_id);
         GL_CHECK(glDeleteProgram(programGL.gl_id));
+    }
     else
         return;
 

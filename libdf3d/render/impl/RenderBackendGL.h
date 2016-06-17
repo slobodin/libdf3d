@@ -105,12 +105,13 @@ class RenderBackendGL : public IRenderBackend
     {
         GLuint gl_id = 0;
         GLenum type = GL_INVALID_ENUM;
-        GLuint gl_program = 0;
     };
 
     struct ProgramGL
     {
         GLuint gl_id = 0;
+        ShaderDescriptor vshader;
+        ShaderDescriptor fshader;
     };
 
     struct UniformGL
@@ -164,6 +165,8 @@ class RenderBackendGL : public IRenderBackend
     GpuMemoryStats m_gpuMemStats;
 #endif
 
+    void destroyShader(ShaderDescriptor shader, GLuint programId);
+
 public:
     RenderBackendGL(int width, int height);
     ~RenderBackendGL();
@@ -196,7 +199,6 @@ public:
     void bindTexture(TextureDescriptor t, int unit) override;
 
     ShaderDescriptor createShader(ShaderType type, const std::string &data) override;
-    void destroyShader(ShaderDescriptor shader) override;
 
     GpuProgramDescriptor createGpuProgram(ShaderDescriptor vertexShader, ShaderDescriptor fragmentShader) override;
     void destroyGpuProgram(GpuProgramDescriptor program) override;

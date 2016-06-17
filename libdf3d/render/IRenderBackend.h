@@ -49,7 +49,6 @@ public:
     virtual void bindTexture(TextureDescriptor t, int unit) = 0;
 
     virtual ShaderDescriptor createShader(ShaderType type, const std::string &data) = 0;
-    virtual void destroyShader(ShaderDescriptor shader) = 0;
 
     virtual GpuProgramDescriptor createGpuProgram(ShaderDescriptor vertexShader, ShaderDescriptor fragmentShader) = 0;
     virtual void destroyGpuProgram(GpuProgramDescriptor program) = 0;

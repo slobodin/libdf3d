@@ -302,10 +302,7 @@ GpuProgram* GpuProgramManualLoader::load()
 
     auto program = new GpuProgram(gpuProgramDescriptor);
     program->setGUID(m_resourceGuid);
-    
-    // Safely delete the shaders as do not need them.
-    svc().renderManager().getBackend().destroyShader(vertexShader);
-    svc().renderManager().getBackend().destroyShader(fragmentShader);
+
     return program;
 }
 
