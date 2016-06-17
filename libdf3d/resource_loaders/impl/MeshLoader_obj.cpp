@@ -21,8 +21,7 @@ bool MeshLoader_obj::hasTxCoords() const
 unique_ptr<SubMesh> MeshLoader_obj::createSubmesh(const std::string &materialName)
 {
     auto vertexFormat = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::NORMAL_3,
-                                               VertexFormat::TX_2, VertexFormat::COLOR_4,
-                                               VertexFormat::TANGENT_3, VertexFormat::BITANGENT_3 });
+                                     VertexFormat::TX_2, VertexFormat::TANGENT_3, VertexFormat::BITANGENT_3 });
     auto submesh = make_unique<SubMesh>(vertexFormat);
     submesh->setVertexBufferUsageHint(GpuBufferUsageType::STATIC);
     submesh->setIndexBufferUsageHint(GpuBufferUsageType::STATIC);
@@ -114,7 +113,6 @@ void MeshLoader_obj::processLine_f(std::istream &is)
 
         auto v = m_currentSubmesh->getVertexData().allocVertex();
         v.setPosition(m_vertices.at(vertexidx - 1));
-        v.setColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 
         if (normalidx > 0)
             v.setNormal(m_normals.at(normalidx - 1));
