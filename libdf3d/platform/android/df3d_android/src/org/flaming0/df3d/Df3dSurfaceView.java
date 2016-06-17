@@ -2,11 +2,13 @@ package org.flaming0.df3d;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.os.Build;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -68,60 +70,74 @@ public class Df3dSurfaceView extends GLSurfaceView {
             return chosen;
         }
 
-        /**
-         * This method iterates through the list of configurations that
-         * fulfill our minimum requirements and tries to pick one that matches best
-         * our requested color, depth and stencil buffer requirements that were set using
-         * the constructor of this class.
-         */
-        public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display,
-                                      EGLConfig[] configs) {
-            EGLConfig bestMatch = null;
-            int bestR = Integer.MAX_VALUE, bestG = Integer.MAX_VALUE,
-                    bestB = Integer.MAX_VALUE, bestA = Integer.MAX_VALUE,
-                    bestD = Integer.MAX_VALUE, bestS = Integer.MAX_VALUE;
+        public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display, EGLConfig[] configs) {
+            class InnerConfig
+            {
+                public EGLConfig eglConfig;
+                public int depthSize;
+                public int r;
+                public int g;
+                public int b;
+                public int a;
+                public int stencilSize;
+            };
 
-            for(EGLConfig config : configs) {
-                int r = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_RED_SIZE, 0);
-                int g = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_GREEN_SIZE, 0);
-                int b = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_BLUE_SIZE, 0);
-                int a = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_ALPHA_SIZE, 0);
-                int d = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_DEPTH_SIZE, 0);
-                int s = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_STENCIL_SIZE, 0);
+            ArrayList<InnerConfig> bestMatches = new ArrayList<InnerConfig>();
 
-                if(r <= bestR && g <= bestG && b <= bestB && a <= bestA
-                        && d <= bestD && s <= bestS && r >= redSize
-                        && g >= greenSize && b >= blueSize
-                        && a >= alphaSize && d >= depthSize
-                        && s >= stencilSize) {
-                    bestR = r;
-                    bestG = g;
-                    bestB = b;
-                    bestA = a;
-                    bestD = d;
-                    bestS = s;
-                    bestMatch = config;
+            for (EGLConfig config : configs) {
+                int d = findConfigAttrib(egl, display, config, EGL10.EGL_DEPTH_SIZE, 0);
+                int s = findConfigAttrib(egl, display, config, EGL10.EGL_STENCIL_SIZE, 0);
+
+                // We need at least depthSize and stencilSize bits
+                if (d < depthSize || s < stencilSize)
+                    continue;
+
+                // We want an exact match for red/green/blue/alpha
+                int r = findConfigAttrib(egl, display, config, EGL10.EGL_RED_SIZE, 0);
+                int g = findConfigAttrib(egl, display, config, EGL10.EGL_GREEN_SIZE, 0);
+                int b = findConfigAttrib(egl, display, config, EGL10.EGL_BLUE_SIZE, 0);
+                int a = findConfigAttrib(egl, display, config, EGL10.EGL_ALPHA_SIZE, 0);
+
+                if (r == redSize && g == greenSize && b == blueSize && a == alphaSize) {
+                    InnerConfig cfg = new InnerConfig();
+                    cfg.depthSize = d;
+                    cfg.stencilSize = s;
+                    cfg.r = r;
+                    cfg.g = g;
+                    cfg.b = b;
+                    cfg.a = a;
+                    cfg.eglConfig = config;
+                    bestMatches.add(cfg);
                 }
             }
 
-            if (bestMatch != null) {
-                Log.i("df3d_android", String.format("EGLConfig: Red %d Green %d Blue %d Depth %d Stencil %d", bestR, bestG, bestB, bestD, bestS));
+            if (bestMatches.isEmpty()) {
+                Log.e("df3d_android", "chooseConfig didn't find a EGLConfig with given parameters");
+                return null;
             }
 
-            return bestMatch;
+            // Now find the one with maximum depth size
+            Collections.sort(bestMatches, new Comparator<InnerConfig>() {
+                @Override
+                public int compare(InnerConfig innerConfig, InnerConfig t1) {
+                    if (innerConfig.depthSize < t1.depthSize)
+                        return -1;
+                    else if (innerConfig.depthSize > t1.depthSize)
+                        return 1;
+                    else
+                        return 0;
+                }
+            });
+
+            InnerConfig best = bestMatches.get(bestMatches.size() - 1);
+
+            Log.i("df3d_android", String.format("EGLConfig: Red %d Green %d Blue %d Alpha %d Depth %d Stencil %d", best.r, best.g, best.b, best.a, best.depthSize, best.stencilSize));
+
+            return best.eglConfig;
         }
 
-        private int findConfigAttrib(EGL10 egl, EGLDisplay display,
-                                     EGLConfig config, int attribute, int defaultValue) {
-
-            if(egl.eglGetConfigAttrib(display, config, attribute,
-                    mValue)) {
+        private int findConfigAttrib(EGL10 egl, EGLDisplay display, EGLConfig config, int attribute, int defaultValue) {
+            if(egl.eglGetConfigAttrib(display, config, attribute, mValue)) {
                 return mValue[0];
             }
 
@@ -135,7 +151,7 @@ public class Df3dSurfaceView extends GLSurfaceView {
     public Df3dSurfaceView(Context context) {
         super(context);
 
-        setEGLConfigChooser(new Df3dConfigChooser(8, 8, 8, 8, 24, 8));
+        setEGLConfigChooser(new Df3dConfigChooser(8, 8, 8, 8, 16, 8));
 
         try {
             setPreserveEGLContextOnPause(true);
