@@ -6,6 +6,8 @@ extern "C" void df3dSetApplicationDelegate();
 
 int main(int agrc, char **argv) try
 {
+    DFLOG_DEBUG("main started");
+
     df3dSetApplicationDelegate();
 
     df3d::platform_impl::glfwAppRun();
