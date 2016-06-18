@@ -7,8 +7,7 @@ namespace df3d { namespace resource_loaders_impl {
 unique_ptr<SubMesh> MeshLoader_dfmesh::createSubmesh(std::vector<float> &&vertexData, IndexArray &&indexData)
 {
     auto vertexFormat = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::NORMAL_3,
-                                     VertexFormat::TX_2, VertexFormat::COLOR_4,
-                                     VertexFormat::TANGENT_3, VertexFormat::BITANGENT_3 });
+                                     VertexFormat::TX_2, VertexFormat::TANGENT_3, VertexFormat::BITANGENT_3 });
 
     auto submesh = make_unique<SubMesh>(vertexFormat);
     submesh->setVertexBufferUsageHint(GpuBufferUsageType::STATIC);
