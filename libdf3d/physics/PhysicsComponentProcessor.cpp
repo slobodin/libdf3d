@@ -99,6 +99,7 @@ struct PhysicsComponentProcessor::Impl
 
     ~Impl()
     {
+        // Calls destruction callback which does the deletion.
         data.clear();
 
         for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
@@ -316,11 +317,12 @@ PhysicsComponentProcessor::PhysicsComponentProcessor(World *w)
     m_pimpl->data.setDestructionCallback([this, physicsWorld](const Impl::Data &data) {
         if (data.body)
         {
-            physicsWorld->removeRigidBody(data.body);
             auto motionState = data.body->getMotionState();
             delete motionState;
             auto shape = data.body->getCollisionShape();
             delete shape;
+
+            physicsWorld->removeRigidBody(data.body);
             delete data.body;
             delete data.meshInterface;
         }

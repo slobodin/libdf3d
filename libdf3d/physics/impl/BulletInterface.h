@@ -19,6 +19,7 @@ class BulletDebugDraw : public btIDebugDraw
 
     VertexBufferDescriptor m_vertexBuffer;
     VertexData m_vertexData;
+    int m_currentVertex = 0;
 
 public:
     BulletDebugDraw();

@@ -10,7 +10,6 @@
 
 namespace df3d { namespace physics_impl {
 
-/*
 static unique_ptr<RenderPass> CreateDebugDrawPass()
 {
     auto pass = make_unique<RenderPass>("bullet_debug_draw_pass");
@@ -25,7 +24,6 @@ static unique_ptr<RenderPass> CreateDebugDrawPass()
 
     return pass;
 }
-*/
 
 BulletDebugDraw::BulletDebugDraw()
     : m_vertexData(vertex_formats::p3_tx2_c4)
@@ -40,12 +38,15 @@ BulletDebugDraw::~BulletDebugDraw()
 
 void BulletDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)
 {
+    if (m_vertexData.getVerticesCount() == 0)
+        m_vertexData.allocVertices(100000);
+
     // FIXME: map directly to GPU.
-    auto v1 = m_vertexData.allocVertex();
+    auto v1 = m_vertexData.getVertex(m_currentVertex++);
     v1.setColor({ color.x(), color.y(), color.z(), 1.0f });
     v1.setPosition({ from.x(), from.y(), from.z() });
 
-    auto v2 = m_vertexData.allocVertex();
+    auto v2 = m_vertexData.getVertex(m_currentVertex++);
     v2.setColor({ color.x(), color.y(), color.z(), 1.0f });
     v2.setPosition({ to.x(), to.y(), to.z() });
 }
@@ -82,13 +83,11 @@ void BulletDebugDraw::clean()
         svc().renderManager().getBackend().destroyVertexBuffer(m_vertexBuffer);
         m_vertexBuffer = {};
     }
-    m_vertexData.clear();
+    m_currentVertex = 0;
 }
 
 void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
 {
-    // TODO: rebinding issue.
-    /*
     if (m_vertexData.getVerticesCount() == 0)
         return;
 
@@ -106,7 +105,6 @@ void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
     op.type = RopType::LINES;
 
     ops->debugDrawOperations.push_back(op);
-    */
 }
 
 } }
