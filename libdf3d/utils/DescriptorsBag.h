@@ -36,7 +36,7 @@ public:
     T getNew()
     {
         if (m_next >= m_maxSize)
-            return{};
+            return -1;
 
         return getNextId();
     }
