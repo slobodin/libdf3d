@@ -174,7 +174,7 @@ static void PrintShaderLog(GLuint shader)
     int infologLen = 0;
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infologLen);
 
-    unique_ptr<char> infoLog(new char[infologLen + 1]);
+    unique_ptr<char[]> infoLog(new char[infologLen + 1]);
     glGetShaderInfoLog(shader, infologLen, nullptr, infoLog.get());
 
     DFLOG_MESS("Shader info log: %s", infoLog.get());
@@ -185,7 +185,7 @@ static void PrintGpuProgramLog(unsigned int program)
     int infologLen = 0;
     glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infologLen);
 
-    unique_ptr<char> infoLog(new char[infologLen + 1]);
+    unique_ptr<char[]> infoLog(new char[infologLen + 1]);
     glGetProgramInfoLog(program, infologLen, nullptr, infoLog.get());
 
     DFLOG_MESS("GPU program info log: %s", infoLog.get());
@@ -664,7 +664,7 @@ df3d::TextureDescriptor RenderBackendGL::createTextureCube(unique_ptr<PixelBuffe
             break;
         default:
             DFLOG_WARN("Invalid GL texture pixel format");
-            return false;
+            return{};
         }
 
         auto data = pixels[i]->getData();

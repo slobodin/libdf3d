@@ -383,11 +383,11 @@ namespace SPK
 		System::constantStep = constantStep;
 	}
 
-	inline void System::useAdaptiveStep(float minStep,float maxStep)
+	inline void System::useAdaptiveStep(float minS,float maxS)
 	{
 		stepMode = STEP_MODE_ADAPTIVE;
-		System::minStep = minStep;
-		System::maxStep = maxStep;
+		System::minStep = minS;
+		System::maxStep = maxS;
 	}
 
 	inline void System::useRealStep()

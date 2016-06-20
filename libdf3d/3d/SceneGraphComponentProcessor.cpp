@@ -39,7 +39,7 @@ struct SceneGraphComponentProcessor::Impl
             component.wTransform.orientation = parentWTransform.orientation * myLTransform.orientation;
             component.wTransform.scaling.x = parentWTransform.scaling.x * myLTransform.scaling.x;
             component.wTransform.scaling.y = parentWTransform.scaling.y * myLTransform.scaling.y;
-            component.wTransform.scaling.y = parentWTransform.scaling.y * myLTransform.scaling.y;
+            component.wTransform.scaling.z = parentWTransform.scaling.z * myLTransform.scaling.z;
         }
         else
         {
