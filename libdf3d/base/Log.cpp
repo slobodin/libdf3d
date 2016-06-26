@@ -1,5 +1,7 @@
 #include "Log.h"
 
+#include <cstdarg>
+
 #ifdef DF3D_ANDROID
 #include <android/log.h>
 #endif

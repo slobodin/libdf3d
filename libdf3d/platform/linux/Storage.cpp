@@ -1,26 +1,49 @@
-#include "df3d_pch.h"
-#include "../Storage.h"
+#include <libdf3d/io/Storage.h>
 
-namespace df3d { namespace platform {
+namespace df3d { namespace platform_impl {
 
 class LinuxStorage : public Storage
 {
-public:
-    LinuxStorage(const char *filename)
-        : Storage(filename)
+    void saveToFileSystem(const uint8_t *data, size_t size) override
     {
-
+        std::ofstream of(m_fileName, std::ios::out | std::ios::binary);
+        of.write((const char *)data, size);
     }
 
-    virtual void save() override
+    bool getFromFileSystem(uint8_t **data, size_t *size) override
+    {
+        std::ifstream ifs(m_fileName, std::ios::in | std::ios::binary);
+        if (ifs)
+        {
+            size_t fileSize = 0;
+            ifs.seekg(0, std::ios_base::end);
+            fileSize = ifs.tellg();
+            ifs.seekg(0, std::ios_base::beg);
+
+            *data = new uint8_t[fileSize];
+            *size = fileSize;
+
+            ifs.read((char*)*data, fileSize);
+
+            return true;
+        }
+
+        return false;
+    }
+
+public:
+    LinuxStorage(const std::string &filename)
+        : Storage(filename)
     {
 
     }
 };
 
-Storage *Storage::create(const char *filename)
-{
-    return new LinuxStorage(filename);
 }
 
-} }
+Storage* Storage::create(const std::string &filename)
+{
+    return new platform_impl::LinuxStorage(filename);
+}
+
+}
