@@ -425,8 +425,8 @@ void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
             continue;
 
         GL_CHECK(glEnableVertexAttribArray(attrib));
-        auto offset = format.getOffsetTo(attrib);
-        auto count = format.getCompCount(attrib);
+        size_t offset = format.getOffsetTo(attrib);
+        size_t count = format.getCompCount(attrib);
 
         GL_CHECK(glVertexAttribPointer(attrib, count, GL_FLOAT, GL_FALSE, vertexSize, (const GLvoid*)offset));
     }
