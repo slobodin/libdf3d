@@ -4,52 +4,7 @@
 
 namespace df3d {
 
-VertexFormat::VertexFormat(const std::vector<VertexAttribute> &attribs)
-    : m_attribs(attribs)
-{
-    size_t offset = 0;
-    for (auto attrib : m_attribs)
-    {
-        m_size += getAttributeSize(attrib);
-        m_offsets[attrib] = offset;
-        offset = m_size;
-
-        switch (attrib)
-        {
-        case VertexFormat::TX_2:
-            m_counts[attrib] = 2;
-            break;
-        case VertexFormat::POSITION_3:
-        case VertexFormat::NORMAL_3:
-        case VertexFormat::TANGENT_3:
-        case VertexFormat::BITANGENT_3:
-            m_counts[attrib] = 3;
-            break;
-        case VertexFormat::COLOR_4:
-            m_counts[attrib] = 4;
-            break;
-        default:
-            DF3D_ASSERT(false);
-        }
-    }
-}
-
-bool VertexFormat::hasAttribute(VertexAttribute attrib) const
-{
-    return utils::contains(m_attribs, attrib);
-}
-
-size_t VertexFormat::getVertexSize() const
-{
-    return m_size;
-}
-
-size_t VertexFormat::getOffsetTo(VertexAttribute attrib) const
-{
-    return m_offsets[attrib];
-}
-
-size_t VertexFormat::getAttributeSize(VertexAttribute attrib) const
+static uint16_t GetAttributeSize(VertexFormat::VertexAttribute attrib)
 {
     switch (attrib)
     {
@@ -71,6 +26,50 @@ size_t VertexFormat::getAttributeSize(VertexAttribute attrib) const
 
     DF3D_ASSERT_MESS(false, "no such attribute in vertex format");
     return 0;
+}
+
+static uint16_t GetAttributeCompCount(VertexFormat::VertexAttribute attrib)
+{
+    switch (attrib)
+    {
+    case VertexFormat::TX_2:
+        return 2;
+    case VertexFormat::POSITION_3:
+    case VertexFormat::NORMAL_3:
+    case VertexFormat::TANGENT_3:
+    case VertexFormat::BITANGENT_3:
+        return 3;
+    case VertexFormat::COLOR_4:
+        return 4;
+    default:
+        DF3D_ASSERT(false);
+    }
+
+    return 0;
+}
+
+VertexFormat::VertexFormat()
+    : m_size(0)
+{
+    memset(&m_attribs, 0xFFFF, sizeof(m_attribs));
+}
+
+VertexFormat::VertexFormat(const std::vector<VertexAttribute> &attribs)
+    : VertexFormat()
+{
+    uint16_t totalOffset = 0;
+    for (auto attrib : attribs)
+    {
+        uint16_t attribSize = GetAttributeSize(attrib);
+        uint16_t attribCompCount = GetAttributeCompCount(attrib);
+        DF3D_ASSERT(attribCompCount >= 1 && attribCompCount <= 4);
+
+        m_attribs[attrib] = (totalOffset << 8) | attribCompCount;
+
+        m_size += attribSize;
+        totalOffset = m_size;
+        DF3D_ASSERT(totalOffset <= (2 << 8));
+    }
 }
 
 Vertex::Vertex(const VertexFormat &format, float *vertexData)
@@ -198,6 +197,8 @@ namespace vertex_formats
 {
 
 const VertexFormat p3_tx2_c4 = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
+const VertexFormat p3_n3_tx2_tan3_bitan3 = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::NORMAL_3,
+                                                        VertexFormat::TX_2, VertexFormat::TANGENT_3, VertexFormat::BITANGENT_3 });
 
 }
 

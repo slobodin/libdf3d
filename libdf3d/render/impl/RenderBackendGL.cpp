@@ -208,13 +208,7 @@ void RenderBackendGL::destroyShader(ShaderDescriptor shader, GLuint programId)
 }
 
 RenderBackendGL::RenderBackendGL(int width, int height)
-    : m_vertexBuffersBag(MAX_SIZE),
-    m_indexBuffersBag(MAX_SIZE),
-    m_texturesBag(MAX_SIZE),
-    m_shadersBag(MAX_SIZE),
-    m_gpuProgramsBag(MAX_SIZE),
-    m_uniformsBag(MAX_SIZE),
-    m_width(width),
+    : m_width(width),
     m_height(height)
 {
 #ifdef DF3D_DESKTOP
@@ -256,12 +250,12 @@ const FrameStats& RenderBackendGL::getFrameStats() const
 
 void RenderBackendGL::initialize()
 {
-    m_vertexBuffersBag = { MAX_SIZE };
-    m_indexBuffersBag = { MAX_SIZE };
-    m_texturesBag = { MAX_SIZE };
-    m_shadersBag = { MAX_SIZE };
-    m_gpuProgramsBag = { MAX_SIZE };
-    m_uniformsBag = { MAX_SIZE };
+    m_vertexBuffersBag = {};
+    m_indexBuffersBag = {};
+    m_texturesBag = {};
+    m_shadersBag = {};
+    m_gpuProgramsBag = {};
+    m_uniformsBag = {};
 
     m_programUniforms.clear();
 
@@ -363,7 +357,7 @@ df3d::VertexBufferDescriptor RenderBackendGL::createVertexBuffer(const VertexFor
 
     VertexBufferGL vertexBuffer;
 
-    vertexBuffer.format = make_shared<VertexFormat>(format);
+    vertexBuffer.format = format;
     vertexBuffer.sizeInBytes = verticesCount * format.getVertexSize();
 
     GL_CHECK(glGenBuffers(1, &vertexBuffer.gl_id));
@@ -420,13 +414,21 @@ void RenderBackendGL::bindVertexBuffer(VertexBufferDescriptor vb)
 
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id));
 
-    const auto &format = *vertexBuffer.format;
+    const auto &format = vertexBuffer.format;
+    const auto vertexSize = format.getVertexSize();
 
-    for (auto attrib : format.m_attribs)
+    for (uint16_t i = VertexFormat::POSITION_3; i != VertexFormat::COUNT; i++)
     {
+        auto attrib = (VertexFormat::VertexAttribute)i;
+
+        if (!format.hasAttribute(attrib))
+            continue;
+
         GL_CHECK(glEnableVertexAttribArray(attrib));
-        size_t offs = format.getOffsetTo(attrib);
-        GL_CHECK(glVertexAttribPointer(attrib, format.m_counts[attrib], GL_FLOAT, GL_FALSE, format.getVertexSize(), (const GLvoid*)offs));
+        auto offset = format.getOffsetTo(attrib);
+        auto count = format.getCompCount(attrib);
+
+        GL_CHECK(glVertexAttribPointer(attrib, count, GL_FLOAT, GL_FALSE, vertexSize, (const GLvoid*)offset));
     }
 
     m_indexedDrawCall = false;
@@ -440,7 +442,7 @@ void RenderBackendGL::updateVertexBuffer(VertexBufferDescriptor vb, size_t verti
     const auto &vertexBuffer = m_vertexBuffers[vb.id];
     DF3D_ASSERT(vertexBuffer.gl_id != 0);
 
-    auto bytesUpdating = verticesCount * vertexBuffer.format->getVertexSize();
+    auto bytesUpdating = verticesCount * vertexBuffer.format.getVertexSize();
 
     DF3D_ASSERT(bytesUpdating <= vertexBuffer.sizeInBytes);
     DF3D_ASSERT(vertexBuffer.gl_id != 0);

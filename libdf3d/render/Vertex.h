@@ -8,7 +8,7 @@ static_assert(std::is_same<glm::vec3::value_type, float>::value, "glm: only floa
 class DF3D_DLL VertexFormat
 {
 public:
-    enum VertexAttribute
+    enum VertexAttribute : uint16_t
     {
         // FIXME: figure out why if its starting not from 0 gives black screen on mac os.
         // stackoverflow.com/questions/11497870
@@ -23,22 +23,37 @@ public:
         COUNT
     };
 
-    // FIXME: encapsulate
-    std::vector<VertexAttribute> m_attribs;
-    size_t m_offsets[COUNT] = { 0 };
-    size_t m_counts[COUNT] = { 0 };
-    size_t m_size = 0;
+private:
+    uint16_t m_attribs[COUNT];
+    uint16_t m_size;
 
+public:
+    VertexFormat();
     VertexFormat(const std::vector<VertexAttribute> &attribs);
 
     //! Whether or not this format has a given attribute.
-    bool hasAttribute(VertexAttribute attrib) const;
-    //! Returns size in bytes.
-    size_t getVertexSize() const;
+    bool hasAttribute(VertexAttribute attrib) const
+    {
+        return m_attribs[attrib] != 0xFFFF;
+    }
+
+    //! Returns vertex size of this format in bytes.
+    size_t getVertexSize() const
+    {
+        return m_size;
+    }
+
     //! Returns offset in bytes to a given attribute.
-    size_t getOffsetTo(VertexAttribute attrib) const;
-    //! Return the size in bytes of a given attribute.
-    size_t getAttributeSize(VertexAttribute attrib) const;
+    uint16_t getOffsetTo(VertexAttribute attrib) const
+    {
+        return m_attribs[attrib] >> 8;
+    }
+
+    //! Returns number of components per vertex attribute. Must be 1, 2, 3 or 4.
+    uint16_t getCompCount(VertexAttribute attrib) const
+    {
+        return m_attribs[attrib] & 0x00FF;
+    }
 };
 
 class DF3D_DLL Vertex
@@ -102,6 +117,7 @@ public:
 namespace vertex_formats
 {
     extern const DF3D_DLL VertexFormat p3_tx2_c4;
+    extern const DF3D_DLL VertexFormat p3_n3_tx2_tan3_bitan3;
 }
 
 }

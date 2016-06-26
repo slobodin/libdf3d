@@ -67,14 +67,35 @@ class GpuMemoryStats
     }
 
 public:
-    void addTexture(TextureDescriptor td, size_t sizeInBytes) { addHelper(m_textures, td, sizeInBytes); }
-    void removeTexture(TextureDescriptor td) { removeHelper(m_textures, td); }
+    void addTexture(TextureDescriptor td, size_t sizeInBytes)
+    {
+        addHelper(m_textures, td, sizeInBytes);
+    }
 
-    void addVertexBuffer(VertexBufferDescriptor vb, size_t sizeInBytes) { addHelper(m_vertexBuffers, vb, sizeInBytes); }
-    void removeVertexBuffer(VertexBufferDescriptor vb) { removeHelper(m_vertexBuffers, vb); }
+    void removeTexture(TextureDescriptor td)
+    {
+        removeHelper(m_textures, td); 
+    }
 
-    void addIndexBuffer(IndexBufferDescriptor ib, size_t sizeInBytes) { addHelper(m_indexBuffers, ib, sizeInBytes); }
-    void removeIndexBuffer(IndexBufferDescriptor ib) { removeHelper(m_indexBuffers, ib); }
+    void addVertexBuffer(VertexBufferDescriptor vb, size_t sizeInBytes)
+    {
+        addHelper(m_vertexBuffers, vb, sizeInBytes);
+    }
+
+    void removeVertexBuffer(VertexBufferDescriptor vb)
+    {
+        removeHelper(m_vertexBuffers, vb);
+    }
+
+    void addIndexBuffer(IndexBufferDescriptor ib, size_t sizeInBytes)
+    {
+        addHelper(m_indexBuffers, ib, sizeInBytes);
+    }
+
+    void removeIndexBuffer(IndexBufferDescriptor ib)
+    {
+        removeHelper(m_indexBuffers, ib);
+    }
 
     size_t getGpuMemBytes() const { return m_total; }
 };
@@ -84,7 +105,7 @@ class RenderBackendGL : public IRenderBackend
     struct VertexBufferGL
     {
         GLuint gl_id = 0;
-        shared_ptr<VertexFormat> format;
+        VertexFormat format;
         size_t sizeInBytes = 0;
     };
 
@@ -123,14 +144,14 @@ class RenderBackendGL : public IRenderBackend
     RenderBackendCaps m_caps;
     mutable FrameStats m_stats;
 
-    utils::DescriptorsBag<int16_t> m_vertexBuffersBag;
-    utils::DescriptorsBag<int16_t> m_indexBuffersBag;
-    utils::DescriptorsBag<int16_t> m_texturesBag;
-    utils::DescriptorsBag<int16_t> m_shadersBag;
-    utils::DescriptorsBag<int16_t> m_gpuProgramsBag;
-    utils::DescriptorsBag<int16_t> m_uniformsBag;
-
     static const int MAX_SIZE = 0xFFF;      // 4k is enough for now.
+
+    utils::StaticDescriptorBag<int16_t, MAX_SIZE> m_vertexBuffersBag;
+    utils::StaticDescriptorBag<int16_t, MAX_SIZE> m_indexBuffersBag;
+    utils::StaticDescriptorBag<int16_t, MAX_SIZE> m_texturesBag;
+    utils::StaticDescriptorBag<int16_t, MAX_SIZE> m_shadersBag;
+    utils::StaticDescriptorBag<int16_t, MAX_SIZE> m_gpuProgramsBag;
+    utils::StaticDescriptorBag<int16_t, MAX_SIZE> m_uniformsBag;
 
     VertexBufferGL m_vertexBuffers[MAX_SIZE];
     IndexBufferGL m_indexBuffers[MAX_SIZE];

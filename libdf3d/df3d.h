@@ -12,7 +12,6 @@
 #include <libdf3d/utils/MeshUtils.h>
 #include <libdf3d/utils/Dict.h>
 #include <libdf3d/utils/Any.h>
-#include <libdf3d/utils/DescriptorsBag.h>
 
 #include <libdf3d/base/EngineController.h>
 #include <libdf3d/base/DebugConsole.h>
