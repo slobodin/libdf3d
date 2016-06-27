@@ -23,19 +23,9 @@ using namespace Sqrat;
 
 namespace df3d { namespace script_impl {
 
-inline float random_float()
-{
-    return utils::RandRange(0.0f, 1.0f);
-}
-
-inline float random_float_range(float a, float b)
-{
-    return utils::RandRange(a, b);
-}
-
 inline int random_int_range(int a, int b)
 {
-    return utils::RandRange(a, b);
+    return utils::RandRangeEx(a, b);
 }
 
 inline glm::quat slerp(const glm::quat &a, const glm::quat &b, float t)
@@ -127,8 +117,6 @@ void bindGlm(Table &df3dNamespace)
         df3dNamespace.Bind(_SC("quat"), glmquatClass);
     }
 
-    df3dNamespace.Func(_SC("random_float"), random_float);
-    df3dNamespace.Func(_SC("random_float_range"), random_float_range);
     df3dNamespace.Func(_SC("random_int_range"), random_int_range);
     df3dNamespace.Func(_SC("gaussian"), df3d::utils::math::gaussian);
     df3dNamespace.Func(_SC("slerp"), slerp);

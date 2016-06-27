@@ -8,30 +8,20 @@
 
 namespace df3d { namespace utils {
 
-// NOTE: not uniform distribution.
-// Random number in closed interval [a..b]
-inline size_t RandRange(const size_t a, const size_t b)
-{
-    return a + (rand() % (b - a + 1)); 
-}
-
-inline int RandRange(const int a, const int b)
-{
-    return a + (rand() % (b - a + 1));
-}
-
-inline float RandRange(const float a, const float b)
-{
-    return static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (b - a))) + a;
-}
+std::mt19937_64& RNG();
 
 // Random value in interval [a, b)
 inline float RandRangeEx(const float a, const float b)
 {
-    std::random_device rd;
-    std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(a, b);
-    return static_cast<float>(dis(gen));
+    return static_cast<float>(dis(RNG()));
+}
+
+// Random value in a closed interval [a, b]
+inline int RandRangeEx(const int a, const int b)
+{
+    std::uniform_int_distribution<> dis(a, b);
+    return dis(RNG());
 }
 
 inline void skip_line(std::istream &is)
