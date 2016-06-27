@@ -23,13 +23,15 @@ namespace df3d {
 
 static_assert(sizeof(int) >= sizeof(df3d::Entity::IdType), "Can't store user data in bullet user pointer");
 
-class PhysicsComponentMotionState : public btMotionState
+ATTRIBUTE_ALIGNED16(class) PhysicsComponentMotionState : public btMotionState
 {
+    btTransform m_transform;
     World &m_world;
     Entity m_holder;
-    btTransform m_transform;
 
 public:
+    BT_DECLARE_ALIGNED_ALLOCATOR();
+
     PhysicsComponentMotionState(Entity e, World &w)
         : m_world(w),
         m_holder(e)
