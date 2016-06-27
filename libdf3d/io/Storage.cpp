@@ -29,7 +29,11 @@ Storage::Storage(const std::string &filename)
 bool Storage::save()
 {
     Json::StreamWriterBuilder b;
+#ifdef _DEBUG
+    b["indentation"] = "  ";
+#else
     b["indentation"] = "";
+#endif
 
     auto str = Json::writeString(b, getData());
 
