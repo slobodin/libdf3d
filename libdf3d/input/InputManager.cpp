@@ -12,6 +12,21 @@ static bool ShouldEmulateTouchEvent()
     return true;
 }
 
+static tb::SPECIAL_KEY GetTBSpecialKey(KeyCode keyCode)
+{
+    auto tbKey = tb::TB_KEY_UNDEFINED;
+    switch (keyCode)
+    {
+    case KeyCode::KEY_ESCAPE:
+        tbKey = tb::TB_KEY_ESC;
+        break;
+    default:
+        break;
+    }
+
+    return tbKey;
+}
+
 void InputManager::cleanStep()
 {
     m_prevMouseState = m_mouseState;
@@ -112,11 +127,17 @@ void InputManager::setMouseWheelDelta(float delta)
 
 void InputManager::onKeyUp(const KeyCode &keyCode, KeyModifier modifiers)
 {
+    if (auto root = df3d::svc().guiManager().getRoot())
+        root->InvokeKey(0, GetTBSpecialKey(keyCode), tb::TB_MODIFIER_NONE, false);
+
     m_keyboardState.keyboard.at((size_t)keyCode) = KeyboardState::RELEASED;
 }
 
 void InputManager::onKeyDown(const KeyCode &keyCode, KeyModifier modifiers)
 {
+    if (auto root = df3d::svc().guiManager().getRoot())
+        root->InvokeKey(0, GetTBSpecialKey(keyCode), tb::TB_MODIFIER_NONE, true);
+
     m_keyboardState.keyboard.at((size_t)keyCode) = KeyboardState::PRESSED;
 }
 
