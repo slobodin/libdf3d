@@ -39,7 +39,7 @@ BulletDebugDraw::~BulletDebugDraw()
 void BulletDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)
 {
     if (m_vertexData.getVerticesCount() == 0)
-        m_vertexData.allocVertices(100000);
+        m_vertexData.allocVertices(300000);
 
     // FIXME: map directly to GPU.
     auto v1 = m_vertexData.getVertex(m_currentVertex++);
