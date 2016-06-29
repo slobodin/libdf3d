@@ -134,6 +134,8 @@ int main(int argc, const char **argv) try
 
     std::cout << "obj successfully decoded" << std::endl;
 
+    file.reset();
+
     auto dotPos = inputFileName.find_last_of('.');
     std::string outputFilename(inputFileName.begin(), inputFileName.begin() + dotPos);
 
