@@ -54,12 +54,12 @@ FPSCamera::FPSCamera(float velocity, bool freeMove, float damping, const glm::ve
     m_velocity(velocity),
     m_damping(damping)
 {
-    m_updateHandle = svc().world().timeManager().subscribeUpdate(std::bind(&FPSCamera::onUpdate, this));
+    m_updateHandle = svc().defaultWorld().timeManager().subscribeUpdate(std::bind(&FPSCamera::onUpdate, this));
 }
 
 FPSCamera::~FPSCamera()
 {
-    svc().world().timeManager().unsubscribeUpdate(m_updateHandle);
+    svc().defaultWorld().timeManager().unsubscribeUpdate(m_updateHandle);
 }
 
 }

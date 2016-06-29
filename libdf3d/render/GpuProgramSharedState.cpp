@@ -164,7 +164,7 @@ void GpuProgramSharedState::clear()
     m_viewMatrix = glm::mat4(1.0f);
     m_projMatrix = glm::mat4(1.0f);
 
-    m_cameraPosition = svc().world().getCamera()->getPosition();
+    m_cameraPosition = svc().defaultWorld().getCamera()->getPosition();
 
     m_engineElapsedTime = svc().timer().getElapsedTime();
 }

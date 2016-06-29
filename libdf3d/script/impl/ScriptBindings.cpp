@@ -35,12 +35,12 @@ inline glm::quat slerp(const glm::quat &a, const glm::quat &b, float t)
 
 inline World* df3dWorld()
 {
-    return &df3d::world();
+    return &svc().defaultWorld();
 }
 
 inline Camera* getWorldCamera()
 {
-    return df3d::world().getCamera().get();
+    return svc().defaultWorld().getCamera().get();
 }
 
 inline glm::vec2 getScreenSize()

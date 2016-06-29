@@ -229,7 +229,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
             m_renderParticle = &QuadParticleSystemRenderer::render2D;
     }
 
-    auto camMatr = svc().world().getCamera()->getViewMatrix() * *m_currentTransformation;
+    auto camMatr = svc().defaultWorld().getCamera()->getViewMatrix() * *m_currentTransformation;
     camMatr = glm::inverse(camMatr);
 
     bool globalOrientation = precomputeOrientation3D(group,

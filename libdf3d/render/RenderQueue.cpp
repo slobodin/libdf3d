@@ -22,8 +22,8 @@ static bool sort_by_z_pred(const RenderOperation2D &a, const RenderOperation2D &
 
 void RenderQueue::sort()
 {
-    auto cameraDir = df3d::world().getCamera()->getDir();
-    auto cameraPos = df3d::world().getCamera()->getPosition();
+    auto cameraDir = svc().defaultWorld().getCamera()->getDir();
+    auto cameraPos = svc().defaultWorld().getCamera()->getPosition();
 
     std::sort(transparentOperations.begin(), transparentOperations.end(), [&cameraDir, &cameraPos](const RenderOperation &a, const RenderOperation &b) {
         auto d1 = glm::dot(cameraDir, glm::vec3(a.worldTransform[3]) - cameraPos);

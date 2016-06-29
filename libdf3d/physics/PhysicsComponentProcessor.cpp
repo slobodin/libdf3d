@@ -131,7 +131,7 @@ struct PhysicsComponentProcessor::Impl
         {
         case CollisionShapeType::BOX:
         {
-            auto aabb = svc().world().staticMesh().getAABB(data.holder);
+            auto aabb = svc().defaultWorld().staticMesh().getAABB(data.holder);
             if (!aabb.isValid())
             {
                 DFLOG_WARN("Can not create box shape for rigid body. AABB is invalid");
@@ -143,7 +143,7 @@ struct PhysicsComponentProcessor::Impl
         }
         case CollisionShapeType::SPHERE:
         {
-            auto sphere = svc().world().staticMesh().getBoundingSphere(data.holder);
+            auto sphere = svc().defaultWorld().staticMesh().getBoundingSphere(data.holder);
             if (!sphere.isValid())
             {
                 DFLOG_WARN("Can not create sphere shape for rigid body. Bounding sphere is invalid");
@@ -170,7 +170,7 @@ struct PhysicsComponentProcessor::Impl
             auto colShape = new btConvexHullShape((btScalar*)tempPoints.data(), tempPoints.size());
 
             // FIXME: what to do if scale has been changed?
-            auto scale = svc().world().sceneGraph().getLocalScale(data.holder);
+            auto scale = svc().defaultWorld().sceneGraph().getLocalScale(data.holder);
             colShape->setLocalScaling(glmTobt(scale));
 
             return colShape;
@@ -214,7 +214,7 @@ struct PhysicsComponentProcessor::Impl
             data.meshInterface = bulletMesh;
 
             auto colShape = new btBvhTriangleMeshShape(bulletMesh, true);
-            auto scale = svc().world().sceneGraph().getLocalScale(data.holder);
+            auto scale = svc().defaultWorld().sceneGraph().getLocalScale(data.holder);
             colShape->setLocalScaling(glmTobt(scale));
 
             return colShape;

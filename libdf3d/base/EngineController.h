@@ -33,7 +33,7 @@ class DF3D_DLL EngineController : utils::NonCopyable
     unique_ptr<StringTable> m_stringTable;
     unique_ptr<DebugConsole> m_debugConsole;
 
-    unique_ptr<World> m_world;
+    unique_ptr<World> m_worlds[3];  // TODO: don't hold worlds in the engine.
 
     bool m_initialized = false;
     bool m_suspended = false;
@@ -70,16 +70,13 @@ public:
     StringTable* stringTable() { return m_stringTable.get(); }
     DebugConsole* debugConsole() { return m_debugConsole.get(); }
 
-    World& world() { return *m_world; }
-    void replaceWorld();
-    void replaceWorld(const std::string &resourceFile);
+    World& defaultWorld() { return *m_worlds[0]; }
+    World& world(size_t i) { return *m_worlds[i]; }
+    void replaceWorld(size_t i);
+    void replaceWorld(size_t i, const std::string &resourceFile);
+    void deleteWorld(size_t i);
 };
 
 DF3D_DLL EngineController& svc();
-
-// Shortcuts.
-DF3D_DLL World& world();
-DF3D_DLL void replaceWorld();
-DF3D_DLL void replaceWorld(const std::string &worldResource);
 
 }

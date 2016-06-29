@@ -75,8 +75,8 @@ void EngineController::initialize(EngineInitParams params)
         // Create input subsystem.
         m_inputManager = make_unique<InputManager>();
 
-        // Create a blank world.
-        replaceWorld();
+        // Create a blank default world.
+        replaceWorld(0);
 
         // Startup squirrel.
         m_scriptManager = make_unique<ScriptManager>();
@@ -102,8 +102,14 @@ void EngineController::shutdown()
 {
     DF3D_ASSERT_MESS(m_initialized, "failed to shutdown the engine, it's not initialized");
 
-    m_world->destroyWorld();
-    m_world.reset();
+    for (auto &w : m_worlds)
+    {
+        if (w)
+        {
+            w->destroyWorld();
+            w.reset();
+        }
+    }
 
     m_debugConsole.reset();
 
@@ -137,10 +143,14 @@ void EngineController::step()
 
     // Update client code.
     m_systemTimeManager->update(m_timer->getFrameDelta(TIME_CHANNEL_SYSTEM));
-    m_world->update();
+    for (auto &w : m_worlds)
+    {
+        if (w)
+            w->update();
+    }
 
     // Run frame.
-    m_renderManager->drawWorld(*m_world);
+    m_renderManager->drawWorld(*m_worlds[0]);
 
     // Clean step for engine subsystems.
     m_inputManager->cleanStep();
@@ -186,32 +196,26 @@ glm::vec2 EngineController::getScreenSize() const
     return glm::vec2(vp.width(), vp.height());
 }
 
-void EngineController::replaceWorld()
+void EngineController::replaceWorld(size_t i)
 {
-    if (m_world)
-        m_world->destroyWorld();
-    m_world = unique_ptr<World>(new World());
+    deleteWorld(i);
+
+    m_worlds[i] = unique_ptr<World>(new World());
 }
 
-void EngineController::replaceWorld(const std::string &resourceFile)
+void EngineController::replaceWorld(size_t i, const std::string &resourceFile)
 {
-    replaceWorld();
-    game_impl::WorldLoader::initWorld(resourceFile, *m_world);
+    replaceWorld(i);
+    game_impl::WorldLoader::initWorld(resourceFile, *m_worlds[i]);
 }
 
-World& world()
+void EngineController::deleteWorld(size_t i)
 {
-    return svc().world();
-}
-
-void replaceWorld()
-{
-    svc().replaceWorld();
-}
-
-void replaceWorld(const std::string &worldResource)
-{
-    svc().replaceWorld(worldResource);
+    if (m_worlds[i])
+    {
+        m_worlds[i]->destroyWorld();
+        m_worlds[i].reset();
+    }
 }
 
 }
