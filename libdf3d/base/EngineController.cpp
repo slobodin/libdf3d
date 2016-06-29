@@ -143,11 +143,7 @@ void EngineController::step()
 
     // Update client code.
     m_systemTimeManager->update(m_timer->getFrameDelta(TIME_CHANNEL_SYSTEM));
-    for (auto &w : m_worlds)
-    {
-        if (w)
-            w->update();
-    }
+    m_worlds[0]->update();
 
     // Run frame.
     m_renderManager->drawWorld(*m_worlds[0]);
