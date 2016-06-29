@@ -28,6 +28,8 @@ public:
     static jbyteArray createByteArray(const uint8_t *data, size_t size);
 
     static void exitApp();
+
+    static std::string jstringToStd(jstring jstr);
 };
 
 }

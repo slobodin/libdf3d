@@ -87,4 +87,18 @@ void AndroidServices::exitApp()
     env->CallVoidMethod(m_services, methId);
 }
 
+std::string AndroidServices::jstringToStd(jstring jstr)
+{
+    auto env = getEnv();
+
+    auto length = env->GetStringUTFLength(jstr);
+    auto data = env->GetStringUTFChars(jstr, nullptr);
+
+    std::string result(data, data + length);
+
+    env->ReleaseStringUTFChars(jstr, data);
+
+    return result;
+}
+
 }
