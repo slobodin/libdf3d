@@ -33,7 +33,7 @@ class DF3D_DLL EngineController : utils::NonCopyable
     unique_ptr<StringTable> m_stringTable;
     unique_ptr<DebugConsole> m_debugConsole;
 
-    unique_ptr<World> m_worlds[3];  // TODO: don't hold worlds in the engine.
+    unique_ptr<World> m_worlds[1];  // TODO: don't hold worlds in the engine.
 
     bool m_initialized = false;
     bool m_suspended = false;
