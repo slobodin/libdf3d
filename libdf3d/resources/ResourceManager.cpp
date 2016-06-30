@@ -13,7 +13,7 @@ namespace df3d {
 
 void ResourceManager::doRequest(DecodeRequest req)
 {
-    //DFLOG_DEBUG("ASYNC decoding %s", req.resource->getFilePath().c_str());
+    DFLOG_DEBUG("ASYNC decoding %s", req.resource->getFilePath().c_str());
 
     if (auto source = svc().fileSystem().openFile(req.resourcePath))
     {
@@ -56,6 +56,8 @@ shared_ptr<Resource> ResourceManager::loadManual(ManualResourceLoader &loader)
 
     m_loadedResources[resource->getGUID()] = resource;
 
+    DFLOG_DEBUG("Manually loaded a resource");
+
     return resource;
 }
 
@@ -96,7 +98,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
         m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, req));
     else
     {
-        //DFLOG_DEBUG("Decoding %s", req.resource->getFilePath());
+        DFLOG_DEBUG("Decoding %s", req.resource->getFilePath().c_str());
 
         req.result = loader->decode(svc().fileSystem().openFile(req.resourcePath));
         if (req.result)

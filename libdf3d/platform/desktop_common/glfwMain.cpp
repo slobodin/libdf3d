@@ -6,13 +6,13 @@ extern "C" void df3dSetApplicationDelegate();
 
 int main(int agrc, char **argv) try
 {
-    DFLOG_DEBUG("main started");
+    DFLOG_MESS("main started");
 
     df3dSetApplicationDelegate();
 
     df3d::platform_impl::glfwAppRun();
 
-    DFLOG_DEBUG("main finished");
+    DFLOG_MESS("main finished");
 
     return 0;
 }
