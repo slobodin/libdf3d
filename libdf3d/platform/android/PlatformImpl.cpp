@@ -6,12 +6,20 @@
 #include <android/asset_manager_jni.h>
 #include <android/configuration.h>
 #include "FileDataSourceAndroid.h"
+#include "JNIHelpers.h"
+#include <libdf3d/utils/Utils.h>
 
 namespace df3d {
 
-size_t Platform::getProcessMemoryUsed()
+size_t Platform::getProcessMemUsed()
 {
-    return mallinfo().uordblks;
+    return AndroidServices::getProcessMemUsage();
+}
+
+size_t Platform::getProcessMemPeak()
+{
+    DFLOG_WARN("Platform::getProcessMemPeak is not implemented for Android");
+    return 0;
 }
 
 int Platform::getDPI()

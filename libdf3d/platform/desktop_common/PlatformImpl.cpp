@@ -11,7 +11,7 @@
 
 namespace df3d {
 
-size_t Platform::getProcessMemoryUsed()
+size_t Platform::getProcessMemUsed()
 {
 #if defined(DF3D_WINDOWS)
     PROCESS_MEMORY_COUNTERS pmc;
@@ -19,7 +19,20 @@ size_t Platform::getProcessMemoryUsed()
 
     return pmc.WorkingSetSize;
 #else
-#warning Please implement
+    #warning Please implement
+    return 0;
+#endif
+}
+
+size_t Platform::getProcessMemPeak()
+{
+#if defined(DF3D_WINDOWS)
+    PROCESS_MEMORY_COUNTERS pmc;
+    GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
+
+    return pmc.PeakWorkingSetSize;
+#else
+    #warning Please implement
     return 0;
 #endif
 }

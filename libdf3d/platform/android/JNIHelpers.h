@@ -30,6 +30,9 @@ public:
     static void exitApp();
 
     static std::string jstringToStd(jstring jstr);
+
+    static size_t getProcessMemUsage();
+    static size_t getGraphicsMemUsage();
 };
 
 }

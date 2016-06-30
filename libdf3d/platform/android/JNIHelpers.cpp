@@ -101,4 +101,32 @@ std::string AndroidServices::jstringToStd(jstring jstr)
     return result;
 }
 
+size_t AndroidServices::getProcessMemUsage()
+{
+    auto env = getEnv();
+
+    jclass cls = env->GetObjectClass(m_services);
+    jmethodID methId = env->GetMethodID(cls, "getProcessMemUsage", "()J");
+
+    jlong res = env->CallLongMethod(m_services, methId);
+
+    env->DeleteLocalRef(cls);
+
+    return res;
+}
+
+size_t AndroidServices::getGraphicsMemUsage()
+{
+    auto env = getEnv();
+
+    jclass cls = env->GetObjectClass(m_services);
+    jmethodID methId = env->GetMethodID(cls, "getGraphicsMemUsage", "()J");
+
+    jlong res = env->CallLongMethod(m_services, methId);
+
+    env->DeleteLocalRef(cls);
+
+    return res;
+}
+
 }
