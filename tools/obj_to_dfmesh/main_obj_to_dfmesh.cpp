@@ -4,10 +4,10 @@
 #include <stdexcept>
 #include <vector>
 
-#include <libdf3d/df3d.h>
-#include <libdf3d/resource_loaders/MeshLoaders.h>
-#include <libdf3d/resource_loaders/impl/MeshLoader_obj.h>
-#include <libdf3d/resource_loaders/impl/MeshLoader_dfmesh.h>
+#include <df3d/df3d.h>
+#include <df3d/engine/resources/MeshLoaders.h>
+#include <df3d/engine/resources/loaders/MeshLoader_obj.h>
+#include <df3d/engine/resources/loaders/MeshLoader_dfmesh.h>
 
 static_assert(sizeof(typename std::string::value_type) == 1, "Invalid string size");
 
