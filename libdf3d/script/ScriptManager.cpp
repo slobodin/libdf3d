@@ -21,7 +21,7 @@ static void printfunc(HSQUIRRELVM v, const SQChar *s, ...)
     va_list arglist;
     va_start(arglist, s);
 
-    glog.vprint(Log::CHANNEL_DEBUG, s, arglist);
+    glog.vprint(Log::CHANNEL_GAME, s, arglist);
 
     va_end(arglist);
 #endif
