@@ -19,6 +19,17 @@ public:
     static int randRange(int a, int b);
 };
 
+class DF3D_DLL TimeUtils
+{
+public:
+    using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
+
+    // Interval in seconds.
+    static float IntervalBetween(const TimePoint &t1, const TimePoint &t2);
+    // Interval in seconds.
+    static float IntervalBetweenNowAnd(const TimePoint &timepoint);
+};
+
 namespace utils {
 
 inline void skip_line(std::istream &is)

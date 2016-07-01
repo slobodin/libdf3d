@@ -22,6 +22,18 @@ int RandomUtils::randRange(int a, int b)
     return dis(rng());
 }
 
+float TimeUtils::IntervalBetween(const TimePoint &t1, const TimePoint &t2)
+{
+    using namespace std::chrono;
+    return duration_cast<milliseconds>(t1 - t2).count() / 1000.f;
+}
+
+float TimeUtils::IntervalBetweenNowAnd(const TimePoint &timepoint)
+{
+    using namespace std::chrono;
+    return duration_cast<milliseconds>(system_clock::now() - timepoint).count() / 1000.0f;
+}
+
 namespace utils {
 
 bool inflateUncompress(uint8_t *dest, size_t destLen, const uint8_t *source, size_t sourceLen)

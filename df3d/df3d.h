@@ -5,6 +5,7 @@
 
 #include <df3d/Common.h>
 
+#include <df3d/lib/assert/Assert.h>
 #include <df3d/lib/containers/ConcurrentQueue.h>
 #include <df3d/lib/Utils.h>
 #include <df3d/lib/JsonUtils.h>

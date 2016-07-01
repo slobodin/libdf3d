@@ -38,15 +38,7 @@ using std::weak_ptr;
 using std::dynamic_pointer_cast;
 using std::static_pointer_cast;
 
-// Common macros.
-#if defined(DF3D_WINDOWS)
-#define DEBUG_BREAK() __debugbreak()
-#elif defined(DF3D_IOS)
-#define DEBUG_BREAK() std::raise(SIGTRAP)
-#else
-#define DEBUG_BREAK() ((void) 0)
-#endif
-
+// Common macroses.
 #ifndef _MSC_VER
 #define LIKELY(expr) __builtin_expect(!!(expr), 1)
 #define UNLIKELY(expr) __builtin_expect(!!(expr), 0)
@@ -61,34 +53,6 @@ using std::static_pointer_cast;
 
 #if defined(min)
 #undef min
-#endif
-
-#ifdef _DEBUG
-
-#define DF3D_ASSERT(cond) \
-    do { \
-        if (!(cond)) { \
-            DFLOG_CRITICAL("Assertion failed: %s. File: %s, line: %d", #cond, __FILE__, __LINE__); \
-            DEBUG_BREAK(); \
-        } \
-    } while (0)
-
-#define DF3D_ASSERT_MESS(cond, msg) \
-    do { \
-        if (!(cond)) { \
-            DFLOG_CRITICAL("Assertion failed: %s. File: %s, line: %d", msg, __FILE__, __LINE__); \
-            DEBUG_BREAK();\
-        } \
-    } while (0)
-
-#define DF3D_VERIFY(cond) DF3D_ASSERT(cond)
-
-#else
-
-#define DF3D_VERIFY(cond) do { (void)(cond); } while(0)
-#define DF3D_ASSERT(cond) ((void) 0)
-#define DF3D_ASSERT_MESS(cond, msg) ((void) 0)
-
 #endif
 
 namespace df3d {
@@ -108,18 +72,6 @@ enum class PixelFormat
 };
 
 using ResourceGUID = std::string;
-using TimePoint = std::chrono::time_point<std::chrono::system_clock>;
-
-inline float IntervalBetween(const TimePoint &t1, const TimePoint &t2)
-{
-    return std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t2).count() / 1000.f;
-}
-
-// seconds
-inline float IntervalBetweenNowAnd(const TimePoint &timepoint)
-{
-    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - timepoint).count() / 1000.0f;
-}
 
 static const int DEFAULT_WINDOW_WIDTH = 640;
 static const int DEFAULT_WINDOW_HEIGHT = 480;
@@ -130,3 +82,4 @@ static const int DEFAULT_WINDOW_HEIGHT = 480;
 
 #include <df3d/lib/Log.h>
 #include <df3d/lib/NonCopyable.h>
+#include <df3d/lib/assert/Assert.h>

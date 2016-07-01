@@ -1,6 +1,7 @@
 #pragma once
 
 #include <df3d/lib/containers/ConcurrentQueue.h>
+#include <df3d/lib/Utils.h>
 
 namespace df3d {
 
@@ -18,14 +19,14 @@ class DF3D_DLL Timer
 
     struct TimeInfo
     {
-        TimePoint prevTime;
-        TimePoint currTime;
+        TimeUtils::TimePoint prevTime;
+        TimeUtils::TimePoint currTime;
         float scale = 1.0f;
 
         float dt = 0.0f;
     };
 
-    TimePoint m_timeStarted;
+    TimeUtils::TimePoint m_timeStarted;
     float m_timeElapsed = 0.0f;
 
     void update();

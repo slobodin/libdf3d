@@ -4,7 +4,7 @@ namespace df3d {
 
 void Timer::update()
 {
-    m_timeElapsed = IntervalBetweenNowAnd(m_timeStarted);
+    m_timeElapsed = TimeUtils::IntervalBetweenNowAnd(m_timeStarted);
     auto now = std::chrono::system_clock::now();
 
     for (size_t i = 0; i < TIME_CHANNEL_COUNT; i++)
@@ -14,7 +14,7 @@ void Timer::update()
         timeInfo.prevTime = timeInfo.currTime;
         timeInfo.currTime = now;
 
-        auto dt = IntervalBetween(timeInfo.currTime, timeInfo.prevTime);
+        auto dt = TimeUtils::IntervalBetween(timeInfo.currTime, timeInfo.prevTime);
         if (i == TIME_CHANNEL_GAME)
             dt = std::min(dt, 1.0f);
 

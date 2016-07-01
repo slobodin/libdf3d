@@ -182,6 +182,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/NonCopyable.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/ThreadPool.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/Utils.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/assert/Assert.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/containers/ConcurrentQueue.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/containers/DescriptorsBag.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/AABB.h
@@ -270,6 +271,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/MeshUtils.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/ThreadPool.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/Utils.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/assert/Assert.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/AABB.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/BoundingSphere.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/BoundingVolume.cpp
