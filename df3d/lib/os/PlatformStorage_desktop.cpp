@@ -7,7 +7,7 @@ bool PlatformStorage::saveData(const char *id, const std::vector<uint8_t> &data)
     std::ofstream of(id, std::ios::out | std::ios::binary);
 
     of.write((const char *)data.data(), data.size());
-    return true;
+    return !of.fail();
 }
 
 void PlatformStorage::getData(const char *id, std::vector<uint8_t> &data)
@@ -19,7 +19,7 @@ void PlatformStorage::getData(const char *id, std::vector<uint8_t> &data)
     {
         size_t fileSize = 0;
         ifs.seekg(0, std::ios_base::end);
-        fileSize = ifs.tellg();
+        fileSize = static_cast<size_t>(ifs.tellg());
         ifs.seekg(0, std::ios_base::beg);
 
         data.resize(fileSize);

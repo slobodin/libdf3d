@@ -43,9 +43,7 @@ bool Storage::save()
 
     auto output = m_encryptor->encode(input);
 
-    PlatformStorage::saveData(m_fileName.c_str(), output);
-
-    return true;
+    return PlatformStorage::saveData(m_fileName.c_str(), output);
 }
 
 bool Storage::load()
