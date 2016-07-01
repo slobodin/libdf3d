@@ -7,6 +7,7 @@
 
 #include <df3d/lib/assert/Assert.h>
 #include <df3d/lib/containers/ConcurrentQueue.h>
+#include <df3d/lib/os/PlatformUtils.h>
 #include <df3d/lib/Utils.h>
 #include <df3d/lib/JsonUtils.h>
 #include <df3d/lib/math/MathUtils.h>
@@ -20,7 +21,6 @@
 #include <df3d/engine/TimeManager.h>
 
 #include <df3d/platform/AppDelegate.h>
-#include <df3d/platform/Platform.h>
 #include <df3d/platform/LocalNotification.h>
 
 #include <df3d/engine/2d/Sprite2DComponentProcessor.h>

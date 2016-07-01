@@ -1,4 +1,4 @@
-#include <df3d/platform/Platform.h>
+#include "PlatformUtils.h"
 
 #if defined(DF3D_WINDOWS)
 #include <Windows.h>
@@ -11,7 +11,7 @@
 
 namespace df3d {
 
-size_t Platform::getProcessMemUsed()
+size_t PlatformUtils::getProcessMemUsed()
 {
 #if defined(DF3D_WINDOWS)
     PROCESS_MEMORY_COUNTERS pmc;
@@ -24,7 +24,7 @@ size_t Platform::getProcessMemUsed()
 #endif
 }
 
-size_t Platform::getProcessMemPeak()
+size_t PlatformUtils::getProcessMemPeak()
 {
 #if defined(DF3D_WINDOWS)
     PROCESS_MEMORY_COUNTERS pmc;
@@ -37,7 +37,7 @@ size_t Platform::getProcessMemPeak()
 #endif
 }
 
-int Platform::getDPI()
+int PlatformUtils::getDPI()
 {
 #if defined(DF3D_WINDOWS)
     HDC hdc = GetDC(nullptr);

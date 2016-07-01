@@ -16,7 +16,7 @@
 #include <df3d/engine/io/FileSystem.h>
 #include <df3d/engine/io/FileDataSource.h>
 #include <df3d/engine/resources/TextureLoaders.h>
-#include <df3d/platform/Platform.h>
+#include <df3d/lib/os/PlatformUtils.h>
 
 namespace df3d {
 namespace gui_impl {
@@ -616,7 +616,7 @@ int TBSystem::GetPixelsPerLine()
 
 int TBSystem::GetDPI()
 {
-    static int dpi = df3d::Platform::getDPI();
+    static int dpi = df3d::PlatformUtils::getDPI();
     return dpi;
 }
 
