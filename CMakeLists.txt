@@ -193,6 +193,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/MathUtils.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/OBB.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformStorage.h
     ${PROJECT_SOURCE_DIR}/df3d/platform/AppDelegate.h
     ${PROJECT_SOURCE_DIR}/df3d/platform/LocalNotification.h
 )
@@ -296,7 +297,6 @@ if (WINDOWS)
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/df3d/platform/windows/CrashHandler.cpp
-        ${PROJECT_SOURCE_DIR}/df3d/platform/windows/Storage.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/windows/FileSystemHelpers.cpp
     )
 endif()
@@ -320,8 +320,8 @@ if (ANDROID)
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils_android.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformStorage_android.cpp
 
-        ${PROJECT_SOURCE_DIR}/df3d/platform/android/Storage.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/android/FileSystemHelpers.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/android/AndroidBridge.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/android/JNIHelpers.cpp
@@ -338,12 +338,12 @@ if (IOS)
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils_ios.mm
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformStorage_ios.mm
 
         ${PROJECT_SOURCE_DIR}/df3d/platform/ios/AppDelegate.mm
         ${PROJECT_SOURCE_DIR}/df3d/platform/ios/GameViewController.mm
         ${PROJECT_SOURCE_DIR}/df3d/platform/ios/LocalNotification.mm
         ${PROJECT_SOURCE_DIR}/df3d/platform/ios/FileSystemHelpers.mm
-        ${PROJECT_SOURCE_DIR}/df3d/platform/ios/Storage.mm
         ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/FileDataSourceDesktop.cpp
     )
 
@@ -352,14 +352,12 @@ endif()
 
 if (LINUX)
     list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/df3d/platform/linux/Storage.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/linux/FileSystemHelpers.cpp
     )
 endif()
 
 if (MACOSX)
     list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/df3d/platform/macosx/Storage.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/macosx/FileSystemHelpers.cpp
     )
 endif()
@@ -372,6 +370,7 @@ if (DF3D_DESKTOP)
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils_desktop.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformStorage_desktop.cpp
 
         ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/glfwApplication.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/LocalNotification.cpp

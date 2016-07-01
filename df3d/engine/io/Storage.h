@@ -20,13 +20,8 @@ protected:
     Json::Value m_data;
     std::string m_fileName;
 
-    Storage(const std::string &filename);
-
-    virtual void saveToFileSystem(const uint8_t *data, size_t size) = 0;
-    virtual bool getFromFileSystem(uint8_t **data, size_t *size) = 0;
-
 public:
-    static Storage *create(const std::string &filename);
+    Storage(const std::string &filename);
     virtual ~Storage() { }
 
     void setEncryptor(unique_ptr<Encryptor> e) { m_encryptor = std::move(e); }

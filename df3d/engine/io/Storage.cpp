@@ -1,6 +1,7 @@
 #include "Storage.h"
 
 #include <df3d/lib/JsonUtils.h>
+#include <df3d/lib/os/PlatformStorage.h>
 
 namespace df3d
 {
@@ -42,27 +43,23 @@ bool Storage::save()
 
     auto output = m_encryptor->encode(input);
 
-    saveToFileSystem(&output[0], output.size());
+    PlatformStorage::saveData(m_fileName.c_str(), output);
 
     return true;
 }
 
 bool Storage::load()
 {
-    uint8_t *data = nullptr;
-    size_t size = 0;
-    if (!getFromFileSystem(&data, &size))
-        return false;
-
     std::vector<uint8_t> input;
-    input.assign(data, data + size);
+    PlatformStorage::getData(m_fileName.c_str(), input);
+
+    if (input.size() == 0)
+        return false;
 
     auto output = m_encryptor->decode(input);
 
     std::string jsonSource;
     jsonSource.assign(output.begin(), output.end());
-
-    delete[] data;
 
     auto jsonData = JsonUtils::fromSource(jsonSource);
     if (jsonData.isNull())
