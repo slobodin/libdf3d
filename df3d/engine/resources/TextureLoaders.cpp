@@ -5,9 +5,9 @@
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/render/RenderManager.h>
 #include <df3d/engine/render/IRenderBackend.h>
-#include <df3d/engine/io/FileSystem.h>
+#include <df3d/engine/io/DefaultFileSystem.h>
 #include <df3d/engine/io/FileSystemHelpers.h>
-#include <df3d/engine/io/FileDataSource.h>
+#include <df3d/engine/io/DataSource.h>
 #include <df3d/lib/JsonUtils.h>
 
 #ifdef _DEBUG
@@ -27,8 +27,8 @@ namespace df3d {
 // fill 'data' with 'size' bytes.  return number of bytes actually read
 static int read(void *user, char *data, int size)
 {
-    auto dataSource = static_cast<FileDataSource*>(user);
-    return dataSource->getRaw(data, size);
+    auto dataSource = static_cast<DataSource*>(user);
+    return dataSource->read(data, size);
 }
 
 // skip the next 'n' bytes, or 'unget' the last -n bytes if negative
@@ -40,18 +40,18 @@ static void skip(void *user, int n)
         DF3D_ASSERT_MESS(false, "not implemented");
     }
 
-    auto dataSource = static_cast<FileDataSource*>(user);
-    dataSource->seek(n, std::ios_base::cur);
+    auto dataSource = static_cast<DataSource*>(user);
+    dataSource->seek(n, SeekDir::CURRENT);
 }
 
 // returns nonzero if we are at end of file/data
 static int eof(void *user)
 {
-    auto dataSource = static_cast<FileDataSource*>(user);
-    return dataSource->tell() >= dataSource->getSizeInBytes();
+    auto dataSource = static_cast<DataSource*>(user);
+    return dataSource->tell() >= dataSource->getSize();
 }
 
-static unique_ptr<PixelBuffer> LoadRaw(shared_ptr<FileDataSource> source)
+static unique_ptr<PixelBuffer> LoadRaw(shared_ptr<DataSource> source)
 {
 #pragma pack(push, 1)
     struct RawHeader
@@ -66,7 +66,7 @@ static unique_ptr<PixelBuffer> LoadRaw(shared_ptr<FileDataSource> source)
     RawHeader header;
     memset(&header, 0, sizeof(header));
 
-    source->getRaw(&header, sizeof(header));
+    source->read(&header, sizeof(header));
 
     if (strncmp(header.magic, "raw.", 4) != 0)
     {
@@ -85,14 +85,14 @@ static unique_ptr<PixelBuffer> LoadRaw(shared_ptr<FileDataSource> source)
     if (fmt == PixelFormat::INVALID)
         return nullptr;
 
-    const size_t compressedSize = source->getSizeInBytes() - sizeof(header);
+    const size_t compressedSize = source->getSize() - sizeof(header);
     unique_ptr<uint8_t[]> compressedData(new uint8_t[compressedSize]);
 
     const size_t uncompressedSize = header.height * header.width * GetPixelSizeForFormat(fmt);
     uint8_t *uncompressedData = new uint8_t[uncompressedSize];
 
-    source->seek(sizeof(header), std::ios_base::beg);
-    source->getRaw(compressedData.get(), compressedSize);
+    source->seek(sizeof(header), SeekDir::BEGIN);
+    source->read(compressedData.get(), compressedSize);
 
     uLongf uncompressedSizeGot = uncompressedSize;
     if (uncompress(uncompressedData, &uncompressedSizeGot, compressedData.get(), compressedSize) != Z_OK)
@@ -107,10 +107,10 @@ static unique_ptr<PixelBuffer> LoadRaw(shared_ptr<FileDataSource> source)
     return make_unique<PixelBuffer>(header.width, header.height, uncompressedData, fmt, false);
 }
 
-static unique_ptr<PixelBuffer> LoadWebp(shared_ptr<FileDataSource> source, bool forceRgba)
+static unique_ptr<PixelBuffer> LoadWebp(shared_ptr<DataSource> source, bool forceRgba)
 {
-    std::vector<uint8_t> pixels(source->getSizeInBytes());
-    source->getRaw(&pixels[0], pixels.size());
+    std::vector<uint8_t> pixels(source->getSize());
+    source->read(&pixels[0], pixels.size());
 
     WebPBitstreamFeatures features;
     if (WebPGetFeatures(pixels.data(), pixels.size(), &features) != VP8_STATUS_OK)
@@ -151,7 +151,7 @@ static unique_ptr<PixelBuffer> LoadWebp(shared_ptr<FileDataSource> source, bool 
     return make_unique<PixelBuffer>(features.width, features.height, decoded, format, false);
 }
 
-static unique_ptr<PixelBuffer> LoadPixelBuffer(shared_ptr<FileDataSource> source, bool forceRgba = false)
+static unique_ptr<PixelBuffer> LoadPixelBuffer(shared_ptr<DataSource> source, bool forceRgba = false)
 {
     if (!source)
     {
@@ -238,7 +238,7 @@ Texture* Texture2DFSLoader::createDummy()
     return new Texture();
 }
 
-bool Texture2DFSLoader::decode(shared_ptr<FileDataSource> source)
+bool Texture2DFSLoader::decode(shared_ptr<DataSource> source)
 {
     m_pixelBuffer = LoadPixelBuffer(source);
     return m_pixelBuffer != nullptr;
@@ -285,10 +285,10 @@ Texture* TextureCubeFSLoader::createDummy()
     return new Texture();
 }
 
-bool TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
+bool TextureCubeFSLoader::decode(shared_ptr<DataSource> source)
 {
-    std::string buffer(source->getSizeInBytes(), 0);
-    source->getRaw(&buffer[0], buffer.size());
+    std::string buffer(source->getSize(), 0);
+    source->read(&buffer[0], buffer.size());
 
     auto jsonRoot = JsonUtils::fromSource(buffer);
     if (jsonRoot.empty())
@@ -299,7 +299,7 @@ bool TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
     auto getSource = [&srcPathDir](const std::string &texturePath)
     {
         auto fullPath = FileSystemHelpers::pathConcatenate(srcPathDir, texturePath);
-        return svc().fileSystem().openFile(fullPath);
+        return svc().fileSystem().open(fullPath);
     };
 
     m_pixelBuffers[(size_t)CubeFace::POSITIVE_X] = LoadPixelBuffer(getSource(jsonRoot["positive_x"].asString()));
@@ -349,7 +349,7 @@ void TextureCubeFSLoader::onDecoded(Resource *resource)
         m_pixelBuffers[i].reset();
 }
 
-unique_ptr<PixelBuffer> GetPixelBufferFromSource(shared_ptr<FileDataSource> source, bool forceRgba)
+unique_ptr<PixelBuffer> GetPixelBufferFromSource(shared_ptr<DataSource> source, bool forceRgba)
 {
     return LoadPixelBuffer(source, forceRgba);
 }

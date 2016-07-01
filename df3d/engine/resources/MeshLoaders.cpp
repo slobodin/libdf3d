@@ -3,9 +3,9 @@
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/ResourceFactory.h>
-#include <df3d/engine/io/FileSystem.h>
+#include <df3d/engine/io/DefaultFileSystem.h>
 #include <df3d/engine/io/FileSystemHelpers.h>
-#include <df3d/engine/io/FileDataSource.h>
+#include <df3d/engine/io/DataSource.h>
 #include <df3d/engine/render/MaterialLib.h>
 #include <df3d/lib/MeshUtils.h>
 
@@ -45,7 +45,7 @@ MeshData* MeshDataFSLoader::createDummy()
     return new MeshData();
 }
 
-bool MeshDataFSLoader::decode(shared_ptr<FileDataSource> source)
+bool MeshDataFSLoader::decode(shared_ptr<DataSource> source)
 {
     const auto extension = FileSystemHelpers::getFileExtension(source->getPath());
 
@@ -97,7 +97,7 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
     m_mesh.reset();     // Cleanup main memory.
 }
 
-unique_ptr<MeshDataFSLoader::Mesh> LoadMeshDataFromFile_Workaround(shared_ptr<FileDataSource> source)
+unique_ptr<MeshDataFSLoader::Mesh> LoadMeshDataFromFile_Workaround(shared_ptr<DataSource> source)
 {
     const auto extension = FileSystemHelpers::getFileExtension(source->getPath());
 

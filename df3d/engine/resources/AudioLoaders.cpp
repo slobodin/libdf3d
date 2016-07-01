@@ -2,9 +2,9 @@
 
 #include <df3d/engine/audio/OpenALCommon.h>
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/FileSystem.h>
+#include <df3d/engine/io/DefaultFileSystem.h>
 #include <df3d/engine/io/FileSystemHelpers.h>
-#include <df3d/engine/io/FileDataSource.h>
+#include <df3d/engine/io/DataSource.h>
 #include "loaders/AudioLoader_wav.h"
 #include "loaders/AudioLoader_ogg.h"
 
@@ -23,7 +23,7 @@ AudioBuffer* AudioBufferFSLoader::createDummy()
     return new AudioBuffer(m_streamed);
 }
 
-bool AudioBufferFSLoader::decode(shared_ptr<FileDataSource> source)
+bool AudioBufferFSLoader::decode(shared_ptr<DataSource> source)
 {
     const auto extension = FileSystemHelpers::getFileExtension(source->getPath());
 

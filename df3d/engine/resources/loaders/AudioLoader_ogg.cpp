@@ -2,8 +2,8 @@
 
 #include <df3d/engine/audio/OpenALCommon.h>
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/FileSystem.h>
-#include <df3d/engine/io/FileDataSource.h>
+#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/DataSource.h>
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
@@ -12,26 +12,26 @@ namespace df3d { namespace resource_loaders_impl {
 
 size_t readOgg(void *ptr, size_t size, size_t nmemb, void *datasource)
 {
-    FileDataSource *file = reinterpret_cast<FileDataSource *>(datasource);
+    DataSource *file = reinterpret_cast<DataSource *>(datasource);
 
-    return file->getRaw(ptr, size * nmemb);
+    return file->read(ptr, size * nmemb);
 }
 
 int seekOgg(void *datasource, ogg_int64_t offset, int whence)
 {
-    FileDataSource *file = reinterpret_cast<FileDataSource *>(datasource);
+    DataSource *file = reinterpret_cast<DataSource *>(datasource);
 
     bool res;
     switch (whence)
     {
     case SEEK_SET:
-        res = file->seek(static_cast<int32_t>(offset), std::ios_base::beg);
+        res = file->seek(static_cast<int32_t>(offset), SeekDir::BEGIN);
         break;
     case SEEK_CUR:
-        res = file->seek(static_cast<int32_t>(offset), std::ios_base::cur);
+        res = file->seek(static_cast<int32_t>(offset), SeekDir::CURRENT);
         break;
     case SEEK_END:
-        res = file->seek(static_cast<int32_t>(offset), std::ios_base::end);
+        res = file->seek(static_cast<int32_t>(offset), SeekDir::CURRENT);
         break;
     default:
         return -1;
@@ -42,7 +42,7 @@ int seekOgg(void *datasource, ogg_int64_t offset, int whence)
 
 long tellOgg(void *datasource)
 {
-    FileDataSource *file = reinterpret_cast<FileDataSource *>(datasource);
+    DataSource *file = reinterpret_cast<DataSource *>(datasource);
     return file->tell();
 }
 
@@ -51,7 +51,7 @@ int closeOgg(void *datasource)
     return 0;
 }
 
-static unique_ptr<OggVorbis_File> CreateVorbisFile(shared_ptr<FileDataSource> source)
+static unique_ptr<OggVorbis_File> CreateVorbisFile(shared_ptr<DataSource> source)
 {
     ov_callbacks ovCallbacks;
     ovCallbacks.close_func = closeOgg;
@@ -102,13 +102,13 @@ static bool ReadOggBlock(int32_t size, char *buffer, OggVorbis_File *oggVorbisFi
 class AudioStream_Ogg : public IAudioStream
 {
     unique_ptr<OggVorbis_File> m_oggVorbisFile;
-    shared_ptr<FileDataSource> m_source;
+    shared_ptr<DataSource> m_source;
 
     size_t m_sampleRate;
     ALuint m_format;
 
 public:
-    AudioStream_Ogg(shared_ptr<FileDataSource> source, unique_ptr<OggVorbis_File> oggFile)
+    AudioStream_Ogg(shared_ptr<DataSource> source, unique_ptr<OggVorbis_File> oggFile)
         : m_oggVorbisFile(std::move(oggFile)),
         m_source(std::move(source))
     {
@@ -151,7 +151,7 @@ public:
     }
 };
 
-unique_ptr<PCMData> AudioLoader_ogg::load(shared_ptr<FileDataSource> source)
+unique_ptr<PCMData> AudioLoader_ogg::load(shared_ptr<DataSource> source)
 {
     auto oggVorbisFile = CreateVorbisFile(source);
     if (!oggVorbisFile)
@@ -175,7 +175,7 @@ unique_ptr<PCMData> AudioLoader_ogg::load(shared_ptr<FileDataSource> source)
     return result;
 }
 
-unique_ptr<IAudioStream> AudioLoader_ogg::loadStreamed(shared_ptr<FileDataSource> source)
+unique_ptr<IAudioStream> AudioLoader_ogg::loadStreamed(shared_ptr<DataSource> source)
 {
     auto oggVorbisFile = CreateVorbisFile(source);
     if (!oggVorbisFile)

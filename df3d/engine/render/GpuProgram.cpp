@@ -2,8 +2,8 @@
 
 #include <cctype>
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/FileDataSource.h>
-#include <df3d/engine/io/FileSystem.h>
+#include <df3d/engine/io/DataSource.h>
+#include <df3d/engine/io/DefaultFileSystem.h>
 #include <df3d/engine/io/FileSystemHelpers.h>
 #include <df3d/engine/render/MaterialLib.h>
 #include <df3d/engine/render/RenderManager.h>
@@ -103,15 +103,15 @@ static std::string ShaderPreprocessInclude(std::string shaderData, const std::st
         }
 
         fileToInclude = FileSystemHelpers::pathConcatenate(shaderDirectory, fileToInclude);
-        auto file = svc().fileSystem().openFile(fileToInclude);
-        if (!file || !file->valid())
+        auto file = svc().fileSystem().open(fileToInclude);
+        if (!file)
         {
             DFLOG_WARN("Failed to preprocess a shader: file %s is not found", fileToInclude.c_str());
             return shaderData;
         }
 
-        std::string includeData(file->getSizeInBytes(), 0);
-        file->getRaw(&includeData[0], includeData.size());
+        std::string includeData(file->getSize(), 0);
+        file->read(&includeData[0], includeData.size());
 
         shaderData.replace(found, end - found + 1, includeData);
 
@@ -222,7 +222,7 @@ std::vector<std::string> GpuProgram::getCustomUniformNames() const
 
 ShaderDescriptor GpuProgramManualLoader::createShaderFromFile(const std::string &path) const
 {
-    auto file = svc().fileSystem().openFile(path);
+    auto file = svc().fileSystem().open(path);
     if (!file)
     {
         DFLOG_WARN("Can not create a shader. File %s doesn't exist", path.c_str());
@@ -243,8 +243,8 @@ ShaderDescriptor GpuProgramManualLoader::createShaderFromFile(const std::string 
         return{};
     }
 
-    std::string buffer(file->getSizeInBytes(), 0);
-    file->getRaw(&buffer[0], buffer.size());
+    std::string buffer(file->getSize(), 0);
+    file->read(&buffer[0], buffer.size());
 
     auto shaderStr = ShaderPreprocess(ShaderPreprocessInclude(buffer, file->getPath()));
 

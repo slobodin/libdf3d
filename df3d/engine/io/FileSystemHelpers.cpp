@@ -33,8 +33,10 @@ std::string FileSystemHelpers::pathConcatenate(const std::string &fp1, const std
     if (fp2.empty())
         return fp1;
 
+    /*
     if (FileSystemHelpers::isPathAbsolute(fp2))
         return "";
+    */
 
     if (fp2[0] == '\\' || fp2[0] == '/')
         return "";

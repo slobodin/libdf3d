@@ -8,7 +8,7 @@
 #include <df3d/game/impl/WorldLoader.h>
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/input/InputManager.h>
-#include <df3d/engine/io/FileSystem.h>
+#include <df3d/engine/io/DefaultFileSystem.h>
 #include <df3d/engine/gui/GuiManager.h>
 #include <df3d/engine/audio/AudioManager.h>
 #include <df3d/platform/AppDelegate.h>
@@ -49,7 +49,7 @@ void EngineController::initialize(EngineInitParams params)
 #endif
 
         // Init filesystem.
-        m_fileSystem = make_unique<FileSystem>();
+        m_fileSystem = make_unique<DefaultFileSystem>();
 
         // Init resource manager.
         m_resourceManager = make_unique<ResourceManager>();

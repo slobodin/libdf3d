@@ -1,21 +1,22 @@
-#include "FileSystem.h"
+#include "DefaultFileSystem.h"
 
 #include "FileDataSource.h"
 #include "FileSystemHelpers.h"
+#include <df3d/lib/os/PlatformFile.h>
 
 namespace df3d {
 
-FileSystem::FileSystem()
+DefaultFileSystem::DefaultFileSystem()
 {
 
 }
 
-FileSystem::~FileSystem()
+DefaultFileSystem::~DefaultFileSystem()
 {
 
 }
 
-shared_ptr<FileDataSource> FileSystem::openFile(const std::string &filePath)
+shared_ptr<DataSource> DefaultFileSystem::open(const std::string &filePath)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
@@ -23,15 +24,19 @@ shared_ptr<FileDataSource> FileSystem::openFile(const std::string &filePath)
     if (fullP.empty())
         return nullptr;
 
-    return FileSystemHelpers::openFile(fullP);
+    auto platformFile = PlatformOpenFile(filePath.c_str());
+    if (!platformFile)
+        return nullptr;
+
+    return make_shared<FileDataSource>(fullP, std::move(platformFile));
 }
 
-bool FileSystem::fileExists(const std::string &filePath)
+bool DefaultFileSystem::fileExists(const std::string &filePath)
 {
-    return openFile(filePath) != nullptr;
+    return PlatformFileExists(filePath.c_str());
 }
 
-std::string FileSystem::fullPath(const std::string &path)
+std::string DefaultFileSystem::fullPath(const std::string &path)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 

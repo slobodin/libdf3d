@@ -27,7 +27,7 @@ public:
     Texture2DFSLoader(const std::string &path, const TextureCreationParams &params, ResourceLoadingMode lm);
 
     Texture* createDummy() override;
-    bool decode(shared_ptr<FileDataSource> source) override;
+    bool decode(shared_ptr<DataSource> source) override;
     void onDecoded(Resource *resource) override;
 };
 
@@ -42,11 +42,11 @@ public:
     TextureCubeFSLoader(const std::string &path, const TextureCreationParams &params, ResourceLoadingMode lm);
 
     Texture* createDummy() override;
-    bool decode(shared_ptr<FileDataSource> source) override;
+    bool decode(shared_ptr<DataSource> source) override;
     void onDecoded(Resource *resource) override;
 };
 
 // Workaround for turbobadger!
-unique_ptr<PixelBuffer> GetPixelBufferFromSource(shared_ptr<FileDataSource> source, bool forceRgba);
+unique_ptr<PixelBuffer> GetPixelBufferFromSource(shared_ptr<DataSource> source, bool forceRgba);
 
 }

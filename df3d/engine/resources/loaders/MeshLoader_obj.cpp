@@ -1,8 +1,8 @@
 #include "MeshLoader_obj.h"
 
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/FileSystem.h>
-#include <df3d/engine/io/FileDataSource.h>
+#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/DataSource.h>
 #include <df3d/lib/MeshUtils.h>
 #include <df3d/lib/Utils.h>
 
@@ -163,13 +163,13 @@ MeshLoader_obj::MeshLoader_obj()
 
 }
 
-unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSource> source)
+unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<DataSource> source)
 {
     m_meshDataFileName = source->getPath();
 
     // Parse obj. TODO: can use stream directly.
-    std::string buffer(source->getSizeInBytes(), 0);
-    source->getRaw(&buffer[0], buffer.size());
+    std::string buffer(source->getSize(), 0);
+    source->read(&buffer[0], buffer.size());
 
     std::istringstream input(std::move(buffer));
     std::string tok;

@@ -104,8 +104,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/gui/TBInterface.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputEvents.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputManager.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/DataSource.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileDataSource.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileSystem.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/DefaultFileSystem.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileSystemHelpers.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/IFileSystem.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/MemoryDataSource.h
@@ -146,7 +147,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MaterialLibLoaders.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MeshLoaders.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/Resource.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceContainer.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceFactory.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceManager.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/TextureLoaders.h
@@ -192,8 +192,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/Frustum.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/MathUtils.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/OBB.h
-    ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformFile.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformStorage.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils.h
     ${PROJECT_SOURCE_DIR}/df3d/platform/AppDelegate.h
     ${PROJECT_SOURCE_DIR}/df3d/platform/LocalNotification.h
 )
@@ -217,7 +218,8 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/gui/TBInterface.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputManager.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileSystem.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileDataSource.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/DefaultFileSystem.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileSystemHelpers.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/MemoryDataSource.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/Storage.cpp
@@ -249,7 +251,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MaterialLibLoaders.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MeshLoaders.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/Resource.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceContainer.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceFactory.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceManager.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/TextureLoaders.cpp
@@ -297,7 +298,6 @@ if (WINDOWS)
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/df3d/platform/windows/CrashHandler.cpp
-        ${PROJECT_SOURCE_DIR}/df3d/platform/windows/FileSystemHelpers.cpp
     )
 endif()
 
@@ -310,23 +310,18 @@ if (WINDOWS_PHONE)
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/df3d/platform/windows_phone/Storage.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/windows_phone/WindowsPhoneApplication.cpp
-        ${PROJECT_SOURCE_DIR}/df3d/platform/windows_phone/FileSystemHelpers.cpp
     )
 endif()
 
 if (ANDROID)
-    list(APPEND libdf3d_HEADER_LIST
-        ${PROJECT_SOURCE_DIR}/df3d/platform/android/FileDataSourceAndroid.h
-    )
     list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils_android.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformFile_android.cpp
         ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformStorage_android.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils_android.cpp
 
-        ${PROJECT_SOURCE_DIR}/df3d/platform/android/FileSystemHelpers.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/android/AndroidBridge.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/android/JNIHelpers.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/android/LocalNotification.cpp
-        ${PROJECT_SOURCE_DIR}/df3d/platform/android/FileDataSourceAndroid.cpp
     )
 endif()
 
@@ -334,48 +329,33 @@ if (IOS)
     list(APPEND libdf3d_HEADER_LIST
         ${PROJECT_SOURCE_DIR}/df3d/platform/ios/AppDelegate.h
         ${PROJECT_SOURCE_DIR}/df3d/platform/ios/GameViewController.h
-        ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/FileDataSourceDesktop.h
     )
     list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils_ios.mm
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformFile_ios.mm
         ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformStorage_ios.mm
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils_ios.mm
 
         ${PROJECT_SOURCE_DIR}/df3d/platform/ios/AppDelegate.mm
         ${PROJECT_SOURCE_DIR}/df3d/platform/ios/GameViewController.mm
         ${PROJECT_SOURCE_DIR}/df3d/platform/ios/LocalNotification.mm
-        ${PROJECT_SOURCE_DIR}/df3d/platform/ios/FileSystemHelpers.mm
-        ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/FileDataSourceDesktop.cpp
     )
 
     set_source_files_properties("${PROJECT_SOURCE_DIR}/df3d/engine/render/impl/RenderBackendGL.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
-endif()
-
-if (LINUX)
-    list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/df3d/platform/linux/FileSystemHelpers.cpp
-    )
-endif()
-
-if (MACOSX)
-    list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/df3d/platform/macosx/FileSystemHelpers.cpp
-    )
 endif()
 
 if (DF3D_DESKTOP)
     list(APPEND libdf3d_HEADER_LIST
         ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/glfwApplication.h
         ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/glfwKeyCodes.h
-        ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/FileDataSourceDesktop.h
     )
     list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils_desktop.cpp
         ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformStorage_desktop.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils_desktop.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformFile_desktop.cpp
 
         ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/glfwApplication.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/LocalNotification.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/glfwKeyCodes.cpp
-        ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/FileDataSourceDesktop.cpp
     )
 endif()
 

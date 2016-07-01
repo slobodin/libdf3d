@@ -1,6 +1,6 @@
 #include "MeshLoader_dfmesh.h"
 
-#include <df3d/engine/io/FileDataSource.h>
+#include <df3d/engine/io/DataSource.h>
 
 namespace df3d { namespace resource_loaders_impl {
 
@@ -23,10 +23,10 @@ MeshLoader_dfmesh::MeshLoader_dfmesh()
 
 }
 
-unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<FileDataSource> source)
+unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<DataSource> source)
 {
     DFMeshHeader header;
-    source->getAsObjects(&header, 1);
+    DataSourceGetObjects(source.get(), &header, 1);
 
     if (strncmp((const char *)&header.magic, "DFME", 4) != 0)
     {
@@ -51,19 +51,19 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<FileDataSo
     auto result = make_unique<MeshDataFSLoader::Mesh>();
     result->materialLibName = header.materialLib;
 
-    source->seek(header.submeshesOffset, std::ios_base::beg);
+    source->seek(header.submeshesOffset, SeekDir::BEGIN);
 
     for (int i = 0; i < header.submeshesCount; i++)
     {
         DFMeshSubmeshHeader smHeader;
-        source->getAsObjects(&smHeader, 1);
+        DataSourceGetObjects(source.get(), &smHeader, 1);
 
         std::vector<float> vertexData(smHeader.vertexDataSizeInBytes / sizeof(float));
-        source->getAsObjects(vertexData.data(), vertexData.size());
+        DataSourceGetObjects(source.get(), vertexData.data(), vertexData.size());
 
         IndexArray indices(smHeader.indexDataSizeInBytes / header.indexSize);
         if (indices.size() != 0)
-            source->getAsObjects(indices.data(), indices.size());
+            DataSourceGetObjects(source.get(), indices.data(), indices.size());
 
         std::string materialId = smHeader.materialId;
 

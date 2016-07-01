@@ -14,7 +14,7 @@ public:
     MaterialLibFSLoader(const std::string &path);
 
     MaterialLib* createDummy() override;
-    bool decode(shared_ptr<FileDataSource> source) override;
+    bool decode(shared_ptr<DataSource> source) override;
     void onDecoded(Resource *resource) override;
 };
 

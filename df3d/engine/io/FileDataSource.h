@@ -1,41 +1,27 @@
 #pragma once
 
+#include "DataSource.h"
+
 namespace df3d {
 
-// TODO:
-// Implements DataSource.
+class PlatformFile;
 
-class DF3D_DLL FileDataSource : NonCopyable
+class DF3D_DLL FileDataSource : public DataSource
 {
     std::string m_filePath;
+    unique_ptr<PlatformFile> m_file;
 
 public:
-    FileDataSource(const std::string &fileName)
-        : m_filePath(fileName)
-    {
+    FileDataSource(const std::string &fileName, unique_ptr<PlatformFile> &&file);
+    ~FileDataSource() = default;
 
-    }
+    size_t read(void *buffer, size_t sizeInBytes) override;
+    size_t getSize() override;
 
-    virtual ~FileDataSource() { }
+    int32_t tell() override;
+    bool seek(int32_t offset, SeekDir origin) override;
 
-    virtual bool valid() const = 0;
-
-    virtual size_t getRaw(void *buffer, size_t sizeInBytes) = 0;
-    virtual size_t getSizeInBytes() = 0;
-
-    virtual int32_t tell() = 0;
-    virtual bool seek(int32_t offset, std::ios_base::seekdir origin) = 0;
-
-    template<typename T>
-    bool getAsObjects(T *output, size_t numElements)
-    {
-        size_t bytes = numElements * sizeof(T);
-        auto got = getRaw(output, bytes);
-
-        return got == bytes;
-    }
-
-    const std::string& getPath() const { return m_filePath; }
+    const std::string& getPath() const override { return m_filePath; }
 };
 
 }

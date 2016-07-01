@@ -4,8 +4,6 @@
 
 namespace df3d {
 
-class FileSystem;
-
 namespace resource_loaders_impl {
 
 const int DFMESH_MAX_MATERIAL_ID = 128;
@@ -72,7 +70,7 @@ class MeshLoader_dfmesh
 public:
     MeshLoader_dfmesh();
 
-    unique_ptr<MeshDataFSLoader::Mesh> load(shared_ptr<FileDataSource> source);
+    unique_ptr<MeshDataFSLoader::Mesh> load(shared_ptr<DataSource> source);
 };
 
 } }

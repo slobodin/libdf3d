@@ -3,7 +3,7 @@
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/resources/ResourceFactory.h>
 #include <df3d/engine/resources/ResourceManager.h>
-#include <df3d/engine/io/FileDataSource.h>
+#include <df3d/engine/io/DataSource.h>
 #include <df3d/engine/render/MaterialLib.h>
 #include <df3d/engine/render/Material.h>
 #include <df3d/engine/render/Technique.h>
@@ -362,10 +362,10 @@ MaterialLib* MaterialLibFSLoader::createDummy()
     return new MaterialLib();
 }
 
-bool MaterialLibFSLoader::decode(shared_ptr<FileDataSource> source)
+bool MaterialLibFSLoader::decode(shared_ptr<DataSource> source)
 {
-    std::string filedata(source->getSizeInBytes(), 0);
-    source->getRaw(&filedata[0], filedata.size());
+    std::string filedata(source->getSize(), 0);
+    source->read(&filedata[0], filedata.size());
 
     m_root = JsonUtils::fromSource(filedata);
     if (m_root.isNull())

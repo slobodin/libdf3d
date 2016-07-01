@@ -42,11 +42,11 @@ public:
     MeshDataFSLoader(const std::string &path, ResourceLoadingMode lm);
 
     MeshData* createDummy() override;
-    bool decode(shared_ptr<FileDataSource> source) override;
+    bool decode(shared_ptr<DataSource> source) override;
     void onDecoded(Resource *resource) override;
 };
 
 // FIXME: workaround for physics. Figure out how to do this more clear way.
-unique_ptr<MeshDataFSLoader::Mesh> LoadMeshDataFromFile_Workaround(shared_ptr<FileDataSource> source);
+unique_ptr<MeshDataFSLoader::Mesh> LoadMeshDataFromFile_Workaround(shared_ptr<DataSource> source);
 
 }

@@ -1,7 +1,7 @@
 #include "AudioLoader_wav.h"
 
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/FileDataSource.h>
+#include <df3d/engine/io/DataSource.h>
 
 namespace df3d { namespace resource_loaders_impl {
 
@@ -34,10 +34,10 @@ struct WAVEData
 
 #pragma pack(pop)
 
-unique_ptr<PCMData> AudioLoader_wav::load(shared_ptr<FileDataSource> source)
+unique_ptr<PCMData> AudioLoader_wav::load(shared_ptr<DataSource> source)
 {
     RIFFHeader header;
-    source->getAsObjects(&header, 1);
+    DataSourceGetObjects(source.get(), &header, 1);
 
     if (strncmp(header.chunkID, "RIFF", 4) != 0 || strncmp(header.format, "WAVE", 4) != 0)
     {
@@ -46,7 +46,7 @@ unique_ptr<PCMData> AudioLoader_wav::load(shared_ptr<FileDataSource> source)
     }
 
     WAVEFormat format;
-    source->getAsObjects(&format, 1);
+    DataSourceGetObjects(source.get(), &format, 1);
 
     if (memcmp(format.subChunkID, "fmt ", 4))
     {
@@ -55,21 +55,21 @@ unique_ptr<PCMData> AudioLoader_wav::load(shared_ptr<FileDataSource> source)
     }
 
     if (format.subChunkSize > 16)
-        source->seek(sizeof(short), std::ios_base::cur);
+        source->seek(sizeof(short), SeekDir::CURRENT);
 
     auto result = make_unique<PCMData>();
 
     while (true)
     {
         WAVEData data;
-        if (!source->getAsObjects(&data, 1))
+        if (!DataSourceGetObjects(source.get(), &data, 1))
             return nullptr;
 
         if (memcmp(data.subChunkID, "data", 4) == 0)
         {
             char *sounddata = new char[data.subChunk2Size];
 
-            auto got = source->getRaw(sounddata, data.subChunk2Size);
+            auto got = source->read(sounddata, data.subChunk2Size);
             if (got != data.subChunk2Size)
             {
                 DFLOG_WARN("Error loading WAVE data: %s", source->getPath().c_str());
@@ -99,7 +99,7 @@ unique_ptr<PCMData> AudioLoader_wav::load(shared_ptr<FileDataSource> source)
         }
         else
         {
-            source->seek(data.subChunk2Size, std::ios_base::cur);
+            source->seek(data.subChunk2Size, SeekDir::CURRENT);
         }
     }
 

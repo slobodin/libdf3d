@@ -4,8 +4,8 @@
 #include <df3d/engine/TimeManager.h>
 #include <df3d/lib/ThreadPool.h>
 #include <df3d/lib/Utils.h>
-#include <df3d/engine/io/FileSystem.h>
-#include <df3d/engine/io/FileDataSource.h>
+#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/DataSource.h>
 #include "Resource.h"
 #include "ResourceFactory.h"
 
@@ -15,7 +15,7 @@ void ResourceManager::doRequest(DecodeRequest req)
 {
     DFLOG_DEBUG("ASYNC decoding %s", req.resource->getFilePath().c_str());
 
-    if (auto source = svc().fileSystem().openFile(req.resourcePath))
+    if (auto source = svc().fileSystem().open(req.resourcePath))
     {
         req.result = req.loader->decode(source);
         if (!req.result)
@@ -100,7 +100,7 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
     {
         DFLOG_DEBUG("Decoding %s", req.resource->getFilePath().c_str());
 
-        req.result = loader->decode(svc().fileSystem().openFile(req.resourcePath));
+        req.result = loader->decode(svc().fileSystem().open(req.resourcePath));
         if (req.result)
         {
             loader->onDecoded(resource.get());

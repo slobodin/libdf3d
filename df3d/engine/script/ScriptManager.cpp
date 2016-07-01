@@ -9,8 +9,8 @@
 #include <cstdio>
 #include <sqrat/sqrat.h>
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/FileSystem.h>
-#include <df3d/engine/io/FileDataSource.h>
+#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/DataSource.h>
 #include <df3d/lib/Utils.h>
 
 namespace df3d {
@@ -72,14 +72,14 @@ void ScriptManager::shutdown()
 
 bool ScriptManager::doFile(const std::string &fileName)
 {
-    if (auto file = svc().fileSystem().openFile(fileName))
+    if (auto file = svc().fileSystem().open(fileName))
     {
         // FIXME: store execution result too.
         if (utils::contains_key(m_executedFiles, file->getPath()))
             return true;
 
-        std::string buffer(file->getSizeInBytes(), 0);
-        file->getRaw(&buffer[0], buffer.size());
+        std::string buffer(file->getSize(), 0);
+        file->read(&buffer[0], buffer.size());
 
         DFLOG_DEBUG("Executing %s", fileName.c_str());
         m_executedFiles.insert(file->getPath());

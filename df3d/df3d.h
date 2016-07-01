@@ -7,6 +7,8 @@
 
 #include <df3d/lib/assert/Assert.h>
 #include <df3d/lib/containers/ConcurrentQueue.h>
+#include <df3d/lib/os/PlatformFile.h>
+#include <df3d/lib/os/PlatformStorage.h>
 #include <df3d/lib/os/PlatformUtils.h>
 #include <df3d/lib/Utils.h>
 #include <df3d/lib/JsonUtils.h>
@@ -50,11 +52,13 @@
 #include <df3d/engine/input/InputEvents.h>
 #include <df3d/engine/input/InputManager.h>
 
-#include <df3d/engine/io/FileSystem.h>
+#include <df3d/engine/io/IFileSystem.h>
+#include <df3d/engine/io/DefaultFileSystem.h>
 #include <df3d/engine/io/FileSystemHelpers.h>
-#include <df3d/engine/io/FileDataSource.h>
+#include <df3d/engine/io/DataSource.h>
 #include <df3d/engine/io/Storage.h>
 #include <df3d/engine/io/MemoryDataSource.h>
+#include <df3d/engine/io/FileDataSource.h>
 
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/ResourceFactory.h>

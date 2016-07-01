@@ -13,8 +13,8 @@
 #include <df3d/engine/render/RenderOperation.h>
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/ResourceFactory.h>
-#include <df3d/engine/io/FileSystem.h>
-#include <df3d/engine/io/FileDataSource.h>
+#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/DataSource.h>
 #include <df3d/engine/resources/TextureLoaders.h>
 #include <df3d/lib/os/PlatformUtils.h>
 
@@ -23,10 +23,10 @@ namespace gui_impl {
 
 class TBFileImpl : public tb::TBFile
 {
-    shared_ptr<FileDataSource> m_file;
+    shared_ptr<DataSource> m_file;
 
 public:
-    TBFileImpl(shared_ptr<FileDataSource> file)
+    TBFileImpl(shared_ptr<DataSource> file)
         : m_file(file)
     {
 
@@ -39,7 +39,7 @@ public:
 
     long Size() override
     {
-        return m_file->getSizeInBytes();
+        return m_file->getSize();
     }
 
     size_t Read(void *buf, size_t elemSize, size_t count) override
@@ -50,7 +50,7 @@ public:
             return 0;
         }
 
-        return m_file->getRaw(buf, count);
+        return m_file->read(buf, count);
     }
 };
 
@@ -522,7 +522,7 @@ namespace tb
 
 TBImageLoader* TBImageLoader::CreateFromFile(const char *filename)
 {
-    auto file = df3d::svc().fileSystem().openFile(filename);
+    auto file = df3d::svc().fileSystem().open(filename);
     if (!file)
         return nullptr;
 
@@ -549,7 +549,7 @@ TBFile* TBFile::Open(const char *filename, TBFileMode mode)
     if (mode != MODE_READ)
         return nullptr;
 
-    auto file = df3d::svc().fileSystem().openFile(filename);
+    auto file = df3d::svc().fileSystem().open(filename);
     if (!file)
         return nullptr;
 

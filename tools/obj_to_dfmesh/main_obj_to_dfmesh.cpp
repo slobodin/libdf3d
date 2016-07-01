@@ -118,11 +118,11 @@ int main(int argc, const char **argv) try
     if (argc != 2)
         throw std::runtime_error("Invalid input. Usage: obj_to_dfmesh.exe mesh.obj");
 
-    df3d::FileSystem fs;
+    df3d::DefaultFileSystem fs;
 
     std::string inputFileName = argv[1];
 
-    auto file = fs.openFile(inputFileName);
+    auto file = fs.open(inputFileName);
     if (!file)
         throw std::runtime_error("Failed to open input file");
 

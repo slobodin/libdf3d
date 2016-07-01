@@ -1,7 +1,7 @@
 #include "Resource.h"
 
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/FileSystem.h>
+#include <df3d/engine/io/DefaultFileSystem.h>
 
 namespace df3d {
 

@@ -71,6 +71,13 @@ enum class PixelFormat
     DEPTH
 };
 
+enum class SeekDir
+{
+    BEGIN,
+    END,
+    CURRENT
+};
+
 using ResourceGUID = std::string;
 
 static const int DEFAULT_WINDOW_WIDTH = 640;

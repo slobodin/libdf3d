@@ -18,7 +18,7 @@ public:
     AudioBufferFSLoader(const std::string &path, bool streamed);
 
     AudioBuffer* createDummy() override;
-    bool decode(shared_ptr<FileDataSource> source) override;
+    bool decode(shared_ptr<DataSource> source) override;
     void onDecoded(Resource *resource) override;
 };
 

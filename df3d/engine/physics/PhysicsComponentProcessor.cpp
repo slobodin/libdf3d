@@ -16,7 +16,7 @@
 #include <df3d/engine/TimeManager.h>
 #include <df3d/game/ComponentDataHolder.h>
 #include <df3d/game/World.h>
-#include <df3d/engine/io/FileSystem.h>
+#include <df3d/engine/io/DefaultFileSystem.h>
 #include <df3d/engine/resources/MeshLoaders.h>
 
 namespace df3d {
@@ -178,7 +178,7 @@ struct PhysicsComponentProcessor::Impl
         case CollisionShapeType::STATIC_TRIANGLE_MESH:
         {
             // FIXME: XXX! Reading the mesh twice! This is a workaround.
-            auto meshFileData = svc().fileSystem().openFile(data.mesh.lock()->getFilePath());
+            auto meshFileData = svc().fileSystem().open(data.mesh.lock()->getFilePath());
             auto softwareMesh = LoadMeshDataFromFile_Workaround(meshFileData);
 
             DF3D_ASSERT_MESS(data.params->mass == 0.0f, "body should not be dynamic");
