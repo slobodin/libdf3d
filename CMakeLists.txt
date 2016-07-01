@@ -176,6 +176,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/game/impl/WorldLoader.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/Any.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/Dict.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/Handles.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/JsonUtils.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/Log.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/MeshUtils.h
@@ -185,6 +186,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/assert/Assert.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/containers/ConcurrentQueue.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/containers/DescriptorsBag.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/containers/PodArray.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/AABB.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/BoundingSphere.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/BoundingVolume.h
@@ -192,6 +194,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/Frustum.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/MathUtils.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/OBB.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/memory/Allocator.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformFile.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformStorage.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils.h

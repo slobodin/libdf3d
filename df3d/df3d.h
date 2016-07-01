@@ -7,6 +7,7 @@
 
 #include <df3d/lib/assert/Assert.h>
 #include <df3d/lib/containers/ConcurrentQueue.h>
+#include <df3d/lib/containers/PodArray.h>
 #include <df3d/lib/os/PlatformFile.h>
 #include <df3d/lib/os/PlatformStorage.h>
 #include <df3d/lib/os/PlatformUtils.h>
@@ -16,6 +17,7 @@
 #include <df3d/lib/math/Frustum.h>
 #include <df3d/lib/MeshUtils.h>
 #include <df3d/lib/Dict.h>
+#include <df3d/lib/Handles.h>
 #include <df3d/lib/Any.h>
 
 #include <df3d/engine/EngineController.h>
