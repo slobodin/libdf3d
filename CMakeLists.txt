@@ -82,196 +82,206 @@ if (DF3D_DESKTOP)
 endif()
 
 set(libdf3d_HEADER_LIST
-    ${PROJECT_SOURCE_DIR}/libdf3d/df3d.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/df3d_pch.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/df3d_config.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/libdf3d_dll.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/2d/Sprite2DComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/3d/Camera.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/3d/DebugDrawComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/3d/Frustum.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/3d/Light.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/3d/StaticMeshComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/3d/SceneGraphComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioBuffer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/audio/impl/OpenALCommon.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/Common.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/DebugConsole.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineInitParams.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/StringTable.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/ComponentDataHolder.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/Entity.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/EntityComponentLoader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/EntityComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/FPSCamera.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/TagComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/World.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldRenderingParams.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldSize.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityLoader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/WorldLoader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/AudioComponentLoader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/MeshComponentLoader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/PhysicsComponentLoader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/Sprite2DComponentLoader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/SceneGraphComponentLoader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/VfxComponentLoader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/TBInterface.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/input/InputManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/io/FileDataSource.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystemHelpers.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/io/IFileSystem.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/io/MemoryDataSource.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/io/Storage.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/math/AABB.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingSphere.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingVolume.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/math/ConvexHull.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemUtils.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkCommon.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkLineTrailRenderer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkQuadRenderer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/ParticleSystemLoader.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentCreationParams.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsHelpers.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/AppDelegate.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/LocalNotification.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/platform/Platform.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/impl/RenderBackendGL.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/IRenderBackend.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramSharedState.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderCommon.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderOperation.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderPass.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderQueue.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Technique.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Vertex.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Viewport.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceContainer.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/AudioLoaders.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/MaterialLibLoaders.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/MeshLoaders.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/TextureLoaders.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/AudioLoader_ogg.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/AudioLoader_wav.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/script/ScriptManager.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/Any.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/ConcurrentQueue.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/DescriptorsBag.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/MathUtils.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshUtils.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/NonCopyable.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/ThreadPool.h
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.h
+    ${PROJECT_SOURCE_DIR}/df3d/Common.h
+    ${PROJECT_SOURCE_DIR}/df3d/df3d.h
+    ${PROJECT_SOURCE_DIR}/df3d/df3d_config.h
+    ${PROJECT_SOURCE_DIR}/df3d/df3d_pch.h
+    ${PROJECT_SOURCE_DIR}/df3d/libdf3d_dll.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/DebugConsole.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/EngineController.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/EngineInitParams.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/TimeManager.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/2d/Sprite2DComponentProcessor.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/3d/Camera.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/3d/Light.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/3d/SceneGraphComponentProcessor.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/3d/StaticMeshComponentProcessor.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/audio/AudioBuffer.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/audio/AudioComponentProcessor.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/audio/AudioManager.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/audio/OpenALCommon.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/gui/GuiManager.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/gui/TBInterface.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputEvents.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputManager.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/DataSource.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileDataSource.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/DefaultFileSystem.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileSystemHelpers.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/IFileSystem.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/MemoryDataSource.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/Storage.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/ParticleSystemComponentProcessor.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/ParticleSystemLoader.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/ParticleSystemUtils.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkCommon.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkLineTrailRenderer.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkQuadRenderer.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/physics/BulletInterface.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/physics/PhysicsComponentCreationParams.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/physics/PhysicsComponentProcessor.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/physics/PhysicsHelpers.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/GpuProgram.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/GpuProgramSharedState.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/IRenderBackend.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/Material.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/MaterialLib.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/MeshData.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderCommon.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderManager.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderOperation.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderPass.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderQueue.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/Technique.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/Texture.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/Vertex.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/Viewport.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/RenderBackendGL.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/ambient_frag.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/ambient_vert.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/colored_frag.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/colored_vert.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/simple_lighting_frag.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/simple_lighting_vert.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/AudioLoaders.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MaterialLibLoaders.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MeshLoaders.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/Resource.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceFactory.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceManager.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/TextureLoaders.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/AudioLoader_ogg.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/AudioLoader_wav.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/MeshLoader_dfmesh.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/MeshLoader_obj.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/script/ScriptBindings.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/script/ScriptManager.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/ComponentDataHolder.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/Entity.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/EntityComponentLoader.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/EntityComponentProcessor.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/FPSCamera.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/TagComponentProcessor.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/World.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/WorldRenderingParams.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/WorldSize.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/impl/AudioComponentLoader.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/impl/EntityLoader.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/impl/EntityManager.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/impl/MeshComponentLoader.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/impl/PhysicsComponentLoader.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/impl/SceneGraphComponentLoader.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/impl/Sprite2DComponentLoader.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/impl/VfxComponentLoader.h
+    ${PROJECT_SOURCE_DIR}/df3d/game/impl/WorldLoader.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/Any.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/Dict.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/JsonUtils.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/Log.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/MeshUtils.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/NonCopyable.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/ThreadPool.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/Utils.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/assert/Assert.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/containers/ConcurrentQueue.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/containers/DescriptorsBag.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/math/AABB.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/math/BoundingSphere.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/math/BoundingVolume.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/math/ConvexHull.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/math/Frustum.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/math/MathUtils.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/math/OBB.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformFile.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformStorage.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils.h
+    ${PROJECT_SOURCE_DIR}/df3d/platform/AppDelegate.h
+    ${PROJECT_SOURCE_DIR}/df3d/platform/LocalNotification.h
 )
 
 set(libdf3d_SRC_LIST
-    ${PROJECT_SOURCE_DIR}/libdf3d/2d/Sprite2DComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/3d/Camera.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/3d/DebugDrawComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/3d/Frustum.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/3d/Light.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/3d/StaticMeshComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/3d/SceneGraphComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioBuffer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/audio/AudioManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/audio/impl/OpenALCommon.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/Common.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/DebugConsole.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/EngineController.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/Log.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/StringTable.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/base/TimeManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/FPSCamera.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/TagComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/World.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/WorldRenderingParams.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityLoader.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/EntityManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/game/impl/WorldLoader.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/GuiManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/gui/impl/TBInterface.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/input/InputEvents.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/input/InputManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystem.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/io/FileSystemHelpers.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/io/MemoryDataSource.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/io/Storage.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/math/AABB.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingSphere.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/math/BoundingVolume.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/math/ConvexHull.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/math/OBB.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/ParticleSystemUtils.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkCommon.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkLineTrailRenderer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/SparkQuadRenderer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/particlesys/impl/ParticleSystemLoader.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentCreationParams.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/physics/PhysicsComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/physics/impl/BulletInterface.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/impl/RenderBackendGL.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgram.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/GpuProgramSharedState.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Material.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/MaterialLib.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/MeshData.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderCommon.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderOperation.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderPass.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/RenderQueue.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Technique.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Texture.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Vertex.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/render/Viewport.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/Resource.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceContainer.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceFactory.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resources/ResourceManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/AudioLoaders.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/MaterialLibLoaders.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/MeshLoaders.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/TextureLoaders.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/AudioLoader_ogg.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/AudioLoader_wav.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_dfmesh.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/resource_loaders/impl/MeshLoader_obj.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/script/ScriptManager.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/Dict.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/JsonUtils.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/MathUtils.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/MeshUtils.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/ThreadPool.cpp
-    ${PROJECT_SOURCE_DIR}/libdf3d/utils/Utils.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/Common.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/df3d_pch.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/DebugConsole.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/EngineController.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/TimeManager.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/2d/Sprite2DComponentProcessor.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/3d/Camera.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/3d/Light.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/3d/SceneGraphComponentProcessor.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/3d/StaticMeshComponentProcessor.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/audio/AudioBuffer.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/audio/AudioComponentProcessor.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/audio/AudioManager.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/audio/OpenALCommon.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/gui/GuiManager.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/gui/TBInterface.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputEvents.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputManager.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileDataSource.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/DefaultFileSystem.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileSystemHelpers.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/MemoryDataSource.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/Storage.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/ParticleSystemComponentProcessor.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/ParticleSystemLoader.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/ParticleSystemUtils.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkCommon.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkLineTrailRenderer.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkQuadRenderer.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/physics/BulletInterface.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/physics/PhysicsComponentCreationParams.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/physics/PhysicsComponentProcessor.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/GpuProgram.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/GpuProgramSharedState.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/Material.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/MaterialLib.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/MeshData.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderCommon.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderManager.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderOperation.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderPass.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderQueue.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/Technique.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/Texture.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/Vertex.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/Viewport.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/RenderBackendGL.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/AudioLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MaterialLibLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MeshLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/Resource.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceFactory.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceManager.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/TextureLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/AudioLoader_ogg.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/AudioLoader_wav.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/MeshLoader_dfmesh.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/MeshLoader_obj.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/script/ScriptBindings.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/script/ScriptManager.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/game/FPSCamera.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/game/TagComponentProcessor.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/game/World.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/game/WorldRenderingParams.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/game/impl/EntityLoader.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/game/impl/EntityManager.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/game/impl/WorldLoader.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/Dict.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/JsonUtils.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/Log.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/MeshUtils.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/ThreadPool.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/Utils.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/assert/Assert.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/math/AABB.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/math/BoundingSphere.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/math/BoundingVolume.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/math/ConvexHull.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/math/Frustum.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/math/MathUtils.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/math/OBB.cpp
+
 )
 
 if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
@@ -284,12 +294,10 @@ set(third_party_SRC_FILES
 
 if (WINDOWS)
     list(APPEND libdf3d_HEADER_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/CrashHandler.h
+        ${PROJECT_SOURCE_DIR}/df3d/platform/windows/CrashHandler.h
     )
     list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/CrashHandler.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/Storage.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows/FileSystemHelpers.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/platform/windows/CrashHandler.cpp
     )
 endif()
 
@@ -297,75 +305,57 @@ if (WINDOWS_PHONE)
     include_directories(${PROJECT_SOURCE_DIR}/third-party/include/angle)
 
     list(APPEND libdf3d_HEADER_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneApplication.h
+        ${PROJECT_SOURCE_DIR}/df3d/platform/windows_phone/WindowsPhoneApplication.h
     )
     list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/Storage.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/WindowsPhoneApplication.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/windows_phone/FileSystemHelpers.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/platform/windows_phone/Storage.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/platform/windows_phone/WindowsPhoneApplication.cpp
     )
 endif()
 
 if (ANDROID)
-    list(APPEND libdf3d_HEADER_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileDataSourceAndroid.h
-    )
     list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/Storage.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileSystemHelpers.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/AndroidBridge.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/JNIHelpers.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/LocalNotification.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/PlatformImpl.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/android/FileDataSourceAndroid.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformFile_android.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformStorage_android.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils_android.cpp
+
+        ${PROJECT_SOURCE_DIR}/df3d/platform/android/AndroidBridge.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/platform/android/JNIHelpers.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/platform/android/LocalNotification.cpp
     )
 endif()
 
 if (IOS)
     list(APPEND libdf3d_HEADER_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/AppDelegate.h
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/GameViewController.h
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.h
+        ${PROJECT_SOURCE_DIR}/df3d/platform/ios/AppDelegate.h
+        ${PROJECT_SOURCE_DIR}/df3d/platform/ios/GameViewController.h
     )
     list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/AppDelegate.mm
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/GameViewController.mm
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/LocalNotification.mm
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/FileSystemHelpers.mm
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/PlatformImpl.mm
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/ios/Storage.mm
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformFile_ios.mm
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformStorage_ios.mm
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils_ios.mm
+
+        ${PROJECT_SOURCE_DIR}/df3d/platform/ios/AppDelegate.mm
+        ${PROJECT_SOURCE_DIR}/df3d/platform/ios/GameViewController.mm
+        ${PROJECT_SOURCE_DIR}/df3d/platform/ios/LocalNotification.mm
     )
 
-    set_source_files_properties("${PROJECT_SOURCE_DIR}/libdf3d/render/impl/RenderBackendGL.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
-endif()
-
-if (LINUX)
-    list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/Storage.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/linux/FileSystemHelpers.cpp
-    )
-endif()
-
-if (MACOSX)
-    list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/macosx/Storage.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/macosx/FileSystemHelpers.cpp
-    )
+    set_source_files_properties("${PROJECT_SOURCE_DIR}/df3d/engine/render/impl/RenderBackendGL.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
 
 if (DF3D_DESKTOP)
     list(APPEND libdf3d_HEADER_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/glfwApplication.h
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/glfwKeyCodes.h
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.h
+        ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/glfwApplication.h
+        ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/glfwKeyCodes.h
     )
     list(APPEND libdf3d_SRC_LIST
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/glfwApplication.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/LocalNotification.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/glfwKeyCodes.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/FileDataSourceDesktop.cpp
-        ${PROJECT_SOURCE_DIR}/libdf3d/platform/desktop_common/PlatformImpl.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformStorage_desktop.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils_desktop.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformFile_desktop.cpp
+
+        ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/glfwApplication.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/LocalNotification.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/glfwKeyCodes.cpp
     )
 endif()
 
@@ -437,5 +427,5 @@ if (ANDROID)
     target_link_libraries(libdf3d OpenSLES ${DF3D_OPENAL_LIBNAME} GLESv2 log android)
 endif()
 
-set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "$(PROJECT_SOURCE_DIR)/libdf3d/df3d_pch.h")
+set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "$(PROJECT_SOURCE_DIR)/df3d/df3d_pch.h")
 cotire(libdf3d)

@@ -4,10 +4,10 @@
 #include <stdexcept>
 #include <vector>
 
-#include <libdf3d/df3d.h>
-#include <libdf3d/resource_loaders/MeshLoaders.h>
-#include <libdf3d/resource_loaders/impl/MeshLoader_obj.h>
-#include <libdf3d/resource_loaders/impl/MeshLoader_dfmesh.h>
+#include <df3d/df3d.h>
+#include <df3d/engine/resources/MeshLoaders.h>
+#include <df3d/engine/resources/loaders/MeshLoader_obj.h>
+#include <df3d/engine/resources/loaders/MeshLoader_dfmesh.h>
 
 static_assert(sizeof(typename std::string::value_type) == 1, "Invalid string size");
 
@@ -118,11 +118,11 @@ int main(int argc, const char **argv) try
     if (argc != 2)
         throw std::runtime_error("Invalid input. Usage: obj_to_dfmesh.exe mesh.obj");
 
-    df3d::FileSystem fs;
+    df3d::DefaultFileSystem fs;
 
     std::string inputFileName = argv[1];
 
-    auto file = fs.openFile(inputFileName);
+    auto file = fs.open(inputFileName);
     if (!file)
         throw std::runtime_error("Failed to open input file");
 
