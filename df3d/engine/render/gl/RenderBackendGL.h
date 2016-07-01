@@ -146,12 +146,12 @@ class RenderBackendGL : public IRenderBackend
 
     static const int MAX_SIZE = 0xFFF;      // 4k is enough for now.
 
-    utils::StaticDescriptorBag<int16_t, MAX_SIZE> m_vertexBuffersBag;
-    utils::StaticDescriptorBag<int16_t, MAX_SIZE> m_indexBuffersBag;
-    utils::StaticDescriptorBag<int16_t, MAX_SIZE> m_texturesBag;
-    utils::StaticDescriptorBag<int16_t, MAX_SIZE> m_shadersBag;
-    utils::StaticDescriptorBag<int16_t, MAX_SIZE> m_gpuProgramsBag;
-    utils::StaticDescriptorBag<int16_t, MAX_SIZE> m_uniformsBag;
+    StaticDescriptorBag<int16_t, MAX_SIZE> m_vertexBuffersBag;
+    StaticDescriptorBag<int16_t, MAX_SIZE> m_indexBuffersBag;
+    StaticDescriptorBag<int16_t, MAX_SIZE> m_texturesBag;
+    StaticDescriptorBag<int16_t, MAX_SIZE> m_shadersBag;
+    StaticDescriptorBag<int16_t, MAX_SIZE> m_gpuProgramsBag;
+    StaticDescriptorBag<int16_t, MAX_SIZE> m_uniformsBag;
 
     VertexBufferGL m_vertexBuffers[MAX_SIZE];
     IndexBufferGL m_indexBuffers[MAX_SIZE];

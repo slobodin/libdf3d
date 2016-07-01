@@ -560,7 +560,7 @@ SPK::Ref<SPK::System> ParticleSystemLoader::createSpkSystem(const Json::Value &r
 
 SPK::Ref<SPK::System> ParticleSystemLoader::createSpkSystem(const std::string &vfxFile)
 {
-    return createSpkSystem(utils::json::fromFile(vfxFile));
+    return createSpkSystem(JsonUtils::fromFile(vfxFile));
 }
 
 } }

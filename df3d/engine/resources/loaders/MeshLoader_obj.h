@@ -10,7 +10,7 @@ namespace resource_loaders_impl {
 
 class MaterialLib;
 
-class DF3D_DLL MeshLoader_obj : df3d::utils::NonCopyable
+class DF3D_DLL MeshLoader_obj : df3d::NonCopyable
 {
     std::vector<glm::vec3> m_vertices;
     std::vector<glm::vec3> m_normals;

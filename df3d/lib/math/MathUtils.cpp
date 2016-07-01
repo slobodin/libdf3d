@@ -1,13 +1,13 @@
 #include "MathUtils.h"
 
-namespace df3d { namespace utils { namespace math {
+namespace df3d {
 
-const glm::vec4 XAxis = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
-const glm::vec4 YAxis = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
-const glm::vec4 ZAxis = glm::vec4(0.0f, 0.0f, 1.0f, 0.0f);
-const glm::vec3 UnitVec3 = glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f));
+const glm::vec4 MathUtils::XAxis = { 1.0f, 0.0f, 0.0f, 0.0f };
+const glm::vec4 MathUtils::YAxis = { 0.0f, 1.0f, 0.0f, 0.0f };
+const glm::vec4 MathUtils::ZAxis = { 0.0f, 0.0f, 1.0f, 0.0f };
+const glm::vec3 MathUtils::UnitVec3 = glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f));
 
-glm::quat fromToRotation(const glm::vec3 &v1, const glm::vec3 &v2)
+glm::quat MathUtils::fromToRotation(const glm::vec3 &v1, const glm::vec3 &v2)
 {
     glm::quat q;
     const auto a = glm::cross(v1, v2);
@@ -22,22 +22,22 @@ glm::quat fromToRotation(const glm::vec3 &v1, const glm::vec3 &v2)
     return glm::normalize(q);
 }
 
-glm::vec2 toPolar(const glm::vec2 &cartesian)
+glm::vec2 MathUtils::toPolar(const glm::vec2 &cartesian)
 {
     return { std::sqrt(cartesian.x * cartesian.x + cartesian.y * cartesian.y), std::atan2(cartesian.y, cartesian.x) };
 }
 
-glm::vec2 fromPolar(float angle, float dist)
+glm::vec2 MathUtils::fromPolar(float angle, float dist)
 {
     return dist * glm::vec2(std::cos(angle), std::sin(angle));
 }
 
-float signedDistanceToPlane(const glm::vec4 &plane, const glm::vec3 &point)
+float MathUtils::signedDistanceToPlane(const glm::vec4 &plane, const glm::vec3 &point)
 {
     return glm::dot(glm::vec3(plane), point) + plane.w;
 }
 
-glm::vec3 safeNormalize(const glm::vec3 &v)
+glm::vec3 MathUtils::safeNormalize(const glm::vec3 &v)
 {
     glm::vec3 res = v;
     if (glm::fastLength(res) > 0.00001f)
@@ -45,13 +45,20 @@ glm::vec3 safeNormalize(const glm::vec3 &v)
     return res;
 }
 
-spherical::spherical(float r, float yaw, float pitch)
+float MathUtils::gaussian(float x, float mean, float stddev)
+{
+    auto a = 1.0f / (stddev * std::sqrt(glm::two_pi<float>()));
+
+    return a * std::exp(-((x - mean) * (x - mean) / 2.0f / stddev / stddev));
+}
+
+Spherical::Spherical(float r, float yaw, float pitch)
     : r(r), yaw(yaw), pitch(pitch)
 {
 
 }
 
-spherical::spherical(const glm::vec3 &v)
+Spherical::Spherical(const glm::vec3 &v)
 {
     r = glm::length(v);
 
@@ -69,12 +76,12 @@ spherical::spherical(const glm::vec3 &v)
     }
 }
 
-spherical::~spherical()
+Spherical::~Spherical()
 {
 
 }
 
-glm::vec3 spherical::toCartesian()
+glm::vec3 Spherical::toCartesian()
 {
     float x = r * glm::sin(pitch) * glm::cos(yaw);
     float y = r * glm::sin(pitch) * glm::sin(yaw);
@@ -83,11 +90,4 @@ glm::vec3 spherical::toCartesian()
     return { x, y, z };
 }
 
-float gaussian(float x, float mean, float stddev)
-{
-    auto a = 1.0f / (stddev * std::sqrt(glm::two_pi<float>()));
-
-    return a * std::exp(-((x - mean) * (x - mean) / 2.0f / stddev / stddev));
 }
-
-} } }

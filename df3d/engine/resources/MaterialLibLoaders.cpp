@@ -367,7 +367,7 @@ bool MaterialLibFSLoader::decode(shared_ptr<FileDataSource> source)
     std::string filedata(source->getSizeInBytes(), 0);
     source->getRaw(&filedata[0], filedata.size());
 
-    m_root = utils::json::fromSource(filedata);
+    m_root = JsonUtils::fromSource(filedata);
     if (m_root.isNull())
     {
         DFLOG_WARN("Failed to parse JSON in material lib '%s'", source->getPath().c_str());

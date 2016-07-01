@@ -6,7 +6,7 @@
 namespace df3d {
 
 template<typename T>
-class ComponentDataHolder : utils::NonCopyable
+class ComponentDataHolder : NonCopyable
 {
 public:
     using DestructionCallback = std::function<void(const T&)>;

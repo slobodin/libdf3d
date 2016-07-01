@@ -5,11 +5,11 @@
 
 namespace df3d { namespace game_impl {
 
-class DF3D_DLL EntityManager : utils::NonCopyable
+class DF3D_DLL EntityManager : NonCopyable
 {
     std::unordered_set<Entity> m_entities;
 
-    utils::DescriptorsBag<Entity::IdType> m_bag;
+    DescriptorsBag<Entity::IdType> m_bag;
 
 public:
     EntityManager();

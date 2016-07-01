@@ -4,9 +4,9 @@
 #include <df3d/engine/io/FileSystem.h>
 #include <df3d/engine/io/FileDataSource.h>
 
-namespace df3d { namespace utils { namespace json {
+namespace df3d {
 
-Json::Value fromFile(const std::string &path)
+Json::Value JsonUtils::fromFile(const std::string &path)
 {
     std::string buffer;
 
@@ -21,7 +21,7 @@ Json::Value fromFile(const std::string &path)
     return fromSource(buffer);
 }
 
-Json::Value fromSource(const std::string &data)
+Json::Value JsonUtils::fromSource(const std::string &data)
 {
     Json::Value root;
     Json::Reader reader;
@@ -35,63 +35,63 @@ Json::Value fromSource(const std::string &data)
     return root;
 }
 
-glm::vec2 getOrDefault(const Json::Value &v, const glm::vec2 &defVal)
+glm::vec2 JsonUtils::getOrDefault(const Json::Value &v, const glm::vec2 &defVal)
 {
     if (v.empty())
         return defVal;
     return glm::vec2(v[0u].asFloat(), v[1u].asFloat());
 }
 
-glm::vec3 getOrDefault(const Json::Value &v, const glm::vec3 &defVal)
+glm::vec3 JsonUtils::getOrDefault(const Json::Value &v, const glm::vec3 &defVal)
 {
     if (v.empty())
         return defVal;
     return glm::vec3(v[0u].asFloat(), v[1u].asFloat(), v[2u].asFloat());
 }
 
-glm::vec4 getOrDefault(const Json::Value &v, const glm::vec4 &defVal)
+glm::vec4 JsonUtils::getOrDefault(const Json::Value &v, const glm::vec4 &defVal)
 {
     if (v.empty())
         return defVal;
     return glm::vec4(v[0u].asFloat(), v[1u].asFloat(), v[2u].asFloat(), v[3u].asFloat());
 }
 
-float getOrDefault(const Json::Value &v, float defVal)
+float JsonUtils::getOrDefault(const Json::Value &v, float defVal)
 {
     if (v.empty())
         return defVal;
     return v.asFloat();
 }
 
-bool getOrDefault(const Json::Value &v, bool defVal)
+bool JsonUtils::getOrDefault(const Json::Value &v, bool defVal)
 {
     if (v.empty())
         return defVal;
     return v.asBool();
 }
 
-std::string getOrDefault(const Json::Value &v, const std::string &defVal)
+std::string JsonUtils::getOrDefault(const Json::Value &v, const std::string &defVal)
 {
     if (v.empty())
         return defVal;
     return v.asString();
 }
 
-int getOrDefault(const Json::Value &v, int defVal)
+int JsonUtils::getOrDefault(const Json::Value &v, int defVal)
 {
     if (v.empty())
         return defVal;
     return v.asInt();
 }
 
-size_t getOrDefault(const Json::Value &v, size_t defVal)
+size_t JsonUtils::getOrDefault(const Json::Value &v, size_t defVal)
 {
     if (v.empty())
         return defVal;
     return v.asUInt();
 }
 
-std::vector<std::string> toStringArray(const Json::Value &v)
+std::vector<std::string> JsonUtils::toStringArray(const Json::Value &v)
 {
     std::vector<std::string> result;
     if (v.empty())
@@ -102,7 +102,7 @@ std::vector<std::string> toStringArray(const Json::Value &v)
     return result;
 }
 
-Json::Value toJson(const glm::vec3 &v)
+Json::Value JsonUtils::toJson(const glm::vec3 &v)
 {
     Json::Value result(Json::arrayValue);
     result.append(Json::Value(v.x));
@@ -112,7 +112,7 @@ Json::Value toJson(const glm::vec3 &v)
     return result;
 }
 
-Json::Value toJson(const glm::vec4 &v)
+Json::Value JsonUtils::toJson(const glm::vec4 &v)
 {
     Json::Value result(Json::arrayValue);
     result.append(Json::Value(v.x));
@@ -123,4 +123,4 @@ Json::Value toJson(const glm::vec4 &v)
     return result;
 }
 
-} } }
+}

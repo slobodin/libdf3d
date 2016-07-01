@@ -140,12 +140,12 @@ glm::vec3 Camera::worldToScreenPoint(const glm::vec3 &world) const
     return screenPt;
 }
 
-utils::math::Ray Camera::createPickingRay(float x, float y)
+Ray Camera::createPickingRay(float x, float y)
 {
     auto nearPt = screenToViewPoint(x, y, 0.0f);
     auto farPt = screenToViewPoint(x, y, 1.0f);
 
-    utils::math::Ray result;
+    Ray result;
     result.origin = nearPt;
     result.dir = glm::normalize(farPt - nearPt);
 

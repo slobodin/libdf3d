@@ -5,7 +5,7 @@ namespace df3d {
 class FileDataSource;
 class ResourceManager;
 
-class DF3D_DLL Resource : utils::NonCopyable
+class DF3D_DLL Resource : NonCopyable
 {
     friend class ResourceManager;
 

@@ -23,7 +23,7 @@ MeshDataManualLoader::MeshDataManualLoader(std::vector<SubMesh> &&geometry)
 MeshData* MeshDataManualLoader::load()
 {
     for (auto &s : m_geometry)
-        utils::mesh::computeTangentBasis(s);
+        MeshUtils::computeTangentBasis(s);
 
     auto result = new MeshData(m_geometry);
     result->m_aabb.constructFromGeometry(m_geometry);

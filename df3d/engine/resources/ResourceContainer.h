@@ -6,7 +6,7 @@ namespace df3d {
 
 // TODO: encrypt entries table.
 
-class DF3D_DLL ResourceContainer : utils::NonCopyable
+class DF3D_DLL ResourceContainer : NonCopyable
 {
 public:
     static const int MAX_FILENAME_LEN = 128;

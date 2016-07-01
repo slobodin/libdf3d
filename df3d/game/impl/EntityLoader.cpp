@@ -36,7 +36,7 @@ EntityLoader::~EntityLoader()
 
 Entity EntityLoader::createEntity(const std::string &resourceFile, World &w)
 {
-    return createEntity(utils::json::fromFile(resourceFile), w);
+    return createEntity(JsonUtils::fromFile(resourceFile), w);
 }
 
 Entity EntityLoader::createEntity(const Json::Value &root, World &w)

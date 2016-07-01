@@ -5,7 +5,7 @@
 
 namespace df3d {
 
-class PixelBuffer : utils::NonCopyable
+class PixelBuffer : NonCopyable
 {
     PixelFormat m_format = PixelFormat::INVALID;
     int m_w = 0;

@@ -14,7 +14,7 @@ namespace df3d {
 
 ParticleSystemCreationParams ParticleSystemUtils::parseVfx(const std::string &vfxFile)
 {
-    auto vfxJson = utils::json::fromFile(vfxFile);
+    auto vfxJson = JsonUtils::fromFile(vfxFile);
     auto spkSystem = particlesys_impl::ParticleSystemLoader::createSpkSystem(vfxJson);
     if (!spkSystem)
     {

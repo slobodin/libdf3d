@@ -6,7 +6,7 @@
 
 namespace df3d {
 
-class DF3D_DLL Camera : utils::NonCopyable  // Should be polymorphic.
+class DF3D_DLL Camera : NonCopyable  // Should be polymorphic.
 {
     glm::mat4 m_worldToCamera;
     glm::mat4 m_projectionMatrix;
@@ -66,7 +66,7 @@ public:
 
     glm::vec3 screenToViewPoint(float x, float y, float z = 0.0f) const;
     glm::vec3 worldToScreenPoint(const glm::vec3 &world) const;
-    utils::math::Ray createPickingRay(float x, float y);
+    Ray createPickingRay(float x, float y);
 
     static shared_ptr<df3d::Camera> createDefault(const glm::vec3 &pos = {})
     {

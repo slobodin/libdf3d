@@ -290,7 +290,7 @@ bool TextureCubeFSLoader::decode(shared_ptr<FileDataSource> source)
     std::string buffer(source->getSizeInBytes(), 0);
     source->getRaw(&buffer[0], buffer.size());
 
-    auto jsonRoot = utils::json::fromSource(buffer);
+    auto jsonRoot = JsonUtils::fromSource(buffer);
     if (jsonRoot.empty())
         return false;
 

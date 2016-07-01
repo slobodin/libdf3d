@@ -41,7 +41,7 @@ struct StaticMeshComponentProcessor::Impl
         // TODO_ecs:
 
         // FIXME: wtf is this??? Why can't just scale radius?
-        auto rad = sphere.getRadius() * utils::math::UnitVec3;
+        auto rad = sphere.getRadius() * MathUtils::UnitVec3;
         rad.x *= compData.holderWorldTransform.scaling.x;
         rad.y *= compData.holderWorldTransform.scaling.y;
         rad.z *= compData.holderWorldTransform.scaling.z;

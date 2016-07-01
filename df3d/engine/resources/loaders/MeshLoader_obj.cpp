@@ -215,10 +215,10 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<FileDataSourc
         if (computeNormals)
         {
             DFLOG_DEBUG("Computing normals in %s", source->getPath().c_str());
-            utils::mesh::computeNormals(*s.second);
+            MeshUtils::computeNormals(*s.second);
         }
 
-        utils::mesh::computeTangentBasis(*s.second);
+        MeshUtils::computeTangentBasis(*s.second);
 
         auto mtlFound = m_materialNameLookup.find(s.second.get());
         unique_ptr<std::string> materialName;

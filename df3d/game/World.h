@@ -20,7 +20,7 @@ class EntityComponentProcessor;
 class Camera;
 class TimeManager;
 
-class DF3D_DLL World : utils::NonCopyable
+class DF3D_DLL World : NonCopyable
 {
     friend class EngineController;
     friend class RenderManager;

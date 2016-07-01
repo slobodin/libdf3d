@@ -3,9 +3,9 @@
 #include <df3d/lib/math/MathUtils.h>
 #include <df3d/engine/render/MeshData.h>
 
-namespace df3d { namespace utils { namespace mesh {
+namespace df3d {
 
-void indexize()
+void MeshUtils::indexize()
 {
     // TODO:
     DF3D_ASSERT_MESS(false, "not implemented");
@@ -45,7 +45,7 @@ void indexize()
     //return ib;
 }
 
-void computeNormals(SubMesh &submesh)
+void MeshUtils::computeNormals(SubMesh &submesh)
 {
     const auto &vformat = submesh.getVertexData().getFormat();
 
@@ -120,7 +120,7 @@ void computeNormals(SubMesh &submesh)
 
                 n /= polysTouchVertex[vertex];
 
-                n = utils::math::safeNormalize(n);
+                n = MathUtils::safeNormalize(n);
 
                 v.setNormal(n);
             }
@@ -132,7 +132,7 @@ void computeNormals(SubMesh &submesh)
     }
 }
 
-void computeTangentBasis(SubMesh &submesh)
+void MeshUtils::computeTangentBasis(SubMesh &submesh)
 {
     const auto &format = submesh.getVertexData().getFormat();
     if (!format.hasAttribute(VertexFormat::TANGENT_3) ||
@@ -244,7 +244,7 @@ void computeTangentBasis(SubMesh &submesh)
             v.getNormal(&normal);
 
             tangent = tangent - normal * glm::dot(normal, tangent);
-            tangent = utils::math::safeNormalize(tangent);
+            tangent = MathUtils::safeNormalize(tangent);
 
             if (glm::dot(glm::cross(normal, tangent), bitangent) < 0.0f)
                 tangent = tangent * -1.0f;
@@ -254,4 +254,4 @@ void computeTangentBasis(SubMesh &submesh)
     }
 }
 
-} } }
+}

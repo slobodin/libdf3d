@@ -132,7 +132,7 @@ void ResourceManager::initialize()
 {
     m_factory = make_unique<ResourceFactory>(this);
 
-    m_threadPool = make_unique<utils::ThreadPool>(2);
+    m_threadPool = make_unique<ThreadPool>(2);
 }
 
 void ResourceManager::shutdown()
@@ -224,7 +224,7 @@ void ResourceManager::clear()
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-    m_threadPool = make_unique<utils::ThreadPool>(2);
+    m_threadPool = make_unique<ThreadPool>(2);
     m_decodedResources.clear();
 
     unloadUnused();

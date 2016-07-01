@@ -4,14 +4,13 @@
 
 namespace df3d {
 
-namespace utils { class ThreadPool; }
-
 class Resource;
 class ResourceFactory;
 class ManualResourceLoader;
 class FSResourceLoader;
+class ThreadPool;
 
-class DF3D_DLL ResourceManager : utils::NonCopyable
+class DF3D_DLL ResourceManager : NonCopyable
 {
 public:
     class Listener
@@ -36,9 +35,9 @@ private:
     };
 
     // Thread pool for resources decoding.
-    unique_ptr<utils::ThreadPool> m_threadPool;
+    unique_ptr<ThreadPool> m_threadPool;
     // Resources for which should call onDecoded in the main thread.
-    utils::ConcurrentQueue<DecodeRequest> m_decodedResources;
+    ConcurrentQueue<DecodeRequest> m_decodedResources;
     mutable std::recursive_mutex m_lock;
 
     std::unordered_map<ResourceGUID, shared_ptr<Resource>> m_loadedResources;

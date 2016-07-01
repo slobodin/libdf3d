@@ -34,7 +34,7 @@ static void parseEntities(const Json::Value &entitiesNode, World &w)
 
 static void parseAmbientLight(const Json::Value &root, World &w)
 {
-    auto intensity = utils::json::getOrDefault(root, w.getRenderingParams().getAmbientLight());
+    auto intensity = JsonUtils::getOrDefault(root, w.getRenderingParams().getAmbientLight());
     w.getRenderingParams().setAmbientLight(intensity.x, intensity.y, intensity.z);
 }
 
@@ -89,9 +89,9 @@ static void parseLights(const Json::Value &lightsNode, World &w)
         std::string lightName;
         lightJson["id"] >> lightName;
 
-        light.setDirection(utils::json::getOrDefault(lightJson["direction"], light.getDirection()));
-        light.setDiffuseIntensity(utils::json::getOrDefault(lightJson["diffuse"], glm::vec3(light.getDiffuseColor())));
-        light.setSpecularIntensity(utils::json::getOrDefault(lightJson["specular"], glm::vec3(light.getSpecularColor())));
+        light.setDirection(JsonUtils::getOrDefault(lightJson["direction"], light.getDirection()));
+        light.setDiffuseIntensity(JsonUtils::getOrDefault(lightJson["diffuse"], glm::vec3(light.getDiffuseColor())));
+        light.setSpecularIntensity(JsonUtils::getOrDefault(lightJson["specular"], glm::vec3(light.getSpecularColor())));
         light.setName(lightName);
 
         w.getRenderingParams().addLight(light);
@@ -100,7 +100,7 @@ static void parseLights(const Json::Value &lightsNode, World &w)
 
 void WorldLoader::initWorld(const std::string &resourceFile, World &w)
 {
-    auto root = utils::json::fromFile(resourceFile);
+    auto root = JsonUtils::fromFile(resourceFile);
 
     parseEntities(root["entities"], w);
     parseFog(root["fog"], w);

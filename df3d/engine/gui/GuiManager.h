@@ -11,7 +11,7 @@ class TBWidget;
 
 namespace df3d {
 
-class DF3D_DLL GuiManager : utils::NonCopyable
+class DF3D_DLL GuiManager : NonCopyable
 {
     unique_ptr<tb::TBWidget> m_root;
     int m_width, m_height;

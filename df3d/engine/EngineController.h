@@ -17,7 +17,7 @@ class DebugConsole;
 class Viewport;
 class World;
 
-class DF3D_DLL EngineController : utils::NonCopyable
+class DF3D_DLL EngineController : NonCopyable
 {
     unique_ptr<RenderManager> m_renderManager;
     unique_ptr<ResourceManager> m_resourceManager;

@@ -3,7 +3,7 @@
 #include "Any.h"
 #include "Utils.h"
 
-namespace df3d { namespace utils {
+namespace df3d {
 
 //! Type erasure key-value pair container.
 /*!
@@ -35,7 +35,7 @@ public:
 
     bool contains(const std::string &key)
     {
-        return contains_key(m_kvPairs, key);
+        return utils::contains_key(m_kvPairs, key);
     }
 
     void erase(const std::string &key)
@@ -49,4 +49,4 @@ public:
     }
 };
 
-} }
+}

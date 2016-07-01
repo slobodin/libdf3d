@@ -6,23 +6,20 @@
 #include <sstream>
 #include <random>
 
-namespace df3d { namespace utils {
+namespace df3d {
 
-std::mt19937_64& RNG();
-
-// Random value in interval [a, b)
-inline float RandRangeEx(const float a, const float b)
+class DF3D_DLL RandomUtils
 {
-    std::uniform_real_distribution<> dis(a, b);
-    return static_cast<float>(dis(RNG()));
-}
+public:
+    static std::mt19937_64& rng();
 
-// Random value in a closed interval [a, b]
-inline int RandRangeEx(const int a, const int b)
-{
-    std::uniform_int_distribution<> dis(a, b);
-    return dis(RNG());
-}
+    // Random value in an interval [a, b)
+    static float randRange(float a, float b);
+    // Random value in a closed interval [a, b]
+    static int randRange(int a, int b);
+};
+
+namespace utils {
 
 inline void skip_line(std::istream &is)
 {

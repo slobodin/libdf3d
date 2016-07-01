@@ -15,7 +15,7 @@ class World;
 class RenderOperation;
 class GpuProgramSharedState;
 
-class DF3D_DLL RenderManager : utils::NonCopyable
+class DF3D_DLL RenderManager : NonCopyable
 {
     friend class EngineController;
 

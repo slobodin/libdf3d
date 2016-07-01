@@ -5,7 +5,7 @@ namespace df3d {
 // TODO:
 // Implements DataSource.
 
-class DF3D_DLL FileDataSource : utils::NonCopyable
+class DF3D_DLL FileDataSource : NonCopyable
 {
     std::string m_filePath;
 

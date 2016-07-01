@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace utils {
+namespace df3d {
 
 template<typename T>
 class ConcurrentQueue : public NonCopyable
@@ -61,4 +61,4 @@ public:
     }
 };
 
-} }
+}

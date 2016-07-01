@@ -1,6 +1,6 @@
 #include "ThreadPool.h"
 
-namespace df3d { namespace utils {
+namespace df3d {
 
 struct ThreadPoolWorker
 {
@@ -108,4 +108,4 @@ void ThreadPool::resume()
         m_workers.push_back(std::thread(ThreadPoolWorker(*this)));
 }
 
-} }
+}

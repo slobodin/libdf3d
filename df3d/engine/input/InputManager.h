@@ -13,7 +13,7 @@ public:
     virtual void onTouch(const Touch &touch) = 0;
 };
 
-class DF3D_DLL InputManager : utils::NonCopyable
+class DF3D_DLL InputManager : NonCopyable
 {
     friend class EngineController;
 

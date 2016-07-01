@@ -1,6 +1,6 @@
 #pragma once
 
-namespace df3d { namespace utils {
+namespace df3d {
 
 template<typename T>
 class DF3D_DLL DescriptorsBag
@@ -99,4 +99,4 @@ public:
     }
 };
 
-} }
+}

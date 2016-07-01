@@ -65,7 +65,7 @@ bool BoundingSphere::intersects(const AABB &aabb) const
     return false;
 }
 
-bool BoundingSphere::intersects(const utils::math::Ray &r, glm::vec3 &outPos) const
+bool BoundingSphere::intersects(const Ray &r, glm::vec3 &outPos) const
 {
     if (!isValid())
         return false;

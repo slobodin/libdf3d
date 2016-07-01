@@ -64,7 +64,7 @@ bool Storage::load()
 
     delete[] data;
 
-    auto jsonData = utils::json::fromSource(jsonSource);
+    auto jsonData = JsonUtils::fromSource(jsonSource);
     if (jsonData.isNull())
         return false;
 

@@ -27,7 +27,7 @@ namespace df3d { namespace script_impl {
 
 inline int random_int_range(int a, int b)
 {
-    return utils::RandRangeEx(a, b);
+    return RandomUtils::randRange(a, b);
 }
 
 inline glm::quat slerp(const glm::quat &a, const glm::quat &b, float t)
@@ -120,7 +120,7 @@ void bindGlm(Table &df3dNamespace)
     }
 
     df3dNamespace.Func(_SC("random_int_range"), random_int_range);
-    df3dNamespace.Func(_SC("gaussian"), df3d::utils::math::gaussian);
+    df3dNamespace.Func(_SC("gaussian"), df3d::MathUtils::gaussian);
     df3dNamespace.Func(_SC("slerp"), slerp);
 }
 

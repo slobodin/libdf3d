@@ -45,7 +45,7 @@ public:
     float getElapsedTime() { return m_timeElapsed; }
 };
 
-class DF3D_DLL TimeManager : utils::NonCopyable
+class DF3D_DLL TimeManager : NonCopyable
 {
 public:
     using UpdateFn = std::function<void()>;
@@ -73,8 +73,8 @@ private:
     };
 
     std::list<TimeSubscriber> m_timeListeners;
-    utils::ConcurrentQueue<UpdateFn> m_pendingListeners;
-    utils::ConcurrentQueue<UpdateFn> m_newListeners;
+    ConcurrentQueue<UpdateFn> m_pendingListeners;
+    ConcurrentQueue<UpdateFn> m_newListeners;
     std::list<Action> m_actions;
     Handle m_nextHandle;
 

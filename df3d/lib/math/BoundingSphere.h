@@ -4,9 +4,8 @@
 
 namespace df3d {
 
-namespace utils { namespace math { struct Ray; } }
-
 class AABB;
+struct Ray;
 
 class DF3D_DLL BoundingSphere : public BoundingVolume
 {
@@ -27,7 +26,7 @@ public:
     bool contains(const glm::vec3 &point) const;
     bool intersects(const BoundingSphere &other) const;
     bool intersects(const AABB &aabb) const;
-    bool intersects(const utils::math::Ray &r, glm::vec3 &outPos) const;
+    bool intersects(const Ray &r, glm::vec3 &outPos) const;
 
     const glm::vec3 &getCenter() const;
     const float getRadius() const;

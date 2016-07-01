@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-class DF3D_DLL Storage : utils::NonCopyable
+class DF3D_DLL Storage : NonCopyable
 {
 public:
     struct Encryptor

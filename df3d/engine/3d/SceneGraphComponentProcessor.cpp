@@ -303,17 +303,17 @@ const Transform& SceneGraphComponentProcessor::getWorldTransform(Entity e) const
 
 glm::vec3 SceneGraphComponentProcessor::getWorldDirection(Entity e) const
 {
-    return glm::normalize(glm::vec3(getWorldTransformMatrix(e) * -utils::math::ZAxis));
+    return glm::normalize(glm::vec3(getWorldTransformMatrix(e) * -MathUtils::ZAxis));
 }
 
 glm::vec3 SceneGraphComponentProcessor::getWorldUp(Entity e) const
 {
-    return glm::normalize(glm::vec3(getWorldTransformMatrix(e) * utils::math::YAxis));
+    return glm::normalize(glm::vec3(getWorldTransformMatrix(e) * MathUtils::YAxis));
 }
 
 glm::vec3 SceneGraphComponentProcessor::getWorldRight(Entity e) const
 {
-    return glm::normalize(glm::vec3(getWorldTransformMatrix(e) * utils::math::XAxis));
+    return glm::normalize(glm::vec3(getWorldTransformMatrix(e) * MathUtils::XAxis));
 }
 
 void SceneGraphComponentProcessor::attachChild(Entity parent, Entity child)

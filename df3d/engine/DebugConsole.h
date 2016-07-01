@@ -17,7 +17,7 @@ struct DF3D_DLL ConsoleCommand
     std::function<std::string(const std::vector<std::string> &params)> handler;
 };
 
-class CVarsContainer : utils::NonCopyable
+class CVarsContainer : NonCopyable
 {
     std::unordered_map<std::string, std::string> m_cvars;
 
@@ -42,7 +42,7 @@ public:
     }
 };
 
-class DF3D_DLL DebugConsole : utils::NonCopyable
+class DF3D_DLL DebugConsole : NonCopyable
 {
     friend class ConsoleWindow;
 

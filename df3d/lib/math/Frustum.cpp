@@ -38,7 +38,7 @@ bool Frustum::sphereInFrustum(const BoundingSphere &sphere) const
 
     for (int i = 0; i < 6; i++)
     {
-        auto dist = utils::math::signedDistanceToPlane(m_planes[i], center);
+        auto dist = MathUtils::signedDistanceToPlane(m_planes[i], center);
         if (dist < -radius)
             return false;
     }

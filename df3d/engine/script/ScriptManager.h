@@ -4,7 +4,7 @@
 
 namespace df3d {
 
-class DF3D_DLL ScriptManager : utils::NonCopyable
+class DF3D_DLL ScriptManager : NonCopyable
 {
     HSQUIRRELVM m_squirrel = nullptr;
 

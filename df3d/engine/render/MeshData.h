@@ -17,7 +17,7 @@ class MeshDataFSLoader;
 class Material;
 
 //! Non GPU representation of a mesh surface.
-class DF3D_DLL SubMesh : utils::NonCopyable
+class DF3D_DLL SubMesh : NonCopyable
 {
     shared_ptr<Material> m_material;
     VertexData m_vertexData;
