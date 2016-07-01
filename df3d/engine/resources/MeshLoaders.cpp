@@ -50,9 +50,9 @@ bool MeshDataFSLoader::decode(shared_ptr<DataSource> source)
     const auto extension = FileSystemHelpers::getFileExtension(source->getPath());
 
     if (extension == ".obj")
-        m_mesh = resource_loaders_impl::MeshLoader_obj().load(source);
+        m_mesh = resource_loaders::MeshLoader_obj().load(source);
     else if (extension == ".dfmesh")
-        m_mesh = resource_loaders_impl::MeshLoader_dfmesh().load(source);
+        m_mesh = resource_loaders::MeshLoader_dfmesh().load(source);
 
     return m_mesh != nullptr;
 }
@@ -102,9 +102,9 @@ unique_ptr<MeshDataFSLoader::Mesh> LoadMeshDataFromFile_Workaround(shared_ptr<Da
     const auto extension = FileSystemHelpers::getFileExtension(source->getPath());
 
     if (extension == ".obj")
-        return resource_loaders_impl::MeshLoader_obj().load(source);
+        return resource_loaders::MeshLoader_obj().load(source);
     else if (extension == ".dfmesh")
-        return resource_loaders_impl::MeshLoader_dfmesh().load(source);
+        return resource_loaders::MeshLoader_dfmesh().load(source);
 
     return nullptr;
 }

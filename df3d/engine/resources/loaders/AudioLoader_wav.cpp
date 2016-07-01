@@ -3,7 +3,7 @@
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/io/DataSource.h>
 
-namespace df3d { namespace resource_loaders_impl {
+namespace df3d { namespace resource_loaders {
 
 #pragma pack(push, 1)
 

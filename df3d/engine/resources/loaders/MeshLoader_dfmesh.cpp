@@ -2,7 +2,7 @@
 
 #include <df3d/engine/io/DataSource.h>
 
-namespace df3d { namespace resource_loaders_impl {
+namespace df3d { namespace resource_loaders {
 
 unique_ptr<SubMesh> MeshLoader_dfmesh::createSubmesh(std::vector<float> &&vertexData, IndexArray &&indexData)
 {

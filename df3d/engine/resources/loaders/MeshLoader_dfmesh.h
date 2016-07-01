@@ -2,9 +2,7 @@
 
 #include "../MeshLoaders.h"
 
-namespace df3d {
-
-namespace resource_loaders_impl {
+namespace df3d { namespace resource_loaders {
 
 const int DFMESH_MAX_MATERIAL_ID = 128;
 const int DFMESH_MAX_MATERIAL_LIB_ID = 128;

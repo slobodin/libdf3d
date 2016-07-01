@@ -30,9 +30,9 @@ void Serialize(const void *data, size_t size, std::ofstream &fs)
         throw std::runtime_error("failed to write to an output");
 }
 
-df3d::resource_loaders_impl::DFMeshSubmeshHeader CreateSubmeshChunk(const df3d::SubMesh &sm, const std::string &materialId)
+df3d::resource_loaders::DFMeshSubmeshHeader CreateSubmeshChunk(const df3d::SubMesh &sm, const std::string &materialId)
 {
-    using namespace df3d::resource_loaders_impl;
+    using namespace df3d::resource_loaders;
 
     if (materialId.size() >= DFMESH_MAX_MATERIAL_ID)
         throw std::runtime_error("material id is too big");
@@ -53,7 +53,7 @@ df3d::resource_loaders_impl::DFMeshSubmeshHeader CreateSubmeshChunk(const df3d::
 
 void ProcessMesh(const df3d::MeshDataFSLoader::Mesh &meshInput, const std::string &outputFilename)
 {
-    using namespace df3d::resource_loaders_impl;
+    using namespace df3d::resource_loaders;
 
     std::cout << "creating dfmesh..." << std::endl;
 
@@ -128,7 +128,7 @@ int main(int argc, const char **argv) try
 
     std::cout << "decoding obj file..." << std::endl;
 
-    auto meshInput = df3d::resource_loaders_impl::MeshLoader_obj().load(file);
+    auto meshInput = df3d::resource_loaders::MeshLoader_obj().load(file);
     if (!meshInput)
         throw std::runtime_error("Failed to load input obj mesh");
 

@@ -2,11 +2,7 @@
 
 #include "../MeshLoaders.h"
 
-namespace df3d {
-
-namespace resource_loaders_impl {
-
-class MaterialLib;
+namespace df3d { namespace resource_loaders {
 
 class DF3D_DLL MeshLoader_obj : df3d::NonCopyable
 {

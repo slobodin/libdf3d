@@ -8,7 +8,7 @@
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
 
-namespace df3d { namespace resource_loaders_impl {
+namespace df3d { namespace resource_loaders {
 
 size_t readOgg(void *ptr, size_t size, size_t nmemb, void *datasource)
 {

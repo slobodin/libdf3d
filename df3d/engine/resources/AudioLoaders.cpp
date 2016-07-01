@@ -30,19 +30,19 @@ bool AudioBufferFSLoader::decode(shared_ptr<DataSource> source)
     if (extension == ".wav")
     {
         DF3D_ASSERT_MESS(!m_streamed, "streaming for wav is unsupported for now");   // FIXME:
-        m_pcmData = resource_loaders_impl::AudioLoader_wav().load(source);
+        m_pcmData = resource_loaders::AudioLoader_wav().load(source);
         return m_pcmData != nullptr;
     }
     else if (extension == ".ogg")
     {
         if (m_streamed)
         {
-            m_stream = resource_loaders_impl::AudioLoader_ogg().loadStreamed(source);
+            m_stream = resource_loaders::AudioLoader_ogg().loadStreamed(source);
             return m_stream != nullptr;
         }
         else
         {
-            m_pcmData = resource_loaders_impl::AudioLoader_ogg().load(source);
+            m_pcmData = resource_loaders::AudioLoader_ogg().load(source);
             return m_pcmData != nullptr;
         }
     }

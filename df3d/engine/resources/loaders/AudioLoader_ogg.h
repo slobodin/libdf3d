@@ -2,7 +2,7 @@
 
 #include "../AudioLoaders.h"
 
-namespace df3d { namespace resource_loaders_impl {
+namespace df3d { namespace resource_loaders {
 
 class AudioLoader_ogg
 {

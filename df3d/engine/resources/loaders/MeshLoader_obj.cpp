@@ -6,7 +6,7 @@
 #include <df3d/lib/MeshUtils.h>
 #include <df3d/lib/Utils.h>
 
-namespace df3d { namespace resource_loaders_impl {
+namespace df3d { namespace resource_loaders {
 
 bool MeshLoader_obj::hasNormals() const
 {
