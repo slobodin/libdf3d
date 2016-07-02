@@ -11,6 +11,8 @@
 #include <df3d/lib/os/PlatformFile.h>
 #include <df3d/lib/os/PlatformStorage.h>
 #include <df3d/lib/os/PlatformUtils.h>
+#include <df3d/lib/memory/Allocator.h>
+#include <df3d/lib/memory/MallocAllocator.h>
 #include <df3d/lib/Utils.h>
 #include <df3d/lib/JsonUtils.h>
 #include <df3d/lib/math/MathUtils.h>
