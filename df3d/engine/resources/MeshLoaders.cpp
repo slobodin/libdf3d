@@ -33,6 +33,17 @@ MeshData* MeshDataManualLoader::load()
     return result;
 }
 
+MeshDataFSLoader::Mesh::Mesh()
+    : convexHull(MemoryManager::allocDefault())
+{
+
+}
+
+MeshDataFSLoader::Mesh::~Mesh()
+{
+
+}
+
 MeshDataFSLoader::MeshDataFSLoader(const std::string &path, ResourceLoadingMode lm)
     : FSResourceLoader(lm),
     m_path(path)

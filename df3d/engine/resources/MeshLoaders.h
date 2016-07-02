@@ -32,6 +32,9 @@ public:
         BoundingSphere sphere;
         OBB obb;
         ConvexHull convexHull;
+
+        Mesh();
+        ~Mesh();
     };
 
 private:
