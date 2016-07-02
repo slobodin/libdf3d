@@ -118,6 +118,8 @@ int main(int argc, const char **argv) try
     if (argc != 2)
         throw std::runtime_error("Invalid input. Usage: obj_to_dfmesh.exe mesh.obj");
 
+    df3d::MemoryManager::init();
+
     df3d::DefaultFileSystem fs;
 
     std::string inputFileName = argv[1];
@@ -142,6 +144,8 @@ int main(int argc, const char **argv) try
     ProcessMesh(*meshInput, outputFilename + ".dfmesh");
 
     std::cout << "Done!" << std::endl;
+
+    df3d::MemoryManager::shutdown();
 
     return 0;
 }
