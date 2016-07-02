@@ -358,7 +358,7 @@ void SceneGraphComponentProcessor::detachChild(Entity parent, Entity child)
     auto &parentData = m_pimpl->data.getData(parent);
     auto &childData = m_pimpl->data.getData(child);
 
-    childData.parent = Entity();
+    childData.parent = {};
 
     auto found = std::find(parentData.children.begin(), parentData.children.end(), child);
     DF3D_ASSERT(found != parentData.children.end());
@@ -373,7 +373,7 @@ void SceneGraphComponentProcessor::detachAllChildren(Entity e)
 
     for (auto childEnt : compData.children)
     {
-        m_pimpl->data.getData(childEnt).parent = Entity();
+        m_pimpl->data.getData(childEnt).parent = {};
         m_pimpl->updateWorldTransformation(m_pimpl->data.getData(childEnt));
     }
 

@@ -117,13 +117,13 @@ AABB StaticMeshComponentProcessor::getAABB(Entity e)
         return transformedAABB;
 
     // Get the corners of original AABB (model-space).
-    std::vector<glm::vec3> aabbCorners(8);
+    glm::vec4 aabbCorners[8];
     modelSpaceAABB->getCorners(aabbCorners);
 
     // Create new AABB from the corners of the original also applying world transformation.
-    for (auto &p : aabbCorners)
+    for (const auto &p : aabbCorners)
     {
-        auto trp = compData.holderWorldTransform.combined * glm::vec4(p, 1.0f);
+        auto trp = compData.holderWorldTransform.combined * p;
         transformedAABB.updateBounds(glm::vec3(trp));
     }
 

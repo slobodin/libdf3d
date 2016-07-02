@@ -42,10 +42,11 @@ static VertexBufferHandle createQuad(const VertexFormat &vf, float x, float y, f
     };
 
     VertexData vertexData(vf);
+    vertexData.allocVertices(6u);
 
-    for (int i = 0; i < 6; i++)
+    for (size_t i = 0; i < 6u; i++)
     {
-        auto v = vertexData.allocVertex();
+        auto v = vertexData.getVertex(i);
 
         v.setPosition({ quad_pos[i][0], quad_pos[i][1], 0.0f });
         v.setTx({ quad_uv[i][0], quad_uv[i][1] });

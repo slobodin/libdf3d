@@ -2,18 +2,19 @@
 
 #include <df3d/lib/JsonUtils.h>
 #include <df3d/lib/os/PlatformStorage.h>
+#include <df3d/engine/EngineController.h>
 
 namespace df3d
 {
 
 struct NullEncryptor : Storage::Encryptor
 {
-    std::vector<uint8_t> encode(const std::vector<uint8_t> &input) override
+    PodArray<uint8_t> encode(const PodArray<uint8_t> &input) override
     {
         return input;
     }
 
-    std::vector<uint8_t> decode(const std::vector<uint8_t> &input) override
+    PodArray<uint8_t> decode(const PodArray<uint8_t> &input) override
     {
         return input;
     }
@@ -38,8 +39,8 @@ bool Storage::save()
 
     auto str = Json::writeString(b, getData());
 
-    std::vector<uint8_t> input;
-    input.assign(str.begin(), str.end());
+    PodArray<uint8_t> input(MemoryManager::allocDefault());
+    input.assign(reinterpret_cast<const uint8_t*>(str.data()), str.size());
 
     auto output = m_encryptor->encode(input);
 
@@ -48,7 +49,7 @@ bool Storage::save()
 
 bool Storage::load()
 {
-    std::vector<uint8_t> input;
+    PodArray<uint8_t> input(MemoryManager::allocDefault());
     PlatformStorage::getData(m_fileName.c_str(), input);
 
     if (input.size() == 0)

@@ -9,8 +9,8 @@ public:
     {
         virtual ~Encryptor() = default;
 
-        virtual std::vector<uint8_t> encode(const std::vector<uint8_t> &input) = 0;
-        virtual std::vector<uint8_t> decode(const std::vector<uint8_t> &input) = 0;
+        virtual PodArray<uint8_t> encode(const PodArray<uint8_t> &input) = 0;
+        virtual PodArray<uint8_t> decode(const PodArray<uint8_t> &input) = 0;
     };
 
 private:
