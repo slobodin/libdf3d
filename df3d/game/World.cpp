@@ -76,7 +76,8 @@ World::World()
     m_sprite2D(new Sprite2DComponentProcessor(this)),
     m_tags(new TagComponentProcessor()),
     m_camera(new Camera(glm::vec3(), Camera::DEFAULT_FOV, Camera::DEFAULT_NEAR_Z, Camera::DEFAULT_FAR_Z)),
-    m_timeMgr(new TimeManager())
+    m_timeMgr(new TimeManager()),
+    m_engineProcessors(MemoryManager::allocDefault())
 {
     m_engineProcessors.push_back(m_audio.get());
     m_engineProcessors.push_back(m_staticMeshes.get());

@@ -1,6 +1,7 @@
 #include "Vertex.h"
 
 #include <df3d/lib/Utils.h>
+#include <df3d/engine/EngineController.h>
 
 namespace df3d {
 
@@ -146,12 +147,13 @@ void Vertex::getBitangent(glm::vec3 *bitangent)
 }
 
 VertexData::VertexData(const VertexFormat &format)
-    : m_format(format)
+    : m_data(MemoryManager::allocDefault()),
+    m_format(format)
 {
 
 }
 
-VertexData::VertexData(const VertexFormat &format, std::vector<float> &&data)
+VertexData::VertexData(const VertexFormat &format, PodArray<float> &&data)
     : m_data(std::move(data)),
     m_format(format)
 {
@@ -162,7 +164,8 @@ void VertexData::allocVertices(size_t verticesCount)
 {
     DF3D_ASSERT(verticesCount > 0);
 
-    m_data.assign(m_format.getVertexSize() * verticesCount / sizeof(float), 0.0f);
+    size_t floatsCount = m_format.getVertexSize() * verticesCount / sizeof(float);
+    m_data.resize(floatsCount);
 
     m_verticesCount = verticesCount;
 }
@@ -170,9 +173,11 @@ void VertexData::allocVertices(size_t verticesCount)
 Vertex VertexData::allocVertex()
 {
     // Allocate buffer for a new vertex.
-    auto it = m_data.insert(m_data.end(), m_format.getVertexSize() / sizeof(float), 0.0f);
+    size_t floatsCount = m_format.getVertexSize() / sizeof(float);
+    m_data.resize(m_data.size() + floatsCount);
+
     // Get pointer to this vertex raw data.
-    auto vertexData = m_data.data() + (it - m_data.begin());
+    auto vertexData = m_data.end() - floatsCount;
 
     m_verticesCount++;
 

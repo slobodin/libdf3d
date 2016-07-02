@@ -109,7 +109,8 @@ static unique_ptr<PixelBuffer> LoadRaw(shared_ptr<DataSource> source)
 
 static unique_ptr<PixelBuffer> LoadWebp(shared_ptr<DataSource> source, bool forceRgba)
 {
-    std::vector<uint8_t> pixels(source->getSize());
+    PodArray<uint8_t> pixels(MemoryManager::allocDefault());
+    pixels.resize(source->getSize());
     source->read(&pixels[0], pixels.size());
 
     WebPBitstreamFeatures features;

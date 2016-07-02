@@ -88,13 +88,13 @@ public:
 
 class DF3D_DLL VertexData
 {
-    std::vector<float> m_data;
+    PodArray<float> m_data;
     VertexFormat m_format;
     size_t m_verticesCount = 0;
 
 public:
     VertexData(const VertexFormat &format);
-    VertexData(const VertexFormat &format, std::vector<float> &&data);
+    VertexData(const VertexFormat &format, PodArray<float> &&data);
 
     //! Allocates memory for given number of vertices.
     void allocVertices(size_t verticesCount);
