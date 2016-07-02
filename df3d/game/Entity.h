@@ -1,31 +1,14 @@
 #pragma once
 
+#include <df3d/lib/Handles.h>
+
 namespace df3d {
 
-struct Entity
-{
-    using IdType = int32_t;
+DF3D_MAKE_HANDLE(EntityHandle)
+using Entity = EntityHandle;
 
-    IdType id;
-
-    Entity(IdType id = -1) : id(id) { }
-
-    IdType getId() const { return id; }     // Squirrel workaround.
-    bool valid() const { return id != -1; }
-    bool operator== (const Entity &other) const { return other.id == id; }
-    bool operator!= (const Entity &other) const { return other.id != id; }
-};
-
-struct ComponentInstance
-{
-    using IdType = int32_t;
-
-    IdType id;
-
-    ComponentInstance(IdType id = -1) : id(id) { }
-
-    bool valid() const { return id != -1; }
-};
+DF3D_MAKE_HANDLE(ComponentInstanceHandle)
+using ComponentInstance = ComponentInstanceHandle;
 
 }
 
@@ -36,7 +19,16 @@ struct hash<df3d::Entity>
 {
     std::size_t operator()(const df3d::Entity& e) const
     {
-        return std::hash<df3d::Entity::IdType>()(e.id);
+        return std::hash<decltype(e.id)>()(e.id);
+    }
+};
+
+template <>
+struct hash<df3d::ComponentInstance>
+{
+    std::size_t operator()(const df3d::ComponentInstance& e) const
+    {
+        return std::hash<decltype(e.id)>()(e.id);
     }
 };
 

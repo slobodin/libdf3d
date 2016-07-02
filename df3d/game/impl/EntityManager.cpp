@@ -3,7 +3,7 @@
 namespace df3d { namespace game_impl {
 
 EntityManager::EntityManager()
-    : m_bag(std::numeric_limits<Entity::IdType>::max() - 1)
+    : m_bag(0xFFFFFFFFu - 1)
 {
 
 }
@@ -15,8 +15,7 @@ EntityManager::~EntityManager()
 
 Entity EntityManager::create()
 {
-    Entity e;
-    e.id = m_bag.getNew();
+    Entity e = m_bag.getNew();
 
     m_entities.insert(e);
 

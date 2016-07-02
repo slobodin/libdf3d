@@ -6,7 +6,7 @@
 #endif
 
 #include <df3d/engine/render/IRenderBackend.h>
-#include <df3d/lib/containers/DescriptorsBag.h>
+#include <df3d/lib/Handles.h>
 #include <df3d/lib/Utils.h>
 
 #if defined(DF3D_WINDOWS)
@@ -36,15 +36,28 @@
 #error "Unsupported platform"
 #endif
 
+namespace std {
+
+template <>
+struct hash<df3d::GpuProgramHandle>
+{
+    std::size_t operator()(const df3d::GpuProgramHandle& e) const
+    {
+        return std::hash<decltype(e.id)>()(e.id);
+    }
+};
+
+}
+
 namespace df3d {
 
 class Texture;
 
 class GpuMemoryStats
 {
-    std::map<TextureDescriptor, size_t> m_textures;
-    std::map<VertexBufferDescriptor, size_t> m_vertexBuffers;
-    std::map<IndexBufferDescriptor, size_t> m_indexBuffers;
+    std::map<TextureHandle, size_t> m_textures;
+    std::map<VertexBufferHandle, size_t> m_vertexBuffers;
+    std::map<IndexBufferHandle, size_t> m_indexBuffers;
 
     int32_t m_total = 0;
 
@@ -67,32 +80,32 @@ class GpuMemoryStats
     }
 
 public:
-    void addTexture(TextureDescriptor td, size_t sizeInBytes)
+    void addTexture(TextureHandle td, size_t sizeInBytes)
     {
         addHelper(m_textures, td, sizeInBytes);
     }
 
-    void removeTexture(TextureDescriptor td)
+    void removeTexture(TextureHandle td)
     {
         removeHelper(m_textures, td); 
     }
 
-    void addVertexBuffer(VertexBufferDescriptor vb, size_t sizeInBytes)
+    void addVertexBuffer(VertexBufferHandle vb, size_t sizeInBytes)
     {
         addHelper(m_vertexBuffers, vb, sizeInBytes);
     }
 
-    void removeVertexBuffer(VertexBufferDescriptor vb)
+    void removeVertexBuffer(VertexBufferHandle vb)
     {
         removeHelper(m_vertexBuffers, vb);
     }
 
-    void addIndexBuffer(IndexBufferDescriptor ib, size_t sizeInBytes)
+    void addIndexBuffer(IndexBufferHandle ib, size_t sizeInBytes)
     {
         addHelper(m_indexBuffers, ib, sizeInBytes);
     }
 
-    void removeIndexBuffer(IndexBufferDescriptor ib)
+    void removeIndexBuffer(IndexBufferHandle ib)
     {
         removeHelper(m_indexBuffers, ib);
     }
@@ -131,8 +144,8 @@ class RenderBackendGL : public IRenderBackend
     struct ProgramGL
     {
         GLuint gl_id = 0;
-        ShaderDescriptor vshader;
-        ShaderDescriptor fshader;
+        ShaderHandle vshader;
+        ShaderHandle fshader;
     };
 
     struct UniformGL
@@ -146,12 +159,12 @@ class RenderBackendGL : public IRenderBackend
 
     static const int MAX_SIZE = 0xFFF;      // 4k is enough for now.
 
-    StaticDescriptorBag<int16_t, MAX_SIZE> m_vertexBuffersBag;
-    StaticDescriptorBag<int16_t, MAX_SIZE> m_indexBuffersBag;
-    StaticDescriptorBag<int16_t, MAX_SIZE> m_texturesBag;
-    StaticDescriptorBag<int16_t, MAX_SIZE> m_shadersBag;
-    StaticDescriptorBag<int16_t, MAX_SIZE> m_gpuProgramsBag;
-    StaticDescriptorBag<int16_t, MAX_SIZE> m_uniformsBag;
+    StaticHandleBag<VertexBufferHandle, MAX_SIZE> m_vertexBuffersBag;
+    StaticHandleBag<IndexBufferHandle, MAX_SIZE> m_indexBuffersBag;
+    StaticHandleBag<TextureHandle, MAX_SIZE> m_texturesBag;
+    StaticHandleBag<ShaderHandle, MAX_SIZE> m_shadersBag;
+    StaticHandleBag<GpuProgramHandle, MAX_SIZE> m_gpuProgramsBag;
+    StaticHandleBag<UniformHandle, MAX_SIZE> m_uniformsBag;
 
     VertexBufferGL m_vertexBuffers[MAX_SIZE];
     IndexBufferGL m_indexBuffers[MAX_SIZE];
@@ -160,12 +173,12 @@ class RenderBackendGL : public IRenderBackend
     ProgramGL m_programs[MAX_SIZE];
     UniformGL m_uniforms[MAX_SIZE];
 
-    std::unordered_map<int16_t, std::vector<UniformDescriptor>> m_programUniforms;
+    std::unordered_map<GpuProgramHandle, std::vector<UniformHandle>> m_programUniforms;
 
     // Some cached state.
-    GpuProgramDescriptor m_currentProgram;
-    VertexBufferDescriptor m_currentVertexBuffer;
-    IndexBufferDescriptor m_currentIndexBuffer;
+    GpuProgramHandle m_currentProgram;
+    VertexBufferHandle m_currentVertexBuffer;
+    IndexBufferHandle m_currentIndexBuffer;
     bool m_indexedDrawCall = false;
 
     struct DrawState
@@ -186,7 +199,7 @@ class RenderBackendGL : public IRenderBackend
     GpuMemoryStats m_gpuMemStats;
 #endif
 
-    void destroyShader(ShaderDescriptor shader, GLuint programId);
+    void destroyShader(ShaderHandle shader, GLuint programId);
 
 public:
     RenderBackendGL(int width, int height);
@@ -200,33 +213,33 @@ public:
     void frameBegin() override;
     void frameEnd() override;
 
-    VertexBufferDescriptor createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage) override;
-    void destroyVertexBuffer(VertexBufferDescriptor vb) override;
+    VertexBufferHandle createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage) override;
+    void destroyVertexBuffer(VertexBufferHandle vbHandle) override;
 
-    void bindVertexBuffer(VertexBufferDescriptor vb) override;
-    void updateVertexBuffer(VertexBufferDescriptor vb, size_t verticesCount, const void *data) override;
+    void bindVertexBuffer(VertexBufferHandle vbHandle) override;
+    void updateVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) override;
 
-    IndexBufferDescriptor createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage) override;
-    void destroyIndexBuffer(IndexBufferDescriptor ib) override;
+    IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage) override;
+    void destroyIndexBuffer(IndexBufferHandle ibHandle) override;
 
-    void bindIndexBuffer(IndexBufferDescriptor ib) override;
-    void updateIndexBuffer(IndexBufferDescriptor ib, size_t indicesCount, const void *data) override;
+    void bindIndexBuffer(IndexBufferHandle ibHandle) override;
+    void updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data) override;
 
-    TextureDescriptor createTexture2D(int width, int height, PixelFormat format, const uint8_t *data, const TextureCreationParams &params) override;
-    TextureDescriptor createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params) override;
-    void updateTexture(TextureDescriptor t, int w, int h, const void *data) override;
-    void destroyTexture(TextureDescriptor t) override;
+    TextureHandle createTexture2D(int width, int height, PixelFormat format, const uint8_t *data, const TextureCreationParams &params) override;
+    TextureHandle createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params) override;
+    void updateTexture(TextureHandle textureHandle, int w, int h, const void *data) override;
+    void destroyTexture(TextureHandle textureHandle) override;
 
-    void bindTexture(TextureDescriptor t, int unit) override;
+    void bindTexture(TextureHandle textureHandle, int unit) override;
 
-    ShaderDescriptor createShader(ShaderType type, const std::string &data) override;
+    ShaderHandle createShader(ShaderType type, const std::string &data) override;
 
-    GpuProgramDescriptor createGpuProgram(ShaderDescriptor vertexShader, ShaderDescriptor fragmentShader) override;
-    void destroyGpuProgram(GpuProgramDescriptor program) override;
+    GpuProgramHandle createGpuProgram(ShaderHandle vertexShaderHandle, ShaderHandle fragmentShaderHandle) override;
+    void destroyGpuProgram(GpuProgramHandle programHandle) override;
 
-    void bindGpuProgram(GpuProgramDescriptor program) override;
-    void requestUniforms(GpuProgramDescriptor program, std::vector<UniformDescriptor> &outDescr, std::vector<std::string> &outNames) override;
-    void setUniformValue(UniformDescriptor uniform, const void *data) override;
+    void bindGpuProgram(GpuProgramHandle programHandle) override;
+    void requestUniforms(GpuProgramHandle programHandle, std::vector<UniformHandle> &outHandles, std::vector<std::string> &outNames) override;
+    void setUniformValue(UniformHandle uniformHandle, const void *data) override;
 
     void setViewport(int x, int y, int width, int height) override;
 

@@ -21,7 +21,7 @@
 
 namespace df3d {
 
-static_assert(sizeof(int) >= sizeof(df3d::Entity::IdType), "Can't store user data in bullet user pointer");
+static_assert(sizeof(int) >= sizeof(decltype(df3d::Entity::id)), "Can't store user data in bullet user pointer");
 
 ATTRIBUTE_ALIGNED16(class) PhysicsComponentMotionState : public btMotionState
 {
