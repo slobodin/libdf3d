@@ -29,7 +29,7 @@ class DF3D_DLL HandleBag
 {
     uint32_t m_maxSize;
 
-    T m_next = 0;
+    T m_next;
 
     std::list<T> m_removed;
     std::list<T> m_available;
@@ -43,16 +43,18 @@ class DF3D_DLL HandleBag
             return res;
         }
 
-        m_next.id++;
+        T res = m_next;
 
-        return m_next;
+        ++m_next.id;
+
+        return res;
     }
 
 public:
     HandleBag(uint32_t maxSize = std::numeric_limits<decltype(T::id)>().max() - 1)
         : m_maxSize(maxSize)
     {
-
+        m_next.id = 0;
     }
 
     ~HandleBag()
@@ -87,7 +89,7 @@ class DF3D_DLL StaticHandleBag
     T m_removed[SIZE];
     T m_available[SIZE];
 
-    T m_next = 0;
+    T m_next;
     int m_removedSize = 0;
     int m_availableSize = 0;
 
@@ -96,13 +98,19 @@ class DF3D_DLL StaticHandleBag
         if (m_availableSize > 0)
             return m_available[--m_availableSize];
 
-        m_next.id++;
+        T res = m_next;
 
-        return m_next;
+        ++m_next.id;
+
+        return res;
     }
 
 public:
-    StaticHandleBag() = default;
+    StaticHandleBag()
+    {
+        m_next.id = 0;
+    }
+
     ~StaticHandleBag() = default;
 
     T getNew()
