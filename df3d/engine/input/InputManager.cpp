@@ -48,17 +48,17 @@ const glm::ivec2& InputManager::getMouseDelta() const
 
 bool InputManager::getMouseButton(MouseButton button) const
 {
-    return m_mouseState.buttons.at((size_t)button) == MouseState::PRESSED;
+    return m_mouseState.buttons[(size_t)button] == MouseState::PRESSED;
 }
 
 bool InputManager::getMouseButtonPressed(MouseButton button) const
 {
-    return (m_prevMouseState.buttons.at((size_t)button) == MouseState::RELEASED) && getMouseButton(button);
+    return (m_prevMouseState.buttons[(size_t)button] == MouseState::RELEASED) && getMouseButton(button);
 }
 
 bool InputManager::getMouseButtonReleased(MouseButton button) const
 {
-    return (m_prevMouseState.buttons.at((size_t)button) == MouseState::PRESSED) && !getMouseButton(button);
+    return (m_prevMouseState.buttons[(size_t)button] == MouseState::PRESSED) && !getMouseButton(button);
 }
 
 float InputManager::getMouseWheelDelta() const
@@ -68,17 +68,17 @@ float InputManager::getMouseWheelDelta() const
 
 bool InputManager::getKey(KeyCode key) const
 {
-    return m_keyboardState.keyboard.at((size_t)key) == KeyboardState::PRESSED;
+    return m_keyboardState.keyboard[(size_t)key] == KeyboardState::PRESSED;
 }
 
 bool InputManager::getKeyPressed(KeyCode key) const
 {
-    return (m_prevKeyboardState.keyboard.at((size_t)key) == KeyboardState::RELEASED) && getKey(key);
+    return (m_prevKeyboardState.keyboard[(size_t)key] == KeyboardState::RELEASED) && getKey(key);
 }
 
 bool InputManager::getKeyReleased(KeyCode key) const
 {
-    return (m_prevKeyboardState.keyboard.at((size_t)key) == KeyboardState::PRESSED) && !getKey(key);
+    return (m_prevKeyboardState.keyboard[(size_t)key] == KeyboardState::PRESSED) && !getKey(key);
 }
 
 KeyModifier InputManager::getKeyModifiers() const
@@ -93,7 +93,7 @@ void InputManager::onMouseButtonPressed(MouseButton button, int x, int y)
     if (auto root = df3d::svc().guiManager().getRoot())
         root->InvokePointerDown(x, y, 1, tb::TB_MODIFIER_NONE, ShouldEmulateTouchEvent());
 
-    m_mouseState.buttons.at((size_t)button) = MouseState::PRESSED;
+    m_mouseState.buttons[(size_t)button] = MouseState::PRESSED;
 }
 
 void InputManager::onMouseButtonReleased(MouseButton button, int x, int y)
@@ -103,7 +103,7 @@ void InputManager::onMouseButtonReleased(MouseButton button, int x, int y)
     if (auto root = df3d::svc().guiManager().getRoot())
         root->InvokePointerUp(x, y, tb::TB_MODIFIER_NONE, ShouldEmulateTouchEvent());
 
-    m_mouseState.buttons.at((size_t)button) = MouseState::RELEASED;
+    m_mouseState.buttons[(size_t)button] = MouseState::RELEASED;
 }
 
 void InputManager::setMousePosition(int x, int y)
@@ -130,7 +130,7 @@ void InputManager::onKeyUp(const KeyCode &keyCode, KeyModifier modifiers)
     if (auto root = df3d::svc().guiManager().getRoot())
         root->InvokeKey(0, GetTBSpecialKey(keyCode), tb::TB_MODIFIER_NONE, false);
 
-    m_keyboardState.keyboard.at((size_t)keyCode) = KeyboardState::RELEASED;
+    m_keyboardState.keyboard[(size_t)keyCode] = KeyboardState::RELEASED;
 }
 
 void InputManager::onKeyDown(const KeyCode &keyCode, KeyModifier modifiers)
@@ -138,7 +138,7 @@ void InputManager::onKeyDown(const KeyCode &keyCode, KeyModifier modifiers)
     if (auto root = df3d::svc().guiManager().getRoot())
         root->InvokeKey(0, GetTBSpecialKey(keyCode), tb::TB_MODIFIER_NONE, true);
 
-    m_keyboardState.keyboard.at((size_t)keyCode) = KeyboardState::PRESSED;
+    m_keyboardState.keyboard[(size_t)keyCode] = KeyboardState::PRESSED;
 }
 
 void InputManager::onTextInput(unsigned int codepoint)

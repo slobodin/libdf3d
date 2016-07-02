@@ -29,7 +29,13 @@ class DF3D_DLL InputManager : NonCopyable
             RELEASED,
         };
 
-        std::vector<ButtonState> buttons = std::vector<ButtonState>((size_t)MouseButton::UNDEFINED, ButtonState::RELEASED);
+        ButtonState buttons[static_cast<size_t>(MouseButton::UNDEFINED)];
+
+        MouseState()
+        {
+            for (auto &button : buttons)
+                button = ButtonState::RELEASED;
+        }
     };
 
     MouseState m_prevMouseState;
@@ -43,8 +49,14 @@ class DF3D_DLL InputManager : NonCopyable
             RELEASED
         };
 
-        std::vector<KeyState> keyboard = std::vector<KeyState>((size_t)KeyCode::UNDEFINED, KeyState::RELEASED);
+        KeyState keyboard[static_cast<size_t>(KeyCode::UNDEFINED)];
         KeyModifier modifiers = KM_NONE;
+
+        KeyboardState()
+        {
+            for (auto &k : keyboard)
+                k = KeyState::RELEASED;
+        }
     };
 
     KeyboardState m_prevKeyboardState;
