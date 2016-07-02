@@ -49,7 +49,7 @@ class DF3D_DLL HandleBag
     }
 
 public:
-    HandleBag(uint32_t maxSize)
+    HandleBag(uint32_t maxSize = std::numeric_limits<decltype(T::id)>().max() - 1)
         : m_maxSize(maxSize)
     {
 

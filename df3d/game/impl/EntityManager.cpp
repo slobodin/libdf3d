@@ -3,7 +3,6 @@
 namespace df3d { namespace game_impl {
 
 EntityManager::EntityManager()
-    : m_bag(0xFFFFFFFFu - 1)
 {
 
 }

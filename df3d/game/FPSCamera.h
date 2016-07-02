@@ -14,7 +14,7 @@ class DF3D_DLL FPSCamera : public Camera
     void move(const glm::vec3 &vec);
     void onUpdate();
 
-    TimeManager::Handle m_updateHandle;
+    TimeManagerHandle m_updateHandle;
 
 public:
     FPSCamera(float velocity, bool freeMove, float damping, const glm::vec3 &position, float fov, float nearZ, float farZ);

@@ -2,6 +2,7 @@
 
 #include <df3d/lib/containers/ConcurrentQueue.h>
 #include <df3d/lib/Utils.h>
+#include <df3d/lib/Handles.h>
 
 namespace df3d {
 
@@ -46,29 +47,23 @@ public:
     float getElapsedTime() { return m_timeElapsed; }
 };
 
+DF3D_MAKE_HANDLE(TimeManagerHandle)
+
 class DF3D_DLL TimeManager : NonCopyable
 {
 public:
     using UpdateFn = std::function<void()>;
-    struct Handle
-    {
-        int64_t id = -1;
-
-        bool valid() const { return id != -1; }
-        bool operator== (const Handle &other) const { return id == other.id; }
-        void invalidate() { id = -1; }
-    };
 
 private:
     struct TimeSubscriber
     {
-        Handle handle;
+        TimeManagerHandle handle;
         UpdateFn callback;
     };
 
     struct Action
     {
-        Handle handle;
+        TimeManagerHandle handle;
         UpdateFn callback;
         float timeDelay;
     };
@@ -77,16 +72,17 @@ private:
     ConcurrentQueue<UpdateFn> m_pendingListeners;
     ConcurrentQueue<UpdateFn> m_newListeners;
     std::list<Action> m_actions;
-    Handle m_nextHandle;
 
-    TimeSubscriber* findSubscriber(Handle handle);
+    HandleBag<TimeManagerHandle> m_handleBag;
+
+    TimeSubscriber* findSubscriber(TimeManagerHandle handle);
 
 public:
     TimeManager();
     ~TimeManager();
 
-    Handle subscribeUpdate(UpdateFn &&callback);
-    void unsubscribeUpdate(Handle handle);
+    TimeManagerHandle subscribeUpdate(UpdateFn &&callback);
+    void unsubscribeUpdate(TimeManagerHandle handle);
 
     void enqueueForNextUpdate(UpdateFn &&callback);
     void clearNextUpdateQueue();
