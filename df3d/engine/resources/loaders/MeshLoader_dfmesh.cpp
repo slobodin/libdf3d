@@ -1,10 +1,11 @@
 #include "MeshLoader_dfmesh.h"
 
 #include <df3d/engine/io/DataSource.h>
+#include <df3d/engine/EngineController.h>
 
 namespace df3d { namespace resource_loaders {
 
-unique_ptr<SubMesh> MeshLoader_dfmesh::createSubmesh(std::vector<float> &&vertexData, IndexArray &&indexData)
+unique_ptr<SubMesh> MeshLoader_dfmesh::createSubmesh(PodArray<float> &&vertexData, IndexArray &&indexData)
 {
     auto vertexFormat = vertex_formats::p3_n3_tx2_tan3_bitan3;
 
@@ -58,7 +59,9 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<DataSource
         DFMeshSubmeshHeader smHeader;
         DataSourceGetObjects(source.get(), &smHeader, 1);
 
-        std::vector<float> vertexData(smHeader.vertexDataSizeInBytes / sizeof(float));
+        PodArray<float> vertexData(MemoryManager::allocDefault());
+        vertexData.resize(smHeader.vertexDataSizeInBytes / sizeof(float));
+
         DataSourceGetObjects(source.get(), vertexData.data(), vertexData.size());
 
         IndexArray indices(smHeader.indexDataSizeInBytes / header.indexSize);

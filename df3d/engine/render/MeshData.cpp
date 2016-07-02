@@ -88,11 +88,13 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
 }
 
 MeshData::MeshData()
+    : m_convexHull(MemoryManager::allocDefault())
 {
 
 }
 
 MeshData::MeshData(const std::vector<SubMesh> &geometry)
+    : MeshData()
 {
     doInitMesh(geometry);
 }
