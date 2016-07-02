@@ -148,6 +148,12 @@ public:
         reallocate(m_size);
     }
 
+    void assign(const T *input, size_t count)
+    {
+        resize(count);
+        memcpy(m_data, input, count * sizeof(T));
+    }
+
     T* data() { return m_data; }
     const T* data() const { return m_data; }
 

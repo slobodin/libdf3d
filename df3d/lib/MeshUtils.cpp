@@ -2,6 +2,7 @@
 
 #include <df3d/lib/math/MathUtils.h>
 #include <df3d/engine/render/MeshData.h>
+#include <df3d/engine/EngineController.h>
 
 namespace df3d {
 
@@ -53,7 +54,8 @@ void MeshUtils::computeNormals(SubMesh &submesh)
         return;
 
     auto &vertexData = submesh.getVertexData();
-    std::vector<int> polysTouchVertex(vertexData.getVerticesCount());
+    PodArray<int> polysTouchVertex(MemoryManager::allocDefault());
+    polysTouchVertex.resize(vertexData.getVerticesCount());
 
     // Clear normals for all vertices.
     for (size_t i = 0; i < vertexData.getVerticesCount(); i++)

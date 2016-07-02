@@ -163,7 +163,9 @@ struct PhysicsComponentProcessor::Impl
             }
 
             const auto &vertices = convexHull->getVertices();
-            std::vector<btVector3> tempPoints(vertices.size());
+            PodArray<btVector3> tempPoints(MemoryManager::allocDefault());
+            tempPoints.resize(vertices.size());
+
             for (size_t i = 0; i < vertices.size(); i++)
                 tempPoints[i] = glmTobt(vertices[i]);
 
