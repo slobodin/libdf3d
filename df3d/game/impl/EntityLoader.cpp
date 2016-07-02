@@ -44,7 +44,7 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
     if (root.empty())
     {
         DFLOG_WARN("Failed to init an entity from Json node");
-        return Entity();
+        return {};
     }
 
     const auto &componentsJson = root["components"];
@@ -69,7 +69,7 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
         {
             DFLOG_WARN("Failed to init a component. Empty \"data\" field");
             w.destroy(res);
-            return Entity();
+            return {};
         }
 
         auto componentType = componentJson["type"].asString();
