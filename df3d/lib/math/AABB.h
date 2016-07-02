@@ -27,8 +27,7 @@ public:
     bool intersects(const BoundingSphere &sphere) const;
 
     glm::vec3 getCenter() const;
-    // Must be size of 8.
-    void getCorners(std::vector<glm::vec3> &output) const;
+    void getCorners(glm::vec4 output[8]) const;
 };
 
 }

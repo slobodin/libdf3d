@@ -84,22 +84,16 @@ glm::vec3 AABB::getCenter() const
     return (m_min + m_max) / 2.f;
 }
 
-void AABB::getCorners(std::vector<glm::vec3> &output) const
+void AABB::getCorners(glm::vec4 output[8]) const
 {
-    if (output.size() != 8)
-    {
-        DFLOG_WARN("Can not get corners of an AABB. Invalid input.");
-        return;
-    }
-
-    output[0] = glm::vec3(m_min.x, m_max.y, m_max.z);
-    output[1] = glm::vec3(m_min.x, m_min.y, m_max.z);
-    output[2] = glm::vec3(m_max.x, m_min.y, m_max.z);
-    output[3] = glm::vec3(m_max.x, m_max.y, m_max.z);
-    output[4] = glm::vec3(m_max.x, m_max.y, m_min.z);
-    output[5] = glm::vec3(m_max.x, m_min.y, m_min.z);
-    output[6] = glm::vec3(m_min.x, m_min.y, m_min.z);
-    output[7] = glm::vec3(m_min.x, m_max.y, m_min.z);
+    output[0] = glm::vec4(m_min.x, m_max.y, m_max.z, 1.0f);
+    output[1] = glm::vec4(m_min.x, m_min.y, m_max.z, 1.0f);
+    output[2] = glm::vec4(m_max.x, m_min.y, m_max.z, 1.0f);
+    output[3] = glm::vec4(m_max.x, m_max.y, m_max.z, 1.0f);
+    output[4] = glm::vec4(m_max.x, m_max.y, m_min.z, 1.0f);
+    output[5] = glm::vec4(m_max.x, m_min.y, m_min.z, 1.0f);
+    output[6] = glm::vec4(m_min.x, m_min.y, m_min.z, 1.0f);
+    output[7] = glm::vec4(m_min.x, m_max.y, m_min.z, 1.0f);
 }
 
 }
