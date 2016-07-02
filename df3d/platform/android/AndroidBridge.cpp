@@ -49,7 +49,7 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 
     DFLOG_MESS("JNI_OnLoad success");
 
-
+memmgr::init()
 
     if (!g_appState->appDelegate1)
     {

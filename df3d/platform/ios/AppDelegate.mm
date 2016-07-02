@@ -34,6 +34,7 @@ IOSAppState& GetIOSAppState()
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    memmgr::init()
     g_appState.engine.reset(new df3d::EngineController());
 
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
