@@ -31,7 +31,7 @@
     contentScaleFactor = [UIScreen mainScreen].scale;
     primaryTouchId = df3d::Touch::INVALID_ID;
 
-    df3dSetApplicationDelegate();
+    df3dSetApplicationDelegate1();
 
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 

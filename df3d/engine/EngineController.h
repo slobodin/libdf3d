@@ -19,6 +19,9 @@ class World;
 
 class DF3D_DLL EngineController : NonCopyable
 {
+    friend bool EngineInit(EngineInitParams params);
+    friend void EngineShutdown();
+
     unique_ptr<RenderManager> m_renderManager;
     unique_ptr<ResourceManager> m_resourceManager;
     unique_ptr<IFileSystem> m_fileSystem;
@@ -31,19 +34,18 @@ class DF3D_DLL EngineController : NonCopyable
 
     unique_ptr<DebugConsole> m_debugConsole;
 
-    unique_ptr<World> m_worlds[1];  // TODO: don't hold worlds in the engine.
+    unique_ptr<World> m_world;  // TODO: don't hold worlds in the engine.
 
     bool m_initialized = false;
     bool m_suspended = false;
 
-public:
-    EngineController();
-    ~EngineController();
-
-    // FIXME: using these instead ctor and dtor because of svc() access all over the engine code.
-    // These stuff should be called only by platform code. TODO: encapsulation improve.
     void initialize(EngineInitParams params);
     void shutdown();
+
+public:
+    EngineController() = default;
+    ~EngineController() = default;
+
     void step();
 
     void suspend();
@@ -66,11 +68,11 @@ public:
     ScriptManager& scripts() { return *m_scriptManager; }
     DebugConsole* debugConsole() { return m_debugConsole.get(); }
 
-    World& defaultWorld() { return *m_worlds[0]; }
-    World& world(size_t i) { return *m_worlds[i]; }
-    void replaceWorld(size_t i);
-    void replaceWorld(size_t i, const std::string &resourceFile);
-    void deleteWorld(size_t i);
+    World& defaultWorld() { return world(); }
+    World& world() { return *m_world; }
+    void replaceWorld();
+    void replaceWorld(const std::string &resourceFile);
+    void deleteWorld();
 };
 
 DF3D_DLL EngineController& svc();

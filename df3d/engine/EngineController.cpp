@@ -21,93 +21,72 @@
 
 namespace df3d {
 
-EngineController::EngineController()
-{
-
-}
-
-EngineController::~EngineController()
-{
-
-}
-
 void EngineController::initialize(EngineInitParams params)
 {
     DF3D_ASSERT_MESS(!m_initialized, "engine controller already initialized");
 
     DFLOG_MESS("Initializing df3d engine, width %d, height %d", params.windowWidth, params.windowHeight);
 
-    try
-    {
-        srand((unsigned int)time(0));
-
-        // Create timer.
-        m_timer = make_unique<Timer>();
-
 #ifdef DF3D_WINDOWS
-        platform_impl::CrashHandler::setup();
+    platform_impl::CrashHandler::setup();
 #endif
 
-        // Init filesystem.
-        m_fileSystem = make_unique<DefaultFileSystem>();
+    srand((unsigned int)time(0));
 
-        // Init resource manager.
-        m_resourceManager = make_unique<ResourceManager>();
-        m_resourceManager->initialize();
+    // Create timer.
+    m_timer = make_unique<Timer>();
 
-        // Init render system.
-        m_renderManager = make_unique<RenderManager>(params);
-        m_renderManager->initialize();
+    // Init filesystem.
+    m_fileSystem = make_unique<DefaultFileSystem>();
 
-        // Init GUI.
-        m_guiManager = make_unique<GuiManager>();
-        m_guiManager->initialize(params.windowWidth, params.windowHeight);
+    // Init resource manager.
+    m_resourceManager = make_unique<ResourceManager>();
+    m_resourceManager->initialize();
 
-        // Init audio subsystem.
-        m_audioManager = make_unique<AudioManager>();
-        m_audioManager->initialize();
+    // Init render system.
+    m_renderManager = make_unique<RenderManager>(params);
+    m_renderManager->initialize();
 
-        // Create console.
-        if (params.createConsole)
-            m_debugConsole = make_unique<DebugConsole>();
+    // Init GUI.
+    m_guiManager = make_unique<GuiManager>();
+    m_guiManager->initialize(params.windowWidth, params.windowHeight);
 
-        // Create input subsystem.
-        m_inputManager = make_unique<InputManager>();
+    // Init audio subsystem.
+    m_audioManager = make_unique<AudioManager>();
+    m_audioManager->initialize();
 
-        // Create a blank default world.
-        replaceWorld(0);
+    // Create console.
+    if (params.createConsole)
+        m_debugConsole = make_unique<DebugConsole>();
 
-        // Startup squirrel.
-        m_scriptManager = make_unique<ScriptManager>();
-        m_scriptManager->initialize();
+    // Create input subsystem.
+    m_inputManager = make_unique<InputManager>();
 
-        // Allow to a client to listen system time.
-        m_systemTimeManager = make_unique<TimeManager>();
+    // Create a blank default world.
+    replaceWorld();
 
-        m_initialized = true;
-        DFLOG_MESS("Engine initialized");
+    // Startup squirrel.
+    m_scriptManager = make_unique<ScriptManager>();
+    m_scriptManager->initialize();
 
-        // FIXME: may have big delta. Client code is initialized next.
-        m_timer->update();
-    }
-    catch (std::exception &e)
-    {
-        DFLOG_CRITICAL("Engine initialization failed due to %s", e.what());
-        throw;
-    }
+    // Allow to a client to listen system time.
+    m_systemTimeManager = make_unique<TimeManager>();
+
+    m_initialized = true;
+    DFLOG_MESS("Engine initialized");
+
+    // FIXME: may have big delta. Client code is initialized next.
+    m_timer->update();
 }
 
 void EngineController::shutdown()
 {
     DF3D_ASSERT_MESS(m_initialized, "failed to shutdown the engine, it's not initialized");
 
-    for (auto &w : m_worlds)
+    if (m_world)
     {
-        if (w)
-        {
-            w->destroyWorld();
-            w.reset();
-        }
+        m_world->destroyWorld();
+        m_world.reset();
     }
 
     m_debugConsole.reset();
@@ -127,6 +106,8 @@ void EngineController::shutdown()
     m_audioManager.reset();
     m_inputManager.reset();
     m_timer.reset();
+
+    m_initialized = false;  // Is it safe to init it again?...
 }
 
 void EngineController::step()
@@ -142,10 +123,10 @@ void EngineController::step()
 
     // Update client code.
     m_systemTimeManager->update(m_timer->getFrameDelta(TIME_CHANNEL_SYSTEM));
-    m_worlds[0]->update();
+    m_world->update();
 
     // Run frame.
-    m_renderManager->drawWorld(*m_worlds[0]);
+    m_renderManager->drawWorld(*m_world);
 
     // Clean step for engine subsystems.
     m_inputManager->cleanStep();
@@ -186,26 +167,52 @@ glm::vec2 EngineController::getScreenSize() const
     return glm::vec2(vp.width(), vp.height());
 }
 
-void EngineController::replaceWorld(size_t i)
+void EngineController::replaceWorld()
 {
-    deleteWorld(i);
+    deleteWorld();
 
-    m_worlds[i] = unique_ptr<World>(new World());
+    m_world = unique_ptr<World>(new World());
 }
 
-void EngineController::replaceWorld(size_t i, const std::string &resourceFile)
+void EngineController::replaceWorld(const std::string &resourceFile)
 {
-    replaceWorld(i);
-    game_impl::WorldLoader::initWorld(resourceFile, *m_worlds[i]);
+    replaceWorld();
+    game_impl::WorldLoader::initWorld(resourceFile, *m_world);
 }
 
-void EngineController::deleteWorld(size_t i)
+void EngineController::deleteWorld()
 {
-    if (m_worlds[i])
+    if (m_world)
     {
-        m_worlds[i]->destroyWorld();
-        m_worlds[i].reset();
+        m_world->destroyWorld();
+        m_world.reset();
     }
+}
+
+static EngineController g_engine;
+
+bool EngineInit(EngineInitParams params)
+{
+    try
+    {
+        g_engine.initialize(params);
+        return true;
+    }
+    catch (std::exception &e)
+    {
+        DFLOG_CRITICAL("Engine initialization failed due to %s", e.what());
+        return false;
+    }
+}
+
+void EngineShutdown()
+{
+    g_engine.shutdown();
+}
+
+EngineController& svc()
+{
+    return g_engine;
 }
 
 }

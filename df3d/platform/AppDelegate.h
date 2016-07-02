@@ -29,11 +29,9 @@ public:
 class DF3D_DLL Application final
 {
 public:
-    static void setupDelegate(unique_ptr<AppDelegate> appDelegate);
     static void setTitle(const std::string &title);
 };
 
 }
 
-// Client code must call Application::setupDelegate here.
-extern "C" void df3dSetApplicationDelegate();
+df3d::AppDelegate* df3d_GetAppDelegate();

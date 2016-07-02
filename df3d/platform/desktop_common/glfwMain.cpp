@@ -2,13 +2,9 @@
 #include <df3d/df3d.h>
 #include "glfwApplication.h"
 
-extern "C" void df3dSetApplicationDelegate();
-
 int main(int agrc, char **argv) try
 {
     DFLOG_MESS("main started");
-
-    df3dSetApplicationDelegate();
 
     df3d::platform_impl::glfwAppRun();
 

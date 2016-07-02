@@ -23,8 +23,6 @@ void Application::setTitle(const std::string &title)
 
 }
 
-EngineController& svc() { return *g_appState.engine; }
-
 }
 
 IOSAppState& GetIOSAppState()

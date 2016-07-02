@@ -16,7 +16,6 @@
 struct IOSAppState
 {
     unique_ptr<df3d::AppDelegate> appDelegate;
-    unique_ptr<df3d::EngineController> engine;
 };
 
 IOSAppState& GetIOSAppState();

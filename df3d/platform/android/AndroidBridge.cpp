@@ -13,7 +13,6 @@ struct AndroidAppState
     JavaVM *javaVm = nullptr;
 
     unique_ptr<df3d::AppDelegate> appDelegate;
-    unique_ptr<df3d::EngineController> engine;
 
     df3d::TouchID primaryTouchId = df3d::Touch::INVALID_ID;
 };
@@ -31,8 +30,6 @@ void Application::setTitle(const std::string &title)
 {
 
 }
-
-EngineController& svc() { return *g_appState->engine; }
 
 }
 
@@ -52,11 +49,10 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 
     DFLOG_MESS("JNI_OnLoad success");
 
-    df3dSetApplicationDelegate();
 
-    if (!g_appState->appDelegate)
+
+    if (!g_appState->appDelegate1)
     {
-        DFLOG_CRITICAL("Game code must set up application delegate in df3dSetApplicationDelegate");
         return -1;
     }
 

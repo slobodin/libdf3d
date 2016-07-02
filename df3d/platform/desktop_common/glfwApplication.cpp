@@ -6,7 +6,12 @@
 #include <df3d/engine/input/InputManager.h>
 #include <GLFW/glfw3.h>
 
-namespace df3d { namespace platform_impl {
+namespace df3d { 
+
+extern bool EngineInit(EngineInitParams params);
+extern void EngineShutdown();
+
+namespace platform_impl {
 
 static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
@@ -17,28 +22,20 @@ static void windowFocusCallback(GLFWwindow *window, int focus);
 
 #define DF3D_EMULATE_TOUCHES
 
-class glfwApplication
+class DesktopAppState
 {
     GLFWwindow *m_window = nullptr;
-    unique_ptr<AppDelegate> m_appDelegate;
-    unique_ptr<EngineController> m_engine;
+    AppDelegate *m_appDelegate;
 
 public:
-    glfwApplication(unique_ptr<AppDelegate> appDelegate)
-        : m_appDelegate(std::move(appDelegate))
-    {
+    DesktopAppState() = default;
+    ~DesktopAppState() = default;
 
-    }
-
-    ~glfwApplication()
+    bool init(AppDelegate *appDelegate)
     {
-        if (m_window)
-            glfwDestroyWindow(m_window);
-        glfwTerminate();
-    }
+        DF3D_ASSERT(appDelegate != nullptr);
+        m_appDelegate = appDelegate;
 
-    void init()
-    {
         // Create window and OpenGL context.
         if (!glfwInit())
             throw std::runtime_error("Failed to init glfw");
@@ -53,8 +50,8 @@ public:
         m_window = glfwCreateWindow(params.windowWidth, params.windowHeight, "libdf3d_window", monitor, nullptr);
         if (!m_window)
         {
-            throw std::runtime_error("Failed to create glfw window");
-            glfwTerminate();
+            DFLOG_CRITICAL("Failed to init glfw window");
+            return false;
         }
 
         // Center the window.
@@ -76,10 +73,31 @@ public:
         glfwSetCursorPosCallback(m_window, cursorPosCallback);
         glfwSetWindowFocusCallback(m_window, windowFocusCallback);
 
-        m_engine.reset(new EngineController());
-        m_engine->initialize(params);
+        // Init the engine.
+        if (!EngineInit(params))
+        {
+            DFLOG_CRITICAL("Failed to init df3d");
+            return false;
+        }
+        // Init game code.
         if (!m_appDelegate->onAppStarted())
-            throw std::runtime_error("Game code initialization failed.");
+        {
+            DFLOG_CRITICAL("Game code initialization failed");
+            return false;
+        }
+
+        return true;
+    }
+
+    void shutdown()
+    {
+        m_appDelegate->onAppEnded();
+
+        EngineShutdown();
+
+        if (m_window)
+            glfwDestroyWindow(m_window);
+        glfwTerminate();
     }
 
     void run()
@@ -90,14 +108,10 @@ public:
         {
             glfwPollEvents();
 
-            m_engine->step();
+            svc().step();
 
             glfwSwapBuffers(m_window);
         }
-
-        m_appDelegate->onAppEnded();
-        m_engine->shutdown();
-        m_engine.reset();
     }
 
     void setTitle(const std::string &title)
@@ -196,79 +210,67 @@ public:
             m_appDelegate->onAppDidEnterBackground();
         }
     }
-
-    EngineController& getEngine() { return *m_engine; }
 };
 
 static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {
-    auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
+    auto app = reinterpret_cast<DesktopAppState*>(glfwGetWindowUserPointer(window));
 
     app->onMouseButton(button, action, mods);
 }
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
+    auto app = reinterpret_cast<DesktopAppState*>(glfwGetWindowUserPointer(window));
 
     app->onKey(key, scancode, action, mods);
 }
 
 static void textInputCallback(GLFWwindow *window, unsigned int codepoint)
 {
-    auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
+    auto app = reinterpret_cast<DesktopAppState*>(glfwGetWindowUserPointer(window));
 
     app->onTextInput(codepoint);
 }
 
 static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
 {
-    auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
+    auto app = reinterpret_cast<DesktopAppState*>(glfwGetWindowUserPointer(window));
 
     app->onScroll(xoffset, yoffset);
 }
 
 static void cursorPosCallback(GLFWwindow *window, double x, double y)
 {
-    auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
+    auto app = reinterpret_cast<DesktopAppState*>(glfwGetWindowUserPointer(window));
 
     app->onCursorMove(x, y);
 }
 
 static void windowFocusCallback(GLFWwindow *window, int focus)
 {
-    auto app = reinterpret_cast<glfwApplication*>(glfwGetWindowUserPointer(window));
+    auto app = reinterpret_cast<DesktopAppState*>(glfwGetWindowUserPointer(window));
 
     app->onFocus(focus);
 }
 
-glfwApplication *g_application = nullptr;
+static DesktopAppState g_application;
 
 void glfwAppRun()
 {
-    DF3D_ASSERT_MESS(g_application, "app must be initialized first!");
+    if (g_application.init(df3d_GetAppDelegate()))
+        g_application.run();
 
-    g_application->run();
-
-    delete g_application;
+    g_application.shutdown();
 }
 
 } }
 
 namespace df3d {
 
-void Application::setupDelegate(unique_ptr<AppDelegate> appDelegate)
-{
-    platform_impl::g_application = new platform_impl::glfwApplication(std::move(appDelegate));
-    platform_impl::g_application->init();
-}
-
 void Application::setTitle(const std::string &title)
 {
-    DF3D_ASSERT_MESS(platform_impl::g_application != nullptr, "failed to set title");
-    platform_impl::g_application->setTitle(title);
+    platform_impl::g_application.setTitle(title);
 }
-
-EngineController& svc() { return platform_impl::g_application->getEngine(); }
 
 }

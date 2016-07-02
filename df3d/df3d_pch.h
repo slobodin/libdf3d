@@ -40,3 +40,7 @@
 #include "libdf3d_dll.h"
 
 #include <df3d/Common.h>
+
+#include <df3d/lib/memory/Allocator.h>
+#include <df3d/lib/memory/MallocAllocator.h>
+#include <df3d/lib/containers/PodArray.h>
