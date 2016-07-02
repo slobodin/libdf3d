@@ -215,4 +215,17 @@ EngineController& svc()
     return g_engine;
 }
 
+Allocator *MemoryManager::m_defaultAllocator = nullptr;
+
+void MemoryManager::init()
+{
+    m_defaultAllocator = new MallocAllocator();
+}
+
+void MemoryManager::shutdown()
+{
+    delete m_defaultAllocator;
+    m_defaultAllocator = nullptr;
+}
+
 }

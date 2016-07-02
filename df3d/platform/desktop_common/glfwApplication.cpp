@@ -258,10 +258,14 @@ static DesktopAppState g_application;
 
 void glfwAppRun()
 {
+    MemoryManager::init();
+
     if (g_application.init(df3d_GetAppDelegate()))
         g_application.run();
 
     g_application.shutdown();
+
+    MemoryManager::shutdown();
 }
 
 } }

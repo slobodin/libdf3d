@@ -16,6 +16,7 @@ class TimeManager;
 class DebugConsole;
 class Viewport;
 class World;
+class Allocator;
 
 class DF3D_DLL EngineController : NonCopyable
 {
@@ -76,5 +77,17 @@ public:
 };
 
 DF3D_DLL EngineController& svc();
+
+// TODO: move from here.
+class DF3D_DLL MemoryManager
+{
+    static Allocator *m_defaultAllocator;
+
+public:
+    static void init();
+    static void shutdown();
+
+    static Allocator* allocDefault() { return m_defaultAllocator; }
+};
 
 }
