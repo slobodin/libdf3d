@@ -11,7 +11,7 @@ class IRenderBackend;
 class DF3D_DLL RenderPassParam
 {
     std::string m_name;
-    UniformDescriptor m_descr;
+    UniformHandle m_handle;
 
 #ifdef _DEBUG
     bool m_bindingFailed = false;

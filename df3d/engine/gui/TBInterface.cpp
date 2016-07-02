@@ -135,7 +135,7 @@ class TBRendererImpl : public tb::TBRenderer
 
         void SetData(tb::uint32 *data) override
         {
-            svc().renderManager().getBackend().updateTexture(m_texture->getDescriptor(), m_w, m_h, data);
+            svc().renderManager().getBackend().updateTexture(m_texture->getHandle(), m_w, m_h, data);
         }
 
     public:
@@ -259,7 +259,7 @@ class TBRendererImpl : public tb::TBRenderer
         m_guipass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
     }
 
-    df3d::IndexBufferDescriptor m_indexBuffer;
+    df3d::IndexBufferHandle m_indexBuffer;
 
 public:
     TBRendererImpl()
@@ -491,7 +491,7 @@ public:
         return bitmap;
     }
 
-    void RenderBatch(Batch *batch, VertexBufferDescriptor vb)
+    void RenderBatch(Batch *batch, VertexBufferHandle vb)
     {
         shared_ptr<Texture> texture = nullptr;
         if (batch->bitmap)

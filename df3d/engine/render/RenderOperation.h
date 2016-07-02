@@ -13,8 +13,8 @@ public:
     RopType type = RopType::TRIANGLES;
     glm::mat4 worldTransform;
 
-    VertexBufferDescriptor vertexBuffer;
-    IndexBufferDescriptor indexBuffer;
+    VertexBufferHandle vertexBuffer;
+    IndexBufferHandle indexBuffer;
     RenderPass *passProps = nullptr;
     size_t numberOfElements = 0;
 

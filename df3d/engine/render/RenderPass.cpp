@@ -53,10 +53,10 @@ void RenderPassParam::updateToProgram(IRenderBackend &backend, GpuProgram &progr
         return;
 #endif
 
-    if (!m_descr.valid())
+    if (!m_handle.valid())
     {
-        auto descr = program.getCustomUniform(m_name);
-        if (!descr.valid())
+        auto handle = program.getCustomUniform(m_name);
+        if (!handle.valid())
         {
 #ifdef _DEBUG
             DFLOG_WARN("Failed to lookup uniform %s in a shader", m_name.c_str());
@@ -65,11 +65,11 @@ void RenderPassParam::updateToProgram(IRenderBackend &backend, GpuProgram &progr
 #endif
         }
 
-        m_descr = descr;
+        m_handle = handle;
     }
 
-    if (m_descr.valid())
-        backend.setUniformValue(m_descr, &m_value);
+    if (m_handle.valid())
+        backend.setUniformValue(m_handle, &m_value);
 }
 
 RenderPass::RenderPass(const std::string &name)

@@ -169,7 +169,7 @@ void RenderManager::bindPass(RenderPass *pass)
         return;
     }
 
-    m_renderBackend->bindGpuProgram(gpuProgram->getDescriptor());
+    m_renderBackend->bindGpuProgram(gpuProgram->getHandle());
 
     // Update pass uniforms.
     {
@@ -185,9 +185,9 @@ void RenderManager::bindPass(RenderPass *pass)
             {
                 auto texture = passParam.getTexture();
                 if (texture && texture->isInitialized())
-                    m_renderBackend->bindTexture(texture->getDescriptor(), textureUnit);
+                    m_renderBackend->bindTexture(texture->getHandle(), textureUnit);
                 else
-                    m_renderBackend->bindTexture(m_whiteTexture->getDescriptor(), textureUnit);
+                    m_renderBackend->bindTexture(m_whiteTexture->getHandle(), textureUnit);
 
                 passParam.setValue(textureUnit);
 

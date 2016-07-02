@@ -230,7 +230,7 @@ void GpuProgramSharedState::updateSharedUniforms(const GpuProgram &program)
         }
 
         if (data)
-            svc().renderManager().getBackend().setUniformValue(sharedUni.descr, data);
+            svc().renderManager().getBackend().setUniformValue(sharedUni.handle, data);
     }
 }
 
@@ -268,7 +268,7 @@ void GpuProgramSharedState::updateSharedLightUniforms(const GpuProgram &program)
         }
 
         if (data)
-            svc().renderManager().getBackend().setUniformValue(sharedUni.descr, data);
+            svc().renderManager().getBackend().setUniformValue(sharedUni.handle, data);
     }
 }
 

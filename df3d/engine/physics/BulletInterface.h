@@ -17,7 +17,7 @@ class BulletDebugDraw : public btIDebugDraw
 {
     unique_ptr<RenderPass> m_pass;
 
-    VertexBufferDescriptor m_vertexBuffer;
+    VertexBufferHandle m_vertexBuffer;
     VertexData m_vertexData;
     int m_currentVertex = 0;
 

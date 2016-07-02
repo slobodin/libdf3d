@@ -1,5 +1,7 @@
 #pragma once
 
+#include <df3d/lib/Handles.h>
+
 namespace df3d {
 
 // FIXME:
@@ -75,18 +77,12 @@ enum class FaceCullMode : int
     BACK
 };
 
-#define DF3D_MAKE_DESCRIPTOR(name) struct name { \
-    int16_t id; \
-    name(int16_t id = -1) : id(id) { } \
-    bool valid() const { return id != -1; } \
-    bool operator<(const name &other) const { return id < other.id; } };
-
-DF3D_MAKE_DESCRIPTOR(VertexBufferDescriptor)
-DF3D_MAKE_DESCRIPTOR(IndexBufferDescriptor)
-DF3D_MAKE_DESCRIPTOR(TextureDescriptor)
-DF3D_MAKE_DESCRIPTOR(ShaderDescriptor)
-DF3D_MAKE_DESCRIPTOR(GpuProgramDescriptor)
-DF3D_MAKE_DESCRIPTOR(UniformDescriptor)
+DF3D_MAKE_SHORT_HANDLE(VertexBufferHandle)
+DF3D_MAKE_SHORT_HANDLE(IndexBufferHandle)
+DF3D_MAKE_SHORT_HANDLE(TextureHandle)
+DF3D_MAKE_SHORT_HANDLE(ShaderHandle)
+DF3D_MAKE_SHORT_HANDLE(GpuProgramHandle)
+DF3D_MAKE_SHORT_HANDLE(UniformHandle)
 
 namespace render_constants {
 

@@ -17,7 +17,7 @@
 
 namespace df3d {
 
-static VertexBufferDescriptor createQuad(const VertexFormat &vf, float x, float y, float w, float h, GpuBufferUsageType usage)
+static VertexBufferHandle createQuad(const VertexFormat &vf, float x, float y, float w, float h, GpuBufferUsageType usage)
 {
     float w2 = w / 2.0f;
     float h2 = h / 2.0f;
@@ -73,7 +73,7 @@ struct Sprite2DComponentProcessor::Impl
     };
 
     ComponentDataHolder<Data> data;
-    VertexBufferDescriptor vertexBuffer;
+    VertexBufferHandle vertexBuffer;
 
     Impl()
     {

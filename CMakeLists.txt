@@ -185,7 +185,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/Utils.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/assert/Assert.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/containers/ConcurrentQueue.h
-    ${PROJECT_SOURCE_DIR}/df3d/lib/containers/DescriptorsBag.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/containers/PodArray.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/AABB.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/BoundingSphere.h

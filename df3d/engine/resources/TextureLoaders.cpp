@@ -206,14 +206,14 @@ Texture2DManualLoader::Texture2DManualLoader(unique_ptr<PixelBuffer> pixelBuffer
 
 Texture* Texture2DManualLoader::load()
 {
-    auto descr = svc().renderManager().getBackend().createTexture2D(
+    auto handle = svc().renderManager().getBackend().createTexture2D(
         m_pixelBuffer->getWidth(),
         m_pixelBuffer->getHeight(),
         m_pixelBuffer->getFormat(),
         m_pixelBuffer->getData(),
         m_params);
 
-    if (!descr.valid())
+    if (!handle.valid())
         return nullptr;
 
     TextureInfo info;
@@ -222,7 +222,7 @@ Texture* Texture2DManualLoader::load()
     info.sizeInBytes = m_pixelBuffer->getSizeInBytes();
     info.isCubemap = false;
 
-    return new Texture(descr, info);
+    return new Texture(handle, info);
 }
 
 Texture2DFSLoader::Texture2DFSLoader(const std::string &path, const TextureCreationParams &params, ResourceLoadingMode lm)
@@ -248,15 +248,15 @@ void Texture2DFSLoader::onDecoded(Resource *resource)
 {
     auto texture = static_cast<Texture*>(resource);
 
-    auto descr = svc().renderManager().getBackend().createTexture2D(
+    auto handle = svc().renderManager().getBackend().createTexture2D(
         m_pixelBuffer->getWidth(), 
         m_pixelBuffer->getHeight(),
         m_pixelBuffer->getFormat(),
         m_pixelBuffer->getData(),
         m_params);
-    if (descr.valid())
+    if (handle.valid())
     {
-        texture->setDescriptor(descr);
+        texture->setHandle(handle);
 
         TextureInfo info;
         info.width = m_pixelBuffer->getWidth();
@@ -330,10 +330,10 @@ void TextureCubeFSLoader::onDecoded(Resource *resource)
     }
 
     auto texture = static_cast<Texture*>(resource);
-    auto descr = svc().renderManager().getBackend().createTextureCube(m_pixelBuffers, m_params);
-    if (descr.valid())
+    auto handle = svc().renderManager().getBackend().createTextureCube(m_pixelBuffers, m_params);
+    if (handle.valid())
     {
-        texture->setDescriptor(descr);
+        texture->setHandle(handle);
 
         TextureInfo info;
         // FIXME:

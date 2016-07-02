@@ -79,8 +79,8 @@ void TextureCreationParams::setWrapMode(TextureWrapMode wrapMode)
     m_wrapMode = wrapMode;
 }
 
-Texture::Texture(TextureDescriptor descr, const TextureInfo &info)
-    : m_descr(descr),
+Texture::Texture(TextureHandle handle, const TextureInfo &info)
+    : m_handle(handle),
     m_info(info)
 {
 
@@ -88,26 +88,26 @@ Texture::Texture(TextureDescriptor descr, const TextureInfo &info)
 
 Texture::~Texture()
 {
-    if (m_descr.valid())
-        svc().renderManager().getBackend().destroyTexture(m_descr);
+    if (m_handle.valid())
+        svc().renderManager().getBackend().destroyTexture(m_handle);
 }
 
-TextureDescriptor Texture::getDescriptor() const
+TextureHandle Texture::getHandle() const
 {
-    return m_descr;
+    return m_handle;
 }
 
-void Texture::setDescriptor(TextureDescriptor descr)
+void Texture::setHandle(TextureHandle handle)
 {
-    DF3D_ASSERT(descr.valid());
+    DF3D_ASSERT(handle.valid());
 
-    if (m_descr.valid())
+    if (m_handle.valid())
     {
-        DFLOG_WARN("Texture already has a descriptor");
+        DFLOG_WARN("Texture already has a handle");
         return;
     }
 
-    m_descr = descr;
+    m_handle = handle;
 }
 
 }

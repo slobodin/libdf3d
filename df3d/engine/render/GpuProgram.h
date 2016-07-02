@@ -41,19 +41,19 @@ enum class SharedUniformType
 struct SharedUniform
 {
     SharedUniformType type;
-    UniformDescriptor descr;
+    UniformHandle handle;
 };
 
 class GpuProgram : public Resource
 {
     friend class GpuProgramManualLoader;
 
-    GpuProgramDescriptor m_descriptor;
+    GpuProgramHandle m_handle;
     std::vector<SharedUniform> m_sharedUniforms;
 
-    std::unordered_map<std::string, UniformDescriptor> m_customUniforms;
+    std::unordered_map<std::string, UniformHandle> m_customUniforms;
 
-    GpuProgram(GpuProgramDescriptor descr);
+    GpuProgram(GpuProgramHandle handle);
 
 public:
     ~GpuProgram();
@@ -61,10 +61,10 @@ public:
     const std::vector<SharedUniform>& getSharedUniforms() const { return m_sharedUniforms; }
 
     // NOTE: this method is supposed to be used rarely
-    UniformDescriptor getCustomUniform(const std::string &name);
+    UniformHandle getCustomUniform(const std::string &name);
     std::vector<std::string> getCustomUniformNames() const;
 
-    GpuProgramDescriptor getDescriptor() const { return m_descriptor; }
+    GpuProgramHandle getHandle() const { return m_handle; }
 };
 
 class GpuProgramManualLoader : public ManualResourceLoader
@@ -75,8 +75,8 @@ class GpuProgramManualLoader : public ManualResourceLoader
 
     std::string m_vertexShaderPath, m_fragmentShaderPath;
 
-    ShaderDescriptor createShaderFromFile(const std::string &path) const;
-    ShaderDescriptor createShaderFromString(const std::string &data, ShaderType shaderType) const;
+    ShaderHandle createShaderFromFile(const std::string &path) const;
+    ShaderHandle createShaderFromString(const std::string &data, ShaderType shaderType) const;
 
 public:
     GpuProgramManualLoader(const std::string &guid, const std::string &vertexData, const std::string &fragmentData);

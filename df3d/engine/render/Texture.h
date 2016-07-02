@@ -55,16 +55,16 @@ struct TextureInfo
 
 class Texture : public Resource
 {
-    TextureDescriptor m_descr;
+    TextureHandle m_handle;
     TextureInfo m_info;
 
 public:
-    Texture(TextureDescriptor descr = {}, const TextureInfo &info = {});
+    Texture(TextureHandle handle = {}, const TextureInfo &info = {});
     ~Texture();
 
-    // Texture is owning this descriptor.
-    TextureDescriptor getDescriptor() const;
-    void setDescriptor(TextureDescriptor descr);
+    // Texture is owning this handle.
+    TextureHandle getHandle() const;
+    void setHandle(TextureHandle handle);
 
     void setTextureInfo(const TextureInfo &info) { m_info = info; }
     const TextureInfo& getTextureInfo() const { return m_info; }

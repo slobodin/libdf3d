@@ -169,15 +169,15 @@ static SharedUniformType GetSharedTypeForUniform(const std::string &name)
     return SharedUniformType::COUNT;
 }
 
-GpuProgram::GpuProgram(GpuProgramDescriptor descr)
-    : m_descriptor(descr)
+GpuProgram::GpuProgram(GpuProgramHandle handle)
+    : m_handle(handle)
 {
-    DF3D_ASSERT_MESS(m_descriptor.valid(), "invalid GPU program descriptor");
+    DF3D_ASSERT_MESS(m_handle.valid(), "invalid GPU program hanlde");
 
-    std::vector<UniformDescriptor> uniforms;
+    std::vector<UniformHandle> uniforms;
     std::vector<std::string> uniformNames;
 
-    svc().renderManager().getBackend().requestUniforms(m_descriptor, uniforms, uniformNames);
+    svc().renderManager().getBackend().requestUniforms(m_handle, uniforms, uniformNames);
 
     DF3D_ASSERT(uniforms.size() == uniformNames.size());
 
@@ -187,7 +187,7 @@ GpuProgram::GpuProgram(GpuProgramDescriptor descr)
         if (sharedType != SharedUniformType::COUNT)
         {
             SharedUniform suni;
-            suni.descr = uniforms[i];
+            suni.handle = uniforms[i];
             suni.type = sharedType;
 
             m_sharedUniforms.push_back(suni);
@@ -201,10 +201,10 @@ GpuProgram::GpuProgram(GpuProgramDescriptor descr)
 
 GpuProgram::~GpuProgram()
 {
-    svc().renderManager().getBackend().destroyGpuProgram(m_descriptor);
+    svc().renderManager().getBackend().destroyGpuProgram(m_handle);
 }
 
-UniformDescriptor GpuProgram::getCustomUniform(const std::string &name)
+UniformHandle GpuProgram::getCustomUniform(const std::string &name)
 {
     auto found = m_customUniforms.find(name);
     if (found != m_customUniforms.end())
@@ -220,7 +220,7 @@ std::vector<std::string> GpuProgram::getCustomUniformNames() const
     return result;
 }
 
-ShaderDescriptor GpuProgramManualLoader::createShaderFromFile(const std::string &path) const
+ShaderHandle GpuProgramManualLoader::createShaderFromFile(const std::string &path) const
 {
     auto file = svc().fileSystem().open(path);
     if (!file)
@@ -251,7 +251,7 @@ ShaderDescriptor GpuProgramManualLoader::createShaderFromFile(const std::string 
     return svc().renderManager().getBackend().createShader(shaderType, shaderStr);
 }
 
-ShaderDescriptor GpuProgramManualLoader::createShaderFromString(const std::string &data, ShaderType shaderType) const
+ShaderHandle GpuProgramManualLoader::createShaderFromString(const std::string &data, ShaderType shaderType) const
 {
     if (shaderType == ShaderType::UNDEFINED)
     {
@@ -280,7 +280,7 @@ GpuProgramManualLoader::GpuProgramManualLoader(const std::string &vertexShaderPa
 
 GpuProgram* GpuProgramManualLoader::load()
 {
-    ShaderDescriptor vertexShader, fragmentShader;
+    ShaderHandle vertexShader, fragmentShader;
 
     if (!m_vertexShaderPath.empty() && !m_fragmentShaderPath.empty())
     {
@@ -296,11 +296,11 @@ GpuProgram* GpuProgramManualLoader::load()
     if (!(vertexShader.valid() && fragmentShader.valid()))
         return nullptr;
 
-    auto gpuProgramDescriptor = svc().renderManager().getBackend().createGpuProgram(vertexShader, fragmentShader);
-    if (!gpuProgramDescriptor.valid())
+    auto gpuProgramHandle = svc().renderManager().getBackend().createGpuProgram(vertexShader, fragmentShader);
+    if (!gpuProgramHandle.valid())
         return nullptr;
 
-    auto program = new GpuProgram(gpuProgramDescriptor);
+    auto program = new GpuProgram(gpuProgramHandle);
     program->setGUID(m_resourceGuid);
 
     return program;
