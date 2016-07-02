@@ -15,14 +15,14 @@ private:
     std::vector<T> m_data;
 
     std::vector<ComponentInstance> m_lookup;
-    std::unordered_map<ComponentInstance::IdType, Entity> m_holders;
+    std::unordered_map<ComponentInstance, Entity> m_holders;
 
     DestructionCallback m_destructionCallback;
 
-    void grow(Entity::IdType id)
+    void grow(Entity e)
     {
         // TODO_ecs: may become big if too much entities. Use hashmap in that case.
-        m_lookup.resize((id + 1) * 2);
+        m_lookup.resize((e.id + 1) * 2);
         if (m_lookup.size() > 1000)
             DFLOG_DEBUG("ComponentDataHolder count: %d, size KB: %d", m_lookup.size(), utils::sizeKB(m_lookup.size() * sizeof(T)));
     }
@@ -42,7 +42,7 @@ public:
     {
         DF3D_ASSERT_MESS(e.valid(), "looking up invalid entity");
 
-        if (e.id >= (Entity::IdType)m_lookup.size())
+        if (e.id >= (decltype(e.id))m_lookup.size())
             return {};
 
         return m_lookup[e.id];
@@ -53,14 +53,14 @@ public:
         DF3D_ASSERT_MESS(e.valid(), "adding invalid entity");
         DF3D_ASSERT_MESS(!contains(e), "entity already present");
 
-        if (e.id >= (Entity::IdType)m_lookup.size())
-            grow(e.id);
+        if (e.id >= (decltype(e.id))m_lookup.size())
+            grow(e);
 
         ComponentInstance inst(m_data.size());
         m_data.push_back(componentData);
         m_lookup[e.id] = inst;
 
-        m_holders[inst.id] = e;
+        m_holders[inst] = e;
     }
 
     void remove(Entity e)
@@ -86,7 +86,7 @@ public:
             auto lastEnt = m_holders.find(m_data.size() - 1)->second;
             std::swap(m_data[compInstance.id], m_data.back());
             m_lookup[lastEnt.id] = compInstance;
-            m_holders.find(compInstance.id)->second = lastEnt;
+            m_holders.find(compInstance)->second = lastEnt;
 
             m_holders.erase(m_data.size() - 1);
             m_data.pop_back();
