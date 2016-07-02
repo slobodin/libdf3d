@@ -6,7 +6,8 @@
 
 namespace df3d {
 
-ConvexHull::ConvexHull()
+ConvexHull::ConvexHull(Allocator *allocator)
+    : m_vertices(allocator)
 {
 
 }
