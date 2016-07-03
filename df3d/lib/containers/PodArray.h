@@ -129,6 +129,13 @@ public:
         DF3D_ASSERT(m_size <= m_capacity);
     }
 
+    void resize(size_t count, const T &def)
+    {
+        resize(count);
+        for (auto &el : *this)
+            el = def;
+    }
+
     void reserve(size_t count)
     {
         if (count > m_capacity)
