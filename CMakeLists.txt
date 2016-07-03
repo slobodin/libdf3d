@@ -195,6 +195,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/OBB.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/memory/Allocator.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/memory/MallocAllocator.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/memory/PoolAllocator.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformFile.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformStorage.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils.h
@@ -278,6 +279,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/Utils.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/assert/Assert.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/memory/MallocAllocator.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/memory/PoolAllocator.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/AABB.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/BoundingSphere.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/BoundingVolume.cpp
