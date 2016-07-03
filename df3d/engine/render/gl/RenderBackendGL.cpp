@@ -261,6 +261,7 @@ void RenderBackendGL::initialize()
 
     m_drawState = {};
     m_indexedDrawCall = false;
+    m_currentIndexType = GL_INVALID_ENUM;
 
     std::fill(std::begin(m_vertexBuffers), std::end(m_vertexBuffers), VertexBufferGL());
     std::fill(std::begin(m_indexBuffers), std::end(m_indexBuffers), IndexBufferGL());
@@ -328,6 +329,7 @@ void RenderBackendGL::frameBegin()
     m_uniformsBag.cleanup();
 
     m_indexedDrawCall = false;
+    m_currentIndexType = GL_INVALID_ENUM;
     m_currentProgram.invalidate();
     m_currentVertexBuffer.invalidate();
     m_currentIndexBuffer.invalidate();
@@ -457,7 +459,7 @@ void RenderBackendGL::updateVertexBuffer(VertexBufferHandle vbHandle, size_t ver
     m_currentVertexBuffer.invalidate();
 }
 
-IndexBufferHandle RenderBackendGL::createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage)
+IndexBufferHandle RenderBackendGL::createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage, IndicesType indicesType)
 {
     DF3D_ASSERT(indicesCount > 0);
 
@@ -474,11 +476,13 @@ IndexBufferHandle RenderBackendGL::createIndexBuffer(size_t indicesCount, const 
     if (indexBuffer.gl_id == 0)
         return{};
 
-    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id));
-    GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(INDICES_TYPE), data, GetGLBufferUsageType(usage)));
-    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+    indexBuffer.indices16bit = (indicesType == INDICES_16_BIT);
 
-    indexBuffer.sizeInBytes = indicesCount * sizeof(INDICES_TYPE);
+    indexBuffer.sizeInBytes = indicesCount * (indexBuffer.indices16bit ? sizeof(uint16_t) : sizeof(uint32_t));
+
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id));
+    GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.sizeInBytes, data, GetGLBufferUsageType(usage)));
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
     m_indexBuffers[ibHandle.id] = indexBuffer;
     m_currentIndexBuffer.invalidate();
@@ -524,6 +528,7 @@ void RenderBackendGL::bindIndexBuffer(IndexBufferHandle ib)
     GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id));
 
     m_indexedDrawCall = true;
+    m_currentIndexType = indexBuffer.indices16bit ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
     m_currentIndexBuffer = ib;
 }
 
@@ -534,7 +539,7 @@ void RenderBackendGL::updateIndexBuffer(IndexBufferHandle ib, size_t indicesCoun
     const auto &indexBuffer = m_indexBuffers[ib.id];
     DF3D_ASSERT(indexBuffer.gl_id != 0);
 
-    auto bytesUpdating = indicesCount * sizeof(INDICES_TYPE);
+    auto bytesUpdating = indicesCount * (indexBuffer.indices16bit ? sizeof(uint16_t) : sizeof(uint32_t));
 
     DF3D_ASSERT(bytesUpdating <= indexBuffer.sizeInBytes);
     DF3D_ASSERT(indexBuffer.gl_id != 0);
@@ -1134,7 +1139,7 @@ void RenderBackendGL::setCullFaceMode(FaceCullMode mode)
 void RenderBackendGL::draw(RopType type, size_t numberOfElements)
 {
     if (m_indexedDrawCall)
-        GL_CHECK(glDrawElements(GetGLDrawMode(type), numberOfElements, GL_UNSIGNED_INT, nullptr));
+        GL_CHECK(glDrawElements(GetGLDrawMode(type), numberOfElements, m_currentIndexType, nullptr));
     else
         GL_CHECK(glDrawArrays(GetGLDrawMode(type), 0, numberOfElements));
 

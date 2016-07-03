@@ -44,7 +44,7 @@ df3d::resource_loaders::DFMeshSubmeshHeader CreateSubmeshChunk(const df3d::SubMe
         memcpy(submeshChunk.materialId, materialId.c_str(), materialId.size());
 
     submeshChunk.vertexDataSizeInBytes = sm.getVertexData().getSizeInBytes();
-    submeshChunk.indexDataSizeInBytes = sm.getIndices().size() * sizeof(df3d::INDICES_TYPE);
+    submeshChunk.indexDataSizeInBytes = 0;//sm.getIndices().size() * sizeof(df3d::INDICES_TYPE);
 
     submeshChunk.chunkSize = sizeof(DFMeshSubmeshHeader) + submeshChunk.vertexDataSizeInBytes + submeshChunk.indexDataSizeInBytes;
 
@@ -88,7 +88,7 @@ void ProcessMesh(const df3d::MeshDataFSLoader::Mesh &meshInput, const std::strin
     header.version = DFMESH_VERSION;
 
     header.vertexFormat = 0;                                    // TODO
-    header.indexSize = sizeof(df3d::INDICES_TYPE);
+    header.indexSize = 0;//sizeof(df3d::INDICES_TYPE);
     header.submeshesCount = (uint16_t)meshInput.submeshes.size();
     header.submeshesOffset = sizeof(header);
 
@@ -102,7 +102,7 @@ void ProcessMesh(const df3d::MeshDataFSLoader::Mesh &meshInput, const std::strin
     {
         Serialize(submeshHeaders[i], output);
         Serialize(meshInput.submeshes[i].getVertexData().getRawData(), submeshHeaders[i].vertexDataSizeInBytes, output);
-        Serialize(meshInput.submeshes[i].getIndices().data(), submeshHeaders[i].indexDataSizeInBytes, output);
+        //Serialize(meshInput.submeshes[i].getIndices().data(), submeshHeaders[i].indexDataSizeInBytes, output);
     }
 
     if (output.fail() || output.bad())

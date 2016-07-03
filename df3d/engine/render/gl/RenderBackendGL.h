@@ -126,6 +126,7 @@ class RenderBackendGL : public IRenderBackend
     {
         GLuint gl_id = 0;
         size_t sizeInBytes = 0;
+        bool indices16bit;
     };
 
     struct TextureGL
@@ -180,6 +181,7 @@ class RenderBackendGL : public IRenderBackend
     VertexBufferHandle m_currentVertexBuffer;
     IndexBufferHandle m_currentIndexBuffer;
     bool m_indexedDrawCall = false;
+    GLenum m_currentIndexType = GL_INVALID_ENUM;
 
     struct DrawState
     {
@@ -219,7 +221,7 @@ public:
     void bindVertexBuffer(VertexBufferHandle vbHandle) override;
     void updateVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) override;
 
-    IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage) override;
+    IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage, IndicesType indicesType) override;
     void destroyIndexBuffer(IndexBufferHandle ibHandle) override;
 
     void bindIndexBuffer(IndexBufferHandle ibHandle) override;

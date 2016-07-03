@@ -19,7 +19,6 @@ SubMesh::SubMesh(const VertexFormat &format)
 SubMesh::SubMesh(SubMesh &&other)
     : m_material(std::move(other.m_material)),
     m_vertexData(std::move(other.m_vertexData)),
-    m_indexData(std::move(other.m_indexData)),
     m_vbufferUsageType(other.m_vbufferUsageType),
     m_ibufferUsageType(other.m_ibufferUsageType),
     m_verticesCount(other.m_verticesCount)
@@ -66,22 +65,8 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
 
         op.vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(vertexData, s.getVertexBufferUsageHint());
 
-        if (s.hasIndices())
-        {
-            size_t indicesCount = s.getIndices().size();
-            const void *indexData = s.getIndices().data();
-            auto ibUsageHint = s.getIndexBufferUsageHint();
-
-            op.indexBuffer = svc().renderManager().getBackend().createIndexBuffer(indicesCount, indexData, ibUsageHint);
-            op.numberOfElements = indicesCount;
-
-            m_trianglesCount += s.getIndices().size() / 3;
-        }
-        else
-        {
-            op.numberOfElements = vertexData.getVerticesCount();
-            m_trianglesCount += s.getVertexData().getVerticesCount() / 3;
-        }
+        op.numberOfElements = vertexData.getVerticesCount();
+        m_trianglesCount += s.getVertexData().getVerticesCount() / 3;
 
         m_submeshes.push_back(op);
     }

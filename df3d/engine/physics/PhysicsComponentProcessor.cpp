@@ -191,25 +191,18 @@ struct PhysicsComponentProcessor::Impl
             {
                 auto &submesh = softwareMesh->submeshes[smIdx];
 
-                if (submesh.hasIndices())
+                for (size_t i = 0; i < submesh.getVertexData().getVerticesCount(); i += 3)
                 {
-                    DF3D_ASSERT_MESS(false, "not implemented");
-                }
-                else
-                {
-                    for (size_t i = 0; i < submesh.getVertexData().getVerticesCount(); i += 3)
-                    {
-                        auto v1 = submesh.getVertexData().getVertex(i + 0);
-                        auto v2 = submesh.getVertexData().getVertex(i + 1);
-                        auto v3 = submesh.getVertexData().getVertex(i + 2);
+                    auto v1 = submesh.getVertexData().getVertex(i + 0);
+                    auto v2 = submesh.getVertexData().getVertex(i + 1);
+                    auto v3 = submesh.getVertexData().getVertex(i + 2);
 
-                        glm::vec3 p1, p2, p3;
-                        v1.getPosition(&p1);
-                        v2.getPosition(&p2);
-                        v3.getPosition(&p3);
+                    glm::vec3 p1, p2, p3;
+                    v1.getPosition(&p1);
+                    v2.getPosition(&p2);
+                    v3.getPosition(&p3);
 
-                        bulletMesh->addTriangle(glmTobt(p1), glmTobt(p2), glmTobt(p3));
-                    }
+                    bulletMesh->addTriangle(glmTobt(p1), glmTobt(p2), glmTobt(p3));
                 }
             }
 

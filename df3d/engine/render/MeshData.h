@@ -21,7 +21,6 @@ class DF3D_DLL SubMesh : NonCopyable
 {
     shared_ptr<Material> m_material;
     VertexData m_vertexData;
-    IndexArray m_indexData;
     GpuBufferUsageType m_vbufferUsageType = GpuBufferUsageType::STATIC;
     GpuBufferUsageType m_ibufferUsageType = GpuBufferUsageType::STATIC;
 
@@ -45,12 +44,8 @@ public:
     GpuBufferUsageType getIndexBufferUsageHint() const { return m_ibufferUsageType; }
 
     // FIXME: Do not like these getters.
-    const IndexArray& getIndices() const { return m_indexData; }
-    IndexArray& getIndices() { return m_indexData; }
     const VertexData& getVertexData() const { return m_vertexData; }
     VertexData& getVertexData() { return m_vertexData; }
-
-    bool hasIndices() const { return !m_indexData.empty(); }
 };
 
 class DF3D_DLL MeshData : public Resource

@@ -35,7 +35,7 @@ public:
     virtual void bindVertexBuffer(VertexBufferHandle vbHandle) = 0;
     virtual void updateVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) = 0;
 
-    virtual IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage) = 0;
+    virtual IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage, IndicesType indicesType) = 0;
     virtual void destroyIndexBuffer(IndexBufferHandle ibHandle) = 0;
 
     virtual void bindIndexBuffer(IndexBufferHandle ibHandle) = 0;

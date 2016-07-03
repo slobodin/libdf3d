@@ -53,16 +53,21 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
     cleanup();
 
     nbParticles = std::max(nbParticles, INITIAL_CAPACITY);
+    size_t verticesCount = nbParticles * QUAD_VERTICES_PER_PARTICLE;
+
+    DF3D_ASSERT_MESS(verticesCount < 0xFFFF, "Using 16-bit indices for particle system");
 
     // Allocate main memory storage copy (no glMapBuffer on ES2.0)
-    m_vertexData = new SpkVertexData[nbParticles * QUAD_VERTICES_PER_PARTICLE];
+    m_vertexData = new SpkVertexData[verticesCount];
 
     positionAtStart();
 
     // Initialize the index array.
-    IndexArray indexData(nbParticles * QUAD_INDICES_PER_PARTICLE);
-    size_t currentIndex = 0;
-    for (size_t i = 0; i < nbParticles; ++i)
+    PodArray<uint16_t> indexData(MemoryManager::allocDefault());
+    indexData.resize(nbParticles * QUAD_INDICES_PER_PARTICLE);
+
+    uint16_t currentIndex = 0;
+    for (uint16_t i = 0; i < nbParticles; ++i)
     {
         indexData[currentIndex++] = QUAD_VERTICES_PER_PARTICLE * i + 0;
         indexData[currentIndex++] = QUAD_VERTICES_PER_PARTICLE * i + 1;
@@ -75,7 +80,8 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
     // Initialize GPU storage of index array.
     m_indexBuffer = svc().renderManager().getBackend().createIndexBuffer(nbParticles * QUAD_INDICES_PER_PARTICLE,
                                                                          indexData.data(),
-                                                                         GpuBufferUsageType::STATIC);
+                                                                         GpuBufferUsageType::STATIC,
+                                                                         INDICES_16_BIT);
 
     m_particlesAllocated = nbParticles;
 }

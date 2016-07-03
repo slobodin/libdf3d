@@ -4,14 +4,6 @@
 
 namespace df3d {
 
-// FIXME:
-// Make setting.
-#define INDICES_16_BIT uint16_t
-#define INDICES_32_BIT uint32_t
-
-using INDICES_TYPE = INDICES_32_BIT;
-using IndexArray = std::vector<INDICES_TYPE>;
-
 enum class TextureFiltering
 {
     NEAREST,
@@ -75,6 +67,12 @@ enum class FaceCullMode : int
     NONE,
     FRONT,
     BACK
+};
+
+enum IndicesType
+{
+    INDICES_16_BIT,
+    INDICES_32_BIT
 };
 
 DF3D_MAKE_SHORT_HANDLE(VertexBufferHandle)

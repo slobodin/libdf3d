@@ -15,7 +15,7 @@ private:
     std::vector<T> m_data;
 
     std::vector<ComponentInstance> m_lookup;
-    std::unordered_map<ComponentInstance, Entity> m_holders;
+    std::unordered_map<decltype(ComponentInstance::id), Entity> m_holders;
 
     DestructionCallback m_destructionCallback;
 
@@ -42,7 +42,7 @@ public:
     {
         DF3D_ASSERT_MESS(e.valid(), "looking up invalid entity");
 
-        if (e.id >= (decltype(e.id))m_lookup.size())
+        if (e.id >= static_cast<decltype(e.id)>(m_lookup.size()))
             return {};
 
         return m_lookup[e.id];
@@ -53,14 +53,15 @@ public:
         DF3D_ASSERT_MESS(e.valid(), "adding invalid entity");
         DF3D_ASSERT_MESS(!contains(e), "entity already present");
 
-        if (e.id >= (decltype(e.id))m_lookup.size())
+        if (e.id >= static_cast<decltype(Entity::id)>(m_lookup.size()))
             grow(e);
 
-        ComponentInstance inst(m_data.size());
+        ComponentInstance inst;
+        inst.id = static_cast<decltype(inst.id)>(m_data.size());
         m_data.push_back(componentData);
         m_lookup[e.id] = inst;
 
-        m_holders[inst] = e;
+        m_holders[inst.id] = e;
     }
 
     void remove(Entity e)
@@ -86,11 +87,11 @@ public:
             auto lastEnt = m_holders.find(m_data.size() - 1)->second;
             std::swap(m_data[compInstance.id], m_data.back());
             m_lookup[lastEnt.id] = compInstance;
-            m_holders.find(compInstance)->second = lastEnt;
+            m_holders.find(compInstance.id)->second = lastEnt;
 
             m_holders.erase(m_data.size() - 1);
             m_data.pop_back();
-            m_lookup[e.id] = {};
+            m_lookup[e.id].invalidate();
         }
     }
 

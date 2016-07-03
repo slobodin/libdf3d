@@ -148,7 +148,7 @@ class TBRendererImpl : public tb::TBRenderer
     class Batch
     {
     public:
-        static const size_t VERTEX_BATCH_SIZE = 1 * 2048;
+        static const uint16_t VERTEX_BATCH_SIZE = 1 * 2048;       // NOTE: using 16-bit indices.
 
         struct VertexTB
         {
@@ -218,7 +218,7 @@ class TBRendererImpl : public tb::TBRenderer
 
         VertexTB vertex[VERTEX_BATCH_SIZE];
 
-        int vertex_count = 0;
+        uint16_t vertex_count = 0;
         int quadsCount = 0;
 
         tb::TBBitmap *bitmap = nullptr;
@@ -268,9 +268,11 @@ public:
         createGuiPass();
 
         // Initialize the index array.
-        IndexArray indexData(Batch::VERTEX_BATCH_SIZE * 6);
-        size_t currentIndex = 0;
-        for (size_t i = 0; i < Batch::VERTEX_BATCH_SIZE; ++i)
+        PodArray<uint16_t> indexData(MemoryManager::allocDefault());
+        indexData.resize(Batch::VERTEX_BATCH_SIZE * 6);
+
+        uint16_t currentIndex = 0;
+        for (uint16_t i = 0; i < Batch::VERTEX_BATCH_SIZE; ++i)
         {
             // 4 vertices per quad
             indexData[currentIndex++] = 4 * i + 0;
@@ -280,7 +282,7 @@ public:
             indexData[currentIndex++] = 4 * i + 3;
             indexData[currentIndex++] = 4 * i + 2;
         }
-        m_indexBuffer = svc().renderManager().getBackend().createIndexBuffer(indexData.size(), indexData.data(), GpuBufferUsageType::STATIC);
+        m_indexBuffer = svc().renderManager().getBackend().createIndexBuffer(indexData.size(), indexData.data(), GpuBufferUsageType::STATIC, INDICES_16_BIT);
     }
 
     ~TBRendererImpl()

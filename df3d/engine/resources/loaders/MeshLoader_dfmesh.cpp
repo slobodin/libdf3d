@@ -5,7 +5,7 @@
 
 namespace df3d { namespace resource_loaders {
 
-unique_ptr<SubMesh> MeshLoader_dfmesh::createSubmesh(PodArray<float> &&vertexData, IndexArray &&indexData)
+unique_ptr<SubMesh> MeshLoader_dfmesh::createSubmesh(PodArray<float> &&vertexData)
 {
     auto vertexFormat = vertex_formats::p3_n3_tx2_tan3_bitan3;
 
@@ -14,7 +14,6 @@ unique_ptr<SubMesh> MeshLoader_dfmesh::createSubmesh(PodArray<float> &&vertexDat
     submesh->setIndexBufferUsageHint(GpuBufferUsageType::STATIC);
 
     submesh->getVertexData() = VertexData(vertexFormat, std::move(vertexData));
-    submesh->getIndices() = std::move(indexData);
 
     return submesh;
 }
@@ -41,12 +40,6 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<DataSource
         return nullptr;
     }
 
-    if (header.indexSize != sizeof(INDICES_TYPE))
-    {
-        DFLOG_WARN("Unsupported dfmesh indices");
-        return nullptr;
-    }
-
     // TODO: vertex format is hardcoded.
 
     auto result = make_unique<MeshDataFSLoader::Mesh>();
@@ -64,13 +57,9 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<DataSource
 
         DataSourceGetObjects(source.get(), vertexData.data(), vertexData.size());
 
-        IndexArray indices(smHeader.indexDataSizeInBytes / header.indexSize);
-        if (indices.size() != 0)
-            DataSourceGetObjects(source.get(), indices.data(), indices.size());
-
         std::string materialId = smHeader.materialId;
 
-        result->submeshes.push_back(std::move(*createSubmesh(std::move(vertexData), std::move(indices))));
+        result->submeshes.push_back(std::move(*createSubmesh(std::move(vertexData))));
         if (!materialId.empty())
             result->materialNames.push_back(make_unique<std::string>(materialId));
         else

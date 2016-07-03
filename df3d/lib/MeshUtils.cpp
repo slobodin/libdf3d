@@ -65,10 +65,10 @@ void MeshUtils::computeNormals(SubMesh &submesh)
     }
 
     // Indexed.
-    if (submesh.hasIndices())
+    if (/*submesh.hasIndices()*/false)
     {
         DF3D_ASSERT_MESS(false, "please check it works");
-
+        /*
         const auto &indices = submesh.getIndices();
         for (size_t ind = 0; ind < indices.size(); ind += 3)
         {
@@ -126,7 +126,7 @@ void MeshUtils::computeNormals(SubMesh &submesh)
 
                 v.setNormal(n);
             }
-        }
+        }*/
     }
     else
     {
@@ -145,7 +145,7 @@ void MeshUtils::computeTangentBasis(SubMesh &submesh)
         return;
 
     // Indexed.
-    if (submesh.hasIndices())
+    if (/*submesh.hasIndices()*/false)
     {
         //std::vector<glm::vec3> tempTangent(m_vertices.size());
         //std::vector<glm::vec3> tempBinormal(m_vertices.size());
