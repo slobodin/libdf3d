@@ -181,7 +181,7 @@ void AudioComponentProcessor::pause(Entity e)
 
 void AudioComponentProcessor::setSoundVolume(float volume)
 {
-    m_pimpl->soundVolume = df3d::utils::clamp(volume, 0.0f, 1.0f);
+    m_pimpl->soundVolume = utils::clamp(volume, 0.0f, 1.0f);
 
     /*
     for (const auto &data : m_pimpl->data.rawData())

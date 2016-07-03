@@ -30,7 +30,7 @@ struct StaticMeshComponentProcessor::Impl
         // TODO_ecs: mb move this to helpers.
         auto meshDataSphere = compData.meshData->getBoundingSphere();
         if (!meshDataSphere || !meshDataSphere->isValid())
-            return BoundingSphere();
+            return {};
 
         BoundingSphere sphere = *meshDataSphere;
 

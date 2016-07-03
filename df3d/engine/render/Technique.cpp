@@ -53,7 +53,7 @@ shared_ptr<RenderPass> Technique::getPass(int idx)
     {
         return m_passes.at(idx);
     }
-    catch (std::out_of_range &) {}
+    catch (std::out_of_range &) { }
 
     return nullptr;
 }

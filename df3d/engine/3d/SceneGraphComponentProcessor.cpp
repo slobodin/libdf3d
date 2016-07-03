@@ -80,7 +80,7 @@ void SceneGraphComponentProcessor::cleanStep(const std::list<Entity> &deleted)
         {
             auto &compData = m_pimpl->data.getData(it);
             for (auto child : compData.children)
-                m_pimpl->data.getData(child).parent = Entity();
+                m_pimpl->data.getData(child).parent.invalidate();
 
             if (compData.parent.valid())
                 detachChild(compData.parent, it);
@@ -225,7 +225,7 @@ const std::string& SceneGraphComponentProcessor::getName(Entity e) const
 Entity SceneGraphComponentProcessor::getByName(const std::string &name) const
 {
     if (name.empty())
-        return {};
+        return{};
 
     for (const auto &compData : m_pimpl->data.rawData())
     {
@@ -233,13 +233,13 @@ Entity SceneGraphComponentProcessor::getByName(const std::string &name) const
             return compData.holder;
     }
 
-    return {};
+    return{};
 }
 
 Entity SceneGraphComponentProcessor::getByName(Entity parent, const std::string &name) const
 {
     if (name.empty())
-        return {};
+        return{};
 
     DF3D_ASSERT(parent.valid());
 
@@ -249,7 +249,7 @@ Entity SceneGraphComponentProcessor::getByName(Entity parent, const std::string 
             return compData.holder;
     }
 
-    return {};
+    return{};
 }
 
 const glm::vec3& SceneGraphComponentProcessor::getWorldPosition(Entity e) const
@@ -358,7 +358,7 @@ void SceneGraphComponentProcessor::detachChild(Entity parent, Entity child)
     auto &parentData = m_pimpl->data.getData(parent);
     auto &childData = m_pimpl->data.getData(child);
 
-    childData.parent = {};
+    childData.parent.invalidate();
 
     auto found = std::find(parentData.children.begin(), parentData.children.end(), child);
     DF3D_ASSERT(found != parentData.children.end());
@@ -373,7 +373,7 @@ void SceneGraphComponentProcessor::detachAllChildren(Entity e)
 
     for (auto childEnt : compData.children)
     {
-        m_pimpl->data.getData(childEnt).parent = {};
+        m_pimpl->data.getData(childEnt).parent.invalidate();
         m_pimpl->updateWorldTransformation(m_pimpl->data.getData(childEnt));
     }
 

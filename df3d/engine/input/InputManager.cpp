@@ -90,7 +90,7 @@ void InputManager::onMouseButtonPressed(MouseButton button, int x, int y)
 {
     setMousePosition(x, y);
 
-    if (auto root = df3d::svc().guiManager().getRoot())
+    if (auto root = svc().guiManager().getRoot())
         root->InvokePointerDown(x, y, 1, tb::TB_MODIFIER_NONE, ShouldEmulateTouchEvent());
 
     m_mouseState.buttons[(size_t)button] = MouseState::PRESSED;
@@ -100,7 +100,7 @@ void InputManager::onMouseButtonReleased(MouseButton button, int x, int y)
 {
     setMousePosition(x, y);
 
-    if (auto root = df3d::svc().guiManager().getRoot())
+    if (auto root = svc().guiManager().getRoot())
         root->InvokePointerUp(x, y, tb::TB_MODIFIER_NONE, ShouldEmulateTouchEvent());
 
     m_mouseState.buttons[(size_t)button] = MouseState::RELEASED;
@@ -111,7 +111,7 @@ void InputManager::setMousePosition(int x, int y)
     m_mouseState.position = glm::ivec2(x, y);
     m_mouseState.delta = m_mouseState.position - m_prevMouseState.position;
 
-    if (auto root = df3d::svc().guiManager().getRoot())
+    if (auto root = svc().guiManager().getRoot())
     {
         if (!(ShouldEmulateTouchEvent() && !tb::TBWidget::captured_widget))
             root->InvokePointerMove(x, y, tb::TB_MODIFIER_NONE, ShouldEmulateTouchEvent());
@@ -120,14 +120,14 @@ void InputManager::setMousePosition(int x, int y)
 
 void InputManager::setMouseWheelDelta(float delta)
 {
-    if (auto root = df3d::svc().guiManager().getRoot())
+    if (auto root = svc().guiManager().getRoot())
         root->InvokeWheel(m_mouseState.position.x, m_mouseState.position.y, 0, delta, tb::TB_MODIFIER_NONE);
     m_mouseState.wheelDelta = delta;
 }
 
 void InputManager::onKeyUp(const KeyCode &keyCode, KeyModifier modifiers)
 {
-    if (auto root = df3d::svc().guiManager().getRoot())
+    if (auto root = svc().guiManager().getRoot())
         root->InvokeKey(0, GetTBSpecialKey(keyCode), tb::TB_MODIFIER_NONE, false);
 
     m_keyboardState.keyboard[(size_t)keyCode] = KeyboardState::RELEASED;
@@ -135,7 +135,7 @@ void InputManager::onKeyUp(const KeyCode &keyCode, KeyModifier modifiers)
 
 void InputManager::onKeyDown(const KeyCode &keyCode, KeyModifier modifiers)
 {
-    if (auto root = df3d::svc().guiManager().getRoot())
+    if (auto root = svc().guiManager().getRoot())
         root->InvokeKey(0, GetTBSpecialKey(keyCode), tb::TB_MODIFIER_NONE, true);
 
     m_keyboardState.keyboard[(size_t)keyCode] = KeyboardState::PRESSED;

@@ -52,7 +52,7 @@ static const char* GLErrorCodeToString(GLenum errcode)
 #if defined(_DEBUG) || defined(DEBUG)
 #define HANDLE_CHECK_RETURN_INVALID(handle) do { if (!handle.valid()) { DFLOG_WARN("Invalid handle"); return {}; } } while (0)
 #else
-#define HANDLE_CHECK_RETURN_INVALID(handle) do { if (!handle.valid()) return {}; } while (0)
+#define HANDLE_CHECK_RETURN_INVALID(handle) do { if (!handle.valid()) return{}; } while (0)
 #endif
 
 static bool IsPot(size_t v)
@@ -328,9 +328,9 @@ void RenderBackendGL::frameBegin()
     m_uniformsBag.cleanup();
 
     m_indexedDrawCall = false;
-    m_currentProgram = {};
-    m_currentVertexBuffer = {};
-    m_currentIndexBuffer = {};
+    m_currentProgram.invalidate();
+    m_currentVertexBuffer.invalidate();
+    m_currentIndexBuffer.invalidate();
 
     GL_CHECK(glUseProgram(0));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
@@ -344,7 +344,7 @@ void RenderBackendGL::frameEnd()
 
 }
 
-df3d::VertexBufferHandle RenderBackendGL::createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage)
+VertexBufferHandle RenderBackendGL::createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage)
 {
     DF3D_ASSERT(verticesCount > 0);
 
@@ -364,7 +364,7 @@ df3d::VertexBufferHandle RenderBackendGL::createVertexBuffer(const VertexFormat 
     if (vertexBuffer.gl_id == 0)
     {
         DFLOG_WARN("Failed to create a GL vertex buffer.");
-        return {};
+        return{};
     }
 
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id));
@@ -373,7 +373,7 @@ df3d::VertexBufferHandle RenderBackendGL::createVertexBuffer(const VertexFormat 
 
     m_vertexBuffers[vbHandle.id] = vertexBuffer;
 
-    m_currentVertexBuffer = {};
+    m_currentVertexBuffer.invalidate();
 
 #ifdef _DEBUG
     m_gpuMemStats.addVertexBuffer(vbHandle, vertexBuffer.sizeInBytes);
@@ -397,7 +397,7 @@ void RenderBackendGL::destroyVertexBuffer(VertexBufferHandle vbHandle)
 
     m_vertexBuffers[vbHandle.id] = {};
     m_vertexBuffersBag.release(vbHandle.id);
-    m_currentVertexBuffer = {};
+    m_currentVertexBuffer.invalidate();
 
 #ifdef _DEBUG
     m_gpuMemStats.removeVertexBuffer(vbHandle);
@@ -454,10 +454,10 @@ void RenderBackendGL::updateVertexBuffer(VertexBufferHandle vbHandle, size_t ver
     GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, 0, bytesUpdating, data));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-    m_currentVertexBuffer = {};
+    m_currentVertexBuffer.invalidate();
 }
 
-df3d::IndexBufferHandle RenderBackendGL::createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage)
+IndexBufferHandle RenderBackendGL::createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage)
 {
     DF3D_ASSERT(indicesCount > 0);
 
@@ -472,7 +472,7 @@ df3d::IndexBufferHandle RenderBackendGL::createIndexBuffer(size_t indicesCount, 
 
     GL_CHECK(glGenBuffers(1, &indexBuffer.gl_id));
     if (indexBuffer.gl_id == 0)
-        return {};
+        return{};
 
     GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id));
     GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(INDICES_TYPE), data, GetGLBufferUsageType(usage)));
@@ -481,7 +481,7 @@ df3d::IndexBufferHandle RenderBackendGL::createIndexBuffer(size_t indicesCount, 
     indexBuffer.sizeInBytes = indicesCount * sizeof(INDICES_TYPE);
 
     m_indexBuffers[ibHandle.id] = indexBuffer;
-    m_currentIndexBuffer = {};
+    m_currentIndexBuffer.invalidate();
 
 #ifdef _DEBUG
     m_gpuMemStats.addIndexBuffer(ibHandle, indexBuffer.sizeInBytes);
@@ -504,7 +504,7 @@ void RenderBackendGL::destroyIndexBuffer(IndexBufferHandle ibHandle)
 
     m_indexBuffers[ibHandle.id] = {};
     m_indexBuffersBag.release(ibHandle.id);
-    m_currentIndexBuffer = {};
+    m_currentIndexBuffer.invalidate();
 
 #ifdef _DEBUG
     m_gpuMemStats.removeIndexBuffer(ibHandle);
@@ -543,10 +543,10 @@ void RenderBackendGL::updateIndexBuffer(IndexBufferHandle ib, size_t indicesCoun
     GL_CHECK(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, bytesUpdating, data));
     GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-    m_currentIndexBuffer = {};
+    m_currentIndexBuffer.invalidate();
 }
 
-df3d::TextureHandle RenderBackendGL::createTexture2D(int width, int height, PixelFormat format, const uint8_t *data, const TextureCreationParams &params)
+TextureHandle RenderBackendGL::createTexture2D(int width, int height, PixelFormat format, const uint8_t *data, const TextureCreationParams &params)
 {
     TextureHandle textureHandle = m_texturesBag.getNew();
     if (!textureHandle.valid())
@@ -634,7 +634,7 @@ df3d::TextureHandle RenderBackendGL::createTexture2D(int width, int height, Pixe
     return textureHandle;
 }
 
-df3d::TextureHandle RenderBackendGL::createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params)
+TextureHandle RenderBackendGL::createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params)
 {
     TextureHandle textureHandle = m_texturesBag.getNew();
     if (!textureHandle.valid())
@@ -747,7 +747,7 @@ void RenderBackendGL::bindTexture(TextureHandle textureHandle, int unit)
     GL_CHECK(glBindTexture(texture.type, texture.gl_id));
 }
 
-df3d::ShaderHandle RenderBackendGL::createShader(ShaderType type, const std::string &data)
+ShaderHandle RenderBackendGL::createShader(ShaderType type, const std::string &data)
 {
     if (data.empty())
     {
@@ -800,7 +800,7 @@ df3d::ShaderHandle RenderBackendGL::createShader(ShaderType type, const std::str
 
         DEBUG_BREAK();
 
-        return {};
+        return{};
     }
 #endif
 
@@ -809,7 +809,7 @@ df3d::ShaderHandle RenderBackendGL::createShader(ShaderType type, const std::str
     return shaderHandle;
 }
 
-df3d::GpuProgramHandle RenderBackendGL::createGpuProgram(ShaderHandle vertexShaderHandle, ShaderHandle fragmentShaderHandle)
+GpuProgramHandle RenderBackendGL::createGpuProgram(ShaderHandle vertexShaderHandle, ShaderHandle fragmentShaderHandle)
 {
     HANDLE_CHECK_RETURN_INVALID(vertexShaderHandle);
     HANDLE_CHECK_RETURN_INVALID(fragmentShaderHandle);
@@ -940,7 +940,7 @@ void RenderBackendGL::requestUniforms(GpuProgramHandle programHandle, std::vecto
         outHandles.push_back(uniformHandle);
     }
 
-    m_programUniforms[programHandle.id] = {};
+    m_programUniforms[programHandle.id].clear();
     auto programUniformsMap = m_programUniforms.find(programHandle.id);
 
     for (int i = 0; i < total; i++)

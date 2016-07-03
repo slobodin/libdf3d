@@ -41,9 +41,9 @@ namespace std {
 template <>
 struct hash<df3d::GpuProgramHandle>
 {
-    std::size_t operator()(const df3d::GpuProgramHandle& e) const
+    std::size_t operator()(const df3d::GpuProgramHandle& h) const
     {
-        return std::hash<decltype(e.id)>()(e.id);
+        return std::hash<decltype(h.id)>()(h.id);
     }
 };
 

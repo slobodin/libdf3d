@@ -138,8 +138,8 @@ void EngineController::suspend()
     DF3D_ASSERT_MESS(m_initialized, "EngineController must be initialized");
     if (!m_suspended)
     {
-        df3d::svc().resourceManager().suspend();
-        df3d::svc().audioManager().suspend();
+        m_resourceManager->suspend();
+        m_audioManager->suspend();
 
         m_suspended = true;
     }
@@ -150,8 +150,8 @@ void EngineController::resume()
     DF3D_ASSERT_MESS(m_initialized, "EngineController must be initialized");
     if (m_suspended)
     {
-        df3d::svc().resourceManager().resume();
-        df3d::svc().audioManager().resume();
+        m_resourceManager->resume();
+        m_audioManager->resume();
         m_suspended = false;
     }
 }

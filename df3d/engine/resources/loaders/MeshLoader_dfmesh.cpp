@@ -41,7 +41,7 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<DataSource
         return nullptr;
     }
 
-    if (header.indexSize != sizeof(df3d::INDICES_TYPE))
+    if (header.indexSize != sizeof(INDICES_TYPE))
     {
         DFLOG_WARN("Unsupported dfmesh indices");
         return nullptr;

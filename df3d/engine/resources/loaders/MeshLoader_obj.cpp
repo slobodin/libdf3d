@@ -111,12 +111,12 @@ void MeshLoader_obj::processLine_f(std::istream &is)
         }
 
         auto v = m_currentSubmesh->getVertexData().allocVertex();
-        v.setPosition(m_vertices.at(vertexidx - 1));
+        v.setPosition(m_vertices[vertexidx - 1]);
 
         if (normalidx > 0)
-            v.setNormal(m_normals.at(normalidx - 1));
+            v.setNormal(m_normals[normalidx - 1]);
         if (uvidx > 0)
-            v.setTx(m_txCoords.at(uvidx - 1));
+            v.setTx(m_txCoords[uvidx - 1]);
 
         if (!is.good())
             break;
@@ -159,6 +159,9 @@ void MeshLoader_obj::processLine_s(std::istream &is)
 }
 
 MeshLoader_obj::MeshLoader_obj()
+    : m_vertices(MemoryManager::allocDefault()),
+    m_normals(MemoryManager::allocDefault()),
+    m_txCoords(MemoryManager::allocDefault())
 {
 
 }

@@ -8,7 +8,7 @@ class DF3D_DLL ScriptManager : NonCopyable
 {
     HSQUIRRELVM m_squirrel = nullptr;
 
-    std::set<df3d::ResourceGUID> m_executedFiles;
+    std::set<ResourceGUID> m_executedFiles;
 
 public:
     ScriptManager();

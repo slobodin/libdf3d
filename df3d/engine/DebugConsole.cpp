@@ -175,7 +175,7 @@ void DebugConsole::registerCommand(const ConsoleCommand &command)
         return;
     }
 
-    if (df3d::utils::contains_key(m_consoleCommands, command.name))
+    if (utils::contains_key(m_consoleCommands, command.name))
     {
         DFLOG_WARN("Console command with name %s already registered", command.name.c_str());
         return;

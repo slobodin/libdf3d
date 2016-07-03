@@ -4,11 +4,11 @@
 
 namespace df3d { namespace resource_loaders {
 
-class DF3D_DLL MeshLoader_obj : df3d::NonCopyable
+class DF3D_DLL MeshLoader_obj : NonCopyable
 {
-    std::vector<glm::vec3> m_vertices;
-    std::vector<glm::vec3> m_normals;
-    std::vector<glm::vec2> m_txCoords;
+    PodArray<glm::vec3> m_vertices;
+    PodArray<glm::vec3> m_normals;
+    PodArray<glm::vec2> m_txCoords;
 
     bool hasNormals() const;
     bool hasTxCoords() const;

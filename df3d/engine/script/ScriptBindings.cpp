@@ -47,12 +47,12 @@ inline Camera* getWorldCamera()
 
 inline glm::vec2 getScreenSize()
 {
-    return df3d::svc().getScreenSize();
+    return svc().getScreenSize();
 }
 
 inline bool executeFile(const char *filename)
 {
-    return df3d::svc().scripts().doFile(filename);
+    return svc().scripts().doFile(filename);
 }
 
 void bindGlm(Table &df3dNamespace)
@@ -60,7 +60,7 @@ void bindGlm(Table &df3dNamespace)
     using namespace glm;
     using value_t = vec3::value_type;
 
-    auto vm = df3d::svc().scripts().getVm();
+    auto vm = svc().scripts().getVm();
 
     {
         Class<vec2> glmvec2Class(vm, _SC("vec2"));
@@ -120,7 +120,7 @@ void bindGlm(Table &df3dNamespace)
     }
 
     df3dNamespace.Func(_SC("random_int_range"), random_int_range);
-    df3dNamespace.Func(_SC("gaussian"), df3d::MathUtils::gaussian);
+    df3dNamespace.Func(_SC("gaussian"), MathUtils::gaussian);
     df3dNamespace.Func(_SC("slerp"), slerp);
 }
 
@@ -141,7 +141,7 @@ void bindBase(Table &df3dNamespace)
 
 void bindProcessors(Table &df3dNamespace)
 {
-    auto vm = df3d::svc().scripts().getVm();
+    auto vm = svc().scripts().getVm();
 
     {
         Class<SceneGraphComponentProcessor, NoConstructor<SceneGraphComponentProcessor>> scGraphProcessor(vm, _SC("SceneGraphComponentProcessor"));
@@ -238,7 +238,7 @@ void bindProcessors(Table &df3dNamespace)
 
 void bindGame(Table &df3dNamespace)
 {
-    auto vm = df3d::svc().scripts().getVm();
+    auto vm = svc().scripts().getVm();
 
     {
         Class<Entity> entityClass(vm, _SC("Entity"));

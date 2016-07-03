@@ -2,14 +2,12 @@
 
 namespace df3d {
 
-#define INVALID_HANDLE (-1)
-
 #define DF3D_MAKE_SHORT_HANDLE(name) struct name { \
     int16_t id; \
     name(int16_t id = -1) : id(id) { } \
-    bool valid() const { return id != INVALID_HANDLE; } \
-    void invalidate() { id = INVALID_HANDLE; } \
-    int32_t getId() const { return id; } \
+    bool valid() const { return id != -1; } \
+    void invalidate() { id = -1; } \
+    int16_t getId() const { return id; } \
     bool operator== (const name &other) const { return other.id == id; } \
     bool operator!= (const name &other) const { return other.id != id; } \
     bool operator< (const name &other) const { return id < other.id; } };
@@ -17,8 +15,8 @@ namespace df3d {
 #define DF3D_MAKE_HANDLE(name) struct name { \
     int32_t id; \
     name(int32_t id = -1) : id(id) { } \
-    bool valid() const { return id != INVALID_HANDLE; } \
-    void invalidate() { id = INVALID_HANDLE; } \
+    bool valid() const { return id != -1; } \
+    void invalidate() { id = -1; } \
     int32_t getId() const { return id; } \
     bool operator== (const name &other) const { return other.id == id; } \
     bool operator!= (const name &other) const { return other.id != id; } \
@@ -27,7 +25,7 @@ namespace df3d {
 template<typename T>
 class DF3D_DLL HandleBag
 {
-    uint32_t m_maxSize;
+    int32_t m_maxSize;
 
     T m_next;
 
@@ -51,7 +49,7 @@ class DF3D_DLL HandleBag
     }
 
 public:
-    HandleBag(uint32_t maxSize = std::numeric_limits<decltype(T::id)>().max() - 1)
+    HandleBag(int32_t maxSize = std::numeric_limits<decltype(T::id)>().max() - 1)
         : m_maxSize(maxSize)
     {
         m_next.id = 0;
@@ -65,7 +63,7 @@ public:
     T getNew()
     {
         if (m_next.id >= m_maxSize)
-            return INVALID_HANDLE;
+            return T(-1);
 
         return getNextId();
     }
@@ -82,7 +80,6 @@ public:
     }
 };
 
-
 template<typename T, size_t SIZE>
 class DF3D_DLL StaticHandleBag
 {
@@ -90,8 +87,8 @@ class DF3D_DLL StaticHandleBag
     T m_available[SIZE];
 
     T m_next;
-    int m_removedSize = 0;
-    int m_availableSize = 0;
+    size_t m_removedSize = 0;
+    size_t m_availableSize = 0;
 
     T getNextId()
     {
@@ -116,7 +113,7 @@ public:
     T getNew()
     {
         if (m_next.id >= SIZE)
-            return INVALID_HANDLE;
+            return T(-1);
 
         return getNextId();
     }

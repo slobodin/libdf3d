@@ -28,7 +28,7 @@ void EntityManager::destroy(Entity e)
     DF3D_VERIFY(m_entities.erase(e) == 1);
     // NOTE: component data should be destroyed later via World::cleanStep
 
-    m_bag.release(e.id);
+    m_bag.release(e);
 }
 
 bool EntityManager::alive(Entity e) const

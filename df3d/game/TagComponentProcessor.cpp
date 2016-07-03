@@ -42,14 +42,14 @@ Entity TagComponentProcessor::getFirst(int tag)
 {
     const auto &wTag = getEntities(tag);
     if (wTag.empty())
-        return {};
+        return{};
     return *wTag.begin();
 }
 
 bool TagComponentProcessor::hasTag(Entity e, int tag) const
 {
     auto found = m_tagLookup.find(e);
-    return found != m_tagLookup.end() && df3d::utils::contains_key(found->second, tag);
+    return found != m_tagLookup.end() && utils::contains_key(found->second, tag);
 }
 
 void TagComponentProcessor::add(Entity e, int tag)

@@ -68,9 +68,9 @@ public:
     glm::vec3 worldToScreenPoint(const glm::vec3 &world) const;
     Ray createPickingRay(float x, float y);
 
-    static shared_ptr<df3d::Camera> createDefault(const glm::vec3 &pos = {})
+    static shared_ptr<Camera> createDefault(const glm::vec3 &pos = {})
     {
-        return make_shared<df3d::Camera>(pos, DEFAULT_FOV, DEFAULT_NEAR_Z, DEFAULT_FAR_Z);
+        return make_shared<Camera>(pos, DEFAULT_FOV, DEFAULT_NEAR_Z, DEFAULT_FAR_Z);
     }
 };
 

@@ -33,7 +33,7 @@ static std::string ShaderIfdefsParse(const std::string &shaderData)
 
         std::string defineToken = std::string(found, defineEnd);
 
-        if (!df3d::utils::contains_key(MaterialLib::SHADER_DEFINES, defineToken))
+        if (!utils::contains_key(MaterialLib::SHADER_DEFINES, defineToken))
         {
             auto beginErase = res.begin() + lastFoundIfdef;
             auto endErase = res.begin() + foundEndif + ENDIF_DIRECTIVE.size();

@@ -81,7 +81,7 @@ void BulletDebugDraw::clean()
     if (m_vertexBuffer.valid())
     {
         svc().renderManager().getBackend().destroyVertexBuffer(m_vertexBuffer);
-        m_vertexBuffer = {};
+        m_vertexBuffer.invalidate();
     }
     m_currentVertex = 0;
 }

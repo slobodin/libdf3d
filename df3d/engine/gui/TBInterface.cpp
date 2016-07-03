@@ -190,7 +190,7 @@ class TBRendererImpl : public tb::TBRenderer
                 assert(frag_bitmap == bitmap);
             }
 
-            auto vb = svc().renderManager().getBackend().createVertexBuffer(vertex_formats::p3_tx2_c4, vertex_count, vertex, df3d::GpuBufferUsageType::STREAM);
+            auto vb = svc().renderManager().getBackend().createVertexBuffer(vertex_formats::p3_tx2_c4, vertex_count, vertex, GpuBufferUsageType::STREAM);
 
             batch_renderer->RenderBatch(this, vb);
 
@@ -259,7 +259,7 @@ class TBRendererImpl : public tb::TBRenderer
         m_guipass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
     }
 
-    df3d::IndexBufferHandle m_indexBuffer;
+    IndexBufferHandle m_indexBuffer;
 
 public:
     TBRendererImpl()
@@ -280,12 +280,12 @@ public:
             indexData[currentIndex++] = 4 * i + 3;
             indexData[currentIndex++] = 4 * i + 2;
         }
-        m_indexBuffer = df3d::svc().renderManager().getBackend().createIndexBuffer(indexData.size(), indexData.data(), GpuBufferUsageType::STATIC);
+        m_indexBuffer = svc().renderManager().getBackend().createIndexBuffer(indexData.size(), indexData.data(), GpuBufferUsageType::STATIC);
     }
 
     ~TBRendererImpl()
     {
-        df3d::svc().renderManager().getBackend().destroyIndexBuffer(m_indexBuffer);
+        svc().renderManager().getBackend().destroyIndexBuffer(m_indexBuffer);
     }
 
     void BeginPaint(int render_target_w, int render_target_h) override
@@ -293,14 +293,14 @@ public:
         m_screen_rect.Set(0, 0, render_target_w, render_target_h);
         m_clip_rect = m_screen_rect;
 
-        df3d::svc().renderManager().getBackend().enableScissorTest(true);
-        df3d::svc().renderManager().getBackend().setScissorRegion(0, 0, render_target_w, render_target_h);
+        svc().renderManager().getBackend().enableScissorTest(true);
+        svc().renderManager().getBackend().setScissorRegion(0, 0, render_target_w, render_target_h);
     }
 
     virtual void EndPaint() override
     {
         FlushAllInternal();
-        df3d::svc().renderManager().getBackend().enableScissorTest(false);
+        svc().renderManager().getBackend().enableScissorTest(false);
     }
 
     void Translate(int dx, int dy) override
@@ -334,7 +334,7 @@ public:
 
         FlushAllInternal();
 
-        df3d::svc().renderManager().getBackend().setScissorRegion(m_clip_rect.x, m_screen_rect.h - (m_clip_rect.y + m_clip_rect.h), m_clip_rect.w, m_clip_rect.h);
+        svc().renderManager().getBackend().setScissorRegion(m_clip_rect.x, m_screen_rect.h - (m_clip_rect.y + m_clip_rect.h), m_clip_rect.w, m_clip_rect.h);
 
         old_clip_rect.x -= m_translation_x;
         old_clip_rect.y -= m_translation_y;
