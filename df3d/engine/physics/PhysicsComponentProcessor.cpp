@@ -191,6 +191,8 @@ struct PhysicsComponentProcessor::Impl
             {
                 auto &submesh = softwareMesh->submeshes[smIdx];
 
+                bulletMesh->preallocateVertices(submesh.getVertexData().getVerticesCount());
+
                 for (size_t i = 0; i < submesh.getVertexData().getVerticesCount(); i += 3)
                 {
                     auto v1 = submesh.getVertexData().getVertex(i + 0);
