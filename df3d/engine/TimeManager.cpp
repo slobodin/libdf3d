@@ -49,6 +49,7 @@ TimeManager::TimeSubscriber* TimeManager::findSubscriber(TimeManagerHandle handl
 }
 
 TimeManager::TimeManager()
+    : m_handleBag(0x0FFFF)
 {
 
 }
@@ -75,6 +76,7 @@ TimeManagerHandle TimeManager::subscribeUpdate(UpdateFn &&callback)
     TimeSubscriber subscr;
     subscr.callback = std::move(callback);
     subscr.handle = m_handleBag.getNew();
+    DF3D_ASSERT(subscr.handle.valid());
 
     m_timeListeners.push_back(std::move(subscr));
 
