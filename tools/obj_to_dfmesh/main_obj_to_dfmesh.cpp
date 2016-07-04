@@ -142,6 +142,7 @@ int main(int argc, const char **argv) try
     std::string outputFilename(inputFileName.begin(), inputFileName.begin() + dotPos);
 
     ProcessMesh(*meshInput, outputFilename + ".dfmesh");
+    meshInput.reset();
 
     std::cout << "Done!" << std::endl;
 
