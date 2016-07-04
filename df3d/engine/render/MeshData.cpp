@@ -178,7 +178,7 @@ const ConvexHull* MeshData::getConvexHull() const
     return &m_convexHull;
 }
 
-void MeshData::populateRenderQueue(RenderQueue *ops, const glm::mat4 &transformation)
+void MeshData::populateRenderQueue(RenderQueue *ops, const glm::mat4 &transformation, bool skybox)
 {
     DF3D_ASSERT(m_submeshes.size() == m_submeshMaterials.size());
 
@@ -197,6 +197,12 @@ void MeshData::populateRenderQueue(RenderQueue *ops, const glm::mat4 &transforma
 
             op.worldTransform = transformation;
             op.passProps = passProps.get();
+
+            if (skybox)
+            {
+                ops->skybox.push_back(op);
+                continue;
+            }
 
             if (passProps->isTransparent())
             {

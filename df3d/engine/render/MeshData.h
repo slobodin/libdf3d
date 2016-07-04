@@ -87,7 +87,7 @@ public:
     const OBB* getOBB() const;
     const ConvexHull* getConvexHull() const;
 
-    void populateRenderQueue(RenderQueue *ops, const glm::mat4 &transformation);
+    void populateRenderQueue(RenderQueue *ops, const glm::mat4 &transformation, bool skybox);
 };
 
 }

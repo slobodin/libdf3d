@@ -21,6 +21,7 @@ struct StaticMeshComponentProcessor::Impl
         shared_ptr<MeshData> meshData;
         bool visible = true;
         bool frustumCullingDisabled = false;
+        bool skybox = false;
     };
 
     ComponentDataHolder<Data> data;
@@ -69,7 +70,7 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
         if (!compData.visible)
             continue;
 
-        if (!compData.frustumCullingDisabled)
+        if (!compData.skybox && !compData.frustumCullingDisabled)
         {
             const auto &frustum = m_world->getCamera()->getFrustum();
             if (!frustum.sphereInFrustum(Impl::getBoundingSphere(compData)))
@@ -77,7 +78,7 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
         }
 
         // TODO_ecs: remove this method.
-        compData.meshData->populateRenderQueue(ops, compData.holderWorldTransform.combined);
+        compData.meshData->populateRenderQueue(ops, compData.holderWorldTransform.combined, compData.skybox);
     }
 }
 
@@ -156,6 +157,11 @@ void StaticMeshComponentProcessor::disableFrustumCulling(Entity e, bool disable)
 bool StaticMeshComponentProcessor::isVisible(Entity e)
 {
     return m_pimpl->data.getData(e).visible;
+}
+
+void StaticMeshComponentProcessor::setIsSkybox(Entity e)
+{
+    m_pimpl->data.getData(e).skybox = true;
 }
 
 void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath)
