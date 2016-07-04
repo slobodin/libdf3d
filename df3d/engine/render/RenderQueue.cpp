@@ -45,7 +45,6 @@ void RenderQueue::clear()
     debugDrawOperations.clear();
     sprite2DOperations.clear();
     lights.clear();
-    skybox.clear();
 }
 
 }

@@ -12,9 +12,6 @@ public:
     // FIXME:
     // Make not public.
 
-    // FIXME: xxx!!!
-    std::vector<RenderOperation> skybox;
-
     std::vector<RenderOperation> litOpaqueOperations;
     std::vector<RenderOperation> notLitOpaqueOperations;
     std::vector<RenderOperation> transparentOperations;

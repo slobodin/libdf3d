@@ -65,10 +65,6 @@ void RenderManager::doRenderWorld(World &world)
 
     m_renderQueue->sort();
 
-    // FIXME: xxx!
-    for (const auto &op : m_renderQueue->skybox)
-        drawRenderOperation(op);
-
     // Ambient pass + Early Z.
     m_blendModeOverriden = true;
     m_depthTestOverriden = true;

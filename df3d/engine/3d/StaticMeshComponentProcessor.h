@@ -39,7 +39,6 @@ public:
     void disableFrustumCulling(Entity e, bool disable);
 
     bool isVisible(Entity e);
-    void setIsSkybox(Entity e);
 
     void add(Entity e, const std::string &meshFilePath);
     void add(Entity e, const std::string &meshFilePath, ResourceLoadingMode lm);
