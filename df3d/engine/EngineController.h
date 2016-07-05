@@ -13,7 +13,6 @@ class InputManager;
 class ScriptManager;
 class Timer;
 class TimeManager;
-class DebugConsole;
 class Viewport;
 class World;
 class Allocator;
@@ -32,8 +31,6 @@ class DF3D_DLL EngineController : NonCopyable
     unique_ptr<ScriptManager> m_scriptManager;
     unique_ptr<TimeManager> m_systemTimeManager;
     unique_ptr<Timer> m_timer;
-
-    unique_ptr<DebugConsole> m_debugConsole;
 
     unique_ptr<World> m_world;  // TODO: don't hold worlds in the engine.
 
@@ -67,7 +64,6 @@ public:
     Timer& timer() { return *m_timer; }
     TimeManager& systemTimeManager() { return *m_systemTimeManager; }
     ScriptManager& scripts() { return *m_scriptManager; }
-    DebugConsole* debugConsole() { return m_debugConsole.get(); }
 
     World& defaultWorld() { return world(); }
     World& world() { return *m_world; }

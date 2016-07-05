@@ -12,7 +12,7 @@
 #include <df3d/engine/3d/StaticMeshComponentProcessor.h>
 #include <df3d/engine/3d/SceneGraphComponentProcessor.h>
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/DebugConsole.h>
+#include <df3d/engine/EngineCVars.h>
 #include <df3d/engine/TimeManager.h>
 #include <df3d/game/ComponentDataHolder.h>
 #include <df3d/game/World.h>
@@ -297,11 +297,8 @@ void PhysicsComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 
 void PhysicsComponentProcessor::draw(RenderQueue *ops)
 {
-    if (auto console = svc().debugConsole())
-    {
-        if (!console->getCVars().get<bool>(CVAR_DEBUG_DRAW))
-            return;
-    }
+    if (!EngineCVars::bulletDebugDraw)
+        return;
 
     // Collect render operations.
     m_pimpl->dynamicsWorld->debugDrawWorld();

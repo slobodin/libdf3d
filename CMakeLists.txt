@@ -87,8 +87,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/df3d_config.h
     ${PROJECT_SOURCE_DIR}/df3d/df3d_pch.h
     ${PROJECT_SOURCE_DIR}/df3d/libdf3d_dll.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/DebugConsole.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/ConfigVariable.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/EngineController.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/EngineCVars.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/EngineInitParams.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/TimeManager.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/2d/Sprite2DComponentProcessor.h
@@ -206,8 +207,8 @@ set(libdf3d_HEADER_LIST
 set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/Common.cpp
     ${PROJECT_SOURCE_DIR}/df3d/df3d_pch.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/DebugConsole.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/EngineController.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/EngineCVars.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/TimeManager.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/2d/Sprite2DComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/3d/Camera.cpp

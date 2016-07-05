@@ -23,7 +23,8 @@
 #include <df3d/lib/Any.h>
 
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/DebugConsole.h>
+#include <df3d/engine/ConfigVariable.h>
+#include <df3d/engine/EngineCVars.h>
 #include <df3d/engine/TimeManager.h>
 
 #include <df3d/platform/AppDelegate.h>

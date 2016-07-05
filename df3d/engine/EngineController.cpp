@@ -1,6 +1,5 @@
 #include "EngineController.h"
 
-#include "DebugConsole.h"
 #include "TimeManager.h"
 #include <df3d/engine/render/RenderManager.h>
 #include <df3d/engine/3d/Camera.h>
@@ -57,7 +56,9 @@ void EngineController::initialize(EngineInitParams params)
 
     // Create console.
     if (params.createConsole)
-        m_debugConsole = make_unique<DebugConsole>();
+    {
+
+    }
 
     // Create input subsystem.
     m_inputManager = make_unique<InputManager>();
@@ -88,8 +89,6 @@ void EngineController::shutdown()
         m_world->destroyWorld();
         m_world.reset();
     }
-
-    m_debugConsole.reset();
 
     m_audioManager->shutdown();
     m_scriptManager->shutdown();

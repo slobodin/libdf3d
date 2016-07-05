@@ -1,7 +1,7 @@
 #include "RenderManager.h"
 
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/DebugConsole.h>
+#include <df3d/engine/EngineCVars.h>
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/ResourceFactory.h>
 #include <df3d/engine/3d/Camera.h>
@@ -131,13 +131,10 @@ void RenderManager::doRenderWorld(World &world)
         drawRenderOperation(op);
 
     // Debug draw pass.
-    if (auto console = svc().debugConsole())
+    if (EngineCVars::bulletDebugDraw)
     {
-        if (console->getCVars().get<bool>(CVAR_DEBUG_DRAW))
-        {
-            for (const auto &op : m_renderQueue->debugDrawOperations)
-                drawRenderOperation(op);
-        }
+        for (const auto &op : m_renderQueue->debugDrawOperations)
+            drawRenderOperation(op);
     }
 
     m_sharedState->setProjectionMatrix(glm::ortho(0.0f, (float)m_viewport.width(), (float)m_viewport.height(), 0.0f));
