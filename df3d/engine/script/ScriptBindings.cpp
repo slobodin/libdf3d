@@ -27,6 +27,7 @@ namespace df3d { namespace script_impl {
 
 inline int random_int_range(int a, int b)
 {
+    DF3D_ASSERT(a <= b);
     return RandomUtils::randRange(a, b);
 }
 
