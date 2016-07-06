@@ -44,8 +44,7 @@ public:
     void updateToProgram(IRenderBackend &backend, GpuProgram &program);
 };
 
-using PassParamHandle = size_t;
-static const PassParamHandle InvalidPassParamHandle = std::numeric_limits<size_t>::max();
+DF3D_MAKE_SHORT_HANDLE(PassParamHandle);
 
 class DF3D_DLL RenderPass
 {
@@ -75,7 +74,7 @@ public:
     PassParamHandle getPassParamHandle(const std::string &name);
     // NOTE: do not cache return value as vector can be reallocated. Use PassParamHandle instead.
     // TODO: refactor this.
-    RenderPassParam* getPassParam(PassParamHandle idx);
+    RenderPassParam* getPassParam(PassParamHandle handle);
     RenderPassParam* getPassParam(const std::string &name);
     std::vector<RenderPassParam>& getPassParams() { return m_params; }
 

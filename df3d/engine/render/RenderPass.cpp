@@ -120,21 +120,27 @@ shared_ptr<GpuProgram> RenderPass::getGpuProgram() const
 
 PassParamHandle RenderPass::getPassParamHandle(const std::string &name)
 {
+    size_t idx;
+
     auto found = std::find_if(m_params.begin(), m_params.end(), [&name](const RenderPassParam &it) { return it.getName() == name; });
     if (found == m_params.end())
     {
         RenderPassParam newparam(name);
         m_params.push_back(newparam);
-        return m_params.size() - 1;
+        idx = m_params.size() - 1;
+    }
+    else
+    {
+        idx = std::distance(m_params.begin(), found);
     }
 
-    return std::distance(m_params.begin(), found);
+    return { static_cast<int16_t>(idx) };
 }
 
-RenderPassParam* RenderPass::getPassParam(PassParamHandle idx)
+RenderPassParam* RenderPass::getPassParam(PassParamHandle handle)
 {
-    DF3D_ASSERT(idx >= 0 && idx < m_params.size());
-    return &m_params[idx];
+    DF3D_ASSERT(handle.id >= 0 && handle.id < m_params.size());
+    return &m_params[handle.id];
 }
 
 RenderPassParam* RenderPass::getPassParam(const std::string &name)
