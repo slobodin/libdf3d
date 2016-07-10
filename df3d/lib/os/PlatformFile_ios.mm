@@ -21,7 +21,7 @@ public:
         }
     }
 
-    PlatformFileIOS()
+    ~PlatformFileIOS()
     {
         fclose(m_file);
     }
