@@ -87,8 +87,10 @@ struct Sprite2DComponentProcessor::Impl
             svc().renderManager().getBackend().destroyVertexBuffer(vertexBuffer);
     }
 
-    static void updateTransform(Data &compData)
+    static void updateTransform(World &world, Data &compData)
     {
+        compData.op.worldTransform = world.sceneGraph().getWorldTransformMatrix(compData.holder);
+
         auto &worldTransform = compData.op.worldTransform;
 
         compData.op.z = worldTransform[3][2];
@@ -132,7 +134,7 @@ void Sprite2DComponentProcessor::draw(RenderQueue *ops)
         if (!compData.visible)
             continue;
 
-        Impl::updateTransform(compData);
+        Impl::updateTransform(*m_world, compData);
 
         compData.op.vertexBuffer = m_pimpl->vertexBuffer;
         compData.op.passProps = &compData.pass;
@@ -149,8 +151,7 @@ void Sprite2DComponentProcessor::cleanStep(const std::list<Entity> &deleted)
 
 void Sprite2DComponentProcessor::update()
 {
-    for (auto &compData : m_pimpl->data.rawData())
-        compData.op.worldTransform = m_world->sceneGraph().getWorldTransformMatrix(compData.holder);
+
 }
 
 Sprite2DComponentProcessor::Sprite2DComponentProcessor(World *world)
@@ -236,7 +237,7 @@ const glm::vec2& Sprite2DComponentProcessor::getScreenPosition(Entity e)
 {
     auto &compData = m_pimpl->data.getData(e);
 
-    Impl::updateTransform(compData);
+    Impl::updateTransform(*m_world, compData);
 
     return compData.screenPosition;
 }
