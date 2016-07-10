@@ -6,8 +6,14 @@
 #import "GameViewController.h"
 #import <OpenGLES/ES2/glext.h>
 
-#import <libdf3d/df3d.h>
+#import <df3d/df3d.h>
 #import "AppDelegate.h"
+
+namespace df3d {
+
+extern bool EngineInit(EngineInitParams params);
+
+}
 
 @interface GameViewController () {
 
@@ -30,8 +36,6 @@
 
     contentScaleFactor = [UIScreen mainScreen].scale;
     primaryTouchId = df3d::Touch::INVALID_ID;
-
-    df3dSetApplicationDelegate1();
 
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 
@@ -94,8 +98,6 @@
     self.preferredFramesPerSecond = 60.0f;
     [EAGLContext setCurrentContext:self.context];
 
-    GetIOSAppState().engine.reset(new df3d::EngineController());
-
     int screenWidth, screenHeight;
     // Get screen size.
     if ([[[UIDevice currentDevice] systemVersion] floatValue] < 8.0)
@@ -115,12 +117,13 @@
     if (UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation))
         std::swap(screenWidth, screenHeight);
 
-    auto engineInitParams = GetIOSAppState().appDelegate->getInitParams();
+    auto engineInitParams = df3d_GetAppDelegate()->getInitParams();
     engineInitParams.windowWidth = screenWidth;
     engineInitParams.windowHeight = screenHeight;
 
-    GetIOSAppState().engine->initialize(engineInitParams);
-    if (!GetIOSAppState().appDelegate->onAppStarted())
+    df3d::EngineInit(engineInitParams);
+
+    if (!df3d_GetAppDelegate()->onAppStarted())
         DFLOG_CRITICAL("Game code initialization failed");
 }
 
@@ -131,7 +134,7 @@
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    GetIOSAppState().engine->step();
+    df3d::svc().step();
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event

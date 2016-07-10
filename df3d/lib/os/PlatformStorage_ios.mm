@@ -1,51 +1,27 @@
-#include <libdf3d/df3d.h>
-#include <libdf3d/io/Storage.h>
-
+#include <df3d/df3d.h>
+#include "PlatformStorage.h"
 #import <Foundation/Foundation.h>
 
-namespace df3d { namespace platform_impl {
+namespace df3d {
 
-class IOSStorage : public Storage
+bool PlatformStorage::saveData(const char *id, const PodArray<uint8_t> &data)
 {
-    void saveToFileSystem(const uint8_t *data, size_t size) override
-    {
-        NSData *storageData = [NSData dataWithBytes:data length:size];
+    NSData *storageData = [NSData dataWithBytes:data.data() length:data.size()];
 
-        [[NSUserDefaults standardUserDefaults] setObject:storageData forKey:@"df3ds"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-    }
-
-    bool getFromFileSystem(uint8_t **data, size_t *size) override
-    {
-        NSData *storageData = [[NSUserDefaults standardUserDefaults] objectForKey:@"df3ds"];
-        if (storageData == nil) {
-            *size = 0;
-            return false;
-        }
-
-        size_t len = [storageData length];
-
-        *data = new uint8_t[len];
-        memcpy(*data, [storageData bytes], len);
-
-        *size = len;
-
-        return true;
-    }
-
-public:
-    IOSStorage(const std::string &filename)
-        : Storage(filename)
-    {
-
-    }
-};
-
+    [[NSUserDefaults standardUserDefaults] setObject:storageData forKey:@"df3ds"];
+    return [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-Storage* Storage::create(const std::string &filename)
+void PlatformStorage::getData(const char *id, PodArray<uint8_t> &data)
 {
-    return new platform_impl::IOSStorage(filename);
+    data.clear();
+
+    NSData *storageData = [[NSUserDefaults standardUserDefaults] objectForKey:@"df3ds"];
+    if (storageData == nil)
+        return;
+
+    const uint8_t *bytes = reinterpret_cast<const uint8_t*>([storageData bytes]);
+    data.assign(bytes, [storageData length]);
 }
 
 }

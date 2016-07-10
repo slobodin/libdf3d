@@ -1,5 +1,5 @@
-#include <libdf3d/df3d.h>
-#include <libdf3d/platform/Platform.h>
+#include <df3d/df3d.h>
+#include "PlatformUtils.h"
 
 #import <Foundation/Foundation.h>
 #import <sys/utsname.h>
@@ -7,7 +7,7 @@
 
 namespace df3d {
 
-size_t Platform::getProcessMemoryUsed()
+size_t PlatformUtils::getProcessMemUsed()
 {
     task_basic_info info;
     mach_msg_type_number_t size = sizeof(info);
@@ -28,7 +28,13 @@ size_t Platform::getProcessMemoryUsed()
     }
 }
 
-int Platform::getDPI()
+size_t PlatformUtils::getProcessMemPeak()
+{
+    DFLOG_WARN("PlatformUtils::getProcessMemPeak is not implemented");
+    return 0;
+}
+
+int PlatformUtils::getDPI()
 {
     utsname systemInfo;
     uname(&systemInfo);

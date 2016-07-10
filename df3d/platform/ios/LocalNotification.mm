@@ -1,4 +1,4 @@
-#include <libdf3d/platform/LocalNotification.h>
+#include <df3d/platform/LocalNotification.h>
 
 namespace df3d {
 

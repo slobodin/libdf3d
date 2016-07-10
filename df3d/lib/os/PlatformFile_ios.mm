@@ -1,46 +1,84 @@
-todo
-
-#include <libdf3d/df3d.h>
-#include <libdf3d/io/FileSystemHelpers.h>
-
+#include <df3d/df3d.h>
+#include "PlatformFile.h"
 #import <Foundation/Foundation.h>
-#include <libdf3d/platform/desktop_common/FileDataSourceDesktop.h>
 
 namespace df3d {
 
-static NSString* GetBundlePath(const std::string &path)
+class PlatformFileIOS : public PlatformFile
 {
-    NSString *pathNs = [NSString stringWithUTF8String:path.c_str()];
+    FILE *m_file;
+    size_t m_sizeInBytes;
+
+public:
+    PlatformFileIOS(FILE *file)
+        : m_file(file),
+        m_sizeInBytes(0)
+    {
+        if (seek(0, SeekDir::END))
+        {
+            m_sizeInBytes = tell();
+            seek(0, SeekDir::BEGIN);
+        }
+    }
+
+    PlatformFileIOS()
+    {
+        fclose(m_file);
+    }
+
+    size_t getSize() override
+    {
+        return m_sizeInBytes;
+    }
+
+    int32_t tell() override
+    {
+        return ftell(m_file);
+    }
+
+    bool seek(int32_t offset, SeekDir origin) override
+    {
+        int whence;
+        if (origin == SeekDir::CURRENT)
+            whence = SEEK_CUR;
+        else if (origin == SeekDir::BEGIN)
+            whence = SEEK_SET;
+        else if (origin == SeekDir::END)
+            whence = SEEK_END;
+        else
+            return false;
+
+        return fseek(m_file, offset, whence) == 0;
+    }
+
+    size_t read(void *buffer, size_t sizeInBytes) override
+    {
+        return fread(buffer, 1, sizeInBytes, m_file);
+    }
+};
+
+
+static NSString* GetBundlePath(const char *path)
+{
+    NSString *pathNs = [NSString stringWithUTF8String:path];
     return [[NSBundle mainBundle] pathForResource:pathNs ofType:nil];
 }
 
-bool FileSystemHelpers::isPathAbsolute(const std::string &path)
-{
-    if (path.empty())
-        return false;
-
-    return path[0] == '/';
-}
-
-bool FileSystemHelpers::pathExists(const std::string &path)
-{
-    if (path.empty())
-        return false;
-
-    NSString *bundlePath = GetBundlePath(path);
-
-    return fopen([bundlePath UTF8String], "rb") != nullptr;
-}
-
-shared_ptr<FileDataSource> FileSystemHelpers::openFile(const std::string &path)
+unique_ptr<PlatformFile> PlatformOpenFile(const char *path)
 {
     NSString *bundlePath = GetBundlePath(path);
 
-    auto result = make_shared<platform_impl::FileDataSourceDesktop>([bundlePath UTF8String]);
-    if (!result->valid())
-        return nullptr;
+    auto fh = fopen([bundlePath UTF8String], "rb");
+    if (fh)
+        return make_unique<PlatformFileIOS>(fh);
 
-    return result;
+    DFLOG_WARN("Can not open file %s", [bundlePath UTF8String]);
+    return nullptr;
+}
+
+bool PlatformFileExists(const char *path)
+{
+    return [[NSFileManager defaultManager] fileExistsAtPath:GetBundlePath(path)];
 }
 
 }
