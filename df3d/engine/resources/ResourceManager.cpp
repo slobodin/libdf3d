@@ -13,7 +13,7 @@ namespace df3d {
 
 void ResourceManager::doRequest(DecodeRequest req)
 {
-    DFLOG_DEBUG("ASYNC decoding %s", req.resource->getFilePath().c_str());
+    //DFLOG_DEBUG("ASYNC decoding %s", req.resource->getFilePath().c_str());
 
     if (auto source = svc().fileSystem().open(req.resourcePath))
     {
