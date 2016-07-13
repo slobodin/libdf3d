@@ -293,6 +293,7 @@ set(libdf3d_SRC_LIST
 
 if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
     add_definitions(-DSCRAT_NO_ERROR_CHECKING)
+    add_definitions(-DBT_NO_PROFILE)
 endif()
 
 set(third_party_SRC_FILES
