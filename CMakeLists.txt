@@ -79,6 +79,7 @@ endif()
 # TODO: if build tools
 if (DF3D_DESKTOP)
     add_subdirectory(${PROJECT_SOURCE_DIR}/tools/obj_to_dfmesh)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/tools/glsl_preprocess)
 endif()
 
 set(libdf3d_HEADER_LIST
@@ -137,6 +138,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/Texture.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/Vertex.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/Viewport.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/GLSLPreprocess.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/RenderBackendGL.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/ambient_frag.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/ambient_vert.h
@@ -251,6 +253,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/Texture.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/Vertex.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/Viewport.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/GLSLPreprocess.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/RenderBackendGL.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/AudioLoaders.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MaterialLibLoaders.cpp
