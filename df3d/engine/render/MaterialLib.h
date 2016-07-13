@@ -16,7 +16,6 @@ class DF3D_DLL MaterialLib : public Resource
 public:
     // FIXME: get rid of this.
     static std::string PREFERRED_TECHNIQUE;
-    static std::set<std::string> SHADER_DEFINES;
 
     MaterialLib();
     ~MaterialLib();

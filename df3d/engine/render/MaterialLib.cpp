@@ -6,7 +6,6 @@
 namespace df3d {
 
 std::string MaterialLib::PREFERRED_TECHNIQUE;
-std::set<std::string> MaterialLib::SHADER_DEFINES;
 
 MaterialLib::MaterialLib()
 {
