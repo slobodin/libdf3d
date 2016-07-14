@@ -9,6 +9,7 @@ include_directories(
     ${DF3D_ROOT}/third-party/spark/include
     ${DF3D_ROOT}/third-party/sqrat
     ${DF3D_ROOT}/third-party/squirrel/include
+    ${DF3D_ROOT}/third-party/prebuilt_win32/include
 )
 
 set(glsl_preprocess_SRC_LIST
@@ -27,3 +28,4 @@ endif()
 add_executable(glsl_preprocess ${glsl_preprocess_SRC_LIST})
 
 target_link_libraries(glsl_preprocess libdf3d)
+target_link_libraries(glsl_preprocess ${DF3D_ROOT}/third-party/prebuilt_win32/lib/glsl_optimizer_lib-win32_Debug.lib)
