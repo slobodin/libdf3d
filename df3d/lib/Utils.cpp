@@ -10,7 +10,7 @@ class UniformRealDistribution
     float m_b;
 
 public:
-    UniformRealDistribution(float a = 0.0f, float b = 1.0f)
+    UniformRealDistribution(float a, float b)
         :m_a(a),
         m_b(b)
     { }
@@ -20,6 +20,24 @@ public:
     {
         float dScale = (m_b - m_a) / ((float)(g.max() - g.min()) + 1.0f);
         return (g() - g.min()) * dScale + m_a;
+    }
+};
+
+class UniformIntDistribution
+{
+    int m_a;
+    int m_b;
+
+public:
+    UniformIntDistribution(int a, int b)
+        :m_a(a),
+        m_b(b)
+    { }
+
+    template <class Generator>
+    int operator()(Generator &g)
+    {
+        return m_a + g() / (g.max() / (m_b - m_a + 1) + 1);
     }
 };
 
@@ -48,7 +66,7 @@ float RandomUtils::randRange(float a, float b)
 
 int RandomUtils::randRange(int a, int b)
 {
-    std::uniform_int_distribution<> dis(a, b);
+    UniformIntDistribution dis(a, b);
     return dis(gen);
 }
 
