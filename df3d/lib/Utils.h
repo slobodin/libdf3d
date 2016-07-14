@@ -8,14 +8,20 @@
 
 namespace df3d {
 
+// Distribution should be consistent across all platforms.
 class DF3D_DLL RandomUtils
 {
-public:
-    static std::mt19937_64& rng();
+    static std::mt19937_64 gen;
 
-    // Random value in an interval [a, b)
+public:
+    static void srand();
+    static void srand(std::mt19937_64::result_type seed);
+
+    // Random value in [0, 32767]
+    static int rand();
+    // Random value in [a, b)
     static float randRange(float a, float b);
-    // Random value in a closed interval [a, b]
+    // Random value in [a, b]
     static int randRange(int a, int b);
 };
 
@@ -69,7 +75,7 @@ inline bool contains_key(const C &container, const T &key)
 template<typename T>
 inline const T& random_vector_element(const std::vector<T> &vect)
 {
-    return vect[std::rand() % vect.size()];
+    return vect[RandomUtils::rand() % vect.size()];
 }
 
 template<typename T>

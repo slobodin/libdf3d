@@ -30,8 +30,6 @@ void EngineController::initialize(EngineInitParams params)
     platform_impl::CrashHandler::setup();
 #endif
 
-    srand((unsigned int)time(0));
-
     // Create timer.
     m_timer = make_unique<Timer>();
 

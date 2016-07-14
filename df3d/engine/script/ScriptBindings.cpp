@@ -31,6 +31,27 @@ inline int random_int_range(int a, int b)
     return RandomUtils::randRange(a, b);
 }
 
+inline float random_float_range(float a, float b)
+{
+    DF3D_ASSERT(a <= b);
+    return RandomUtils::randRange(a, b);
+}
+
+inline int rand()
+{
+    return RandomUtils::rand();
+}
+
+inline void srandReset()
+{
+    RandomUtils::srand();
+}
+
+inline void srand(int seed)
+{
+    RandomUtils::srand(seed);
+}
+
 inline glm::quat slerp(const glm::quat &a, const glm::quat &b, float t)
 {
     return glm::slerp(a, b, t);
@@ -121,6 +142,10 @@ void bindGlm(Table &df3dNamespace)
     }
 
     df3dNamespace.Func(_SC("random_int_range"), random_int_range);
+    df3dNamespace.Func(_SC("random_float_range"), random_float_range);
+    df3dNamespace.Func(_SC("rand"), df3d::script_impl::rand);
+    df3dNamespace.Func(_SC("srand"), df3d::script_impl::srand);
+    df3dNamespace.Func(_SC("srand_reset"), df3d::script_impl::srandReset);
     df3dNamespace.Func(_SC("gaussian"), MathUtils::gaussian);
     df3dNamespace.Func(_SC("slerp"), slerp);
 }
