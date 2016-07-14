@@ -18,6 +18,8 @@ public:
     template <class Generator>
     float operator()(Generator &g)
     {
+        if (m_a >= m_b)
+            return m_a;
         float dScale = (m_b - m_a) / ((float)(g.max() - g.min()) + 1.0f);
         return (g() - g.min()) * dScale + m_a;
     }
@@ -37,6 +39,8 @@ public:
     template <class Generator>
     int operator()(Generator &g)
     {
+        if (m_a >= m_b)
+            return m_a;
         return m_a + g() / (g.max() / (m_b - m_a + 1) + 1);
     }
 };
