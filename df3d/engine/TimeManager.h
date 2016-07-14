@@ -47,7 +47,11 @@ public:
     float getElapsedTime() { return m_timeElapsed; }
 };
 
-DF3D_MAKE_HANDLE(TimeManagerHandle)
+class DF3D_DLL ITimeListener
+{
+public:
+    virtual void onUpdate() = 0;
+};
 
 class DF3D_DLL TimeManager : NonCopyable
 {
@@ -57,32 +61,31 @@ public:
 private:
     struct TimeSubscriber
     {
-        TimeManagerHandle handle;
-        UpdateFn callback;
+        ITimeListener *listener;
+        bool valid;
     };
+
+    std::list<TimeSubscriber> m_timeListeners;
 
     struct Action
     {
-        TimeManagerHandle handle;
         UpdateFn callback;
         float timeDelay;
     };
 
-    std::list<TimeSubscriber> m_timeListeners;
-    ConcurrentQueue<UpdateFn> m_pendingListeners;
-    ConcurrentQueue<UpdateFn> m_newListeners;
     std::list<Action> m_actions;
 
-    HandleBag<TimeManagerHandle> m_handleBag;
+    ConcurrentQueue<UpdateFn> m_pendingListeners;
+    ConcurrentQueue<UpdateFn> m_newListeners;
 
-    TimeSubscriber* findSubscriber(TimeManagerHandle handle);
+    TimeSubscriber* findSubscriber(ITimeListener *listener);
 
 public:
-    TimeManager();
+    TimeManager() = default;
     ~TimeManager();
 
-    TimeManagerHandle subscribeUpdate(UpdateFn &&callback);
-    void unsubscribeUpdate(TimeManagerHandle handle);
+    void subscribeUpdate(ITimeListener *listener);
+    void unsubscribeUpdate(ITimeListener *listener);
 
     void enqueueForNextUpdate(UpdateFn &&callback);
     void clearNextUpdateQueue();

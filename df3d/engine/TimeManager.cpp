@@ -37,21 +37,15 @@ Timer::~Timer()
 
 }
 
-TimeManager::TimeSubscriber* TimeManager::findSubscriber(TimeManagerHandle handle)
+TimeManager::TimeSubscriber* TimeManager::findSubscriber(ITimeListener *listener)
 {
     for (auto &it : m_timeListeners)
     {
-        if (it.handle.valid() && (it.handle == handle))
+        if (it.valid && (it.listener == listener))
             return &it;
     }
 
     return nullptr;
-}
-
-TimeManager::TimeManager()
-    : m_handleBag(0x0FFFF)
-{
-
 }
 
 TimeManager::~TimeManager()
@@ -60,7 +54,7 @@ TimeManager::~TimeManager()
     // Dump some debug info.
     auto aliveCount = 0;
     for (auto &l : m_timeListeners)
-        if (l.handle.valid())
+        if (l.valid)
             aliveCount++;
 
     if (aliveCount > 0)
@@ -71,28 +65,23 @@ TimeManager::~TimeManager()
 #endif
 }
 
-TimeManagerHandle TimeManager::subscribeUpdate(UpdateFn &&callback)
+void TimeManager::subscribeUpdate(ITimeListener *listener)
 {
-    TimeSubscriber subscr;
-    subscr.callback = std::move(callback);
-    subscr.handle = m_handleBag.getNew();
-    DF3D_ASSERT(subscr.handle.valid());
+    if (findSubscriber(listener))
+    {
+        DF3D_ASSERT_MESS(false, "Duplicate time manager listener!");
+        return;
+    }
 
-    m_timeListeners.push_back(std::move(subscr));
-
-    return subscr.handle;
+    m_timeListeners.push_back({ listener, true });
 }
 
-void TimeManager::unsubscribeUpdate(TimeManagerHandle handle)
+void TimeManager::unsubscribeUpdate(ITimeListener *listener)
 {
-    auto found = findSubscriber(handle);
-    if (found)
-    {
-        m_handleBag.release(handle);
-        found->handle.invalidate();
-    }
+    if (auto subscr = findSubscriber(listener))
+        subscr->valid = false;
     else
-        DFLOG_WARN("Trying to remove nonexistent time listener");
+        DF3D_ASSERT_MESS(false, "Failed to unsubscribeUpdate");
 }
 
 void TimeManager::enqueueForNextUpdate(UpdateFn &&callback)
@@ -110,7 +99,6 @@ void TimeManager::enqueueAction(UpdateFn &&callback, float delay)
 {
     Action act;
     act.callback = std::move(callback);
-    act.handle = m_handleBag.getNew();
     act.timeDelay = delay;
 
     m_actions.push_back(std::move(act));
@@ -129,8 +117,8 @@ void TimeManager::update(float dt)
     // Update client code.
     for (auto &listener : m_timeListeners)
     {
-        if (listener.handle.valid())
-            listener.callback();
+        if (listener.valid)
+            listener.listener->onUpdate();
     }
 
     for (auto &action : m_actions)
@@ -140,19 +128,16 @@ void TimeManager::update(float dt)
         if (action.timeDelay <= 0.0f)
         {
             action.callback();
-            m_handleBag.release(action.handle);
-            action.handle.invalidate();
+            action.timeDelay = 0.0f;
         }
     }
 }
 
 void TimeManager::cleanStep()
 {
-    m_handleBag.cleanup();
-
     for (auto it = m_timeListeners.begin(); it != m_timeListeners.end(); )
     {
-        if (!it->handle.valid())
+        if (!it->valid)
             it = m_timeListeners.erase(it);
         else
             it++;
@@ -160,13 +145,11 @@ void TimeManager::cleanStep()
 
     for (auto it = m_actions.begin(); it != m_actions.end(); )
     {
-        if (!it->handle.valid())
+        if (it->timeDelay <= 0.0f)
             it = m_actions.erase(it);
         else
             it++;
     }
-
-    // TODO_ecs: shrink_to_fit every n sec.
 }
 
 }

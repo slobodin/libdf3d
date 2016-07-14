@@ -5,16 +5,14 @@
 
 namespace df3d {
 
-class DF3D_DLL FPSCamera : public Camera
+class DF3D_DLL FPSCamera : public Camera, public ITimeListener
 {
     bool m_freeMove;
     float m_velocity = 0.0f;
     float m_damping = 0.5f;
 
     void move(const glm::vec3 &vec);
-    void onUpdate();
-
-    TimeManagerHandle m_updateHandle;
+    void onUpdate() override;
 
 public:
     FPSCamera(float velocity, bool freeMove, float damping, const glm::vec3 &position, float fov, float nearZ, float farZ);
