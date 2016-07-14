@@ -4,22 +4,52 @@
 
 namespace df3d {
 
-std::mt19937_64& RandomUtils::rng()
+class UniformRealDistribution
 {
-    static std::mt19937_64 gen(std::chrono::high_resolution_clock::now().time_since_epoch().count());
-    return gen;
+    float m_a;
+    float m_b;
+
+public:
+    UniformRealDistribution(float a = 0.0f, float b = 1.0f)
+        :m_a(a),
+        m_b(b)
+    { }
+
+    template <class Generator>
+    float operator()(Generator &g)
+    {
+        float dScale = (m_b - m_a) / ((float)(g.max() - g.min()) + 1.0f);
+        return (g() - g.min()) * dScale + m_a;
+    }
+};
+
+std::mt19937 RandomUtils::gen;
+
+void RandomUtils::srand()
+{
+    gen = std::mt19937(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+}
+
+void RandomUtils::srand(std::mt19937::result_type seed)
+{
+    gen = std::mt19937(seed);
+}
+
+int RandomUtils::rand()
+{
+    return randRange(0, 32767);
 }
 
 float RandomUtils::randRange(float a, float b)
 {
-    std::uniform_real_distribution<> dis(a, b);
-    return static_cast<float>(dis(rng()));
+    UniformRealDistribution dis(a, b);
+    return dis(gen);
 }
 
 int RandomUtils::randRange(int a, int b)
 {
     std::uniform_int_distribution<> dis(a, b);
-    return dis(rng());
+    return dis(gen);
 }
 
 float TimeUtils::IntervalBetween(const TimePoint &t1, const TimePoint &t2)
