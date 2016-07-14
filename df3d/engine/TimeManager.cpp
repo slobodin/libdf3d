@@ -81,7 +81,7 @@ void TimeManager::unsubscribeUpdate(ITimeListener *listener)
     if (auto subscr = findSubscriber(listener))
         subscr->valid = false;
     else
-        DF3D_ASSERT_MESS(false, "Failed to unsubscribeUpdate");
+        DFLOG_WARN("Failed to unsubscribeUpdate");
 }
 
 void TimeManager::enqueueForNextUpdate(UpdateFn &&callback)
