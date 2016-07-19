@@ -6,7 +6,7 @@
 #include <df3d/engine/input/InputManager.h>
 #include <GLFW/glfw3.h>
 
-namespace df3d { 
+namespace df3d {
 
 extern bool EngineInit(EngineInitParams params);
 extern void EngineShutdown();

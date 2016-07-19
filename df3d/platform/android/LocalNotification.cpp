@@ -1,4 +1,4 @@
-#include <libdf3d/platform/LocalNotification.h>
+#include <df3d/platform/LocalNotification.h>
 
 namespace df3d {
 
@@ -9,12 +9,10 @@ LocalNotification::NotificationId LocalNotification::schedule(const char *msg)
 
 void LocalNotification::cancel(NotificationId notificationId)
 {
-
 }
 
 void LocalNotification::enableNotifications(bool enable)
 {
-
 }
 
 }

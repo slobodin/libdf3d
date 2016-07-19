@@ -12,6 +12,7 @@ pthread_key_t AndroidServices::m_envKey;
 jobject AndroidServices::m_prefs;
 jobject AndroidServices::m_localStorage;
 jobject AndroidServices::m_services;
+AAssetManager *AndroidServices::m_assetMgr = nullptr;
 
 void AndroidServices::init(JavaVM *vm)
 {
@@ -34,6 +35,11 @@ void AndroidServices::setServicesObj(jobject jservices)
     env->DeleteLocalRef(cls);
 
     m_services = env->NewGlobalRef(jservices);
+}
+
+void AndroidServices::setAAssetManager(AAssetManager *mgr)
+{
+    m_assetMgr = mgr;
 }
 
 JNIEnv* AndroidServices::getEnv()

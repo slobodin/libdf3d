@@ -1,33 +1,30 @@
-#include <libdf3d/platform/Platform.h>
+#include "PlatformUtils.h"
 
 #include <malloc.h>
 #include <sys/types.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include <android/configuration.h>
-#include "FileDataSourceAndroid.h"
-#include "JNIHelpers.h"
-#include <libdf3d/utils/Utils.h>
+// FIXME: move somewhere AAssetMgr
+#include <df3d/platform/android/JNIHelpers.h>
 
 namespace df3d {
 
-size_t Platform::getProcessMemUsed()
+size_t PlatformUtils::getProcessMemUsed()
 {
     return AndroidServices::getProcessMemUsage();
 }
 
-size_t Platform::getProcessMemPeak()
+size_t PlatformUtils::getProcessMemPeak()
 {
-    DFLOG_WARN("Platform::getProcessMemPeak is not implemented for Android");
+    DFLOG_WARN("PlatformUtils::getProcessMemPeak is not implemented for Android");
     return 0;
 }
 
-int Platform::getDPI()
+int PlatformUtils::getDPI()
 {
-    auto aassetMgr = platform_impl::FileDataSourceAndroid::getAAssetManager();
-
     AConfiguration *config = AConfiguration_new();
-    AConfiguration_fromAssetManager(config, aassetMgr);
+    AConfiguration_fromAssetManager(config, AndroidServices::getAAssetManager());
     int32_t density = AConfiguration_getDensity(config);
     AConfiguration_delete(config);
 

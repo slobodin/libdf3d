@@ -1,194 +1,73 @@
-#include <libdf3d/io/FileSystemHelpers.h>
-todo
-#include "FileDataSourceAndroid.h"
+#include "PlatformFile.h"
+
+// FIXME: move somewhere AAssetMgr
+#include <df3d/platform/android/JNIHelpers.h>
 
 namespace df3d {
 
-bool FileSystemHelpers::isPathAbsolute(const std::string &path)
+class DF3D_DLL PlatformFileAndroid : public PlatformFile
 {
-    if (path.empty())
-        return false;
-
-    return path[0] == '/';
-}
-
-bool FileSystemHelpers::pathExists(const std::string &path)
-{
-    if (path.empty())
-        return false;
-
-    bool retRes = false;
-
-    if (isPathAbsolute(path))
-    {
-        auto file = fopen(path.c_str(), "r");
-        if (file)
-        {
-            retRes = true;
-            fclose(file);
-        }
-    }
-    else
-    {
-        auto aassetManager = platform_impl::FileDataSourceAndroid::getAAssetManager();
-        auto file = AAssetManager_open(aassetManager, path.c_str(), AASSET_MODE_UNKNOWN);
-        if (file)
-        {
-            retRes = true;
-            AAsset_close(file);
-        }
-    }
-
-    return retRes;
-}
-
-shared_ptr<FileDataSource> FileSystemHelpers::openFile(const std::string &path)
-{
-    if (isPathAbsolute(path))
-    {
-        // TODO:
-        // Return desktop version.
-        assert(false);
-        return nullptr;
-    }
-    else
-    {
-        auto result = make_shared<platform_impl::FileDataSourceAndroid>(path.c_str());
-        if (!result->valid())
-            return nullptr;
-        return result;
-    }
-}
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-#pragma once
-
-#include <libdf3d/io/FileDataSource.h>
-#include <android/asset_manager.h>
-
-namespace df3d { namespace platform_impl {
-
-class DF3D_DLL FileDataSourceAndroid : public FileDataSource
-{
-    AAsset *m_file = nullptr;
-    static AAssetManager *m_assetMgr;
+    AAsset *m_file;
 
 public:
-    FileDataSourceAndroid(const std::string &fileName);
-    ~FileDataSourceAndroid();
+    PlatformFileAndroid(AAsset *file)
+        : m_file(file)
+    {
 
-    bool valid() const override;
+    }
 
-    size_t getRaw(void *buffer, size_t sizeInBytes) override;
-    size_t getSizeInBytes() override;
+    ~PlatformFileAndroid()
+    {
+        AAsset_close(m_file);
+    }
 
-    int32_t tell() override;
-    bool seek(int32_t offset, std::ios_base::seekdir origin) override;
+    size_t getSize() override
+    {
+        return AAsset_getLength(m_file);
+    }
 
-    static void setAssetManager(AAssetManager *mgr);
+    int32_t tell() override
+    {
+        return AAsset_getLength(m_file) - AAsset_getRemainingLength(m_file);
+    }
 
-    static AAssetManager* getAAssetManager() { return m_assetMgr; }
+    bool seek(int32_t offset, SeekDir origin) override
+    {
+        int whence;
+        if (origin == SeekDir::CURRENT)
+            whence = SEEK_CUR;
+        else if (origin == SeekDir::BEGIN)
+            whence = SEEK_SET;
+        else if (origin == SeekDir::END)
+            whence = SEEK_END;
+        else
+            return false;
+
+        return AAsset_seek(m_file, offset, whence) != -1;
+    }
+
+    size_t read(void *buffer, size_t sizeInBytes) override
+    {
+        return AAsset_read(m_file, buffer, sizeInBytes);
+    }
 };
 
-} }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#include <libdf3d/io/FileSystemHelpers.h>
-
-#include "FileDataSourceAndroid.h"
-
-namespace df3d {
-
-bool FileSystemHelpers::isPathAbsolute(const std::string &path)
+unique_ptr<PlatformFile> PlatformOpenFile(const char *path)
 {
-    if (path.empty())
-        return false;
-
-    return path[0] == '/';
-}
-
-bool FileSystemHelpers::pathExists(const std::string &path)
-{
-    if (path.empty())
-        return false;
-
-    bool retRes = false;
-
-    if (isPathAbsolute(path))
-    {
-        auto file = fopen(path.c_str(), "r");
-        if (file)
-        {
-            retRes = true;
-            fclose(file);
-        }
-    }
-    else
-    {
-        auto aassetManager = platform_impl::FileDataSourceAndroid::getAAssetManager();
-        auto file = AAssetManager_open(aassetManager, path.c_str(), AASSET_MODE_UNKNOWN);
-        if (file)
-        {
-            retRes = true;
-            AAsset_close(file);
-        }
-    }
-
-    return retRes;
-}
-
-shared_ptr<FileDataSource> FileSystemHelpers::openFile(const std::string &path)
-{
-    if (isPathAbsolute(path))
-    {
-        // TODO:
-        // Return desktop version.
-        assert(false);
+    auto mgr = AndroidServices::getAAssetManager();
+    if (!mgr)
         return nullptr;
-    }
-    else
-    {
-        auto result = make_shared<platform_impl::FileDataSourceAndroid>(path.c_str());
-        if (!result->valid())
-            return nullptr;
-        return result;
-    }
+
+    AAsset *file = AAssetManager_open(mgr, path, AASSET_MODE_UNKNOWN);
+    if (!file)
+        return nullptr;
+
+    return make_unique<PlatformFileAndroid>(file);
+}
+
+bool PlatformFileExists(const char *path)
+{
+    return PlatformOpenFile(path) != nullptr;
 }
 
 }
-
-

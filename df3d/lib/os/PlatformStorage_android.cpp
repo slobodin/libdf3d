@@ -1,74 +1,60 @@
-#include <libdf3d/io/Storage.h>
+#include "PlatformStorage.h"
 
-#include "JNIHelpers.h"
+// FIXME: move somewhere AAssetMgr
+#include <df3d/platform/android/JNIHelpers.h>
 
-namespace df3d { namespace platform_impl {
+namespace df3d {
 
-class AndroidStorage : public Storage
+bool PlatformStorage::saveData(const char *id, const PodArray<uint8_t> &data)
 {
-    void saveToFileSystem(const uint8_t *data, size_t size) override
-    {
-        auto env = AndroidServices::getEnv();
-        auto prefsObj = AndroidServices::getLocalStorage();
+    auto env = AndroidServices::getEnv();
+    auto prefsObj = AndroidServices::getLocalStorage();
 
-        jclass cls = env->GetObjectClass(prefsObj);
-        jmethodID methId = env->GetMethodID(cls, "writeToInternalFile", "(Ljava/lang/String;[B)Z");
+    jclass cls = env->GetObjectClass(prefsObj);
+    jmethodID methId = env->GetMethodID(cls, "writeToInternalFile", "(Ljava/lang/String;[B)Z");
 
-        jbyteArray jdata = AndroidServices::createByteArray(data, size);
-        jstring jfilename = env->NewStringUTF("df3d");
+    jbyteArray jdata = AndroidServices::createByteArray(data.data(), data.size());
+    jstring jfilename = env->NewStringUTF(id);
 
-        bool saveResult = env->CallBooleanMethod(prefsObj, methId, jfilename, jdata);
-        if (!saveResult)
-            DFLOG_WARN("AndroidStorage::saveToFileSystem failed");
-        else
-            DFLOG_MESS("AndroidStorage::saveToFileSystem success");
+    bool saveResult = env->CallBooleanMethod(prefsObj, methId, jfilename, jdata);
+    if (!saveResult)
+        DFLOG_WARN("PlatformStorage::saveData failed");
+    else
+        DFLOG_MESS("PlatformStorage::saveData success");
 
-        env->DeleteLocalRef(jdata);
-        env->DeleteLocalRef(jfilename);
-        env->DeleteLocalRef(cls);
-    }
+    env->DeleteLocalRef(jdata);
+    env->DeleteLocalRef(jfilename);
+    env->DeleteLocalRef(cls);
 
-    bool getFromFileSystem(uint8_t **data, size_t *size) override
-    {
-        *size = 0;
-
-        auto env = AndroidServices::getEnv();
-        auto prefsObj = AndroidServices::getLocalStorage();
-
-        jclass cls = env->GetObjectClass(prefsObj);
-        jmethodID methId = env->GetMethodID(cls, "readInternalFile", "(Ljava/lang/String;)[B");
-        jstring jfilename = env->NewStringUTF("df3d");
-
-        jbyteArray jdata = (jbyteArray) env->CallObjectMethod(prefsObj, methId, jfilename);
-        if (jdata != nullptr)
-        {
-            *size = env->GetArrayLength(jdata);
-            *data = new uint8_t[*size];
-            env->GetByteArrayRegion(jdata, 0, *size, (jbyte*)*data);
-        }
-
-        env->DeleteLocalRef(jdata);
-        env->DeleteLocalRef(jfilename);
-        env->DeleteLocalRef(cls);
-
-        DFLOG_DEBUG("AndroidStorage::getFromFileSystem got %d of data", *size);
-
-        return *size != 0;
-    }
-
-public:
-    AndroidStorage(const std::string &filename)
-        : Storage(filename)
-    {
-
-    }
-};
-
+    return saveResult;
 }
 
-Storage* Storage::create(const std::string &filename)
+void PlatformStorage::getData(const char *id, PodArray<uint8_t> &data)
 {
-    return new platform_impl::AndroidStorage(filename);
+    data.clear();
+
+    auto env = AndroidServices::getEnv();
+    auto prefsObj = AndroidServices::getLocalStorage();
+
+    jclass cls = env->GetObjectClass(prefsObj);
+    jmethodID methId = env->GetMethodID(cls, "readInternalFile", "(Ljava/lang/String;)[B");
+    jstring jfilename = env->NewStringUTF(id);
+
+    jbyteArray jdata = (jbyteArray) env->CallObjectMethod(prefsObj, methId, jfilename);
+    if (jdata != nullptr)
+    {
+        auto size = env->GetArrayLength(jdata);
+
+        data.resize(size);
+
+        env->GetByteArrayRegion(jdata, 0, size, (jbyte*)&data[0]);
+    }
+
+    env->DeleteLocalRef(jdata);
+    env->DeleteLocalRef(jfilename);
+    env->DeleteLocalRef(cls);
+
+    DFLOG_DEBUG("PlatformStorage::getData got %d of data", data.size());
 }
 
 }

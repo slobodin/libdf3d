@@ -93,21 +93,25 @@ void MeshLoader_obj::processLine_f(std::istream &is)
         if (!hasNormals() && !hasTxCoords())
         {
             is >> vertexidx;
+            DF3D_ASSERT(vertexidx >= 1);
         }
         // vertex//normal
         else if (!hasTxCoords())
         {
             is >> vertexidx >> temp >> temp >> normalidx;
+            DF3D_ASSERT(vertexidx >= 1 && normalidx >= 1);
         }
         // vertex/texture
         else if (!hasNormals())
         {
             is >> vertexidx >> temp >> uvidx;
+            DF3D_ASSERT(vertexidx >= 1 && uvidx >= 1);
         }
         // vertex/texture/normal
         else
         {
             is >> vertexidx >> temp >> uvidx >> temp >> normalidx;
+            DF3D_ASSERT(vertexidx >= 1 && uvidx >= 1 && normalidx >= 1);
         }
 
         auto v = m_currentSubmesh->getVertexData().allocVertex();
@@ -115,11 +119,18 @@ void MeshLoader_obj::processLine_f(std::istream &is)
 
         if (normalidx > 0)
             v.setNormal(m_normals[normalidx - 1]);
+        else
+            v.setNormal({ 0.0f, 0.0f, 0.0f });
         if (uvidx > 0)
             v.setTx(m_txCoords[uvidx - 1]);
+        else
+            v.setTx({ 0.0f, 0.0f });
 
         if (!is.good())
+        {
+            DF3D_ASSERT(false);
             break;
+        }
     }
 }
 
