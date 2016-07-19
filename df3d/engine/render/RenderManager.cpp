@@ -244,7 +244,7 @@ void RenderManager::loadEmbedResources()
         params.setFiltering(TextureFiltering::NEAREST);
         params.setMipmapped(false);
         params.setWrapMode(TextureWrapMode::WRAP);
-        params.setAnisotropyLevel(render_constants::NO_ANISOTROPY);
+        params.setAnisotropyMax(false);
 
         auto pb = make_unique<PixelBuffer>(w, h, data, pf);
 

@@ -194,12 +194,16 @@ class RenderBackendGL : public IRenderBackend
     };
 
     DrawState m_drawState;
+    std::string m_extensionsString;
 
     int m_width, m_height;
+    bool m_anisotropicFilteringSupported = false;
 
 #ifdef _DEBUG
     GpuMemoryStats m_gpuMemStats;
 #endif
+
+    void initExtensions();
 
     void destroyShader(ShaderHandle shader, GLuint programId);
 

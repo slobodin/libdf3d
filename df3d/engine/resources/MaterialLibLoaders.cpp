@@ -93,9 +93,7 @@ static TextureCreationParams GetTextureCreationParams(const Json::Value &node)
     {
         auto anisotropyJson = node["anisotropy"];
         if (anisotropyJson.isString() && anisotropyJson.asString() == "max")
-            retRes.setAnisotropyLevel(render_constants::ANISOTROPY_LEVEL_MAX);
-        else
-            retRes.setAnisotropyLevel(anisotropyJson.asInt());
+            retRes.setAnisotropyMax(false);
     }
 
     return retRes;

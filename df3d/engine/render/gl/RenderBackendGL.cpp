@@ -192,6 +192,15 @@ static void PrintGpuProgramLog(unsigned int program)
 }
 #endif
 
+void RenderBackendGL::initExtensions()
+{
+    const char* extensions = (const char*)glGetString(GL_EXTENSIONS);
+    glGetError();
+
+    m_extensionsString = extensions;
+    m_anisotropicFilteringSupported = m_extensionsString.find("GL_EXT_texture_filter_anisotropic") != std::string::npos;
+}
+
 void RenderBackendGL::destroyShader(ShaderHandle shader, GLuint programId)
 {
     HANDLE_CHECK(shader);
@@ -263,6 +272,8 @@ void RenderBackendGL::initialize()
     m_indexedDrawCall = false;
     m_currentIndexType = GL_INVALID_ENUM;
 
+    initExtensions();
+
     std::fill(std::begin(m_vertexBuffers), std::end(m_vertexBuffers), VertexBufferGL());
     std::fill(std::begin(m_indexBuffers), std::end(m_indexBuffers), IndexBufferGL());
     std::fill(std::begin(m_textures), std::end(m_textures), TextureGL());
@@ -282,9 +293,8 @@ void RenderBackendGL::initialize()
     GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
     GL_CHECK(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_caps.maxTextureSize));
-    // TODO:
-    // Check extension supported.
-    GL_CHECK(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &m_caps.maxAnisotropy));
+    if (m_anisotropicFilteringSupported)
+        GL_CHECK(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &m_caps.maxAnisotropy));
 
     // Print GPU info.
     {
@@ -611,16 +621,10 @@ TextureHandle RenderBackendGL::createTexture2D(int width, int height, PixelForma
     if (params.isMipmapped())
         GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
 
-    if (GL_EXT_texture_filter_anisotropic)
+    if (m_anisotropicFilteringSupported && params.isAnisotropyMax())
     {
-        if (params.getAnisotropyLevel() != 1)
-        {
-            float aniso = m_caps.maxAnisotropy;
-            if (params.getAnisotropyLevel() != render_constants::ANISOTROPY_LEVEL_MAX)
-                aniso = (float)params.getAnisotropyLevel();
-
-            GL_CHECK(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso));
-        }
+        if (m_caps.maxAnisotropy > 0.0f)
+            GL_CHECK(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, std::max(1.0f, m_caps.maxAnisotropy)));
     }
 
     texture.type = GL_TEXTURE_2D;

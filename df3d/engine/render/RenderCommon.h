@@ -82,13 +82,6 @@ DF3D_MAKE_SHORT_HANDLE(ShaderHandle)
 DF3D_MAKE_SHORT_HANDLE(GpuProgramHandle)
 DF3D_MAKE_SHORT_HANDLE(UniformHandle)
 
-namespace render_constants {
-
-extern const DF3D_DLL int ANISOTROPY_LEVEL_MAX;
-extern const DF3D_DLL int NO_ANISOTROPY;
-
-}
-
 struct DF3D_DLL FrameStats
 {
     size_t drawCalls = 0;
@@ -104,16 +97,13 @@ class DF3D_DLL RenderingCapabilities
 {
     TextureFiltering m_textureFiltering = TextureFiltering::TRILINEAR;
     bool m_mipmaps = true;
-    int m_anisotropyMax = render_constants::ANISOTROPY_LEVEL_MAX;
 
 public:
     void setFiltering(TextureFiltering f) { m_textureFiltering = f; }
     void setHasMipmaps(bool mipmaps) { m_mipmaps = mipmaps; }
-    void setAnisotropy(int lvl) { m_anisotropyMax = lvl; }
 
     TextureFiltering getFiltering() const { return m_textureFiltering; }
     bool hasMipmaps() const { return m_mipmaps; }
-    int getAnisotropy() const { return m_anisotropyMax; }
 
     static RenderingCapabilities getDefaults();
 };

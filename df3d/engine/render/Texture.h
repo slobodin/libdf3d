@@ -27,21 +27,21 @@ public:
 class TextureCreationParams
 {
     TextureFiltering m_filtering;
-    bool m_mipmapped;
-    int m_anisotropyLevel;
     TextureWrapMode m_wrapMode;
+    bool m_mipmapped;
+    bool m_maxAnisotropy;
 
 public:
     TextureCreationParams();
 
     TextureFiltering getFiltering() const { return m_filtering; }
     bool isMipmapped() const { return m_mipmapped; }
-    int getAnisotropyLevel() const { return m_anisotropyLevel; }
+    bool isAnisotropyMax() const { return m_maxAnisotropy; }
     TextureWrapMode getWrapMode() const { return m_wrapMode; }
 
     void setFiltering(TextureFiltering filtering);
     void setMipmapped(bool mipmapped);
-    void setAnisotropyLevel(int anisotropy);
+    void setAnisotropyMax(bool isMax) { m_maxAnisotropy = isMax; }
     void setWrapMode(TextureWrapMode wrapMode);
 };
 

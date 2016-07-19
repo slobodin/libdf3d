@@ -123,7 +123,7 @@ class TBRendererImpl : public tb::TBRenderer
             auto buffer = make_unique<PixelBuffer>(m_w, m_h, (uint8_t *)data, PixelFormat::RGBA);
             TextureCreationParams params;
             params.setMipmapped(false);
-            params.setAnisotropyLevel(render_constants::NO_ANISOTROPY);
+            params.setAnisotropyMax(false);
             params.setFiltering(TextureFiltering::BILINEAR);
 
             m_texture = svc().resourceManager().getFactory().createTexture(std::move(buffer), params);

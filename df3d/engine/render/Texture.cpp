@@ -47,7 +47,7 @@ TextureCreationParams::TextureCreationParams()
     m_filtering = svc().renderManager().getRenderingCapabilities().getFiltering();
     m_mipmapped = svc().renderManager().getRenderingCapabilities().hasMipmaps();
     m_wrapMode = TextureWrapMode::WRAP;
-    m_anisotropyLevel = svc().renderManager().getRenderingCapabilities().getAnisotropy();
+    m_maxAnisotropy = true;     // FIXME: move to params + refactor.
 }
 
 void TextureCreationParams::setFiltering(TextureFiltering filtering)
@@ -58,20 +58,6 @@ void TextureCreationParams::setFiltering(TextureFiltering filtering)
 void TextureCreationParams::setMipmapped(bool mipmapped)
 {
     m_mipmapped = mipmapped;
-}
-
-void TextureCreationParams::setAnisotropyLevel(int anisotropy)
-{
-    float maxSupportedAniso = svc().renderManager().getBackend().getCaps().maxAnisotropy;
-    if (anisotropy > maxSupportedAniso)
-    {
-        DFLOG_WARN("Anisotropy level is bigger than supported. Setting maximum.");
-        m_anisotropyLevel = (int)maxSupportedAniso;
-    }
-    else
-    {
-        m_anisotropyLevel = anisotropy;
-    }
 }
 
 void TextureCreationParams::setWrapMode(TextureWrapMode wrapMode)
