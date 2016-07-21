@@ -85,7 +85,7 @@ void RenderManager::doRenderWorld(World &world)
         if (op.indexBuffer.valid())
             m_renderBackend->bindIndexBuffer(op.indexBuffer);
 
-        m_renderBackend->draw(op.type, op.numberOfElements);
+        m_renderBackend->draw(op.topology, op.numberOfElements);
     }
 
     // Opaque pass with lights on.
@@ -110,7 +110,7 @@ void RenderManager::doRenderWorld(World &world)
             m_renderBackend->bindVertexBuffer(op.vertexBuffer);
             if (op.indexBuffer.valid())
                 m_renderBackend->bindIndexBuffer(op.indexBuffer);
-            m_renderBackend->draw(op.type, op.numberOfElements);
+            m_renderBackend->draw(op.topology, op.numberOfElements);
         }
     }
 
@@ -336,7 +336,7 @@ void RenderManager::drawRenderOperation(const RenderOperation &op)
     if (op.indexBuffer.valid())
         m_renderBackend->bindIndexBuffer(op.indexBuffer);
 
-    m_renderBackend->draw(op.type, op.numberOfElements);
+    m_renderBackend->draw(op.topology, op.numberOfElements);
 }
 
 const Viewport& RenderManager::getViewport() const

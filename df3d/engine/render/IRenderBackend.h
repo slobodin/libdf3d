@@ -70,7 +70,7 @@ public:
     virtual void setBlendingMode(BlendingMode mode) = 0;
     virtual void setCullFaceMode(FaceCullMode mode) = 0;
 
-    virtual void draw(RopType type, size_t numberOfElements) = 0;
+    virtual void draw(Topology type, size_t numberOfElements) = 0;
 
     // NOTE: do not support other backends for now. So it's static.
     static unique_ptr<IRenderBackend> create(int width, int height);

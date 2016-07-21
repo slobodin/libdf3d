@@ -10,7 +10,7 @@ class RenderPass;
 class RenderOperation
 {
 public:
-    RopType type = RopType::TRIANGLES;
+    Topology topology = Topology::TRIANGLES;
     glm::mat4 worldTransform;
 
     VertexBufferHandle vertexBuffer;

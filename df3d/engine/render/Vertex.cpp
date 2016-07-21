@@ -201,6 +201,7 @@ void VertexData::clear()
 namespace vertex_formats
 {
 
+const VertexFormat p3_c4 = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::COLOR_4 });
 const VertexFormat p3_tx2_c4 = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
 const VertexFormat p3_n3_tx2_tan3_bitan3 = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::NORMAL_3,
                                                         VertexFormat::TX_2, VertexFormat::TANGENT_3, VertexFormat::BITANGENT_3 });

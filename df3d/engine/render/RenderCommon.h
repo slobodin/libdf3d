@@ -45,7 +45,7 @@ enum class ShaderType
     UNDEFINED
 };
 
-enum class RopType
+enum class Topology
 {
     LINES,
     TRIANGLES,

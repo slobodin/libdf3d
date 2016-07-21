@@ -102,7 +102,7 @@ void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
     op.passProps = m_pass.get();
     op.vertexBuffer = m_vertexBuffer;
     op.numberOfElements = m_vertexData.getVerticesCount();
-    op.type = RopType::LINES;
+    op.topology = Topology::LINES;
 
     ops->debugDrawOperations.push_back(op);
 }

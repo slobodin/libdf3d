@@ -149,17 +149,17 @@ static GLenum GetGLBufferUsageType(GpuBufferUsageType t)
     return GL_INVALID_ENUM;
 }
 
-static GLenum GetGLDrawMode(RopType type)
+static GLenum GetGLDrawMode(Topology type)
 {
     switch (type)
     {
-    case RopType::LINES:
+    case Topology::LINES:
         return GL_LINES;
-    case RopType::TRIANGLES:
+    case Topology::TRIANGLES:
         return GL_TRIANGLES;
-    case RopType::LINE_STRIP:
+    case Topology::LINE_STRIP:
         return GL_LINE_STRIP;
-    case RopType::TRIANGLE_STRIP:
+    case Topology::TRIANGLE_STRIP:
         return GL_TRIANGLE_STRIP;
     default:
         break;
@@ -1140,7 +1140,7 @@ void RenderBackendGL::setCullFaceMode(FaceCullMode mode)
     m_drawState.faceCullMode = mode;
 }
 
-void RenderBackendGL::draw(RopType type, size_t numberOfElements)
+void RenderBackendGL::draw(Topology type, size_t numberOfElements)
 {
     if (m_indexedDrawCall)
         GL_CHECK(glDrawElements(GetGLDrawMode(type), numberOfElements, m_currentIndexType, nullptr));
@@ -1153,11 +1153,15 @@ void RenderBackendGL::draw(RopType type, size_t numberOfElements)
         m_stats.drawCalls++;
         switch (type)
         {
-        case RopType::LINES:
+        case Topology::LINES:
             m_stats.totalLines += numberOfElements / 2;
             break;
-        case RopType::TRIANGLES:
+        case Topology::TRIANGLES:
             m_stats.totalTriangles += numberOfElements / 3;
+            break;
+        case Topology::TRIANGLE_STRIP:
+            if (numberOfElements >= 3)
+                m_stats.totalTriangles += numberOfElements - 2;
             break;
         default:
             break;

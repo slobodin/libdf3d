@@ -100,7 +100,7 @@ void ParticleSystemBuffers_Quad::draw(size_t nbOfParticles, RenderPass *passProp
                                                                     GpuBufferUsageType::STREAM);
 
     RenderOperation op;
-    op.type = RopType::TRIANGLES;
+    op.topology = Topology::TRIANGLES;
     op.indexBuffer = m_indexBuffer;
     op.vertexBuffer = vb;
     op.passProps = passProps;

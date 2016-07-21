@@ -21,6 +21,12 @@ public:
     static glm::vec3 safeNormalize(const glm::vec3 &v);
 
     static float gaussian(float x, float mean, float stddev);
+
+    template<typename T>
+    static T lerp(const T &a, const T &b, float t)
+    {
+        return a * (1.0f - t) + b * t;
+    }
 };
 
 struct DF3D_DLL Spherical

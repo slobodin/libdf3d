@@ -99,6 +99,7 @@ public:
     //! Allocates memory for given number of vertices.
     void allocVertices(size_t verticesCount);
     //! Allocates memory for a new vertex and returns vertex proxy.
+    // NOTE: make sure to FULLY init the vertex as array may be reallocated after next call to allocVertex
     Vertex allocVertex();
     //! Returns vertex proxy for ith vertex [0, n).
     Vertex getVertex(size_t idx);
@@ -116,6 +117,7 @@ public:
 
 namespace vertex_formats
 {
+    extern const DF3D_DLL VertexFormat p3_c4;
     extern const DF3D_DLL VertexFormat p3_tx2_c4;
     extern const DF3D_DLL VertexFormat p3_n3_tx2_tan3_bitan3;
 }

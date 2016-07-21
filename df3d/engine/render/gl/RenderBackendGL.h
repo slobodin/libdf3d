@@ -260,7 +260,7 @@ public:
     void setBlendingMode(BlendingMode mode) override;
     void setCullFaceMode(FaceCullMode mode) override;
 
-    void draw(RopType type, size_t numberOfElements) override;
+    void draw(Topology type, size_t numberOfElements) override;
 };
 
 }
