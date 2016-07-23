@@ -51,62 +51,6 @@ static int eof(void *user)
     return dataSource->tell() >= dataSource->getSize();
 }
 
-static unique_ptr<PixelBuffer> LoadRaw(shared_ptr<DataSource> source)
-{
-#pragma pack(push, 1)
-    struct RawHeader
-    {
-        char magic[4];
-        uint32_t format;
-        uint32_t width;
-        uint32_t height;
-    };
-#pragma pack(pop)
-
-    RawHeader header;
-    memset(&header, 0, sizeof(header));
-
-    source->read(&header, sizeof(header));
-
-    if (strncmp(header.magic, "raw.", 4) != 0)
-    {
-        DFLOG_WARN("Invalid raw header");
-        return nullptr;
-    }
-
-    PixelFormat fmt = PixelFormat::INVALID;
-    if (header.format == 0)
-        fmt = PixelFormat::RGBA;
-    else if (header.format == 1)
-        fmt = PixelFormat::RGB;
-    else
-        DFLOG_WARN("Invalid raw pixel format");
-
-    if (fmt == PixelFormat::INVALID)
-        return nullptr;
-
-    const size_t compressedSize = source->getSize() - sizeof(header);
-    unique_ptr<uint8_t[]> compressedData(new uint8_t[compressedSize]);
-
-    const size_t uncompressedSize = header.height * header.width * GetPixelSizeForFormat(fmt);
-    uint8_t *uncompressedData = new uint8_t[uncompressedSize];
-
-    source->seek(sizeof(header), SeekDir::BEGIN);
-    source->read(compressedData.get(), compressedSize);
-
-    uLongf uncompressedSizeGot = uncompressedSize;
-    if (uncompress(uncompressedData, &uncompressedSizeGot, compressedData.get(), compressedSize) != Z_OK)
-    {
-        DFLOG_WARN("Failed to uncompress pixels while loading raw texture.");
-        delete[] uncompressedData;
-        return nullptr;
-    }
-
-    DF3D_ASSERT(uncompressedSizeGot == uncompressedSize);
-
-    return make_unique<PixelBuffer>(header.width, header.height, uncompressedData, fmt, false);
-}
-
 static unique_ptr<PixelBuffer> LoadWebp(shared_ptr<DataSource> source, bool forceRgba)
 {
     PodArray<uint8_t> pixels(MemoryManager::allocDefault());
@@ -152,6 +96,110 @@ static unique_ptr<PixelBuffer> LoadWebp(shared_ptr<DataSource> source, bool forc
     return make_unique<PixelBuffer>(features.width, features.height, decoded, format, false);
 }
 
+static size_t ComputePVRTCDataSize(int width, int height, int bpp)
+{
+    int blockSize;
+    int widthBlocks;
+    int heightBlocks;
+
+    if (bpp == 4)
+    {
+        blockSize = 4 * 4;
+        widthBlocks = std::max(width >> 2, 2);
+        heightBlocks = std::max(height >> 2, 2);
+    }
+    else
+    {
+        blockSize = 8 * 4;
+        widthBlocks = std::max(width >> 3, 2);
+        heightBlocks = std::max(height >> 2, 2);
+    }
+
+    return widthBlocks * heightBlocks * ((blockSize  * bpp) >> 3);
+}
+
+static unique_ptr<PixelBuffer> LoadPvr(shared_ptr<DataSource> source)
+{
+    struct PvrtcHeader
+    {
+        uint32_t version;
+        uint32_t flags;
+        uint32_t pixelFormat[2];
+        uint32_t colorSpace;
+        uint32_t channelType;
+        uint32_t height;
+        uint32_t width;
+        uint32_t depth;
+        uint32_t numSurfaces;
+        uint32_t numFaces;
+        uint32_t numMips;
+        uint32_t metaDataSize;
+    };
+
+    PvrtcHeader header;
+    source->read(&header, sizeof(header));
+
+    if (header.pixelFormat[1] != 0)
+    {
+        DFLOG_WARN("Failed to decode PVRTC texture. Pixel format is not supported");
+        return nullptr;
+    }
+
+    if (header.numFaces != 1)
+    {
+        DFLOG_WARN("Cubemaps not supported for PVRTC");
+        return nullptr;
+    }
+
+    int bpp;
+    switch (header.pixelFormat[0])
+    {
+    case 0:     // PVRTC 2bpp RGB
+        bpp = 2;
+        break;
+    case 1:     // PVRTC 2bpp RGBA
+        bpp = 2;
+        break;
+    case 2:     // PVRTC 4bpp RGB
+        bpp = 4;
+        break;
+    case 3:     // PVRTC 4bpp RGBA
+        bpp = 4;
+        break;
+    default:
+        DFLOG_WARN("Failed to decode PVRTC texture. Unknown texture format");
+        return nullptr;
+    }
+
+    int width = header.width;
+    int height = header.height;
+    int numMips = header.numMips;
+
+    // Skip meta-data.
+    source->seek(header.metaDataSize, SeekDir::CURRENT);
+
+    // Determine pixels size.
+    int w = width;
+    int h = height;
+    size_t dataSize = 0;
+    for (uint32_t mip = 0; mip < header.numMips; ++mip)
+    {
+        dataSize += ComputePVRTCDataSize(w, h, bpp) * header.numFaces;
+        w = std::max(w >> 1, 1);
+        h = std::max(h >> 1, 1);
+    }
+
+    PodArray<uint8_t> pixels(MemoryManager::allocDefault());
+    pixels.resize(dataSize);
+    if (source->read(&pixels[0], dataSize) != dataSize)
+    {
+        DFLOG_WARN("Failed to read PVRTC pixels");
+        return nullptr;
+    }
+
+    return nullptr;
+}
+
 static unique_ptr<PixelBuffer> LoadPixelBuffer(shared_ptr<DataSource> source, bool forceRgba = false)
 {
     if (!source)
@@ -163,8 +211,8 @@ static unique_ptr<PixelBuffer> LoadPixelBuffer(shared_ptr<DataSource> source, bo
     const auto ext = FileSystemHelpers::getFileExtension(source->getPath());
     if (ext == ".webp")
         return LoadWebp(source, forceRgba);
-    else if (ext == ".raw")
-        return LoadRaw(source);
+    else if (ext == ".pvr")
+        return LoadPvr(source);
 
     stbi_io_callbacks callbacks;
     callbacks.read = read;
