@@ -68,7 +68,12 @@ enum class PixelFormat
     INVALID,
     RGB,
     RGBA,
-    DEPTH
+    DEPTH,
+
+    PVRTC_2RGB_V1,
+    PVRTC_2RGBA_V1,
+    PVRTC_4RGB_V1,
+    PVRTC_4RGBA_V1
 };
 
 enum class SeekDir
