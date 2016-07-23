@@ -57,6 +57,9 @@ struct ParticleSystemComponentProcessor::Impl
 
 void ParticleSystemComponentProcessor::update()
 {
+    if (m_pausedGlobal)
+        return;
+
     // Update the transform component.
     for (auto &compData : m_pimpl->data.rawData())
         compData.holderTransform = m_world->sceneGraph().getWorldTransformMatrix(compData.holder);
@@ -123,6 +126,11 @@ void ParticleSystemComponentProcessor::stop(Entity e)
 void ParticleSystemComponentProcessor::pause(Entity e, bool paused)
 {
     m_pimpl->data.getData(e).paused = paused;
+}
+
+void ParticleSystemComponentProcessor::pauseGlobal(bool paused)
+{
+    m_pausedGlobal = paused;
 }
 
 void ParticleSystemComponentProcessor::setVisible(Entity e, bool visible)
@@ -206,6 +214,9 @@ bool ParticleSystemComponentProcessor::has(Entity e)
 
 void ParticleSystemComponentProcessor::render()
 {
+    if (m_pausedGlobal)
+        return;
+
     for (const auto &compData : m_pimpl->data.rawData())
     {
         if (compData.paused || !compData.visible)

@@ -33,6 +33,7 @@ class DF3D_DLL ParticleSystemComponentProcessor : public EntityComponentProcesso
     unique_ptr<Impl> m_pimpl;
 
     World *m_world;
+    bool m_pausedGlobal = false;
 
     void update() override;
     void cleanStep(const std::list<Entity> &deleted) override;
@@ -46,6 +47,7 @@ public:
 
     void stop(Entity e);
     void pause(Entity e, bool paused);
+    void pauseGlobal(bool paused);
     void setVisible(Entity e, bool visible);
     void setSystemLifeTime(Entity e, float lifeTime);
     void setWorldTransformed(Entity e, bool worldTransformed);
