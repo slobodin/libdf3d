@@ -2,9 +2,16 @@
 
 namespace df3d {
 
-RenderingCapabilities RenderingCapabilities::getDefaults()
-{
-    return{};
-}
+const uint32_t TEXTURE_FILTERING_NEAREST = 0x00000001;
+const uint32_t TEXTURE_FILTERING_BILINEAR = 0x00000002;
+const uint32_t TEXTURE_FILTERING_TRILINEAR = 0x00000003;
+const uint32_t TEXTURE_FILTERING_MASK = 0x00000003;
+
+extern const uint32_t TEXTURE_WRAP_MODE_REPEAT = 0x00000004;
+extern const uint32_t TEXTURE_WRAP_MODE_CLAMP = 0x00000008;
+extern const uint32_t TEXTURE_WRAP_MODE_MASK = 0x0000000C;
+
+extern const uint32_t TEXTURE_MAX_ANISOTROPY = 0x00000010;
+extern const uint32_t TEXTURE_MAX_ANISOTROPY_MASK = 0x00000010;
 
 }

@@ -23,19 +23,6 @@ static std::map<std::string, FaceCullMode> FaceCullModeValues =
     { "FRONT", FaceCullMode::FRONT }
 };
 
-static std::map<std::string, TextureFiltering> TextureFilteringValues =
-{
-    { "NEAREST", TextureFiltering::NEAREST },
-    { "BILINEAR", TextureFiltering::BILINEAR },
-    { "TRILINEAR", TextureFiltering::TRILINEAR }
-};
-
-static std::map<std::string, TextureWrapMode> TextureWrapValues =
-{
-    { "WRAP", TextureWrapMode::WRAP },
-    { "CLAMP", TextureWrapMode::CLAMP }
-};
-
 static std::map<std::string, BlendingMode> BlendModeValues =
 {
     { "NONE", BlendingMode::NONE },
@@ -69,32 +56,38 @@ static void SetPassParam(const std::string &param, const std::string &valueStr, 
     }
 }
 
-static TextureCreationParams GetTextureCreationParams(const Json::Value &node)
+static uint32_t GetTextureFlags(const Json::Value &node)
 {
-    TextureCreationParams retRes;
+    // FIXME: default max anisotropy
+    uint32_t retRes = TEXTURE_MAX_ANISOTROPY;
 
     if (node.isMember("filtering"))
     {
-        std::function<void(TextureFiltering)> fn = std::bind(&TextureCreationParams::setFiltering, &retRes, std::placeholders::_1);
-        SetPassParam("filtering", node["filtering"].asString(), TextureFilteringValues, fn);
+        auto valueStr = node["filtering"].asString();
+        if (valueStr == "NEAREST")
+            retRes |= TEXTURE_FILTERING_NEAREST;
+        else if (valueStr == "BILINEAR")
+            retRes |= TEXTURE_FILTERING_BILINEAR;
+        else if (valueStr == "TRILINEAR")
+            retRes |= TEXTURE_FILTERING_TRILINEAR;
+        else
+            DFLOG_WARN("Unknown filtering mode %s", valueStr.c_str());
     }
+    else
+        retRes |= TEXTURE_FILTERING_TRILINEAR;
+
     if (node.isMember("wrap_mode"))
     {
-        std::function<void(TextureWrapMode)> fn = std::bind(&TextureCreationParams::setWrapMode, &retRes, std::placeholders::_1);
-        SetPassParam("wrap_mode", node["wrap_mode"].asString(), TextureWrapValues, fn);
+        auto valueStr = node["wrap_mode"].asString();
+        if (valueStr == "WRAP")
+            retRes |= TEXTURE_WRAP_MODE_REPEAT;
+        else if (valueStr == "CLAMP")
+            retRes |= TEXTURE_WRAP_MODE_CLAMP;
+        else
+            DFLOG_WARN("Unknown wrap_mode mode %s", valueStr.c_str());
     }
-    if (node.isMember("mipmaps"))
-    {
-        bool hasMipmaps;
-        node["mipmaps"] >> hasMipmaps;
-        retRes.setMipmapped(hasMipmaps);
-    }
-    if (node.isMember("anisotropy"))
-    {
-        auto anisotropyJson = node["anisotropy"];
-        if (anisotropyJson.isString() && anisotropyJson.asString() == "max")
-            retRes.setAnisotropyMax(false);
-    }
+    else
+        retRes |= TEXTURE_WRAP_MODE_REPEAT;
 
     return retRes;
 }
@@ -145,19 +138,18 @@ shared_ptr<Texture> ParseSamplerNode(const Json::Value &node)
     {
         auto typeStr = node["type"].asString();
 
-        auto creationParams = GetTextureCreationParams(node);
-
         if (typeStr == "TEXTURE_2D")
         {
             auto path = node["path"].asString();
 
-            return svc().resourceManager().getFactory().createTexture(path, creationParams, ResourceLoadingMode::ASYNC);
+            return svc().resourceManager().getFactory().createTexture(path, GetTextureFlags(node), ResourceLoadingMode::ASYNC);
         }
         else if (typeStr == "TEXTURE_CUBE")
         {
-            auto path = node["path"].asString();
+            DF3D_ASSERT_MESS(false, "TEXTURE_CUBE is not supported");
+            return nullptr;
 
-            return svc().resourceManager().getFactory().createCubeTexture(path, creationParams, ResourceLoadingMode::ASYNC);
+            //return svc().resourceManager().getFactory().createCubeTexture(path, GetTextureFlags(node), ResourceLoadingMode::ASYNC);
         }
 
         DFLOG_WARN("Unknown texture type %s", typeStr.c_str());

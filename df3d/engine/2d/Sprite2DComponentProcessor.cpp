@@ -255,13 +255,9 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
         }
     }
 
-    TextureCreationParams params;
-    params.setFiltering(TextureFiltering::BILINEAR);
-    params.setMipmapped(false);
-    params.setAnisotropyMax(false);
-    params.setWrapMode(TextureWrapMode::CLAMP);
+    uint32_t flags = TEXTURE_FILTERING_BILINEAR | TEXTURE_WRAP_MODE_CLAMP;
 
-    auto texture = svc().resourceManager().getFactory().createTexture(pathToTexture, params, ResourceLoadingMode::IMMEDIATE);
+    auto texture = svc().resourceManager().getFactory().createTexture(pathToTexture, flags, ResourceLoadingMode::IMMEDIATE);
     if (!texture || !texture->isInitialized())
     {
         DFLOG_WARN("Failed to init Sprite2DComponent with texture %s", pathToTexture.c_str());
@@ -273,7 +269,7 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
 
     compData.diffuseMapParam = compData.pass.getPassParamHandle("diffuseMap");
     compData.pass.getPassParam(compData.diffuseMapParam)->setValue(texture);
-    compData.textureOriginalSize = { texture->getTextureInfo().width, texture->getTextureInfo().height };
+    compData.textureOriginalSize = { texture->getWidth(), texture->getHeight() };
     compData.textureGuid = texture->getGUID();
 }
 

@@ -40,7 +40,8 @@ SPK::Ref<SPK::Renderer> ParticleSystemUtils::createQuadRenderer(const glm::vec2 
 {
     auto quadRenderer = particlesys_impl::QuadParticleSystemRenderer::create(scale.x, scale.y);
 
-    quadRenderer->setDiffuseMap(svc().resourceManager().getFactory().createTexture(texturePath, ResourceLoadingMode::ASYNC));
+    uint32_t flags = TEXTURE_FILTERING_TRILINEAR | TEXTURE_WRAP_MODE_REPEAT;
+    quadRenderer->setDiffuseMap(svc().resourceManager().getFactory().createTexture(texturePath, flags, ResourceLoadingMode::ASYNC));
     quadRenderer->setTexturingMode(SPK::TEXTURE_MODE_2D);
     quadRenderer->m_pass->enableDepthTest(depthTest);
 

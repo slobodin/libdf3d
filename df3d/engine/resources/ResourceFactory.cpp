@@ -80,29 +80,18 @@ shared_ptr<MeshData> ResourceFactory::createMeshData(std::vector<SubMesh> &&subm
     return static_pointer_cast<MeshData>(m_holder->loadManual(loader));
 }
 
-shared_ptr<Texture> ResourceFactory::createTexture(const std::string &imagePath, ResourceLoadingMode lm)
+shared_ptr<Texture> ResourceFactory::createTexture(const std::string &imagePath, uint32_t flags, ResourceLoadingMode lm)
 {
-    return createTexture(imagePath, TextureCreationParams(), lm);
-}
-
-shared_ptr<Texture> ResourceFactory::createTexture(const std::string &imagePath, TextureCreationParams params, ResourceLoadingMode lm)
-{
-    auto loader = make_shared<Texture2DFSLoader>(imagePath, params, lm);
+    auto loader = make_shared<Texture2DFSLoader>(imagePath, flags, lm);
 
     return static_pointer_cast<Texture>(m_holder->loadFromFS(imagePath, loader));
 }
 
-shared_ptr<Texture> ResourceFactory::createTexture(unique_ptr<PixelBuffer> pixelBuffer, TextureCreationParams params)
+shared_ptr<Texture> ResourceFactory::createTexture(const TextureInfo &info, const void *data, size_t dataSize)
 {
-    Texture2DManualLoader loader(std::move(pixelBuffer), params);
+    Texture2DManualLoader loader(info, data, dataSize);
 
     return static_pointer_cast<Texture>(m_holder->loadManual(loader));
-}
-
-shared_ptr<Texture> ResourceFactory::createCubeTexture(const std::string &jsonPath, TextureCreationParams params, ResourceLoadingMode lm)
-{
-    auto loader = make_shared<TextureCubeFSLoader>(jsonPath, params, lm);
-    return static_pointer_cast<Texture>(m_holder->loadFromFS(jsonPath, loader));
 }
 
 shared_ptr<MaterialLib> ResourceFactory::createMaterialLib(const std::string &mtlLibPath)
@@ -110,6 +99,5 @@ shared_ptr<MaterialLib> ResourceFactory::createMaterialLib(const std::string &mt
     auto loader = make_shared<MaterialLibFSLoader>(mtlLibPath);
     return static_pointer_cast<MaterialLib>(m_holder->loadFromFS(mtlLibPath, loader));
 }
-
 
 }

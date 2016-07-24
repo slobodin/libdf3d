@@ -1,7 +1,5 @@
 #pragma once
 
-#include <df3d/engine/render/RenderCommon.h>
-
 namespace df3d {
 
 struct DF3D_DLL EngineInitParams
@@ -17,8 +15,6 @@ struct DF3D_DLL EngineInitParams
     // More rendering params
     // Paths to the resources, etc
     // windowed, fullscreen mode
-
-    RenderingCapabilities renderingCaps = RenderingCapabilities::getDefaults();
 };
 
 }

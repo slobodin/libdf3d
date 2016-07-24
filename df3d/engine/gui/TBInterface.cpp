@@ -56,10 +56,10 @@ public:
 
 class TBImageLoaderImpl : public tb::TBImageLoader
 {
-    unique_ptr<PixelBuffer> m_data;
+    unique_ptr<PixelData> m_data;
 
 public:
-    TBImageLoaderImpl(unique_ptr<PixelBuffer> buffer)
+    TBImageLoaderImpl(unique_ptr<PixelData> buffer)
         : m_data(std::move(buffer))
     {
     }
@@ -71,17 +71,17 @@ public:
 
     int Width() override
     {
-        return m_data->getWidth();
+        return m_data->info.width;
     }
 
     int Height() override
     {
-        return m_data->getHeight();
+        return m_data->info.height;
     }
 
     tb::uint32* Data() override
     {
-        return (tb::uint32*)m_data->getData();
+        return (tb::uint32*)m_data->data.data();
     }
 };
 
@@ -120,14 +120,16 @@ class TBRendererImpl : public tb::TBRenderer
             m_w = width;
             m_h = height;
 
-            auto buffer = make_unique<PixelBuffer>(m_w, m_h, (uint8_t *)data, PixelFormat::RGBA);
-            TextureCreationParams params;
-            params.setMipmapped(false);
-            params.setAnisotropyMax(false);
-            params.setFiltering(TextureFiltering::BILINEAR);
+            TextureInfo info;
+            info.width = width;
+            info.height = height;
+            info.numMips = 0;
+            info.format = PixelFormat::RGBA;
+            info.flags = TEXTURE_FILTERING_BILINEAR | TEXTURE_WRAP_MODE_REPEAT;
 
-            m_texture = svc().resourceManager().getFactory().createTexture(std::move(buffer), params);
-            return true;
+            m_texture = svc().resourceManager().getFactory().createTexture(info, data, width * height * 4);
+
+            return m_texture != nullptr;
         }
 
         int Width() override { return m_w; }
@@ -528,11 +530,12 @@ TBImageLoader* TBImageLoader::CreateFromFile(const char *filename)
     if (!file)
         return nullptr;
 
-    auto pixels = df3d::GetPixelBufferFromSource(file, true);
-    if (!pixels)
+    auto pixels = make_unique<df3d::PixelData>();
+
+    if (!df3d::GetPixelBufferFromSource(file, true, *pixels))
         return nullptr;
 
-    if (pixels->getFormat() != df3d::PixelFormat::RGBA)
+    if (pixels->info.format != df3d::PixelFormat::RGBA)
     {
         DFLOG_WARN("Unsupported tb image format. Filename: %s", filename);
         return nullptr;

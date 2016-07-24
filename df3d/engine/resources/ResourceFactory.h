@@ -7,10 +7,9 @@ class AudioBuffer;
 class GpuProgram;
 class MeshData;
 class MaterialLib;
-class TextureCreationParams;
-class PixelBuffer;
 class SubMesh;
 class Texture;
+struct TextureInfo;
 
 extern const char * const SIMPLE_LIGHTING_PROGRAM_EMBED_PATH;
 extern const char * const COLORED_PROGRAM_EMBED_PATH;
@@ -32,10 +31,8 @@ public:
     shared_ptr<GpuProgram> createAmbientPassProgram();
     shared_ptr<MeshData> createMeshData(const std::string &meshDataPath, ResourceLoadingMode lm);
     shared_ptr<MeshData> createMeshData(std::vector<SubMesh> &&submeshes);
-    shared_ptr<Texture> createTexture(const std::string &imagePath, ResourceLoadingMode lm);
-    shared_ptr<Texture> createTexture(const std::string &imagePath, TextureCreationParams params, ResourceLoadingMode lm);
-    shared_ptr<Texture> createTexture(unique_ptr<PixelBuffer> pixelBuffer, TextureCreationParams params);
-    shared_ptr<Texture> createCubeTexture(const std::string &jsonPath, TextureCreationParams params, ResourceLoadingMode lm);
+    shared_ptr<Texture> createTexture(const std::string &imagePath, uint32_t flags, ResourceLoadingMode lm);
+    shared_ptr<Texture> createTexture(const TextureInfo &info, const void *data, size_t dataSize);
     shared_ptr<MaterialLib> createMaterialLib(const std::string &mtlLibPath);
 };
 

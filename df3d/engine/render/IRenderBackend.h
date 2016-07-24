@@ -11,8 +11,7 @@ struct RenderBackendCaps
     float maxAnisotropy = 0.0f;
 };
 
-class PixelBuffer;
-class TextureCreationParams;
+struct TextureInfo;
 
 // Inspired by https://github.com/bkaradzic/bgfx
 class IRenderBackend
@@ -41,8 +40,7 @@ public:
     virtual void bindIndexBuffer(IndexBufferHandle ibHandle) = 0;
     virtual void updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data) = 0;
 
-    virtual TextureHandle createTexture2D(int width, int height, PixelFormat format, const uint8_t *data, const TextureCreationParams &params) = 0;
-    virtual TextureHandle createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params) = 0;
+    virtual TextureHandle createTexture2D(const TextureInfo &info, const void *data, size_t dataSize) = 0;
     virtual void updateTexture(TextureHandle textureHandle, int w, int h, const void *data) = 0;
     virtual void destroyTexture(TextureHandle textureHandle) = 0;
 

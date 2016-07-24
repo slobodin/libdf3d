@@ -56,7 +56,6 @@ public:
     void drawRenderOperation(const RenderOperation &op);
 
     const Viewport& getViewport() const;
-    const RenderingCapabilities& getRenderingCapabilities() const;
     FrameStats getFrameStats() const;
 
     IRenderBackend& getBackend();

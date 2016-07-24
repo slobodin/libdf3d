@@ -5,13 +5,23 @@
 
 namespace df3d {
 
+struct PixelData : private NonCopyable
+{
+    PodArray<uint8_t> data;
+    TextureInfo info;
+
+    PixelData();
+    ~PixelData() = default;
+};
+
 class Texture2DManualLoader : public ManualResourceLoader
 {
-    unique_ptr<PixelBuffer> m_pixelBuffer;
-    TextureCreationParams m_params;
+    TextureInfo m_info;
+    const void *m_data;
+    size_t m_dataSize;
 
 public:
-    Texture2DManualLoader(unique_ptr<PixelBuffer> pixelBuffer, TextureCreationParams params);
+    Texture2DManualLoader(const TextureInfo &info, const void *data, size_t dataSize);
 
     Texture* load() override;
 };
@@ -19,27 +29,10 @@ public:
 class Texture2DFSLoader : public FSResourceLoader
 {
     std::string m_pathToTexture;
-    TextureCreationParams m_params;
-
-    unique_ptr<PixelBuffer> m_pixelBuffer;
+    PixelData m_data;
 
 public:
-    Texture2DFSLoader(const std::string &path, const TextureCreationParams &params, ResourceLoadingMode lm);
-
-    Texture* createDummy() override;
-    bool decode(shared_ptr<DataSource> source) override;
-    void onDecoded(Resource *resource) override;
-};
-
-class TextureCubeFSLoader : public FSResourceLoader
-{
-    std::string m_jsonPath;
-    TextureCreationParams m_params;
-
-    unique_ptr<PixelBuffer> m_pixelBuffers[(size_t)CubeFace::COUNT];
-
-public:
-    TextureCubeFSLoader(const std::string &path, const TextureCreationParams &params, ResourceLoadingMode lm);
+    Texture2DFSLoader(const std::string &path, uint32_t flags, ResourceLoadingMode lm);
 
     Texture* createDummy() override;
     bool decode(shared_ptr<DataSource> source) override;
@@ -47,6 +40,6 @@ public:
 };
 
 // Workaround for turbobadger!
-unique_ptr<PixelBuffer> GetPixelBufferFromSource(shared_ptr<DataSource> source, bool forceRgba);
+bool GetPixelBufferFromSource(shared_ptr<DataSource> source, bool forceRGBA, PixelData &outPixelData);
 
 }

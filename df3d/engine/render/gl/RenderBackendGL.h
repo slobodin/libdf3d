@@ -231,8 +231,7 @@ public:
     void bindIndexBuffer(IndexBufferHandle ibHandle) override;
     void updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data) override;
 
-    TextureHandle createTexture2D(int width, int height, PixelFormat format, const uint8_t *data, const TextureCreationParams &params) override;
-    TextureHandle createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params) override;
+    TextureHandle createTexture2D(const TextureInfo &info, const void *data, size_t dataSize) override;
     void updateTexture(TextureHandle textureHandle, int w, int h, const void *data) override;
     void destroyTexture(TextureHandle textureHandle) override;
 

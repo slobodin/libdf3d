@@ -4,25 +4,27 @@
 
 namespace df3d {
 
-enum class TextureFiltering
-{
-    NEAREST,
-    BILINEAR,
-    TRILINEAR       // FIXME: uses LINEAR if mipmaps is off.
-};
+extern const uint32_t TEXTURE_FILTERING_NEAREST;
+extern const uint32_t TEXTURE_FILTERING_BILINEAR;
+extern const uint32_t TEXTURE_FILTERING_TRILINEAR;
+extern const uint32_t TEXTURE_FILTERING_MASK;
 
-enum class TextureWrapMode
-{
-    WRAP,
-    CLAMP
-};
+extern const uint32_t TEXTURE_WRAP_MODE_REPEAT;
+extern const uint32_t TEXTURE_WRAP_MODE_CLAMP;
+extern const uint32_t TEXTURE_WRAP_MODE_MASK;
+
+extern const uint32_t TEXTURE_MAX_ANISOTROPY;
+extern const uint32_t TEXTURE_MAX_ANISOTROPY_MASK;
 
 //! Hint to graphics backend as to how a buffer's data will be accessed.
 enum class GpuBufferUsageType
 {
-    STATIC,     /*!< The data store contents will be modified once and used many times. */
-    DYNAMIC,    /*!< The data store contents will be modified repeatedly and used many times. */
-    STREAM      /*!< The data store contents will be modified once and used at most a few times. */
+    //! The data store contents will be modified once and used many times.
+    STATIC,
+    //! The data store contents will be modified repeatedly and used many times.
+    DYNAMIC,
+    //! The data store contents will be modified once and used at most a few times.
+    STREAM
 };
 
 enum class CubeFace
@@ -90,22 +92,6 @@ struct DF3D_DLL FrameStats
 
     size_t textures = 0;
     size_t gpuMemBytes = 0;
-};
-
-// FIXME: don't like it.
-class DF3D_DLL RenderingCapabilities
-{
-    TextureFiltering m_textureFiltering = TextureFiltering::TRILINEAR;
-    bool m_mipmaps = true;
-
-public:
-    void setFiltering(TextureFiltering f) { m_textureFiltering = f; }
-    void setHasMipmaps(bool mipmaps) { m_mipmaps = mipmaps; }
-
-    TextureFiltering getFiltering() const { return m_textureFiltering; }
-    bool hasMipmaps() const { return m_mipmaps; }
-
-    static RenderingCapabilities getDefaults();
 };
 
 }

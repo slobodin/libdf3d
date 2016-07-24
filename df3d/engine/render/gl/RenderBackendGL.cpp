@@ -83,58 +83,57 @@ static const std::map<CubeFace, GLenum> MapSidesToGL =
     { CubeFace::NEGATIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z }
 };
 
-static GLint GetGLFilteringMode(TextureFiltering filtering, bool mipmapped)
+static GLint GetGLWrapMode(uint32_t flags)
 {
-    switch (filtering)
-    {
-    case TextureFiltering::NEAREST:
-        return !mipmapped ? GL_NEAREST : GL_NEAREST_MIPMAP_NEAREST;
-    case TextureFiltering::BILINEAR:
-        return !mipmapped ? GL_LINEAR : GL_LINEAR_MIPMAP_NEAREST;
-    case TextureFiltering::TRILINEAR:
-        return !mipmapped ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR;
-    default:
-        break;
-    }
+    const auto mode = flags & TEXTURE_WRAP_MODE_MASK;
 
-    return -1;
-}
-
-static GLint GetGLWrapMode(TextureWrapMode mode)
-{
-    switch (mode)
-    {
-    case TextureWrapMode::WRAP:
-        return GL_REPEAT;
-    case TextureWrapMode::CLAMP:
+    if (mode == TEXTURE_WRAP_MODE_CLAMP)
         return GL_CLAMP_TO_EDGE;
-    default:
-        break;
+    else if (mode == TEXTURE_WRAP_MODE_REPEAT)
+        return GL_REPEAT;
+
+    DFLOG_WARN("GetGLWrapMode was set to default: GL_REPEAT");
+
+    return GL_REPEAT;
+}
+
+static void SetupGLTextureFiltering(GLenum glType, uint32_t flags)
+{
+    const auto filtering = flags & TEXTURE_FILTERING_MASK;
+
+    if (filtering == TEXTURE_FILTERING_NEAREST)
+    {
+        GL_CHECK(glTexParameteri(glType, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+        GL_CHECK(glTexParameteri(glType, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
     }
-
-    return -1;
+    else if (filtering == TEXTURE_FILTERING_BILINEAR)
+    {
+        GL_CHECK(glTexParameteri(glType, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+        GL_CHECK(glTexParameteri(glType, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+    }
+    else if (filtering == TEXTURE_FILTERING_TRILINEAR)
+    {
+        GL_CHECK(glTexParameteri(glType, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+        GL_CHECK(glTexParameteri(glType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+    }
+    else
+        DFLOG_WARN("SetupGLTextureFiltering failed");
 }
 
-
-static void SetupGLTextureFiltering(GLenum glType, TextureFiltering filtering, bool mipmapped)
+static void SetupGLWrapMode(GLenum glType, uint32_t flags)
 {
-    GL_CHECK(glTexParameteri(glType, GL_TEXTURE_MAG_FILTER, filtering == TextureFiltering::NEAREST ? GL_NEAREST : GL_LINEAR));
-    GL_CHECK(glTexParameteri(glType, GL_TEXTURE_MIN_FILTER, GetGLFilteringMode(filtering, mipmapped)));
-}
+    auto wmGL = GetGLWrapMode(flags);
 
-static void SetupGLWrapMode(GLenum glType, TextureWrapMode wrapMode)
-{
-    auto wmGl = GetGLWrapMode(wrapMode);
-    GL_CHECK(glTexParameteri(glType, GL_TEXTURE_WRAP_S, wmGl));
-    GL_CHECK(glTexParameteri(glType, GL_TEXTURE_WRAP_T, wmGl));
+    GL_CHECK(glTexParameteri(glType, GL_TEXTURE_WRAP_S, wmGL));
+    GL_CHECK(glTexParameteri(glType, GL_TEXTURE_WRAP_T, wmGL));
 #if defined(DF3D_DESKTOP)
-    GL_CHECK(glTexParameteri(glType, GL_TEXTURE_WRAP_R, wmGl));
+    GL_CHECK(glTexParameteri(glType, GL_TEXTURE_WRAP_R, wmGL));
 #endif
 }
 
-static GLenum GetGLBufferUsageType(GpuBufferUsageType t)
+static GLenum GetGLBufferUsageType(GpuBufferUsageType usageType)
 {
-    switch (t)
+    switch (usageType)
     {
     case GpuBufferUsageType::STATIC:
         return GL_STATIC_DRAW;
@@ -149,9 +148,9 @@ static GLenum GetGLBufferUsageType(GpuBufferUsageType t)
     return GL_INVALID_ENUM;
 }
 
-static GLenum GetGLDrawMode(Topology type)
+static GLenum GetGLDrawMode(Topology topologyType)
 {
-    switch (type)
+    switch (topologyType)
     {
     case Topology::LINES:
         return GL_LINES;
@@ -561,25 +560,25 @@ void RenderBackendGL::updateIndexBuffer(IndexBufferHandle ib, size_t indicesCoun
     m_currentIndexBuffer.invalidate();
 }
 
-TextureHandle RenderBackendGL::createTexture2D(int width, int height, PixelFormat format, const uint8_t *data, const TextureCreationParams &params)
+TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const void *data, size_t dataSize)
 {
     TextureHandle textureHandle = m_texturesBag.getNew();
     if (!textureHandle.valid())
     {
         DFLOG_WARN("Failed to create a 2d texture");
-        return{};
+        return {};
     }
 
     auto maxSize = m_caps.maxTextureSize;
-    if (width > maxSize || height > maxSize)
+    if (info.width > maxSize || info.height > maxSize)
     {
-        DFLOG_WARN("Failed to create a 2d texture: size is too big.");
-        return{};
+        DFLOG_WARN("Failed to create a 2D texture: size is too big. Max size: %d", maxSize);
+        return {};
     }
 
     GLint pixelDataFormat = 0;
     GLint glInternalFormat = 0;
-    switch (format)
+    switch (info.format)
     {
     case PixelFormat::RGB:
         pixelDataFormat = GL_RGB;
@@ -589,13 +588,9 @@ TextureHandle RenderBackendGL::createTexture2D(int width, int height, PixelForma
         pixelDataFormat = GL_RGBA;
         glInternalFormat = GL_RGBA;
         break;
-    case PixelFormat::DEPTH:
-        pixelDataFormat = GL_DEPTH_COMPONENT;
-        glInternalFormat = GL_DEPTH_COMPONENT16;
-        break;
     default:
         DFLOG_WARN("Invalid GL texture pixel format");
-        return{};
+        return {};
     }
 
     TextureGL texture;
@@ -606,24 +601,21 @@ TextureHandle RenderBackendGL::createTexture2D(int width, int height, PixelForma
 
     GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture.gl_id));
 
-    SetupGLWrapMode(GL_TEXTURE_2D, params.getWrapMode());
-    SetupGLTextureFiltering(GL_TEXTURE_2D, params.getFiltering(), params.isMipmapped());
+    SetupGLWrapMode(GL_TEXTURE_2D, info.flags);
+    SetupGLTextureFiltering(GL_TEXTURE_2D, info.flags);
 
-    // Init empty texture.
-    if (format == PixelFormat::DEPTH)
-        GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, width, height, 0, pixelDataFormat, GL_FLOAT, nullptr));
-    else
-        GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, width, height, 0, pixelDataFormat, GL_UNSIGNED_BYTE, nullptr));
+    GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, info.width, info.height, 0, pixelDataFormat, GL_UNSIGNED_BYTE, data));
 
-    if (data)
-        GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, pixelDataFormat, GL_UNSIGNED_BYTE, data));
-
-    if (params.isMipmapped())
-        GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
-
-    if (m_anisotropicFilteringSupported && params.isAnisotropyMax())
+    if ((info.flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_TRILINEAR)
     {
-        if (m_caps.maxAnisotropy > 0.0f)
+        // Generate mip maps if not provided with texture.
+        if (info.numMips == 0)
+            GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
+    }
+
+    if (m_anisotropicFilteringSupported && m_caps.maxAnisotropy > 0.0f)
+    {
+        if ((info.flags & TEXTURE_MAX_ANISOTROPY_MASK) == TEXTURE_MAX_ANISOTROPY)
             GL_CHECK(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, std::max(1.0f, m_caps.maxAnisotropy)));
     }
 
@@ -637,71 +629,8 @@ TextureHandle RenderBackendGL::createTexture2D(int width, int height, PixelForma
     m_stats.textures++;
 
 #ifdef _DEBUG
-    m_gpuMemStats.addTexture(textureHandle, width * height * GetPixelSizeForFormat(format));    // TODO: mipmaps!
-#endif
-
-    return textureHandle;
-}
-
-TextureHandle RenderBackendGL::createTextureCube(unique_ptr<PixelBuffer> pixels[(size_t)CubeFace::COUNT], const TextureCreationParams &params)
-{
-    TextureHandle textureHandle = m_texturesBag.getNew();
-    if (!textureHandle.valid())
-    {
-        DFLOG_WARN("Failed to create a cube texture");
-        return{};
-    }
-
-    TextureGL texture;
-
-    GL_CHECK(glGenTextures(1, &texture.gl_id));
-    if (texture.gl_id == 0)
-        return{};
-
-    GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, texture.gl_id));
-
-    SetupGLWrapMode(GL_TEXTURE_CUBE_MAP, params.getWrapMode());
-    SetupGLTextureFiltering(GL_TEXTURE_CUBE_MAP, params.getFiltering(), params.isMipmapped());
-
-    size_t textureSizeInBytes = 0;
-
-    for (int i = 0; i < (size_t)CubeFace::COUNT; i++)
-    {
-        GLint glPixelFormat = 0;
-        switch (pixels[i]->getFormat())
-        {
-        case PixelFormat::RGB:
-            glPixelFormat = GL_RGB;
-            break;
-        case PixelFormat::RGBA:
-            glPixelFormat = GL_RGBA;
-            break;
-        default:
-            DFLOG_WARN("Invalid GL texture pixel format");
-            return{};
-        }
-
-        auto data = pixels[i]->getData();
-        auto width = pixels[i]->getWidth();
-        auto height = pixels[i]->getHeight();
-        GL_CHECK(glTexImage2D(MapSidesToGL.find((CubeFace)i)->second, 0, glPixelFormat, width, height, 0, glPixelFormat, GL_UNSIGNED_BYTE, data));
-
-        textureSizeInBytes += pixels[i]->getSizeInBytes();
-    }
-
-    if (params.isMipmapped())
-        GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
-
-    texture.type = GL_TEXTURE_CUBE_MAP;
-
-    GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
-
-    m_textures[textureHandle.id] = texture;
-
-    m_stats.textures++;
-
-#ifdef _DEBUG
-    m_gpuMemStats.addTexture(textureHandle, textureSizeInBytes);    // TODO: mipmaps!
+    // TODO: mipmaps if was generated!
+    m_gpuMemStats.addTexture(textureHandle, dataSize);
 #endif
 
     return textureHandle;

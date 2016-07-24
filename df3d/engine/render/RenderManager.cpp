@@ -240,18 +240,17 @@ void RenderManager::loadEmbedResources()
         auto data = new uint8_t[w * h * 4];
         memset(data, 255, w * h * 4);
 
-        TextureCreationParams params;
-        params.setFiltering(TextureFiltering::NEAREST);
-        params.setMipmapped(false);
-        params.setWrapMode(TextureWrapMode::WRAP);
-        params.setAnisotropyMax(false);
+        TextureInfo info;
+        info.width = w;
+        info.height = h;
+        info.flags = TEXTURE_FILTERING_NEAREST | TEXTURE_WRAP_MODE_REPEAT;
+        info.numMips = 0;
+        info.format = pf;
 
-        auto pb = make_unique<PixelBuffer>(w, h, data, pf);
-
-        m_whiteTexture = svc().resourceManager().getFactory().createTexture(std::move(pb), params);
+        m_whiteTexture = svc().resourceManager().getFactory().createTexture(info, data, w * h * 4);
         m_whiteTexture->setResident(true);
 
-        delete[] data;
+        delete [] data;
     }
 
     // Load resident GPU programs.
@@ -342,11 +341,6 @@ void RenderManager::drawRenderOperation(const RenderOperation &op)
 const Viewport& RenderManager::getViewport() const
 {
     return m_viewport;
-}
-
-const RenderingCapabilities& RenderManager::getRenderingCapabilities() const
-{
-    return m_initParams.renderingCaps;
 }
 
 FrameStats RenderManager::getFrameStats() const
