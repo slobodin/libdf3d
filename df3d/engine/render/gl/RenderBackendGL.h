@@ -133,7 +133,7 @@ class RenderBackendGL : public IRenderBackend
     {
         GLuint gl_id = 0;
         GLenum type = GL_INVALID_ENUM;
-        GLint pixelFormat = 0;
+        GLenum pixelFormat = GL_INVALID_ENUM;
     };
 
     struct ShaderGL

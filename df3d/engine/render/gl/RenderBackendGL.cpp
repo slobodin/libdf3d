@@ -8,6 +8,9 @@
 
 namespace df3d {
 
+// FIXME:
+extern size_t ComputePVRTCDataSize(int width, int height, int bpp);
+
 static const char* GLErrorCodeToString(GLenum errcode)
 {
 #if defined(DF3D_DESKTOP)
@@ -71,6 +74,12 @@ static size_t GetNextPot(size_t v)
         v = 1 << (n + 1);
     }
     return v;
+}
+
+static bool IsCompressedTexture(PixelFormat fmt)
+{
+    return fmt == PixelFormat::PVRTC_2RGB_V1 || fmt == PixelFormat::PVRTC_2RGBA_V1 ||
+           fmt == PixelFormat::PVRTC_4RGB_V1 || fmt == PixelFormat::PVRTC_4RGBA_V1;
 }
 
 static const std::map<CubeFace, GLenum> MapSidesToGL =
@@ -576,7 +585,7 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const vo
         return {};
     }
 
-    GLint pixelDataFormat = 0;
+    GLenum pixelDataFormat = 0;
     GLint glInternalFormat = 0;
     switch (info.format)
     {
@@ -588,6 +597,20 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const vo
         pixelDataFormat = GL_RGBA;
         glInternalFormat = GL_RGBA;
         break;
+#ifdef GL_IMG_texture_compression_pvrtc
+    case PixelFormat::PVRTC_2RGB_V1:
+        glInternalFormat = GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
+        break;
+    case PixelFormat::PVRTC_2RGBA_V1:
+        glInternalFormat = GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
+        break;
+    case PixelFormat::PVRTC_4RGB_V1:
+        glInternalFormat = GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
+        break;
+    case PixelFormat::PVRTC_4RGBA_V1:
+        glInternalFormat = GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
+        break;
+#endif
     default:
         DFLOG_WARN("Invalid GL texture pixel format");
         return {};
@@ -604,13 +627,40 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const vo
     SetupGLWrapMode(GL_TEXTURE_2D, info.flags);
     SetupGLTextureFiltering(GL_TEXTURE_2D, info.flags);
 
-    GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, info.width, info.height, 0, pixelDataFormat, GL_UNSIGNED_BYTE, data));
-
-    if ((info.flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_TRILINEAR)
+    if (IsCompressedTexture(info.format))
     {
-        // Generate mip maps if not provided with texture.
-        if (info.numMips == 0)
-            GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
+        // FIXME: this is the test code! Works only for PVRTC.
+        DF3D_ASSERT(info.numMips > 0);
+
+        int bpp = 2;
+        if (info.format == PixelFormat::PVRTC_4RGB_V1 || info.format == PixelFormat::PVRTC_4RGBA_V1)
+            bpp = 4;
+
+        GLsizei w = info.width;
+        GLsizei h = info.height;
+        const GLubyte *ptr = reinterpret_cast<const GLubyte*>(data);
+
+        for (size_t mip = 0; mip < info.numMips; mip++)
+        {
+            size_t sz = ComputePVRTCDataSize(w, h, bpp);
+
+            GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_2D, mip, glInternalFormat, w, h, 0, sz, ptr));
+
+            w = std::max(w >> 1, 1);
+            h = std::max(h >> 1, 1);
+            ptr += sz;
+        }
+    }
+    else
+    {
+        GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, info.width, info.height, 0, pixelDataFormat, GL_UNSIGNED_BYTE, data));
+
+        if ((info.flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_TRILINEAR)
+        {
+            // Generate mip maps if not provided with texture.
+            if (info.numMips == 0)
+                GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
+        }
     }
 
     if (m_anisotropicFilteringSupported && m_caps.maxAnisotropy > 0.0f)
@@ -645,6 +695,7 @@ void RenderBackendGL::updateTexture(TextureHandle textureHandle, int w, int h, c
     DF3D_ASSERT(texture.type != GL_INVALID_ENUM);
 
     GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture.gl_id));
+    DF3D_ASSERT(texture.pixelFormat != GL_INVALID_ENUM);
     GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, texture.pixelFormat, GL_UNSIGNED_BYTE, data));
 }
 

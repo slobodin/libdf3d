@@ -22,7 +22,7 @@ struct PvrtcHeader
     uint32_t metaDataSize;
 };
 
-static size_t ComputePVRTCDataSize(int width, int height, int bpp)
+size_t ComputePVRTCDataSize(int width, int height, int bpp)
 {
     int blockSize;
     int widthBlocks;
