@@ -139,6 +139,12 @@ static unique_ptr<PixelBuffer> LoadPvr(shared_ptr<DataSource> source)
     PvrtcHeader header;
     source->read(&header, sizeof(header));
 
+    if (header.version != 0x03525650)
+    {
+        DFLOG_WARN("Unsupported PVRTC version");
+        return nullptr;
+    }
+
     if (header.pixelFormat[1] != 0)
     {
         DFLOG_WARN("Failed to decode PVRTC texture. Pixel format is not supported");
@@ -151,20 +157,26 @@ static unique_ptr<PixelBuffer> LoadPvr(shared_ptr<DataSource> source)
         return nullptr;
     }
 
+    PixelFormat pixelFormat = PixelFormat::INVALID;
+
     int bpp;
     switch (header.pixelFormat[0])
     {
     case 0:     // PVRTC 2bpp RGB
         bpp = 2;
+        pixelFormat = PixelFormat::PVRTC_2RGB_V1;
         break;
     case 1:     // PVRTC 2bpp RGBA
         bpp = 2;
+        pixelFormat = PixelFormat::PVRTC_2RGBA_V1;
         break;
     case 2:     // PVRTC 4bpp RGB
         bpp = 4;
+        pixelFormat = PixelFormat::PVRTC_4RGB_V1;
         break;
     case 3:     // PVRTC 4bpp RGBA
         bpp = 4;
+        pixelFormat = PixelFormat::PVRTC_4RGBA_V1;
         break;
     default:
         DFLOG_WARN("Failed to decode PVRTC texture. Unknown texture format");
@@ -189,15 +201,17 @@ static unique_ptr<PixelBuffer> LoadPvr(shared_ptr<DataSource> source)
         h = std::max(h >> 1, 1);
     }
 
-    PodArray<uint8_t> pixels(MemoryManager::allocDefault());
-    pixels.resize(dataSize);
-    if (source->read(&pixels[0], dataSize) != dataSize)
+    uint8_t *data = new uint8_t[dataSize];
+    if (source->read(data, dataSize) != dataSize)
     {
         DFLOG_WARN("Failed to read PVRTC pixels");
+        delete [] data;
         return nullptr;
     }
 
-    return nullptr;
+    auto res = make_unique<PixelBuffer>(width, height, data, dataSize, pixelFormat);
+    res->setNumMips(header.numMips);
+    return res;
 }
 
 static unique_ptr<PixelBuffer> LoadPixelBuffer(shared_ptr<DataSource> source, bool forceRgba = false)
@@ -260,6 +274,7 @@ Texture* Texture2DManualLoader::load()
         m_pixelBuffer->getHeight(),
         m_pixelBuffer->getFormat(),
         m_pixelBuffer->getData(),
+        m_pixelBuffer->getSizeInBytes(),
         m_params);
 
     if (!handle.valid())
@@ -302,6 +317,7 @@ void Texture2DFSLoader::onDecoded(Resource *resource)
         m_pixelBuffer->getHeight(),
         m_pixelBuffer->getFormat(),
         m_pixelBuffer->getData(),
+        m_pixelBuffer->getSizeInBytes(),
         m_params);
     if (handle.valid())
     {
