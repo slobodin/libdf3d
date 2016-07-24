@@ -157,6 +157,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/AudioLoader_wav.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/MeshLoader_dfmesh.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/MeshLoader_obj.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/TextureLoader_pvrtc.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/TextureLoader_stbi.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/TextureLoader_webp.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/script/ScriptBindings.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/script/ScriptManager.h
     ${PROJECT_SOURCE_DIR}/df3d/game/ComponentDataHolder.h
@@ -266,6 +269,9 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/AudioLoader_wav.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/MeshLoader_dfmesh.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/MeshLoader_obj.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/TextureLoader_pvrtc.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/TextureLoader_stbi.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/TextureLoader_webp.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/script/ScriptBindings.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/script/ScriptManager.cpp
     ${PROJECT_SOURCE_DIR}/df3d/game/FPSCamera.cpp
