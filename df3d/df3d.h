@@ -77,7 +77,7 @@
 #include <btBulletDynamicsCommon.h>
 
 #include <df3d/engine/audio/AudioManager.h>
-#include <df3d/engine/audio/AudioComponentProcessor.h>
+#include <df3d/engine/audio/AudioWorld.h>
 
 #include <df3d/game/FPSCamera.h>
 #include <df3d/game/Entity.h>

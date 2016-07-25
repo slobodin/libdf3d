@@ -2,7 +2,6 @@
 
 #include "impl/EntityManager.h"
 #include "impl/EntityLoader.h"
-#include <df3d/engine/audio/AudioComponentProcessor.h>
 #include <df3d/engine/TimeManager.h>
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/2d/Sprite2DComponentProcessor.h>
@@ -31,7 +30,6 @@ void World::update()
         m_vfx->update();
         m_staticMeshes->update();
         m_sprite2D->update();
-        m_audio->update();
         m_tags->update();
     }
 
@@ -68,7 +66,6 @@ void World::cleanStep()
 World::World()
     : m_entityManager(new game_impl::EntityManager()),
     m_entityLoader(new game_impl::EntityLoader()),
-    m_audio(new AudioComponentProcessor(this)),
     m_staticMeshes(new StaticMeshComponentProcessor(this)),
     m_vfx(new ParticleSystemComponentProcessor(this)),
     m_physics(new PhysicsComponentProcessor(this)),
@@ -79,7 +76,6 @@ World::World()
     m_timeMgr(new TimeManager()),
     m_engineProcessors(MemoryManager::allocDefault())
 {
-    m_engineProcessors.push_back(m_audio.get());
     m_engineProcessors.push_back(m_staticMeshes.get());
     m_engineProcessors.push_back(m_vfx.get());
     m_engineProcessors.push_back(m_physics.get());
@@ -94,7 +90,6 @@ void World::destroyWorld()
     m_engineProcessors.clear();
 
     m_tags.reset();
-    m_audio.reset();
     m_staticMeshes.reset();
     m_sprite2D.reset();
     m_vfx.reset();
@@ -176,11 +171,6 @@ size_t World::getEntitiesCount()
 void World::pauseSimulation(bool paused)
 {
     m_paused = paused;
-}
-
-AudioComponentProcessor& World::audio()
-{
-    return static_cast<AudioComponentProcessor&>(*m_audio);
 }
 
 StaticMeshComponentProcessor& World::staticMesh()

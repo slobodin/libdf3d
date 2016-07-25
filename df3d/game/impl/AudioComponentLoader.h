@@ -1,7 +1,6 @@
 #pragma once
 
 #include <df3d/game/EntityComponentLoader.h>
-#include <df3d/engine/audio/AudioComponentProcessor.h>
 
 namespace df3d {
 
@@ -10,6 +9,8 @@ class AudioComponentLoader : public EntityComponentLoader
 public:
     void loadComponent(const Json::Value &root, Entity e, World &w) const override
     {
+        DF3D_ASSERT_MESS(false, "Not implemented");
+        /*
         std::string path;
         float pitch = 1.0f, gain = 1.0f;
         bool looped = false;
@@ -30,6 +31,7 @@ public:
 
         if (autoplay)
             w.audio().play(e);
+        */
     }
 };
 

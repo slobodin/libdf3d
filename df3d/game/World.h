@@ -8,7 +8,6 @@ namespace df3d {
 
 namespace game_impl { class EntityManager; class EntityLoader; }
 
-class AudioComponentProcessor;
 class StaticMeshComponentProcessor;
 class ParticleSystemComponentProcessor;
 class PhysicsComponentProcessor;
@@ -30,7 +29,6 @@ class DF3D_DLL World : NonCopyable
 
     using ComponentProcessor = unique_ptr<EntityComponentProcessor>;
 
-    ComponentProcessor m_audio;
     ComponentProcessor m_staticMeshes;
     ComponentProcessor m_vfx;
     ComponentProcessor m_physics;
@@ -95,7 +93,6 @@ public:
     WorldRenderingParams& getRenderingParams() { return m_renderingParams; }
     const WorldRenderingParams& getRenderingParams() const { return m_renderingParams; }
 
-    AudioComponentProcessor& audio();
     StaticMeshComponentProcessor& staticMesh();
     ParticleSystemComponentProcessor& vfx();
     PhysicsComponentProcessor& physics();
