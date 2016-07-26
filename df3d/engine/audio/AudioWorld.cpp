@@ -126,8 +126,7 @@ void AudioWorld::pause(AudioSourceHandle handle)
 void AudioWorld::setSoundVolume(float volume)
 {
     m_soundVolume = utils::clamp(volume, 0.0f, 1.0f);
-    for (auto &data : m_lookup)
-        alSourcef(data.second.audioSourceId, AL_GAIN, data.second.gain * m_soundVolume);
+    alListenerf(AL_GAIN, volume);
 }
 
 void AudioWorld::setListenerPosition(const glm::vec3 &pos)
@@ -139,6 +138,11 @@ void AudioWorld::setListenerOrientation(const glm::vec3 &dir, const glm::vec3 &u
 {
     ALfloat listenerOrientation[] = { dir.x, dir.y, dir.z, up.x, up.y, up.z };
     alListenerfv(AL_ORIENTATION, listenerOrientation);
+}
+
+void AudioWorld::setListenerVelocity(const glm::vec3 &velocity)
+{
+    alListenerfv(AL_VELOCITY, glm::value_ptr(velocity));
 }
 
 void AudioWorld::setPitch(AudioSourceHandle handle, float pitch)
@@ -155,7 +159,7 @@ void AudioWorld::setGain(AudioSourceHandle handle, float gain)
     if (auto source = lookupSource(handle))
     {
         source->gain = gain;
-        alSourcef(source->audioSourceId, AL_GAIN, gain * m_soundVolume);
+        alSourcef(source->audioSourceId, AL_GAIN, gain);
     }
 }
 
@@ -188,6 +192,12 @@ void AudioWorld::setPosition(AudioSourceHandle handle, const glm::vec3 &pos)
 {
     if (auto source = lookupSource(handle))
         alSourcefv(source->audioSourceId, AL_POSITION, glm::value_ptr(pos));
+}
+
+void AudioWorld::setVelocity(AudioSourceHandle handle, const glm::vec3 &velocity)
+{
+    if (auto source = lookupSource(handle))
+        alSourcefv(source->audioSourceId, AL_VELOCITY, glm::value_ptr(velocity));
 }
 
 float AudioWorld::getPitch(AudioSourceHandle handle) const
@@ -250,6 +260,7 @@ AudioSourceHandle AudioWorld::create(const std::string &audioFilePath, bool stre
         DFLOG_WARN("Can not add a buffer to an audio source. Audio path: %s", audioFilePath.c_str());
 
     source.buffer = buffer;
+    source.looped = looped;
 
     printOpenALError();
 
@@ -266,6 +277,8 @@ AudioSourceHandle AudioWorld::create(const std::string &audioFilePath, bool stre
         m_streamingData.push_back(streamingData);
         m_streamingMutex.unlock();
     }
+    else
+        alSourcei(source.audioSourceId, AL_LOOPING, looped);
 
     return handle;
 }

@@ -66,12 +66,14 @@ public:
 
     void setListenerPosition(const glm::vec3 &pos);
     void setListenerOrientation(const glm::vec3 &dir, const glm::vec3 &up);
+    void setListenerVelocity(const glm::vec3 &velocity);
 
     void setPitch(AudioSourceHandle handle, float pitch);
     void setGain(AudioSourceHandle handle, float gain);
     void setLooped(AudioSourceHandle handle, bool looped);
     void setRolloffFactor(AudioSourceHandle handle, float factor);
     void setPosition(AudioSourceHandle handle, const glm::vec3 &pos);
+    void setVelocity(AudioSourceHandle handle, const glm::vec3 &velocity);
 
     float getPitch(AudioSourceHandle handle) const;
     float getGain(AudioSourceHandle handle) const;
