@@ -58,6 +58,9 @@ public:
 
     void update();
 
+    void suspend();
+    void resume();
+
     void play(AudioSourceHandle handle);
     void stop(AudioSourceHandle handle);
     void pause(AudioSourceHandle handle);

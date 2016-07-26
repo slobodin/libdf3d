@@ -77,12 +77,7 @@ AudioWorld::AudioWorld()
 
 AudioWorld::~AudioWorld()
 {
-    if (m_streamingThreadActive)
-    {
-        m_streamingThreadActive = false;
-        m_streamingThread.join();
-        m_streamingThread = {};
-    }
+    suspend();
 
     if (!m_lookup.empty())
         DFLOG_WARN("Not all audio sources have been destroyed, %d left", m_lookup.size());
@@ -94,6 +89,25 @@ AudioWorld::~AudioWorld()
 void AudioWorld::update()
 {
     m_handleBag.cleanup();
+}
+
+void AudioWorld::suspend()
+{
+    if (m_streamingThreadActive)
+    {
+        m_streamingThreadActive = false;
+        m_streamingThread.join();
+        m_streamingThread = {};
+    }
+}
+
+void AudioWorld::resume()
+{
+    if (!m_streamingThreadActive)
+    {
+        m_streamingThreadActive = true;
+        m_streamingThread = std::thread{ [this]() { streamThread(); } };
+    }
 }
 
 void AudioWorld::play(AudioSourceHandle handle)
