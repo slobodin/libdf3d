@@ -20,6 +20,7 @@ class DF3D_DLL StaticMeshComponentProcessor : public EntityComponentProcessor
     unique_ptr<Impl> m_pimpl;
 
     World *m_world;
+    bool m_renderingEnabled = true;
 
     void update() override;
     void draw(RenderQueue *ops) override;
@@ -35,6 +36,7 @@ public:
     BoundingSphere getBoundingSphere(Entity e);
     OBB getOBB(Entity e);
 
+    void enableRender(bool enable);
     void setVisible(Entity e, bool visible);
     void disableFrustumCulling(Entity e, bool disable);
 

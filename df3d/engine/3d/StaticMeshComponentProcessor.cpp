@@ -61,6 +61,9 @@ void StaticMeshComponentProcessor::update()
 
 void StaticMeshComponentProcessor::draw(RenderQueue *ops)
 {
+    if (!m_renderingEnabled)
+        return;
+
     for (const auto &compData : m_pimpl->data.rawData())
     {
         if (!compData.meshData->isInitialized())
@@ -141,6 +144,11 @@ OBB StaticMeshComponentProcessor::getOBB(Entity e)
     // FIXME: mb cache if transformation hasn't been changed?
     DF3D_ASSERT_MESS(false, "not implemented");
     return OBB();
+}
+
+void StaticMeshComponentProcessor::enableRender(bool enable)
+{
+    m_renderingEnabled = enable;
 }
 
 void StaticMeshComponentProcessor::setVisible(Entity e, bool visible)
