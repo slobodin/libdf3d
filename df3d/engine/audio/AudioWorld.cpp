@@ -324,6 +324,7 @@ void AudioWorld::destroy(AudioSourceHandle handle)
         alDeleteSources(1, &found->second.audioSourceId);
 
         m_lookup.erase(found);
+        m_handleBag.release(handle);
     }
     else
         DFLOG_WARN("Failed to destroy an audio source. Source is not exists");
