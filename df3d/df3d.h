@@ -53,6 +53,7 @@
 #include <df3d/engine/render/RenderQueue.h>
 #include <df3d/engine/render/IRenderBackend.h>
 #include <df3d/engine/render/RenderManager.h>
+#include <df3d/engine/render/Texture.h>
 
 #include <df3d/engine/input/InputEvents.h>
 #include <df3d/engine/input/InputManager.h>

@@ -8,6 +8,7 @@ class DF3D_DLL EngineCVars
 {
 public:
     static ConfigVariableBool bulletDebugDraw;
+    static ConfigVariableInt preferredFPS;
 };
 
 }

@@ -1,5 +1,7 @@
 #include "TimeManager.h"
 
+#include <df3d/engine/EngineCVars.h>
+
 namespace df3d {
 
 void Timer::update()
@@ -16,7 +18,10 @@ void Timer::update()
 
         auto dt = TimeUtils::IntervalBetween(timeInfo.currTime, timeInfo.prevTime);
         if (i == TIME_CHANNEL_GAME)
-            dt = std::min(dt, 1.0f);
+        {
+            auto maxDt = 1.0f / EngineCVars::preferredFPS;
+            dt = std::min(dt, maxDt);
+        }
 
         timeInfo.dt = dt * timeInfo.scale;
     }

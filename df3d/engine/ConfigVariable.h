@@ -37,5 +37,6 @@ public:
 
 using ConfigVariableInt = ConfigVariable<int>;
 using ConfigVariableBool = ConfigVariable<bool>;
+using ConfigVariableFloat = ConfigVariable<float>;
 
 }
