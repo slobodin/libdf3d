@@ -4,6 +4,8 @@
 #include <df3d/platform/AppDelegate.h>
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/input/InputManager.h>
+#include <df3d/engine/EngineCVars.h>
+#include <df3d/lib/Utils.h>
 #include <GLFW/glfw3.h>
 
 namespace df3d {
@@ -26,6 +28,7 @@ class DesktopAppState
 {
     GLFWwindow *m_window = nullptr;
     AppDelegate *m_appDelegate;
+    bool m_vsync = false;
 
 public:
     DesktopAppState() = default;
@@ -62,8 +65,11 @@ public:
         glfwMakeContextCurrent(m_window);
         glfwSetWindowUserPointer(m_window, this);
 
+        /*
         if (params.vsync)
             glfwSwapInterval(1);
+        */
+        m_vsync = params.vsync;
 
         // Set input callbacks.
         glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
@@ -106,11 +112,15 @@ public:
 
         while (!glfwWindowShouldClose(m_window))
         {
+            const double prefFPS = EngineCVars::preferredFPS;
+            const auto frameEnds = std::chrono::steady_clock::now() + std::chrono::duration<double>(1.0 / prefFPS);
+
             glfwPollEvents();
-
             svc().step();
-
             glfwSwapBuffers(m_window);
+
+            if (m_vsync)
+                std::this_thread::sleep_until(frameEnds);
         }
     }
 
