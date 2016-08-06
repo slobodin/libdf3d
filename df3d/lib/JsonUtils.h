@@ -7,6 +7,7 @@ namespace df3d {
 class DF3D_DLL JsonUtils
 {
 public:
+    // TODO: should not rely on engine.
     static Json::Value fromFile(const std::string &path);
     static Json::Value fromSource(const std::string &data);
 
