@@ -14,4 +14,7 @@ extern const uint32_t TEXTURE_WRAP_MODE_MASK = 0x0000000C;
 extern const uint32_t TEXTURE_MAX_ANISOTROPY = 0x00000010;
 extern const uint32_t TEXTURE_MAX_ANISOTROPY_MASK = 0x00000010;
 
+//extern const uint32_t TEXTURE_RENDER_TARGET;
+//extern const uint32_t TEXTURE_RENDER_TARGET_MASK;
+
 }

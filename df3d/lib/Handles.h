@@ -2,6 +2,8 @@
 
 namespace df3d {
 
+static const int32_t INVALID_HANDLE = -1;
+
 #define DF3D_MAKE_SHORT_HANDLE(name) struct name { \
     int16_t id; \
     name(int16_t id = -1) : id(id) { } \

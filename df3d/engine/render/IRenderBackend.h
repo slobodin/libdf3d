@@ -51,9 +51,14 @@ public:
     virtual GpuProgramHandle createGpuProgram(ShaderHandle vertexShaderHandle, ShaderHandle fragmentShaderHandle) = 0;
     virtual void destroyGpuProgram(GpuProgramHandle programHandle) = 0;
 
+    virtual FrameBufferHandle createFrameBuffer(TextureHandle *attachments, size_t attachmentCount) = 0;
+    virtual void destroyFrameBuffer(FrameBufferHandle framebufferHandle) = 0;
+
     virtual void bindGpuProgram(GpuProgramHandle programHandle) = 0;
     virtual void requestUniforms(GpuProgramHandle programHandle, std::vector<UniformHandle> &outHandles, std::vector<std::string> &outNames) = 0;
     virtual void setUniformValue(UniformHandle uniformHandle, const void *data) = 0;
+
+    virtual void bindFrameBuffer(FrameBufferHandle frameBufferHandle) = 0;
 
     virtual void setViewport(int x, int y, int width, int height) = 0;
 

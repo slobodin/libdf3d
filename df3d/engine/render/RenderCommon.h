@@ -83,6 +83,7 @@ DF3D_MAKE_SHORT_HANDLE(TextureHandle)
 DF3D_MAKE_SHORT_HANDLE(ShaderHandle)
 DF3D_MAKE_SHORT_HANDLE(GpuProgramHandle)
 DF3D_MAKE_SHORT_HANDLE(UniformHandle)
+DF3D_MAKE_SHORT_HANDLE(FrameBufferHandle)
 
 struct DF3D_DLL FrameStats
 {

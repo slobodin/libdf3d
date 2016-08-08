@@ -6,6 +6,7 @@
 #endif
 
 #include <df3d/engine/render/IRenderBackend.h>
+#include <df3d/engine/render/Texture.h>
 #include <df3d/lib/Handles.h>
 #include <df3d/lib/Utils.h>
 
@@ -134,6 +135,7 @@ class RenderBackendGL : public IRenderBackend
         GLuint gl_id = 0;
         GLenum type = GL_INVALID_ENUM;
         GLenum pixelFormat = GL_INVALID_ENUM;
+        TextureInfo info;
     };
 
     struct ShaderGL
@@ -155,6 +157,11 @@ class RenderBackendGL : public IRenderBackend
         GLint location = -1;
     };
 
+    struct FrameBufferGL
+    {
+        GLuint fbo;
+    };
+
     RenderBackendCaps m_caps;
     mutable FrameStats m_stats;
 
@@ -166,6 +173,7 @@ class RenderBackendGL : public IRenderBackend
     StaticHandleBag<ShaderHandle, MAX_SIZE> m_shadersBag;
     StaticHandleBag<GpuProgramHandle, MAX_SIZE> m_gpuProgramsBag;
     StaticHandleBag<UniformHandle, MAX_SIZE> m_uniformsBag;
+    StaticHandleBag<FrameBufferHandle, MAX_SIZE> m_framebuffersBag;
 
     VertexBufferGL m_vertexBuffers[MAX_SIZE];
     IndexBufferGL m_indexBuffers[MAX_SIZE];
@@ -173,6 +181,7 @@ class RenderBackendGL : public IRenderBackend
     ShaderGL m_shaders[MAX_SIZE];
     ProgramGL m_programs[MAX_SIZE];
     UniformGL m_uniforms[MAX_SIZE];
+    FrameBufferGL m_frameBuffers[MAX_SIZE];
 
     std::unordered_map<GpuProgramHandle, std::vector<UniformHandle>> m_programUniforms;
 
@@ -242,9 +251,14 @@ public:
     GpuProgramHandle createGpuProgram(ShaderHandle vertexShaderHandle, ShaderHandle fragmentShaderHandle) override;
     void destroyGpuProgram(GpuProgramHandle programHandle) override;
 
+    FrameBufferHandle createFrameBuffer(TextureHandle *attachments, size_t attachmentCount) override;
+    void destroyFrameBuffer(FrameBufferHandle framebufferHandle) override;
+
     void bindGpuProgram(GpuProgramHandle programHandle) override;
     void requestUniforms(GpuProgramHandle programHandle, std::vector<UniformHandle> &outHandles, std::vector<std::string> &outNames) override;
     void setUniformValue(UniformHandle uniformHandle, const void *data) override;
+
+    void bindFrameBuffer(FrameBufferHandle frameBufferHandle) override;
 
     void setViewport(int x, int y, int width, int height) override;
 

@@ -66,6 +66,7 @@ enum class ResourceLoadingMode
 enum class PixelFormat
 {
     INVALID,
+
     RGB,
     RGBA,
     DEPTH,

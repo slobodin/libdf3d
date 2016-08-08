@@ -82,6 +82,11 @@ static bool IsCompressedTexture(PixelFormat fmt)
            fmt == PixelFormat::PVRTC_4RGB_V1 || fmt == PixelFormat::PVRTC_4RGBA_V1;
 }
 
+static bool IsDepthTexture(PixelFormat fmt)
+{
+    return fmt == PixelFormat::DEPTH;
+}
+
 static const std::map<CubeFace, GLenum> MapSidesToGL =
 {
     { CubeFace::POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_X },
@@ -273,6 +278,7 @@ void RenderBackendGL::initialize()
     m_shadersBag = {};
     m_gpuProgramsBag = {};
     m_uniformsBag = {};
+    m_framebuffersBag = {};
 
     m_programUniforms.clear();
 
@@ -288,6 +294,7 @@ void RenderBackendGL::initialize()
     std::fill(std::begin(m_shaders), std::end(m_shaders), ShaderGL());
     std::fill(std::begin(m_programs), std::end(m_programs), ProgramGL());
     std::fill(std::begin(m_uniforms), std::end(m_uniforms), UniformGL());
+    std::fill(std::begin(m_frameBuffers), std::end(m_frameBuffers), FrameBufferGL());
 
     GL_CHECK(glDepthFunc(GL_LEQUAL));
     GL_CHECK(glDisable(GL_DEPTH_TEST));
@@ -325,6 +332,7 @@ void RenderBackendGL::initialize()
         sizeof(m_textures) +
         sizeof(m_shaders) +
         sizeof(m_programs) +
+        sizeof(m_frameBuffers) +
         sizeof(m_uniforms);
 
     DFLOG_DEBUG("RenderBackendGL storage %d KB", utils::sizeKB(totalStorage));
@@ -345,6 +353,7 @@ void RenderBackendGL::frameBegin()
     m_shadersBag.cleanup();
     m_gpuProgramsBag.cleanup();
     m_uniformsBag.cleanup();
+    m_framebuffersBag.cleanup();
 
     m_indexedDrawCall = false;
     m_currentIndexType = GL_INVALID_ENUM;
@@ -671,6 +680,7 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const vo
 
     texture.type = GL_TEXTURE_2D;
     texture.pixelFormat = pixelDataFormat;
+    texture.info = info;
 
     GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 
@@ -680,6 +690,7 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const vo
 
 #ifdef _DEBUG
     // TODO: mipmaps if was generated!
+    // TODO: datasize may be NULL if pointer is NULL.
     m_gpuMemStats.addTexture(textureHandle, dataSize);
 #endif
 
@@ -890,6 +901,50 @@ void RenderBackendGL::destroyGpuProgram(GpuProgramHandle programHandle)
     }
 }
 
+FrameBufferHandle RenderBackendGL::createFrameBuffer(TextureHandle *attachments, size_t attachmentCount)
+{
+    FrameBufferHandle fbHandle = m_framebuffersBag.getNew();
+    if (!fbHandle.valid())
+    {
+        DFLOG_WARN("Failed to create a framebuffer handle");
+        return {};
+    }
+
+    FrameBufferGL framebufferGL;
+    GL_CHECK(glGenFramebuffers(1, &framebufferGL.fbo));
+    GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, framebufferGL.fbo));
+
+    for (size_t i = 0; i < attachmentCount; i++)
+    {
+        // TODO: render targets!
+        const auto &textureGL = m_textures[attachments[i].id];
+        if (IsDepthTexture(textureGL.info.format))
+            GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureGL.gl_id, 0));
+        else
+            GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureGL.gl_id, 0));
+    }
+
+    GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
+    m_frameBuffers[fbHandle.id] = framebufferGL;
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        DF3D_ASSERT_MESS(false, "Failed to create GL framebuffer!");
+
+    return fbHandle;
+}
+
+void RenderBackendGL::destroyFrameBuffer(FrameBufferHandle framebufferHandle)
+{
+    HANDLE_CHECK(framebufferHandle);
+
+    const auto &framebufferGL = m_frameBuffers[framebufferHandle.id];
+    GL_CHECK(glDeleteFramebuffers(1, &framebufferGL.fbo));
+
+    m_frameBuffers[framebufferHandle.id] = {};
+    m_framebuffersBag.release(framebufferHandle.id);
+}
+
 void RenderBackendGL::bindGpuProgram(GpuProgramHandle programHandle)
 {
     HANDLE_CHECK(programHandle);
@@ -994,6 +1049,14 @@ void RenderBackendGL::setUniformValue(UniformHandle uniformHandle, const void *d
         DFLOG_WARN("Failed to update GpuProgramUniform. Unknown uniform type");
         break;
     }
+}
+
+void RenderBackendGL::bindFrameBuffer(FrameBufferHandle frameBufferHandle)
+{
+    if (frameBufferHandle == INVALID_HANDLE)
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    else
+        glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffers[frameBufferHandle.id].fbo);
 }
 
 void RenderBackendGL::setViewport(int x, int y, int width, int height)
