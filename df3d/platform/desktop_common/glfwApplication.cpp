@@ -65,10 +65,8 @@ public:
         glfwMakeContextCurrent(m_window);
         glfwSetWindowUserPointer(m_window, this);
 
-        /*
         if (params.vsync)
             glfwSwapInterval(1);
-        */
         m_vsync = params.vsync;
 
         // Set input callbacks.
@@ -119,8 +117,10 @@ public:
             svc().step();
             glfwSwapBuffers(m_window);
 
+            /*
             if (m_vsync)
                 std::this_thread::sleep_until(frameEnds);
+                */
         }
     }
 
