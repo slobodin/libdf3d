@@ -84,6 +84,13 @@ int JsonUtils::getOrDefault(const Json::Value &v, int defVal)
     return v.asInt();
 }
 
+int64_t JsonUtils::getOrDefault(const Json::Value &v, int64_t defVal)
+{
+    if (v.empty())
+        return defVal;
+    return v.asInt64();
+}
+
 size_t JsonUtils::getOrDefault(const Json::Value &v, size_t defVal)
 {
     if (v.empty())

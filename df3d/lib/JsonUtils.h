@@ -18,6 +18,7 @@ public:
     static bool getOrDefault(const Json::Value &v, bool defVal = false);
     static std::string getOrDefault(const Json::Value &v, const std::string &defVal = "");
     static int getOrDefault(const Json::Value &v, int defVal = 0);
+    static int64_t getOrDefault(const Json::Value &v, int64_t defVal = 0);
     static size_t getOrDefault(const Json::Value &v, size_t defVal = 0);
 
     static std::vector<std::string> toStringArray(const Json::Value &v);
