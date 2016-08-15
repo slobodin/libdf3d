@@ -21,8 +21,6 @@
 
 namespace df3d {
 
-static_assert(sizeof(int) >= sizeof(decltype(df3d::Entity::id)), "Can't store user data in bullet user pointer");
-
 ATTRIBUTE_ALIGNED16(class) PhysicsComponentMotionState : public btMotionState
 {
     btTransform m_transform;
@@ -260,7 +258,9 @@ struct PhysicsComponentProcessor::Impl
         if (data.params->disableDeactivation)
             data.body->setActivationState(DISABLE_DEACTIVATION);
 
-        data.body->setUserIndex(data.holder.id);
+        static_assert(sizeof(int) >= sizeof(decltype(data.holder.handle.getID())), "Can't store user data in bullet user data");
+
+        data.body->setUserIndex(data.holder.handle.getID());
 
         if (data.params->noContactResponse)
             data.body->setCollisionFlags(data.body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
@@ -290,16 +290,12 @@ void PhysicsComponentProcessor::update()
     m_pimpl->dynamicsWorld->stepSimulation(svc().timer().getFrameDelta(TIME_CHANNEL_GAME), 5, fixedStep);
 }
 
-void PhysicsComponentProcessor::cleanStep(const std::list<Entity> &deleted)
-{
-    m_pimpl->data.cleanStep(deleted);
-    m_pimpl->debugDraw->clean();
-}
-
 void PhysicsComponentProcessor::draw(RenderQueue *ops)
 {
     if (!EngineCVars::bulletDebugDraw)
         return;
+
+    m_pimpl->debugDraw->clean();
 
     // Collect render operations.
     m_pimpl->dynamicsWorld->debugDrawWorld();
@@ -333,12 +329,12 @@ PhysicsComponentProcessor::~PhysicsComponentProcessor()
 
 btRigidBody* PhysicsComponentProcessor::getBody(Entity e)
 {
-    return m_pimpl->data.getData(e).body;
+    return m_pimpl->data.getData(e.handle).body;
 }
 
 glm::vec3 PhysicsComponentProcessor::getCenterOfMass(Entity e)
 {
-    auto body = m_pimpl->data.getData(e).body;
+    auto body = m_pimpl->data.getData(e.handle).body;
     DF3D_ASSERT(body);
     return btToGlm(body->getCenterOfMassPosition());
 }
@@ -381,7 +377,7 @@ void PhysicsComponentProcessor::teleportOrientation(Entity e, const glm::quat &o
 
 void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> mesh)
 {
-    if (m_pimpl->data.contains(e))
+    if (m_pimpl->data.contains(e.handle))
     {
         DFLOG_WARN("An entity already has an physics component");
         return;
@@ -395,14 +391,14 @@ void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationPara
     if (mesh->isInitialized())
         m_pimpl->initialize(data);
 
-    m_pimpl->data.add(e, data);
+    m_pimpl->data.add(e.handle, data);
 }
 
 void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, short mask)
 {
     DF3D_ASSERT(body);
 
-    if (m_pimpl->data.contains(e))
+    if (m_pimpl->data.contains(e.handle))
     {
         DFLOG_WARN("An entity already has an physics component");
         return;
@@ -418,25 +414,19 @@ void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, sh
     else
         m_pimpl->dynamicsWorld->addRigidBody(body);
 
-    data.body->setUserIndex(e.id);
+    data.body->setUserIndex(e.handle.getID());
 
-    m_pimpl->data.add(e, data);
+    m_pimpl->data.add(e.handle, data);
 }
 
 void PhysicsComponentProcessor::remove(Entity e)
 {
-    if (!m_pimpl->data.contains(e))
-    {
-        DFLOG_WARN("Failed to remove physics component from an entity. Component is not attached");
-        return;
-    }
-
-    m_pimpl->data.remove(e);
+    m_pimpl->data.remove(e.handle);
 }
 
 bool PhysicsComponentProcessor::has(Entity e)
 {
-    return m_pimpl->data.lookup(e).valid();
+    return m_pimpl->data.contains(e.handle);
 }
 
 btDynamicsWorld* PhysicsComponentProcessor::getPhysicsWorld()
