@@ -37,7 +37,7 @@ public:
         auto orientation = w.sceneGraph().getWorldOrientation(m_holder);
         auto position = w.sceneGraph().getWorldPosition(m_holder);
 
-        m_transform = btTransform(glmTobt(orientation), glmTobt(position));
+        m_transform = btTransform(PhysicsHelpers::glmTobt(orientation), PhysicsHelpers::glmTobt(position));
     }
 
     ~PhysicsComponentMotionState()
@@ -165,13 +165,13 @@ struct PhysicsComponentProcessor::Impl
             tempPoints.resize(vertices.size());
 
             for (size_t i = 0; i < vertices.size(); i++)
-                tempPoints[i] = glmTobt(vertices[i]);
+                tempPoints[i] = PhysicsHelpers::glmTobt(vertices[i]);
 
             auto colShape = new btConvexHullShape((btScalar*)tempPoints.data(), tempPoints.size());
 
             // FIXME: what to do if scale has been changed?
             auto scale = svc().defaultWorld().sceneGraph().getLocalScale(data.holder);
-            colShape->setLocalScaling(glmTobt(scale));
+            colShape->setLocalScaling(PhysicsHelpers::glmTobt(scale));
 
             return colShape;
         }
@@ -202,7 +202,7 @@ struct PhysicsComponentProcessor::Impl
                     v2.getPosition(&p2);
                     v3.getPosition(&p3);
 
-                    bulletMesh->addTriangle(glmTobt(p1), glmTobt(p2), glmTobt(p3));
+                    bulletMesh->addTriangle(PhysicsHelpers::glmTobt(p1), PhysicsHelpers::glmTobt(p2), PhysicsHelpers::glmTobt(p3));
                 }
             }
 
@@ -210,7 +210,7 @@ struct PhysicsComponentProcessor::Impl
 
             auto colShape = new btBvhTriangleMeshShape(bulletMesh, true);
             auto scale = svc().defaultWorld().sceneGraph().getLocalScale(data.holder);
-            colShape->setLocalScaling(glmTobt(scale));
+            colShape->setLocalScaling(PhysicsHelpers::glmTobt(scale));
 
             return colShape;
         }
@@ -258,9 +258,9 @@ struct PhysicsComponentProcessor::Impl
         if (data.params->disableDeactivation)
             data.body->setActivationState(DISABLE_DEACTIVATION);
 
-        static_assert(sizeof(int) >= sizeof(decltype(data.holder.handle.getID())), "Can't store user data in bullet user data");
+        static_assert(sizeof(int) >= sizeof(Entity), "Can't store user data in bullet user data");
 
-        data.body->setUserIndex(data.holder.handle.getID());
+        data.body->setUserIndex(*reinterpret_cast<int*>(&data.holder));
 
         if (data.params->noContactResponse)
             data.body->setCollisionFlags(data.body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
@@ -336,7 +336,7 @@ glm::vec3 PhysicsComponentProcessor::getCenterOfMass(Entity e)
 {
     auto body = m_pimpl->data.getData(e.handle).body;
     DF3D_ASSERT(body);
-    return btToGlm(body->getCenterOfMassPosition());
+    return PhysicsHelpers::btToGlm(body->getCenterOfMassPosition());
 }
 
 void PhysicsComponentProcessor::teleportPosition(Entity e, const glm::vec3 &pos)
@@ -345,7 +345,7 @@ void PhysicsComponentProcessor::teleportPosition(Entity e, const glm::vec3 &pos)
     if (body)
     {
         auto tr = body->getWorldTransform();
-        tr.setOrigin(glmTobt(pos));
+        tr.setOrigin(PhysicsHelpers::glmTobt(pos));
 
         body->setWorldTransform(tr);
 
@@ -414,7 +414,7 @@ void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, sh
     else
         m_pimpl->dynamicsWorld->addRigidBody(body);
 
-    data.body->setUserIndex(e.handle.getID());
+    data.body->setUserIndex(*reinterpret_cast<int*>(&e));
 
     m_pimpl->data.add(e.handle, data);
 }

@@ -128,8 +128,8 @@ void SceneGraphComponentProcessor::setWorldTransform(Entity e, const btTransform
     worldTrans.getOpenGLMatrix(glm::value_ptr(df3dWorldTransf));
 
     compData.wTransform.combined = df3dWorldTransf * glm::scale(compData.lTransform.scaling);
-    compData.wTransform.orientation = btToGlm(worldTrans.getRotation());
-    compData.wTransform.position = btToGlm(worldTrans.getOrigin());
+    compData.wTransform.orientation = PhysicsHelpers::btToGlm(worldTrans.getRotation());
+    compData.wTransform.position = PhysicsHelpers::btToGlm(worldTrans.getOrigin());
     compData.wTransform.scaling = compData.lTransform.scaling;
     compData.lTransform = compData.wTransform;
     compData.localTransformDirty = false;
