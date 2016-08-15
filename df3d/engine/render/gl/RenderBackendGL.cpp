@@ -1,5 +1,6 @@
 #include "RenderBackendGL.h"
 
+#include <df3d/engine/EngineController.h>
 #include <df3d/engine/render/RenderCommon.h>
 #include <df3d/engine/render/Texture.h>
 #include <df3d/engine/render/RenderOperation.h>
@@ -44,18 +45,6 @@ static const char* GLErrorCodeToString(GLenum errcode)
     } while(0)
 #else
 #define GL_CHECK(call) call
-#endif
-
-#if defined(_DEBUG) || defined(DEBUG)
-#define HANDLE_CHECK(handle) do { if (!handle.valid()) { DFLOG_WARN("Invalid handle"); DEBUG_BREAK(); return; } } while (0)
-#else
-#define HANDLE_CHECK(handle) do { if (!handle.valid()) return; } while (0)
-#endif
-
-#if defined(_DEBUG) || defined(DEBUG)
-#define HANDLE_CHECK_RETURN_INVALID(handle) do { if (!handle.valid()) { DFLOG_WARN("Invalid handle"); return {}; } } while (0)
-#else
-#define HANDLE_CHECK_RETURN_INVALID(handle) do { if (!handle.valid()) return{}; } while (0)
 #endif
 
 static bool IsPot(size_t v)
@@ -216,22 +205,29 @@ void RenderBackendGL::initExtensions()
 
 void RenderBackendGL::destroyShader(ShaderHandle shader, GLuint programId)
 {
-    HANDLE_CHECK(shader);
+    DF3D_ASSERT(m_shadersBag.isValid(shader.handle));
 
-    const auto &shaderGL = m_shaders[shader.id];
-    DF3D_ASSERT(shaderGL.gl_id != 0);
+    const auto &shaderGL = m_shaders[shader.getIdx()];
+    DF3D_ASSERT(shaderGL.glID != 0);
 
-    GL_CHECK(glDetachShader(programId, shaderGL.gl_id));
-    GL_CHECK(glDeleteShader(shaderGL.gl_id));
+    GL_CHECK(glDetachShader(programId, shaderGL.glID));
+    GL_CHECK(glDeleteShader(shaderGL.glID));
 
-    m_shaders[shader.id] = {};
+    m_shaders[shader.getIdx()] = {};
 
-    m_shadersBag.release(shader.id);
+    m_shadersBag.release(shader.handle);
 }
 
 RenderBackendGL::RenderBackendGL(int width, int height)
     : m_width(width),
-    m_height(height)
+    m_height(height),
+    m_vertexBuffersBag(MemoryManager::allocDefault()),
+    m_indexBuffersBag(MemoryManager::allocDefault()),
+    m_texturesBag(MemoryManager::allocDefault()),
+    m_shadersBag(MemoryManager::allocDefault()),
+    m_gpuProgramsBag(MemoryManager::allocDefault()),
+    m_uniformsBag(MemoryManager::allocDefault()),
+    m_framebuffersBag(MemoryManager::allocDefault())
 {
 #ifdef DF3D_DESKTOP
     // Init GLEW.
@@ -272,13 +268,13 @@ const FrameStats& RenderBackendGL::getFrameStats() const
 
 void RenderBackendGL::initialize()
 {
-    m_vertexBuffersBag = {};
-    m_indexBuffersBag = {};
-    m_texturesBag = {};
-    m_shadersBag = {};
-    m_gpuProgramsBag = {};
-    m_uniformsBag = {};
-    m_framebuffersBag = {};
+    m_vertexBuffersBag.reset();
+    m_indexBuffersBag.reset();
+    m_texturesBag.reset();
+    m_shadersBag.reset();
+    m_gpuProgramsBag.reset();
+    m_uniformsBag.reset();
+    m_framebuffersBag.reset();
 
     m_programUniforms.clear();
 
@@ -347,19 +343,11 @@ void RenderBackendGL::frameBegin()
 {
     m_stats.drawCalls = m_stats.totalLines = m_stats.totalTriangles = 0;
 
-    m_vertexBuffersBag.cleanup();
-    m_indexBuffersBag.cleanup();
-    m_texturesBag.cleanup();
-    m_shadersBag.cleanup();
-    m_gpuProgramsBag.cleanup();
-    m_uniformsBag.cleanup();
-    m_framebuffersBag.cleanup();
-
     m_indexedDrawCall = false;
     m_currentIndexType = GL_INVALID_ENUM;
-    m_currentProgram.invalidate();
-    m_currentVertexBuffer.invalidate();
-    m_currentIndexBuffer.invalidate();
+    m_currentProgram = {};
+    m_currentVertexBuffer = {};
+    m_currentIndexBuffer = {};
 
     GL_CHECK(glUseProgram(0));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
@@ -377,32 +365,27 @@ VertexBufferHandle RenderBackendGL::createVertexBuffer(const VertexFormat &forma
 {
     DF3D_ASSERT(verticesCount > 0);
 
-    VertexBufferHandle vbHandle = m_vertexBuffersBag.getNew();
-    if (!vbHandle.valid())
-    {
-        DFLOG_WARN("Failed to create a vertex buffer handle.");
-        return{};
-    }
-
     VertexBufferGL vertexBuffer;
 
     vertexBuffer.format = format;
     vertexBuffer.sizeInBytes = verticesCount * format.getVertexSize();
 
-    GL_CHECK(glGenBuffers(1, &vertexBuffer.gl_id));
-    if (vertexBuffer.gl_id == 0)
+    GL_CHECK(glGenBuffers(1, &vertexBuffer.glID));
+    if (vertexBuffer.glID == 0)
     {
-        DFLOG_WARN("Failed to create a GL vertex buffer.");
+        DFLOG_WARN("glGenBuffers failed for RenderBackendGL::createVertexBuffer");
         return{};
     }
 
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id));
+    VertexBufferHandle vbHandle = { m_vertexBuffersBag.getNew() };
+
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.glID));
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, vertexBuffer.sizeInBytes, data, GetGLBufferUsageType(usage)));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-    m_vertexBuffers[vbHandle.id] = vertexBuffer;
+    m_vertexBuffers[vbHandle.getIdx()] = vertexBuffer;
 
-    m_currentVertexBuffer.invalidate();
+    m_currentVertexBuffer = {};
 
 #ifdef _DEBUG
     m_gpuMemStats.addVertexBuffer(vbHandle, vertexBuffer.sizeInBytes);
@@ -413,20 +396,16 @@ VertexBufferHandle RenderBackendGL::createVertexBuffer(const VertexFormat &forma
 
 void RenderBackendGL::destroyVertexBuffer(VertexBufferHandle vbHandle)
 {
-    HANDLE_CHECK(vbHandle);
+    DF3D_ASSERT(m_vertexBuffersBag.isValid(vbHandle.handle));
 
-    const auto &vertexBuffer = m_vertexBuffers[vbHandle.id];
+    const auto &vertexBuffer = m_vertexBuffers[vbHandle.getIdx()];
 
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GL_CHECK(glDeleteBuffers(1, &vertexBuffer.glID));
 
-    if (vertexBuffer.gl_id)
-        GL_CHECK(glDeleteBuffers(1, &vertexBuffer.gl_id));
-    else
-        return;
-
-    m_vertexBuffers[vbHandle.id] = {};
-    m_vertexBuffersBag.release(vbHandle.id);
-    m_currentVertexBuffer.invalidate();
+    m_vertexBuffers[vbHandle.getIdx()] = {};
+    m_vertexBuffersBag.release(vbHandle.handle);
+    m_currentVertexBuffer = {};
 
 #ifdef _DEBUG
     m_gpuMemStats.removeVertexBuffer(vbHandle);
@@ -435,16 +414,15 @@ void RenderBackendGL::destroyVertexBuffer(VertexBufferHandle vbHandle)
 
 void RenderBackendGL::bindVertexBuffer(VertexBufferHandle vbHandle)
 {
-    HANDLE_CHECK(vbHandle);
+    DF3D_ASSERT(m_vertexBuffersBag.isValid(vbHandle.handle));
 
     // FIXME:
     //if (m_currentVertexBuffer.valid() && vb.id == m_currentVertexBuffer.id)
     //    return;
 
-    const auto &vertexBuffer = m_vertexBuffers[vbHandle.id];
-    DF3D_ASSERT(vertexBuffer.gl_id != 0);
+    const auto &vertexBuffer = m_vertexBuffers[vbHandle.getIdx()];
 
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.glID));
 
     const auto &format = vertexBuffer.format;
     const auto vertexSize = format.getVertexSize();
@@ -469,50 +447,44 @@ void RenderBackendGL::bindVertexBuffer(VertexBufferHandle vbHandle)
 
 void RenderBackendGL::updateVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data)
 {
-    HANDLE_CHECK(vbHandle);
+    DF3D_ASSERT(m_vertexBuffersBag.isValid(vbHandle.handle));
 
-    const auto &vertexBuffer = m_vertexBuffers[vbHandle.id];
-    DF3D_ASSERT(vertexBuffer.gl_id != 0);
+    const auto &vertexBuffer = m_vertexBuffers[vbHandle.getIdx()];
 
     auto bytesUpdating = verticesCount * vertexBuffer.format.getVertexSize();
-
     DF3D_ASSERT(bytesUpdating <= vertexBuffer.sizeInBytes);
-    DF3D_ASSERT(vertexBuffer.gl_id != 0);
 
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.gl_id));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.glID));
     GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, 0, bytesUpdating, data));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-    m_currentVertexBuffer.invalidate();
+    m_currentVertexBuffer = {};
 }
 
 IndexBufferHandle RenderBackendGL::createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage, IndicesType indicesType)
 {
     DF3D_ASSERT(indicesCount > 0);
 
-    IndexBufferHandle ibHandle = m_indexBuffersBag.getNew();
-    if (!ibHandle.valid())
+    IndexBufferGL indexBuffer;
+
+    GL_CHECK(glGenBuffers(1, &indexBuffer.glID));
+    if (indexBuffer.glID == 0)
     {
-        DFLOG_WARN("Failed to create an index buffer");
+        DFLOG_WARN("glGenBuffers failed for RenderBackendGL::createIndexBuffer");
         return{};
     }
 
-    IndexBufferGL indexBuffer;
-
-    GL_CHECK(glGenBuffers(1, &indexBuffer.gl_id));
-    if (indexBuffer.gl_id == 0)
-        return{};
+    IndexBufferHandle ibHandle = { m_indexBuffersBag.getNew() };
 
     indexBuffer.indices16bit = (indicesType == INDICES_16_BIT);
-
     indexBuffer.sizeInBytes = indicesCount * (indexBuffer.indices16bit ? sizeof(uint16_t) : sizeof(uint32_t));
 
-    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id));
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.glID));
     GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.sizeInBytes, data, GetGLBufferUsageType(usage)));
     GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-    m_indexBuffers[ibHandle.id] = indexBuffer;
-    m_currentIndexBuffer.invalidate();
+    m_indexBuffers[ibHandle.getIdx()] = indexBuffer;
+    m_currentIndexBuffer = {};
 
 #ifdef _DEBUG
     m_gpuMemStats.addIndexBuffer(ibHandle, indexBuffer.sizeInBytes);
@@ -523,67 +495,61 @@ IndexBufferHandle RenderBackendGL::createIndexBuffer(size_t indicesCount, const 
 
 void RenderBackendGL::destroyIndexBuffer(IndexBufferHandle ibHandle)
 {
-    HANDLE_CHECK(ibHandle);
+    DF3D_ASSERT(m_indexBuffersBag.isValid(ibHandle.handle));
 
-    const auto &indexBuffer = m_indexBuffers[ibHandle.id];
+    const auto &indexBuffer = m_indexBuffers[ibHandle.getIdx()];
 
     GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-    if (indexBuffer.gl_id != 0)
-        GL_CHECK(glDeleteBuffers(1, &indexBuffer.gl_id));
-    else
-        return;
+    GL_CHECK(glDeleteBuffers(1, &indexBuffer.glID));
 
-    m_indexBuffers[ibHandle.id] = {};
-    m_indexBuffersBag.release(ibHandle.id);
-    m_currentIndexBuffer.invalidate();
+    m_indexBuffers[ibHandle.getIdx()] = {};
+    m_indexBuffersBag.release(ibHandle.handle);
+    m_currentIndexBuffer = {};
 
 #ifdef _DEBUG
     m_gpuMemStats.removeIndexBuffer(ibHandle);
 #endif
 }
 
-void RenderBackendGL::bindIndexBuffer(IndexBufferHandle ib)
+void RenderBackendGL::bindIndexBuffer(IndexBufferHandle ibHandle)
 {
-    HANDLE_CHECK(ib);
+    DF3D_ASSERT(m_indexBuffersBag.isValid(ibHandle.handle));
 
     //if (m_currentIndexBuffer.valid() && ib.id == m_currentIndexBuffer.id)
     //    return;
 
-    const auto &indexBuffer = m_indexBuffers[ib.id];
-    DF3D_ASSERT(indexBuffer.gl_id != 0);
-
-    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id));
+    const auto &indexBuffer = m_indexBuffers[ibHandle.getIdx()];
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.glID));
 
     m_indexedDrawCall = true;
     m_currentIndexType = indexBuffer.indices16bit ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
-    m_currentIndexBuffer = ib;
+    m_currentIndexBuffer = ibHandle;
 }
 
-void RenderBackendGL::updateIndexBuffer(IndexBufferHandle ib, size_t indicesCount, const void *data)
+void RenderBackendGL::updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data)
 {
-    HANDLE_CHECK(ib);
+    DF3D_ASSERT(m_indexBuffersBag.isValid(ibHandle.handle));
 
-    const auto &indexBuffer = m_indexBuffers[ib.id];
-    DF3D_ASSERT(indexBuffer.gl_id != 0);
+    const auto &indexBuffer = m_indexBuffers[ibHandle.getIdx()];
 
     auto bytesUpdating = indicesCount * (indexBuffer.indices16bit ? sizeof(uint16_t) : sizeof(uint32_t));
-
     DF3D_ASSERT(bytesUpdating <= indexBuffer.sizeInBytes);
-    DF3D_ASSERT(indexBuffer.gl_id != 0);
 
-    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.gl_id));
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.glID));
     GL_CHECK(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, bytesUpdating, data));
     GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-    m_currentIndexBuffer.invalidate();
+    m_currentIndexBuffer = {};
 }
 
 TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const void *data, size_t dataSize)
 {
-    TextureHandle textureHandle = m_texturesBag.getNew();
-    if (!textureHandle.valid())
+    TextureGL texture;
+
+    GL_CHECK(glGenTextures(1, &texture.glID));
+    if (texture.glID == 0)
     {
-        DFLOG_WARN("Failed to create a 2d texture");
+        DFLOG_WARN("glGenTextures failed for RenderBackendGL::createTexture2D");
         return {};
     }
 
@@ -591,7 +557,7 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const vo
     if (info.width > maxSize || info.height > maxSize)
     {
         DFLOG_WARN("Failed to create a 2D texture: size is too big. Max size: %d", maxSize);
-        return {};
+        return{};
     }
 
     GLenum pixelDataFormat = 0;
@@ -625,13 +591,9 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const vo
         return {};
     }
 
-    TextureGL texture;
+    TextureHandle textureHandle = { m_texturesBag.getNew() };
 
-    GL_CHECK(glGenTextures(1, &texture.gl_id));
-    if (texture.gl_id == 0)
-        return{};
-
-    GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture.gl_id));
+    GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture.glID));
 
     SetupGLWrapMode(GL_TEXTURE_2D, info.flags);
     SetupGLTextureFiltering(GL_TEXTURE_2D, info.flags);
@@ -684,7 +646,7 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const vo
 
     GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 
-    m_textures[textureHandle.id] = texture;
+    m_textures[textureHandle.getIdx()] = texture;
 
     m_stats.textures++;
 
@@ -699,22 +661,22 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const vo
 
 void RenderBackendGL::updateTexture(TextureHandle textureHandle, int w, int h, const void *data)
 {
-    // FIXME: works only for 2d textures.
-    HANDLE_CHECK(textureHandle);
+    // FIXME: works only for 2D textures.
+    DF3D_ASSERT(m_texturesBag.isValid(textureHandle.handle));
 
-    const auto &texture = m_textures[textureHandle.id];
+    const auto &texture = m_textures[textureHandle.getIdx()];
     DF3D_ASSERT(texture.type != GL_INVALID_ENUM);
 
-    GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture.gl_id));
+    GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture.glID));
     DF3D_ASSERT(texture.pixelFormat != GL_INVALID_ENUM);
     GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, texture.pixelFormat, GL_UNSIGNED_BYTE, data));
 }
 
 void RenderBackendGL::destroyTexture(TextureHandle textureHandle)
 {
-    HANDLE_CHECK(textureHandle);
+    DF3D_ASSERT(m_texturesBag.isValid(textureHandle.handle));
 
-    const auto &texture = m_textures[textureHandle.id];
+    const auto &texture = m_textures[textureHandle.getIdx()];
     if (texture.type == GL_INVALID_ENUM)
     {
         DF3D_ASSERT(false);
@@ -722,11 +684,11 @@ void RenderBackendGL::destroyTexture(TextureHandle textureHandle)
     }
 
     GL_CHECK(glBindTexture(texture.type, 0));
-    if (texture.gl_id)
-        GL_CHECK(glDeleteTextures(1, &texture.gl_id));
+    if (texture.glID)
+        GL_CHECK(glDeleteTextures(1, &texture.glID));
 
-    m_textures[textureHandle.id] = {};
-    m_texturesBag.release(textureHandle.id);
+    m_textures[textureHandle.getIdx()] = {};
+    m_texturesBag.release(textureHandle.handle);
 
     DF3D_ASSERT(m_stats.textures > 0);
     m_stats.textures--;
@@ -738,13 +700,12 @@ void RenderBackendGL::destroyTexture(TextureHandle textureHandle)
 
 void RenderBackendGL::bindTexture(TextureHandle textureHandle, int unit)
 {
-    HANDLE_CHECK(textureHandle);
+    DF3D_ASSERT(m_texturesBag.isValid(textureHandle.handle));
 
-    const auto &texture = m_textures[textureHandle.id];
-    DF3D_ASSERT(texture.gl_id != 0 && texture.type != GL_INVALID_ENUM);
+    const auto &texture = m_textures[textureHandle.getIdx()];
 
     GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
-    GL_CHECK(glBindTexture(texture.type, texture.gl_id));
+    GL_CHECK(glBindTexture(texture.type, texture.glID));
 }
 
 ShaderHandle RenderBackendGL::createShader(ShaderType type, const std::string &data)
@@ -755,27 +716,20 @@ ShaderHandle RenderBackendGL::createShader(ShaderType type, const std::string &d
         return{};
     }
 
-    ShaderHandle shaderHandle = m_shadersBag.getNew();
-    if (!shaderHandle.valid())
-    {
-        DFLOG_WARN("Failed to create a shader");
-        return{};
-    }
-
     ShaderGL shader;
 
     if (type == ShaderType::VERTEX)
     {
-        GL_CHECK(shader.gl_id = glCreateShader(GL_VERTEX_SHADER));
+        GL_CHECK(shader.glID = glCreateShader(GL_VERTEX_SHADER));
         shader.type = GL_VERTEX_SHADER;
     }
     else if (type == ShaderType::FRAGMENT)
     {
-        GL_CHECK(shader.gl_id = glCreateShader(GL_FRAGMENT_SHADER));
+        GL_CHECK(shader.glID = glCreateShader(GL_FRAGMENT_SHADER));
         shader.type = GL_FRAGMENT_SHADER;
     }
 
-    if (shader.gl_id == 0)
+    if (shader.glID == 0)
     {
         DFLOG_WARN("Failed to create a shader");
         return{};
@@ -783,20 +737,19 @@ ShaderHandle RenderBackendGL::createShader(ShaderType type, const std::string &d
 
     // Compile the shader.
     const char *pdata = data.c_str();
-    GL_CHECK(glShaderSource(shader.gl_id, 1, &pdata, nullptr));
-    GL_CHECK(glCompileShader(shader.gl_id));
+    GL_CHECK(glShaderSource(shader.glID, 1, &pdata, nullptr));
+    GL_CHECK(glCompileShader(shader.glID));
 
 #ifdef _DEBUG
     int compileOk;
-    GL_CHECK(glGetShaderiv(shader.gl_id, GL_COMPILE_STATUS, &compileOk));
+    GL_CHECK(glGetShaderiv(shader.glID, GL_COMPILE_STATUS, &compileOk));
     if (compileOk == GL_FALSE)
     {
         DFLOG_WARN("Failed to compile a shader");
         DFLOG_MESS("\n\n%s\n\n", data.c_str());
-        PrintShaderLog(shader.gl_id);
+        PrintShaderLog(shader.glID);
 
-        m_shadersBag.release(shaderHandle.id);
-        GL_CHECK(glDeleteShader(shader.gl_id));
+        GL_CHECK(glDeleteShader(shader.glID));
 
         DEBUG_BREAK();
 
@@ -804,60 +757,51 @@ ShaderHandle RenderBackendGL::createShader(ShaderType type, const std::string &d
     }
 #endif
 
-    m_shaders[shaderHandle.id] = shader;
+    ShaderHandle shaderHandle = { m_shadersBag.getNew() };
+    m_shaders[shaderHandle.getIdx()] = shader;
 
     return shaderHandle;
 }
 
 GpuProgramHandle RenderBackendGL::createGpuProgram(ShaderHandle vertexShaderHandle, ShaderHandle fragmentShaderHandle)
 {
-    HANDLE_CHECK_RETURN_INVALID(vertexShaderHandle);
-    HANDLE_CHECK_RETURN_INVALID(fragmentShaderHandle);
-
-    GpuProgramHandle programHandle = m_gpuProgramsBag.getNew();
-    if (!programHandle.valid())
-    {
-        DFLOG_WARN("Failed to create a gpu program");
-        return{};
-    }
+    DF3D_ASSERT(m_shadersBag.isValid(vertexShaderHandle.handle));
+    DF3D_ASSERT(m_shadersBag.isValid(fragmentShaderHandle.handle));
 
     ProgramGL program;
 
-    GL_CHECK(program.gl_id = glCreateProgram());
-    if (program.gl_id == 0)
+    GL_CHECK(program.glID = glCreateProgram());
+    if (program.glID == 0)
     {
         DFLOG_WARN("Failed to create a GPU program");
         return{};
     }
 
-    const auto &vertexShaderGL = m_shaders[vertexShaderHandle.id];
-    const auto &fragmentShaderGL = m_shaders[fragmentShaderHandle.id];
+    const auto &vertexShaderGL = m_shaders[vertexShaderHandle.getIdx()];
+    const auto &fragmentShaderGL = m_shaders[fragmentShaderHandle.getIdx()];
 
-    DF3D_ASSERT(vertexShaderGL.gl_id && fragmentShaderGL.gl_id);
-
-    GL_CHECK(glAttachShader(program.gl_id, vertexShaderGL.gl_id));
-    GL_CHECK(glAttachShader(program.gl_id, fragmentShaderGL.gl_id));
+    GL_CHECK(glAttachShader(program.glID, vertexShaderGL.glID));
+    GL_CHECK(glAttachShader(program.glID, fragmentShaderGL.glID));
 
     // TODO: use VAO + refactor this.
-    GL_CHECK(glBindAttribLocation(program.gl_id, VertexFormat::POSITION_3, "a_vertex3"));
-    GL_CHECK(glBindAttribLocation(program.gl_id, VertexFormat::NORMAL_3, "a_normal"));
-    GL_CHECK(glBindAttribLocation(program.gl_id, VertexFormat::TX_2, "a_txCoord"));
-    GL_CHECK(glBindAttribLocation(program.gl_id, VertexFormat::COLOR_4, "a_vertexColor"));
-    GL_CHECK(glBindAttribLocation(program.gl_id, VertexFormat::TANGENT_3, "a_tangent"));
-    GL_CHECK(glBindAttribLocation(program.gl_id, VertexFormat::BITANGENT_3, "a_bitangent"));
+    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::POSITION_3, "a_vertex3"));
+    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::NORMAL_3, "a_normal"));
+    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::TX_2, "a_txCoord"));
+    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::COLOR_4, "a_vertexColor"));
+    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::TANGENT_3, "a_tangent"));
+    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::BITANGENT_3, "a_bitangent"));
 
-    GL_CHECK(glLinkProgram(program.gl_id));
+    GL_CHECK(glLinkProgram(program.glID));
 
 #ifdef _DEBUG
     int linkOk;
-    GL_CHECK(glGetProgramiv(program.gl_id, GL_LINK_STATUS, &linkOk));
+    GL_CHECK(glGetProgramiv(program.glID, GL_LINK_STATUS, &linkOk));
     if (linkOk == GL_FALSE)
     {
         DFLOG_WARN("GPU program linkage failed");
-        PrintGpuProgramLog(program.gl_id);
+        PrintGpuProgramLog(program.glID);
 
-        m_gpuProgramsBag.release(programHandle.id);
-        GL_CHECK(glDeleteProgram(program.gl_id));
+        GL_CHECK(glDeleteProgram(program.glID));
 
         return{};
     }
@@ -865,37 +809,32 @@ GpuProgramHandle RenderBackendGL::createGpuProgram(ShaderHandle vertexShaderHand
     program.vshader = vertexShaderHandle;
     program.fshader = fragmentShaderHandle;
 
-    m_programs[programHandle.id] = program;
+    GpuProgramHandle programHandle = { m_gpuProgramsBag.getNew() };
+    m_programs[programHandle.getIdx()] = program;
 
     return programHandle;
 }
 
 void RenderBackendGL::destroyGpuProgram(GpuProgramHandle programHandle)
 {
-    HANDLE_CHECK(programHandle);
+    DF3D_ASSERT(m_gpuProgramsBag.isValid(programHandle.handle));
 
-    const auto &programGL = m_programs[programHandle.id];
+    const auto &programGL = m_programs[programHandle.getIdx()];
 
     GL_CHECK(glUseProgram(0));
-    if (programGL.gl_id != 0)
-    {
-        destroyShader(programGL.vshader, programGL.gl_id);
-        destroyShader(programGL.fshader, programGL.gl_id);
-        GL_CHECK(glDeleteProgram(programGL.gl_id));
-    }
-    else
-        return;
+    destroyShader(programGL.vshader, programGL.glID);
+    destroyShader(programGL.fshader, programGL.glID);
+    GL_CHECK(glDeleteProgram(programGL.glID));
 
-    m_programs[programHandle.id] = {};
-
-    m_gpuProgramsBag.release(programHandle.id);
+    m_programs[programHandle.getIdx()] = {};
+    m_gpuProgramsBag.release(programHandle.handle);
 
     // Destroy associated uniforms
-    auto programUniformsFound = m_programUniforms.find(programHandle.id);
+    auto programUniformsFound = m_programUniforms.find(programHandle);
     if (programUniformsFound != m_programUniforms.end())
     {
         for (auto uniHandle : programUniformsFound->second)
-            m_uniformsBag.release(uniHandle.id);
+            m_uniformsBag.release(uniHandle.handle);
 
         m_programUniforms.erase(programUniformsFound);
     }
@@ -903,12 +842,7 @@ void RenderBackendGL::destroyGpuProgram(GpuProgramHandle programHandle)
 
 FrameBufferHandle RenderBackendGL::createFrameBuffer(TextureHandle *attachments, size_t attachmentCount)
 {
-    FrameBufferHandle fbHandle = m_framebuffersBag.getNew();
-    if (!fbHandle.valid())
-    {
-        DFLOG_WARN("Failed to create a framebuffer handle");
-        return {};
-    }
+    FrameBufferHandle fbHandle = { m_framebuffersBag.getNew() };
 
     FrameBufferGL framebufferGL;
     GL_CHECK(glGenFramebuffers(1, &framebufferGL.fbo));
@@ -917,16 +851,16 @@ FrameBufferHandle RenderBackendGL::createFrameBuffer(TextureHandle *attachments,
     for (size_t i = 0; i < attachmentCount; i++)
     {
         // TODO: render targets!
-        const auto &textureGL = m_textures[attachments[i].id];
+        const auto &textureGL = m_textures[attachments[i].getIdx()];
         if (IsDepthTexture(textureGL.info.format))
-            GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureGL.gl_id, 0));
+            GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureGL.glID, 0));
         else
-            GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureGL.gl_id, 0));
+            GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureGL.glID, 0));
     }
 
     GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
-    m_frameBuffers[fbHandle.id] = framebufferGL;
+    m_frameBuffers[fbHandle.getIdx()] = framebufferGL;
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         DF3D_ASSERT_MESS(false, "Failed to create GL framebuffer!");
@@ -936,73 +870,67 @@ FrameBufferHandle RenderBackendGL::createFrameBuffer(TextureHandle *attachments,
 
 void RenderBackendGL::destroyFrameBuffer(FrameBufferHandle framebufferHandle)
 {
-    HANDLE_CHECK(framebufferHandle);
+    DF3D_ASSERT(m_framebuffersBag.isValid(framebufferHandle.handle));
 
-    const auto &framebufferGL = m_frameBuffers[framebufferHandle.id];
+    const auto &framebufferGL = m_frameBuffers[framebufferHandle.getIdx()];
     GL_CHECK(glDeleteFramebuffers(1, &framebufferGL.fbo));
 
-    m_frameBuffers[framebufferHandle.id] = {};
-    m_framebuffersBag.release(framebufferHandle.id);
+    m_frameBuffers[framebufferHandle.getIdx()] = {};
+    m_framebuffersBag.release(framebufferHandle.handle);
 }
 
 void RenderBackendGL::bindGpuProgram(GpuProgramHandle programHandle)
 {
-    HANDLE_CHECK(programHandle);
+    DF3D_ASSERT(m_gpuProgramsBag.isValid(programHandle.handle));
 
-    if (programHandle.id == m_currentProgram.id)
+    if (programHandle == m_currentProgram)
         return;
 
-    const auto &programGL = m_programs[programHandle.id];
-    DF3D_ASSERT(programGL.gl_id != 0);
+    const auto &programGL = m_programs[programHandle.getIdx()];
+    DF3D_ASSERT(programGL.glID != 0);
 
-    GL_CHECK(glUseProgram(programGL.gl_id));
+    GL_CHECK(glUseProgram(programGL.glID));
 
     m_currentProgram = programHandle;
 }
 
 void RenderBackendGL::requestUniforms(GpuProgramHandle programHandle, std::vector<UniformHandle> &outHandles, std::vector<std::string> &outNames)
 {
-    HANDLE_CHECK(programHandle);
+    DF3D_ASSERT(m_gpuProgramsBag.isValid(programHandle.handle));
 
-    const auto &programGL = m_programs[programHandle.id];
+    const auto &programGL = m_programs[programHandle.getIdx()];
 
-    DF3D_ASSERT(programGL.gl_id != 0);
+    DF3D_ASSERT(programGL.glID != 0);
 
-    int total = -1;
-    GL_CHECK(glGetProgramiv(programGL.gl_id, GL_ACTIVE_UNIFORMS, &total));
+    int total = 0;
+    GL_CHECK(glGetProgramiv(programGL.glID, GL_ACTIVE_UNIFORMS, &total));
 
     for (int i = 0; i < total; i++)
     {
-        UniformHandle uniformHandle = m_uniformsBag.getNew();
-        if (!uniformHandle.valid())
-        {
-            DFLOG_WARN("Failed to request uniforms");
-            outHandles.clear();
-            return;
-        }
+        UniformHandle uniformHandle = { m_uniformsBag.getNew() };
 
         outHandles.push_back(uniformHandle);
     }
 
-    m_programUniforms[programHandle.id].clear();
-    auto programUniformsMap = m_programUniforms.find(programHandle.id);
+    m_programUniforms[programHandle].clear();
+    auto programUniformsMap = m_programUniforms.find(programHandle);
 
     for (int i = 0; i < total; i++)
     {
         GLenum type = GL_INVALID_ENUM;
         int nameLength = -1, uniformVarSize = -1;
-        char name[100];
+        char name[256];
 
-        GL_CHECK(glGetActiveUniform(programGL.gl_id, i, sizeof(name) - 1, &nameLength, &uniformVarSize, &type, name));
+        GL_CHECK(glGetActiveUniform(programGL.glID, i, sizeof(name) - 1, &nameLength, &uniformVarSize, &type, name));
         name[nameLength] = 0;
 
         outNames.push_back(name);
 
         UniformGL uniformGL;
         uniformGL.type = type;
-        GL_CHECK(uniformGL.location = glGetUniformLocation(programGL.gl_id, name));
+        GL_CHECK(uniformGL.location = glGetUniformLocation(programGL.glID, name));
 
-        m_uniforms[outHandles[i].id] = uniformGL;
+        m_uniforms[outHandles[i].getIdx()] = uniformGL;
 
         programUniformsMap->second.push_back(outHandles[i]);
     }
@@ -1010,9 +938,9 @@ void RenderBackendGL::requestUniforms(GpuProgramHandle programHandle, std::vecto
 
 void RenderBackendGL::setUniformValue(UniformHandle uniformHandle, const void *data)
 {
-    HANDLE_CHECK(uniformHandle);
+    DF3D_ASSERT(m_uniformsBag.isValid(uniformHandle.handle));
 
-    const auto &uniformGL = m_uniforms[uniformHandle.id];
+    const auto &uniformGL = m_uniforms[uniformHandle.getIdx()];
 
     DF3D_ASSERT(uniformGL.type != GL_INVALID_ENUM && uniformGL.location != -1);
 
@@ -1053,10 +981,10 @@ void RenderBackendGL::setUniformValue(UniformHandle uniformHandle, const void *d
 
 void RenderBackendGL::bindFrameBuffer(FrameBufferHandle frameBufferHandle)
 {
-    if (frameBufferHandle == INVALID_HANDLE)
+    if (!frameBufferHandle.isValid())
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     else
-        glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffers[frameBufferHandle.id].fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffers[frameBufferHandle.getIdx()].fbo);
 }
 
 void RenderBackendGL::setViewport(int x, int y, int width, int height)

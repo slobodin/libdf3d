@@ -20,8 +20,7 @@ class DF3D_DLL SceneGraphComponentProcessor : public EntityComponentProcessor
     struct Impl;
     unique_ptr<Impl> m_pimpl;
 
-    void update() override;
-    void cleanStep(const std::list<Entity> &deleted) override;
+    void update() override { }
 
 public:
     SceneGraphComponentProcessor();
@@ -77,6 +76,8 @@ public:
     const std::vector<Entity>& getChildren(Entity e) const;
 
     void add(Entity e);
+    void remove(Entity e) override;
+    bool has(Entity e) override;
 };
 
 }

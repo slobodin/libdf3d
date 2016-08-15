@@ -40,8 +40,8 @@ private:
     const AudioSource* lookupSource(AudioSourceHandle handle) const;
     AudioSource* lookupSource(AudioSourceHandle handle);
 
-    HandleBag<AudioSourceHandle> m_handleBag;
-    std::unordered_map<decltype(AudioSourceHandle::id), AudioSource> m_lookup;
+    HandleBag m_handleBag;
+    std::unordered_map<Handle, AudioSource> m_lookup;
 
     std::mutex m_streamingMutex;
     std::thread m_streamingThread;

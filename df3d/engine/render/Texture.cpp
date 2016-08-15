@@ -16,7 +16,7 @@ Texture::Texture(TextureHandle handle, size_t width, size_t height)
 
 Texture::~Texture()
 {
-    if (m_handle.valid())
+    if (m_handle.isValid())
         svc().renderManager().getBackend().destroyTexture(m_handle);
 }
 
@@ -27,9 +27,9 @@ TextureHandle Texture::getHandle() const
 
 void Texture::setHandle(TextureHandle handle)
 {
-    DF3D_ASSERT(handle.valid());
+    DF3D_ASSERT(handle.isValid());
 
-    if (m_handle.valid())
+    if (m_handle.isValid())
     {
         DFLOG_WARN("Texture already has a handle");
         return;

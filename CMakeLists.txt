@@ -173,7 +173,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/game/WorldSize.h
     ${PROJECT_SOURCE_DIR}/df3d/game/impl/AudioComponentLoader.h
     ${PROJECT_SOURCE_DIR}/df3d/game/impl/EntityLoader.h
-    ${PROJECT_SOURCE_DIR}/df3d/game/impl/EntityManager.h
     ${PROJECT_SOURCE_DIR}/df3d/game/impl/MeshComponentLoader.h
     ${PROJECT_SOURCE_DIR}/df3d/game/impl/PhysicsComponentLoader.h
     ${PROJECT_SOURCE_DIR}/df3d/game/impl/SceneGraphComponentLoader.h
@@ -279,9 +278,9 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/game/World.cpp
     ${PROJECT_SOURCE_DIR}/df3d/game/WorldRenderingParams.cpp
     ${PROJECT_SOURCE_DIR}/df3d/game/impl/EntityLoader.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/game/impl/EntityManager.cpp
     ${PROJECT_SOURCE_DIR}/df3d/game/impl/WorldLoader.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/Dict.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/Handles.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/JsonUtils.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/Log.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/MeshUtils.cpp

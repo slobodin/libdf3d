@@ -44,7 +44,9 @@ public:
     void updateToProgram(IRenderBackend &backend, GpuProgram &program);
 };
 
-DF3D_MAKE_SHORT_HANDLE(PassParamHandle);
+// TODO: refactor this!!!
+using PassParamHandle = size_t;
+static const PassParamHandle INVALID_PASS_PARAM_HANDLE = std::numeric_limits<size_t>::max();
 
 class DF3D_DLL RenderPass
 {

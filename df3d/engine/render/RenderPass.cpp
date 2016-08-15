@@ -53,10 +53,10 @@ void RenderPassParam::updateToProgram(IRenderBackend &backend, GpuProgram &progr
         return;
 #endif
 
-    if (!m_handle.valid())
+    if (!m_handle.isValid())
     {
         auto handle = program.getCustomUniform(m_name);
-        if (!handle.valid())
+        if (!handle.isValid())
         {
 #ifdef _DEBUG
             DFLOG_WARN("Failed to lookup uniform %s in a shader", m_name.c_str());
@@ -68,7 +68,7 @@ void RenderPassParam::updateToProgram(IRenderBackend &backend, GpuProgram &progr
         m_handle = handle;
     }
 
-    if (m_handle.valid())
+    if (m_handle.isValid())
         backend.setUniformValue(m_handle, &m_value);
 }
 
@@ -134,13 +134,13 @@ PassParamHandle RenderPass::getPassParamHandle(const std::string &name)
         idx = std::distance(m_params.begin(), found);
     }
 
-    return { static_cast<int16_t>(idx) };
+    return idx;
 }
 
 RenderPassParam* RenderPass::getPassParam(PassParamHandle handle)
 {
-    DF3D_ASSERT(handle.id >= 0 && handle.id < m_params.size());
-    return &m_params[handle.id];
+    DF3D_ASSERT(handle < m_params.size());
+    return &m_params[handle];
 }
 
 RenderPassParam* RenderPass::getPassParam(const std::string &name)

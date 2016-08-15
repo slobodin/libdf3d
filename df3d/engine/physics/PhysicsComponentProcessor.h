@@ -23,7 +23,6 @@ class DF3D_DLL PhysicsComponentProcessor : public EntityComponentProcessor
 
     void update() override;
     void draw(RenderQueue *ops) override;
-    void cleanStep(const std::list<Entity> &deleted) override;
 
 public:
     PhysicsComponentProcessor(World *w);
@@ -38,8 +37,9 @@ public:
     void add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> mesh);
     // NOTE: body should not be added to the Physics World as it will be added via this processor.
     void add(Entity e, btRigidBody *body, short group = -1, short mask = -1);
-    void remove(Entity e);
-    bool has(Entity e);
+
+    void remove(Entity e) override;
+    bool has(Entity e) override;
 
     btDynamicsWorld* getPhysicsWorld();
     btMotionState* createMotionState(Entity e);

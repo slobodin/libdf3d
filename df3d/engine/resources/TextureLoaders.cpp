@@ -47,7 +47,7 @@ Texture2DManualLoader::Texture2DManualLoader(const TextureInfo &info, const void
 Texture* Texture2DManualLoader::load()
 {
     auto handle = svc().renderManager().getBackend().createTexture2D(m_info, m_data, m_dataSize);
-    if (!handle.valid())
+    if (!handle.isValid())
         return nullptr;
 
     return new Texture(handle, m_info.width, m_info.height);
@@ -75,7 +75,7 @@ void Texture2DFSLoader::onDecoded(Resource *resource)
     auto texture = static_cast<Texture*>(resource);
 
     auto handle = svc().renderManager().getBackend().createTexture2D(m_data.info, &m_data.data[0], m_data.data.size());
-    if (handle.valid())
+    if (handle.isValid())
     {
         texture->setHandle(handle);
         texture->setWidthAndHeight(m_data.info.width, m_data.info.height);

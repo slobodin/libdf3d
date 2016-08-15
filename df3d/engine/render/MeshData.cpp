@@ -89,7 +89,7 @@ MeshData::~MeshData()
     for (const auto &hs : m_submeshes)
     {
         svc().renderManager().getBackend().destroyVertexBuffer(hs.vertexBuffer);
-        if (hs.indexBuffer.valid())
+        if (hs.indexBuffer.isValid())
             svc().renderManager().getBackend().destroyIndexBuffer(hs.indexBuffer);
     }
 }

@@ -66,9 +66,7 @@ public:
     PodArray(Allocator *allocator, size_t count, const T &def = {})
         : PodArray<T>(allocator)
     {
-        resize(count);
-        for (size_t i = 0; i < m_size; i++)
-            m_data[i] = def;
+        resize(count, def);
     }
 
     PodArray(const PodArray<T> &other)
@@ -115,6 +113,12 @@ public:
             reallocate(getGrowSize());
 
         m_data[m_size++] = element;
+    }
+
+    void pop_back()
+    {
+        DF3D_ASSERT(m_size > 0);
+        --m_size;
     }
 
     void resize(size_t count)

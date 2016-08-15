@@ -82,7 +82,7 @@ void RenderManager::doRenderWorld(World &world)
         bindPass(m_ambientPassProps.get());
 
         m_renderBackend->bindVertexBuffer(op.vertexBuffer);
-        if (op.indexBuffer.valid())
+        if (op.indexBuffer.isValid())
             m_renderBackend->bindIndexBuffer(op.indexBuffer);
 
         m_renderBackend->draw(op.topology, op.numberOfElements);
@@ -108,7 +108,7 @@ void RenderManager::doRenderWorld(World &world)
             m_sharedState->updateSharedLightUniforms(*op.passProps->getGpuProgram());
 
             m_renderBackend->bindVertexBuffer(op.vertexBuffer);
-            if (op.indexBuffer.valid())
+            if (op.indexBuffer.isValid())
                 m_renderBackend->bindIndexBuffer(op.indexBuffer);
             m_renderBackend->draw(op.topology, op.numberOfElements);
         }
@@ -332,7 +332,7 @@ void RenderManager::drawRenderOperation(const RenderOperation &op)
     bindPass(op.passProps);
 
     m_renderBackend->bindVertexBuffer(op.vertexBuffer);
-    if (op.indexBuffer.valid())
+    if (op.indexBuffer.isValid())
         m_renderBackend->bindIndexBuffer(op.indexBuffer);
 
     m_renderBackend->draw(op.topology, op.numberOfElements);

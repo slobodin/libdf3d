@@ -61,7 +61,7 @@ static SharedUniformType GetSharedTypeForUniform(const std::string &name)
 GpuProgram::GpuProgram(GpuProgramHandle handle)
     : m_handle(handle)
 {
-    DF3D_ASSERT_MESS(m_handle.valid(), "invalid GPU program hanlde");
+    DF3D_ASSERT_MESS(m_handle.isValid(), "invalid GPU program hanlde");
 
     std::vector<UniformHandle> uniforms;
     std::vector<std::string> uniformNames;
@@ -180,11 +180,11 @@ GpuProgram* GpuProgramManualLoader::load()
         fragmentShader = createShaderFromString(m_fragmentData, ShaderType::FRAGMENT);
     }
 
-    if (!(vertexShader.valid() && fragmentShader.valid()))
+    if (!(vertexShader.isValid() && fragmentShader.isValid()))
         return nullptr;
 
     auto gpuProgramHandle = svc().renderManager().getBackend().createGpuProgram(vertexShader, fragmentShader);
-    if (!gpuProgramHandle.valid())
+    if (!gpuProgramHandle.isValid())
         return nullptr;
 
     auto program = new GpuProgram(gpuProgramHandle);

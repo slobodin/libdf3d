@@ -24,7 +24,6 @@ class DF3D_DLL StaticMeshComponentProcessor : public EntityComponentProcessor
 
     void update() override;
     void draw(RenderQueue *ops) override;
-    void cleanStep(const std::list<Entity> &deleted) override;
 
 public:
     StaticMeshComponentProcessor(World *world);
@@ -45,8 +44,9 @@ public:
     void add(Entity e, const std::string &meshFilePath);
     void add(Entity e, const std::string &meshFilePath, ResourceLoadingMode lm);
     void add(Entity e, shared_ptr<MeshData> meshData);
-    void remove(Entity e);
-    bool has(Entity e);
+
+    void remove(Entity e) override;
+    bool has(Entity e) override;
 };
 
 }

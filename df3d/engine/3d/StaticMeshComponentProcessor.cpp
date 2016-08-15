@@ -84,11 +84,6 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
     }
 }
 
-void StaticMeshComponentProcessor::cleanStep(const std::list<Entity> &deleted)
-{
-    m_pimpl->data.cleanStep(deleted);
-}
-
 StaticMeshComponentProcessor::StaticMeshComponentProcessor(World *world)
     : m_pimpl(new Impl()),
     m_world(world)
@@ -103,13 +98,13 @@ StaticMeshComponentProcessor::~StaticMeshComponentProcessor()
 
 shared_ptr<MeshData> StaticMeshComponentProcessor::getMeshData(Entity e) const
 {
-    return m_pimpl->data.getData(e).meshData;
+    return m_pimpl->data.getData(e.handle).meshData;
 }
 
 AABB StaticMeshComponentProcessor::getAABB(Entity e)
 {
     // FIXME: mb cache if transformation hasn't been changed?
-    auto &compData = m_pimpl->data.getData(e);
+    auto &compData = m_pimpl->data.getData(e.handle);
     // Update transformation.
     compData.holderWorldTransform = m_world->sceneGraph().getWorldTransform(e);
 
@@ -136,7 +131,7 @@ AABB StaticMeshComponentProcessor::getAABB(Entity e)
 BoundingSphere StaticMeshComponentProcessor::getBoundingSphere(Entity e)
 {
     // FIXME: mb cache if transformation hasn't been changed?
-    return Impl::getBoundingSphere(m_pimpl->data.getData(e));
+    return Impl::getBoundingSphere(m_pimpl->data.getData(e.handle));
 }
 
 OBB StaticMeshComponentProcessor::getOBB(Entity e)
@@ -153,17 +148,17 @@ void StaticMeshComponentProcessor::enableRender(bool enable)
 
 void StaticMeshComponentProcessor::setVisible(Entity e, bool visible)
 {
-    m_pimpl->data.getData(e).visible = visible;
+    m_pimpl->data.getData(e.handle).visible = visible;
 }
 
 void StaticMeshComponentProcessor::disableFrustumCulling(Entity e, bool disable)
 {
-    m_pimpl->data.getData(e).frustumCullingDisabled = disable;
+    m_pimpl->data.getData(e.handle).frustumCullingDisabled = disable;
 }
 
 bool StaticMeshComponentProcessor::isVisible(Entity e)
 {
-    return m_pimpl->data.getData(e).visible;
+    return m_pimpl->data.getData(e.handle).visible;
 }
 
 void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath)
@@ -178,7 +173,7 @@ void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath
 
 void StaticMeshComponentProcessor::add(Entity e, shared_ptr<MeshData> meshData)
 {
-    if (m_pimpl->data.contains(e))
+    if (m_pimpl->data.contains(e.handle))
     {
         DFLOG_WARN("An entity already has a static mesh component");
         return;
@@ -189,23 +184,17 @@ void StaticMeshComponentProcessor::add(Entity e, shared_ptr<MeshData> meshData)
     data.holder = e;
     data.holderWorldTransform = m_world->sceneGraph().getWorldTransform(e);
 
-    m_pimpl->data.add(e, data);
+    m_pimpl->data.add(e.handle, data);
 }
 
 void StaticMeshComponentProcessor::remove(Entity e)
 {
-    if (!m_pimpl->data.contains(e))
-    {
-        DFLOG_WARN("Failed to remove static mesh component from an entity. Component is not attached");
-        return;
-    }
-
-    m_pimpl->data.remove(e);
+    m_pimpl->data.remove(e.handle);
 }
 
 bool StaticMeshComponentProcessor::has(Entity e)
 {
-    return m_pimpl->data.lookup(e).valid();
+    return m_pimpl->data.contains(e.handle);
 }
 
 }

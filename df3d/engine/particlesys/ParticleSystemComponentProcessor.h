@@ -36,7 +36,6 @@ class DF3D_DLL ParticleSystemComponentProcessor : public EntityComponentProcesso
     bool m_pausedGlobal = false;
 
     void update() override;
-    void cleanStep(const std::list<Entity> &deleted) override;
 
 public:
     ParticleSystemComponentProcessor(World *world);
@@ -60,8 +59,8 @@ public:
 
     void add(Entity e, const std::string &vfxResource);
     void add(Entity e, const ParticleSystemCreationParams &params);
-    void remove(Entity e);
-    bool has(Entity e);
+    void remove(Entity e) override;
+    bool has(Entity e) override;
 
     // FIXME: using this method because of optimizations & spark behaviour.
     void render();

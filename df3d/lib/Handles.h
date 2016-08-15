@@ -1,139 +1,77 @@
 #pragma once
 
+#include "containers/PodArray.h"
+
 namespace df3d {
 
-static const int32_t INVALID_HANDLE = -1;
+static const uint32_t HANDLE_INDEX_BITS = 19;
+static const uint32_t HANDLE_INDEX_MASK = (1 << HANDLE_INDEX_BITS) - 1;
 
-#define DF3D_MAKE_SHORT_HANDLE(name) struct name { \
-    int16_t id; \
-    name(int16_t id = -1) : id(id) { } \
-    bool valid() const { return id != -1; } \
-    void invalidate() { id = -1; } \
-    int16_t getId() const { return id; } \
-    bool operator== (const name &other) const { return other.id == id; } \
-    bool operator!= (const name &other) const { return other.id != id; } \
-    bool operator< (const name &other) const { return id < other.id; } };
+static const uint32_t HANDLE_GENERATION_BITS = 13;
+static const uint32_t HANDLE_GENERATION_MASK = (1 << HANDLE_GENERATION_BITS) - 1;
 
-#define DF3D_MAKE_HANDLE(name) struct name { \
-    int32_t id; \
-    name(int32_t id = -1) : id(id) { } \
-    bool valid() const { return id != -1; } \
-    void invalidate() { id = -1; } \
-    int32_t getId() const { return id; } \
-    bool operator== (const name &other) const { return other.id == id; } \
-    bool operator!= (const name &other) const { return other.id != id; } \
-    bool operator<(const name &other) const { return id < other.id; } };
-
-template<typename T>
-class DF3D_DLL HandleBag
+class Handle
 {
-    int32_t m_maxSize;
-
-    T m_next;
-
-    std::list<T> m_removed;
-    std::list<T> m_available;
-
-    T getNextId()
-    {
-        if (!m_available.empty())
-        {
-            auto res = m_available.front();
-            m_available.pop_front();
-            return res;
-        }
-
-        T res = m_next;
-
-        ++m_next.id;
-
-        return res;
-    }
+    uint32_t m_id;
 
 public:
-    HandleBag(int32_t maxSize)
-        : m_maxSize(maxSize)
-    {
-        m_next.id = 0;
-    }
+    Handle() : m_id(0) { }
+    explicit Handle(uint32_t id) : m_id(id) { }
+    Handle(uint32_t idx, uint32_t generation) 
+        : m_id(idx | (generation << HANDLE_INDEX_BITS))
+    { }
 
-    ~HandleBag()
-    {
+    uint32_t getIdx() const { return m_id & HANDLE_INDEX_MASK; }
+    uint32_t getGeneration() const { return (m_id >> HANDLE_INDEX_BITS) & HANDLE_GENERATION_MASK; }
+    bool isValid() const { return m_id != 0; }
+    uint32_t getID() const { return m_id; }
 
-    }
-
-    T getNew()
-    {
-        if (m_next.id >= m_maxSize)
-            return T(-1);
-
-        return getNextId();
-    }
-
-    void release(T d)
-    {
-        m_removed.push_back(d);
-    }
-
-    void cleanup()
-    {
-        m_available.insert(m_available.end(), m_removed.begin(), m_removed.end());
-        m_removed.clear();
-    }
+    bool operator== (const Handle &other) const { return m_id == other.m_id; }
+    bool operator!= (const Handle &other) const { return m_id != other.m_id; }
+    bool operator< (const Handle &other) const { return m_id < other.m_id; }
 };
 
-template<typename T, size_t SIZE>
-class DF3D_DLL StaticHandleBag
+class DF3D_DLL HandleBag
 {
-    T m_removed[SIZE];
-    T m_available[SIZE];
-
-    T m_next;
-    size_t m_removedSize = 0;
-    size_t m_availableSize = 0;
-
-    T getNextId()
-    {
-        if (m_availableSize > 0)
-            return m_available[--m_availableSize];
-
-        T res = m_next;
-
-        ++m_next.id;
-
-        return res;
-    }
+    PodArray<uint32_t> m_generations;
+    PodArray<uint32_t> m_freeList;
+    uint32_t m_count = 0;
 
 public:
-    StaticHandleBag()
+    HandleBag(Allocator *allocator);
+    ~HandleBag();
+
+    Handle getNew();
+    void release(Handle handle);
+
+    bool isValid(Handle handle) const;
+    uint32_t getSize() const { return m_count; }
+
+    void reset();
+};
+
+#define DF3D_MAKE_HANDLE(name) struct name { \
+    Handle handle; \
+    uint32_t getID() const { return handle.getID(); } \
+    uint32_t getIdx() const { return handle.getIdx(); } \
+    bool isValid() const { return handle.isValid(); } \
+    bool operator== (const name &other) const { return other.handle == handle; } \
+    bool operator!= (const name &other) const { return other.handle != handle; } \
+    bool operator< (const name &other) const { return handle < other.handle; } };
+
+}
+
+namespace std {
+
+template <>
+struct hash<df3d::Handle>
+{
+    std::size_t operator()(const df3d::Handle &handle) const
     {
-        m_next.id = 0;
-    }
-
-    ~StaticHandleBag() = default;
-
-    T getNew()
-    {
-        if (m_next.id >= SIZE)
-            return T(-1);
-
-        return getNextId();
-    }
-
-    void release(T d)
-    {
-        m_removed[m_removedSize++] = d;
-    }
-
-    void cleanup()
-    {
-        if (m_removedSize != 0)
-        {
-            std::copy(m_removed, m_removed + m_removedSize, m_available + m_availableSize);
-            m_availableSize += m_removedSize;
-            m_removedSize = 0;
-        }
+        auto id = handle.getID();
+        return std::hash<decltype(id)>()(id);
     }
 };
 
 }
+

@@ -13,8 +13,9 @@ public:
     virtual ~EntityComponentProcessor() = default;
 
     virtual void update() = 0;
-    virtual void cleanStep(const std::list<Entity> &deleted) = 0;
     virtual void draw(RenderQueue *ops) { }
+    virtual bool has(Entity e) = 0;
+    virtual void remove(Entity e) = 0;
 };
 
 }

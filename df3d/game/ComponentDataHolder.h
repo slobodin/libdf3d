@@ -1,36 +1,27 @@
 #pragma once
 
-#include "Entity.h"
-#include <df3d/lib/Utils.h>
+#include <df3d/lib/Handles.h>
 
 namespace df3d {
 
 template<typename T>
-class ComponentDataHolder : NonCopyable
+class DF3D_DLL ComponentDataHolder : NonCopyable
 {
 public:
     using DestructionCallback = std::function<void(const T&)>;
 
 private:
-    std::vector<T> m_data;
-
-    std::vector<ComponentInstance> m_lookup;
-    std::unordered_map<decltype(ComponentInstance::id), Entity> m_holders;
-
+    static const size_t InvalidComponentInstance = std::numeric_limits<size_t>::max();
     DestructionCallback m_destructionCallback;
 
-    void grow(Entity e)
-    {
-        // TODO_ecs: may become big if too much entities. Use hashmap in that case.
-        m_lookup.resize((e.id + 1) * 2);
-        if (m_lookup.size() > 1000)
-            DFLOG_DEBUG("ComponentDataHolder count: %d, size KB: %d", m_lookup.size(), utils::sizeKB(m_lookup.size() * sizeof(T)));
-    }
+    std::vector<T> m_data;          // Data pool.
+    std::vector<size_t> m_lookup;   // Lookup to m_data array.
+    std::vector<Handle> m_holdersLookup;
 
 public:
     ComponentDataHolder()
     {
-        m_lookup.resize(128);
+
     }
 
     ~ComponentDataHolder()
@@ -38,100 +29,59 @@ public:
         clear();
     }
 
-    ComponentInstance lookup(Entity e) const
-    {
-        DF3D_ASSERT_MESS(e.valid(), "looking up invalid entity");
-
-        if (e.id >= static_cast<decltype(e.id)>(m_lookup.size()))
-            return {};
-
-        return m_lookup[e.id];
-    }
-
-    void add(Entity e, const T &componentData)
-    {
-        DF3D_ASSERT_MESS(e.valid(), "adding invalid entity");
-        DF3D_ASSERT_MESS(!contains(e), "entity already present");
-
-        if (e.id >= static_cast<decltype(Entity::id)>(m_lookup.size()))
-            grow(e);
-
-        ComponentInstance inst;
-        inst.id = static_cast<decltype(inst.id)>(m_data.size());
-        m_data.push_back(componentData);
-        m_lookup[e.id] = inst;
-
-        m_holders[inst.id] = e;
-    }
-
-    void remove(Entity e)
-    {
-        DF3D_ASSERT_MESS(e.valid(), "removing invalid entity");
-        DF3D_ASSERT_MESS(m_data.size() == m_holders.size(), "sanity check");
-        DF3D_ASSERT_MESS(m_data.size() > 0, "can't remove from empty container");
-
-        auto compInstance = lookup(e);
-        DF3D_ASSERT_MESS(compInstance.valid(), "failed to lookup entity data");
-
-        if (m_destructionCallback)
-            m_destructionCallback(getData(compInstance));
-
-        if (m_data.size() == 1)
-        {
-            m_data.clear();
-            m_lookup.clear();
-            m_holders.clear();
-        }
-        else
-        {
-            auto lastEnt = m_holders.find(m_data.size() - 1)->second;
-            std::swap(m_data[compInstance.id], m_data.back());
-            m_lookup[lastEnt.id] = compInstance;
-            m_holders.find(compInstance.id)->second = lastEnt;
-
-            m_holders.erase(m_data.size() - 1);
-            m_data.pop_back();
-            m_lookup[e.id].invalidate();
-        }
-    }
-
-    bool contains(Entity e)
-    {
-        DF3D_ASSERT_MESS(e.valid(), "invalid entity");
-        return lookup(e).valid();
-    }
-
-    const T& getData(ComponentInstance inst) const
-    {
-        DF3D_ASSERT_MESS(inst.valid(), "invalid component instance");
-
-        return m_data[inst.id];
-    }
-
-    T& getData(ComponentInstance inst)
-    {
-        DF3D_ASSERT_MESS(inst.valid(), "invalid component instance");
-
-        return m_data[inst.id];
-    }
-
-    const T& getData(Entity e) const
-    {
-        return getData(lookup(e));
-    }
-
-    T& getData(Entity e)
-    {
-        return getData(lookup(e));
-    }
-
     std::vector<T>& rawData() { return m_data; }
 
-    size_t getSize() const
+    T& getData(Handle handle)
     {
-        DF3D_ASSERT_MESS(m_data.size() == m_holders.size(), "sanity check");
+        return m_data[m_lookup[handle.getIdx()]];
+    }
 
-        return m_data.size();
+    const T& getData(Handle handle) const
+    {
+        return m_data[m_lookup[handle.getIdx()]];
+    }
+
+    void add(Handle handle, const T &componentData)
+    {
+        DF3D_ASSERT(!contains(handle));
+
+        if (m_lookup.size() <= handle.getIdx())
+            m_lookup.resize(handle.getIdx() + 1, InvalidComponentInstance);
+        m_lookup[handle.getIdx()] = m_data.size();
+
+        m_data.push_back(componentData);
+        m_holdersLookup.push_back(handle);
+    }
+
+    void remove(Handle handle)
+    {
+        DF3D_ASSERT(m_data.size() > 0 && contains(handle));
+
+        if (m_destructionCallback)
+            m_destructionCallback(getData(handle));
+
+        auto holderBack = m_holdersLookup.back();
+
+        auto idx = m_lookup[handle.getIdx()];
+        m_lookup[handle.getIdx()] = InvalidComponentInstance;
+
+        if (idx != m_data.size() - 1)
+            m_data[idx] = std::move(m_data.back());
+
+        m_data.pop_back();
+        m_holdersLookup.pop_back();
+
+        if (idx < m_data.size())
+        {
+            m_lookup[holderBack.getIdx()] = idx;
+            m_holdersLookup[idx] = holderBack;
+        }
+    }
+
+    bool contains(Handle handle) const
+    {
+        DF3D_ASSERT(handle.isValid());
+        return handle.getIdx() < m_lookup.size() && m_lookup[handle.getIdx()] != InvalidComponentInstance;
     }
 
     void clear()
@@ -143,19 +93,8 @@ public:
         }
 
         m_data.clear();
-        m_holders.clear();
         m_lookup.clear();
-    }
-
-    void cleanStep(const std::list<Entity> &deleted)
-    {
-        for (auto e : deleted)
-        {
-            if (contains(e))
-                remove(e);
-        }
-
-        // TODO_ecs: shrinking to fit each n sec.
+        m_holdersLookup.clear();
     }
 
     void setDestructionCallback(const DestructionCallback &callback) { m_destructionCallback = callback; }

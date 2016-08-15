@@ -61,8 +61,8 @@ struct Sprite2DComponentProcessor::Impl
     struct Data
     {
         RenderPass pass;
-        PassParamHandle diffuseColorParam;
-        PassParamHandle diffuseMapParam;
+        PassParamHandle diffuseColorParam = INVALID_PASS_PARAM_HANDLE;
+        PassParamHandle diffuseMapParam = INVALID_PASS_PARAM_HANDLE;
         RenderOperation2D op;
         glm::vec2 anchor = glm::vec2(0.5f, 0.5f);
         glm::vec2 textureOriginalSize;
@@ -83,7 +83,7 @@ struct Sprite2DComponentProcessor::Impl
 
     ~Impl()
     {
-        if (vertexBuffer.valid())
+        if (vertexBuffer.isValid())
             svc().renderManager().getBackend().destroyVertexBuffer(vertexBuffer);
     }
 
@@ -144,16 +144,6 @@ void Sprite2DComponentProcessor::draw(RenderQueue *ops)
     }
 }
 
-void Sprite2DComponentProcessor::cleanStep(const std::list<Entity> &deleted)
-{
-    m_pimpl->data.cleanStep(deleted);
-}
-
-void Sprite2DComponentProcessor::update()
-{
-
-}
-
 Sprite2DComponentProcessor::Sprite2DComponentProcessor(World *world)
     : m_pimpl(new Impl()),
     m_world(world)
@@ -168,7 +158,7 @@ Sprite2DComponentProcessor::~Sprite2DComponentProcessor()
 
 void Sprite2DComponentProcessor::setAnchorPoint(Entity e, const glm::vec2 &pt)
 {
-    m_pimpl->data.getData(e).anchor = pt;
+    m_pimpl->data.getData(e.handle).anchor = pt;
 }
 
 void Sprite2DComponentProcessor::setZIdx(Entity e, float z)
@@ -181,7 +171,7 @@ void Sprite2DComponentProcessor::setZIdx(Entity e, float z)
 
 void Sprite2DComponentProcessor::setVisible(Entity e, bool visible)
 {
-    m_pimpl->data.getData(e).visible = visible;
+    m_pimpl->data.getData(e.handle).visible = visible;
 
     const auto &children = m_world->sceneGraph().getChildren(e);
     for (auto child : children)
@@ -193,7 +183,7 @@ void Sprite2DComponentProcessor::setVisible(Entity e, bool visible)
 
 void Sprite2DComponentProcessor::setSize(Entity e, const glm::vec2 &size)
 {
-    auto &compData = m_pimpl->data.getData(e);
+    auto &compData = m_pimpl->data.getData(e.handle);
 
     // Compute new scale to fit desired size.
     auto sc = size / compData.textureOriginalSize;
@@ -212,12 +202,12 @@ void Sprite2DComponentProcessor::setHeight(Entity e, float h)
 
 void Sprite2DComponentProcessor::setRotation(Entity e, float rotation)
 {
-    m_pimpl->data.getData(e).rotation = rotation;
+    m_pimpl->data.getData(e.handle).rotation = rotation;
 }
 
 glm::vec2 Sprite2DComponentProcessor::getSize(Entity e) const
 {
-    const auto &compData = m_pimpl->data.getData(e);
+    const auto &compData = m_pimpl->data.getData(e.handle);
     auto scale = m_world->sceneGraph().getLocalScale(e);
 
     return{ scale.x * compData.textureOriginalSize.x, scale.y * compData.textureOriginalSize.y };
@@ -235,7 +225,7 @@ float Sprite2DComponentProcessor::getHeight(Entity e) const
 
 const glm::vec2& Sprite2DComponentProcessor::getScreenPosition(Entity e)
 {
-    auto &compData = m_pimpl->data.getData(e);
+    auto &compData = m_pimpl->data.getData(e.handle);
 
     Impl::updateTransform(*m_world, compData);
 
@@ -244,9 +234,9 @@ const glm::vec2& Sprite2DComponentProcessor::getScreenPosition(Entity e)
 
 void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToTexture)
 {
-    auto &compData = m_pimpl->data.getData(e);
+    auto &compData = m_pimpl->data.getData(e.handle);
 
-    if (compData.diffuseMapParam.valid())
+    if (compData.diffuseMapParam != INVALID_PASS_PARAM_HANDLE)
     {
         if (auto texture = compData.pass.getPassParam(compData.diffuseMapParam)->getTexture())
         {
@@ -275,12 +265,12 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
 
 const glm::vec2& Sprite2DComponentProcessor::getTextureSize(Entity e) const
 {
-    return m_pimpl->data.getData(e).textureOriginalSize;
+    return m_pimpl->data.getData(e.handle).textureOriginalSize;
 }
 
 void Sprite2DComponentProcessor::setBlendMode(Entity e, BlendingMode bm)
 {
-    m_pimpl->data.getData(e).pass.setBlendMode(bm);
+    m_pimpl->data.getData(e.handle).pass.setBlendMode(bm);
 }
 
 void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
@@ -290,13 +280,13 @@ void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
 
 void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diffuseColor)
 {
-    auto &compData = m_pimpl->data.getData(e);
+    auto &compData = m_pimpl->data.getData(e.handle);
     compData.pass.getPassParam(compData.diffuseColorParam)->setValue(diffuseColor);
 }
 
 void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
 {
-    if (m_pimpl->data.contains(e))
+    if (m_pimpl->data.contains(e.handle))
     {
         DFLOG_WARN("An entity already has a sprite2d component");
         return;
@@ -314,27 +304,21 @@ void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
     data.diffuseMapParam = {};
     data.op.worldTransform = m_world->sceneGraph().getWorldTransformMatrix(e);
 
-    m_pimpl->data.add(e, data);
+    m_pimpl->data.add(e.handle, data);
 
     useTexture(e, texturePath);
 
-    m_pimpl->data.getData(e).pass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
+    m_pimpl->data.getData(e.handle).pass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
 }
 
 void Sprite2DComponentProcessor::remove(Entity e)
 {
-    if (!m_pimpl->data.contains(e))
-    {
-        DFLOG_WARN("Failed to remove sprite2 component from an entity. Component is not attached");
-        return;
-    }
-
-    m_pimpl->data.remove(e);
+    m_pimpl->data.remove(e.handle);
 }
 
 bool Sprite2DComponentProcessor::has(Entity e)
 {
-    return m_pimpl->data.lookup(e).valid();
+    return m_pimpl->data.contains(e.handle);
 }
 
 }

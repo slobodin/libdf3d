@@ -1,6 +1,5 @@
 #include "World.h"
 
-#include "impl/EntityManager.h"
 #include "impl/EntityLoader.h"
 #include <df3d/engine/TimeManager.h>
 #include <df3d/engine/EngineController.h>
@@ -14,6 +13,59 @@
 #include <df3d/engine/render/RenderQueue.h>
 
 namespace df3d {
+
+struct World::EntitiesManager
+{
+    PodArray<uint32_t> generations;
+    PodArray<uint32_t> freeList;
+    PodArray<Entity> recentlyRemoved;
+    size_t entitiesCount = 0;
+
+    EntitiesManager()
+        : generations(MemoryManager::allocDefault()),
+        freeList(MemoryManager::allocDefault()),
+        recentlyRemoved(MemoryManager::allocDefault())
+    {
+
+    }
+
+    Entity getNew()
+    {
+        uint32_t idx;
+        if (freeList.empty())
+        {
+            generations.push_back(1);
+            idx = generations.size() - 1;
+        }
+        else
+        {
+            idx = freeList.back();
+            freeList.pop_back();
+        }
+
+        ++entitiesCount;
+
+        return { Handle(idx, generations[idx]) };
+    }
+
+    void destroy(Entity e)
+    {
+        DF3D_ASSERT(entitiesCount > 0);
+
+        ++generations[e.handle.getIdx()];
+        if (generations[e.handle.getIdx()] >= (1 << HANDLE_GENERATION_BITS))
+            generations[e.handle.getIdx()] = 1;
+
+        recentlyRemoved.push_back(e);
+
+        --entitiesCount;
+    }
+
+    bool isAlive(Entity e) const
+    {
+        return generations[e.handle.getIdx()] == e.handle.getGeneration();
+    }
+};
 
 void World::update()
 {
@@ -51,20 +103,30 @@ void World::collectRenderOperations(RenderQueue *ops)
 
 void World::cleanStep()
 {
-    for (auto &userProcessor : m_userProcessors)
-        userProcessor.second->cleanStep(m_recentlyRemovedEntities);
-
-    for (auto engineProcessor : m_engineProcessors)
-        engineProcessor->cleanStep(m_recentlyRemovedEntities);
-
     m_timeMgr->cleanStep();
 
-    m_recentlyRemovedEntities.clear();
-    m_entityManager->cleanStep();
+    for (auto e : m_entitiesMgr->recentlyRemoved)
+    {
+        for (auto &engineProc : m_engineProcessors)
+        {
+            if (engineProc->has(e))
+                engineProc->remove(e);
+        }
+
+        for (auto &userProc : m_userProcessors)
+        {
+            if (userProc.second->has(e))
+                userProc.second->remove(e);
+        }
+
+        m_entitiesMgr->freeList.push_back(e.handle.getIdx());
+    }
+
+    m_entitiesMgr->recentlyRemoved.clear();
 }
 
 World::World()
-    : m_entityManager(new game_impl::EntityManager()),
+    : m_entitiesMgr(new World::EntitiesManager()),
     m_entityLoader(new game_impl::EntityLoader()),
     m_staticMeshes(new StaticMeshComponentProcessor(this)),
     m_vfx(new ParticleSystemComponentProcessor(this)),
@@ -99,9 +161,7 @@ void World::destroyWorld()
     m_camera.reset();
     m_timeMgr.reset();
 
-    DFLOG_DEBUG("World::destroyWorld alive entities: %d", m_entityManager->size());
-
-    m_entityManager.reset();
+    m_entitiesMgr.reset();
 }
 
 World::~World()
@@ -111,10 +171,10 @@ World::~World()
 
 Entity World::spawn()
 {
-    auto entity = m_entityManager->create();
+    auto entity = m_entitiesMgr->getNew();
     // NOTE: forcing to have transform component, otherwise have some problems (especially performance)
     // with systems that require transform component.
-    ((SceneGraphComponentProcessor*)m_sceneGraph.get())->add(entity);
+    sceneGraph().add(entity);
 
     return entity;
 }
@@ -131,15 +191,14 @@ Entity World::spawn(const Json::Value &entityResource)
 
 bool World::alive(Entity e)
 {
-    return m_entityManager->alive(e);
+    return m_entitiesMgr->isAlive(e);
 }
 
 void World::destroy(Entity e)
 {
-    if (e.valid() && alive(e))
+    if (alive(e))
     {
-        m_entityManager->destroy(e);
-        m_recentlyRemovedEntities.push_back(e);
+        m_entitiesMgr->destroy(e);
     }
     else
     {
@@ -149,23 +208,16 @@ void World::destroy(Entity e)
 
 void World::destroyWithChildren(Entity e)
 {
-    if (e.valid() && alive(e))
-    {
-        const auto &children = sceneGraph().getChildren(e);
-        for (auto &child : children)
-            destroyWithChildren(child);
+    const auto &children = sceneGraph().getChildren(e);
+    for (auto &child : children)
+        destroyWithChildren(child);
 
-        destroy(e);
-    }
-    else
-    {
-        DFLOG_WARN("Failed to destroy an entity. Entity is not alive!");
-    }
+    destroy(e);
 }
 
 size_t World::getEntitiesCount()
 {
-    return m_entityManager->size();
+    return m_entitiesMgr->entitiesCount;
 }
 
 void World::pauseSimulation(bool paused)

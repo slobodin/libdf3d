@@ -6,7 +6,7 @@
 
 namespace df3d {
 
-namespace game_impl { class EntityManager; class EntityLoader; }
+namespace game_impl { class EntityLoader; }
 
 class StaticMeshComponentProcessor;
 class ParticleSystemComponentProcessor;
@@ -24,7 +24,8 @@ class DF3D_DLL World : NonCopyable
     friend class EngineController;
     friend class RenderManager;
 
-    unique_ptr<game_impl::EntityManager> m_entityManager;
+    struct EntitiesManager;
+    unique_ptr<EntitiesManager> m_entitiesMgr;
     unique_ptr<game_impl::EntityLoader> m_entityLoader;
 
     using ComponentProcessor = unique_ptr<EntityComponentProcessor>;
@@ -42,8 +43,6 @@ class DF3D_DLL World : NonCopyable
     bool m_paused = false;
 
     unique_ptr<TimeManager> m_timeMgr;
-
-    std::list<Entity> m_recentlyRemovedEntities;
 
     std::unordered_map<uintptr_t, ComponentProcessor> m_userProcessors;
     PodArray<EntityComponentProcessor*> m_engineProcessors;

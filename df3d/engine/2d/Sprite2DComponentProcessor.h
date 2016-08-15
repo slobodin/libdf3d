@@ -20,8 +20,7 @@ class DF3D_DLL Sprite2DComponentProcessor : public EntityComponentProcessor
     World *m_world;
 
     void draw(RenderQueue *ops) override;
-    void cleanStep(const std::list<Entity> &deleted) override;
-    void update() override;
+    void update() override { }
 
 public:
     Sprite2DComponentProcessor(World *world);
@@ -51,8 +50,8 @@ public:
     void setDiffuseColor(Entity e, const glm::vec4 &diffuseColor);
 
     void add(Entity e, const std::string &texturePath);
-    void remove(Entity e);
-    bool has(Entity e);
+    void remove(Entity e) override;
+    bool has(Entity e) override;
 };
 
 }

@@ -4,31 +4,20 @@
 
 namespace df3d {
 
-DF3D_MAKE_HANDLE(EntityHandle)
-using Entity = EntityHandle;
-
-DF3D_MAKE_HANDLE(ComponentInstanceHandle)
-using ComponentInstance = ComponentInstanceHandle;
+DF3D_MAKE_HANDLE(Entity)
 
 }
+
 
 namespace std {
 
 template <>
 struct hash<df3d::Entity>
 {
-    std::size_t operator()(const df3d::Entity& e) const
+    std::size_t operator()(const df3d::Entity &e) const
     {
-        return std::hash<decltype(e.id)>()(e.id);
-    }
-};
-
-template <>
-struct hash<df3d::ComponentInstance>
-{
-    std::size_t operator()(const df3d::ComponentInstance& e) const
-    {
-        return std::hash<decltype(e.id)>()(e.id);
+        auto id = e.handle.getID();
+        return std::hash<decltype(id)>()(id);
     }
 };
 

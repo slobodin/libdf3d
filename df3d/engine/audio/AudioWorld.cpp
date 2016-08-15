@@ -37,7 +37,9 @@ static AudioWorld::State GetAudioState(ALuint audioSourceId)
 
 const AudioWorld::AudioSource* AudioWorld::lookupSource(AudioSourceHandle handle) const
 {
-    auto found = m_lookup.find(handle.id);
+    DF3D_ASSERT(m_handleBag.isValid(handle.handle));
+
+    auto found = m_lookup.find(handle.handle);
     if (found == m_lookup.end())
         return nullptr;
     return &found->second;
@@ -45,7 +47,9 @@ const AudioWorld::AudioSource* AudioWorld::lookupSource(AudioSourceHandle handle
 
 AudioWorld::AudioSource* AudioWorld::lookupSource(AudioSourceHandle handle)
 {
-    auto found = m_lookup.find(handle.id);
+    DF3D_ASSERT(m_handleBag.isValid(handle.handle));
+
+    auto found = m_lookup.find(handle.handle);
     if (found == m_lookup.end())
         return nullptr;
     return &found->second;
@@ -70,7 +74,7 @@ void AudioWorld::streamThread()
 }
 
 AudioWorld::AudioWorld()
-    : m_handleBag(0x00FFFFFF)
+    : m_handleBag(MemoryManager::allocDefault())
 {
     m_streamingThread = std::thread{ [this]() { streamThread(); } };
 }
@@ -83,12 +87,12 @@ AudioWorld::~AudioWorld()
         DFLOG_WARN("Not all audio sources have been destroyed, %d left", m_lookup.size());
 
     while (!m_lookup.empty())
-        destroy(m_lookup.begin()->first);
+        destroy({ m_lookup.begin()->first });
 }
 
 void AudioWorld::update()
 {
-    m_handleBag.cleanup();
+
 }
 
 void AudioWorld::suspend()
@@ -246,14 +250,9 @@ AudioWorld::State AudioWorld::getState(AudioSourceHandle handle) const
 
 AudioSourceHandle AudioWorld::create(const std::string &audioFilePath, bool streamed, bool looped)
 {
-    auto handle = m_handleBag.getNew();
-    if (!handle.valid())
-    {
-        DFLOG_WARN("AudioWorld: failed to create a handle");
-        return{};
-    }
+    AudioSourceHandle handle = { m_handleBag.getNew() };
 
-    DF3D_ASSERT(!utils::contains_key(m_lookup, handle.id));
+    DF3D_ASSERT(!utils::contains_key(m_lookup, handle.handle));
 
     AudioSource source;
 
@@ -278,7 +277,7 @@ AudioSourceHandle AudioWorld::create(const std::string &audioFilePath, bool stre
 
     printOpenALError();
 
-    m_lookup[handle.id] = source;
+    m_lookup[handle.handle] = source;
 
     if (streamed)
     {
@@ -299,7 +298,7 @@ AudioSourceHandle AudioWorld::create(const std::string &audioFilePath, bool stre
 
 void AudioWorld::destroy(AudioSourceHandle handle)
 {
-    auto found = m_lookup.find(handle.id);
+    auto found = m_lookup.find(handle.handle);
 
     if (found != m_lookup.end())
     {
@@ -324,7 +323,7 @@ void AudioWorld::destroy(AudioSourceHandle handle)
         alDeleteSources(1, &found->second.audioSourceId);
 
         m_lookup.erase(found);
-        m_handleBag.release(handle);
+        m_handleBag.release(handle.handle);
     }
     else
         DFLOG_WARN("Failed to destroy an audio source. Source is not exists");

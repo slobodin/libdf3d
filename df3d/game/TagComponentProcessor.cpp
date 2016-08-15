@@ -4,27 +4,6 @@
 
 namespace df3d {
 
-void TagComponentProcessor::update()
-{
-
-}
-
-void TagComponentProcessor::cleanStep(const std::list<Entity> &deleted)
-{
-    for (auto e : deleted)
-        remove(e);
-}
-
-TagComponentProcessor::TagComponentProcessor()
-{
-
-}
-
-TagComponentProcessor::~TagComponentProcessor()
-{
-
-}
-
 const std::unordered_set<Entity>& TagComponentProcessor::getEntities(int tag)
 {
     return m_entities[tag];
@@ -73,6 +52,11 @@ void TagComponentProcessor::remove(Entity e)
 
         DF3D_VERIFY(m_tagLookup.erase(e) == 1);
     }
+}
+
+bool TagComponentProcessor::has(Entity e)
+{
+    return utils::contains_key(m_tagLookup, e);
 }
 
 }

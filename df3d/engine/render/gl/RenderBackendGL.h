@@ -37,19 +37,6 @@
 #error "Unsupported platform"
 #endif
 
-namespace std {
-
-template <>
-struct hash<df3d::GpuProgramHandle>
-{
-    std::size_t operator()(const df3d::GpuProgramHandle& h) const
-    {
-        return std::hash<decltype(h.id)>()(h.id);
-    }
-};
-
-}
-
 namespace df3d {
 
 class Texture;
@@ -114,66 +101,67 @@ public:
     size_t getGpuMemBytes() const { return m_total; }
 };
 
+struct VertexBufferGL
+{
+    GLuint glID = 0;
+    VertexFormat format;
+    size_t sizeInBytes = 0;
+};
+
+struct IndexBufferGL
+{
+    GLuint glID = 0;
+    size_t sizeInBytes = 0;
+    bool indices16bit = false;
+};
+
+struct TextureGL
+{
+    GLuint glID = 0;
+    GLenum type = GL_INVALID_ENUM;
+    GLenum pixelFormat = GL_INVALID_ENUM;
+    TextureInfo info;
+};
+
+struct ShaderGL
+{
+    // glCreateShader returns 0 if an error occurs creating the shader object.
+    GLuint glID = 0;
+    GLenum type = GL_INVALID_ENUM;
+};
+
+struct ProgramGL
+{
+    ShaderHandle vshader;
+    ShaderHandle fshader;
+    GLuint glID = 0;
+};
+
+struct UniformGL
+{
+    GLenum type = GL_INVALID_ENUM;
+    GLint location = -1;
+};
+
+struct FrameBufferGL
+{
+    GLuint fbo;
+};
+
 class RenderBackendGL : public IRenderBackend
 {
-    struct VertexBufferGL
-    {
-        GLuint gl_id = 0;
-        VertexFormat format;
-        size_t sizeInBytes = 0;
-    };
-
-    struct IndexBufferGL
-    {
-        GLuint gl_id = 0;
-        size_t sizeInBytes = 0;
-        bool indices16bit;
-    };
-
-    struct TextureGL
-    {
-        GLuint gl_id = 0;
-        GLenum type = GL_INVALID_ENUM;
-        GLenum pixelFormat = GL_INVALID_ENUM;
-        TextureInfo info;
-    };
-
-    struct ShaderGL
-    {
-        GLuint gl_id = 0;
-        GLenum type = GL_INVALID_ENUM;
-    };
-
-    struct ProgramGL
-    {
-        GLuint gl_id = 0;
-        ShaderHandle vshader;
-        ShaderHandle fshader;
-    };
-
-    struct UniformGL
-    {
-        GLenum type = GL_INVALID_ENUM;
-        GLint location = -1;
-    };
-
-    struct FrameBufferGL
-    {
-        GLuint fbo;
-    };
-
     RenderBackendCaps m_caps;
     mutable FrameStats m_stats;
 
     static const int MAX_SIZE = 0xFFF;      // 4k is enough for now.
 
-    StaticHandleBag<VertexBufferHandle, MAX_SIZE> m_vertexBuffersBag;
-    StaticHandleBag<IndexBufferHandle, MAX_SIZE> m_indexBuffersBag;
-    StaticHandleBag<TextureHandle, MAX_SIZE> m_texturesBag;
-    StaticHandleBag<ShaderHandle, MAX_SIZE> m_shadersBag;
-    StaticHandleBag<GpuProgramHandle, MAX_SIZE> m_gpuProgramsBag;
-    StaticHandleBag<UniformHandle, MAX_SIZE> m_uniformsBag;
-    StaticHandleBag<FrameBufferHandle, MAX_SIZE> m_framebuffersBag;
+    HandleBag m_vertexBuffersBag;
+    HandleBag m_indexBuffersBag;
+    HandleBag m_texturesBag;
+    HandleBag m_shadersBag;
+    HandleBag m_gpuProgramsBag;
+    HandleBag m_uniformsBag;
+    HandleBag m_framebuffersBag;
 
     VertexBufferGL m_vertexBuffers[MAX_SIZE];
     IndexBufferGL m_indexBuffers[MAX_SIZE];
@@ -183,7 +171,7 @@ class RenderBackendGL : public IRenderBackend
     UniformGL m_uniforms[MAX_SIZE];
     FrameBufferGL m_frameBuffers[MAX_SIZE];
 
-    std::unordered_map<GpuProgramHandle, std::vector<UniformHandle>> m_programUniforms;
+    std::map<GpuProgramHandle, std::vector<UniformHandle>> m_programUniforms;
 
     // Some cached state.
     GpuProgramHandle m_currentProgram;
