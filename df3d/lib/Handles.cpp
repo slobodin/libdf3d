@@ -46,7 +46,7 @@ void HandleBag::release(Handle handle)
 
 bool HandleBag::isValid(Handle handle) const
 {
-    return m_generations[handle.getIdx()] == handle.getGeneration();
+    return (handle.getIdx() < m_generations.size()) && (m_generations[handle.getIdx()] == handle.getGeneration());
 }
 
 void HandleBag::reset()

@@ -63,7 +63,7 @@ struct World::EntitiesManager
 
     bool isAlive(Entity e) const
     {
-        return generations[e.handle.getIdx()] == e.handle.getGeneration();
+        return (e.handle.getIdx() < generations.size()) && (generations[e.handle.getIdx()] == e.handle.getGeneration());
     }
 };
 

@@ -30,7 +30,7 @@ public:
 void ParticleSystemBuffers_Quad::cleanup()
 {
     delete[] m_vertexData;
-    if (m_indexBuffer.valid())
+    if (m_indexBuffer.isValid())
         svc().renderManager().getBackend().destroyIndexBuffer(m_indexBuffer);
 }
 
