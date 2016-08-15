@@ -53,6 +53,7 @@ private:
     shared_ptr<Resource> loadFromFS(const std::string &path, shared_ptr<FSResourceLoader> loader);
 
 public:
+    // TODO: resource manager owns filesystem.
     ResourceManager();
     ~ResourceManager();
 
