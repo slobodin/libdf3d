@@ -2,7 +2,7 @@ The MIT License (MIT)
 
 libdf3d 3d game engine library
 
-Copyright (c) 2014 Nikolay Slobodin <epiforce57@gmail.com>
+Copyright (c) 2013-2016 Nikolay Slobodin <epiforce57@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -21,3 +21,4 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
+
