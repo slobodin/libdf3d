@@ -7,6 +7,7 @@ class TBWidgetsReader;
 class TBLanguage;
 class TBFontManager;
 class TBWidget;
+class TBImageManager;
 }
 
 namespace df3d {
@@ -35,6 +36,7 @@ public:
     tb::TBWidgetsReader* getWidgetsReader();
     tb::TBLanguage* getLang();
     tb::TBFontManager* getFontManager();
+    tb::TBImageManager* getImageManager();
 };
 
 }

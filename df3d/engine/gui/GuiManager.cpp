@@ -5,6 +5,7 @@
 #include <tb_system.h>
 #include <tb_msg.h>
 #include <animation/tb_widget_animation.h>
+#include <image/tb_image_manager.h>
 #include "TBInterface.h"
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/input/InputEvents.h>
@@ -107,6 +108,11 @@ tb::TBLanguage* GuiManager::getLang()
 tb::TBFontManager* GuiManager::getFontManager()
 {
     return tb::g_font_manager;
+}
+
+tb::TBImageManager* GuiManager::getImageManager()
+{
+    return tb::g_image_manager;
 }
 
 }
