@@ -74,7 +74,8 @@ void AudioWorld::streamThread()
 }
 
 AudioWorld::AudioWorld()
-    : m_handleBag(MemoryManager::allocDefault())
+    : m_handleBag(MemoryManager::allocDefault()),
+    m_streamingThreadActive(true)
 {
     m_streamingThread = std::thread{ [this]() { streamThread(); } };
 }

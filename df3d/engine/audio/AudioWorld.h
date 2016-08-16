@@ -48,7 +48,7 @@ private:
     std::list<StreamingData> m_streamingData;
 
     float m_soundVolume = 1.0f;
-    std::atomic<bool> m_streamingThreadActive = true;
+    std::atomic<bool> m_streamingThreadActive;
 
     void streamThread();
 

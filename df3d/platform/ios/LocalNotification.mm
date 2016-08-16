@@ -4,7 +4,7 @@ namespace df3d {
 
 LocalNotification::NotificationId LocalNotification::schedule(const char *msg)
 {
-    return InvalidId;
+    return 0;
 }
 
 void LocalNotification::cancel(NotificationId notificationId)

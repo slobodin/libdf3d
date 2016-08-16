@@ -11,7 +11,7 @@ public:
     using DestructionCallback = std::function<void(const T&)>;
 
 private:
-    static const size_t InvalidComponentInstance = std::numeric_limits<size_t>::max();
+    const size_t InvalidComponentInstance = std::numeric_limits<size_t>::max();
     DestructionCallback m_destructionCallback;
 
     std::vector<T> m_data;          // Data pool.
