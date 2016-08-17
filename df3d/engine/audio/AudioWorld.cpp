@@ -37,17 +37,16 @@ static AudioWorld::State GetAudioState(ALuint audioSourceId)
 
 const AudioWorld::AudioSource* AudioWorld::lookupSource(AudioSourceHandle handle) const
 {
-    DF3D_ASSERT(m_handleBag.isValid(handle.handle));
-
-    auto found = m_lookup.find(handle.handle);
-    if (found == m_lookup.end())
-        return nullptr;
-    return &found->second;
+    return const_cast<AudioWorld*>(this)->lookupSource(handle);
 }
 
 AudioWorld::AudioSource* AudioWorld::lookupSource(AudioSourceHandle handle)
 {
-    DF3D_ASSERT(m_handleBag.isValid(handle.handle));
+    if (!handle.handle.isValid())
+    {
+        DF3D_ASSERT(false);
+        return nullptr;
+    }
 
     auto found = m_lookup.find(handle.handle);
     if (found == m_lookup.end())
@@ -251,18 +250,18 @@ AudioWorld::State AudioWorld::getState(AudioSourceHandle handle) const
 
 AudioSourceHandle AudioWorld::create(const std::string &audioFilePath, bool streamed, bool looped)
 {
-    AudioSourceHandle handle = { m_handleBag.getNew() };
-
-    DF3D_ASSERT(!utils::contains_key(m_lookup, handle.handle));
-
     AudioSource source;
 
     alGenSources(1, &source.audioSourceId);
     if (!source.audioSourceId)
     {
         DFLOG_WARN("Failed to create audio source");
-        return{};
+        return {};
     }
+
+    AudioSourceHandle handle = { m_handleBag.getNew() };
+
+    DF3D_ASSERT(!utils::contains_key(m_lookup, handle.handle));
 
     alSourcef(source.audioSourceId, AL_PITCH, source.pitch);
     alSourcef(source.audioSourceId, AL_GAIN, source.gain);
