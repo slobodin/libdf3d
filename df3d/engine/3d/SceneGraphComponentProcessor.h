@@ -52,17 +52,17 @@ public:
     Entity getByName(const std::string &name) const;
     Entity getByName(Entity parent, const std::string &name) const;
 
-    const glm::vec3& getWorldPosition(Entity e) const;
-    const glm::quat& getWorldOrientation(Entity e) const;
+    glm::vec3 getWorldPosition(Entity e) const;
+    glm::quat getWorldOrientation(Entity e) const;
     glm::vec3 getWorldRotation(Entity e) const;
 
     glm::vec3 getLocalPosition(Entity e) const;
-    const glm::vec3& getLocalScale(Entity e) const;
-    const glm::quat& getLocalOrientation(Entity e) const;
+    glm::vec3 getLocalScale(Entity e) const;
+    glm::quat getLocalOrientation(Entity e) const;
     glm::vec3 getLocalRotation(Entity e) const;
 
-    const glm::mat4& getWorldTransformMatrix(Entity e) const;
-    const Transform& getWorldTransform(Entity e) const;
+    glm::mat4 getWorldTransformMatrix(Entity e) const;
+    Transform getWorldTransform(Entity e) const;
 
     glm::vec3 getWorldDirection(Entity e) const;
     glm::vec3 getWorldUp(Entity e) const;

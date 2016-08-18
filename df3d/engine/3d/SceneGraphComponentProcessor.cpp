@@ -229,12 +229,12 @@ Entity SceneGraphComponentProcessor::getByName(Entity parent, const std::string 
     return{};
 }
 
-const glm::vec3& SceneGraphComponentProcessor::getWorldPosition(Entity e) const
+glm::vec3 SceneGraphComponentProcessor::getWorldPosition(Entity e) const
 {
     return m_pimpl->data.getData(e.handle).wTransform.position;
 }
 
-const glm::quat& SceneGraphComponentProcessor::getWorldOrientation(Entity e) const
+glm::quat SceneGraphComponentProcessor::getWorldOrientation(Entity e) const
 {
     return m_pimpl->data.getData(e.handle).wTransform.orientation;
 }
@@ -251,12 +251,12 @@ glm::vec3 SceneGraphComponentProcessor::getLocalPosition(Entity e) const
     return m_pimpl->data.getData(e.handle).lTransform.position;
 }
 
-const glm::vec3& SceneGraphComponentProcessor::getLocalScale(Entity e) const
+glm::vec3 SceneGraphComponentProcessor::getLocalScale(Entity e) const
 {
     return m_pimpl->data.getData(e.handle).lTransform.scaling;
 }
 
-const glm::quat& SceneGraphComponentProcessor::getLocalOrientation(Entity e) const
+glm::quat SceneGraphComponentProcessor::getLocalOrientation(Entity e) const
 {
     return m_pimpl->data.getData(e.handle).lTransform.orientation;
 }
@@ -268,12 +268,12 @@ glm::vec3 SceneGraphComponentProcessor::getLocalRotation(Entity e) const
     return glm::degrees(glm::eulerAngles(compData.lTransform.orientation));
 }
 
-const glm::mat4& SceneGraphComponentProcessor::getWorldTransformMatrix(Entity e) const
+glm::mat4 SceneGraphComponentProcessor::getWorldTransformMatrix(Entity e) const
 {
     return m_pimpl->data.getData(e.handle).wTransform.combined;
 }
 
-const Transform& SceneGraphComponentProcessor::getWorldTransform(Entity e) const
+Transform SceneGraphComponentProcessor::getWorldTransform(Entity e) const
 {
     return m_pimpl->data.getData(e.handle).wTransform;
 }
