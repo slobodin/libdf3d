@@ -306,7 +306,7 @@ void AudioWorld::destroy(AudioSourceHandle handle)
         {
             m_streamingMutex.lock();
 
-            for (auto it = m_streamingData.begin(); it != m_streamingData.end(); it++)
+            for (auto it = m_streamingData.begin(); it != m_streamingData.end(); )
             {
                 if (it->sourceId == found->second.audioSourceId)
                 {
