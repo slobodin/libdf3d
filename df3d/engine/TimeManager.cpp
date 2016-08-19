@@ -19,7 +19,7 @@ void Timer::update()
         auto dt = TimeUtils::IntervalBetween(timeInfo.currTime, timeInfo.prevTime);
         if (i == TIME_CHANNEL_GAME)
         {
-            auto maxDt = 1.0f / EngineCVars::preferredFPS;
+            auto maxDt = 1.0f / 10.0f;
             dt = std::min(dt, maxDt);
         }
 
