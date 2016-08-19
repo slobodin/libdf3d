@@ -286,8 +286,7 @@ void PhysicsComponentProcessor::update()
         }
     }
 
-    auto fixedStep = 1.0f / EngineCVars::preferredFPS;
-    m_pimpl->dynamicsWorld->stepSimulation(svc().timer().getFrameDelta(TIME_CHANNEL_GAME), 5, fixedStep);
+    m_pimpl->dynamicsWorld->stepSimulation(svc().timer().getFrameDelta(TIME_CHANNEL_GAME), 10);
 }
 
 void PhysicsComponentProcessor::draw(RenderQueue *ops)
