@@ -2,20 +2,19 @@
 
 namespace df3d {
 
-LocalNotification::NotificationId LocalNotification::schedule(const char *msg)
+bool LocalNotification::schedule(int notificationID, const char *msg, std::tm timePoint)
 {
-    DFLOG_DEBUG("LocalNotification::schedule is unavailable for desktop platform");
-    return 0;
+    return true;
 }
 
-void LocalNotification::cancel(NotificationId notificationId)
+void LocalNotification::cancel(int notificationID)
 {
-    DFLOG_DEBUG("LocalNotification::cancel is unavailable for desktop platform");
+
 }
 
 void LocalNotification::enableNotifications(bool enable)
 {
-    DFLOG_DEBUG("LocalNotification::enableNotifications is unavailable for desktop platform");
+
 }
 
 }
