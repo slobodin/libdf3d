@@ -2,12 +2,12 @@
 
 namespace df3d {
 
-LocalNotification::NotificationId LocalNotification::schedule(const char *msg)
+bool LocalNotification::schedule(int notificationID, const char *msg, std::tm timePoint)
 {
-    return 0;
+    return false;
 }
 
-void LocalNotification::cancel(NotificationId notificationId)
+void LocalNotification::cancel(int notificationID)
 {
 
 }
