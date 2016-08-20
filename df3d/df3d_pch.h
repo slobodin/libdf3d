@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <cfloat>
 #include <climits>
+#include <ctime>
 
 #include <stdexcept>
 #include <iostream>

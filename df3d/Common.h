@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <memory>
 #include <chrono>
+#include <ctime>
 #include <csignal>
 
 #define GLM_FORCE_RADIANS
