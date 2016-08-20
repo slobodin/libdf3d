@@ -43,6 +43,9 @@ private:
     HandleBag m_handleBag;
     std::unordered_map<Handle, AudioSource> m_lookup;
 
+    std::vector<Handle> m_suspendedSources;
+    bool m_suspended = false;
+
     std::mutex m_streamingMutex;
     std::thread m_streamingThread;
     std::list<StreamingData> m_streamingData;

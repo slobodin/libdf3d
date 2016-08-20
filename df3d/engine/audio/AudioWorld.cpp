@@ -97,20 +97,45 @@ void AudioWorld::update()
 
 void AudioWorld::suspend()
 {
-    if (m_streamingThreadActive)
+    if (!m_suspended)
     {
-        m_streamingThreadActive = false;
-        m_streamingThread.join();
-        m_streamingThread = {};
+        if (m_streamingThreadActive)
+        {
+            m_streamingThreadActive = false;
+            m_streamingThread.join();
+            m_streamingThread = {};
+        }
+
+        DF3D_ASSERT(m_suspendedSources.empty());
+        for (const auto &source : m_lookup)
+        {
+            if (GetAudioState(source.second.audioSourceId) == State::PLAYING)
+            {
+                pause({ source.first });
+                m_suspendedSources.push_back(source.first);
+            }
+        }
+
+        m_suspended = true;
     }
 }
 
 void AudioWorld::resume()
 {
-    if (!m_streamingThreadActive)
+    if (m_suspended)
     {
-        m_streamingThreadActive = true;
-        m_streamingThread = std::thread{ [this]() { streamThread(); } };
+        if (!m_streamingThreadActive)
+        {
+            m_streamingThreadActive = true;
+            m_streamingThread = std::thread{ [this]() { streamThread(); } };
+        }
+
+        for (auto source : m_suspendedSources)
+            play({ source });
+
+        m_suspendedSources.clear();
+
+        m_suspended = false;
     }
 }
 
