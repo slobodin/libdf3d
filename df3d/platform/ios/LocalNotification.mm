@@ -7,6 +7,9 @@ namespace df3d {
 
 bool LocalNotification::schedule(int notificationID, const char *msg, double secondsFromNow)
 {
+    if (secondsFromNow <= 0.0)
+        return false;
+
     UILocalNotification *notif = [[UILocalNotification alloc] init];
     notif.fireDate = [NSDate dateWithTimeIntervalSinceNow:secondsFromNow];
     notif.timeZone = [NSTimeZone defaultTimeZone];
