@@ -1,7 +1,5 @@
 #pragma once
 
-#include <ctime>
-
 namespace df3d {
 
 class LocalNotification

@@ -2,17 +2,20 @@
 
 namespace df3d {
 
-LocalNotification::NotificationId LocalNotification::schedule(const char *msg)
+bool LocalNotification::schedule(int notificationID, const char *msg, double secondsFromNow)
 {
-    return InvalidId;
+    DFLOG_WARN("Local notifcations for Android is not implemented yet.");
+    return false;
 }
 
-void LocalNotification::cancel(NotificationId notificationId)
+void LocalNotification::cancel(int notificationID)
 {
+
 }
 
-void LocalNotification::enableNotifications(bool enable)
+void LocalNotification::registerLocalNotifications()
 {
+
 }
 
 }
