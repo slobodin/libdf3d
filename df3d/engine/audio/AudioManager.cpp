@@ -1,8 +1,6 @@
 #include "AudioManager.h"
 
 #include "OpenALCommon.h"
-#include <df3d/engine/EngineController.h>
-#include <df3d/engine/3d/Camera.h>
 
 namespace df3d {
 
@@ -30,8 +28,6 @@ void AudioManager::initialize()
 #ifdef _DEBUG
 #if defined(DF3D_WINDOWS)
     _putenv_s("ALSOFT_LOGLEVEL", "3");
-#elif defined(DF3D_ANDROID)
-    setenv("ALSOFT_LOGLEVEL", "3", 1);
 #endif
 #endif
 
