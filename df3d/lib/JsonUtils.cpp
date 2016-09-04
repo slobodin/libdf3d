@@ -1,22 +1,21 @@
 #include "JsonUtils.h"
 
-#include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
-#include <df3d/engine/io/DataSource.h>
+#include <df3d/engine/io/FileSystem.h>
+#include <df3d/engine/io/FileDataSource.h>
 
 namespace df3d {
 
-Json::Value JsonUtils::fromFile(const std::string &path)
+Json::Value JsonUtils::fromFile(const char *path, FileSystem &fs)
 {
     std::string buffer;
 
-    if (auto fileSource = svc().fileSystem().open(path))
+    if (auto fileSource = fs.open(path))
     {
         buffer.resize(fileSource->getSize());
         fileSource->read(&buffer[0], buffer.size());
     }
     else
-        DFLOG_WARN("Couldn't load json configs from %s", path.c_str());
+        DFLOG_WARN("Couldn't load json configs from %s", path);
 
     return fromSource(buffer);
 }
