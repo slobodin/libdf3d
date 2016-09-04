@@ -227,15 +227,15 @@ void MeshUtils::computeTangentBasis(SubMesh &submesh)
             glm::vec3 tangent = (e1 * e2uv.y - e2 * e1uv.y) * r;
             glm::vec3 bitangent = (e2 * e1uv.x - e1 * e2uv.x) * r;
 
-            for (size_t j = 0; j < 3; j++)
-            {
-                auto v = vertexData.getVertex(i + j);
-                v.setTangent(tangent);
-                v.setBitangent(bitangent);
-            }
+            v0.setTangent(tangent);
+            v1.setTangent(tangent);
+            v2.setTangent(tangent);
+
+            v0.setBitangent(bitangent);
+            v1.setBitangent(bitangent);
+            v2.setBitangent(bitangent);
         }
 
-        // Gram-Schmidt orthogonalization.
         for (size_t i = 0; i < vertexData.getVerticesCount(); i++)
         {
             auto v = vertexData.getVertex(i);
@@ -245,6 +245,7 @@ void MeshUtils::computeTangentBasis(SubMesh &submesh)
             v.getBitangent(&bitangent);
             v.getNormal(&normal);
 
+            // Gram-Schmidt orthogonalization.
             tangent = tangent - normal * glm::dot(normal, tangent);
             tangent = MathUtils::safeNormalize(tangent);
 
