@@ -28,7 +28,7 @@ struct DF3D_DLL PhysicsComponentCreationParams
 
     PhysicsComponentCreationParams();
     ~PhysicsComponentCreationParams();
-    explicit PhysicsComponentCreationParams(const std::string &physicsDefinitionFile);
+    explicit PhysicsComponentCreationParams(const char *physicsDefinitionFile);
     explicit PhysicsComponentCreationParams(const Json::Value &root);
 };
 

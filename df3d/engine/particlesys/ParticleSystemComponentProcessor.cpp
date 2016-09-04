@@ -168,7 +168,7 @@ bool ParticleSystemComponentProcessor::isVisible(Entity e) const
     return !m_pimpl->data.getData(e.handle).visible;
 }
 
-void ParticleSystemComponentProcessor::add(Entity e, const std::string &vfxResource)
+void ParticleSystemComponentProcessor::add(Entity e, const char *vfxResource)
 {
     add(e, ParticleSystemUtils::parseVfx(vfxResource));
 }

@@ -57,7 +57,7 @@ public:
     bool isPlaying(Entity e) const;
     bool isVisible(Entity e) const;
 
-    void add(Entity e, const std::string &vfxResource);
+    void add(Entity e, const char *vfxResource);
     void add(Entity e, const ParticleSystemCreationParams &params);
     void remove(Entity e) override;
     bool has(Entity e) override;

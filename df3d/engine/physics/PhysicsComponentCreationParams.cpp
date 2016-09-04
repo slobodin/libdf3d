@@ -1,6 +1,8 @@
 #include "PhysicsComponentCreationParams.h"
 
 #include <df3d/lib/JsonUtils.h>
+#include <df3d/engine/EngineController.h>
+#include <df3d/engine/io/FileSystem.h>
 
 namespace df3d {
 
@@ -14,8 +16,8 @@ PhysicsComponentCreationParams::~PhysicsComponentCreationParams()
 
 }
 
-PhysicsComponentCreationParams::PhysicsComponentCreationParams(const std::string &physicsDefinitionFile)
-    : PhysicsComponentCreationParams(JsonUtils::fromFile(physicsDefinitionFile))
+PhysicsComponentCreationParams::PhysicsComponentCreationParams(const char *physicsDefinitionFile)
+    : PhysicsComponentCreationParams(JsonUtils::fromFile(physicsDefinitionFile, svc().fileSystem()))
 {
 
 }
