@@ -1,7 +1,6 @@
 #include "MeshLoader_obj.h"
 
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
 #include <df3d/engine/io/DataSource.h>
 #include <df3d/lib/MeshUtils.h>
 #include <df3d/lib/Utils.h>

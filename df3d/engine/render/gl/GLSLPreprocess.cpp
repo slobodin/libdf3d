@@ -3,7 +3,7 @@
 #include <cctype>
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/io/DataSource.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/FileSystem.h>
 #include <df3d/engine/io/FileSystemHelpers.h>
 #include <df3d/engine/render/MaterialLib.h>
 #include <df3d/lib/Utils.h>
@@ -103,7 +103,7 @@ static std::string ShaderPreprocessInclude(std::string shaderData, const std::st
         }
 
         fileToInclude = FileSystemHelpers::pathConcatenate(shaderDirectory, fileToInclude);
-        auto file = svc().fileSystem().open(fileToInclude);
+        auto file = svc().fileSystem().open(fileToInclude.c_str());
         if (!file)
         {
             DFLOG_WARN("Failed to preprocess a shader: file %s is not found", fileToInclude.c_str());

@@ -6,7 +6,6 @@
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/render/RenderManager.h>
 #include <df3d/engine/render/IRenderBackend.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
 #include <df3d/engine/io/FileSystemHelpers.h>
 #include <df3d/engine/io/DataSource.h>
 

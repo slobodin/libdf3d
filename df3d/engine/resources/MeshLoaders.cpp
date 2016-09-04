@@ -3,7 +3,7 @@
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/ResourceFactory.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/FileSystem.h>
 #include <df3d/engine/io/FileSystemHelpers.h>
 #include <df3d/engine/io/DataSource.h>
 #include <df3d/engine/render/MaterialLib.h>

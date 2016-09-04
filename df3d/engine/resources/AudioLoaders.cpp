@@ -1,7 +1,7 @@
 #include "AudioLoaders.h"
 
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/FileSystem.h>
 #include <df3d/engine/io/FileSystemHelpers.h>
 #include <df3d/engine/io/DataSource.h>
 #include <df3d/engine/audio/AudioBuffer.h>

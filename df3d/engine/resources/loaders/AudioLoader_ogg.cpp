@@ -2,7 +2,6 @@
 
 #include <df3d/engine/audio/OpenALCommon.h>
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
 #include <df3d/engine/io/DataSource.h>
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>

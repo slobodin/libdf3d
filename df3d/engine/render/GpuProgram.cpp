@@ -2,7 +2,7 @@
 
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/io/DataSource.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/FileSystem.h>
 #include <df3d/engine/io/FileSystemHelpers.h>
 #include <df3d/engine/render/RenderManager.h>
 #include <df3d/engine/render/IRenderBackend.h>
@@ -111,7 +111,7 @@ std::vector<std::string> GpuProgram::getCustomUniformNames() const
 
 ShaderHandle GpuProgramManualLoader::createShaderFromFile(const std::string &path) const
 {
-    auto file = svc().fileSystem().open(path);
+    auto file = svc().fileSystem().open(path.c_str());
     if (!file)
     {
         DFLOG_WARN("Can not create a shader. File %s doesn't exist", path.c_str());
