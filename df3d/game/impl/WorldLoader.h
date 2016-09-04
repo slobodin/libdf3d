@@ -9,7 +9,7 @@ namespace game_impl {
 class WorldLoader
 {
 public:
-    static void initWorld(const std::string &resourceFile, World &w);
+    static void initWorld(const char *resourceFile, World &w);
 };
 
 } }

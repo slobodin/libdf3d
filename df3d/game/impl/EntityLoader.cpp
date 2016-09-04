@@ -2,8 +2,8 @@
 
 #include <df3d/game/World.h>
 #include <df3d/engine/3d/SceneGraphComponentProcessor.h>
+#include <df3d/engine/EngineController.h>
 #include <df3d/lib/JsonUtils.h>
-#include "AudioComponentLoader.h"
 #include "MeshComponentLoader.h"
 #include "PhysicsComponentLoader.h"
 #include "Sprite2DComponentLoader.h"
@@ -21,7 +21,6 @@ static std::map<std::string, int> LoadingPriority = {
 
 EntityLoader::EntityLoader()
 {
-    registerEntityComponentLoader("audio", make_unique<AudioComponentLoader>());
     registerEntityComponentLoader("scenegraph", make_unique<SceneGraphComponentLoader>());
     registerEntityComponentLoader("mesh", make_unique<MeshComponentLoader>());
     registerEntityComponentLoader("vfx", make_unique<VfxComponentLoader>());
@@ -34,9 +33,9 @@ EntityLoader::~EntityLoader()
 
 }
 
-Entity EntityLoader::createEntity(const std::string &resourceFile, World &w)
+Entity EntityLoader::createEntity(const char *resourceFile, World &w)
 {
-    return createEntity(JsonUtils::fromFile(resourceFile), w);
+    return createEntity(JsonUtils::fromFile(resourceFile, svc().fileSystem()), w);
 }
 
 Entity EntityLoader::createEntity(const Json::Value &root, World &w)

@@ -179,12 +179,12 @@ Entity World::spawn()
     return entity;
 }
 
-Entity World::spawn(const std::string &entityResource)
+Entity World::spawnFromFile(const char *entityResource)
 {
     return m_entityLoader->createEntity(entityResource, *this);
 }
 
-Entity World::spawn(const Json::Value &entityResource)
+Entity World::spawnFromJson(const Json::Value &entityResource)
 {
     return m_entityLoader->createEntity(entityResource, *this);
 }

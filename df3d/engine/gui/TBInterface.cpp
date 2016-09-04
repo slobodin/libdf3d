@@ -13,7 +13,7 @@
 #include <df3d/engine/render/RenderOperation.h>
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/ResourceFactory.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/FileSystem.h>
 #include <df3d/engine/io/DataSource.h>
 #include <df3d/engine/resources/TextureLoaders.h>
 #include <df3d/lib/os/PlatformUtils.h>
@@ -526,13 +526,13 @@ namespace tb
 
 TBImageLoader* TBImageLoader::CreateFromFile(const char *filename)
 {
-    auto file = df3d::svc().fileSystem().open(filename);
-    if (!file)
+    auto dataSource = df3d::svc().fileSystem().open(filename);
+    if (!dataSource)
         return nullptr;
 
     auto pixels = make_unique<df3d::PixelData>();
 
-    if (!df3d::GetPixelBufferFromSource(file, true, *pixels))
+    if (!df3d::GetPixelBufferFromSource(dataSource, true, *pixels))
         return nullptr;
 
     if (pixels->info.format != df3d::PixelFormat::RGBA)

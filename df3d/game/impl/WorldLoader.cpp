@@ -29,7 +29,7 @@ static void parseEntities(const Json::Value &entitiesNode, World &w)
         return;
 
     for (auto &entJson : entitiesNode)
-        w.spawn(entJson);
+        w.spawnFromJson(entJson);
 }
 
 static void parseAmbientLight(const Json::Value &root, World &w)
@@ -98,9 +98,9 @@ static void parseLights(const Json::Value &lightsNode, World &w)
     }
 }
 
-void WorldLoader::initWorld(const std::string &resourceFile, World &w)
+void WorldLoader::initWorld(const char *resourceFile, World &w)
 {
-    auto root = JsonUtils::fromFile(resourceFile);
+    auto root = JsonUtils::fromFile(resourceFile, svc().fileSystem());
 
     parseEntities(root["entities"], w);
     parseFog(root["fog"], w);

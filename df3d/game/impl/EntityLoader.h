@@ -17,7 +17,7 @@ public:
     EntityLoader();
     ~EntityLoader();
 
-    Entity createEntity(const std::string &resourceFile, World &w);
+    Entity createEntity(const char *resourceFile, World &w);
     Entity createEntity(const Json::Value &root, World &w);
 
     void registerEntityComponentLoader(const std::string &name, unique_ptr<EntityComponentLoader> loader);
