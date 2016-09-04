@@ -1,7 +1,6 @@
 #include "Resource.h"
 
-#include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/FileSystemHelpers.h>
 
 namespace df3d {
 
@@ -18,12 +17,6 @@ Resource::Resource()
 
 void Resource::setGUID(const ResourceGUID &guid)
 { 
-    if (!IsGUIDValid(guid))
-    {
-        DFLOG_WARN("Trying to set invalid guid %s", guid.c_str());
-        return;
-    }
-
     m_guid = guid; 
 }
 
@@ -37,14 +30,11 @@ const std::string &Resource::getFilePath() const
     return m_guid;
 }
 
-bool IsGUIDValid(const ResourceGUID &guid)
-{
-    return !guid.empty();
-}
-
 ResourceGUID CreateGUIDFromPath(const std::string &path)
 {
-    return svc().fileSystem().fullPath(path);
+    auto res = path;
+    FileSystemHelpers::convertSeparators(res);
+    return res;
 }
 
 }

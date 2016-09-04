@@ -41,7 +41,7 @@ private:
     mutable std::recursive_mutex m_lock;
 
     std::unordered_map<ResourceGUID, shared_ptr<Resource>> m_loadedResources;
-    
+
     std::vector<Listener*> m_listeners;
 
     unique_ptr<ResourceFactory> m_factory;

@@ -13,7 +13,7 @@
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/ResourceFactory.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/FileSystem.h>
 
 namespace df3d {
 
@@ -234,17 +234,6 @@ const glm::vec2& Sprite2DComponentProcessor::getScreenPosition(Entity e)
 
 void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToTexture)
 {
-    auto &compData = m_pimpl->data.getData(e.handle);
-
-    if (compData.diffuseMapParam != INVALID_PASS_PARAM_HANDLE)
-    {
-        if (auto texture = compData.pass.getPassParam(compData.diffuseMapParam)->getTexture())
-        {
-            if (texture->getFilePath() == svc().fileSystem().fullPath(pathToTexture))
-                return;
-        }
-    }
-
     uint32_t flags = TEXTURE_FILTERING_BILINEAR | TEXTURE_WRAP_MODE_CLAMP;
 
     auto texture = svc().resourceManager().getFactory().createTexture(pathToTexture, flags, ResourceLoadingMode::IMMEDIATE);
@@ -253,6 +242,8 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
         DFLOG_WARN("Failed to init Sprite2DComponent with texture %s", pathToTexture.c_str());
         return;
     }
+
+    auto &compData = m_pimpl->data.getData(e.handle);
 
     if (compData.textureGuid == texture->getGUID())
         return;

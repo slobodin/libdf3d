@@ -56,7 +56,6 @@ public:
     virtual void onDecoded(Resource *resource) = 0;
 };
 
-bool IsGUIDValid(const ResourceGUID &guid);
 ResourceGUID CreateGUIDFromPath(const std::string &path);
 
 }

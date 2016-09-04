@@ -7,7 +7,8 @@
 #include <df3d/game/impl/WorldLoader.h>
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/input/InputManager.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/FileSystem.h>
+#include <df3d/engine/io/DefaultFileDevice.h>
 #include <df3d/engine/gui/GuiManager.h>
 #include <df3d/engine/audio/AudioManager.h>
 #include <df3d/platform/AppDelegate.h>
@@ -34,7 +35,8 @@ void EngineController::initialize(EngineInitParams params)
     m_timer = make_unique<Timer>();
 
     // Init filesystem.
-    m_fileSystem = make_unique<DefaultFileSystem>();
+    m_fileSystem = make_unique<FileSystem>();
+    m_fileSystem->setFileDevice(make_unique<DefaultFileDevice>());
 
     // Init resource manager.
     m_resourceManager = make_unique<ResourceManager>();
@@ -153,11 +155,6 @@ void EngineController::resume()
     }
 }
 
-void EngineController::setFileSystem(unique_ptr<IFileSystem> fs)
-{
-    m_fileSystem = std::move(fs);
-}
-
 glm::vec2 EngineController::getScreenSize() const
 {
     const auto &vp = m_renderManager->getViewport();
@@ -171,7 +168,7 @@ void EngineController::replaceWorld()
     m_world = unique_ptr<World>(new World());
 }
 
-void EngineController::replaceWorld(const std::string &resourceFile)
+void EngineController::replaceWorld(const char *resourceFile)
 {
     replaceWorld();
     game_impl::WorldLoader::initWorld(resourceFile, *m_world);
