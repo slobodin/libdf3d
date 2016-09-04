@@ -120,11 +120,12 @@ int main(int argc, const char **argv) try
 
     df3d::MemoryManager::init();
 
-    df3d::DefaultFileSystem fs;
+    df3d::FileSystem fs;
+    fs.setFileDevice(make_unique<df3d::DefaultFileDevice>());
 
     std::string inputFileName = argv[1];
 
-    auto file = fs.open(inputFileName);
+    auto file = fs.open(inputFileName.c_str());
     if (!file)
         throw std::runtime_error("Failed to open input file");
 

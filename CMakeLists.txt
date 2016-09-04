@@ -108,9 +108,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputManager.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/DataSource.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileDataSource.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/io/DefaultFileSystem.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/DefaultFileDevice.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileSystemHelpers.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/io/IFileSystem.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileSystem.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/MemoryDataSource.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/Storage.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/ParticleSystemComponentProcessor.h
@@ -171,7 +171,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/game/World.h
     ${PROJECT_SOURCE_DIR}/df3d/game/WorldRenderingParams.h
     ${PROJECT_SOURCE_DIR}/df3d/game/WorldSize.h
-    ${PROJECT_SOURCE_DIR}/df3d/game/impl/AudioComponentLoader.h
     ${PROJECT_SOURCE_DIR}/df3d/game/impl/EntityLoader.h
     ${PROJECT_SOURCE_DIR}/df3d/game/impl/MeshComponentLoader.h
     ${PROJECT_SOURCE_DIR}/df3d/game/impl/PhysicsComponentLoader.h
@@ -228,7 +227,8 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputManager.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileDataSource.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/io/DefaultFileSystem.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileSystem.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/io/DefaultFileDevice.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileSystemHelpers.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/MemoryDataSource.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/Storage.cpp
