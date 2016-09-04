@@ -58,10 +58,10 @@
 #include <df3d/engine/input/InputEvents.h>
 #include <df3d/engine/input/InputManager.h>
 
-#include <df3d/engine/io/IFileSystem.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/FileSystem.h>
 #include <df3d/engine/io/FileSystemHelpers.h>
 #include <df3d/engine/io/DataSource.h>
+#include <df3d/engine/io/DefaultFileDevice.h>
 #include <df3d/engine/io/Storage.h>
 #include <df3d/engine/io/MemoryDataSource.h>
 #include <df3d/engine/io/FileDataSource.h>
