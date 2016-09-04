@@ -242,7 +242,7 @@ void bindProcessors(Table &df3dNamespace)
             .Func(_SC("getSystem"), &ParticleSystemComponentProcessor::getSystem)
             .Func(_SC("isWorldTransformed"), &ParticleSystemComponentProcessor::isWorldTransformed)
             .Func(_SC("isPlaying"), &ParticleSystemComponentProcessor::isPlaying)
-            .Func<void(ParticleSystemComponentProcessor::*)(Entity, const std::string&)>(_SC("add"), &ParticleSystemComponentProcessor::add)
+            .Func<void(ParticleSystemComponentProcessor::*)(Entity, const char *)>(_SC("add"), &ParticleSystemComponentProcessor::add)
             .Func(_SC("remove"), &ParticleSystemComponentProcessor::remove)
             .Func(_SC("has"), &ParticleSystemComponentProcessor::has)
             ;
@@ -292,8 +292,8 @@ void bindGame(Table &df3dNamespace)
             .Prop(_SC("staticMesh"), &World::staticMesh)
             ;
 
-        worldClass.Overload<Entity(World::*)()>(_SC("spawn"), &World::spawn);
-        worldClass.Overload<Entity(World::*)(const std::string &)>(_SC("spawn"), &World::spawn);
+        worldClass.Func(_SC("spawn"), &World::spawn);
+        worldClass.Func(_SC("spawnFromFile"), &World::spawnFromFile);
 
         df3dNamespace.Bind(_SC("World"), worldClass);
         df3dNamespace.Func(_SC("world"), &df3dWorld);

@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <sqrat/sqrat.h>
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/FileSystem.h>
 #include <df3d/engine/io/DataSource.h>
 #include <df3d/lib/Utils.h>
 
@@ -70,7 +70,7 @@ void ScriptManager::shutdown()
     m_squirrel = nullptr;
 }
 
-bool ScriptManager::doFile(const std::string &fileName)
+bool ScriptManager::doFile(const char *fileName)
 {
     if (auto file = svc().fileSystem().open(fileName))
     {
@@ -81,7 +81,7 @@ bool ScriptManager::doFile(const std::string &fileName)
         std::string buffer(file->getSize(), 0);
         file->read(&buffer[0], buffer.size());
 
-        DFLOG_DEBUG("Executing %s", fileName.c_str());
+        DFLOG_DEBUG("Executing %s", fileName);
         m_executedFiles.insert(file->getPath());
 
         file.reset();
@@ -90,7 +90,7 @@ bool ScriptManager::doFile(const std::string &fileName)
     }
     else
     {
-        DFLOG_WARN("Failed to execute %s. File doesn't exist", fileName.c_str());
+        DFLOG_WARN("Failed to execute %s. File doesn't exist", fileName);
         return false;
     }
 }

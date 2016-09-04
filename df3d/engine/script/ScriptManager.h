@@ -17,7 +17,7 @@ public:
     void initialize();
     void shutdown();
 
-    bool doFile(const std::string &fileName);
+    bool doFile(const char *fileName);
     bool doString(const SQChar *str);
 
     void gc();
