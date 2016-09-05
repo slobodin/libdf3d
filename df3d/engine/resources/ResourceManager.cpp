@@ -4,7 +4,7 @@
 #include <df3d/engine/TimeManager.h>
 #include <df3d/lib/ThreadPool.h>
 #include <df3d/lib/Utils.h>
-#include <df3d/engine/io/DefaultFileSystem.h>
+#include <df3d/engine/io/FileSystem.h>
 #include <df3d/engine/io/DataSource.h>
 #include "Resource.h"
 #include "ResourceFactory.h"
@@ -15,7 +15,7 @@ void ResourceManager::doRequest(DecodeRequest req)
 {
     //DFLOG_DEBUG("ASYNC decoding %s", req.resource->getFilePath().c_str());
 
-    if (auto source = svc().fileSystem().open(req.resourcePath))
+    if (auto source = svc().fileSystem().open(req.resourcePath.c_str()))
     {
         req.result = req.loader->decode(source);
         if (!req.result)
@@ -65,18 +65,9 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-    // First, try to find resource with given path.
-    if (auto alreadyLoadedResource = findResource(path))
-        return alreadyLoadedResource;
-
-    // Try to find resource with the full path.
     auto guid = CreateGUIDFromPath(path);
-    if (!IsGUIDValid(guid))
-    {
-        DFLOG_WARN("Can't load resource. The path %s doesn't exist or it's a directory.", path.c_str());
-        return nullptr;
-    }
 
+    // First, try to find resource with given path.
     if (auto alreadyLoadedResource = findResource(guid))
         return alreadyLoadedResource;
 
@@ -98,18 +89,20 @@ shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared
         m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, req));
     else
     {
-        DFLOG_DEBUG("Decoding %s", req.resource->getFilePath().c_str());
+        auto dataSource = svc().fileSystem().open(req.resourcePath.c_str());
 
-        req.result = loader->decode(svc().fileSystem().open(req.resourcePath));
-        if (req.result)
+        if (dataSource)
         {
-            loader->onDecoded(resource.get());
-            resource->m_initialized = true;
+            if (loader->decode(dataSource))
+            {
+                loader->onDecoded(resource.get());
+                resource->m_initialized = true;
+            }
+            else
+                DFLOG_WARN("Manual decode failed for %s", req.resource->getFilePath().c_str());
         }
         else
-        {
-            DFLOG_WARN("Failed to decode a resource");
-        }
+            DFLOG_WARN("Failed to open %s for manual decoding", req.resource->getFilePath().c_str());
 
         for (auto listener : m_listeners)
             listener->onLoadFromFileSystemRequestComplete(resource->getGUID());
