@@ -42,6 +42,8 @@ class DF3D_DLL RenderManager : NonCopyable
 
     void bindPass(RenderPass *pass);
 
+    void render2D();
+
 public:
     RenderManager(EngineInitParams params);
     ~RenderManager();

@@ -137,21 +137,7 @@ void RenderManager::doRenderWorld(World &world)
             drawRenderOperation(op);
     }
 
-    m_sharedState->setProjectionMatrix(glm::ortho(0.0f, (float)m_viewport.width(), (float)m_viewport.height(), 0.0f));
-    m_sharedState->setViewMatrix(glm::mat4(1.0f));
-
-    // 2D ops pass.
-    for (const auto &op : m_renderQueue->sprite2DOperations)
-        drawRenderOperation(op);
-
-    // Draw GUI.
-    svc().guiManager().getRenderer()->BeginPaint(m_viewport.width(), m_viewport.height());
-    svc().guiManager().getRoot()->InvokePaint(tb::TBWidget::PaintProps());
-    svc().guiManager().getRenderer()->EndPaint();
-
-    // If animations are running, reinvalidate immediately
-    if (tb::TBAnimationManager::HasAnimationsRunning())
-        svc().guiManager().getRoot()->Invalidate();
+    render2D();
 }
 
 void RenderManager::bindPass(RenderPass *pass)
@@ -202,6 +188,25 @@ void RenderManager::bindPass(RenderPass *pass)
     if (!m_blendModeOverriden)
         m_renderBackend->setBlendingMode(pass->getBlendingMode());
     m_renderBackend->setCullFaceMode(pass->getFaceCullMode());
+}
+
+void RenderManager::render2D()
+{
+    m_sharedState->setProjectionMatrix(glm::ortho(0.0f, (float)m_viewport.width(), (float)m_viewport.height(), 0.0f));
+    m_sharedState->setViewMatrix(glm::mat4(1.0f));
+
+    // 2D ops pass.
+    for (const auto &op : m_renderQueue->sprite2DOperations)
+        drawRenderOperation(op);
+
+    // Draw GUI.
+    svc().guiManager().getRenderer()->BeginPaint(m_viewport.width(), m_viewport.height());
+    svc().guiManager().getRoot()->InvokePaint(tb::TBWidget::PaintProps());
+    svc().guiManager().getRenderer()->EndPaint();
+
+    // If animations are running, reinvalidate immediately
+    if (tb::TBAnimationManager::HasAnimationsRunning())
+        svc().guiManager().getRoot()->Invalidate();
 }
 
 RenderManager::RenderManager(EngineInitParams params)
