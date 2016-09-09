@@ -55,11 +55,35 @@ typedef struct ALflangerState {
     ALfloat feedback;
 } ALflangerState;
 
-static ALvoid ALflangerState_Destruct(ALflangerState *state)
+static ALvoid ALflangerState_Destruct(ALflangerState *state);
+static ALboolean ALflangerState_deviceUpdate(ALflangerState *state, ALCdevice *Device);
+static ALvoid ALflangerState_update(ALflangerState *state, const ALCdevice *Device, const ALeffectslot *Slot, const ALeffectProps *props);
+static ALvoid ALflangerState_process(ALflangerState *state, ALuint SamplesToDo, const ALfloat (*restrict SamplesIn)[BUFFERSIZE], ALfloat (*restrict SamplesOut)[BUFFERSIZE], ALuint NumChannels);
+DECLARE_DEFAULT_ALLOCATORS(ALflangerState)
+
+DEFINE_ALEFFECTSTATE_VTABLE(ALflangerState);
+
+
+static void ALflangerState_Construct(ALflangerState *state)
 {
-    free(state->SampleBuffer[0]);
+    ALeffectState_Construct(STATIC_CAST(ALeffectState, state));
+    SET_VTABLE2(ALflangerState, ALeffectState, state);
+
+    state->BufferLength = 0;
     state->SampleBuffer[0] = NULL;
     state->SampleBuffer[1] = NULL;
+    state->offset = 0;
+    state->lfo_range = 1;
+    state->waveform = FWF_Triangle;
+}
+
+static ALvoid ALflangerState_Destruct(ALflangerState *state)
+{
+    al_free(state->SampleBuffer[0]);
+    state->SampleBuffer[0] = NULL;
+    state->SampleBuffer[1] = NULL;
+
+    ALeffectState_Destruct(STATIC_CAST(ALeffectState,state));
 }
 
 static ALboolean ALflangerState_deviceUpdate(ALflangerState *state, ALCdevice *Device)
@@ -72,10 +96,10 @@ static ALboolean ALflangerState_deviceUpdate(ALflangerState *state, ALCdevice *D
 
     if(maxlen != state->BufferLength)
     {
-        void *temp;
-
-        temp = realloc(state->SampleBuffer[0], maxlen * sizeof(ALfloat) * 2);
+        void *temp = al_calloc(16, maxlen * sizeof(ALfloat) * 2);
         if(!temp) return AL_FALSE;
+
+        al_free(state->SampleBuffer[0]);
         state->SampleBuffer[0] = temp;
         state->SampleBuffer[1] = state->SampleBuffer[0] + maxlen;
 
@@ -91,15 +115,14 @@ static ALboolean ALflangerState_deviceUpdate(ALflangerState *state, ALCdevice *D
     return AL_TRUE;
 }
 
-static ALvoid ALflangerState_update(ALflangerState *state, ALCdevice *Device, const ALeffectslot *Slot)
+static ALvoid ALflangerState_update(ALflangerState *state, const ALCdevice *Device, const ALeffectslot *Slot, const ALeffectProps *props)
 {
-    static const ALfloat left_dir[3] = { -1.0f, 0.0f, 0.0f };
-    static const ALfloat right_dir[3] = { 1.0f, 0.0f, 0.0f };
     ALfloat frequency = (ALfloat)Device->Frequency;
+    ALfloat coeffs[MAX_AMBI_COEFFS];
     ALfloat rate;
     ALint phase;
 
-    switch(Slot->EffectProps.Flanger.Waveform)
+    switch(props->Flanger.Waveform)
     {
         case AL_FLANGER_WAVEFORM_TRIANGLE:
             state->waveform = FWF_Triangle;
@@ -108,16 +131,18 @@ static ALvoid ALflangerState_update(ALflangerState *state, ALCdevice *Device, co
             state->waveform = FWF_Sinusoid;
             break;
     }
-    state->depth = Slot->EffectProps.Flanger.Depth;
-    state->feedback = Slot->EffectProps.Flanger.Feedback;
-    state->delay = fastf2i(Slot->EffectProps.Flanger.Delay * frequency);
+    state->depth = props->Flanger.Depth;
+    state->feedback = props->Flanger.Feedback;
+    state->delay = fastf2i(props->Flanger.Delay * frequency);
 
     /* Gains for left and right sides */
-    ComputeDirectionalGains(Device, left_dir, Slot->Gain, state->Gain[0]);
-    ComputeDirectionalGains(Device, right_dir, Slot->Gain, state->Gain[1]);
+    CalcXYZCoeffs(-1.0f, 0.0f, 0.0f, 0.0f, coeffs);
+    ComputePanningGains(Device->Dry, coeffs, Slot->Params.Gain, state->Gain[0]);
+    CalcXYZCoeffs( 1.0f, 0.0f, 0.0f, 0.0f, coeffs);
+    ComputePanningGains(Device->Dry, coeffs, Slot->Params.Gain, state->Gain[1]);
 
-    phase = Slot->EffectProps.Flanger.Phase;
-    rate = Slot->EffectProps.Flanger.Rate;
+    phase = props->Flanger.Phase;
+    rate = props->Flanger.Rate;
     if(!(rate > 0.0f))
     {
         state->lfo_scale = 0.0f;
@@ -203,7 +228,7 @@ DECL_TEMPLATE(Sinusoid)
 
 #undef DECL_TEMPLATE
 
-static ALvoid ALflangerState_process(ALflangerState *state, ALuint SamplesToDo, const ALfloat *restrict SamplesIn, ALfloat (*restrict SamplesOut)[BUFFERSIZE], ALuint NumChannels)
+static ALvoid ALflangerState_process(ALflangerState *state, ALuint SamplesToDo, const ALfloat (*restrict SamplesIn)[BUFFERSIZE], ALfloat (*restrict SamplesOut)[BUFFERSIZE], ALuint NumChannels)
 {
     ALuint it, kt;
     ALuint base;
@@ -216,10 +241,10 @@ static ALvoid ALflangerState_process(ALflangerState *state, ALuint SamplesToDo, 
         switch(state->waveform)
         {
             case FWF_Triangle:
-                ProcessTriangle(state, td, SamplesIn+base, temps);
+                ProcessTriangle(state, td, SamplesIn[0]+base, temps);
                 break;
             case FWF_Sinusoid:
-                ProcessSinusoid(state, td, SamplesIn+base, temps);
+                ProcessSinusoid(state, td, SamplesIn[0]+base, temps);
                 break;
         }
 
@@ -244,10 +269,6 @@ static ALvoid ALflangerState_process(ALflangerState *state, ALuint SamplesToDo, 
     }
 }
 
-DECLARE_DEFAULT_ALLOCATORS(ALflangerState)
-
-DEFINE_ALEFFECTSTATE_VTABLE(ALflangerState);
-
 
 typedef struct ALflangerStateFactory {
     DERIVE_FROM_TYPE(ALeffectStateFactory);
@@ -257,16 +278,8 @@ ALeffectState *ALflangerStateFactory_create(ALflangerStateFactory *UNUSED(factor
 {
     ALflangerState *state;
 
-    state = ALflangerState_New(sizeof(*state));
+    NEW_OBJ0(state, ALflangerState)();
     if(!state) return NULL;
-    SET_VTABLE2(ALflangerState, ALeffectState, state);
-
-    state->BufferLength = 0;
-    state->SampleBuffer[0] = NULL;
-    state->SampleBuffer[1] = NULL;
-    state->offset = 0;
-    state->lfo_range = 1;
-    state->waveform = FWF_Triangle;
 
     return STATIC_CAST(ALeffectState, state);
 }

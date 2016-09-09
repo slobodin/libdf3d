@@ -33,6 +33,7 @@
 #include "AL/alext.h"
 
 
+static bool has_direct_out = false;
 static bool has_latency_check = false;
 static LPALGETSOURCEDVSOFT alGetSourcedvSOFT;
 
@@ -140,6 +141,7 @@ typedef struct MovieState {
 
     volatile bool seek_req;
     int64_t       seek_pos;
+    volatile bool direct_req;
 
     int av_sync_type;
 
@@ -350,7 +352,7 @@ static int synchronize_audio(MovieState *movState)
     ref_clock = get_master_clock(movState);
     diff = ref_clock - get_audio_clock(&movState->audio);
 
-    if(!(diff < AV_NOSYNC_THRESHOLD))
+    if(!(fabs(diff) < AV_NOSYNC_THRESHOLD))
     {
         /* Difference is TOO big; reset diff stuff */
         movState->audio.diff_accum = 0.0;
@@ -750,6 +752,20 @@ static int audio_thread(void *userdata)
         }
         SDL_Delay(AUDIO_BUFFER_TIME);
 
+        if(movState->direct_req)
+        {
+            if(has_direct_out)
+            {
+                alGetSourcei(movState->audio.source, AL_DIRECT_CHANNELS_SOFT, &state);
+                state = !state;
+                alSourcei(movState->audio.source, AL_DIRECT_CHANNELS_SOFT,
+                          state ? AL_TRUE : AL_FALSE);
+                printf("Direct channels %s\n", state ? "on" : "off");
+                fflush(stdout);
+            }
+            movState->direct_req = false;
+        }
+
         almtx_lock(&movState->audio.src_mutex);
     }
     almtx_unlock(&movState->audio.src_mutex);
@@ -942,7 +958,7 @@ static void update_picture(MovieState *movState, bool *first_update, SDL_Window 
         void *pixels = NULL;
         int pitch = 0;
 
-        if(movState->video.st->codec->pix_fmt == PIX_FMT_YUV420P)
+        if(movState->video.st->codec->pix_fmt == AV_PIX_FMT_YUV420P)
             SDL_UpdateYUVTexture(vp->bmp, NULL,
                 frame->data[0], frame->linesize[0],
                 frame->data[1], frame->linesize[1],
@@ -960,7 +976,7 @@ static void update_picture(MovieState *movState, bool *first_update, SDL_Window 
             if(!movState->video.swscale_ctx)
                 movState->video.swscale_ctx = sws_getContext(
                     w, h, movState->video.st->codec->pix_fmt,
-                    w, h, PIX_FMT_YUV420P, SWS_X, NULL, NULL, NULL
+                    w, h, AV_PIX_FMT_YUV420P, SWS_X, NULL, NULL, NULL
                 );
 
             /* point pict at the queue */
@@ -1316,6 +1332,7 @@ int main(int argc, char *argv[])
     SDL_Renderer *renderer;
     ALCdevice  *device;
     ALCcontext *context;
+    int fileidx;
 
     if(argc < 2)
     {
@@ -1373,7 +1390,17 @@ int main(int argc, char *argv[])
     SDL_RenderPresent(renderer);
 
     /* Open an audio device */
-    device = alcOpenDevice(NULL);
+    fileidx = 1;
+    device = NULL;
+    if(argc > 3 && strcmp(argv[1], "-device") == 0)
+    {
+        fileidx = 3;
+        device = alcOpenDevice(argv[2]);
+        if(!device)
+            fprintf(stderr, "OpenAL: could not open \"%s\" - trying default\n", argv[2]);
+    }
+    if(!device)
+        device = alcOpenDevice(NULL);
     if(!device)
     {
         fprintf(stderr, "OpenAL: could not open device - exiting\n");
@@ -1397,6 +1424,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    if(!alIsExtensionPresent("AL_SOFT_direct_channels"))
+        fprintf(stderr, "AL_SOFT_direct_channels not supported.\n");
+    else
+        has_direct_out = true;
+
     if(!alIsExtensionPresent("AL_SOFT_source_latency"))
         fprintf(stderr, "AL_SOFT_source_latency not supported, audio may be a bit laggy.\n");
     else
@@ -1408,7 +1440,7 @@ int main(int argc, char *argv[])
 
     movState = av_mallocz(sizeof(MovieState));
 
-    av_strlcpy(movState->filename, argv[1], sizeof(movState->filename));
+    av_strlcpy(movState->filename, argv[fileidx], sizeof(movState->filename));
 
     packet_queue_init(&movState->audio.q);
     packet_queue_init(&movState->video.q);
@@ -1473,6 +1505,10 @@ int main(int argc, char *argv[])
                         break;
                     case SDLK_DOWN:
                         stream_seek(movState, -30.0);
+                        break;
+
+                    case SDLK_d:
+                        movState->direct_req = true;
                         break;
 
                     default:

@@ -443,7 +443,7 @@ static void clear_devlist(vector_DevMap *list)
 #define DEINIT_STRS(i)  (AL_STRING_DEINIT((i)->name),AL_STRING_DEINIT((i)->device_name))
     VECTOR_FOR_EACH(DevMap, *list, DEINIT_STRS);
 #undef DEINIT_STRS
-    VECTOR_RESIZE(*list, 0);
+    VECTOR_RESIZE(*list, 0, 0);
 }
 
 
@@ -489,7 +489,7 @@ static ALCboolean ALCpulsePlayback_start(ALCpulsePlayback *self);
 static void ALCpulsePlayback_stop(ALCpulsePlayback *self);
 static DECLARE_FORWARD2(ALCpulsePlayback, ALCbackend, ALCenum, captureSamples, ALCvoid*, ALCuint)
 static DECLARE_FORWARD(ALCpulsePlayback, ALCbackend, ALCuint, availableSamples)
-static ALint64 ALCpulsePlayback_getLatency(ALCpulsePlayback *self);
+static ClockLatency ALCpulsePlayback_getClockLatency(ALCpulsePlayback *self);
 static void ALCpulsePlayback_lock(ALCpulsePlayback *self);
 static void ALCpulsePlayback_unlock(ALCpulsePlayback *self);
 DECLARE_DEFAULT_ALLOCATORS(ALCpulsePlayback)
@@ -527,7 +527,7 @@ static void ALCpulsePlayback_deviceCallback(pa_context *UNUSED(context), const p
 
 #define MATCH_INFO_NAME(iter) (al_string_cmp_cstr((iter)->device_name, info->name) == 0)
     VECTOR_FIND_IF(iter, const DevMap, PlaybackDevices, MATCH_INFO_NAME);
-    if(iter != VECTOR_ITER_END(PlaybackDevices)) return;
+    if(iter != VECTOR_END(PlaybackDevices)) return;
 #undef MATCH_INFO_NAME
 
     AL_STRING_INIT(entry.name);
@@ -548,7 +548,7 @@ static void ALCpulsePlayback_deviceCallback(pa_context *UNUSED(context), const p
 
 #define MATCH_ENTRY(i) (al_string_cmp(entry.name, (i)->name) == 0)
         VECTOR_FIND_IF(iter, const DevMap, PlaybackDevices, MATCH_ENTRY);
-        if(iter == VECTOR_ITER_END(PlaybackDevices)) break;
+        if(iter == VECTOR_END(PlaybackDevices)) break;
 #undef MATCH_ENTRY
         count++;
     }
@@ -861,7 +861,7 @@ static ALCenum ALCpulsePlayback_open(ALCpulsePlayback *self, const ALCchar *name
 #define MATCH_NAME(iter) (al_string_cmp_cstr((iter)->name, name) == 0)
         VECTOR_FIND_IF(iter, const DevMap, PlaybackDevices, MATCH_NAME);
 #undef MATCH_NAME
-        if(iter == VECTOR_ITER_END(PlaybackDevices))
+        if(iter == VECTOR_END(PlaybackDevices))
             return ALC_INVALID_VALUE;
         pulse_name = al_string_get_cstr(iter->device_name);
         dev_name = iter->name;
@@ -998,7 +998,9 @@ static ALCboolean ALCpulsePlayback_reset(ALCpulsePlayback *self)
         case DevFmtMono:
             mapname = "mono";
             break;
-        case DevFmtBFormat3D:
+        case DevFmtAmbi1:
+        case DevFmtAmbi2:
+        case DevFmtAmbi3:
             device->FmtChans = DevFmtStereo;
             /*fall-through*/
         case DevFmtStereo:
@@ -1051,10 +1053,12 @@ static ALCboolean ALCpulsePlayback_reset(ALCpulsePlayback *self)
     {
         /* Server updated our playback rate, so modify the buffer attribs
          * accordingly. */
-        device->NumUpdates = (ALuint)((ALdouble)device->NumUpdates / device->Frequency *
-                                      self->spec.rate + 0.5);
+        device->NumUpdates = (ALuint)clampd(
+            (ALdouble)device->NumUpdates/device->Frequency*self->spec.rate + 0.5, 2.0, 16.0
+        );
+
         self->attr.minreq  = device->UpdateSize * pa_frame_size(&self->spec);
-        self->attr.tlength = self->attr.minreq * clampu(device->NumUpdates, 2, 16);
+        self->attr.tlength = self->attr.minreq * device->NumUpdates;
         self->attr.maxlength = -1;
         self->attr.prebuf  = 0;
 
@@ -1069,9 +1073,30 @@ static ALCboolean ALCpulsePlayback_reset(ALCpulsePlayback *self)
     ALCpulsePlayback_bufferAttrCallback(self->stream, self);
 
     len = self->attr.minreq / pa_frame_size(&self->spec);
-    device->NumUpdates = (ALuint)((ALdouble)device->NumUpdates/len*device->UpdateSize + 0.5);
-    device->NumUpdates = clampu(device->NumUpdates, 2, 16);
+    device->NumUpdates = (ALuint)clampd(
+        (ALdouble)device->NumUpdates/len*device->UpdateSize + 0.5, 2.0, 16.0
+    );
     device->UpdateSize = len;
+
+    /* HACK: prebuf should be 0 as that's what we set it to. However on some
+     * systems it comes back as non-0, so we have to make sure the device will
+     * write enough audio to start playback. The lack of manual start control
+     * may have unintended consequences, but it's better than not starting at
+     * all.
+     */
+    if(self->attr.prebuf != 0)
+    {
+        len = self->attr.prebuf / pa_frame_size(&self->spec);
+        if(len <= device->UpdateSize*device->NumUpdates)
+            ERR("Non-0 prebuf, %u samples (%u bytes), device has %u samples\n",
+                len, self->attr.prebuf, device->UpdateSize*device->NumUpdates);
+        else
+        {
+            ERR("Large prebuf, %u samples (%u bytes), increasing device from %u samples",
+                len, self->attr.prebuf, device->UpdateSize*device->NumUpdates);
+            device->NumUpdates = (len+device->UpdateSize-1) / device->UpdateSize;
+        }
+    }
 
     pa_threaded_mainloop_unlock(self->loop);
     return ALC_TRUE;
@@ -1113,11 +1138,14 @@ static void ALCpulsePlayback_stop(ALCpulsePlayback *self)
 }
 
 
-static ALint64 ALCpulsePlayback_getLatency(ALCpulsePlayback *self)
+static ClockLatency ALCpulsePlayback_getClockLatency(ALCpulsePlayback *self)
 {
     pa_usec_t latency = 0;
+    ClockLatency ret;
     int neg, err;
 
+    pa_threaded_mainloop_lock(self->loop);
+    ret.ClockTime = GetDeviceClockTime(STATIC_CAST(ALCbackend,self)->mDevice);
     if((err=pa_stream_get_latency(self->stream, &latency, &neg)) != 0)
     {
         /* FIXME: if err = -PA_ERR_NODATA, it means we were called too soon
@@ -1126,11 +1154,14 @@ static ALint64 ALCpulsePlayback_getLatency(ALCpulsePlayback *self)
          * dummy value? Either way, it shouldn't be 0. */
         if(err != -PA_ERR_NODATA)
             ERR("Failed to get stream latency: 0x%x\n", err);
-        return 0;
+        latency = 0;
+        neg = 0;
     }
-
     if(neg) latency = 0;
-    return (ALint64)minu64(latency, U64(0x7fffffffffffffff)/1000) * 1000;
+    ret.Latency = minu64(latency, U64(0xffffffffffffffff)/1000) * 1000;
+    pa_threaded_mainloop_unlock(self->loop);
+
+    return ret;
 }
 
 
@@ -1186,7 +1217,7 @@ static ALCboolean ALCpulseCapture_start(ALCpulseCapture *self);
 static void ALCpulseCapture_stop(ALCpulseCapture *self);
 static ALCenum ALCpulseCapture_captureSamples(ALCpulseCapture *self, ALCvoid *buffer, ALCuint samples);
 static ALCuint ALCpulseCapture_availableSamples(ALCpulseCapture *self);
-static ALint64 ALCpulseCapture_getLatency(ALCpulseCapture *self);
+static ClockLatency ALCpulseCapture_getClockLatency(ALCpulseCapture *self);
 static void ALCpulseCapture_lock(ALCpulseCapture *self);
 static void ALCpulseCapture_unlock(ALCpulseCapture *self);
 DECLARE_DEFAULT_ALLOCATORS(ALCpulseCapture)
@@ -1224,7 +1255,7 @@ static void ALCpulseCapture_deviceCallback(pa_context *UNUSED(context), const pa
 
 #define MATCH_INFO_NAME(iter) (al_string_cmp_cstr((iter)->device_name, info->name) == 0)
     VECTOR_FIND_IF(iter, const DevMap, CaptureDevices, MATCH_INFO_NAME);
-    if(iter != VECTOR_ITER_END(CaptureDevices)) return;
+    if(iter != VECTOR_END(CaptureDevices)) return;
 #undef MATCH_INFO_NAME
 
     AL_STRING_INIT(entry.name);
@@ -1245,7 +1276,7 @@ static void ALCpulseCapture_deviceCallback(pa_context *UNUSED(context), const pa
 
 #define MATCH_ENTRY(i) (al_string_cmp(entry.name, (i)->name) == 0)
         VECTOR_FIND_IF(iter, const DevMap, CaptureDevices, MATCH_ENTRY);
-        if(iter == VECTOR_ITER_END(CaptureDevices)) break;
+        if(iter == VECTOR_END(CaptureDevices)) break;
 #undef MATCH_ENTRY
         count++;
     }
@@ -1416,7 +1447,7 @@ static ALCenum ALCpulseCapture_open(ALCpulseCapture *self, const ALCchar *name)
 #define MATCH_NAME(iter) (al_string_cmp_cstr((iter)->name, name) == 0)
         VECTOR_FIND_IF(iter, const DevMap, CaptureDevices, MATCH_NAME);
 #undef MATCH_NAME
-        if(iter == VECTOR_ITER_END(CaptureDevices))
+        if(iter == VECTOR_END(CaptureDevices))
             return ALC_INVALID_VALUE;
         pulse_name = al_string_get_cstr(iter->device_name);
         al_string_copy(&device->DeviceName, iter->name);
@@ -1616,19 +1647,25 @@ static ALCuint ALCpulseCapture_availableSamples(ALCpulseCapture *self)
 }
 
 
-static ALint64 ALCpulseCapture_getLatency(ALCpulseCapture *self)
+static ClockLatency ALCpulseCapture_getClockLatency(ALCpulseCapture *self)
 {
     pa_usec_t latency = 0;
-    int neg;
+    ClockLatency ret;
+    int neg, err;
 
-    if(pa_stream_get_latency(self->stream, &latency, &neg) != 0)
+    pa_threaded_mainloop_lock(self->loop);
+    ret.ClockTime = GetDeviceClockTime(STATIC_CAST(ALCbackend,self)->mDevice);
+    if((err=pa_stream_get_latency(self->stream, &latency, &neg)) != 0)
     {
-        ERR("Failed to get stream latency!\n");
-        return 0;
+        ERR("Failed to get stream latency: 0x%x\n", err);
+        latency = 0;
+        neg = 0;
     }
-
     if(neg) latency = 0;
-    return (ALint64)minu64(latency, U64(0x7fffffffffffffff)/1000) * 1000;
+    ret.Latency = minu64(latency, U64(0xffffffffffffffff)/1000) * 1000;
+    pa_threaded_mainloop_unlock(self->loop);
+
+    return ret;
 }
 
 

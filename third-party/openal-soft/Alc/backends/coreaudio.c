@@ -45,7 +45,7 @@ typedef struct {
     AudioBufferList *bufferList;           // Buffer for data coming from the input device
     ALCvoid *resampleBuffer;               // Buffer for returned RingBuffer data when resampling
 
-    RingBuffer *ring;
+    ll_ringbuffer_t *ring;
 } ca_data;
 
 static const ALCchar ca_device[] = "CoreAudio Default";
@@ -102,7 +102,7 @@ static OSStatus ca_capture_conversion_callback(AudioConverterRef inAudioConverte
     ca_data *data = (ca_data*)device->ExtraData;
 
     // Read from the ring buffer and store temporarily in a large buffer
-    ReadRingBuffer(data->ring, data->resampleBuffer, (ALsizei)(*ioNumberDataPackets));
+    ll_ringbuffer_read(data->ring, data->resampleBuffer, *ioNumberDataPackets);
 
     // Set the input data
     ioData->mNumberBuffers = 1;
@@ -130,7 +130,7 @@ static OSStatus ca_capture_callback(void *inRefCon, AudioUnitRenderActionFlags *
         return err;
     }
 
-    WriteRingBuffer(data->ring, data->bufferList->mBuffers[0].mData, inNumberFrames);
+    ll_ringbuffer_write(data->ring, data->bufferList->mBuffers[0].mData, inNumberFrames);
 
     return noErr;
 }
@@ -238,7 +238,7 @@ static ALCboolean ca_reset_playback(ALCdevice *device)
 
     if(device->Frequency != streamFormat.mSampleRate)
     {
-        device->UpdateSize = (ALuint)((ALuint64)device->UpdateSize *
+        device->NumUpdates = (ALuint)((ALuint64)device->NumUpdates *
                                       streamFormat.mSampleRate /
                                       device->Frequency);
         device->Frequency = streamFormat.mSampleRate;
@@ -528,7 +528,9 @@ static ALCenum ca_open_capture(ALCdevice *device, const ALCchar *deviceName)
         case DevFmtX51Rear:
         case DevFmtX61:
         case DevFmtX71:
-        case DevFmtBFormat3D:
+        case DevFmtAmbi1:
+        case DevFmtAmbi2:
+        case DevFmtAmbi3:
             ERR("%s not supported\n", DevFmtChannelsString(device->FmtChans));
             goto error;
     }
@@ -586,16 +588,19 @@ static ALCenum ca_open_capture(ALCdevice *device, const ALCchar *deviceName)
     if(data->bufferList == NULL)
         goto error;
 
-    data->ring = CreateRingBuffer(data->frameSize, (device->UpdateSize * data->sampleRateRatio) * device->NumUpdates);
-    if(data->ring == NULL)
-        goto error;
+    data->ring = ll_ringbuffer_create(
+        device->UpdateSize*data->sampleRateRatio*device->NumUpdates + 1,
+        data->frameSize
+    );
+    if(!data->ring) goto error;
 
     al_string_copy_cstr(&device->DeviceName, deviceName);
 
     return ALC_NO_ERROR;
 
 error:
-    DestroyRingBuffer(data->ring);
+    ll_ringbuffer_free(data->ring);
+    data->ring = NULL;
     free(data->resampleBuffer);
     destroy_buffer_list(data->bufferList);
 
@@ -614,7 +619,8 @@ static void ca_close_capture(ALCdevice *device)
 {
     ca_data *data = (ca_data*)device->ExtraData;
 
-    DestroyRingBuffer(data->ring);
+    ll_ringbuffer_free(data->ring);
+    data->ring = NULL;
     free(data->resampleBuffer);
     destroy_buffer_list(data->bufferList);
 
@@ -676,7 +682,7 @@ static ALCenum ca_capture_samples(ALCdevice *device, ALCvoid *buffer, ALCuint sa
 static ALCuint ca_available_samples(ALCdevice *device)
 {
     ca_data *data = device->ExtraData;
-    return RingBufferSize(data->ring) / data->sampleRateRatio;
+    return ll_ringbuffer_read_space(data->ring) / data->sampleRateRatio;
 }
 
 

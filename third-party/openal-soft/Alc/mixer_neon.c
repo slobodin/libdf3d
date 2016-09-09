@@ -9,25 +9,6 @@
 #include "hrtf.h"
 
 
-static inline void SetupCoeffs(ALfloat (*restrict OutCoeffs)[2],
-                               const HrtfParams *hrtfparams,
-                               ALuint IrSize, ALuint Counter)
-{
-    ALuint c;
-    float32x4_t counter4;
-    {
-        float32x2_t counter2 = vdup_n_f32(-(float)Counter);
-        counter4 = vcombine_f32(counter2, counter2);
-    }
-    for(c = 0;c < IrSize;c += 2)
-    {
-        float32x4_t step4 = vld1q_f32((float32_t*)hrtfparams->CoeffStep[c]);
-        float32x4_t coeffs = vld1q_f32((float32_t*)hrtfparams->Coeffs[c]);
-        coeffs = vmlaq_f32(coeffs, step4, counter4);
-        vst1q_f32((float32_t*)OutCoeffs[c], coeffs);
-    }
-}
-
 static inline void ApplyCoeffsStep(ALuint Offset, ALfloat (*restrict Values)[2],
                                    const ALuint IrSize,
                                    ALfloat (*restrict Coeffs)[2],
@@ -89,6 +70,7 @@ static inline void ApplyCoeffs(ALuint Offset, ALfloat (*restrict Values)[2],
 }
 
 #define MixHrtf MixHrtf_Neon
+#define MixDirectHrtf MixDirectHrtf_Neon
 #include "mixer_inc.c"
 #undef MixHrtf
 
@@ -108,6 +90,30 @@ void Mix_Neon(const ALfloat *data, ALuint OutChans, ALfloat (*restrict OutBuffer
         if(step != 0.0f && Counter > 0)
         {
             ALuint minsize = minu(BufferSize, Counter);
+            /* Mix with applying gain steps in aligned multiples of 4. */
+            if(minsize-pos > 3)
+            {
+                float32x4_t step4;
+                gain4 = vsetq_lane_f32(gain, gain4, 0);
+                gain4 = vsetq_lane_f32(gain + step, gain4, 1);
+                gain4 = vsetq_lane_f32(gain + step + step, gain4, 2);
+                gain4 = vsetq_lane_f32(gain + step + step + step, gain4, 3);
+                step4 = vdupq_n_f32(step + step + step + step);
+                do {
+                    const float32x4_t val4 = vld1q_f32(&data[pos]);
+                    float32x4_t dry4 = vld1q_f32(&OutBuffer[c][OutPos+pos]);
+                    dry4 = vmlaq_f32(dry4, val4, gain4);
+                    gain4 = vaddq_f32(gain4, step4);
+                    vst1q_f32(&OutBuffer[c][OutPos+pos], dry4);
+                    pos += 4;
+                } while(minsize-pos > 3);
+                /* NOTE: gain4 now represents the next four gains after the
+                 * last four mixed samples, so the lowest element represents
+                 * the next gain to apply.
+                 */
+                gain = vgetq_lane_f32(gain4, 0);
+            }
+            /* Mix with applying left over gain steps that aren't aligned multiples of 4. */
             for(;pos < minsize;pos++)
             {
                 OutBuffer[c][OutPos+pos] += data[pos]*gain;
@@ -135,5 +141,30 @@ void Mix_Neon(const ALfloat *data, ALuint OutChans, ALfloat (*restrict OutBuffer
         }
         for(;pos < BufferSize;pos++)
             OutBuffer[c][OutPos+pos] += data[pos]*gain;
+    }
+}
+
+void MixRow_Neon(ALfloat *OutBuffer, const ALfloat *Gains, ALfloat (*restrict data)[BUFFERSIZE], ALuint InChans, ALuint BufferSize)
+{
+    float32x4_t gain4;
+    ALuint c;
+
+    for(c = 0;c < InChans;c++)
+    {
+        ALuint pos = 0;
+        ALfloat gain = Gains[c];
+        if(!(fabsf(gain) > GAIN_SILENCE_THRESHOLD))
+            continue;
+
+        gain4 = vdupq_n_f32(gain);
+        for(;BufferSize-pos > 3;pos += 4)
+        {
+            const float32x4_t val4 = vld1q_f32(&data[c][pos]);
+            float32x4_t dry4 = vld1q_f32(&OutBuffer[pos]);
+            dry4 = vmlaq_f32(dry4, val4, gain4);
+            vst1q_f32(&OutBuffer[pos], dry4);
+        }
+        for(;pos < BufferSize;pos++)
+            OutBuffer[pos] += data[c][pos]*gain;
     }
 }

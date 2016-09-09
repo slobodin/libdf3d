@@ -113,6 +113,7 @@ static ALuint LoadSound(const char *filename)
 int main(int argc, char **argv)
 {
     ALCdevice *device;
+    ALboolean has_angle_ext;
     ALuint source, buffer;
     const char *soundname;
     const char *hrtfname;
@@ -121,27 +122,17 @@ int main(int argc, char **argv)
     ALdouble angle;
     ALenum state;
 
-    /* Print out usage if no file was specified */
-    if(argc < 2 || (strcmp(argv[1], "-hrtf") == 0 && argc < 4))
+    /* Print out usage if no arguments were specified */
+    if(argc < 2)
     {
-        fprintf(stderr, "Usage: %s [-hrtf <name>] <soundfile>\n", argv[0]);
+        fprintf(stderr, "Usage: %s [-device <name>] [-hrtf <name>] <soundfile>\n", argv[0]);
         return 1;
     }
 
-    /* Initialize OpenAL with the default device, and check for HRTF support. */
-    if(InitAL() != 0)
+    /* Initialize OpenAL, and check for HRTF support. */
+    argv++; argc--;
+    if(InitAL(&argv, &argc) != 0)
         return 1;
-
-    if(strcmp(argv[1], "-hrtf") == 0)
-    {
-        hrtfname = argv[2];
-        soundname = argv[3];
-    }
-    else
-    {
-        hrtfname = NULL;
-        soundname = argv[1];
-    }
 
     device = alcGetContextsDevice(alcGetCurrentContext());
     if(!alcIsExtensionPresent(device, "ALC_SOFT_HRTF"))
@@ -156,6 +147,24 @@ int main(int argc, char **argv)
     LOAD_PROC(device, alcGetStringiSOFT);
     LOAD_PROC(device, alcResetDeviceSOFT);
 #undef LOAD_PROC
+
+    /* Check for the AL_EXT_STEREO_ANGLES extension to be able to also rotate
+     * stereo sources.
+     */
+    has_angle_ext = alIsExtensionPresent("AL_EXT_STEREO_ANGLES");
+    printf("AL_EXT_STEREO_ANGLES%s found\n", has_angle_ext?"":" not");
+
+    /* Check for user-preferred HRTF */
+    if(strcmp(argv[0], "-hrtf") == 0)
+    {
+        hrtfname = argv[1];
+        soundname = argv[2];
+    }
+    else
+    {
+        hrtfname = NULL;
+        soundname = argv[0];
+    }
 
     /* Enumerate available HRTFs, and reset the device using one. */
     alcGetIntegerv(device, ALC_NUM_HRTF_SPECIFIERS_SOFT, 1, &num_hrtf);
@@ -178,19 +187,22 @@ int main(int argc, char **argv)
                 index = i;
         }
 
+        i = 0;
+        attr[i++] = ALC_HRTF_SOFT;
+        attr[i++] = ALC_TRUE;
         if(index == -1)
         {
             if(hrtfname)
                 printf("HRTF \"%s\" not found\n", hrtfname);
-            index = 0;
+            printf("Using default HRTF...\n");
         }
-        printf("Selecting HRTF %d...\n", index);
-
-        attr[0] = ALC_HRTF_SOFT;
-        attr[1] = ALC_TRUE;
-        attr[2] = ALC_HRTF_ID_SOFT;
-        attr[3] = index;
-        attr[4] = 0;
+        else
+        {
+            printf("Selecting HRTF %d...\n", index);
+            attr[i++] = ALC_HRTF_ID_SOFT;
+            attr[i++] = index;
+        }
+        attr[i] = 0;
 
         if(!alcResetDeviceSOFT(device, attr))
             printf("Failed to reset device: %s\n", alcGetString(device, alcGetError(device)));
@@ -229,11 +241,24 @@ int main(int argc, char **argv)
     do {
         al_nssleep(10000000);
 
-        /* Rotate the source around the listener by about 1/4 cycle per second.
-         * Only affects mono sounds.
+        /* Rotate the source around the listener by about 1/4 cycle per second,
+         * and keep it within -pi...+pi.
          */
         angle += 0.01 * M_PI * 0.5;
+        if(angle > M_PI)
+            angle -= M_PI*2.0;
+
+        /* This only rotates mono sounds. */
         alSource3f(source, AL_POSITION, (ALfloat)sin(angle), 0.0f, -(ALfloat)cos(angle));
+
+        if(has_angle_ext)
+        {
+            /* This rotates stereo sounds with the AL_EXT_STEREO_ANGLES
+             * extension. Angles are specified counter-clockwise in radians.
+             */
+            ALfloat angles[2] = { (ALfloat)(M_PI/6.0 - angle), (ALfloat)(-M_PI/6.0 - angle) };
+            alSourcefv(source, AL_STEREO_ANGLES, angles);
+        }
 
         alGetSourcei(source, AL_SOURCE_STATE, &state);
     } while(alGetError() == AL_NO_ERROR && state == AL_PLAYING);

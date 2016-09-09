@@ -55,11 +55,35 @@ typedef struct ALchorusState {
     ALfloat feedback;
 } ALchorusState;
 
-static ALvoid ALchorusState_Destruct(ALchorusState *state)
+static ALvoid ALchorusState_Destruct(ALchorusState *state);
+static ALboolean ALchorusState_deviceUpdate(ALchorusState *state, ALCdevice *Device);
+static ALvoid ALchorusState_update(ALchorusState *state, const ALCdevice *Device, const ALeffectslot *Slot, const ALeffectProps *props);
+static ALvoid ALchorusState_process(ALchorusState *state, ALuint SamplesToDo, const ALfloat (*restrict SamplesIn)[BUFFERSIZE], ALfloat (*restrict SamplesOut)[BUFFERSIZE], ALuint NumChannels);
+DECLARE_DEFAULT_ALLOCATORS(ALchorusState)
+
+DEFINE_ALEFFECTSTATE_VTABLE(ALchorusState);
+
+
+static void ALchorusState_Construct(ALchorusState *state)
 {
-    free(state->SampleBuffer[0]);
+    ALeffectState_Construct(STATIC_CAST(ALeffectState, state));
+    SET_VTABLE2(ALchorusState, ALeffectState, state);
+
+    state->BufferLength = 0;
     state->SampleBuffer[0] = NULL;
     state->SampleBuffer[1] = NULL;
+    state->offset = 0;
+    state->lfo_range = 1;
+    state->waveform = CWF_Triangle;
+}
+
+static ALvoid ALchorusState_Destruct(ALchorusState *state)
+{
+    al_free(state->SampleBuffer[0]);
+    state->SampleBuffer[0] = NULL;
+    state->SampleBuffer[1] = NULL;
+
+    ALeffectState_Destruct(STATIC_CAST(ALeffectState,state));
 }
 
 static ALboolean ALchorusState_deviceUpdate(ALchorusState *state, ALCdevice *Device)
@@ -72,10 +96,10 @@ static ALboolean ALchorusState_deviceUpdate(ALchorusState *state, ALCdevice *Dev
 
     if(maxlen != state->BufferLength)
     {
-        void *temp;
-
-        temp = realloc(state->SampleBuffer[0], maxlen * sizeof(ALfloat) * 2);
+        void *temp = al_calloc(16, maxlen * sizeof(ALfloat) * 2);
         if(!temp) return AL_FALSE;
+
+        al_free(state->SampleBuffer[0]);
         state->SampleBuffer[0] = temp;
         state->SampleBuffer[1] = state->SampleBuffer[0] + maxlen;
 
@@ -91,15 +115,14 @@ static ALboolean ALchorusState_deviceUpdate(ALchorusState *state, ALCdevice *Dev
     return AL_TRUE;
 }
 
-static ALvoid ALchorusState_update(ALchorusState *state, ALCdevice *Device, const ALeffectslot *Slot)
+static ALvoid ALchorusState_update(ALchorusState *state, const ALCdevice *Device, const ALeffectslot *Slot, const ALeffectProps *props)
 {
-    static const ALfloat left_dir[3] = { -1.0f, 0.0f, 0.0f };
-    static const ALfloat right_dir[3] = { 1.0f, 0.0f, 0.0f };
     ALfloat frequency = (ALfloat)Device->Frequency;
+    ALfloat coeffs[MAX_AMBI_COEFFS];
     ALfloat rate;
     ALint phase;
 
-    switch(Slot->EffectProps.Chorus.Waveform)
+    switch(props->Chorus.Waveform)
     {
         case AL_CHORUS_WAVEFORM_TRIANGLE:
             state->waveform = CWF_Triangle;
@@ -108,16 +131,18 @@ static ALvoid ALchorusState_update(ALchorusState *state, ALCdevice *Device, cons
             state->waveform = CWF_Sinusoid;
             break;
     }
-    state->depth = Slot->EffectProps.Chorus.Depth;
-    state->feedback = Slot->EffectProps.Chorus.Feedback;
-    state->delay = fastf2i(Slot->EffectProps.Chorus.Delay * frequency);
+    state->depth = props->Chorus.Depth;
+    state->feedback = props->Chorus.Feedback;
+    state->delay = fastf2i(props->Chorus.Delay * frequency);
 
     /* Gains for left and right sides */
-    ComputeDirectionalGains(Device, left_dir, Slot->Gain, state->Gain[0]);
-    ComputeDirectionalGains(Device, right_dir, Slot->Gain, state->Gain[1]);
+    CalcXYZCoeffs(-1.0f, 0.0f, 0.0f, 0.0f, coeffs);
+    ComputePanningGains(Device->Dry, coeffs, Slot->Params.Gain, state->Gain[0]);
+    CalcXYZCoeffs( 1.0f, 0.0f, 0.0f, 0.0f, coeffs);
+    ComputePanningGains(Device->Dry, coeffs, Slot->Params.Gain, state->Gain[1]);
 
-    phase = Slot->EffectProps.Chorus.Phase;
-    rate = Slot->EffectProps.Chorus.Rate;
+    phase = props->Chorus.Phase;
+    rate = props->Chorus.Rate;
     if(!(rate > 0.0f))
     {
         state->lfo_scale = 0.0f;
@@ -203,7 +228,7 @@ DECL_TEMPLATE(Sinusoid)
 
 #undef DECL_TEMPLATE
 
-static ALvoid ALchorusState_process(ALchorusState *state, ALuint SamplesToDo, const ALfloat *restrict SamplesIn, ALfloat (*restrict SamplesOut)[BUFFERSIZE], ALuint NumChannels)
+static ALvoid ALchorusState_process(ALchorusState *state, ALuint SamplesToDo, const ALfloat (*restrict SamplesIn)[BUFFERSIZE], ALfloat (*restrict SamplesOut)[BUFFERSIZE], ALuint NumChannels)
 {
     ALuint it, kt;
     ALuint base;
@@ -216,10 +241,10 @@ static ALvoid ALchorusState_process(ALchorusState *state, ALuint SamplesToDo, co
         switch(state->waveform)
         {
             case CWF_Triangle:
-                ProcessTriangle(state, td, SamplesIn+base, temps);
+                ProcessTriangle(state, td, SamplesIn[0]+base, temps);
                 break;
             case CWF_Sinusoid:
-                ProcessSinusoid(state, td, SamplesIn+base, temps);
+                ProcessSinusoid(state, td, SamplesIn[0]+base, temps);
                 break;
         }
 
@@ -244,10 +269,6 @@ static ALvoid ALchorusState_process(ALchorusState *state, ALuint SamplesToDo, co
     }
 }
 
-DECLARE_DEFAULT_ALLOCATORS(ALchorusState)
-
-DEFINE_ALEFFECTSTATE_VTABLE(ALchorusState);
-
 
 typedef struct ALchorusStateFactory {
     DERIVE_FROM_TYPE(ALeffectStateFactory);
@@ -257,16 +278,8 @@ static ALeffectState *ALchorusStateFactory_create(ALchorusStateFactory *UNUSED(f
 {
     ALchorusState *state;
 
-    state = ALchorusState_New(sizeof(*state));
+    NEW_OBJ0(state, ALchorusState)();
     if(!state) return NULL;
-    SET_VTABLE2(ALchorusState, ALeffectState, state);
-
-    state->BufferLength = 0;
-    state->SampleBuffer[0] = NULL;
-    state->SampleBuffer[1] = NULL;
-    state->offset = 0;
-    state->lfo_range = 1;
-    state->waveform = CWF_Triangle;
 
     return STATIC_CAST(ALeffectState, state);
 }

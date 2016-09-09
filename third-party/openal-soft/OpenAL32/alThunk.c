@@ -25,6 +25,8 @@
 #include "alMain.h"
 #include "alThunk.h"
 
+#include "almalloc.h"
+
 
 static ATOMIC(ALenum) *ThunkArray;
 static ALuint          ThunkArraySize;
@@ -33,7 +35,7 @@ static RWLock ThunkLock;
 void ThunkInit(void)
 {
     RWLockInit(&ThunkLock);
-    ThunkArraySize = 1;
+    ThunkArraySize = 1024;
     ThunkArray = al_calloc(16, ThunkArraySize * sizeof(*ThunkArray));
 }
 

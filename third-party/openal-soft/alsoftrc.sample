@@ -48,7 +48,10 @@
 ## channels:
 #  Sets the output channel configuration. If left unspecified, one will try to
 #  be detected from the system, and defaulting to stereo. The available values
-#  are: mono, stereo, quad, surround51, surround51rear, surround61, surround71
+#  are: mono, stereo, quad, surround51, surround51rear, surround61, surround71,
+#  ambi1, ambi2, ambi3. Note that the ambi* configurations provide ambisonic
+#  channels of the given order (using ACN ordering and SN3D normalization by
+#  default), which need to be decoded to play correctly on speakers.
 #channels =
 
 ## sample-type:
@@ -86,6 +89,19 @@
 #  Valid settings are auto, speakers, and headphones.
 #stereo-mode = auto
 
+## stereo-panning:
+#  Specifies the panning method for non-HRTF stereo output. uhj (default)
+#  creates stereo-compatible two-channel UHJ output, which encodes some
+#  surround sound information, while paired uses standard pair-wise panning
+#  between -30 and +30 degrees. If crossfeed filters are used, uhj panning is
+#  disabled.
+#stereo-panning = uhj
+
+## ambi-format:
+#  Specifies the channel order and normalization for the "ambi*" set of channel
+#  configurations. Valid settings are: fuma, acn+sn3d, acn+n3d
+#ambi-format = acn+sn3d
+
 ## hrtf:
 #  Controls HRTF processing. These filters provide better spatialization of
 #  sounds while using headphones, but do require a bit more CPU power. The
@@ -96,22 +112,24 @@
 #  respectively.
 #hrtf = auto
 
-## hrtf_tables:
-#  Specifies a comma-separated list of files containing HRTF data sets. The
-#  format of the files are described in hrtf.txt. The filenames may contain
-#  these markers, which will be replaced as needed:
-#  %r - Device sampling rate
-#  %s - Non-greedy string (up to the following matching characters)
-#  %% - Percent sign (%)
-#  The listed files are relative to system-dependant data directories. On
-#  Windows this is:
+## default-hrtf:
+#  Specifies the default HRTF to use. When multiple HRTFs are available, this
+#  determines the preferred one to use if none are specifically requested. Note
+#  that this is the enumerated HRTF name, not necessarily the filename.
+#default-hrtf =
+
+## hrtf-paths:
+#  Specifies a comma-separated list of paths containing HRTF data sets. The
+#  format of the files are described in docs/hrtf.txt. The files within the
+#  directories must have the .mhr file extension to be recognized. By default,
+#  OS-dependent data paths will be used. They will also be used if the list
+#  ends with a comma. On Windows this is:
 #  $AppData\openal\hrtf
 #  And on other systems, it's (in order):
 #  $XDG_DATA_HOME/openal/hrtf  (defaults to $HOME/.local/share/openal/hrtf)
 #  $XDG_DATA_DIRS/openal/hrtf  (defaults to /usr/local/share/openal/hrtf and
 #                               /usr/share/openal/hrtf)
-#  An absolute path may also be specified, if the given file is elsewhere.
-#hrtf_tables = %s.mhr
+#hrtf-paths =
 
 ## cf_level:
 #  Sets the crossfeed level for stereo output. Valid values are:
@@ -191,6 +209,56 @@
 #  that support it. This helps when debugging, while trying to find the cause
 #  of a context error. On Windows, a breakpoint exception is generated.
 #trap-al-error = false
+
+##
+## Ambisonic decoder stuff
+##
+[decoder]
+
+## hq-mode:
+#  Enables a high-quality ambisonic decoder. This mode is capable of frequency-
+#  dependent processing, creating a better reproduction of 3D sound rendering
+#  over surround sound speakers. Enabling this also requires specifying decoder
+#  configuration files for the appropriate speaker configuration you intend to
+#  use (see the quad, surround51, etc options below). Currently, up to third-
+#  order decoding is supported.
+hq-mode = false
+
+## distance-comp:
+#  Enables compensation for the speakers' relative distances to the listener.
+#  This applies the necessary delays and attenuation to make the speakers
+#  behave as though they are all equidistant, which is important for proper
+#  playback of 3D sound rendering. Requires the high-quality ambisonic decoder,
+#  as well as the proper distances to be specified in the decoder configuration
+#  file.
+distance-comp = true
+
+## quad:
+#  Decoder configuration file for Quadrophonic channel output. See
+#  docs/ambdec.txt for a description of the file format.
+quad =
+
+## surround51:
+#  Decoder configuration file for 5.1 Surround (Side) channel output. See
+#  docs/ambdec.txt for a description of the file format.
+surround51 =
+
+## surround51rear:
+#  Decoder configuration file for 5.1 Surround (Rear) channel output. See
+#  docs/ambdec.txt for a description of the file format.
+surround51rear =
+
+## surround61:
+#  Decoder configuration file for 6.1 Surround channel output. See
+#  docs/ambdec.txt for a description of the file format.
+surround61 =
+
+## surround71:
+#  Decoder configuration file for 7.1 Surround channel output. See
+#  docs/ambdec.txt for a description of the file format. Note: This can be used
+#  to enable 3D7.1 with the appropriate configuration and speaker placement,
+#  see docs/3D7.1.txt.
+surround71 =
 
 ##
 ## Reverb effect stuff (includes EAX reverb)

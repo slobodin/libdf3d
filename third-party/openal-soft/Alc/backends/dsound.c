@@ -123,7 +123,7 @@ static void clear_devlist(vector_DevMap *list)
 {
 #define DEINIT_STR(i) AL_STRING_DEINIT((i)->name)
     VECTOR_FOR_EACH(DevMap, *list, DEINIT_STR);
-    VECTOR_RESIZE(*list, 0);
+    VECTOR_RESIZE(*list, 0, 0);
 #undef DEINIT_STR
 }
 
@@ -156,7 +156,7 @@ static BOOL CALLBACK DSoundEnumDevices(GUID *guid, const WCHAR *desc, const WCHA
 
 #define MATCH_ENTRY(i) (al_string_cmp(entry.name, (i)->name) == 0)
         VECTOR_FIND_IF(iter, const DevMap, *devices, MATCH_ENTRY);
-        if(iter == VECTOR_ITER_END(*devices)) break;
+        if(iter == VECTOR_END(*devices)) break;
 #undef MATCH_ENTRY
         count++;
     }
@@ -199,7 +199,7 @@ static ALCboolean ALCdsoundPlayback_start(ALCdsoundPlayback *self);
 static void ALCdsoundPlayback_stop(ALCdsoundPlayback *self);
 static DECLARE_FORWARD2(ALCdsoundPlayback, ALCbackend, ALCenum, captureSamples, void*, ALCuint)
 static DECLARE_FORWARD(ALCdsoundPlayback, ALCbackend, ALCuint, availableSamples)
-static DECLARE_FORWARD(ALCdsoundPlayback, ALCbackend, ALint64, getLatency)
+static DECLARE_FORWARD(ALCdsoundPlayback, ALCbackend, ClockLatency, getClockLatency)
 static DECLARE_FORWARD(ALCdsoundPlayback, ALCbackend, void, lock)
 static DECLARE_FORWARD(ALCdsoundPlayback, ALCbackend, void, unlock)
 DECLARE_DEFAULT_ALLOCATORS(ALCdsoundPlayback)
@@ -351,13 +351,13 @@ static ALCenum ALCdsoundPlayback_open(ALCdsoundPlayback *self, const ALCchar *de
 #define MATCH_NAME(i)  (al_string_cmp_cstr((i)->name, deviceName) == 0)
         VECTOR_FIND_IF(iter, const DevMap, PlaybackDevices, MATCH_NAME);
 #undef MATCH_NAME
-        if(iter == VECTOR_ITER_END(PlaybackDevices))
+        if(iter == VECTOR_END(PlaybackDevices))
             return ALC_INVALID_VALUE;
         guid = &iter->guid;
     }
 
     hr = DS_OK;
-    self->NotifyEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+    self->NotifyEvent = CreateEventW(NULL, FALSE, FALSE, NULL);
     if(self->NotifyEvent == NULL)
         hr = E_FAIL;
 
@@ -472,7 +472,9 @@ static ALCboolean ALCdsoundPlayback_reset(ALCdsoundPlayback *self)
             case DevFmtMono:
                 OutputType.dwChannelMask = SPEAKER_FRONT_CENTER;
                 break;
-            case DevFmtBFormat3D:
+            case DevFmtAmbi1:
+            case DevFmtAmbi2:
+            case DevFmtAmbi3:
                 device->FmtChans = DevFmtStereo;
                 /*fall-through*/
             case DevFmtStereo:
@@ -653,7 +655,8 @@ typedef struct ALCdsoundCapture {
     IDirectSoundCaptureBuffer *DSCbuffer;
     DWORD BufferBytes;
     DWORD Cursor;
-    RingBuffer *Ring;
+
+    ll_ringbuffer_t *Ring;
 } ALCdsoundCapture;
 
 static void ALCdsoundCapture_Construct(ALCdsoundCapture *self, ALCdevice *device);
@@ -665,7 +668,7 @@ static ALCboolean ALCdsoundCapture_start(ALCdsoundCapture *self);
 static void ALCdsoundCapture_stop(ALCdsoundCapture *self);
 static ALCenum ALCdsoundCapture_captureSamples(ALCdsoundCapture *self, ALCvoid *buffer, ALCuint samples);
 static ALCuint ALCdsoundCapture_availableSamples(ALCdsoundCapture *self);
-static DECLARE_FORWARD(ALCdsoundCapture, ALCbackend, ALint64, getLatency)
+static DECLARE_FORWARD(ALCdsoundCapture, ALCbackend, ClockLatency, getClockLatency)
 static DECLARE_FORWARD(ALCdsoundCapture, ALCbackend, void, lock)
 static DECLARE_FORWARD(ALCdsoundCapture, ALCbackend, void, unlock)
 DECLARE_DEFAULT_ALLOCATORS(ALCdsoundCapture)
@@ -711,7 +714,7 @@ static ALCenum ALCdsoundCapture_open(ALCdsoundCapture *self, const ALCchar *devi
 #define MATCH_NAME(i)  (al_string_cmp_cstr((i)->name, deviceName) == 0)
         VECTOR_FIND_IF(iter, const DevMap, CaptureDevices, MATCH_NAME);
 #undef MATCH_NAME
-        if(iter == VECTOR_ITER_END(CaptureDevices))
+        if(iter == VECTOR_END(CaptureDevices))
             return ALC_INVALID_VALUE;
         guid = &iter->guid;
     }
@@ -787,7 +790,9 @@ static ALCenum ALCdsoundCapture_open(ALCdsoundCapture *self, const ALCchar *devi
                                           SPEAKER_SIDE_LEFT |
                                           SPEAKER_SIDE_RIGHT;
                 break;
-            case DevFmtBFormat3D:
+            case DevFmtAmbi1:
+            case DevFmtAmbi2:
+            case DevFmtAmbi3:
                 break;
         }
 
@@ -823,7 +828,8 @@ static ALCenum ALCdsoundCapture_open(ALCdsoundCapture *self, const ALCchar *devi
     }
     if(SUCCEEDED(hr))
     {
-         self->Ring = CreateRingBuffer(InputType.Format.nBlockAlign, device->UpdateSize * device->NumUpdates);
+         self->Ring = ll_ringbuffer_create(device->UpdateSize*device->NumUpdates + 1,
+                                           InputType.Format.nBlockAlign);
          if(self->Ring == NULL)
              hr = DSERR_OUTOFMEMORY;
     }
@@ -832,7 +838,7 @@ static ALCenum ALCdsoundCapture_open(ALCdsoundCapture *self, const ALCchar *devi
     {
         ERR("Device init failed: 0x%08lx\n", hr);
 
-        DestroyRingBuffer(self->Ring);
+        ll_ringbuffer_free(self->Ring);
         self->Ring = NULL;
         if(self->DSCbuffer != NULL)
             IDirectSoundCaptureBuffer_Release(self->DSCbuffer);
@@ -854,7 +860,7 @@ static ALCenum ALCdsoundCapture_open(ALCdsoundCapture *self, const ALCchar *devi
 
 static void ALCdsoundCapture_close(ALCdsoundCapture *self)
 {
-    DestroyRingBuffer(self->Ring);
+    ll_ringbuffer_free(self->Ring);
     self->Ring = NULL;
 
     if(self->DSCbuffer != NULL)
@@ -897,7 +903,7 @@ static void ALCdsoundCapture_stop(ALCdsoundCapture *self)
 
 static ALCenum ALCdsoundCapture_captureSamples(ALCdsoundCapture *self, ALCvoid *buffer, ALCuint samples)
 {
-    ReadRingBuffer(self->Ring, buffer, samples);
+    ll_ringbuffer_read(self->Ring, buffer, samples);
     return ALC_NO_ERROR;
 }
 
@@ -929,9 +935,9 @@ static ALCuint ALCdsoundCapture_availableSamples(ALCdsoundCapture *self)
     }
     if(SUCCEEDED(hr))
     {
-        WriteRingBuffer(self->Ring, ReadPtr1, ReadCnt1/FrameSize);
+        ll_ringbuffer_write(self->Ring, ReadPtr1, ReadCnt1/FrameSize);
         if(ReadPtr2 != NULL)
-            WriteRingBuffer(self->Ring, ReadPtr2, ReadCnt2/FrameSize);
+            ll_ringbuffer_write(self->Ring, ReadPtr2, ReadCnt2/FrameSize);
         hr = IDirectSoundCaptureBuffer_Unlock(self->DSCbuffer,
                                               ReadPtr1, ReadCnt1,
                                               ReadPtr2, ReadCnt2);
@@ -945,7 +951,7 @@ static ALCuint ALCdsoundCapture_availableSamples(ALCdsoundCapture *self)
     }
 
 done:
-    return RingBufferSize(self->Ring);
+    return ll_ringbuffer_read_space(self->Ring);
 }
 
 

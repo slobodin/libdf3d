@@ -91,7 +91,7 @@ static ALCboolean ALCwaveBackend_start(ALCwaveBackend *self);
 static void ALCwaveBackend_stop(ALCwaveBackend *self);
 static DECLARE_FORWARD2(ALCwaveBackend, ALCbackend, ALCenum, captureSamples, void*, ALCuint)
 static DECLARE_FORWARD(ALCwaveBackend, ALCbackend, ALCuint, availableSamples)
-static DECLARE_FORWARD(ALCwaveBackend, ALCbackend, ALint64, getLatency)
+static DECLARE_FORWARD(ALCwaveBackend, ALCbackend, ClockLatency, getClockLatency)
 static DECLARE_FORWARD(ALCwaveBackend, ALCbackend, void, lock)
 static DECLARE_FORWARD(ALCwaveBackend, ALCbackend, void, unlock)
 DECLARE_DEFAULT_ALLOCATORS(ALCwaveBackend)
@@ -163,31 +163,33 @@ static int ALCwaveBackend_mixerProc(void *ptr)
             if(!IS_LITTLE_ENDIAN)
             {
                 ALuint bytesize = BytesFromDevFmt(device->FmtType);
-                ALubyte *bytes = self->mBuffer;
                 ALuint i;
 
-                if(bytesize == 1)
+                if(bytesize == 2)
                 {
-                    for(i = 0;i < self->mSize;i++)
-                        fputc(bytes[i], self->mFile);
-                }
-                else if(bytesize == 2)
-                {
-                    for(i = 0;i < self->mSize;i++)
-                        fputc(bytes[i^1], self->mFile);
+                    ALushort *samples = self->mBuffer;
+                    ALuint len = self->mSize / 2;
+                    for(i = 0;i < len;i++)
+                    {
+                        ALushort samp = samples[i];
+                        samples[i] = (samp>>8) | (samp<<8);
+                    }
                 }
                 else if(bytesize == 4)
                 {
-                    for(i = 0;i < self->mSize;i++)
-                        fputc(bytes[i^3], self->mFile);
+                    ALuint *samples = self->mBuffer;
+                    ALuint len = self->mSize / 4;
+                    for(i = 0;i < len;i++)
+                    {
+                        ALuint samp = samples[i];
+                        samples[i] = (samp>>24) | ((samp>>8)&0x0000ff00) |
+                                     ((samp<<8)&0x00ff0000) | (samp<<24);
+                    }
                 }
             }
-            else
-            {
-                fs = fwrite(self->mBuffer, frameSize, device->UpdateSize,
-                            self->mFile);
-                (void)fs;
-            }
+
+            fs = fwrite(self->mBuffer, frameSize, device->UpdateSize, self->mFile);
+            (void)fs;
             if(ferror(self->mFile))
             {
                 ERR("Error writing to file\n");
@@ -247,7 +249,7 @@ static ALCboolean ALCwaveBackend_reset(ALCwaveBackend *self)
     clearerr(self->mFile);
 
     if(GetConfigValueBool(NULL, "wave", "bformat", 0))
-        device->FmtChans = DevFmtBFormat3D;
+        device->FmtChans = DevFmtAmbi1;
 
     switch(device->FmtType)
     {
@@ -275,7 +277,11 @@ static ALCboolean ALCwaveBackend_reset(ALCwaveBackend *self)
         case DevFmtX51Rear: chanmask = 0x01 | 0x02 | 0x04 | 0x08 | 0x010 | 0x020; break;
         case DevFmtX61: chanmask = 0x01 | 0x02 | 0x04 | 0x08 | 0x100 | 0x200 | 0x400; break;
         case DevFmtX71: chanmask = 0x01 | 0x02 | 0x04 | 0x08 | 0x010 | 0x020 | 0x200 | 0x400; break;
-        case DevFmtBFormat3D:
+        case DevFmtAmbi1:
+        case DevFmtAmbi2:
+        case DevFmtAmbi3:
+            /* .amb output requires FuMa */
+            device->AmbiFmt = AmbiFormat_FuMa;
             isbformat = 1;
             chanmask = 0;
             break;

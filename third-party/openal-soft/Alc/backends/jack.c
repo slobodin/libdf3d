@@ -54,6 +54,7 @@ static const ALCchar jackDevice[] = "JACK Default";
     MAGIC(jack_get_ports);         \
     MAGIC(jack_free);              \
     MAGIC(jack_get_sample_rate);   \
+    MAGIC(jack_set_error_function); \
     MAGIC(jack_set_process_callback); \
     MAGIC(jack_set_buffer_size_callback); \
     MAGIC(jack_set_buffer_size);   \
@@ -78,6 +79,7 @@ JACK_FUNCS(MAKE_FUNC);
 #define jack_get_ports pjack_get_ports
 #define jack_free pjack_free
 #define jack_get_sample_rate pjack_get_sample_rate
+#define jack_set_error_function pjack_set_error_function
 #define jack_set_process_callback pjack_set_process_callback
 #define jack_set_buffer_size_callback pjack_set_buffer_size_callback
 #define jack_set_buffer_size pjack_set_buffer_size
@@ -94,7 +96,12 @@ static ALCboolean jack_load(void)
 #ifdef HAVE_DYNLOAD
     if(!jack_handle)
     {
-        jack_handle = LoadLib("libjack.so.0");
+#ifdef _WIN32
+#define JACKLIB "libjack.dll"
+#else
+#define JACKLIB "libjack.so.0"
+#endif
+        jack_handle = LoadLib(JACKLIB);
         if(!jack_handle)
             return ALC_FALSE;
 
@@ -148,7 +155,7 @@ static ALCboolean ALCjackPlayback_start(ALCjackPlayback *self);
 static void ALCjackPlayback_stop(ALCjackPlayback *self);
 static DECLARE_FORWARD2(ALCjackPlayback, ALCbackend, ALCenum, captureSamples, void*, ALCuint)
 static DECLARE_FORWARD(ALCjackPlayback, ALCbackend, ALCuint, availableSamples)
-static ALint64 ALCjackPlayback_getLatency(ALCjackPlayback *self);
+static ClockLatency ALCjackPlayback_getClockLatency(ALCjackPlayback *self);
 static void ALCjackPlayback_lock(ALCjackPlayback *self);
 static void ALCjackPlayback_unlock(ALCjackPlayback *self);
 DECLARE_DEFAULT_ALLOCATORS(ALCjackPlayback)
@@ -506,16 +513,18 @@ static void ALCjackPlayback_stop(ALCjackPlayback *self)
 }
 
 
-static ALint64 ALCjackPlayback_getLatency(ALCjackPlayback *self)
+static ClockLatency ALCjackPlayback_getClockLatency(ALCjackPlayback *self)
 {
     ALCdevice *device = STATIC_CAST(ALCbackend, self)->mDevice;
-    ALint64 latency;
+    ClockLatency ret;
 
     ALCjackPlayback_lock(self);
-    latency = ll_ringbuffer_read_space(self->Ring);
+    ret.ClockTime = GetDeviceClockTime(device);
+    ret.Latency = ll_ringbuffer_read_space(self->Ring) * DEVICE_CLOCK_RES /
+                  device->Frequency;
     ALCjackPlayback_unlock(self);
 
-    return latency * 1000000000 / device->Frequency;
+    return ret;
 }
 
 
@@ -529,6 +538,11 @@ static void ALCjackPlayback_unlock(ALCjackPlayback *self)
     almtx_unlock(&STATIC_CAST(ALCbackend,self)->mMutex);
 }
 
+
+static void jack_msg_handler(const char *message)
+{
+    WARN("%s\n", message);
+}
 
 typedef struct ALCjackBackendFactory {
     DERIVE_FROM_TYPE(ALCbackendFactory);
@@ -545,7 +559,10 @@ static ALCboolean ALCjackBackendFactory_init(ALCjackBackendFactory* UNUSED(self)
 
     if(!GetConfigValueBool(NULL, "jack", "spawn-server", 0))
         ClientOptions |= JackNoStartServer;
+
+    jack_set_error_function(jack_msg_handler);
     client = jack_client_open("alsoft", ClientOptions, &status, NULL);
+    jack_set_error_function(NULL);
     if(client == NULL)
     {
         WARN("jack_client_open() failed, 0x%02x\n", status);

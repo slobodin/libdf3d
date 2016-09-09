@@ -36,15 +36,19 @@
 #include "sample_cvt.h"
 
 
+extern inline void LockBuffersRead(ALCdevice *device);
+extern inline void UnlockBuffersRead(ALCdevice *device);
+extern inline void LockBuffersWrite(ALCdevice *device);
+extern inline void UnlockBuffersWrite(ALCdevice *device);
 extern inline struct ALbuffer *LookupBuffer(ALCdevice *device, ALuint id);
 extern inline struct ALbuffer *RemoveBuffer(ALCdevice *device, ALuint id);
 extern inline ALuint FrameSizeFromUserFmt(enum UserFmtChannels chans, enum UserFmtType type);
 extern inline ALuint FrameSizeFromFmt(enum FmtChannels chans, enum FmtType type);
 
-static ALboolean IsValidType(ALenum type) DECL_CONST;
-static ALboolean IsValidChannels(ALenum channels) DECL_CONST;
-static ALboolean DecomposeUserFormat(ALenum format, enum UserFmtChannels *chans, enum UserFmtType *type) DECL_CONST;
-static ALboolean DecomposeFormat(ALenum format, enum FmtChannels *chans, enum FmtType *type) DECL_CONST;
+static ALboolean IsValidType(ALenum type);
+static ALboolean IsValidChannels(ALenum channels);
+static ALboolean DecomposeUserFormat(ALenum format, enum UserFmtChannels *chans, enum UserFmtType *type);
+static ALboolean DecomposeFormat(ALenum format, enum FmtChannels *chans, enum FmtType *type);
 static ALboolean SanitizeAlignment(enum UserFmtType type, ALsizei *align);
 
 
@@ -85,10 +89,12 @@ AL_API ALvoid AL_APIENTRY alDeleteBuffers(ALsizei n, const ALuint *buffers)
     context = GetContextRef();
     if(!context) return;
 
+    device = context->Device;
+
+    LockBuffersWrite(device);
     if(!(n >= 0))
         SET_ERROR_AND_GOTO(context, AL_INVALID_VALUE, done);
 
-    device = context->Device;
     for(i = 0;i < n;i++)
     {
         if(!buffers[i])
@@ -108,6 +114,7 @@ AL_API ALvoid AL_APIENTRY alDeleteBuffers(ALsizei n, const ALuint *buffers)
     }
 
 done:
+    UnlockBuffersWrite(device);
     ALCcontext_DecRef(context);
 }
 
@@ -119,8 +126,10 @@ AL_API ALboolean AL_APIENTRY alIsBuffer(ALuint buffer)
     context = GetContextRef();
     if(!context) return AL_FALSE;
 
+    LockBuffersRead(context->Device);
     ret = ((!buffer || LookupBuffer(context->Device, buffer)) ?
            AL_TRUE : AL_FALSE);
+    UnlockBuffersRead(context->Device);
 
     ALCcontext_DecRef(context);
 
@@ -130,8 +139,8 @@ AL_API ALboolean AL_APIENTRY alIsBuffer(ALuint buffer)
 
 AL_API ALvoid AL_APIENTRY alBufferData(ALuint buffer, ALenum format, const ALvoid *data, ALsizei size, ALsizei freq)
 {
-    enum UserFmtChannels srcchannels;
-    enum UserFmtType srctype;
+    enum UserFmtChannels srcchannels = UserFmtMono;
+    enum UserFmtType srctype = UserFmtByte;
     ALCdevice *device;
     ALCcontext *context;
     ALbuffer *albuf;
@@ -144,6 +153,7 @@ AL_API ALvoid AL_APIENTRY alBufferData(ALuint buffer, ALenum format, const ALvoi
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if((albuf=LookupBuffer(device, buffer)) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
     if(!(size >= 0 && freq > 0))
@@ -272,13 +282,14 @@ AL_API ALvoid AL_APIENTRY alBufferData(ALuint buffer, ALenum format, const ALvoi
     }
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
 AL_API ALvoid AL_APIENTRY alBufferSubDataSOFT(ALuint buffer, ALenum format, const ALvoid *data, ALsizei offset, ALsizei length)
 {
-    enum UserFmtChannels srcchannels;
-    enum UserFmtType srctype;
+    enum UserFmtChannels srcchannels = UserFmtMono;
+    enum UserFmtType srctype = UserFmtByte;
     ALCdevice *device;
     ALCcontext *context;
     ALbuffer *albuf;
@@ -291,6 +302,7 @@ AL_API ALvoid AL_APIENTRY alBufferSubDataSOFT(ALuint buffer, ALenum format, cons
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if((albuf=LookupBuffer(device, buffer)) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
     if(!(length >= 0 && offset >= 0))
@@ -351,6 +363,7 @@ AL_API ALvoid AL_APIENTRY alBufferSubDataSOFT(ALuint buffer, ALenum format, cons
     WriteUnlock(&albuf->lock);
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -369,6 +382,7 @@ AL_API void AL_APIENTRY alBufferSamplesSOFT(ALuint buffer,
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if((albuf=LookupBuffer(device, buffer)) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
     if(!(samples >= 0 && samplerate != 0))
@@ -388,6 +402,7 @@ AL_API void AL_APIENTRY alBufferSamplesSOFT(ALuint buffer,
         SET_ERROR_AND_GOTO(context, err, done);
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -404,6 +419,7 @@ AL_API void AL_APIENTRY alBufferSubSamplesSOFT(ALuint buffer,
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if((albuf=LookupBuffer(device, buffer)) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
     if(!(samples >= 0 && offset >= 0))
@@ -441,6 +457,7 @@ AL_API void AL_APIENTRY alBufferSubSamplesSOFT(ALuint buffer,
     WriteUnlock(&albuf->lock);
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -457,6 +474,7 @@ AL_API void AL_APIENTRY alGetBufferSamplesSOFT(ALuint buffer,
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if((albuf=LookupBuffer(device, buffer)) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
     if(!(samples >= 0 && offset >= 0))
@@ -494,6 +512,7 @@ AL_API void AL_APIENTRY alGetBufferSamplesSOFT(ALuint buffer,
     ReadUnlock(&albuf->lock);
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -524,6 +543,7 @@ AL_API void AL_APIENTRY alBufferf(ALuint buffer, ALenum param, ALfloat UNUSED(va
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if(LookupBuffer(device, buffer) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
 
@@ -534,6 +554,7 @@ AL_API void AL_APIENTRY alBufferf(ALuint buffer, ALenum param, ALfloat UNUSED(va
     }
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -547,6 +568,7 @@ AL_API void AL_APIENTRY alBuffer3f(ALuint buffer, ALenum param, ALfloat UNUSED(v
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if(LookupBuffer(device, buffer) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
 
@@ -557,6 +579,7 @@ AL_API void AL_APIENTRY alBuffer3f(ALuint buffer, ALenum param, ALfloat UNUSED(v
     }
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -570,6 +593,7 @@ AL_API void AL_APIENTRY alBufferfv(ALuint buffer, ALenum param, const ALfloat *v
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if(LookupBuffer(device, buffer) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
 
@@ -582,6 +606,7 @@ AL_API void AL_APIENTRY alBufferfv(ALuint buffer, ALenum param, const ALfloat *v
     }
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -596,6 +621,7 @@ AL_API void AL_APIENTRY alBufferi(ALuint buffer, ALenum param, ALint value)
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if((albuf=LookupBuffer(device, buffer)) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
 
@@ -618,6 +644,7 @@ AL_API void AL_APIENTRY alBufferi(ALuint buffer, ALenum param, ALint value)
     }
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -666,6 +693,7 @@ AL_API void AL_APIENTRY alBufferiv(ALuint buffer, ALenum param, const ALint *val
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if((albuf=LookupBuffer(device, buffer)) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
 
@@ -697,6 +725,7 @@ AL_API void AL_APIENTRY alBufferiv(ALuint buffer, ALenum param, const ALint *val
     }
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -711,6 +740,7 @@ AL_API ALvoid AL_APIENTRY alGetBufferf(ALuint buffer, ALenum param, ALfloat *val
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if((albuf=LookupBuffer(device, buffer)) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
 
@@ -732,6 +762,7 @@ AL_API ALvoid AL_APIENTRY alGetBufferf(ALuint buffer, ALenum param, ALfloat *val
     }
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -745,6 +776,7 @@ AL_API void AL_APIENTRY alGetBuffer3f(ALuint buffer, ALenum param, ALfloat *valu
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if(LookupBuffer(device, buffer) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
 
@@ -757,6 +789,7 @@ AL_API void AL_APIENTRY alGetBuffer3f(ALuint buffer, ALenum param, ALfloat *valu
     }
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -777,6 +810,7 @@ AL_API void AL_APIENTRY alGetBufferfv(ALuint buffer, ALenum param, ALfloat *valu
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if(LookupBuffer(device, buffer) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
 
@@ -789,6 +823,7 @@ AL_API void AL_APIENTRY alGetBufferfv(ALuint buffer, ALenum param, ALfloat *valu
     }
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -803,6 +838,7 @@ AL_API ALvoid AL_APIENTRY alGetBufferi(ALuint buffer, ALenum param, ALint *value
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if((albuf=LookupBuffer(device, buffer)) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
 
@@ -854,6 +890,7 @@ AL_API ALvoid AL_APIENTRY alGetBufferi(ALuint buffer, ALenum param, ALint *value
     }
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -867,6 +904,7 @@ AL_API void AL_APIENTRY alGetBuffer3i(ALuint buffer, ALenum param, ALint *value1
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if(LookupBuffer(device, buffer) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
 
@@ -879,6 +917,7 @@ AL_API void AL_APIENTRY alGetBuffer3i(ALuint buffer, ALenum param, ALint *value1
     }
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -908,6 +947,7 @@ AL_API void AL_APIENTRY alGetBufferiv(ALuint buffer, ALenum param, ALint *values
     if(!context) return;
 
     device = context->Device;
+    LockBuffersRead(device);
     if((albuf=LookupBuffer(device, buffer)) == NULL)
         SET_ERROR_AND_GOTO(context, AL_INVALID_NAME, done);
 
@@ -927,6 +967,7 @@ AL_API void AL_APIENTRY alGetBufferiv(ALuint buffer, ALenum param, ALint *values
     }
 
 done:
+    UnlockBuffersRead(device);
     ALCcontext_DecRef(context);
 }
 
@@ -940,14 +981,14 @@ done:
  */
 ALenum LoadData(ALbuffer *ALBuf, ALuint freq, ALenum NewFormat, ALsizei frames, enum UserFmtChannels SrcChannels, enum UserFmtType SrcType, const ALvoid *data, ALsizei align, ALboolean storesrc)
 {
+    enum FmtChannels DstChannels = FmtMono;
+    enum FmtType DstType = FmtByte;
     ALuint NewChannels, NewBytes;
-    enum FmtChannels DstChannels;
-    enum FmtType DstType;
     ALuint64 newsize;
-    ALvoid *temp;
 
-    if(DecomposeFormat(NewFormat, &DstChannels, &DstType) == AL_FALSE ||
-       (long)SrcChannels != (long)DstChannels)
+    if(DecomposeFormat(NewFormat, &DstChannels, &DstType) == AL_FALSE)
+        return AL_INVALID_ENUM;
+    if((long)SrcChannels != (long)DstChannels)
         return AL_INVALID_ENUM;
 
     NewChannels = ChannelsFromFmt(DstChannels);
@@ -966,13 +1007,25 @@ ALenum LoadData(ALbuffer *ALBuf, ALuint freq, ALenum NewFormat, ALsizei frames, 
         return AL_INVALID_OPERATION;
     }
 
-    temp = realloc(ALBuf->data, (size_t)newsize);
-    if(!temp && newsize)
+    /* Round up to the next 16-byte multiple. This could reallocate only when
+     * increasing or the new size is less than half the current, but then the
+     * buffer's AL_SIZE would not be very reliable for accounting buffer memory
+     * usage, and reporting the real size could cause problems for apps that
+     * use AL_SIZE to try to get the buffer's play length.
+     */
+    newsize = (newsize+15) & ~0xf;
+    if(newsize != ALBuf->BytesAlloc)
     {
-        WriteUnlock(&ALBuf->lock);
-        return AL_OUT_OF_MEMORY;
+        void *temp = al_calloc(16, (size_t)newsize);
+        if(!temp && newsize)
+        {
+            WriteUnlock(&ALBuf->lock);
+            return AL_OUT_OF_MEMORY;
+        }
+        al_free(ALBuf->data);
+        ALBuf->data = temp;
+        ALBuf->BytesAlloc = (ALuint)newsize;
     }
-    ALBuf->data = temp;
 
     if(data != NULL)
         ConvertData(ALBuf->data, (enum UserFmtType)DstType, data, SrcType, NewChannels, frames, align);
@@ -1201,13 +1254,13 @@ static ALboolean DecomposeFormat(ALenum format, enum FmtChannels *chans, enum Fm
         { AL_7POINT1_16_SOFT,  FmtX71, FmtShort },
         { AL_7POINT1_32F_SOFT, FmtX71, FmtFloat },
 
-        { AL_FORMAT_BFORMAT2D_8,       FmtBFormat2D, FmtByte },
-        { AL_FORMAT_BFORMAT2D_16,      FmtBFormat2D, FmtShort },
-        { AL_FORMAT_BFORMAT2D_FLOAT32, FmtBFormat2D, FmtFloat },
+        { AL_BFORMAT2D_8_SOFT,   FmtBFormat2D, FmtByte },
+        { AL_BFORMAT2D_16_SOFT,  FmtBFormat2D, FmtShort },
+        { AL_BFORMAT2D_32F_SOFT, FmtBFormat2D, FmtFloat },
 
-        { AL_FORMAT_BFORMAT3D_8,       FmtBFormat3D, FmtByte },
-        { AL_FORMAT_BFORMAT3D_16,      FmtBFormat3D, FmtShort },
-        { AL_FORMAT_BFORMAT3D_FLOAT32, FmtBFormat3D, FmtFloat },
+        { AL_BFORMAT3D_8_SOFT,   FmtBFormat3D, FmtByte },
+        { AL_BFORMAT3D_16_SOFT,  FmtBFormat3D, FmtShort },
+        { AL_BFORMAT3D_32F_SOFT, FmtBFormat3D, FmtFloat },
     };
     ALuint i;
 
@@ -1277,6 +1330,7 @@ static ALboolean IsValidType(ALenum type)
         case AL_DOUBLE_SOFT:
         case AL_BYTE3_SOFT:
         case AL_UNSIGNED_BYTE3_SOFT:
+        case AL_MULAW_SOFT:
             return AL_TRUE;
     }
     return AL_FALSE;
@@ -1293,6 +1347,8 @@ static ALboolean IsValidChannels(ALenum channels)
         case AL_5POINT1_SOFT:
         case AL_6POINT1_SOFT:
         case AL_7POINT1_SOFT:
+        case AL_BFORMAT2D_SOFT:
+        case AL_BFORMAT3D_SOFT:
             return AL_TRUE;
     }
     return AL_FALSE;
@@ -1305,7 +1361,7 @@ ALbuffer *NewBuffer(ALCcontext *context)
     ALbuffer *buffer;
     ALenum err;
 
-    buffer = calloc(1, sizeof(ALbuffer));
+    buffer = al_calloc(16, sizeof(ALbuffer));
     if(!buffer)
         SET_ERROR_AND_RETURN_VALUE(context, AL_OUT_OF_MEMORY, NULL);
     RWLockInit(&buffer->lock);
@@ -1317,7 +1373,7 @@ ALbuffer *NewBuffer(ALCcontext *context)
     {
         FreeThunkEntry(buffer->id);
         memset(buffer, 0, sizeof(ALbuffer));
-        free(buffer);
+        al_free(buffer);
 
         SET_ERROR_AND_RETURN_VALUE(context, err, NULL);
     }
@@ -1330,10 +1386,10 @@ void DeleteBuffer(ALCdevice *device, ALbuffer *buffer)
     RemoveBuffer(device, buffer->id);
     FreeThunkEntry(buffer->id);
 
-    free(buffer->data);
+    al_free(buffer->data);
 
     memset(buffer, 0, sizeof(*buffer));
-    free(buffer);
+    al_free(buffer);
 }
 
 
@@ -1347,13 +1403,13 @@ ALvoid ReleaseALBuffers(ALCdevice *device)
     ALsizei i;
     for(i = 0;i < device->BufferMap.size;i++)
     {
-        ALbuffer *temp = device->BufferMap.array[i].value;
-        device->BufferMap.array[i].value = NULL;
+        ALbuffer *temp = device->BufferMap.values[i];
+        device->BufferMap.values[i] = NULL;
 
-        free(temp->data);
+        al_free(temp->data);
 
         FreeThunkEntry(temp->id);
         memset(temp, 0, sizeof(ALbuffer));
-        free(temp);
+        al_free(temp);
     }
 }

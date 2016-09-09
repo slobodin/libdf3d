@@ -29,11 +29,14 @@
 #include "alError.h"
 
 
+extern inline void LockFiltersRead(ALCdevice *device);
+extern inline void UnlockFiltersRead(ALCdevice *device);
+extern inline void LockFiltersWrite(ALCdevice *device);
+extern inline void UnlockFiltersWrite(ALCdevice *device);
 extern inline struct ALfilter *LookupFilter(ALCdevice *device, ALuint id);
 extern inline struct ALfilter *RemoveFilter(ALCdevice *device, ALuint id);
 extern inline void ALfilterState_clear(ALfilterState *filter);
-extern inline void ALfilterState_processPassthru(ALfilterState *filter, const ALfloat *src, ALuint numsamples);
-extern inline ALfloat ALfilterState_processSingle(ALfilterState *filter, ALfloat sample);
+extern inline void ALfilterState_processPassthru(ALfilterState *filter, const ALfloat *restrict src, ALuint numsamples);
 extern inline ALfloat calc_rcpQ_from_slope(ALfloat gain, ALfloat slope);
 extern inline ALfloat calc_rcpQ_from_bandwidth(ALfloat freq_mult, ALfloat bandwidth);
 
@@ -56,7 +59,7 @@ AL_API ALvoid AL_APIENTRY alGenFilters(ALsizei n, ALuint *filters)
     device = context->Device;
     for(cur = 0;cur < n;cur++)
     {
-        ALfilter *filter = calloc(1, sizeof(ALfilter));
+        ALfilter *filter = al_calloc(16, sizeof(ALfilter));
         if(!filter)
         {
             alDeleteFilters(cur, filters);
@@ -71,7 +74,7 @@ AL_API ALvoid AL_APIENTRY alGenFilters(ALsizei n, ALuint *filters)
         {
             FreeThunkEntry(filter->id);
             memset(filter, 0, sizeof(ALfilter));
-            free(filter);
+            al_free(filter);
 
             alDeleteFilters(cur, filters);
             SET_ERROR_AND_GOTO(context, err, done);
@@ -94,10 +97,10 @@ AL_API ALvoid AL_APIENTRY alDeleteFilters(ALsizei n, const ALuint *filters)
     context = GetContextRef();
     if(!context) return;
 
+    device = context->Device;
+    LockFiltersWrite(device);
     if(!(n >= 0))
         SET_ERROR_AND_GOTO(context, AL_INVALID_VALUE, done);
-
-    device = context->Device;
     for(i = 0;i < n;i++)
     {
         if(filters[i] && LookupFilter(device, filters[i]) == NULL)
@@ -110,10 +113,11 @@ AL_API ALvoid AL_APIENTRY alDeleteFilters(ALsizei n, const ALuint *filters)
         FreeThunkEntry(filter->id);
 
         memset(filter, 0, sizeof(*filter));
-        free(filter);
+        al_free(filter);
     }
 
 done:
+    UnlockFiltersWrite(device);
     ALCcontext_DecRef(context);
 }
 
@@ -125,8 +129,10 @@ AL_API ALboolean AL_APIENTRY alIsFilter(ALuint filter)
     Context = GetContextRef();
     if(!Context) return AL_FALSE;
 
+    LockFiltersRead(Context->Device);
     result = ((!filter || LookupFilter(Context->Device, filter)) ?
               AL_TRUE : AL_FALSE);
+    UnlockFiltersRead(Context->Device);
 
     ALCcontext_DecRef(Context);
 
@@ -143,6 +149,7 @@ AL_API ALvoid AL_APIENTRY alFilteri(ALuint filter, ALenum param, ALint value)
     if(!Context) return;
 
     Device = Context->Device;
+    LockFiltersWrite(Device);
     if((ALFilter=LookupFilter(Device, filter)) == NULL)
         alSetError(Context, AL_INVALID_NAME);
     else
@@ -161,6 +168,7 @@ AL_API ALvoid AL_APIENTRY alFilteri(ALuint filter, ALenum param, ALint value)
             ALfilter_SetParami(ALFilter, Context, param, value);
         }
     }
+    UnlockFiltersWrite(Device);
 
     ALCcontext_DecRef(Context);
 }
@@ -182,6 +190,7 @@ AL_API ALvoid AL_APIENTRY alFilteriv(ALuint filter, ALenum param, const ALint *v
     if(!Context) return;
 
     Device = Context->Device;
+    LockFiltersWrite(Device);
     if((ALFilter=LookupFilter(Device, filter)) == NULL)
         alSetError(Context, AL_INVALID_NAME);
     else
@@ -189,6 +198,7 @@ AL_API ALvoid AL_APIENTRY alFilteriv(ALuint filter, ALenum param, const ALint *v
         /* Call the appropriate handler */
         ALfilter_SetParamiv(ALFilter, Context, param, values);
     }
+    UnlockFiltersWrite(Device);
 
     ALCcontext_DecRef(Context);
 }
@@ -203,6 +213,7 @@ AL_API ALvoid AL_APIENTRY alFilterf(ALuint filter, ALenum param, ALfloat value)
     if(!Context) return;
 
     Device = Context->Device;
+    LockFiltersWrite(Device);
     if((ALFilter=LookupFilter(Device, filter)) == NULL)
         alSetError(Context, AL_INVALID_NAME);
     else
@@ -210,6 +221,7 @@ AL_API ALvoid AL_APIENTRY alFilterf(ALuint filter, ALenum param, ALfloat value)
         /* Call the appropriate handler */
         ALfilter_SetParamf(ALFilter, Context, param, value);
     }
+    UnlockFiltersWrite(Device);
 
     ALCcontext_DecRef(Context);
 }
@@ -224,6 +236,7 @@ AL_API ALvoid AL_APIENTRY alFilterfv(ALuint filter, ALenum param, const ALfloat 
     if(!Context) return;
 
     Device = Context->Device;
+    LockFiltersWrite(Device);
     if((ALFilter=LookupFilter(Device, filter)) == NULL)
         alSetError(Context, AL_INVALID_NAME);
     else
@@ -231,6 +244,7 @@ AL_API ALvoid AL_APIENTRY alFilterfv(ALuint filter, ALenum param, const ALfloat 
         /* Call the appropriate handler */
         ALfilter_SetParamfv(ALFilter, Context, param, values);
     }
+    UnlockFiltersWrite(Device);
 
     ALCcontext_DecRef(Context);
 }
@@ -245,6 +259,7 @@ AL_API ALvoid AL_APIENTRY alGetFilteri(ALuint filter, ALenum param, ALint *value
     if(!Context) return;
 
     Device = Context->Device;
+    LockFiltersRead(Device);
     if((ALFilter=LookupFilter(Device, filter)) == NULL)
         alSetError(Context, AL_INVALID_NAME);
     else
@@ -257,6 +272,7 @@ AL_API ALvoid AL_APIENTRY alGetFilteri(ALuint filter, ALenum param, ALint *value
             ALfilter_GetParami(ALFilter, Context, param, value);
         }
     }
+    UnlockFiltersRead(Device);
 
     ALCcontext_DecRef(Context);
 }
@@ -278,6 +294,7 @@ AL_API ALvoid AL_APIENTRY alGetFilteriv(ALuint filter, ALenum param, ALint *valu
     if(!Context) return;
 
     Device = Context->Device;
+    LockFiltersRead(Device);
     if((ALFilter=LookupFilter(Device, filter)) == NULL)
         alSetError(Context, AL_INVALID_NAME);
     else
@@ -285,6 +302,7 @@ AL_API ALvoid AL_APIENTRY alGetFilteriv(ALuint filter, ALenum param, ALint *valu
         /* Call the appropriate handler */
         ALfilter_GetParamiv(ALFilter, Context, param, values);
     }
+    UnlockFiltersRead(Device);
 
     ALCcontext_DecRef(Context);
 }
@@ -299,6 +317,7 @@ AL_API ALvoid AL_APIENTRY alGetFilterf(ALuint filter, ALenum param, ALfloat *val
     if(!Context) return;
 
     Device = Context->Device;
+    LockFiltersRead(Device);
     if((ALFilter=LookupFilter(Device, filter)) == NULL)
         alSetError(Context, AL_INVALID_NAME);
     else
@@ -306,6 +325,7 @@ AL_API ALvoid AL_APIENTRY alGetFilterf(ALuint filter, ALenum param, ALfloat *val
         /* Call the appropriate handler */
         ALfilter_GetParamf(ALFilter, Context, param, value);
     }
+    UnlockFiltersRead(Device);
 
     ALCcontext_DecRef(Context);
 }
@@ -320,6 +340,7 @@ AL_API ALvoid AL_APIENTRY alGetFilterfv(ALuint filter, ALenum param, ALfloat *va
     if(!Context) return;
 
     Device = Context->Device;
+    LockFiltersRead(Device);
     if((ALFilter=LookupFilter(Device, filter)) == NULL)
         alSetError(Context, AL_INVALID_NAME);
     else
@@ -327,6 +348,7 @@ AL_API ALvoid AL_APIENTRY alGetFilterfv(ALuint filter, ALenum param, ALfloat *va
         /* Call the appropriate handler */
         ALfilter_GetParamfv(ALFilter, Context, param, values);
     }
+    UnlockFiltersRead(Device);
 
     ALCcontext_DecRef(Context);
 }
@@ -406,9 +428,9 @@ void ALfilterState_setParams(ALfilterState *filter, ALfilterType type, ALfloat g
 
     filter->a1 = a[1] / a[0];
     filter->a2 = a[2] / a[0];
+    filter->b0 = b[0] / a[0];
     filter->b1 = b[1] / a[0];
     filter->b2 = b[2] / a[0];
-    filter->input_gain = b[0] / a[0];
 
     filter->process = ALfilterState_processC;
 }
@@ -613,13 +635,13 @@ ALvoid ReleaseALFilters(ALCdevice *device)
     ALsizei i;
     for(i = 0;i < device->FilterMap.size;i++)
     {
-        ALfilter *temp = device->FilterMap.array[i].value;
-        device->FilterMap.array[i].value = NULL;
+        ALfilter *temp = device->FilterMap.values[i];
+        device->FilterMap.values[i] = NULL;
 
         // Release filter structure
         FreeThunkEntry(temp->id);
         memset(temp, 0, sizeof(ALfilter));
-        free(temp);
+        al_free(temp);
     }
 }
 
