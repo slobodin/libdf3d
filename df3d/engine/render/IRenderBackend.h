@@ -62,7 +62,7 @@ public:
 
     virtual void setViewport(int x, int y, int width, int height) = 0;
 
-    virtual void clearColorBuffer(const glm::vec4 &color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)) = 0;
+    virtual void clearColorBuffer(const glm::vec4 &color) = 0;
     virtual void clearDepthBuffer() = 0;
     virtual void clearStencilBuffer() = 0;
     virtual void enableDepthTest(bool enable) = 0;

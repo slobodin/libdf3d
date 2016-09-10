@@ -250,7 +250,7 @@ public:
 
     void setViewport(int x, int y, int width, int height) override;
 
-    void clearColorBuffer(const glm::vec4 &color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)) override;
+    void clearColorBuffer(const glm::vec4 &color) override;
     void clearDepthBuffer() override;
     void clearStencilBuffer() override;
     void enableDepthTest(bool enable) override;

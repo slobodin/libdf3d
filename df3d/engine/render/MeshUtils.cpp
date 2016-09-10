@@ -6,7 +6,9 @@
 
 namespace df3d {
 
-void MeshUtils::indexize()
+void MeshUtils::indexize(Vertex_p3_n3_tx2_tan_bitan *vdata, size_t count,
+                         PodArray<Vertex_p3_n3_tx2_tan_bitan> &outVertices, PodArray<uint8_t> &outIndices,
+                         IndicesType &outIndicesType)
 {
     // TODO:
     DF3D_ASSERT_MESS(false, "not implemented");

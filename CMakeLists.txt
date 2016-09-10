@@ -130,6 +130,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/Material.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/MaterialLib.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/MeshData.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/MeshUtils.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderCommon.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderManager.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderOperation.h
@@ -184,7 +185,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/Handles.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/JsonUtils.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/Log.h
-    ${PROJECT_SOURCE_DIR}/df3d/lib/MeshUtils.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/NonCopyable.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/ThreadPool.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/Utils.h
@@ -247,6 +247,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/Material.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/MaterialLib.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/MeshData.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/render/MeshUtils.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderCommon.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderManager.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderOperation.cpp
@@ -284,7 +285,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/Handles.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/JsonUtils.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/Log.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/lib/MeshUtils.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/ThreadPool.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/Utils.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/assert/Assert.cpp

@@ -17,7 +17,6 @@
 #include <df3d/lib/JsonUtils.h>
 #include <df3d/lib/math/MathUtils.h>
 #include <df3d/lib/math/Frustum.h>
-#include <df3d/lib/MeshUtils.h>
 #include <df3d/lib/Dict.h>
 #include <df3d/lib/Handles.h>
 #include <df3d/lib/Any.h>

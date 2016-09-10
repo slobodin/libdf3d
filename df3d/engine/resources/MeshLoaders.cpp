@@ -7,7 +7,7 @@
 #include <df3d/engine/io/FileSystemHelpers.h>
 #include <df3d/engine/io/DataSource.h>
 #include <df3d/engine/render/MaterialLib.h>
-#include <df3d/lib/MeshUtils.h>
+#include <df3d/engine/render/MeshUtils.h>
 
 #include "loaders/MeshLoader_obj.h"
 #include "loaders/MeshLoader_dfmesh.h"

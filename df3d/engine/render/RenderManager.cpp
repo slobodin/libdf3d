@@ -37,7 +37,7 @@ void RenderManager::onFrameBegin()
     m_renderBackend->enableDepthTest(true);
     m_renderBackend->enableDepthWrite(true);
     m_renderBackend->enableScissorTest(false);
-    m_renderBackend->clearColorBuffer();
+    m_renderBackend->clearColorBuffer({ 0.0f, 0.0f, 0.0f, 1.0f });
     m_renderBackend->clearDepthBuffer();
     m_renderBackend->clearStencilBuffer();
     m_renderBackend->setBlendingMode(BlendingMode::NONE);
