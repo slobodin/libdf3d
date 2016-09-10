@@ -5,15 +5,13 @@
 
 namespace df3d { namespace resource_loaders {
 
-unique_ptr<SubMesh> MeshLoader_dfmesh::createSubmesh(PodArray<float> &&vertexData)
+static unique_ptr<SubMesh> CreateSubmesh(PodArray<uint8_t> &&vertexData)
 {
-    auto vertexFormat = vertex_formats::p3_n3_tx2_tan3_bitan3;
-
-    auto submesh = make_unique<SubMesh>(vertexFormat);
+    auto submesh = make_unique<SubMesh>(Vertex_p3_n3_tx2_tan_bitan::getFormat());
     submesh->setVertexBufferUsageHint(GpuBufferUsageType::STATIC);
     submesh->setIndexBufferUsageHint(GpuBufferUsageType::STATIC);
 
-    submesh->getVertexData() = VertexData(vertexFormat, std::move(vertexData));
+    submesh->getVertexData() = VertexData(Vertex_p3_n3_tx2_tan_bitan::getFormat(), std::move(vertexData));
 
     return submesh;
 }
@@ -52,14 +50,14 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<DataSource
         DFMeshSubmeshHeader smHeader;
         DataSourceGetObjects(source.get(), &smHeader, 1);
 
-        PodArray<float> vertexData(MemoryManager::allocDefault());
-        vertexData.resize(smHeader.vertexDataSizeInBytes / sizeof(float));
+        PodArray<uint8_t> vertexData(MemoryManager::allocDefault());
+        vertexData.resize(smHeader.vertexDataSizeInBytes);
 
         DataSourceGetObjects(source.get(), vertexData.data(), vertexData.size());
 
         std::string materialId = smHeader.materialId;
 
-        result->submeshes.push_back(std::move(*createSubmesh(std::move(vertexData))));
+        result->submeshes.push_back(std::move(*CreateSubmesh(std::move(vertexData))));
         if (!materialId.empty())
             result->materialNames.push_back(make_unique<std::string>(materialId));
         else

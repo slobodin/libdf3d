@@ -188,21 +188,17 @@ struct PhysicsComponentProcessor::Impl
             for (size_t smIdx = 0; smIdx < softwareMesh->submeshes.size(); smIdx++)
             {
                 auto &submesh = softwareMesh->submeshes[smIdx];
+                auto &vdata = submesh.getVertexData();
 
-                bulletMesh->preallocateVertices(submesh.getVertexData().getVerticesCount());
+                bulletMesh->preallocateVertices(vdata.getVerticesCount());
 
-                for (size_t i = 0; i < submesh.getVertexData().getVerticesCount(); i += 3)
+                for (size_t i = 0; i < vdata.getVerticesCount(); i += 3)
                 {
-                    auto v1 = submesh.getVertexData().getVertex(i + 0);
-                    auto v2 = submesh.getVertexData().getVertex(i + 1);
-                    auto v3 = submesh.getVertexData().getVertex(i + 2);
+                    auto v1 = (glm::vec3*)vdata.getVertexAttribute(i + 0, VertexFormat::POSITION_3);
+                    auto v2 = (glm::vec3*)vdata.getVertexAttribute(i + 1, VertexFormat::POSITION_3);
+                    auto v3 = (glm::vec3*)vdata.getVertexAttribute(i + 2, VertexFormat::POSITION_3);
 
-                    glm::vec3 p1, p2, p3;
-                    v1.getPosition(&p1);
-                    v2.getPosition(&p2);
-                    v3.getPosition(&p3);
-
-                    bulletMesh->addTriangle(PhysicsHelpers::glmTobt(p1), PhysicsHelpers::glmTobt(p2), PhysicsHelpers::glmTobt(p3));
+                    bulletMesh->addTriangle(PhysicsHelpers::glmTobt(*v1), PhysicsHelpers::glmTobt(*v2), PhysicsHelpers::glmTobt(*v3));
                 }
             }
 

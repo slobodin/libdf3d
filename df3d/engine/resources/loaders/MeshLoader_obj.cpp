@@ -19,7 +19,7 @@ bool MeshLoader_obj::hasTxCoords() const
 
 unique_ptr<SubMesh> MeshLoader_obj::createSubmesh(const std::string &materialName)
 {
-    auto vertexFormat = vertex_formats::p3_n3_tx2_tan3_bitan3;
+    const auto &vertexFormat = Vertex_p3_n3_tx2_tan_bitan::getFormat();
     auto submesh = make_unique<SubMesh>(vertexFormat);
     submesh->setVertexBufferUsageHint(GpuBufferUsageType::STATIC);
     submesh->setIndexBufferUsageHint(GpuBufferUsageType::STATIC);
@@ -113,17 +113,20 @@ void MeshLoader_obj::processLine_f(std::istream &is)
             DF3D_ASSERT(vertexidx >= 1 && uvidx >= 1 && normalidx >= 1);
         }
 
-        auto v = m_currentSubmesh->getVertexData().allocVertex();
-        v.setPosition(m_vertices[vertexidx - 1]);
+        auto &vdata = m_currentSubmesh->getVertexData();
+        vdata.addVertex();
 
+        auto v = (Vertex_p3_n3_tx2_tan_bitan *)vdata.getVertex(vdata.getVerticesCount() - 1);
+
+        v->pos = m_vertices[vertexidx - 1];
         if (normalidx > 0)
-            v.setNormal(m_normals[normalidx - 1]);
+            v->normal = m_normals[normalidx - 1];
         else
-            v.setNormal({ 0.0f, 0.0f, 0.0f });
+            v->normal = { 0.0f, 0.0f, 0.0f };
         if (uvidx > 0)
-            v.setTx(m_txCoords[uvidx - 1]);
+            v->uv = m_txCoords[uvidx - 1];
         else
-            v.setTx({ 0.0f, 0.0f });
+            v->uv = { 0.0f, 0.0f };
 
         if (!is.good())
         {
@@ -131,6 +134,8 @@ void MeshLoader_obj::processLine_f(std::istream &is)
             break;
         }
     }
+
+    DF3D_ASSERT_MESS(verticesCount == 3, "Only triangles supported in obj loader");
 }
 
 void MeshLoader_obj::processLine_mtl(std::istream &is)
@@ -228,10 +233,14 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<DataSource> s
         if (computeNormals)
         {
             DFLOG_DEBUG("Computing normals in %s", source->getPath().c_str());
-            MeshUtils::computeNormals(*s.second);
+            DF3D_ASSERT(false);
+            //MeshUtils::computeNormals(*s.second);
         }
 
-        MeshUtils::computeTangentBasis(*s.second);
+        auto &vdata = s.second->getVertexData();
+        auto verticesCount = s.second->getVertexData().getVerticesCount();
+
+        MeshUtils::computeTangentBasis((Vertex_p3_n3_tx2_tan_bitan*)vdata.getRawData(), verticesCount);
 
         auto mtlFound = m_materialNameLookup.find(s.second.get());
         unique_ptr<std::string> materialName;

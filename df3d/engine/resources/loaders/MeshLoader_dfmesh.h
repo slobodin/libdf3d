@@ -63,8 +63,6 @@ struct DFMeshSubmeshHeader
  */
 class MeshLoader_dfmesh
 {
-    unique_ptr<SubMesh> createSubmesh(PodArray<float> &&vertexData);
-
 public:
     MeshLoader_dfmesh();
 

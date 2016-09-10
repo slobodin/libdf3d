@@ -147,30 +147,23 @@ class TBRendererImpl : public tb::TBRenderer
     };
 
     /** A batch which should be rendered. */
-    class Batch
+    struct Batch
     {
-    public:
         static const uint16_t VERTEX_BATCH_SIZE = 1 * 2048;       // NOTE: using 16-bit indices.
 
-        struct VertexTB
-        {
-            glm::vec3 pos;
-            glm::vec2 uv;
-            glm::vec4 color;
-        };
+        Vertex_p3_tx2_c4 vertexData[VERTEX_BATCH_SIZE];
 
-        Batch()
-        {
-            DF3D_ASSERT(sizeof(VertexTB) == vertex_formats::p3_tx2_c4.getVertexSize());
-            DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::POSITION_3) == 0);
-            DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::TX_2) == sizeof(glm::vec3));
-            DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::COLOR_4) == sizeof(glm::vec3) + sizeof(glm::vec2));
-        }
+        uint16_t vertex_count = 0;
+        int quadsCount = 0;
 
-        ~Batch()
-        {
+        tb::TBBitmap *bitmap = nullptr;
+        tb::TBBitmapFragment *fragment = nullptr;
 
-        }
+        tb::uint32 batch_id = 0;
+        bool is_flushing = false;
+
+        Batch() = default;
+        ~Batch() = default;
 
         void Flush(TBRendererImpl *batch_renderer)
         {
@@ -192,7 +185,8 @@ class TBRendererImpl : public tb::TBRenderer
                 assert(frag_bitmap == bitmap);
             }
 
-            auto vb = svc().renderManager().getBackend().createVertexBuffer(vertex_formats::p3_tx2_c4, vertex_count, vertex, GpuBufferUsageType::STREAM);
+            auto &backend = svc().renderManager().getBackend();
+            auto vb = backend.createVertexBuffer(Vertex_p3_tx2_c4::getFormat(), vertex_count, vertexData, GpuBufferUsageType::STREAM);
 
             batch_renderer->RenderBatch(this, vb);
 
@@ -206,28 +200,17 @@ class TBRendererImpl : public tb::TBRenderer
             is_flushing = false;
         }
 
-        VertexTB* ReserveQuad(TBRendererImpl *batch_renderer)
+        Vertex_p3_tx2_c4* ReserveQuad(TBRendererImpl *batch_renderer)
         {
             if (vertex_count + 4 > VERTEX_BATCH_SIZE)
                 Flush(batch_renderer);
 
-            VertexTB *ret = &vertex[vertex_count];
+            Vertex_p3_tx2_c4 *ret = &vertexData[vertex_count];
             vertex_count += 4;
             quadsCount++;
 
             return ret;
         }
-
-        VertexTB vertex[VERTEX_BATCH_SIZE];
-
-        uint16_t vertex_count = 0;
-        int quadsCount = 0;
-
-        tb::TBBitmap *bitmap = nullptr;
-        tb::TBBitmapFragment *fragment = nullptr;
-
-        tb::uint32 batch_id = 0;
-        bool is_flushing = false;
     };
 
     unique_ptr<Batch> m_batch;

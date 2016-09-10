@@ -29,18 +29,19 @@ public:
 
 void ParticleSystemBuffers_Quad::cleanup()
 {
-    delete[] m_vertexData;
+    if (m_vertexData)
+    {
+        MemoryManager::allocDefault()->dealloc(m_vertexData);
+        m_vertexData = nullptr;
+    }
+
     if (m_indexBuffer.isValid())
         svc().renderManager().getBackend().destroyIndexBuffer(m_indexBuffer);
 }
 
 ParticleSystemBuffers_Quad::ParticleSystemBuffers_Quad()
 {
-    // Some assertions for this performance workaround.
-    DF3D_ASSERT(sizeof(SpkVertexData) == vertex_formats::p3_tx2_c4.getVertexSize());
-    DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::POSITION_3) == 0);
-    DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::TX_2) == sizeof(SPK::Vector3D));
-    DF3D_ASSERT(vertex_formats::p3_tx2_c4.getOffsetTo(VertexFormat::COLOR_4) == sizeof(SPK::Vector3D) + sizeof(float) * 2);
+
 }
 
 ParticleSystemBuffers_Quad::~ParticleSystemBuffers_Quad()
@@ -58,7 +59,7 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
     DF3D_ASSERT_MESS(verticesCount < 0xFFFF, "Using 16-bit indices for particle system");
 
     // Allocate main memory storage copy (no glMapBuffer on ES2.0)
-    m_vertexData = new SpkVertexData[verticesCount];
+    m_vertexData = (Vertex_p3_tx2_c4*)MemoryManager::allocDefault()->alloc(sizeof(Vertex_p3_tx2_c4) * verticesCount);
 
     positionAtStart();
 
@@ -94,7 +95,7 @@ void ParticleSystemBuffers_Quad::draw(size_t nbOfParticles, RenderPass *passProp
     DF3D_ASSERT(nbOfParticles <= m_particlesAllocated);
 
     // Stream draw is more efficient than updating existent vertex buffer on mobile GPU.
-    auto vb = svc().renderManager().getBackend().createVertexBuffer(vertex_formats::p3_tx2_c4,
+    auto vb = svc().renderManager().getBackend().createVertexBuffer(Vertex_p3_tx2_c4::getFormat(),
                                                                     nbOfParticles * QUAD_VERTICES_PER_PARTICLE,
                                                                     m_vertexData,
                                                                     GpuBufferUsageType::STREAM);

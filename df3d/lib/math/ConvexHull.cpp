@@ -43,17 +43,12 @@ void ConvexHull::constructFromGeometry(const std::vector<SubMesh> &submeshes)
     {
         const auto &vertexData = submesh.getVertexData();
 
-        // Some sanity checks.
-        if (!vertexData.getFormat().hasAttribute(VertexFormat::POSITION_3))
-            continue;
-
         for (size_t i = 0; i < vertexData.getVerticesCount(); i++)
         {
-            auto v = const_cast<VertexData&>(vertexData).getVertex(i);      // sorry, but it's really const...
-            glm::vec3 p;
-            v.getPosition(&p);
+            auto &vdata = const_cast<VertexData&>(vertexData);
+            auto v = (glm::vec3*)vdata.getVertexAttribute(i, VertexFormat::POSITION_3);
 
-            tempHull->addPoint({ p.x, p.y, p.z }, false);
+            tempHull->addPoint({ v->x, v->y, v->z }, false);
         }
 
         tempHull->recalcLocalAabb();

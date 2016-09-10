@@ -3,6 +3,7 @@
 #include "SparkCommon.h"
 
 #include <df3d/engine/render/RenderCommon.h>
+#include <df3d/engine/render/Vertex.h>
 
 namespace df3d {
 
@@ -18,16 +19,8 @@ class ParticleSystemBuffers_Quad
     size_t m_particlesAllocated = 0;
     IndexBufferHandle m_indexBuffer;
 
-    struct SpkVertexData
-    {
-        SPK::Vector3D pos;
-        float tx_u;
-        float tx_v;
-        glm::vec4 color;
-    };
-
     // CPU side storage, TODO: use glMapBuffer
-    SpkVertexData *m_vertexData = nullptr;
+    Vertex_p3_tx2_c4 *m_vertexData = nullptr;
 
     size_t m_currentVertexIndex = 0;
     size_t m_currentColorIndex = 0;
@@ -51,27 +44,28 @@ public:
 
     inline void setNextVertex(const SPK::Vector3D &vertex)
     {
-        m_vertexData[m_currentVertexIndex].pos = vertex;
+        auto &v = m_vertexData[m_currentVertexIndex].pos;
+        v.x = vertex.x;
+        v.y = vertex.y;
+        v.z = vertex.z;
         ++m_currentVertexIndex;
     }
 
     void setNextColor(const SPK::Color &color)
     {
         auto &c = m_vertexData[m_currentColorIndex].color;
-
         c.r = color.r / 255.0f;
         c.g = color.g / 255.0f;
         c.b = color.b / 255.0f;
         c.a = color.a / 255.0f;
-
         ++m_currentColorIndex;
     }
 
     void setNextTexCoords(float u, float v)
     {
-        m_vertexData[m_currentTexCoordIndex].tx_u = u;
-        m_vertexData[m_currentTexCoordIndex].tx_v = v;
-
+        auto &uv = m_vertexData[m_currentTexCoordIndex].uv;
+        uv.x = u;
+        uv.y = v;
         ++m_currentTexCoordIndex;
     }
 

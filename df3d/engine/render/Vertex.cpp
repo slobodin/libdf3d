@@ -55,7 +55,7 @@ VertexFormat::VertexFormat()
     memset(&m_attribs, 0xFFFF, sizeof(m_attribs));
 }
 
-VertexFormat::VertexFormat(const std::vector<VertexAttribute> &attribs)
+VertexFormat::VertexFormat(std::initializer_list<VertexAttribute> attribs)
     : VertexFormat()
 {
     uint16_t totalOffset = 0;
@@ -73,79 +73,6 @@ VertexFormat::VertexFormat(const std::vector<VertexAttribute> &attribs)
     }
 }
 
-Vertex::Vertex(const VertexFormat &format, float *vertexData)
-    : m_format(format)
-{
-    m_vertexData = vertexData;
-}
-
-Vertex::Vertex(const Vertex &other)
-    : m_vertexData(other.m_vertexData),
-    m_format(other.m_format)
-{
-
-}
-
-void Vertex::setPosition(const glm::vec3 &pos)
-{
-    *getPointer<glm::vec3>(VertexFormat::POSITION_3) = pos;
-}
-
-void Vertex::setTx(const glm::vec2 &tx)
-{
-    *getPointer<glm::vec2>(VertexFormat::TX_2) = tx;
-}
-
-void Vertex::setColor(const glm::vec4 &color)
-{
-    *getPointer<glm::vec4>(VertexFormat::COLOR_4) = color;
-}
-
-void Vertex::setNormal(const glm::vec3 &normal)
-{
-    *getPointer<glm::vec3>(VertexFormat::NORMAL_3) = normal;
-}
-
-void Vertex::setTangent(const glm::vec3 &tangent)
-{
-    *getPointer<glm::vec3>(VertexFormat::TANGENT_3) = tangent;
-}
-
-void Vertex::setBitangent(const glm::vec3 &bitangent)
-{
-    *getPointer<glm::vec3>(VertexFormat::BITANGENT_3) = bitangent;
-}
-
-void Vertex::getPosition(glm::vec3 *pos)
-{
-    *pos = *getPointer<glm::vec3>(VertexFormat::POSITION_3);
-}
-
-void Vertex::getTx(glm::vec2 *tx)
-{
-    *tx = *getPointer<glm::vec2>(VertexFormat::TX_2);
-}
-
-void Vertex::getColor(glm::vec4 *color)
-{
-    *color = *getPointer<glm::vec4>(VertexFormat::COLOR_4);
-}
-
-void Vertex::getNormal(glm::vec3 *normal)
-{
-    *normal = *getPointer<glm::vec3>(VertexFormat::NORMAL_3);
-}
-
-void Vertex::getTangent(glm::vec3 *tangent)
-{
-    *tangent = *getPointer<glm::vec3>(VertexFormat::TANGENT_3);
-}
-
-void Vertex::getBitangent(glm::vec3 *bitangent)
-{
-    *bitangent = *getPointer<glm::vec3>(VertexFormat::BITANGENT_3);
-}
-
 VertexData::VertexData(const VertexFormat &format)
     : m_data(MemoryManager::allocDefault()),
     m_format(format)
@@ -153,59 +80,62 @@ VertexData::VertexData(const VertexFormat &format)
 
 }
 
-VertexData::VertexData(const VertexFormat &format, PodArray<float> &&data)
+VertexData::VertexData(const VertexFormat &format, PodArray<uint8_t> &&data)
     : m_data(std::move(data)),
     m_format(format)
 {
-    m_verticesCount = (m_data.size() * sizeof(float)) / m_format.getVertexSize();
+
 }
 
-void VertexData::allocVertices(size_t verticesCount)
+void VertexData::addVertices(size_t verticesCount)
 {
     DF3D_ASSERT(verticesCount > 0);
 
-    size_t floatsCount = m_format.getVertexSize() * verticesCount / sizeof(float);
-    m_data.resize(floatsCount);
-
-    m_verticesCount = verticesCount;
+    m_data.resize(m_format.getVertexSize() * verticesCount + m_data.size());
 }
 
-Vertex VertexData::allocVertex()
+void VertexData::addVertex()
 {
-    // Allocate buffer for a new vertex.
-    size_t floatsCount = m_format.getVertexSize() / sizeof(float);
-    m_data.resize(m_data.size() + floatsCount);
-
-    // Get pointer to this vertex raw data.
-    auto vertexData = m_data.end() - floatsCount;
-
-    m_verticesCount++;
-
-    // Return vertex proxy.
-    return Vertex(m_format, vertexData);
+    m_data.resize(m_data.size() + m_format.getVertexSize());
 }
 
-Vertex VertexData::getVertex(size_t idx)
+void* VertexData::getVertex(size_t idx)
 {
-    DF3D_ASSERT(idx < m_verticesCount);
+    DF3D_ASSERT(idx < getVerticesCount());
 
-    return Vertex(m_format, m_data.data() + m_format.getVertexSize() * idx / sizeof(float));
+    return m_data.data() + m_format.getVertexSize() * idx;
 }
 
-void VertexData::clear()
+void* VertexData::getVertexAttribute(size_t idx, VertexFormat::VertexAttribute attrib)
 {
-    m_verticesCount = 0;
-    m_data.clear();
+    DF3D_ASSERT(m_format.hasAttribute(attrib));
+
+    auto vertex = (uint8_t*)getVertex(idx);
+    return vertex + m_format.getOffsetTo(attrib);
 }
 
-namespace vertex_formats
+size_t VertexData::getVerticesCount() const
 {
+    return m_data.size() / m_format.getVertexSize();
+}
 
-const VertexFormat p3_c4 = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::COLOR_4 });
-const VertexFormat p3_tx2_c4 = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 });
-const VertexFormat p3_n3_tx2_tan3_bitan3 = VertexFormat({ VertexFormat::POSITION_3, VertexFormat::NORMAL_3,
-                                                        VertexFormat::TX_2, VertexFormat::TANGENT_3, VertexFormat::BITANGENT_3 });
+const VertexFormat& Vertex_p3_c4::getFormat()
+{
+    static VertexFormat format = { VertexFormat::POSITION_3, VertexFormat::COLOR_4 };
+    return format;
+}
 
+const VertexFormat& Vertex_p3_tx2_c4::getFormat()
+{
+    static VertexFormat format = { VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 };
+    return format;
+}
+
+const VertexFormat& Vertex_p3_n3_tx2_tan_bitan::getFormat()
+{
+    static VertexFormat format = { VertexFormat::POSITION_3, VertexFormat::NORMAL_3,
+        VertexFormat::TX_2, VertexFormat::TANGENT_3, VertexFormat::BITANGENT_3 };
+    return format;
 }
 
 }

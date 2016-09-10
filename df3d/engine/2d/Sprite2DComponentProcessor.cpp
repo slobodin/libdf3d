@@ -17,43 +17,22 @@
 
 namespace df3d {
 
-static VertexBufferHandle createQuad(const VertexFormat &vf, float x, float y, float w, float h, GpuBufferUsageType usage)
+static VertexBufferHandle CreateQuad(float x, float y, float w, float h, GpuBufferUsageType usage)
 {
-    float w2 = w / 2.0f;
-    float h2 = h / 2.0f;
+    const float w2 = w / 2.0f;
+    const float h2 = h / 2.0f;
+    const glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    float quad_pos[][2] =
-    {
-        { x - w2, y - h2 },
-        { x + w2, y - h2 },
-        { x + w2, y + h2 },
-        { x + w2, y + h2 },
-        { x - w2, y + h2 },
-        { x - w2, y - h2 }
-    };
-    float quad_uv[][2] =
-    {
-        { 0.0, 0.0 },
-        { 1.0, 0.0 },
-        { 1.0, 1.0 },
-        { 1.0, 1.0 },
-        { 0.0, 1.0 },
-        { 0.0, 0.0 }
+    Vertex_p3_tx2_c4 quadData[6] = {
+        { { x - w2, y - h2, 0.0f }, { 0.0, 0.0 }, color },
+        { { x + w2, y - h2, 0.0f }, { 1.0, 0.0 }, color },
+        { { x + w2, y + h2, 0.0f }, { 1.0, 1.0 }, color },
+        { { x + w2, y + h2, 0.0f }, { 1.0, 1.0 }, color },
+        { { x - w2, y + h2, 0.0f }, { 0.0, 1.0 }, color },
+        { { x - w2, y - h2, 0.0f }, { 0.0, 0.0 }, color },
     };
 
-    VertexData vertexData(vf);
-    vertexData.allocVertices(6u);
-
-    for (size_t i = 0; i < 6u; i++)
-    {
-        auto v = vertexData.getVertex(i);
-
-        v.setPosition({ quad_pos[i][0], quad_pos[i][1], 0.0f });
-        v.setTx({ quad_uv[i][0], quad_uv[i][1] });
-        v.setColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-    }
-
-    return svc().renderManager().getBackend().createVertexBuffer(vertexData, usage);
+    return svc().renderManager().getBackend().createVertexBuffer(Vertex_p3_tx2_c4::getFormat(), 6, quadData, usage);
 }
 
 struct Sprite2DComponentProcessor::Impl
@@ -78,7 +57,7 @@ struct Sprite2DComponentProcessor::Impl
 
     Impl()
     {
-        vertexBuffer = createQuad(vertex_formats::p3_tx2_c4, 0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
+        vertexBuffer = CreateQuad(0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
     }
 
     ~Impl()

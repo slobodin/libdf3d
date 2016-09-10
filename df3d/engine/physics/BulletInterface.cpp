@@ -26,7 +26,6 @@ static unique_ptr<RenderPass> CreateDebugDrawPass()
 }
 
 BulletDebugDraw::BulletDebugDraw()
-    : m_vertexData(vertex_formats::p3_tx2_c4)
 {
 
 }
@@ -38,17 +37,7 @@ BulletDebugDraw::~BulletDebugDraw()
 
 void BulletDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)
 {
-    if (m_vertexData.getVerticesCount() == 0)
-        m_vertexData.allocVertices(300000);
 
-    // FIXME: map directly to GPU.
-    auto v1 = m_vertexData.getVertex(m_currentVertex++);
-    v1.setColor({ color.x(), color.y(), color.z(), 1.0f });
-    v1.setPosition({ from.x(), from.y(), from.z() });
-
-    auto v2 = m_vertexData.getVertex(m_currentVertex++);
-    v2.setColor({ color.x(), color.y(), color.z(), 1.0f });
-    v2.setPosition({ to.x(), to.y(), to.z() });
 }
 
 void BulletDebugDraw::drawContactPoint(const btVector3 &PointOnB, const btVector3 &normalOnB, btScalar distance, int lifeTime, const btVector3 &color)
@@ -78,33 +67,12 @@ int BulletDebugDraw::getDebugMode() const
 
 void BulletDebugDraw::clean()
 {
-    if (m_vertexBuffer.isValid())
-    {
-        svc().renderManager().getBackend().destroyVertexBuffer(m_vertexBuffer);
-        m_vertexBuffer = {};
-    }
-    m_currentVertex = 0;
+
 }
 
 void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
 {
-    if (m_vertexData.getVerticesCount() == 0)
-        return;
 
-    if (!m_pass)
-        m_pass = CreateDebugDrawPass();
-
-    DF3D_ASSERT_MESS(!m_vertexBuffer.isValid(), "bullet debug draw: invalid vertex buffer");
-
-    m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(m_vertexData, GpuBufferUsageType::STREAM);
-
-    RenderOperation op;
-    op.passProps = m_pass.get();
-    op.vertexBuffer = m_vertexBuffer;
-    op.numberOfElements = m_vertexData.getVerticesCount();
-    op.topology = Topology::LINES;
-
-    ops->debugDrawOperations.push_back(op);
 }
 
 } }

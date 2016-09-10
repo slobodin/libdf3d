@@ -3,9 +3,6 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 
-#include <df3d/engine/render/RenderCommon.h>
-#include <df3d/engine/render/Vertex.h>
-
 namespace df3d { 
 
 class RenderPass;
@@ -16,10 +13,6 @@ namespace physics_impl {
 class BulletDebugDraw : public btIDebugDraw
 {
     unique_ptr<RenderPass> m_pass;
-
-    VertexBufferHandle m_vertexBuffer;
-    VertexData m_vertexData;
-    int m_currentVertex = 0;
 
 public:
     BulletDebugDraw();

@@ -12,7 +12,6 @@ public:
     {
         // FIXME: figure out why if its starting not from 0 gives black screen on mac os.
         // stackoverflow.com/questions/11497870
-        // FIXME: reordering may affect on ParticleSystemBuffers_Quad
         POSITION_3,
         TX_2,
         COLOR_4,
@@ -29,97 +28,87 @@ private:
 
 public:
     VertexFormat();
-    VertexFormat(const std::vector<VertexAttribute> &attribs);
+    VertexFormat(std::initializer_list<VertexAttribute> attribs);
 
     //! Whether or not this format has a given attribute.
-    bool hasAttribute(VertexAttribute attrib) const
-    {
-        return m_attribs[attrib] != 0xFFFF;
-    }
+    bool hasAttribute(VertexAttribute attrib) const { return m_attribs[attrib] != 0xFFFF; }
 
     //! Returns vertex size of this format in bytes.
-    size_t getVertexSize() const
-    {
-        return m_size;
-    }
+    size_t getVertexSize() const { return m_size; }
 
     //! Returns offset in bytes to a given attribute.
-    uint16_t getOffsetTo(VertexAttribute attrib) const
-    {
-        return m_attribs[attrib] >> 8;
-    }
+    uint16_t getOffsetTo(VertexAttribute attrib) const { return m_attribs[attrib] >> 8; }
 
     //! Returns number of components per vertex attribute. Must be 1, 2, 3 or 4.
-    uint16_t getCompCount(VertexAttribute attrib) const
+    uint16_t getCompCount(VertexAttribute attrib) const { return m_attribs[attrib] & 0x00FF; }
+
+    bool operator== (const VertexFormat &other) const
     {
-        return m_attribs[attrib] & 0x00FF;
+        if (m_size != other.m_size)
+            return false;
+
+        for (uint16_t i = 0; i < COUNT; i++)
+        {
+            if (m_attribs[i] != other.m_attribs[i])
+                return false;
+        }
+
+        return true;
     }
-};
 
-class DF3D_DLL Vertex
-{
-    float *m_vertexData;
-    const VertexFormat &m_format;
-
-    template<typename T>
-    T* getPointer(VertexFormat::VertexAttribute attrib)
+    bool operator!= (const VertexFormat &other) const
     {
-        return reinterpret_cast<T*>(m_vertexData + m_format.getOffsetTo(attrib) / sizeof(float));
+        return !(*this == other);
     }
-
-public:
-    Vertex(const VertexFormat &format, float *vertexData);
-    Vertex(const Vertex &other);
-
-    void setPosition(const glm::vec3 &pos);
-    void setTx(const glm::vec2 &tx);
-    void setColor(const glm::vec4 &color);
-    void setNormal(const glm::vec3 &normal);
-    void setTangent(const glm::vec3 &tangent);
-    void setBitangent(const glm::vec3 &bitangent);
-
-    void getPosition(glm::vec3 *pos);
-    void getTx(glm::vec2 *tx);
-    void getColor(glm::vec4 *color);
-    void getNormal(glm::vec3 *normal);
-    void getTangent(glm::vec3 *tangent);
-    void getBitangent(glm::vec3 *bitangent);
 };
 
 class DF3D_DLL VertexData
 {
-    PodArray<float> m_data;
+    PodArray<uint8_t> m_data;
     VertexFormat m_format;
-    size_t m_verticesCount = 0;
 
 public:
     VertexData(const VertexFormat &format);
-    VertexData(const VertexFormat &format, PodArray<float> &&data);
+    VertexData(const VertexFormat &format, PodArray<uint8_t> &&data);
 
-    //! Allocates memory for given number of vertices.
-    void allocVertices(size_t verticesCount);
-    //! Allocates memory for a new vertex and returns vertex proxy.
-    // NOTE: make sure to FULLY init the vertex as array may be reallocated after next call to allocVertex
-    Vertex allocVertex();
-    //! Returns vertex proxy for ith vertex [0, n).
-    Vertex getVertex(size_t idx);
-    //! Returns this data vertex format.
+    void addVertices(size_t verticesCount);
+    void addVertex();
+
+    void* getVertex(size_t idx);
+    void* getVertexAttribute(size_t idx, VertexFormat::VertexAttribute attrib);
     const VertexFormat& getFormat() const { return m_format; }
-    //! Returns count of vertices in this buffer.
-    size_t getVerticesCount() const { return m_verticesCount; }
-    //! Returns raw vertex data.
-    const float* getRawData() const { return m_data.data(); }
-    //! Returns vertex data size in bytes.
-    size_t getSizeInBytes() const { return m_data.size() * sizeof(float); }
-    //! Clears the buffer.
-    void clear();
+    size_t getVerticesCount() const;
+    void* getRawData() { return m_data.data(); }
+    const void* getRawData() const { return m_data.data(); }
+    size_t getSizeInBytes() const { return m_data.size(); }
 };
 
-namespace vertex_formats
+struct DF3D_DLL Vertex_p3_c4
 {
-    extern const DF3D_DLL VertexFormat p3_c4;
-    extern const DF3D_DLL VertexFormat p3_tx2_c4;
-    extern const DF3D_DLL VertexFormat p3_n3_tx2_tan3_bitan3;
-}
+    glm::vec3 pos;
+    glm::vec3 color;
+
+    static const VertexFormat& getFormat();
+};
+
+struct DF3D_DLL Vertex_p3_tx2_c4
+{
+    glm::vec3 pos;
+    glm::vec2 uv;
+    glm::vec4 color;
+
+    static const VertexFormat& getFormat();
+};
+
+struct DF3D_DLL Vertex_p3_n3_tx2_tan_bitan
+{
+    glm::vec3 pos;
+    glm::vec3 normal;
+    glm::vec2 uv;
+    glm::vec3 tangent;
+    glm::vec3 bitangent;
+
+    static const VertexFormat& getFormat();
+};
 
 }
