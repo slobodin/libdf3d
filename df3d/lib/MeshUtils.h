@@ -2,14 +2,13 @@
 
 namespace df3d {
 
-class SubMesh;
+struct Vertex_p3_n3_tx2_tan_bitan;
 
 class DF3D_DLL MeshUtils
 {
 public:
     static void indexize();
-    static void computeNormals(SubMesh &submesh);
-    static void computeTangentBasis(SubMesh &submesh);
+    static void computeTangentBasis(Vertex_p3_n3_tx2_tan_bitan *vdata, size_t count);
 };
 
 }

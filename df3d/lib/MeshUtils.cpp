@@ -46,8 +46,11 @@ void MeshUtils::indexize()
     //return ib;
 }
 
+/*
 void MeshUtils::computeNormals(SubMesh &submesh)
 {
+    DF3D_ASSERT_MESS(false, "Not implemented");
+
     const auto &vformat = submesh.getVertexData().getFormat();
 
     if (!vformat.hasAttribute(VertexFormat::NORMAL_3) || !vformat.hasAttribute(VertexFormat::POSITION_3))
@@ -65,10 +68,8 @@ void MeshUtils::computeNormals(SubMesh &submesh)
     }
 
     // Indexed.
-    if (/*submesh.hasIndices()*/false)
+    if (submesh.hasIndices())
     {
-        DF3D_ASSERT_MESS(false, "please check it works");
-        /*
         const auto &indices = submesh.getIndices();
         for (size_t ind = 0; ind < indices.size(); ind += 3)
         {
@@ -126,134 +127,46 @@ void MeshUtils::computeNormals(SubMesh &submesh)
 
                 v.setNormal(n);
             }
-        }*/
+        }
     }
     else
     {
         DFLOG_WARN("Cannot compute normals for triangle list mesh type.");
     }
-}
 
-void MeshUtils::computeTangentBasis(SubMesh &submesh)
+}    */
+
+void MeshUtils::computeTangentBasis(Vertex_p3_n3_tx2_tan_bitan *vdata, size_t count)
 {
-    const auto &format = submesh.getVertexData().getFormat();
-    if (!format.hasAttribute(VertexFormat::TANGENT_3) ||
-        !format.hasAttribute(VertexFormat::BITANGENT_3) ||
-        !format.hasAttribute(VertexFormat::POSITION_3) ||
-        !format.hasAttribute(VertexFormat::TX_2) ||
-        !format.hasAttribute(VertexFormat::NORMAL_3))
-        return;
-
-    // Indexed.
-    if (/*submesh.hasIndices()*/false)
+    for (size_t i = 0; i < count; i += 3)
     {
-        //std::vector<glm::vec3> tempTangent(m_vertices.size());
-        //std::vector<glm::vec3> tempBinormal(m_vertices.size());
+        auto &v0 = vdata[i + 0];
+        auto &v1 = vdata[i + 1];
+        auto &v2 = vdata[i + 2];
 
-        //for (size_t i = 0; i < m_indices.size(); i += 3)
-        //{
-        //    size_t vindex0 = m_indices[i];
-        //    size_t vindex1 = m_indices[i + 1];
-        //    size_t vindex2 = m_indices[i + 2];
+        auto e1 = v1.pos - v0.pos;
+        auto e2 = v2.pos - v0.pos;
+        auto e1uv = v1.uv - v0.uv;
+        auto e2uv = v2.uv - v0.uv;
 
-        //    const render::Vertex &v0 = m_vertices[vindex0];
-        //    const render::Vertex &v1 = m_vertices[vindex1];
-        //    const render::Vertex &v2 = m_vertices[vindex2];
+        float r = 1.0f / (e1uv.x * e2uv.y - e1uv.y * e2uv.x);
+        glm::vec3 tangent = (e1 * e2uv.y - e2 * e1uv.y) * r;
+        glm::vec3 bitangent = (e2 * e1uv.x - e1 * e2uv.x) * r;
 
-        //    auto q1 = v1.p - v0.p;
-        //    auto q2 = v2.p - v0.p;
-
-        //    float s1 = v1.t.x - v0.t.x;
-        //    float s2 = v2.t.x - v0.t.x;
-        //    float t1 = v1.t.y - v0.t.y;
-        //    float t2 = v2.t.y - v0.t.y;
-
-        //    auto tangent = t2 * q1 - t1 * q2;
-        //    SafeNormalize(tangent);
-
-        //    auto bitangent = -s2 * q1 + s1 * q2;
-        //    SafeNormalize(bitangent);
-
-        //    for (size_t j = 0; j < 3; j++)
-        //    {
-        //        tempTangent.at(m_indices[j]) += tangent;
-        //        tempBinormal.at(m_indices[j]) += bitangent;
-        //    }
-        //}
-
-        //for (size_t i = 0; i < m_vertices.size(); i++)
-        //{
-        //    auto t = tempTangent[i];
-        //    render::Vertex &v = m_vertices[i];
-
-        //    t -= v.n * glm::dot(t, v.n);
-        //    SafeNormalize(t);
-
-        //    v.tangent = glm::vec3(t, 1.0f);
-
-        //    if (glm::dot(glm::cross(v.n, t), tempBinormal[i]) < 0.0f)
-        //        v.tangent.w = -1.0f;
-        //    else
-        //        v.tangent.w = 1.0f;
-        //}
-        DFLOG_WARN("Can not compute tangent space basis for indexed mesh.");
+        v0.tangent = v1.tangent = v2.tangent = tangent;
+        v0.bitangent = v1.bitangent = v2.bitangent = bitangent;
     }
-    else
+
+    for (size_t i = 0; i < count; i++)
     {
-        auto &vertexData = submesh.getVertexData();
+        auto &v = vdata[i];
 
-        for (size_t i = 0; i < vertexData.getVerticesCount(); i += 3)
-        {
-            auto v0 = vertexData.getVertex(i + 0);
-            auto v1 = vertexData.getVertex(i + 1);
-            auto v2 = vertexData.getVertex(i + 2);
+        // Gram-Schmidt orthogonalization.
+        v.tangent = v.tangent - v.normal * glm::dot(v.normal, v.tangent);
+        v.tangent = MathUtils::safeNormalize(v.tangent);
 
-            glm::vec3 v0p, v1p, v2p;
-            v0.getPosition(&v0p);
-            v1.getPosition(&v1p);
-            v2.getPosition(&v2p);
-
-            glm::vec2 v0t, v1t, v2t;
-            v0.getTx(&v0t);
-            v1.getTx(&v1t);
-            v2.getTx(&v2t);
-
-            auto e1 = v1p - v0p;
-            auto e2 = v2p - v0p;
-            auto e1uv = v1t - v0t;
-            auto e2uv = v2t - v0t;
-
-            float r = 1.0f / (e1uv.x * e2uv.y - e1uv.y * e2uv.x);
-            glm::vec3 tangent = (e1 * e2uv.y - e2 * e1uv.y) * r;
-            glm::vec3 bitangent = (e2 * e1uv.x - e1 * e2uv.x) * r;
-
-            v0.setTangent(tangent);
-            v1.setTangent(tangent);
-            v2.setTangent(tangent);
-
-            v0.setBitangent(bitangent);
-            v1.setBitangent(bitangent);
-            v2.setBitangent(bitangent);
-        }
-
-        for (size_t i = 0; i < vertexData.getVerticesCount(); i++)
-        {
-            auto v = vertexData.getVertex(i);
-
-            glm::vec3 tangent, bitangent, normal;
-            v.getTangent(&tangent);
-            v.getBitangent(&bitangent);
-            v.getNormal(&normal);
-
-            // Gram-Schmidt orthogonalization.
-            tangent = tangent - normal * glm::dot(normal, tangent);
-            tangent = MathUtils::safeNormalize(tangent);
-
-            if (glm::dot(glm::cross(normal, tangent), bitangent) < 0.0f)
-                tangent = tangent * -1.0f;
-
-            v.setTangent(tangent);
-        }
+        if (glm::dot(glm::cross(v.normal, v.tangent), v.bitangent) < 0.0f)
+            v.tangent = v.tangent * -1.0f;
     }
 }
 
