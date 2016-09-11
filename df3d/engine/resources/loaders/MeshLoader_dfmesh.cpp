@@ -5,17 +5,6 @@
 
 namespace df3d { namespace resource_loaders {
 
-static unique_ptr<SubMesh> CreateSubmesh(PodArray<uint8_t> &&vertexData)
-{
-    auto submesh = make_unique<SubMesh>(Vertex_p3_n3_tx2_tan_bitan::getFormat());
-    submesh->setVertexBufferUsageHint(GpuBufferUsageType::STATIC);
-    submesh->setIndexBufferUsageHint(GpuBufferUsageType::STATIC);
-
-    submesh->getVertexData() = VertexData(Vertex_p3_n3_tx2_tan_bitan::getFormat(), std::move(vertexData));
-
-    return submesh;
-}
-
 MeshLoader_dfmesh::MeshLoader_dfmesh()
 {
 
@@ -38,6 +27,8 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<DataSource
         return nullptr;
     }
 
+    DF3D_ASSERT(header.indexSize == sizeof(uint32_t));
+
     // TODO: vertex format is hardcoded.
 
     auto result = make_unique<MeshDataFSLoader::Mesh>();
@@ -50,14 +41,22 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_dfmesh::load(shared_ptr<DataSource
         DFMeshSubmeshHeader smHeader;
         DataSourceGetObjects(source.get(), &smHeader, 1);
 
-        PodArray<uint8_t> vertexData(MemoryManager::allocDefault());
-        vertexData.resize(smHeader.vertexDataSizeInBytes);
+        const size_t verticesCount = smHeader.vertexDataSizeInBytes / sizeof(Vertex_p_n_tx_tan_bitan);
+        const size_t indicesCount = smHeader.indexDataSizeInBytes / header.indexSize;
 
-        DataSourceGetObjects(source.get(), vertexData.data(), vertexData.size());
+        SubMesh submesh = Vertex_p_n_tx_tan_bitan::getFormat();
+        submesh.vbufferUsageType = GpuBufferUsageType::STATIC;
+        submesh.ibufferUsageType = GpuBufferUsageType::STATIC;
+
+        submesh.vertexData.addVertices(verticesCount);
+        DataSourceGetObjects(source.get(), (Vertex_p_n_tx_tan_bitan*)submesh.vertexData.getRawData(), verticesCount);
+
+        submesh.indices.resize(indicesCount);
+        DataSourceGetObjects(source.get(), submesh.indices.data(), indicesCount);
 
         std::string materialId = smHeader.materialId;
 
-        result->submeshes.push_back(std::move(*CreateSubmesh(std::move(vertexData))));
+        result->submeshes.push_back(std::move(submesh));
         if (!materialId.empty())
             result->materialNames.push_back(make_unique<std::string>(materialId));
         else

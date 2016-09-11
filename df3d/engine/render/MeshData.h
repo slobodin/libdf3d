@@ -17,35 +17,18 @@ class MeshDataFSLoader;
 class Material;
 
 //! Non GPU representation of a mesh surface.
-class DF3D_DLL SubMesh : NonCopyable
+struct DF3D_DLL SubMesh : NonCopyable
 {
-    shared_ptr<Material> m_material;
-    VertexData m_vertexData;
-    GpuBufferUsageType m_vbufferUsageType = GpuBufferUsageType::STATIC;
-    GpuBufferUsageType m_ibufferUsageType = GpuBufferUsageType::STATIC;
+    shared_ptr<Material> material;
+    VertexData vertexData;
+    PodArray<uint32_t> indices;
+    IndicesType indicesType;
+    GpuBufferUsageType vbufferUsageType = GpuBufferUsageType::STATIC;
+    GpuBufferUsageType ibufferUsageType = GpuBufferUsageType::STATIC;
 
-    size_t m_verticesCount = 0;
-
-public:
     SubMesh(const VertexFormat &format);
     SubMesh(SubMesh &&other);
     ~SubMesh();
-
-    void setMaterial(const Material &material);
-    void setMaterial(shared_ptr<Material> material);
-    void setVertexBufferUsageHint(GpuBufferUsageType usageType) { m_vbufferUsageType = usageType; }
-    void setIndexBufferUsageHint(GpuBufferUsageType usageType) { m_ibufferUsageType = usageType; }
-
-    //! Returns submesh material.
-    shared_ptr<Material> getMaterial() const { return m_material; }
-    //! Returns vertex buffer usage hint.
-    GpuBufferUsageType getVertexBufferUsageHint() const { return m_vbufferUsageType; }
-    //! Returns index buffer usage hint.
-    GpuBufferUsageType getIndexBufferUsageHint() const { return m_ibufferUsageType; }
-
-    // FIXME: Do not like these getters.
-    const VertexData& getVertexData() const { return m_vertexData; }
-    VertexData& getVertexData() { return m_vertexData; }
 };
 
 class DF3D_DLL MeshData : public Resource

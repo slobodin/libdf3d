@@ -2,7 +2,7 @@
 
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/io/DataSource.h>
-#include <df3d/lib/MeshUtils.h>
+#include <df3d/engine/render/MeshUtils.h>
 #include <df3d/lib/Utils.h>
 
 namespace df3d { namespace resource_loaders {
@@ -19,10 +19,10 @@ bool MeshLoader_obj::hasTxCoords() const
 
 unique_ptr<SubMesh> MeshLoader_obj::createSubmesh(const std::string &materialName)
 {
-    const auto &vertexFormat = Vertex_p3_n3_tx2_tan_bitan::getFormat();
+    const auto &vertexFormat = Vertex_p_n_tx_tan_bitan::getFormat();
     auto submesh = make_unique<SubMesh>(vertexFormat);
-    submesh->setVertexBufferUsageHint(GpuBufferUsageType::STATIC);
-    submesh->setIndexBufferUsageHint(GpuBufferUsageType::STATIC);
+    submesh->vbufferUsageType = GpuBufferUsageType::STATIC;
+    submesh->ibufferUsageType = GpuBufferUsageType::STATIC;
 
     DF3D_ASSERT(m_materialNameLookup.find(submesh.get()) == m_materialNameLookup.end());
 
@@ -113,10 +113,10 @@ void MeshLoader_obj::processLine_f(std::istream &is)
             DF3D_ASSERT(vertexidx >= 1 && uvidx >= 1 && normalidx >= 1);
         }
 
-        auto &vdata = m_currentSubmesh->getVertexData();
+        auto &vdata = m_currentSubmesh->vertexData;
         vdata.addVertex();
 
-        auto v = (Vertex_p3_n3_tx2_tan_bitan *)vdata.getVertex(vdata.getVerticesCount() - 1);
+        auto v = (Vertex_p_n_tx_tan_bitan *)vdata.getVertex(vdata.getVerticesCount() - 1);
 
         v->pos = m_vertices[vertexidx - 1];
         if (normalidx > 0)
@@ -127,6 +127,9 @@ void MeshLoader_obj::processLine_f(std::istream &is)
             v->uv = m_txCoords[uvidx - 1];
         else
             v->uv = { 0.0f, 0.0f };
+
+        v->tangent = {};
+        v->bitangent = {};
 
         if (!is.good())
         {
@@ -237,10 +240,26 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<DataSource> s
             //MeshUtils::computeNormals(*s.second);
         }
 
-        auto &vdata = s.second->getVertexData();
-        auto verticesCount = s.second->getVertexData().getVerticesCount();
+        auto vdata = (Vertex_p_n_tx_tan_bitan*)s.second->vertexData.getRawData();
+        auto verticesCount = s.second->vertexData.getVerticesCount();
+        const auto &vFormat = s.second->vertexData.getFormat();
 
-        MeshUtils::computeTangentBasis((Vertex_p3_n3_tx2_tan_bitan*)vdata.getRawData(), verticesCount);
+        MeshUtils::computeTangentBasis(vdata, verticesCount);
+
+#if 0
+        {
+            PodArray<Vertex_p_n_tx_tan_bitan> indexedVertices(MemoryManager::allocDefault());
+            PodArray<uint32_t> indices(MemoryManager::allocDefault());
+            MeshUtils::indexize(vdata, verticesCount, indexedVertices, indices);
+
+            VertexData newData(vFormat);
+            newData.addVertices(indexedVertices.size());
+            memcpy(newData.getRawData(), indexedVertices.data(), newData.getSizeInBytes());
+
+            s.second->vertexData = std::move(newData);
+            s.second->indices = std::move(indices);
+        }
+#endif
 
         auto mtlFound = m_materialNameLookup.find(s.second.get());
         unique_ptr<std::string> materialName;

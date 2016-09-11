@@ -11,17 +11,18 @@
 namespace df3d {
 
 SubMesh::SubMesh(const VertexFormat &format)
-    : m_vertexData(format)
+    : vertexData(format),
+    indices(MemoryManager::allocDefault())
 {
 
 }
 
 SubMesh::SubMesh(SubMesh &&other)
-    : m_material(std::move(other.m_material)),
-    m_vertexData(std::move(other.m_vertexData)),
-    m_vbufferUsageType(other.m_vbufferUsageType),
-    m_ibufferUsageType(other.m_ibufferUsageType),
-    m_verticesCount(other.m_verticesCount)
+    : material(std::move(other.material)),
+    vertexData(std::move(other.vertexData)),
+    indices(std::move(other.indices)),
+    vbufferUsageType(other.vbufferUsageType),
+    ibufferUsageType(other.ibufferUsageType)
 {
 
 }
@@ -29,16 +30,6 @@ SubMesh::SubMesh(SubMesh &&other)
 SubMesh::~SubMesh()
 {
 
-}
-
-void SubMesh::setMaterial(const Material &material)
-{
-    m_material = make_shared<Material>(material);
-}
-
-void SubMesh::setMaterial(shared_ptr<Material> material)
-{
-    m_material = material;
 }
 
 void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
@@ -51,7 +42,7 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
     {
         RenderOperation op;
 
-        if (auto mtl = s.getMaterial())
+        if (auto mtl = s.material)
         {
             m_submeshMaterials.push_back(make_unique<Material>(*mtl));
         }
@@ -61,12 +52,21 @@ void MeshData::doInitMesh(const std::vector<SubMesh> &geometry)
             m_submeshMaterials.push_back(make_unique<Material>(getFilePath()));
         }
 
-        const auto &vertexData = s.getVertexData();
+        const auto &vertexData = s.vertexData;
 
-        op.vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(vertexData, s.getVertexBufferUsageHint());
+        op.vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(vertexData, s.vbufferUsageType);
 
-        op.numberOfElements = vertexData.getVerticesCount();
-        m_trianglesCount += s.getVertexData().getVerticesCount() / 3;
+        if (s.indices.size() > 0)
+        {
+            op.indexBuffer = svc().renderManager().getBackend().createIndexBuffer(s.indices.size(), s.indices.data(), s.ibufferUsageType, INDICES_32_BIT);
+            op.numberOfElements = s.indices.size();
+            m_trianglesCount += s.indices.size() / 3;
+        }
+        else
+        {
+            op.numberOfElements = vertexData.getVerticesCount();
+            m_trianglesCount += s.vertexData.getVerticesCount() / 3;
+        }
 
         m_submeshes.push_back(op);
     }

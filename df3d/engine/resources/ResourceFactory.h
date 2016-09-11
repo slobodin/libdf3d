@@ -7,9 +7,9 @@ class AudioBuffer;
 class GpuProgram;
 class MeshData;
 class MaterialLib;
-class SubMesh;
 class Texture;
 struct TextureInfo;
+struct SubMesh;
 
 extern const char * const SIMPLE_LIGHTING_PROGRAM_EMBED_PATH;
 extern const char * const COLORED_PROGRAM_EMBED_PATH;

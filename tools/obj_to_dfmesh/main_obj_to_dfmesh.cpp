@@ -11,6 +11,8 @@
 
 static_assert(sizeof(typename std::string::value_type) == 1, "Invalid string size");
 
+static const int INDICES_SIZE = 4;
+
 template<typename T>
 void Serialize(const T &data, std::ofstream &fs)
 {
@@ -43,8 +45,8 @@ df3d::resource_loaders::DFMeshSubmeshHeader CreateSubmeshChunk(const df3d::SubMe
     if (!materialId.empty())
         memcpy(submeshChunk.materialId, materialId.c_str(), materialId.size());
 
-    submeshChunk.vertexDataSizeInBytes = sm.getVertexData().getSizeInBytes();
-    submeshChunk.indexDataSizeInBytes = 0;//sm.getIndices().size() * sizeof(df3d::INDICES_TYPE);
+    submeshChunk.vertexDataSizeInBytes = sm.vertexData.getSizeInBytes();
+    submeshChunk.indexDataSizeInBytes = sm.indices.size() * INDICES_SIZE;
 
     submeshChunk.chunkSize = sizeof(DFMeshSubmeshHeader) + submeshChunk.vertexDataSizeInBytes + submeshChunk.indexDataSizeInBytes;
 
@@ -88,7 +90,7 @@ void ProcessMesh(const df3d::MeshDataFSLoader::Mesh &meshInput, const std::strin
     header.version = DFMESH_VERSION;
 
     header.vertexFormat = 0;                                    // TODO
-    header.indexSize = 0;//sizeof(df3d::INDICES_TYPE);
+    header.indexSize = INDICES_SIZE;
     header.submeshesCount = (uint16_t)meshInput.submeshes.size();
     header.submeshesOffset = sizeof(header);
 
@@ -101,8 +103,8 @@ void ProcessMesh(const df3d::MeshDataFSLoader::Mesh &meshInput, const std::strin
     for (size_t i = 0; i < meshInput.submeshes.size(); i++)
     {
         Serialize(submeshHeaders[i], output);
-        Serialize(meshInput.submeshes[i].getVertexData().getRawData(), submeshHeaders[i].vertexDataSizeInBytes, output);
-        //Serialize(meshInput.submeshes[i].getIndices().data(), submeshHeaders[i].indexDataSizeInBytes, output);
+        Serialize(meshInput.submeshes[i].vertexData.getRawData(), submeshHeaders[i].vertexDataSizeInBytes, output);
+        Serialize(meshInput.submeshes[i].indices.data(), submeshHeaders[i].indexDataSizeInBytes, output);
     }
 
     if (output.fail() || output.bad())
