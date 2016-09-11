@@ -6,46 +6,63 @@
 
 namespace df3d {
 
-void MeshUtils::indexize(Vertex_p3_n3_tx2_tan_bitan *vdata, size_t count,
-                         PodArray<Vertex_p3_n3_tx2_tan_bitan> &outVertices, PodArray<uint8_t> &outIndices,
-                         IndicesType &outIndicesType)
+static bool IsNear(float v1, float v2)
 {
-    // TODO:
-    DF3D_ASSERT_MESS(false, "not implemented");
+    return std::abs(v1 - v2) < 0.0001f;
+}
 
-    //std::map<render::Vertex, render::INDICES_TYPE> alreadyIndexed;
-    //render::IndexArray indexBuffer;
-    //render::VertexArray newVertexBuffer;
-    //const auto &vertices = vb->getVertices();
+static bool FindSimilarVertexIndex(const Vertex_p_n_tx_tan_bitan &vertex, 
+                                   PodArray<Vertex_p_n_tx_tan_bitan> &vertices,
+                                   uint32_t &result)
+{
+    // Lame linear search
+    for (size_t i = 0; i < vertices.size(); i++)
+    {
+        if (IsNear(vertex.pos.x, vertices[i].pos.x) &&
+            IsNear(vertex.pos.y, vertices[i].pos.y) &&
+            IsNear(vertex.pos.z, vertices[i].pos.z) &&
+            IsNear(vertex.uv.x, vertices[i].uv.x) &&
+            IsNear(vertex.uv.y, vertices[i].uv.y) &&
+            IsNear(vertex.normal.x, vertices[i].normal.x) &&
+            IsNear(vertex.normal.y, vertices[i].normal.y) &&
+            IsNear(vertex.normal.z, vertices[i].normal.z))
+        {
+            result = i;
+            return true;
+        }
+    }
 
-    //for (auto &v : vertices)
-    //{
-    //    auto found = alreadyIndexed.find(v);
-    //    if (found != alreadyIndexed.end())
-    //    {
-    //        indexBuffer.push_back(found->second);
-    //        newVertexBuffer.at(found->second).tangent += v.tangent;
-    //        newVertexBuffer.at(found->second).bitangent += v.bitangent;
-    //    }
-    //    else
-    //    {
-    //        newVertexBuffer.push_back(v);
-    //        render::INDICES_TYPE newIdx = newVertexBuffer.size() - 1;
-    //        indexBuffer.push_back(newIdx);
+    return false;
+}
 
-    //        alreadyIndexed[v] = newIdx;
-    //    }
-    //}
+void MeshUtils::indexize(Vertex_p_n_tx_tan_bitan *vdata, size_t count,
+                         PodArray<Vertex_p_n_tx_tan_bitan> &outVertices, PodArray<uint32_t> &outIndices)
+{
+    for (size_t i = 0; i < count; i++)
+    {
+        uint32_t index;
+        bool found = FindSimilarVertexIndex(vdata[i], outVertices, index);
 
-    //auto ib = make_shared<render::IndexBuffer>();
+        if (found)
+        {
+            outIndices.push_back(index);
 
-    //ib->appendIndices(indexBuffer);
-    //vb->getVertices().swap(newVertexBuffer);
+            // Average the tangents and the bitangents
+            outVertices[index].tangent += vdata[i].tangent;
+            outVertices[index].bitangent += vdata[i].bitangent;
+        }
+        else
+        {
+            outVertices.push_back(vdata[i]);
+            outIndices.push_back((uint16_t)outVertices.size() - 1);
+        }
+    }
 
-    //ib->setDirty();
-    //vb->setDirty();
-
-    //return ib;
+    for (auto &v : outVertices)
+    {
+        v.tangent = MathUtils::safeNormalize(v.tangent);
+        v.bitangent = MathUtils::safeNormalize(v.bitangent);
+    }
 }
 
 /*
@@ -138,7 +155,7 @@ void MeshUtils::computeNormals(SubMesh &submesh)
 
 }    */
 
-void MeshUtils::computeTangentBasis(Vertex_p3_n3_tx2_tan_bitan *vdata, size_t count)
+void MeshUtils::computeTangentBasis(Vertex_p_n_tx_tan_bitan *vdata, size_t count)
 {
     for (size_t i = 0; i < count; i += 3)
     {
