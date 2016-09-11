@@ -427,7 +427,7 @@ void RenderBackendGL::bindVertexBuffer(VertexBufferHandle vbHandle)
     const auto &format = vertexBuffer.format;
     const auto vertexSize = format.getVertexSize();
 
-    for (uint16_t i = VertexFormat::POSITION_3; i != VertexFormat::COUNT; i++)
+    for (uint16_t i = VertexFormat::POSITION; i != VertexFormat::COUNT; i++)
     {
         auto attrib = (VertexFormat::VertexAttribute)i;
 
@@ -784,12 +784,12 @@ GpuProgramHandle RenderBackendGL::createGpuProgram(ShaderHandle vertexShaderHand
     GL_CHECK(glAttachShader(program.glID, fragmentShaderGL.glID));
 
     // TODO: use VAO + refactor this.
-    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::POSITION_3, "a_vertex3"));
-    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::NORMAL_3, "a_normal"));
-    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::TX_2, "a_txCoord"));
-    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::COLOR_4, "a_vertexColor"));
-    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::TANGENT_3, "a_tangent"));
-    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::BITANGENT_3, "a_bitangent"));
+    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::POSITION, "a_vertex3"));
+    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::NORMAL, "a_normal"));
+    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::TX, "a_txCoord"));
+    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::COLOR, "a_vertexColor"));
+    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::TANGENT, "a_tangent"));
+    GL_CHECK(glBindAttribLocation(program.glID, VertexFormat::BITANGENT, "a_bitangent"));
 
     GL_CHECK(glLinkProgram(program.glID));
 

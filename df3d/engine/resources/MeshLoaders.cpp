@@ -22,15 +22,7 @@ MeshDataManualLoader::MeshDataManualLoader(std::vector<SubMesh> &&geometry)
 
 MeshData* MeshDataManualLoader::load()
 {
-    for (auto &s : m_geometry)
-    {
-        auto &vdata = s.getVertexData();
-        if (vdata.getFormat() != Vertex_p3_n3_tx2_tan_bitan::getFormat())
-            continue;
-
-        auto verticesCount = s.getVertexData().getVerticesCount();
-        MeshUtils::computeTangentBasis((Vertex_p3_n3_tx2_tan_bitan*)vdata.getRawData(), verticesCount);
-    }
+    // TODO: compute tangent basis, etc?
 
     auto result = new MeshData(m_geometry);
     result->m_aabb.constructFromGeometry(m_geometry);
@@ -100,7 +92,7 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
             auto &submesh = m_mesh->submeshes[i];
 
             if (m_mesh->materialNames[i])
-                submesh.setMaterial(mtlLib->getMaterial(*m_mesh->materialNames[i]));
+                submesh.material = mtlLib->getMaterial(*m_mesh->materialNames[i]);
         }
     }
 

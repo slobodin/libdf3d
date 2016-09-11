@@ -188,17 +188,35 @@ struct PhysicsComponentProcessor::Impl
             for (size_t smIdx = 0; smIdx < softwareMesh->submeshes.size(); smIdx++)
             {
                 auto &submesh = softwareMesh->submeshes[smIdx];
-                auto &vdata = submesh.getVertexData();
+                auto &vdata = submesh.vertexData;
 
                 bulletMesh->preallocateVertices(vdata.getVerticesCount());
 
-                for (size_t i = 0; i < vdata.getVerticesCount(); i += 3)
+                if (submesh.indices.size() > 0)
                 {
-                    auto v1 = (glm::vec3*)vdata.getVertexAttribute(i + 0, VertexFormat::POSITION_3);
-                    auto v2 = (glm::vec3*)vdata.getVertexAttribute(i + 1, VertexFormat::POSITION_3);
-                    auto v3 = (glm::vec3*)vdata.getVertexAttribute(i + 2, VertexFormat::POSITION_3);
+                    for (size_t i = 0; i < submesh.indices.size(); i += 3)
+                    {
+                        auto i1 = submesh.indices[i + 0];
+                        auto i2 = submesh.indices[i + 1];
+                        auto i3 = submesh.indices[i + 2];
 
-                    bulletMesh->addTriangle(PhysicsHelpers::glmTobt(*v1), PhysicsHelpers::glmTobt(*v2), PhysicsHelpers::glmTobt(*v3));
+                        auto v1 = (glm::vec3*)vdata.getVertexAttribute(i1, VertexFormat::POSITION);
+                        auto v2 = (glm::vec3*)vdata.getVertexAttribute(i2, VertexFormat::POSITION);
+                        auto v3 = (glm::vec3*)vdata.getVertexAttribute(i3, VertexFormat::POSITION);
+
+                        bulletMesh->addTriangle(PhysicsHelpers::glmTobt(*v1), PhysicsHelpers::glmTobt(*v2), PhysicsHelpers::glmTobt(*v3));
+                    }
+                }
+                else
+                {
+                    for (size_t i = 0; i < vdata.getVerticesCount(); i += 3)
+                    {
+                        auto v1 = (glm::vec3*)vdata.getVertexAttribute(i + 0, VertexFormat::POSITION);
+                        auto v2 = (glm::vec3*)vdata.getVertexAttribute(i + 1, VertexFormat::POSITION);
+                        auto v3 = (glm::vec3*)vdata.getVertexAttribute(i + 2, VertexFormat::POSITION);
+
+                        bulletMesh->addTriangle(PhysicsHelpers::glmTobt(*v1), PhysicsHelpers::glmTobt(*v2), PhysicsHelpers::glmTobt(*v3));
+                    }
                 }
             }
 

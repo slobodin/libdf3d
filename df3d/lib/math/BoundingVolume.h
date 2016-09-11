@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-class SubMesh;
+struct SubMesh;
 
 class DF3D_DLL BoundingVolume
 {
