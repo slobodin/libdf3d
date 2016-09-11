@@ -23,7 +23,7 @@ static VertexBufferHandle CreateQuad(float x, float y, float w, float h, GpuBuff
     const float h2 = h / 2.0f;
     const glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    Vertex_p3_tx2_c4 quadData[6] = {
+    Vertex_p_tx_c quadData[6] = {
         { { x - w2, y - h2, 0.0f }, { 0.0, 0.0 }, color },
         { { x + w2, y - h2, 0.0f }, { 1.0, 0.0 }, color },
         { { x + w2, y + h2, 0.0f }, { 1.0, 1.0 }, color },
@@ -32,7 +32,7 @@ static VertexBufferHandle CreateQuad(float x, float y, float w, float h, GpuBuff
         { { x - w2, y - h2, 0.0f }, { 0.0, 0.0 }, color },
     };
 
-    return svc().renderManager().getBackend().createVertexBuffer(Vertex_p3_tx2_c4::getFormat(), 6, quadData, usage);
+    return svc().renderManager().getBackend().createVertexBuffer(Vertex_p_tx_c::getFormat(), 6, quadData, usage);
 }
 
 struct Sprite2DComponentProcessor::Impl

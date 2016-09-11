@@ -151,7 +151,7 @@ class TBRendererImpl : public tb::TBRenderer
     {
         static const uint16_t VERTEX_BATCH_SIZE = 1 * 2048;       // NOTE: using 16-bit indices.
 
-        Vertex_p3_tx2_c4 vertexData[VERTEX_BATCH_SIZE];
+        Vertex_p_tx_c vertexData[VERTEX_BATCH_SIZE];
 
         uint16_t vertex_count = 0;
         int quadsCount = 0;
@@ -186,7 +186,7 @@ class TBRendererImpl : public tb::TBRenderer
             }
 
             auto &backend = svc().renderManager().getBackend();
-            auto vb = backend.createVertexBuffer(Vertex_p3_tx2_c4::getFormat(), vertex_count, vertexData, GpuBufferUsageType::STREAM);
+            auto vb = backend.createVertexBuffer(Vertex_p_tx_c::getFormat(), vertex_count, vertexData, GpuBufferUsageType::STREAM);
 
             batch_renderer->RenderBatch(this, vb);
 
@@ -200,12 +200,12 @@ class TBRendererImpl : public tb::TBRenderer
             is_flushing = false;
         }
 
-        Vertex_p3_tx2_c4* ReserveQuad(TBRendererImpl *batch_renderer)
+        Vertex_p_tx_c* ReserveQuad(TBRendererImpl *batch_renderer)
         {
             if (vertex_count + 4 > VERTEX_BATCH_SIZE)
                 Flush(batch_renderer);
 
-            Vertex_p3_tx2_c4 *ret = &vertexData[vertex_count];
+            Vertex_p_tx_c *ret = &vertexData[vertex_count];
             vertex_count += 4;
             quadsCount++;
 

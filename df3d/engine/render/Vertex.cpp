@@ -9,17 +9,17 @@ static uint16_t GetAttributeSize(VertexFormat::VertexAttribute attrib)
 {
     switch (attrib)
     {
-    case VertexFormat::POSITION_3:
+    case VertexFormat::POSITION:
         return 3 * sizeof(float);
-    case VertexFormat::TX_2:
+    case VertexFormat::TX:
         return 2 * sizeof(float);
-    case VertexFormat::COLOR_4:
+    case VertexFormat::COLOR:
         return 4 * sizeof(float);
-    case VertexFormat::NORMAL_3:
+    case VertexFormat::NORMAL:
         return 3 * sizeof(float);
-    case VertexFormat::TANGENT_3:
+    case VertexFormat::TANGENT:
         return 3 * sizeof(float);
-    case VertexFormat::BITANGENT_3:
+    case VertexFormat::BITANGENT:
         return 3 * sizeof(float);
     default:
         break;
@@ -33,14 +33,14 @@ static uint16_t GetAttributeCompCount(VertexFormat::VertexAttribute attrib)
 {
     switch (attrib)
     {
-    case VertexFormat::TX_2:
+    case VertexFormat::TX:
         return 2;
-    case VertexFormat::POSITION_3:
-    case VertexFormat::NORMAL_3:
-    case VertexFormat::TANGENT_3:
-    case VertexFormat::BITANGENT_3:
+    case VertexFormat::POSITION:
+    case VertexFormat::NORMAL:
+    case VertexFormat::TANGENT:
+    case VertexFormat::BITANGENT:
         return 3;
-    case VertexFormat::COLOR_4:
+    case VertexFormat::COLOR:
         return 4;
     default:
         DF3D_ASSERT(false);
@@ -80,13 +80,6 @@ VertexData::VertexData(const VertexFormat &format)
 
 }
 
-VertexData::VertexData(const VertexFormat &format, PodArray<uint8_t> &&data)
-    : m_data(std::move(data)),
-    m_format(format)
-{
-
-}
-
 void VertexData::addVertices(size_t verticesCount)
 {
     DF3D_ASSERT(verticesCount > 0);
@@ -119,22 +112,22 @@ size_t VertexData::getVerticesCount() const
     return m_data.size() / m_format.getVertexSize();
 }
 
-const VertexFormat& Vertex_p3_c4::getFormat()
+const VertexFormat& Vertex_p_c::getFormat()
 {
-    static VertexFormat format = { VertexFormat::POSITION_3, VertexFormat::COLOR_4 };
+    static VertexFormat format = { VertexFormat::POSITION, VertexFormat::COLOR };
     return format;
 }
 
-const VertexFormat& Vertex_p3_tx2_c4::getFormat()
+const VertexFormat& Vertex_p_tx_c::getFormat()
 {
-    static VertexFormat format = { VertexFormat::POSITION_3, VertexFormat::TX_2, VertexFormat::COLOR_4 };
+    static VertexFormat format = { VertexFormat::POSITION, VertexFormat::TX, VertexFormat::COLOR };
     return format;
 }
 
-const VertexFormat& Vertex_p3_n3_tx2_tan_bitan::getFormat()
+const VertexFormat& Vertex_p_n_tx_tan_bitan::getFormat()
 {
-    static VertexFormat format = { VertexFormat::POSITION_3, VertexFormat::NORMAL_3,
-        VertexFormat::TX_2, VertexFormat::TANGENT_3, VertexFormat::BITANGENT_3 };
+    static VertexFormat format = { VertexFormat::POSITION, VertexFormat::NORMAL,
+        VertexFormat::TX, VertexFormat::TANGENT, VertexFormat::BITANGENT };
     return format;
 }
 

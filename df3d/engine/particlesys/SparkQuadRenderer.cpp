@@ -59,7 +59,7 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
     DF3D_ASSERT_MESS(verticesCount < 0xFFFF, "Using 16-bit indices for particle system");
 
     // Allocate main memory storage copy (no glMapBuffer on ES2.0)
-    m_vertexData = (Vertex_p3_tx2_c4*)MemoryManager::allocDefault()->alloc(sizeof(Vertex_p3_tx2_c4) * verticesCount);
+    m_vertexData = (Vertex_p_tx_c*)MemoryManager::allocDefault()->alloc(sizeof(Vertex_p_tx_c) * verticesCount);
 
     positionAtStart();
 
@@ -95,7 +95,7 @@ void ParticleSystemBuffers_Quad::draw(size_t nbOfParticles, RenderPass *passProp
     DF3D_ASSERT(nbOfParticles <= m_particlesAllocated);
 
     // Stream draw is more efficient than updating existent vertex buffer on mobile GPU.
-    auto vb = svc().renderManager().getBackend().createVertexBuffer(Vertex_p3_tx2_c4::getFormat(),
+    auto vb = svc().renderManager().getBackend().createVertexBuffer(Vertex_p_tx_c::getFormat(),
                                                                     nbOfParticles * QUAD_VERTICES_PER_PARTICLE,
                                                                     m_vertexData,
                                                                     GpuBufferUsageType::STREAM);

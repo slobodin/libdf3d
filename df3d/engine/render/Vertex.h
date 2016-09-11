@@ -12,12 +12,12 @@ public:
     {
         // FIXME: figure out why if its starting not from 0 gives black screen on mac os.
         // stackoverflow.com/questions/11497870
-        POSITION_3,
-        TX_2,
-        COLOR_4,
-        NORMAL_3,
-        TANGENT_3,
-        BITANGENT_3,
+        POSITION,       // glm::vec3
+        TX,             // glm::vec2
+        COLOR,          // glm::vec4
+        NORMAL,         // glm::vec3
+        TANGENT,        // glm::vec3
+        BITANGENT,      // glm::vec3
 
         COUNT
     };
@@ -69,7 +69,6 @@ class DF3D_DLL VertexData
 
 public:
     VertexData(const VertexFormat &format);
-    VertexData(const VertexFormat &format, PodArray<uint8_t> &&data);
 
     void addVertices(size_t verticesCount);
     void addVertex();
@@ -83,15 +82,15 @@ public:
     size_t getSizeInBytes() const { return m_data.size(); }
 };
 
-struct DF3D_DLL Vertex_p3_c4
+struct DF3D_DLL Vertex_p_c
 {
     glm::vec3 pos;
-    glm::vec3 color;
+    glm::vec4 color;
 
     static const VertexFormat& getFormat();
 };
 
-struct DF3D_DLL Vertex_p3_tx2_c4
+struct DF3D_DLL Vertex_p_tx_c
 {
     glm::vec3 pos;
     glm::vec2 uv;
@@ -100,7 +99,7 @@ struct DF3D_DLL Vertex_p3_tx2_c4
     static const VertexFormat& getFormat();
 };
 
-struct DF3D_DLL Vertex_p3_n3_tx2_tan_bitan
+struct DF3D_DLL Vertex_p_n_tx_tan_bitan
 {
     glm::vec3 pos;
     glm::vec3 normal;

@@ -20,7 +20,7 @@ class ParticleSystemBuffers_Quad
     IndexBufferHandle m_indexBuffer;
 
     // CPU side storage, TODO: use glMapBuffer
-    Vertex_p3_tx2_c4 *m_vertexData = nullptr;
+    Vertex_p_tx_c *m_vertexData = nullptr;
 
     size_t m_currentVertexIndex = 0;
     size_t m_currentColorIndex = 0;
