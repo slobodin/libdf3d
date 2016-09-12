@@ -8,8 +8,8 @@ namespace df3d {
 class DF3D_DLL AppDelegate
 {
 public:
-    AppDelegate() { }
-    virtual ~AppDelegate() { }
+    AppDelegate();
+    virtual ~AppDelegate() = default;
 
     virtual EngineInitParams getInitParams() const = 0;
 
@@ -24,6 +24,8 @@ public:
 
     virtual void onRenderDestroyed() = 0;
     virtual void onRenderRecreated() = 0;
+
+    static AppDelegate* getInstance();
 };
 
 class DF3D_DLL Application final
@@ -33,5 +35,3 @@ public:
 };
 
 }
-
-df3d::AppDelegate* df3d_GetAppDelegate();

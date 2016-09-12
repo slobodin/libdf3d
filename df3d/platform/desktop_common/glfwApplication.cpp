@@ -34,10 +34,10 @@ public:
     DesktopAppState() = default;
     ~DesktopAppState() = default;
 
-    bool init(AppDelegate *appDelegate)
+    bool init()
     {
-        DF3D_ASSERT(appDelegate != nullptr);
-        m_appDelegate = appDelegate;
+        m_appDelegate = AppDelegate::getInstance();
+        DF3D_ASSERT(m_appDelegate != nullptr);
 
         // Create window and OpenGL context.
         if (!glfwInit())
@@ -270,7 +270,7 @@ void glfwAppRun()
 {
     MemoryManager::init();
 
-    if (g_application.init(df3d_GetAppDelegate()))
+    if (g_application.init())
         g_application.run();
 
     g_application.shutdown();

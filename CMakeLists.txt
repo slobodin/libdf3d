@@ -297,7 +297,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/Frustum.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/MathUtils.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/OBB.cpp
-
+    ${PROJECT_SOURCE_DIR}/df3d/platform/AppDelegate.cpp
 )
 
 if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
