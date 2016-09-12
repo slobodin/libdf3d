@@ -3,6 +3,7 @@
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/io/DataSource.h>
 #include <df3d/engine/render/MeshUtils.h>
+#include <df3d/engine/EngineCVars.h>
 #include <df3d/lib/Utils.h>
 
 namespace df3d { namespace resource_loaders {
@@ -240,26 +241,32 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<DataSource> s
             //MeshUtils::computeNormals(*s.second);
         }
 
-        auto vdata = (Vertex_p_n_tx_tan_bitan*)s.second->vertexData.getRawData();
-        auto verticesCount = s.second->vertexData.getVerticesCount();
-        const auto &vFormat = s.second->vertexData.getFormat();
+        auto &submesh = *s.second;
 
-        MeshUtils::computeTangentBasis(vdata, verticesCount);
-
-#if 0
+        if (EngineCVars::objIndexize)
         {
+            const auto vData = (Vertex_p_n_tx_tan_bitan*)submesh.vertexData.getRawData();
+            const auto vCount = submesh.vertexData.getVerticesCount();
             PodArray<Vertex_p_n_tx_tan_bitan> indexedVertices(MemoryManager::allocDefault());
             PodArray<uint32_t> indices(MemoryManager::allocDefault());
-            MeshUtils::indexize(vdata, verticesCount, indexedVertices, indices);
 
-            VertexData newData(vFormat);
+            MeshUtils::indexize(vData, vCount, indexedVertices, indices);
+
+            MeshUtils::computeTangentBasis(indexedVertices.data(), indexedVertices.size(), indices.data(), indices.size());
+
+            VertexData newData(submesh.vertexData.getFormat());
             newData.addVertices(indexedVertices.size());
             memcpy(newData.getRawData(), indexedVertices.data(), newData.getSizeInBytes());
 
-            s.second->vertexData = std::move(newData);
-            s.second->indices = std::move(indices);
+            submesh.vertexData = std::move(newData);
+            submesh.indices = std::move(indices);
         }
-#endif
+        else
+        {
+            auto vData = (Vertex_p_n_tx_tan_bitan*)submesh.vertexData.getRawData();
+            auto vCount = submesh.vertexData.getVerticesCount();
+            MeshUtils::computeTangentBasis(vData, vCount);
+        }
 
         auto mtlFound = m_materialNameLookup.find(s.second.get());
         unique_ptr<std::string> materialName;

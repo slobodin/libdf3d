@@ -121,6 +121,7 @@ int main(int argc, const char **argv) try
         throw std::runtime_error("Invalid input. Usage: obj_to_dfmesh.exe mesh.obj");
 
     df3d::MemoryManager::init();
+    df3d::EngineCVars::objIndexize = true;
 
     df3d::FileSystem fs;
     fs.setFileDevice(make_unique<df3d::DefaultFileDevice>());

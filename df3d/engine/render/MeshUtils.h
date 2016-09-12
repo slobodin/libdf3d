@@ -13,6 +13,8 @@ public:
                          PodArray<Vertex_p_n_tx_tan_bitan> &outVertices, PodArray<uint32_t> &outIndices);
 
     static void computeTangentBasis(Vertex_p_n_tx_tan_bitan *vdata, size_t count);
+    static void computeTangentBasis(Vertex_p_n_tx_tan_bitan *vdata, size_t verticesCount,
+                                    const uint32_t *indices, size_t indicesCount);
 };
 
 }
