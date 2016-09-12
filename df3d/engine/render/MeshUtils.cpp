@@ -11,6 +11,14 @@ static bool IsNear(float v1, float v2)
     return std::abs(v1 - v2) < glm::epsilon<float>();
 }
 
+struct CompareVertices
+{
+    bool operator()(const Vertex_p_n_tx_tan_bitan &a, const Vertex_p_n_tx_tan_bitan &b) const
+    {
+        return memcmp(&a, &b, sizeof(Vertex_p_n_tx_tan_bitan)) > 0;
+    }
+};
+
 static void OrthogonalizeAndFixHandedness(Vertex_p_n_tx_tan_bitan *vdata, size_t verticesCount)
 {
     for (size_t i = 0; i < verticesCount; i++)
@@ -57,44 +65,38 @@ static void CalcTangentSpaceTriangle(Vertex_p_n_tx_tan_bitan &v0, Vertex_p_n_tx_
 }
 
 static bool FindSimilarVertexIndex(const Vertex_p_n_tx_tan_bitan &vertex, 
-                                   const PodArray<Vertex_p_n_tx_tan_bitan> &vertices,
+                                   const std::map<Vertex_p_n_tx_tan_bitan, uint32_t, CompareVertices> &lookup,
                                    uint32_t &result)
 {
-    // Lame linear search
-    for (size_t i = 0; i < vertices.size(); i++)
+    auto found = lookup.find(vertex);
+    if (found != lookup.end())
     {
-        if (IsNear(vertex.pos.x, vertices[i].pos.x) &&
-            IsNear(vertex.pos.y, vertices[i].pos.y) &&
-            IsNear(vertex.pos.z, vertices[i].pos.z) &&
-            IsNear(vertex.uv.x, vertices[i].uv.x) &&
-            IsNear(vertex.uv.y, vertices[i].uv.y) &&
-            IsNear(vertex.normal.x, vertices[i].normal.x) &&
-            IsNear(vertex.normal.y, vertices[i].normal.y) &&
-            IsNear(vertex.normal.z, vertices[i].normal.z))
-        {
-            result = i;
-            return false;
-        }
+        result = found->second;
+        return true;
     }
-
     return false;
 }
 
 void MeshUtils::indexize(const Vertex_p_n_tx_tan_bitan *vdata, size_t count,
                          PodArray<Vertex_p_n_tx_tan_bitan> &outVertices, PodArray<uint32_t> &outIndices)
 {
+    std::map<Vertex_p_n_tx_tan_bitan, uint32_t, CompareVertices> lookup;
+
     for (size_t i = 0; i < count; i++)
     {
         uint32_t index;
 
-        if (FindSimilarVertexIndex(vdata[i], outVertices, index))
+        if (FindSimilarVertexIndex(vdata[i], lookup, index))
         {
             outIndices.push_back(index);
         }
         else
         {
             outVertices.push_back(vdata[i]);
-            outIndices.push_back((uint32_t)outVertices.size() - 1);
+
+            auto newIdx = (uint32_t)outVertices.size() - 1;
+            outIndices.push_back(newIdx);
+            lookup[vdata[i]] = newIdx;
         }
     }
 }

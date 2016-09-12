@@ -252,6 +252,12 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<DataSource> s
 
             MeshUtils::indexize(vData, vCount, indexedVertices, indices);
 
+            /*
+            DFLOG_DEBUG("Indexed verts %d, before: %d. Indices %d", indexedVertices.size(), vCount, indices.size());
+            DFLOG_DEBUG("Size before %d KB, size after %d KB", utils::sizeKB(sizeof(Vertex_p_n_tx_tan_bitan) * vCount),
+                        utils::sizeKB(sizeof(Vertex_p_n_tx_tan_bitan) * indexedVertices.size() + indices.size() * sizeof(uint32_t)));
+                        */
+
             MeshUtils::computeTangentBasis(indexedVertices.data(), indexedVertices.size(), indices.data(), indices.size());
 
             VertexData newData(submesh.vertexData.getFormat());
