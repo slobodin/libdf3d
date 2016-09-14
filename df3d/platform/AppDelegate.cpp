@@ -4,10 +4,10 @@ namespace df3d {
 
 static AppDelegate *g_appDelegate = nullptr;
 
-AppDelegate::AppDelegate()
+void AppDelegate::setInstance(AppDelegate *app)
 {
     assert(g_appDelegate == nullptr);
-    g_appDelegate = this;
+    g_appDelegate = app;
 }
 
 AppDelegate* AppDelegate::getInstance()

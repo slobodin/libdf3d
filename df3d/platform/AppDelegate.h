@@ -8,7 +8,7 @@ namespace df3d {
 class DF3D_DLL AppDelegate
 {
 public:
-    AppDelegate();
+    AppDelegate() = default;
     virtual ~AppDelegate() = default;
 
     virtual EngineInitParams getInitParams() const = 0;
@@ -25,6 +25,8 @@ public:
     virtual void onRenderDestroyed() = 0;
     virtual void onRenderRecreated() = 0;
 
+    // Should be called by client code at entry point.
+    static void setInstance(AppDelegate *app);
     static AppDelegate* getInstance();
 };
 
