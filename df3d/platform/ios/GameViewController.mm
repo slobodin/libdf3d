@@ -117,13 +117,15 @@ extern bool EngineInit(EngineInitParams params);
     if (UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation))
         std::swap(screenWidth, screenHeight);
 
-    auto engineInitParams = df3d_GetAppDelegate()->getInitParams();
+    assert(df3d::AppDelegate::getInstance() != nullptr);
+
+    auto engineInitParams = df3d::AppDelegate::getInstance()->getInitParams();
     engineInitParams.windowWidth = screenWidth;
     engineInitParams.windowHeight = screenHeight;
 
     df3d::EngineInit(engineInitParams);
 
-    if (!df3d_GetAppDelegate()->onAppStarted())
+    if (!df3d::AppDelegate::getInstance()->onAppStarted())
         DFLOG_CRITICAL("Game code initialization failed");
 }
 
