@@ -152,6 +152,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/os/PlatformUtils.h
     ${PROJECT_SOURCE_DIR}/df3d/platform/AppDelegate.h
     ${PROJECT_SOURCE_DIR}/df3d/platform/LocalNotification.h
+    ${PROJECT_SOURCE_DIR}/df3d/platform/InAppPurchase.h
 )
 
 set(libdf3d_SRC_LIST
@@ -301,6 +302,7 @@ if (IOS)
         ${PROJECT_SOURCE_DIR}/df3d/platform/ios/AppDelegate.mm
         ${PROJECT_SOURCE_DIR}/df3d/platform/ios/GameViewController.mm
         ${PROJECT_SOURCE_DIR}/df3d/platform/ios/LocalNotification.mm
+        ${PROJECT_SOURCE_DIR}/df3d/platform/InAppPurchase.mm
     )
 
     set_source_files_properties("${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/RenderBackendGL.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
