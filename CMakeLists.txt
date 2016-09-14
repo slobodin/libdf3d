@@ -25,63 +25,9 @@ if (IOS AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_ios" CACHE PATH "third-party")
 endif()
 
-if (DF3D_DESKTOP)
-    add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/glfw)
-endif()
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/bullet)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/ogg)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/vorbis)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/squirrel)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/zlib)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/webp)
-
-SET(TB_BUILD_DEMO OFF CACHE BOOL "" FORCE)
-SET(TB_GENERATE_CONFIG ON CACHE BOOL "" FORCE)
-SET(TB_FONT_RENDERER_TBBF ON CACHE BOOL "" FORCE)
-SET(TB_FONT_RENDERER_FREETYPE ON CACHE BOOL "" FORCE)
-SET(TB_FONT_RENDERER_STB OFF CACHE BOOL "" FORCE)
-SET(TB_IMAGE_LOADER_STB OFF CACHE BOOL "" FORCE)
-SET(TB_RENDERER_BATCHER OFF CACHE BOOL "" FORCE)
-SET(TB_RENDERER_GL OFF CACHE BOOL "" FORCE)
-SET(TB_RENDERER_GLES_1 OFF CACHE BOOL "" FORCE)
-SET(TB_UNIT_TESTING OFF CACHE BOOL "" FORCE)
-SET(TB_IMAGE ON CACHE BOOL "" FORCE)
-include_directories(${PROJECT_SOURCE_DIR}/third-party/turbobadger/src/tb)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/turbobadger)
-
-OPTION(ALSOFT_DLOPEN OFF)
-OPTION(ALSOFT_WERROR OFF)
-OPTION(ALSOFT_UTILS OFF)
-OPTION(ALSOFT_NO_CONFIG_UTIL OFF)
-OPTION(ALSOFT_EXAMPLES OFF)
-OPTION(ALSOFT_TESTS OFF)
-OPTION(ALSOFT_CONFIG OFF)
-OPTION(ALSOFT_HRTF_DEFS OFF)
-OPTION(ALSOFT_INSTALL OFF)
-OPTION(ALSOFT_AMBDEC_PRESETS OFF)
-
-if (NOT IOS AND NOT MACOSX)
-    add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/openal-soft)
-    if(NOT WIN32)
-        SET(DF3D_OPENAL_LIBNAME openal)
-    else()
-        SET(DF3D_OPENAL_LIBNAME OpenAL32)
-    endif()
-else()
-    find_package(OpenAL REQUIRED)
-    SET(DF3D_OPENAL_LIBNAME ${OPENAL_LIBRARY})
-endif()
-
 # if (NOT ANDROID AND NOT IOS)
     option(DF3D_BUILD_SHARED_LIB "Build shared df3d library" OFF)
 # endif()
-
-# TODO: if build tools
-if (DF3D_DESKTOP)
-    add_subdirectory(${PROJECT_SOURCE_DIR}/tools/obj_to_dfmesh)
-    add_subdirectory(${PROJECT_SOURCE_DIR}/tools/glsl_preprocess)
-endif()
 
 set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/Common.h
@@ -384,6 +330,11 @@ if (DF3D_DESKTOP)
     include_directories(${PROJECT_SOURCE_DIR}/third-party/glfw/include)
 endif()
 
+if(IOS OR MACOSX)
+    find_package(OpenAL REQUIRED)
+    SET(DF3D_OPENAL_LIBNAME ${OPENAL_LIBRARY})
+endif()
+
 include_directories(${PROJECT_SOURCE_DIR}/
                     ${PROJECT_SOURCE_DIR}/third-party/
                     ${PROJECT_SOURCE_DIR}/third-party/bullet/src
@@ -391,7 +342,8 @@ include_directories(${PROJECT_SOURCE_DIR}/
                     ${PROJECT_SOURCE_DIR}/third-party/squirrel/include
                     ${CMAKE_CURRENT_BINARY_DIR}/third-party/zlib
                     ${PROJECT_SOURCE_DIR}/third-party/zlib
-                    ${PROJECT_SOURCE_DIR}/third-party/webp)
+                    ${PROJECT_SOURCE_DIR}/third-party/webp
+                    ${PROJECT_SOURCE_DIR}/third-party/turbobadger/src/tb)
 
 if (NOT IOS AND NOT MACOSX)
     include_directories(${PROJECT_SOURCE_DIR}/third-party/openal-soft/include)
@@ -416,6 +368,61 @@ add_library(libdf3d ${DF3D_LIBRARY_TYPE}
     ${libdf3d_SRC_LIST}
     ${third_party_SRC_FILES}
 )
+
+set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "$(PROJECT_SOURCE_DIR)/df3d/df3d_pch.h")
+set_target_properties(libdf3d PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+cotire(libdf3d)
+
+if (DF3D_DESKTOP)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/glfw)
+endif()
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/bullet)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/ogg)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/vorbis)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/squirrel)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/zlib)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/webp)
+
+SET(TB_BUILD_DEMO OFF CACHE BOOL "" FORCE)
+SET(TB_GENERATE_CONFIG ON CACHE BOOL "" FORCE)
+SET(TB_FONT_RENDERER_TBBF ON CACHE BOOL "" FORCE)
+SET(TB_FONT_RENDERER_FREETYPE ON CACHE BOOL "" FORCE)
+SET(TB_FONT_RENDERER_STB OFF CACHE BOOL "" FORCE)
+SET(TB_IMAGE_LOADER_STB OFF CACHE BOOL "" FORCE)
+SET(TB_RENDERER_BATCHER OFF CACHE BOOL "" FORCE)
+SET(TB_RENDERER_GL OFF CACHE BOOL "" FORCE)
+SET(TB_RENDERER_GLES_1 OFF CACHE BOOL "" FORCE)
+SET(TB_UNIT_TESTING OFF CACHE BOOL "" FORCE)
+SET(TB_IMAGE ON CACHE BOOL "" FORCE)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/turbobadger)
+
+OPTION(ALSOFT_DLOPEN OFF)
+OPTION(ALSOFT_WERROR OFF)
+OPTION(ALSOFT_UTILS OFF)
+OPTION(ALSOFT_NO_CONFIG_UTIL OFF)
+OPTION(ALSOFT_EXAMPLES OFF)
+OPTION(ALSOFT_TESTS OFF)
+OPTION(ALSOFT_CONFIG OFF)
+OPTION(ALSOFT_HRTF_DEFS OFF)
+OPTION(ALSOFT_INSTALL OFF)
+OPTION(ALSOFT_AMBDEC_PRESETS OFF)
+
+if (NOT IOS AND NOT MACOSX)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/openal-soft)
+    if(NOT WIN32)
+        SET(DF3D_OPENAL_LIBNAME openal)
+    else()
+        SET(DF3D_OPENAL_LIBNAME OpenAL32)
+    endif()
+endif()
+
+
+# TODO: if build tools
+if (DF3D_DESKTOP)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/tools/obj_to_dfmesh)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/tools/glsl_preprocess)
+endif()
 
 target_link_libraries(libdf3d
     LinearMath
@@ -443,6 +450,3 @@ endif()
 if (ANDROID)
     target_link_libraries(libdf3d OpenSLES ${DF3D_OPENAL_LIBNAME} GLESv2 log android)
 endif()
-
-set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "$(PROJECT_SOURCE_DIR)/df3d/df3d_pch.h")
-cotire(libdf3d)
