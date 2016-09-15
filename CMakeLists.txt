@@ -16,15 +16,6 @@ if (WINDOWS AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_win32" CACHE PATH "third-party")
 endif()
 
-# FIXME: choose abi
-if (ANDROID AND NOT CMAKE_PREFIX_PATH)
-    set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_android/armeabi-v7a" CACHE PATH "third-party")
-endif()
-
-if (IOS AND NOT CMAKE_PREFIX_PATH)
-    set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_ios" CACHE PATH "third-party")
-endif()
-
 # if (NOT ANDROID AND NOT IOS)
     option(DF3D_BUILD_SHARED_LIB "Build shared df3d library" OFF)
 # endif()
@@ -385,6 +376,10 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/squirrel)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/zlib)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/webp)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/freetype-2.6.5)
+
+SET(FREETYPE_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/third-party/freetype-2.6.5/include")
+SET(FREETYPE_LIBRARY freetype)
 
 SET(TB_BUILD_DEMO OFF CACHE BOOL "" FORCE)
 SET(TB_GENERATE_CONFIG ON CACHE BOOL "" FORCE)
