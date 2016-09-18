@@ -13,8 +13,11 @@ public:
     InAppPurchaseDelegate() = default;
     virtual ~InAppPurchaseDelegate() = default;
 
-    virtual void retrieveProductInfoFailed() { }
-    virtual void receivedProductInfo(const std::vector<StoreProduct> &products) { }
+    virtual void productRequestFailed(const std::string &err) { }
+
+    virtual void productInfoReceived(const std::vector<StoreProduct> &products) { }
+    virtual void productPurchased(const std::string &productId) { }
+    virtual void productPurchaseCancelled() { }
 };
 
 class DF3D_DLL InAppPurchase : NonCopyable
@@ -29,6 +32,7 @@ public:
     void setDelegate(InAppPurchaseDelegate *delegate);
 
     void retrieveProductInfo(const std::vector<std::string> &products);
+    void purchase(const std::string &productId);
 };
 
 }

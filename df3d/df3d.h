@@ -28,7 +28,7 @@
 
 #include <df3d/platform/AppDelegate.h>
 #include <df3d/platform/LocalNotification.h>
-// #include <df3d/platform/InAppPurchase.h>
+#include <df3d/platform/InAppPurchase.h>
 
 #include <df3d/engine/2d/Sprite2DComponentProcessor.h>
 
