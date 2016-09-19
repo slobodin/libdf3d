@@ -5,6 +5,7 @@ namespace df3d {
 struct DF3D_DLL StoreProduct
 {
     std::string identifier;
+    std::string localizedPrice;
 };
 
 struct StoreRetrieveProductsResult

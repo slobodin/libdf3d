@@ -55,15 +55,23 @@
         result.success = true;
         [self->products removeAllObjects];
 
+        NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+        [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
+        [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+
         for (SKProduct *product in response.products)
         {
             df3d::StoreProduct p;
 
             p.identifier = std::string([product.productIdentifier UTF8String]);
+            [numberFormatter setLocale:product.priceLocale];
+            p.localizedPrice = [[numberFormatter stringFromNumber:product.price] UTF8String];
 
             result.products.push_back(p);
             [self->products setObject:product forKey:product.productIdentifier];
         }
+
+        [numberFormatter release];
 
         self->completitionHandler(result);
     }
