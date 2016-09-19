@@ -253,6 +253,7 @@ if (WINDOWS)
     )
     list(APPEND libdf3d_SRC_LIST
         ${PROJECT_SOURCE_DIR}/df3d/platform/windows/CrashHandler.cpp
+        ${PROJECT_SOURCE_DIR}/df3d/platform/windows/InAppPurchase.cpp
     )
 endif()
 
