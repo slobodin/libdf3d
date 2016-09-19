@@ -2,49 +2,57 @@
 #import <df3d/platform/InAppPurchase.h>
 #import <StoreKit/StoreKit.h>
 
-@interface StoreDelegate : NSObject<SKProductsRequestDelegate, SKPaymentTransactionObserver>
+@interface ProductRequestDelegate : NSObject<SKProductsRequestDelegate>
 {
-    @public
-    df3d::InAppPurchaseDelegate *clientDelegate;
+@public
     NSMutableDictionary *products;
+    std::function<void(const df3d::StoreRetrieveProductsResult &)> completitionHandler;
 }
 @end
 
-@implementation StoreDelegate
+@interface PurchasesDelegate : NSObject<SKPaymentTransactionObserver>
+{
+@public
+    std::function<void(const df3d::StorePurchaseResult &)> completitionHandler;
+}
+@end
+
+@implementation ProductRequestDelegate
 
 -(id)init
 {
     if (self = [super init])
     {
-        clientDelegate = nullptr;
         products = [[NSMutableDictionary alloc] init];
-        [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
     }
     return self;
 }
 
 -(void)dealloc
 {
-    [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
     [products release];
     [super dealloc];
 }
 
 -(void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
 {
+    df3d::StoreRetrieveProductsResult result;
+
     if ([response.products count] == 0)
     {
+        DFLOG_WARN("Got 0 valid iTunes Store products");
+
         for (NSString *invalidIdentifier in response.invalidProductIdentifiers)
         {
             DFLOG_WARN("Invalid store product identifier %s", [invalidIdentifier UTF8String]);
         }
 
-        if (clientDelegate)
-            clientDelegate->productRequestFailed("Got 0 valid products");
+        result.success = false;
+        self->completitionHandler(result);
     }
     else
     {
-        std::vector<df3d::StoreProduct> result;
+        result.success = true;
         [self->products removeAllObjects];
 
         for (SKProduct *product in response.products)
@@ -53,27 +61,61 @@
 
             p.identifier = std::string([product.productIdentifier UTF8String]);
 
-            result.push_back(p);
-
+            result.products.push_back(p);
             [self->products setObject:product forKey:product.productIdentifier];
         }
 
-        if (clientDelegate)
-            clientDelegate->productInfoReceived(result);
+        self->completitionHandler(result);
     }
 
+    self->completitionHandler = {};
     [request release];
+}
+
+-(void)request:(SKRequest *)request didFailWithError:(NSError *)error
+{
+    DFLOG_WARN("List store products request failed with an error: %s", [error.localizedDescription UTF8String]);
+
+    df3d::StoreRetrieveProductsResult result;
+    result.success = false;
+    self->completitionHandler(result);
+
+    self->completitionHandler = {};
+    [request release];
+}
+
+@end
+
+@implementation PurchasesDelegate
+
+-(id)init
+{
+    if (self = [super init])
+    {
+        [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
+    }
+    return self;
+}
+
+-(void)dealloc
+{
+    [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
+    [super dealloc];
 }
 
 -(void)productPurchased:(NSString *) productId
 {
-    if (clientDelegate)
+    df3d::StorePurchaseResult result;
+    if (productId)
     {
-        if (productId)
-            clientDelegate->productPurchased([productId UTF8String]);
-        else
-            clientDelegate->productRequestFailed("df3d: invalid product id");
+        result.success = true;
+        result.productId = [productId UTF8String];
     }
+    else
+        result.success = false;
+
+    self->completitionHandler(result);
+    self->completitionHandler = {};
 }
 
 -(void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray<SKPaymentTransaction *> *)transactions
@@ -87,22 +129,17 @@
                 [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
                 break;
             case SKPaymentTransactionStateFailed:
-                if (clientDelegate)
-                {
-                    if (transaction.error.code == SKErrorPaymentCancelled)
-                    {
-                        clientDelegate->productPurchaseCancelled();
-                    }
-                    else
-                    {
-                        NSString *errStr = [transaction.error localizedDescription];
-                        if (errStr)
-                            clientDelegate->productRequestFailed([errStr UTF8String]);
-                        else
-                            clientDelegate->productRequestFailed("df3d: unknown error");
-                    }
-                }
+            {
+                NSString *errStr = [transaction.error localizedDescription];
+                if (errStr)
+                    DFLOG_WARN("In-app purchase failed: %s", [errStr UTF8String]);
+
+                df3d::StorePurchaseResult result;
+                result.success = false;
+                self->completitionHandler(result);
+                self->completitionHandler = {};
                 [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+            }
                 break;
             case SKPaymentTransactionStateRestored:
                 [self productPurchased:transaction.payment.productIdentifier];
@@ -118,11 +155,13 @@
 
 -(void)request:(SKRequest *)request didFailWithError:(NSError *)error
 {
-    if (clientDelegate)
-    {
-        std::string err = [error.localizedDescription UTF8String];
-        clientDelegate->productRequestFailed(err);
-    }
+    DFLOG_WARN("Failed to perform in-app purchase %s", [error.localizedDescription UTF8String]);
+
+    df3d::StorePurchaseResult result;
+    result.success = false;
+
+    completitionHandler(result);
+    completitionHandler = {};
 
     [request release];
 }
@@ -133,16 +172,19 @@ namespace df3d {
 
 struct InAppPurchase::Impl
 {
-    StoreDelegate *storeDelegate;
+    ProductRequestDelegate *productRequestsDelegate;
+    PurchasesDelegate *purchasesDelegate;
 
     Impl()
     {
-        storeDelegate = [[StoreDelegate alloc] init];
+        productRequestsDelegate = [[ProductRequestDelegate alloc] init];
+        purchasesDelegate = [[PurchasesDelegate alloc] init];
     }
 
     ~Impl()
     {
-        [storeDelegate release];
+        [productRequestsDelegate release];
+        [purchasesDelegate release];
     }
 };
 
@@ -157,15 +199,11 @@ InAppPurchase::~InAppPurchase()
 
 }
 
-void InAppPurchase::setDelegate(InAppPurchaseDelegate *delegate)
-{
-    m_pImpl->storeDelegate->clientDelegate = delegate;
-}
 
-void InAppPurchase::retrieveProductInfo(const std::vector<std::string> &products)
+void InAppPurchase::retrieveProductInfo(const std::vector<std::string> &products,
+                                        std::function<void(const StoreRetrieveProductsResult &)> &&onComplete)
 {
-    if (products.empty())
-        return;
+    DF3D_ASSERT(!products.empty());
 
     NSMutableSet *productSet = [NSMutableSet set];
 
@@ -176,22 +214,28 @@ void InAppPurchase::retrieveProductInfo(const std::vector<std::string> &products
     }
 
     SKProductsRequest *request = [[SKProductsRequest alloc] initWithProductIdentifiers:productSet];
-    request.delegate = m_pImpl->storeDelegate;
+    request.delegate = m_pImpl->productRequestsDelegate;
+    m_pImpl->productRequestsDelegate->completitionHandler = std::move(onComplete);
     [request start];
 }
 
-void InAppPurchase::purchase(const std::string &productId)
+void InAppPurchase::purchase(const std::string &productId,
+                             std::function<void(const StorePurchaseResult &)> &&onComplete)
 {
-    SKProduct *p = [m_pImpl->storeDelegate->products objectForKey:[NSString stringWithUTF8String:productId.c_str()]];
+    SKProduct *p = [m_pImpl->productRequestsDelegate->products objectForKey:[NSString stringWithUTF8String:productId.c_str()]];
     if (p == nil)
     {
-        if (m_pImpl->storeDelegate->clientDelegate)
-            m_pImpl->storeDelegate->clientDelegate->productRequestFailed("No such product");
-
-        return;
+        df3d::StorePurchaseResult result;
+        result.success = false;
+        result.productId = productId;
+        onComplete(result);
     }
-    SKPayment *payment = [SKPayment paymentWithProduct:p];
-    [[SKPaymentQueue defaultQueue] addPayment:payment];
+    else
+    {
+        m_pImpl->purchasesDelegate->completitionHandler = std::move(onComplete);
+        SKPayment *payment = [SKPayment paymentWithProduct:p];
+        [[SKPaymentQueue defaultQueue] addPayment:payment];
+    }
 }
 
 }
