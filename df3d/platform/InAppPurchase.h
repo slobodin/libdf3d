@@ -7,17 +7,16 @@ struct DF3D_DLL StoreProduct
     std::string identifier;
 };
 
-class DF3D_DLL InAppPurchaseDelegate
+struct StoreRetrieveProductsResult
 {
-public:
-    InAppPurchaseDelegate() = default;
-    virtual ~InAppPurchaseDelegate() = default;
+    bool success;
+    std::vector<StoreProduct> products;
+};
 
-    virtual void productRequestFailed(const std::string &err) { }
-
-    virtual void productInfoReceived(const std::vector<StoreProduct> &products) { }
-    virtual void productPurchased(const std::string &productId) { }
-    virtual void productPurchaseCancelled() { }
+struct StorePurchaseResult
+{
+    bool success;
+    std::string productId;
 };
 
 class DF3D_DLL InAppPurchase : NonCopyable
@@ -29,10 +28,10 @@ public:
     InAppPurchase();
     ~InAppPurchase();
 
-    void setDelegate(InAppPurchaseDelegate *delegate);
-
-    void retrieveProductInfo(const std::vector<std::string> &products);
-    void purchase(const std::string &productId);
+    void retrieveProductInfo(const std::vector<std::string> &products,
+                             std::function<void(const StoreRetrieveProductsResult &)> &&onComplete);
+    void purchase(const std::string &productId,
+                  std::function<void(const StorePurchaseResult &)> &&onComplete);
 };
 
 }

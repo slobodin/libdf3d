@@ -4,7 +4,7 @@ namespace df3d {
 
 struct InAppPurchase::Impl
 {
-    InAppPurchaseDelegate *clientDelegate = nullptr;
+
 };
 
 InAppPurchase::InAppPurchase()
@@ -18,20 +18,30 @@ InAppPurchase::~InAppPurchase()
 
 }
 
-void InAppPurchase::setDelegate(InAppPurchaseDelegate *delegate)
+void InAppPurchase::retrieveProductInfo(const std::vector<std::string> &products,
+                                        std::function<void(const StoreRetrieveProductsResult &)> &&onComplete)
 {
-    m_pImpl->clientDelegate = delegate;
+    StoreRetrieveProductsResult result;
+    result.success = true;
+
+    for (const auto &productId : products)
+    {
+        StoreProduct p;
+        p.identifier = productId;
+        result.products.push_back(p);
+    }
+
+    onComplete(result);
 }
 
-void InAppPurchase::retrieveProductInfo(const std::vector<std::string> &products)
+void InAppPurchase::purchase(const std::string &productId,
+                             std::function<void(const StorePurchaseResult &)> &&onComplete)
 {
+    StorePurchaseResult result;
+    result.success = true;
+    result.productId = productId;
 
-}
-
-void InAppPurchase::purchase(const std::string &productId)
-{
-    if (m_pImpl->clientDelegate)
-        m_pImpl->clientDelegate->productPurchased(productId);
+    onComplete(result);
 }
 
 }
