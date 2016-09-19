@@ -36,6 +36,17 @@ void InputManager::cleanStep()
     m_mouseState.delta = glm::ivec2(0, 0);
 }
 
+void InputManager::setEnabled(bool enabled)
+{
+    m_enabled = enabled;
+    if (!m_enabled)
+    {
+        cleanStep();
+        m_prevMouseState = m_mouseState = {};
+        m_prevKeyboardState = m_keyboardState = {};
+    }
+}
+
 const glm::ivec2& InputManager::getMousePosition() const
 {
     return m_mouseState.position;
@@ -88,6 +99,8 @@ KeyModifier InputManager::getKeyModifiers() const
 
 void InputManager::onMouseButtonPressed(MouseButton button, int x, int y)
 {
+    if (!m_enabled)
+        return;
     setMousePosition(x, y);
 
     if (auto root = svc().guiManager().getRoot())
@@ -98,6 +111,8 @@ void InputManager::onMouseButtonPressed(MouseButton button, int x, int y)
 
 void InputManager::onMouseButtonReleased(MouseButton button, int x, int y)
 {
+    if (!m_enabled)
+        return;
     setMousePosition(x, y);
 
     if (auto root = svc().guiManager().getRoot())
@@ -120,6 +135,8 @@ void InputManager::setMousePosition(int x, int y)
 
 void InputManager::setMouseWheelDelta(float delta)
 {
+    if (!m_enabled)
+        return;
     if (auto root = svc().guiManager().getRoot())
         root->InvokeWheel(m_mouseState.position.x, m_mouseState.position.y, 0, delta, tb::TB_MODIFIER_NONE);
     m_mouseState.wheelDelta = delta;
@@ -127,6 +144,8 @@ void InputManager::setMouseWheelDelta(float delta)
 
 void InputManager::onKeyUp(const KeyCode &keyCode, KeyModifier modifiers)
 {
+    if (!m_enabled)
+        return;
     if (auto root = svc().guiManager().getRoot())
         root->InvokeKey(0, GetTBSpecialKey(keyCode), tb::TB_MODIFIER_NONE, false);
 
@@ -135,6 +154,8 @@ void InputManager::onKeyUp(const KeyCode &keyCode, KeyModifier modifiers)
 
 void InputManager::onKeyDown(const KeyCode &keyCode, KeyModifier modifiers)
 {
+    if (!m_enabled)
+        return;
     if (auto root = svc().guiManager().getRoot())
         root->InvokeKey(0, GetTBSpecialKey(keyCode), tb::TB_MODIFIER_NONE, true);
 
@@ -143,11 +164,14 @@ void InputManager::onKeyDown(const KeyCode &keyCode, KeyModifier modifiers)
 
 void InputManager::onTextInput(unsigned int codepoint)
 {
-
+    if (!m_enabled)
+        return;
 }
 
 void InputManager::onTouch(TouchID id, int x, int y, Touch::State state)
 {
+    if (!m_enabled)
+        return;
     if (m_listener)
     {
         Touch newTouch;

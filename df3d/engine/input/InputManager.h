@@ -64,6 +64,7 @@ class DF3D_DLL InputManager : NonCopyable
 
     std::unordered_map<TouchID, Touch> m_touches;
     TouchListener *m_listener = nullptr;
+    bool m_enabled = true;
 
     void cleanStep();
 
@@ -72,6 +73,7 @@ public:
     ~InputManager() = default;
 
     void setTouchesListener(TouchListener *listener) { m_listener = listener; }
+    void setEnabled(bool enabled);
 
     const glm::ivec2& getMousePosition() const;
     const glm::ivec2& getMouseDelta() const;
