@@ -33,6 +33,7 @@ public:
 
     void addLight(const Light &light) { m_lights.push_back(light); }
     const std::vector<Light>& getLights() const { return m_lights; }
+    std::vector<Light>& getLights() { return m_lights; }
     Light* getLightByName(const std::string &name);
 };
 
