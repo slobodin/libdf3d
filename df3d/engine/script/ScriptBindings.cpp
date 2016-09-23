@@ -328,21 +328,6 @@ void bindGame(Table &df3dNamespace)
 
         df3dNamespace.Bind(_SC("WorldRenderingParams"), wrParams);
     }
-
-    {
-        Class<Light, NoConstructor<Light>> lightClass(vm, _SC("Light"));
-        lightClass
-            .Func(_SC("getDiffuseColor"), &Light::getDiffuseColor)
-            .Func(_SC("getSpecularColor"), &Light::getSpecularColor)
-            .Func(_SC("getDirection"), &Light::getDirection)
-            .Func(_SC("getPosition"), &Light::getPosition)
-            .Func(_SC("getName"), &Light::getName)
-
-            // TODO: other getters.
-        ;
-
-        df3dNamespace.Bind(_SC("Light"), lightClass);
-    }
 }
 
 void bindDf3d(HSQUIRRELVM vm)

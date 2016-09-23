@@ -27,11 +27,62 @@ static void OrthogonalizeAndFixHandedness(Vertex_p_n_tx_tan_bitan *vdata, size_t
 
         // Gram-Schmidt orthogonalization.
         v.tangent = v.tangent - v.normal * glm::dot(v.normal, v.tangent);
-        v.tangent = MathUtils::safeNormalize(v.tangent);
 
-        // Fixe handedness (right-handed).
+        float magT = glm::length(v.tangent);
+        float magB = glm::length(v.bitangent);
+
+        v.tangent = MathUtils::safeNormalize(v.tangent);
+        v.bitangent = MathUtils::safeNormalize(v.bitangent);
+
+        // Reconstruct degenerate case, taken from here:
+        // https://gist.github.com/aras-p/2843984#file-importmeshutility-cpp
+
+        if (magT < glm::epsilon<float>() || magB < glm::epsilon<float>())
+        {
+            glm::vec3 axis1, axis2;
+            const glm::vec3 AxisX = { 1.0f, 0.0f, 0.0f };
+            const glm::vec3 AxisY = { 0.0f, 1.0f, 0.0f };
+            const glm::vec3 AxisZ = { 0.0f, 0.0f, 1.0f };
+
+            float dpXN = std::abs(glm::dot(AxisX, v.normal));
+            float dpYN = std::abs(glm::dot(AxisY, v.normal));
+            float dpZN = std::abs(glm::dot(AxisZ, v.normal));
+
+            if (dpXN <= dpYN && dpXN <= dpZN)
+            {
+                axis1 = AxisX;
+                if (dpYN <= dpZN)
+                    axis2 = AxisY;
+                else
+                    axis2 = AxisZ;
+            }
+            else if (dpYN <= dpXN && dpYN <= dpZN)
+            {
+                axis1 = AxisY;
+                if (dpXN <= dpZN)
+                    axis2 = AxisX;
+                else
+                    axis2 = AxisZ;
+            }
+            else
+            {
+                axis1 = AxisZ;
+                if (dpXN <= dpYN)
+                    axis2 = AxisX;
+                else
+                    axis2 = AxisY;
+            }
+
+            v.tangent = axis1 - glm::dot(v.normal, axis1) * v.normal;
+            v.bitangent = axis2 - glm::dot(v.normal, axis2) * v.normal - glm::dot(v.tangent, axis2) * MathUtils::safeNormalize(v.tangent);
+
+            v.tangent = MathUtils::safeNormalize(v.tangent);
+            v.bitangent = MathUtils::safeNormalize(v.bitangent);
+        }
+
+        // Fix handedness (right-handed).
         if (glm::dot(glm::cross(v.normal, v.tangent), v.bitangent) < 0.0f)
-            v.tangent = v.tangent * -1.0f;
+            v.tangent = -v.tangent;
     }
 }
 
@@ -131,9 +182,9 @@ void MeshUtils::computeTangentBasis(Vertex_p_n_tx_tan_bitan *vdata, size_t verti
         CalcTangentSpaceTriangle(v0, v1, v2);
     }
 
-    OrthogonalizeAndFixHandedness(vdata, verticesCount);
+    // TODO: smooth tangents.
 
-    // TODO: smooth.
+    OrthogonalizeAndFixHandedness(vdata, verticesCount);
 }
 
 }

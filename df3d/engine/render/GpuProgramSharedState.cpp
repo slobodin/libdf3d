@@ -136,11 +136,7 @@ void GpuProgramSharedState::setAmbientColor(const glm::vec3 &color)
 void GpuProgramSharedState::setLight(const Light &light)
 {
     // Update light params.
-    m_currentLight.diffuseParam = light.getDiffuseColor();
-    m_currentLight.specularParam = light.getSpecularColor();
-    m_currentLight.k0Param = light.getConstantAttenuation();
-    m_currentLight.k1Param = light.getLinearAttenuation();
-    m_currentLight.k2Param = light.getQuadraticAttenuation();
+    m_currentLight.color = glm::vec4(light.getColor(), 1.0f) * light.getIntensity();
 
     // Since we calculate lighting in the view space we should translate position and direction.
     if (light.getType() == Light::Type::DIRECTIONAL)
@@ -148,11 +144,9 @@ void GpuProgramSharedState::setLight(const Light &light)
         auto dir = light.getDirection();
         m_currentLight.positionParam = getViewMatrix() * glm::vec4(dir, 0.0f);
     }
-    else if (light.getType() == Light::Type::OMNI)
+    else
     {
         DF3D_ASSERT_MESS(false, "unsupported"); // TODO:
-        auto pos = light.getPosition();
-        m_currentLight.positionParam = getViewMatrix() * glm::vec4(pos, 1.0f);
     }
 }
 
@@ -244,25 +238,12 @@ void GpuProgramSharedState::updateSharedLightUniforms(const GpuProgram &program)
 
         switch (sharedUni.type)
         {
-        case SharedUniformType::SCENE_LIGHT_DIFFUSE_UNIFORM:
-            data = glm::value_ptr(m_currentLight.diffuseParam);
-            break;
-        case SharedUniformType::SCENE_LIGHT_SPECULAR_UNIFORM:
-            data = glm::value_ptr(m_currentLight.specularParam);
+        case SharedUniformType::SCENE_LIGHT_COLOR_UNIFORM:
+            data = glm::value_ptr(m_currentLight.color);
             break;
         case SharedUniformType::SCENE_LIGHT_POSITION_UNIFORM:
             data = glm::value_ptr(m_currentLight.positionParam);
             break;
-        case SharedUniformType::SCENE_LIGHT_KC_UNIFORM:
-            data = &m_currentLight.k0Param;
-            break;
-        case SharedUniformType::SCENE_LIGHT_KL_UNIFORM:
-            data = &m_currentLight.k1Param;
-            break;
-        case SharedUniformType::SCENE_LIGHT_KQ_UNIFORM:
-            data = &m_currentLight.k2Param;
-            break;
-        case SharedUniformType::COUNT:
         default:
             break;
         }

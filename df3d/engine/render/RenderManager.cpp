@@ -77,8 +77,6 @@ void RenderManager::doRenderWorld(World &world)
     {
         m_sharedState->setWorldMatrix(op.worldTransform);
 
-        m_ambientPassProps->getPassParam(m_ambientMtlParam)->setValue(op.passProps->getAmbientColor());
-
         bindPass(m_ambientPassProps.get());
 
         m_renderBackend->bindVertexBuffer(op.vertexBuffer);
@@ -291,7 +289,6 @@ void RenderManager::loadEmbedResources()
     }
 
     m_ambientPassProps = make_unique<RenderPass>();
-    m_ambientMtlParam = m_ambientPassProps->getPassParamHandle("material_ambient");
     m_ambientPassProps->setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
 }
 

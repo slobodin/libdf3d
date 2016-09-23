@@ -28,12 +28,8 @@ enum class SharedUniformType
 
     ELAPSED_TIME_UNIFORM,
 
-    SCENE_LIGHT_DIFFUSE_UNIFORM,
-    SCENE_LIGHT_SPECULAR_UNIFORM,
+    SCENE_LIGHT_COLOR_UNIFORM,
     SCENE_LIGHT_POSITION_UNIFORM,
-    SCENE_LIGHT_KC_UNIFORM,
-    SCENE_LIGHT_KL_UNIFORM,
-    SCENE_LIGHT_KQ_UNIFORM,
 
     COUNT
 };
@@ -49,7 +45,7 @@ class GpuProgram : public Resource
     friend class GpuProgramManualLoader;
 
     GpuProgramHandle m_handle;
-    std::vector<SharedUniform> m_sharedUniforms;
+    df3d::PodArray<SharedUniform> m_sharedUniforms;
 
     std::unordered_map<std::string, UniformHandle> m_customUniforms;
 
@@ -58,7 +54,7 @@ class GpuProgram : public Resource
 public:
     ~GpuProgram();
 
-    const std::vector<SharedUniform>& getSharedUniforms() const { return m_sharedUniforms; }
+    const df3d::PodArray<SharedUniform>& getSharedUniforms() const { return m_sharedUniforms; }
 
     // NOTE: this method is supposed to be used rarely
     UniformHandle getCustomUniform(const std::string &name);

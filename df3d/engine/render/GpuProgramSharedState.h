@@ -24,13 +24,9 @@ class GpuProgramSharedState
 
     struct GLSLLight
     {
-        glm::vec4 diffuseParam;
-        glm::vec4 specularParam;
         // NOTE: this vector is translated to the View Space. See OpenGLRenderer::setLight.
         glm::vec4 positionParam;
-        float k0Param = 1.0f;
-        float k1Param = 1.0f;
-        float k2Param = 1.0f;
+        glm::vec4 color;
     };
 
     GLSLLight m_currentLight;

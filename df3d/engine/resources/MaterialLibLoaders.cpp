@@ -171,12 +171,6 @@ static shared_ptr<RenderPass> ParsePassNode(const Json::Value &node)
     auto pass = make_shared<RenderPass>();
 
     // Get material params.
-    if (node.isMember("ambient"))
-    {
-        glm::vec4 color;
-        node["ambient"] >> color;
-        pass->setAmbientColor(color);
-    }
     if (node.isMember("diffuse"))
     {
         glm::vec4 color;

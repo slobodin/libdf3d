@@ -82,6 +82,9 @@ static void parseCamera(const Json::Value &cameraNode, World &w)
 
 static void parseLights(const Json::Value &lightsNode, World &w)
 {
+    if (lightsNode.isNull())
+        return;
+
     for (auto &lightJson : lightsNode)
     {
         Light light(Light::Type::DIRECTIONAL);
@@ -90,8 +93,8 @@ static void parseLights(const Json::Value &lightsNode, World &w)
         lightJson["id"] >> lightName;
 
         light.setDirection(JsonUtils::getOrDefault(lightJson["direction"], light.getDirection()));
-        light.setDiffuseIntensity(JsonUtils::getOrDefault(lightJson["diffuse"], glm::vec3(light.getDiffuseColor())));
-        light.setSpecularIntensity(JsonUtils::getOrDefault(lightJson["specular"], glm::vec3(light.getSpecularColor())));
+        light.setColor(JsonUtils::getOrDefault(lightJson["color"], light.getColor()));
+        light.setIntensity(JsonUtils::getOrDefault(lightJson["intensity"], light.getIntensity()));
         light.setName(lightName);
 
         w.getRenderingParams().addLight(light);

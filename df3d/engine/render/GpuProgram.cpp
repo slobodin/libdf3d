@@ -42,24 +42,17 @@ static SharedUniformType GetSharedTypeForUniform(const std::string &name)
         return SharedUniformType::PIXEL_SIZE_UNIFORM;
     else if (name == "u_elapsedTime")
         return SharedUniformType::ELAPSED_TIME_UNIFORM;
-    else if (name == "current_light.diffuse")
-        return SharedUniformType::SCENE_LIGHT_DIFFUSE_UNIFORM;
-    else if (name == "current_light.specular")
-        return SharedUniformType::SCENE_LIGHT_SPECULAR_UNIFORM;
+    else if (name == "current_light.color")
+        return SharedUniformType::SCENE_LIGHT_COLOR_UNIFORM;
     else if (name == "current_light.position")
         return SharedUniformType::SCENE_LIGHT_POSITION_UNIFORM;
-    else if (name == "current_light.constantAttenuation")
-        return SharedUniformType::SCENE_LIGHT_KC_UNIFORM;
-    else if (name == "current_light.linearAttenuation")
-        return SharedUniformType::SCENE_LIGHT_KL_UNIFORM;
-    else if (name == "current_light.quadraticAttenuation")
-        return SharedUniformType::SCENE_LIGHT_KQ_UNIFORM;
 
     return SharedUniformType::COUNT;
 }
 
 GpuProgram::GpuProgram(GpuProgramHandle handle)
-    : m_handle(handle)
+    : m_handle(handle),
+    m_sharedUniforms(df3d::MemoryManager::allocDefault())
 {
     DF3D_ASSERT_MESS(m_handle.isValid(), "invalid GPU program hanlde");
 

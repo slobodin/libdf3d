@@ -63,9 +63,6 @@ class DF3D_DLL RenderPass
     bool m_depthTest = true;
     bool m_depthWrite = true;
 
-    // FIXME: move df3d to pbr and remove this shit.
-    glm::vec4 m_ambientColor = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-
 public:
     RenderPass(const std::string &name = "");
     ~RenderPass();
@@ -93,9 +90,6 @@ public:
     const std::string& getName() const { return m_name; }
     FaceCullMode getFaceCullMode() const { return m_faceCullMode; }
     BlendingMode getBlendingMode() const { return m_blendMode; }
-
-    const glm::vec4& getAmbientColor() const { return m_ambientColor; }
-    void setAmbientColor(const glm::vec4 &color) { m_ambientColor = color; }
 };
 
 }

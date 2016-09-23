@@ -2,8 +2,7 @@
 \
 struct Light                                \n\
 {                                           \n\
-    vec4 diffuse;                           \n\
-    vec4 specular;                          \n\
+    vec4 color;                          \n\
     // NOTE: Position in view space.        \n\
     vec4 position;                          \n\
 };                                          \n\
@@ -38,14 +37,13 @@ vec4 illuminate()                                           \n\
 \
     // Compute diffuse component.                           \n\
     // FIXME: L is inverted because only dir lights.        \n\
-    // Clamping just for sanity check (can't be more than 1.0) \n\
-    float lambertDiffuse = clamp(dot(N, -L), 0.0, 1.0);     \n\
-    vec4 diffuse = material_diffuse * current_light.diffuse * lambertDiffuse;\n\
+    float lambertDiffuse = max(dot(N, -L), 0.0);     \n\
+    vec4 diffuse = material_diffuse * current_light.color * lambertDiffuse;\n\
 \
     // Compute specular light. NOTE: Phong model.           \n\
     vec3 r = reflect( L, N );                               \n\
     float phongSpecular = pow(clamp(dot(r, V), 0.0, 1.0), material_shininess); \n\
-    vec4 specular = material_specular * current_light.specular * phongSpecular; \n\
+    vec4 specular = material_specular * current_light.color * phongSpecular; \n\
 \
     return diffuse + specular;                             \n\
 }                                                           \n\

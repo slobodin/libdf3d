@@ -28,7 +28,6 @@ class DF3D_DLL RenderManager : NonCopyable
 
     // Forward rendering stuff.
     unique_ptr<RenderPass> m_ambientPassProps;
-    PassParamHandle m_ambientMtlParam;
     bool m_blendModeOverriden = false;
     bool m_depthTestOverriden = false;
     bool m_depthWriteOverriden = false;
