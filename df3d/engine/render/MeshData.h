@@ -44,7 +44,6 @@ class DF3D_DLL MeshData : public Resource
     // Bounding volumes in model space.
     AABB m_aabb;
     BoundingSphere m_sphere;
-    OBB m_obb;
     ConvexHull m_convexHull;
 
     void doInitMesh(const std::vector<SubMesh> &geometry);
@@ -67,7 +66,6 @@ public:
 
     const AABB* getAABB() const;
     const BoundingSphere* getBoundingSphere() const;
-    const OBB* getOBB() const;
     const ConvexHull* getConvexHull() const;
 
     void populateRenderQueue(RenderQueue *ops, const glm::mat4 &transformation);

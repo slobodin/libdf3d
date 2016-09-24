@@ -26,7 +26,6 @@ MeshData* MeshDataManualLoader::load()
 
     auto result = new MeshData(m_geometry);
     result->m_aabb.constructFromGeometry(m_geometry);
-    result->m_obb.constructFromGeometry(m_geometry);
     result->m_sphere.constructFromGeometry(m_geometry);
 
     return result;
@@ -74,7 +73,6 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
     DF3D_ASSERT(m_mesh);
 
     meshdata->m_aabb = m_mesh->aabb;
-    meshdata->m_obb = m_mesh->obb;
     meshdata->m_sphere = m_mesh->sphere;
     meshdata->m_convexHull = m_mesh->convexHull;
 

@@ -162,14 +162,6 @@ const BoundingSphere* MeshData::getBoundingSphere() const
     return &m_sphere;
 }
 
-const OBB* MeshData::getOBB() const
-{
-    if (!isInitialized())
-        return nullptr;
-
-    return &m_obb;
-}
-
 const ConvexHull* MeshData::getConvexHull() const
 {
     if (!isInitialized())
