@@ -11,9 +11,9 @@ namespace df3d {
 // Distribution should be consistent across all platforms.
 class DF3D_DLL RandomUtils
 {
+public:
     static std::mt19937 gen;
 
-public:
     static void srand();
     static void srand(std::mt19937::result_type seed);
 
