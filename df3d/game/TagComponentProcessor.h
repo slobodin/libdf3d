@@ -23,7 +23,6 @@ public:
     Entity getFirst(int tag);
     bool hasTag(Entity e, int tag) const;
 
-    // NOTE: can have only 1 tag for now.
     void add(Entity e, int tag);
     void remove(Entity e) override;
     bool has(Entity e) override;

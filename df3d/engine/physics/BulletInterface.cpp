@@ -7,6 +7,7 @@
 #include <df3d/engine/render/RenderQueue.h>
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/ResourceFactory.h>
+#include "PhysicsHelpers.h"
 
 namespace df3d { namespace physics_impl {
 
@@ -26,8 +27,10 @@ static unique_ptr<RenderPass> CreateDebugDrawPass()
 }
 
 BulletDebugDraw::BulletDebugDraw()
+    : m_pass(CreateDebugDrawPass()),
+    m_vertexData(Vertex_p_tx_c::getFormat())
 {
-
+    m_vertexData.addVertices(MAX_VERTICES);
 }
 
 BulletDebugDraw::~BulletDebugDraw()
@@ -37,7 +40,20 @@ BulletDebugDraw::~BulletDebugDraw()
 
 void BulletDebugDraw::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)
 {
+    if (m_currentVertex >= MAX_VERTICES)
+    {
+        DFLOG_WARN("Bullet debug draw: vertices limit");
+        return;
+    }
 
+    // FIXME: map directly to GPU.
+    auto v1 = (Vertex_p_tx_c*)m_vertexData.getVertex(m_currentVertex++);
+    v1->color = { color.x(), color.y(), color.z(), 1.0f };
+    v1->pos = PhysicsHelpers::btToGlm(from);
+
+    auto v2 = (Vertex_p_tx_c*)m_vertexData.getVertex(m_currentVertex++);
+    v2->color = { color.x(), color.y(), color.z(), 1.0f };
+    v2->pos = PhysicsHelpers::btToGlm(to);
 }
 
 void BulletDebugDraw::drawContactPoint(const btVector3 &PointOnB, const btVector3 &normalOnB, btScalar distance, int lifeTime, const btVector3 &color)
@@ -67,12 +83,31 @@ int BulletDebugDraw::getDebugMode() const
 
 void BulletDebugDraw::clean()
 {
-
+    if (m_vertexBuffer.isValid())
+    {
+        svc().renderManager().getBackend().destroyVertexBuffer(m_vertexBuffer);
+        m_vertexBuffer = {};
+    }
+    m_currentVertex = 0;
 }
 
 void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
 {
+    if (m_currentVertex == 0)
+        return;
 
+    DF3D_ASSERT_MESS(!m_vertexBuffer.isValid(), "bullet debug draw: invalid vertex buffer");
+
+    m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(
+        m_vertexData.getFormat(), m_currentVertex, m_vertexData.getRawData(), GpuBufferUsageType::STREAM);
+
+    RenderOperation op;
+    op.passProps = m_pass.get();
+    op.vertexBuffer = m_vertexBuffer;
+    op.numberOfElements = m_currentVertex;
+    op.topology = Topology::LINES;
+
+    ops->debugDrawOperations.push_back(op);
 }
 
 } }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <df3d/lib/Handles.h>
+#include <df3d/game/Entity.h>
 #include <LinearMath/btVector3.h>
 #include <LinearMath/btQuaternion.h>
 #include <BulletCollision/CollisionDispatch/btCollisionObject.h>

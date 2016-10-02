@@ -93,8 +93,10 @@ struct PhysicsComponentProcessor::Impl
 
         dynamicsWorld->setGravity(btVector3(0, 0, 0));
 
+#ifdef _DEBUG
         debugDraw = new physics_impl::BulletDebugDraw();
         dynamicsWorld->setDebugDrawer(debugDraw);
+#endif
     }
 
     ~Impl()
@@ -305,6 +307,7 @@ void PhysicsComponentProcessor::update()
 
 void PhysicsComponentProcessor::draw(RenderQueue *ops)
 {
+#ifdef _DEBUG
     if (!EngineCVars::bulletDebugDraw)
         return;
 
@@ -314,6 +317,7 @@ void PhysicsComponentProcessor::draw(RenderQueue *ops)
     m_pimpl->dynamicsWorld->debugDrawWorld();
     // Append to render queue.
     m_pimpl->debugDraw->flushRenderOperations(ops);
+#endif
 }
 
 PhysicsComponentProcessor::PhysicsComponentProcessor(World *w)
