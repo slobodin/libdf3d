@@ -33,6 +33,8 @@ PhysicsComponentCreationParams::PhysicsComponentCreationParams(const Json::Value
         shape = CollisionShapeType::CONVEX_HULL;
     else if (shapeStr == "static_triangle_mesh")
         shape = CollisionShapeType::STATIC_TRIANGLE_MESH;
+    else if (shapeStr == "convex_decomposition")
+        shape = CollisionShapeType::CONVEX_DECOMPOSITION;
     else
         DFLOG_WARN("Unsupported rigid body shape %s", shapeStr.c_str());
 

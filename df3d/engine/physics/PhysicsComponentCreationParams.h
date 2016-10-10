@@ -8,6 +8,7 @@ enum class CollisionShapeType
     SPHERE,                         // btSphereShape
     CONVEX_HULL,                    // btConvexHullShape
     STATIC_TRIANGLE_MESH,           // btBvhTriangleMeshShape
+    CONVEX_DECOMPOSITION,
 
     UNDEFINED
 };
