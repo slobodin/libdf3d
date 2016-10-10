@@ -2,7 +2,9 @@
 
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
+#include <ConvexDecomposition/ConvexDecomposition.h>
 #include "BulletInterface.h"
+#include "btGImpactConvexDecompositionShape.h"
 #include "PhysicsComponentCreationParams.h"
 #include "PhysicsHelpers.h"
 #include <df3d/lib/math/AABB.h>
@@ -20,6 +22,52 @@
 #include <df3d/engine/resources/MeshLoaders.h>
 
 namespace df3d {
+
+static btTriangleMesh* CreateBulletTriangleMesh(const std::string &meshPath)
+{
+    // FIXME: XXX! Reading the mesh twice! This is a workaround.
+    auto meshFileData = svc().fileSystem().open(meshPath.c_str());
+    auto softwareMesh = LoadMeshDataFromFile_Workaround(meshFileData);
+
+    auto bulletMesh = new btTriangleMesh(true, false);
+
+    for (size_t smIdx = 0; smIdx < softwareMesh->submeshes.size(); smIdx++)
+    {
+        auto &submesh = softwareMesh->submeshes[smIdx];
+        auto &vdata = submesh.vertexData;
+
+        bulletMesh->preallocateVertices(vdata.getVerticesCount());
+
+        if (submesh.indices.size() > 0)
+        {
+            for (size_t i = 0; i < submesh.indices.size(); i += 3)
+            {
+                auto i1 = submesh.indices[i + 0];
+                auto i2 = submesh.indices[i + 1];
+                auto i3 = submesh.indices[i + 2];
+
+                auto v1 = (glm::vec3*)vdata.getVertexAttribute(i1, VertexFormat::POSITION);
+                auto v2 = (glm::vec3*)vdata.getVertexAttribute(i2, VertexFormat::POSITION);
+                auto v3 = (glm::vec3*)vdata.getVertexAttribute(i3, VertexFormat::POSITION);
+
+                bulletMesh->addTriangle(PhysicsHelpers::glmTobt(*v1), PhysicsHelpers::glmTobt(*v2), PhysicsHelpers::glmTobt(*v3));
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < vdata.getVerticesCount(); i += 3)
+            {
+                auto v1 = (glm::vec3*)vdata.getVertexAttribute(i + 0, VertexFormat::POSITION);
+                auto v2 = (glm::vec3*)vdata.getVertexAttribute(i + 1, VertexFormat::POSITION);
+                auto v3 = (glm::vec3*)vdata.getVertexAttribute(i + 2, VertexFormat::POSITION);
+
+                bulletMesh->addTriangle(PhysicsHelpers::glmTobt(*v1), PhysicsHelpers::glmTobt(*v2), PhysicsHelpers::glmTobt(*v3));
+            }
+        }
+    }
+
+    return bulletMesh;
+}
 
 ATTRIBUTE_ALIGNED16(class) PhysicsComponentMotionState : public btMotionState
 {
@@ -179,59 +227,31 @@ struct PhysicsComponentProcessor::Impl
         }
         case CollisionShapeType::STATIC_TRIANGLE_MESH:
         {
-            // FIXME: XXX! Reading the mesh twice! This is a workaround.
-            auto meshFileData = svc().fileSystem().open(data.mesh.lock()->getFilePath().c_str());
-            auto softwareMesh = LoadMeshDataFromFile_Workaround(meshFileData);
-
             DF3D_ASSERT_MESS(data.params->mass == 0.0f, "body should not be dynamic");
 
-            auto bulletMesh = new btTriangleMesh(true, false);
+            data.meshInterface = CreateBulletTriangleMesh(data.mesh.lock()->getFilePath());
 
-            for (size_t smIdx = 0; smIdx < softwareMesh->submeshes.size(); smIdx++)
-            {
-                auto &submesh = softwareMesh->submeshes[smIdx];
-                auto &vdata = submesh.vertexData;
-
-                bulletMesh->preallocateVertices(vdata.getVerticesCount());
-
-                if (submesh.indices.size() > 0)
-                {
-                    for (size_t i = 0; i < submesh.indices.size(); i += 3)
-                    {
-                        auto i1 = submesh.indices[i + 0];
-                        auto i2 = submesh.indices[i + 1];
-                        auto i3 = submesh.indices[i + 2];
-
-                        auto v1 = (glm::vec3*)vdata.getVertexAttribute(i1, VertexFormat::POSITION);
-                        auto v2 = (glm::vec3*)vdata.getVertexAttribute(i2, VertexFormat::POSITION);
-                        auto v3 = (glm::vec3*)vdata.getVertexAttribute(i3, VertexFormat::POSITION);
-
-                        bulletMesh->addTriangle(PhysicsHelpers::glmTobt(*v1), PhysicsHelpers::glmTobt(*v2), PhysicsHelpers::glmTobt(*v3));
-                    }
-                }
-                else
-                {
-                    for (size_t i = 0; i < vdata.getVerticesCount(); i += 3)
-                    {
-                        auto v1 = (glm::vec3*)vdata.getVertexAttribute(i + 0, VertexFormat::POSITION);
-                        auto v2 = (glm::vec3*)vdata.getVertexAttribute(i + 1, VertexFormat::POSITION);
-                        auto v3 = (glm::vec3*)vdata.getVertexAttribute(i + 2, VertexFormat::POSITION);
-
-                        bulletMesh->addTriangle(PhysicsHelpers::glmTobt(*v1), PhysicsHelpers::glmTobt(*v2), PhysicsHelpers::glmTobt(*v3));
-                    }
-                }
-            }
-
-            data.meshInterface = bulletMesh;
-
-            auto colShape = new btBvhTriangleMeshShape(bulletMesh, true);
+            auto colShape = new btBvhTriangleMeshShape(data.meshInterface, true);
             auto scale = svc().defaultWorld().sceneGraph().getLocalScale(data.holder);
             colShape->setLocalScaling(PhysicsHelpers::glmTobt(scale));
 
             return colShape;
         }
+        case CollisionShapeType::CONVEX_DECOMPOSITION:
+        {
+            data.meshInterface = CreateBulletTriangleMesh(data.mesh.lock()->getFilePath());
+
+            auto scale = svc().defaultWorld().sceneGraph().getLocalScale(data.holder);
+            auto colShape = new btGImpactConvexDecompositionShape(data.meshInterface, PhysicsHelpers::glmTobt(scale));
+
+            colShape->setMargin(0.07f);
+            colShape->updateBound();
+            return colShape;
+        }
+            break;
         default:
             DF3D_ASSERT_MESS(false, "undefined physics shape!");
+            break;
         }
 
         return nullptr;
