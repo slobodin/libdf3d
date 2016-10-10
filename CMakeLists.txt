@@ -57,6 +57,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkCommon.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkLineTrailRenderer.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkQuadRenderer.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/physics/btGImpactConvexDecompositionShape.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/physics/BulletInterface.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/physics/PhysicsComponentCreationParams.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/physics/PhysicsComponentProcessor.h
@@ -177,6 +178,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkCommon.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkLineTrailRenderer.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkQuadRenderer.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/physics/btGImpactConvexDecompositionShape.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/physics/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/physics/PhysicsComponentCreationParams.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/physics/PhysicsComponentProcessor.cpp
@@ -426,6 +428,7 @@ target_link_libraries(libdf3d
     LinearMath
     BulletCollision
     BulletDynamics
+    ConvexDecomposition
     ogg
     spark
     vorbis
