@@ -77,6 +77,12 @@ inline bool executeFile(const char *filename)
     return svc().scripts().doFile(filename);
 }
 
+inline Entity createEntity(uint32_t id)
+{
+    Handle h(id);
+    return{ h };
+}
+
 void bindGlm(Table &df3dNamespace)
 {
     using namespace glm;
@@ -163,6 +169,7 @@ void bindBase(Table &df3dNamespace)
     }
 
     df3dNamespace.Func(_SC("executeFile"), &executeFile);
+    df3dNamespace.Func(_SC("createEntity"), &createEntity);
 }
 
 void bindProcessors(Table &df3dNamespace)
