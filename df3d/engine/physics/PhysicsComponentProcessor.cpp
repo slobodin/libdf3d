@@ -170,7 +170,9 @@ struct PhysicsComponentProcessor::Impl
         delete overlappingPairCache;
         delete dispatcher;
         delete collisionConfiguration;
+#ifdef _DEBUG
         delete debugDraw;
+#endif
     }
 
     btCollisionShape* createCollisionShape(Data &data)
