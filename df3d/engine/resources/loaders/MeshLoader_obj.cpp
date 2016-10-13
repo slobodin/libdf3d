@@ -243,22 +243,22 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<DataSource> s
 
         auto &submesh = *s.second;
 
+        const auto vData = (Vertex_p_n_tx_tan_bitan*)submesh.vertexData.getRawData();
+        const auto vCount = submesh.vertexData.getVerticesCount();
+        MeshUtils::computeTangentBasis(vData, vCount);
+
         if (EngineCVars::objIndexize)
         {
-            const auto vData = (Vertex_p_n_tx_tan_bitan*)submesh.vertexData.getRawData();
-            const auto vCount = submesh.vertexData.getVerticesCount();
             PodArray<Vertex_p_n_tx_tan_bitan> indexedVertices(MemoryManager::allocDefault());
             PodArray<uint32_t> indices(MemoryManager::allocDefault());
 
             MeshUtils::indexize(vData, vCount, indexedVertices, indices);
 
             /*
-            DFLOG_DEBUG("Indexed verts %d, before: %d. Indices %d", indexedVertices.size(), vCount, indices.size());
+            DFLOG_DEBUG("Vertices before: %d, AFTER indexed: %d. Indices %d", vCount, indexedVertices.size(), indices.size());
             DFLOG_DEBUG("Size before %d KB, size after %d KB", utils::sizeKB(sizeof(Vertex_p_n_tx_tan_bitan) * vCount),
                         utils::sizeKB(sizeof(Vertex_p_n_tx_tan_bitan) * indexedVertices.size() + indices.size() * sizeof(uint32_t)));
-                        */
-
-            MeshUtils::computeTangentBasis(indexedVertices.data(), indexedVertices.size(), indices.data(), indices.size());
+            */
 
             VertexData newData(submesh.vertexData.getFormat());
             newData.addVertices(indexedVertices.size());
@@ -266,12 +266,6 @@ unique_ptr<MeshDataFSLoader::Mesh> MeshLoader_obj::load(shared_ptr<DataSource> s
 
             submesh.vertexData = std::move(newData);
             submesh.indices = std::move(indices);
-        }
-        else
-        {
-            auto vData = (Vertex_p_n_tx_tan_bitan*)submesh.vertexData.getRawData();
-            auto vCount = submesh.vertexData.getVerticesCount();
-            MeshUtils::computeTangentBasis(vData, vCount);
         }
 
         auto mtlFound = m_materialNameLookup.find(s.second.get());

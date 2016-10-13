@@ -3,6 +3,7 @@
 #include <df3d/lib/math/MathUtils.h>
 #include <df3d/engine/render/MeshData.h>
 #include <df3d/engine/EngineController.h>
+#include <mikktspace/mikktspace.h>
 
 namespace df3d {
 
@@ -16,6 +17,73 @@ struct CompareVertices
     bool operator()(const Vertex_p_n_tx_tan_bitan &a, const Vertex_p_n_tx_tan_bitan &b) const
     {
         return memcmp(&a, &b, sizeof(Vertex_p_n_tx_tan_bitan)) > 0;
+    }
+};
+
+struct MikkTSpaceUserData
+{
+    Vertex_p_n_tx_tan_bitan *vdata;
+    size_t verticesCount;
+};
+
+struct MikkTSpaceInterface
+{
+    // Returns the number of faces (triangles/quads) on the mesh to be processed.
+    static int getNumFaces(const SMikkTSpaceContext *pContext)
+    {
+        return ((MikkTSpaceUserData*)pContext->m_pUserData)->verticesCount / 3;
+    }
+
+    // Returns the number of vertices on face number iFace
+    // iFace is a number in the range {0, 1, ..., getNumFaces()-1}
+    static int getNumVerticesOfFace(const SMikkTSpaceContext *pContext, const int iFace)
+    {
+        return 3;
+    }
+
+    // returns the position/normal/texcoord of the referenced face of vertex number iVert.
+    // iVert is in the range {0,1,2} for triangles and {0,1,2,3} for quads.
+    static void getPosition(const SMikkTSpaceContext *pContext, float fvPosOut[], const int iFace, const int iVert)
+    {
+        auto myData = (MikkTSpaceUserData*)pContext->m_pUserData;
+        const auto &pos = myData->vdata[iFace * 3 + iVert].pos;
+        fvPosOut[0] = pos.x;
+        fvPosOut[1] = pos.y;
+        fvPosOut[2] = pos.z;
+    }
+
+    static void getNormal(const SMikkTSpaceContext *pContext, float fvNormOut[], const int iFace, const int iVert)
+    {
+        auto myData = (MikkTSpaceUserData*)pContext->m_pUserData;
+        const auto &normal = myData->vdata[iFace * 3 + iVert].normal;
+        fvNormOut[0] = normal.x;
+        fvNormOut[1] = normal.y;
+        fvNormOut[2] = normal.z;
+    }
+
+    static void getTexCoord(const SMikkTSpaceContext *pContext, float fvTexcOut[], const int iFace, const int iVert)
+    {
+        auto myData = (MikkTSpaceUserData*)pContext->m_pUserData;
+        const auto &tx = myData->vdata[iFace * 3 + iVert].uv;
+        fvTexcOut[0] = tx.x;
+        fvTexcOut[1] = tx.y;
+    }
+
+    // This function is used to return the tangent and fSign to the application.
+    // fvTangent is a unit length vector.
+    // For normal maps it is sufficient to use the following simplified version of the bitangent which is generated at pixel/vertex level.
+    // bitangent = fSign * cross(vN, tangent);
+    // Note that the results are returned unindexed. It is possible to generate a new index list
+    // But averaging/overwriting tangent spaces by using an already existing index list WILL produce INCRORRECT results.
+    // DO NOT! use an already existing index list.
+    static void setTSpaceBasic(const SMikkTSpaceContext *pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert)
+    {
+        auto myData = (MikkTSpaceUserData*)pContext->m_pUserData;
+        auto &vert = myData->vdata[iFace * 3 + iVert];
+        vert.tangent.x = fvTangent[0];
+        vert.tangent.y = fvTangent[1];
+        vert.tangent.z = fvTangent[2];
+        vert.bitangent = fSign * glm::cross(vert.normal, vert.tangent);
     }
 };
 
@@ -154,16 +222,25 @@ void MeshUtils::indexize(const Vertex_p_n_tx_tan_bitan *vdata, size_t count,
 
 void MeshUtils::computeTangentBasis(Vertex_p_n_tx_tan_bitan *vdata, size_t count)
 {
-    for (size_t i = 0; i < count; i += 3)
-    {
-        auto &v0 = vdata[i + 0];
-        auto &v1 = vdata[i + 1];
-        auto &v2 = vdata[i + 2];
+    MikkTSpaceUserData myData;
+    myData.vdata = vdata;
+    myData.verticesCount = count;
 
-        CalcTangentSpaceTriangle(v0, v1, v2);
-    }
+    SMikkTSpaceInterface interface;
+    interface.m_getNumFaces = MikkTSpaceInterface::getNumFaces;
+    interface.m_getNumVerticesOfFace = MikkTSpaceInterface::getNumVerticesOfFace;
+    interface.m_getPosition = MikkTSpaceInterface::getPosition;
+    interface.m_getNormal = MikkTSpaceInterface::getNormal;
+    interface.m_getTexCoord = MikkTSpaceInterface::getTexCoord;
+    interface.m_setTSpaceBasic = MikkTSpaceInterface::setTSpaceBasic;
+    interface.m_setTSpace = nullptr;
 
-    OrthogonalizeAndFixHandedness(vdata, count);
+    SMikkTSpaceContext context;
+    context.m_pInterface = &interface;
+    context.m_pUserData = &myData;
+
+    if (!genTangSpaceDefault(&context))
+        DFLOG_WARN("Failed to calculate tangent space!");
 }
 
 void MeshUtils::computeTangentBasis(Vertex_p_n_tx_tan_bitan *vdata, size_t verticesCount,
