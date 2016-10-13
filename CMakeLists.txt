@@ -247,6 +247,7 @@ endif()
 
 set(third_party_SRC_FILES
     ${PROJECT_SOURCE_DIR}/third-party/json/jsoncpp.cpp
+    ${PROJECT_SOURCE_DIR}/third-party/mikktspace/mikktspace.c
 )
 
 if (WINDOWS)

@@ -21,6 +21,10 @@ struct World::EntitiesManager
     PodArray<Entity> recentlyRemoved;
     size_t entitiesCount = 0;
 
+#ifdef _DEBUG
+    std::unordered_set<uint32_t> m_check;
+#endif
+
     EntitiesManager()
         : generations(MemoryManager::allocDefault()),
         freeList(MemoryManager::allocDefault()),
@@ -45,11 +49,21 @@ struct World::EntitiesManager
 
         ++entitiesCount;
 
-        return { Handle(idx, generations[idx]) };
+        Entity retVal = { Handle(idx, generations[idx]) };
+#ifdef _DEBUG
+        DF3D_ASSERT(!df3d::utils::contains_key(m_check, retVal.getID()));
+        m_check.insert(retVal.getID());
+#endif
+        return retVal;
     }
 
     void destroy(Entity e)
     {
+#ifdef _DEBUG
+        DF3D_ASSERT(utils::contains_key(m_check, e.getID()));
+        m_check.erase(e.getID());
+#endif
+
         DF3D_ASSERT(entitiesCount > 0);
 
         ++generations[e.handle.getIdx()];
