@@ -102,7 +102,7 @@ void MeshDataFSLoader::onDecoded(Resource *resource)
         meshTotalBytes += s.getVertexData().getVerticesCount() * s.getVertexData().getFormat().getVertexSize();
     */
 
-    m_mesh.reset();     // Cleanup main memory.
+    m_mesh.reset();
 }
 
 unique_ptr<MeshDataFSLoader::Mesh> LoadMeshDataFromFile_Workaround(shared_ptr<DataSource> source)
