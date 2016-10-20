@@ -14,73 +14,6 @@
 
 namespace df3d {
 
-struct World::EntitiesManager
-{
-    PodArray<uint32_t> generations;
-    PodArray<uint32_t> freeList;
-    PodArray<Entity> recentlyRemoved;
-    size_t entitiesCount = 0;
-
-#ifdef _DEBUG
-    std::unordered_set<uint32_t> m_check;
-#endif
-
-    EntitiesManager()
-        : generations(MemoryManager::allocDefault()),
-        freeList(MemoryManager::allocDefault()),
-        recentlyRemoved(MemoryManager::allocDefault())
-    {
-
-    }
-
-    Entity getNew()
-    {
-        uint32_t idx;
-        if (freeList.empty())
-        {
-            generations.push_back(1);
-            idx = generations.size() - 1;
-        }
-        else
-        {
-            idx = freeList.back();
-            freeList.pop_back();
-        }
-
-        ++entitiesCount;
-
-        Entity retVal = { Handle(idx, generations[idx]) };
-#ifdef _DEBUG
-        DF3D_ASSERT(!df3d::utils::contains_key(m_check, retVal.getID()));
-        m_check.insert(retVal.getID());
-#endif
-        return retVal;
-    }
-
-    void destroy(Entity e)
-    {
-#ifdef _DEBUG
-        DF3D_ASSERT(utils::contains_key(m_check, e.getID()));
-        m_check.erase(e.getID());
-#endif
-
-        DF3D_ASSERT(entitiesCount > 0);
-
-        ++generations[e.handle.getIdx()];
-        if (generations[e.handle.getIdx()] >= (1 << HANDLE_GENERATION_BITS))
-            generations[e.handle.getIdx()] = 1;
-
-        recentlyRemoved.push_back(e);
-
-        --entitiesCount;
-    }
-
-    bool isAlive(Entity e) const
-    {
-        return (e.handle.getIdx() < generations.size()) && (generations[e.handle.getIdx()] == e.handle.getGeneration());
-    }
-};
-
 void World::update()
 {
     if (!m_paused)
@@ -118,29 +51,10 @@ void World::collectRenderOperations(RenderQueue *ops)
 void World::cleanStep()
 {
     m_timeMgr->cleanStep();
-
-    for (auto e : m_entitiesMgr->recentlyRemoved)
-    {
-        for (auto &engineProc : m_engineProcessors)
-        {
-            if (engineProc->has(e))
-                engineProc->remove(e);
-        }
-
-        for (auto &userProc : m_userProcessors)
-        {
-            if (userProc.second->has(e))
-                userProc.second->remove(e);
-        }
-
-        m_entitiesMgr->freeList.push_back(e.handle.getIdx());
-    }
-
-    m_entitiesMgr->recentlyRemoved.clear();
 }
 
 World::World()
-    : m_entitiesMgr(new World::EntitiesManager()),
+    : m_entitiesMgr(df3d::MemoryManager::allocDefault()),
     m_entityLoader(new game_impl::EntityLoader()),
     m_staticMeshes(new StaticMeshComponentProcessor(this)),
     m_vfx(new ParticleSystemComponentProcessor(this)),
@@ -185,7 +99,7 @@ World::~World()
 
 Entity World::spawn()
 {
-    auto entity = m_entitiesMgr->getNew();
+    auto entity = Entity(m_entitiesMgr.getNew());
     // NOTE: forcing to have transform component, otherwise have some problems (especially performance)
     // with systems that require transform component.
     sceneGraph().add(entity);
@@ -205,14 +119,25 @@ Entity World::spawnFromJson(const Json::Value &entityResource)
 
 bool World::alive(Entity e)
 {
-    return m_entitiesMgr->isAlive(e);
+    return m_entitiesMgr.isValid(e.getID());
 }
 
 void World::destroy(Entity e)
 {
     if (alive(e))
     {
-        m_entitiesMgr->destroy(e);
+        for (auto &engineProc : m_engineProcessors)
+        {
+            if (engineProc->has(e))
+                engineProc->remove(e);
+        }
+        for (auto &userProc : m_userProcessors)
+        {
+            if (userProc.second->has(e))
+                userProc.second->remove(e);
+        }
+
+        m_entitiesMgr.release(e.getID());
     }
     else
     {
@@ -222,7 +147,8 @@ void World::destroy(Entity e)
 
 void World::destroyWithChildren(Entity e)
 {
-    const auto &children = sceneGraph().getChildren(e);
+    // Must copy children array.
+    auto children = sceneGraph().getChildren(e);
     for (auto &child : children)
         destroyWithChildren(child);
 
@@ -231,7 +157,7 @@ void World::destroyWithChildren(Entity e)
 
 size_t World::getEntitiesCount()
 {
-    return m_entitiesMgr->entitiesCount;
+    return m_entitiesMgr.getSize();
 }
 
 void World::pauseSimulation(bool paused)

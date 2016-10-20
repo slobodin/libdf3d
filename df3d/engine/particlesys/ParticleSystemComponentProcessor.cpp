@@ -120,7 +120,7 @@ void ParticleSystemComponentProcessor::stop(Entity e)
 
 void ParticleSystemComponentProcessor::pause(Entity e, bool paused)
 {
-    m_pimpl->data.getData(e.handle).paused = paused;
+    m_pimpl->data.getData(e).paused = paused;
 }
 
 void ParticleSystemComponentProcessor::pauseGlobal(bool paused)
@@ -130,42 +130,42 @@ void ParticleSystemComponentProcessor::pauseGlobal(bool paused)
 
 void ParticleSystemComponentProcessor::setVisible(Entity e, bool visible)
 {
-    m_pimpl->data.getData(e.handle).visible = visible;
+    m_pimpl->data.getData(e).visible = visible;
 }
 
 void ParticleSystemComponentProcessor::setSystemLifeTime(Entity e, float lifeTime)
 {
-    m_pimpl->data.getData(e.handle).systemLifeTime = lifeTime;
+    m_pimpl->data.getData(e).systemLifeTime = lifeTime;
 }
 
 void ParticleSystemComponentProcessor::setWorldTransformed(Entity e, bool worldTransformed)
 {
-    m_pimpl->data.getData(e.handle).worldTransformed = worldTransformed;
+    m_pimpl->data.getData(e).worldTransformed = worldTransformed;
 }
 
 float ParticleSystemComponentProcessor::getSystemLifeTime(Entity e) const
 {
-    return m_pimpl->data.getData(e.handle).systemLifeTime;
+    return m_pimpl->data.getData(e).systemLifeTime;
 }
 
 SPK::Ref<SPK::System> ParticleSystemComponentProcessor::getSystem(Entity e) const
 {
-    return m_pimpl->data.getData(e.handle).system;
+    return m_pimpl->data.getData(e).system;
 }
 
 bool ParticleSystemComponentProcessor::isWorldTransformed(Entity e) const
 {
-    return m_pimpl->data.getData(e.handle).worldTransformed;
+    return m_pimpl->data.getData(e).worldTransformed;
 }
 
 bool ParticleSystemComponentProcessor::isPlaying(Entity e) const
 {
-    return !m_pimpl->data.getData(e.handle).paused;
+    return !m_pimpl->data.getData(e).paused;
 }
 
 bool ParticleSystemComponentProcessor::isVisible(Entity e) const
 {
-    return !m_pimpl->data.getData(e.handle).visible;
+    return !m_pimpl->data.getData(e).visible;
 }
 
 void ParticleSystemComponentProcessor::add(Entity e, const char *vfxResource)
@@ -175,7 +175,7 @@ void ParticleSystemComponentProcessor::add(Entity e, const char *vfxResource)
 
 void ParticleSystemComponentProcessor::add(Entity e, const ParticleSystemCreationParams &params)
 {
-    if (m_pimpl->data.contains(e.handle))
+    if (m_pimpl->data.contains(e))
     {
         DFLOG_WARN("An entity already has a particle system component");
         return;
@@ -188,17 +188,17 @@ void ParticleSystemComponentProcessor::add(Entity e, const ParticleSystemCreatio
     data.worldTransformed = params.worldTransformed;
     data.holderTransform = m_world->sceneGraph().getWorldTransformMatrix(e);
 
-    m_pimpl->data.add(e.handle, data);
+    m_pimpl->data.add(e, data);
 }
 
 void ParticleSystemComponentProcessor::remove(Entity e)
 {
-    m_pimpl->data.remove(e.handle);
+    m_pimpl->data.remove(e);
 }
 
 bool ParticleSystemComponentProcessor::has(Entity e)
 {
-    return m_pimpl->data.contains(e.handle);
+    return m_pimpl->data.contains(e);
 }
 
 void ParticleSystemComponentProcessor::render()

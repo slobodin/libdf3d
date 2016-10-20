@@ -4,10 +4,9 @@
 
 namespace df3d {
 
-DF3D_MAKE_HANDLE(Entity)
+DF3D_DECLARE_HANDLE(Entity)
 
 }
-
 
 namespace std {
 
@@ -16,7 +15,7 @@ struct hash<df3d::Entity>
 {
     std::size_t operator()(const df3d::Entity &e) const
     {
-        auto id = e.handle.getID();
+        auto id = e.getID();
         return std::hash<decltype(id)>()(id);
     }
 };

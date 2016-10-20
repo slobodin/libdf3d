@@ -79,8 +79,7 @@ inline bool executeFile(const char *filename)
 
 inline Entity createEntity(uint32_t id)
 {
-    Handle h(id);
-    return{ h };
+    return Entity(id);
 }
 
 void bindGlm(Table &df3dNamespace)

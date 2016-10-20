@@ -2,11 +2,25 @@
 
 #include <df3d/lib/Handles.h>
 
+namespace df3d { DF3D_DECLARE_HANDLE(AudioSourceHandle) }
+
+namespace std {
+
+template <>
+struct hash<df3d::AudioSourceHandle>
+{
+    std::size_t operator()(const df3d::AudioSourceHandle &e) const
+    {
+        auto id = e.getID();
+        return std::hash<decltype(id)>()(id);
+    }
+};
+
+}
+
 namespace df3d {
 
 class AudioBuffer;
-
-DF3D_MAKE_HANDLE(AudioSourceHandle)
 
 class DF3D_DLL AudioWorld : NonCopyable
 {
@@ -41,9 +55,9 @@ private:
     AudioSource* lookupSource(AudioSourceHandle handle);
 
     HandleBag m_handleBag;
-    std::unordered_map<Handle, AudioSource> m_lookup;
+    std::unordered_map<AudioSourceHandle, AudioSource> m_lookup;
 
-    std::vector<Handle> m_suspendedSources;
+    std::vector<AudioSourceHandle> m_suspendedSources;
     bool m_suspended = false;
 
     std::mutex m_streamingMutex;

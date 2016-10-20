@@ -77,13 +77,13 @@ enum IndicesType
     INDICES_32_BIT
 };
 
-DF3D_MAKE_HANDLE(VertexBufferHandle)
-DF3D_MAKE_HANDLE(IndexBufferHandle)
-DF3D_MAKE_HANDLE(TextureHandle)
-DF3D_MAKE_HANDLE(ShaderHandle)
-DF3D_MAKE_HANDLE(GpuProgramHandle)
-DF3D_MAKE_HANDLE(UniformHandle)
-DF3D_MAKE_HANDLE(FrameBufferHandle)
+DF3D_DECLARE_HANDLE(VertexBufferHandle)
+DF3D_DECLARE_HANDLE(IndexBufferHandle)
+DF3D_DECLARE_HANDLE(TextureHandle)
+DF3D_DECLARE_HANDLE(ShaderHandle)
+DF3D_DECLARE_HANDLE(GpuProgramHandle)
+DF3D_DECLARE_HANDLE(UniformHandle)
+DF3D_DECLARE_HANDLE(FrameBufferHandle)
 
 struct DF3D_DLL FrameStats
 {

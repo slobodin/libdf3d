@@ -368,12 +368,12 @@ PhysicsComponentProcessor::~PhysicsComponentProcessor()
 
 btRigidBody* PhysicsComponentProcessor::getBody(Entity e)
 {
-    return m_pimpl->data.getData(e.handle).body;
+    return m_pimpl->data.getData(e).body;
 }
 
 glm::vec3 PhysicsComponentProcessor::getCenterOfMass(Entity e)
 {
-    auto body = m_pimpl->data.getData(e.handle).body;
+    auto body = m_pimpl->data.getData(e).body;
     DF3D_ASSERT(body);
     return PhysicsHelpers::btToGlm(body->getCenterOfMassPosition());
 }
@@ -416,7 +416,7 @@ void PhysicsComponentProcessor::teleportOrientation(Entity e, const glm::quat &o
 
 void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> mesh)
 {
-    if (m_pimpl->data.contains(e.handle))
+    if (m_pimpl->data.contains(e))
     {
         DFLOG_WARN("An entity already has an physics component");
         return;
@@ -430,14 +430,14 @@ void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationPara
     if (mesh->isInitialized())
         m_pimpl->initialize(data);
 
-    m_pimpl->data.add(e.handle, data);
+    m_pimpl->data.add(e, data);
 }
 
 void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, short mask)
 {
     DF3D_ASSERT(body);
 
-    if (m_pimpl->data.contains(e.handle))
+    if (m_pimpl->data.contains(e))
     {
         DFLOG_WARN("An entity already has an physics component");
         return;
@@ -455,17 +455,17 @@ void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, sh
 
     data.body->setUserIndex(*reinterpret_cast<int*>(&e));
 
-    m_pimpl->data.add(e.handle, data);
+    m_pimpl->data.add(e, data);
 }
 
 void PhysicsComponentProcessor::remove(Entity e)
 {
-    m_pimpl->data.remove(e.handle);
+    m_pimpl->data.remove(e);
 }
 
 bool PhysicsComponentProcessor::has(Entity e)
 {
-    return m_pimpl->data.contains(e.handle);
+    return m_pimpl->data.contains(e);
 }
 
 btDynamicsWorld* PhysicsComponentProcessor::getPhysicsWorld()

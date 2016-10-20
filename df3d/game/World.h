@@ -24,8 +24,7 @@ class DF3D_DLL World : NonCopyable
     friend class EngineController;
     friend class RenderManager;
 
-    struct EntitiesManager;
-    unique_ptr<EntitiesManager> m_entitiesMgr;
+    HandleBag m_entitiesMgr;
     unique_ptr<game_impl::EntityLoader> m_entityLoader;
 
     using ComponentProcessor = unique_ptr<EntityComponentProcessor>;
@@ -88,7 +87,6 @@ public:
     void setRenderingParams(const WorldRenderingParams &params) { m_renderingParams = params; }
 
     shared_ptr<Camera> getCamera() { return m_camera; }
-
     WorldRenderingParams& getRenderingParams() { return m_renderingParams; }
     const WorldRenderingParams& getRenderingParams() const { return m_renderingParams; }
 

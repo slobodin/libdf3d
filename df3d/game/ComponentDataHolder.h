@@ -1,6 +1,6 @@
 #pragma once
 
-#include <df3d/lib/Handles.h>
+#include <df3d/game/Entity.h>
 
 namespace df3d {
 
@@ -16,7 +16,7 @@ private:
 
     std::vector<T> m_data;          // Data pool.
     std::vector<size_t> m_lookup;   // Lookup to m_data array.
-    std::vector<Handle> m_holdersLookup;
+    std::vector<Entity> m_holdersLookup;
 
 public:
     ComponentDataHolder()
@@ -31,39 +31,39 @@ public:
 
     std::vector<T>& rawData() { return m_data; }
 
-    T& getData(Handle handle)
+    T& getData(Entity ent)
     {
-        return m_data[m_lookup[handle.getIdx()]];
+        return m_data[m_lookup[ent.getIndex()]];
     }
 
-    const T& getData(Handle handle) const
+    const T& getData(Entity ent) const
     {
-        return m_data[m_lookup[handle.getIdx()]];
+        return m_data[m_lookup[ent.getIndex()]];
     }
 
-    void add(Handle handle, const T &componentData)
+    void add(Entity ent, const T &componentData)
     {
-        DF3D_ASSERT(!contains(handle));
+        DF3D_ASSERT(!contains(ent));
 
-        if (m_lookup.size() <= handle.getIdx())
-            m_lookup.resize(handle.getIdx() + 1, InvalidComponentInstance);
-        m_lookup[handle.getIdx()] = m_data.size();
+        if (m_lookup.size() <= ent.getIndex())
+            m_lookup.resize(ent.getIndex() + 1, InvalidComponentInstance);
+        m_lookup[ent.getIndex()] = m_data.size();
 
         m_data.push_back(componentData);
-        m_holdersLookup.push_back(handle);
+        m_holdersLookup.push_back(ent);
     }
 
-    void remove(Handle handle)
+    void remove(Entity ent)
     {
-        DF3D_ASSERT(m_data.size() > 0 && contains(handle));
+        DF3D_ASSERT(m_data.size() > 0 && contains(ent));
 
         if (m_destructionCallback)
-            m_destructionCallback(getData(handle));
+            m_destructionCallback(getData(ent));
 
         auto holderBack = m_holdersLookup.back();
 
-        auto idx = m_lookup[handle.getIdx()];
-        m_lookup[handle.getIdx()] = InvalidComponentInstance;
+        auto idx = m_lookup[ent.getIndex()];
+        m_lookup[ent.getIndex()] = InvalidComponentInstance;
 
         if (idx != m_data.size() - 1)
             m_data[idx] = std::move(m_data.back());
@@ -73,15 +73,15 @@ public:
 
         if (idx < m_data.size())
         {
-            m_lookup[holderBack.getIdx()] = idx;
+            m_lookup[holderBack.getIndex()] = idx;
             m_holdersLookup[idx] = holderBack;
         }
     }
 
-    bool contains(Handle handle) const
+    bool contains(Entity ent) const
     {
-        DF3D_ASSERT(handle.isValid());
-        return handle.getIdx() < m_lookup.size() && m_lookup[handle.getIdx()] != InvalidComponentInstance;
+        DF3D_ASSERT(ent.isValid());
+        return ent.getIndex() < m_lookup.size() && m_lookup[ent.getIndex()] != InvalidComponentInstance;
     }
 
     void clear()

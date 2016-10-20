@@ -137,7 +137,7 @@ Sprite2DComponentProcessor::~Sprite2DComponentProcessor()
 
 void Sprite2DComponentProcessor::setAnchorPoint(Entity e, const glm::vec2 &pt)
 {
-    m_pimpl->data.getData(e.handle).anchor = pt;
+    m_pimpl->data.getData(e).anchor = pt;
 }
 
 void Sprite2DComponentProcessor::setZIdx(Entity e, float z)
@@ -150,7 +150,7 @@ void Sprite2DComponentProcessor::setZIdx(Entity e, float z)
 
 void Sprite2DComponentProcessor::setVisible(Entity e, bool visible)
 {
-    m_pimpl->data.getData(e.handle).visible = visible;
+    m_pimpl->data.getData(e).visible = visible;
 
     const auto &children = m_world->sceneGraph().getChildren(e);
     for (auto child : children)
@@ -162,7 +162,7 @@ void Sprite2DComponentProcessor::setVisible(Entity e, bool visible)
 
 void Sprite2DComponentProcessor::setSize(Entity e, const glm::vec2 &size)
 {
-    auto &compData = m_pimpl->data.getData(e.handle);
+    auto &compData = m_pimpl->data.getData(e);
 
     // Compute new scale to fit desired size.
     auto sc = size / compData.textureOriginalSize;
@@ -181,12 +181,12 @@ void Sprite2DComponentProcessor::setHeight(Entity e, float h)
 
 void Sprite2DComponentProcessor::setRotation(Entity e, float rotation)
 {
-    m_pimpl->data.getData(e.handle).rotation = rotation;
+    m_pimpl->data.getData(e).rotation = rotation;
 }
 
 glm::vec2 Sprite2DComponentProcessor::getSize(Entity e) const
 {
-    const auto &compData = m_pimpl->data.getData(e.handle);
+    const auto &compData = m_pimpl->data.getData(e);
     auto scale = m_world->sceneGraph().getLocalScale(e);
 
     return{ scale.x * compData.textureOriginalSize.x, scale.y * compData.textureOriginalSize.y };
@@ -204,7 +204,7 @@ float Sprite2DComponentProcessor::getHeight(Entity e) const
 
 const glm::vec2& Sprite2DComponentProcessor::getScreenPosition(Entity e)
 {
-    auto &compData = m_pimpl->data.getData(e.handle);
+    auto &compData = m_pimpl->data.getData(e);
 
     Impl::updateTransform(*m_world, compData);
 
@@ -222,7 +222,7 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
         return;
     }
 
-    auto &compData = m_pimpl->data.getData(e.handle);
+    auto &compData = m_pimpl->data.getData(e);
 
     if (compData.textureGuid == texture->getGUID())
         return;
@@ -235,12 +235,12 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToT
 
 const glm::vec2& Sprite2DComponentProcessor::getTextureSize(Entity e) const
 {
-    return m_pimpl->data.getData(e.handle).textureOriginalSize;
+    return m_pimpl->data.getData(e).textureOriginalSize;
 }
 
 void Sprite2DComponentProcessor::setBlendMode(Entity e, BlendingMode bm)
 {
-    m_pimpl->data.getData(e.handle).pass.setBlendMode(bm);
+    m_pimpl->data.getData(e).pass.setBlendMode(bm);
 }
 
 void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
@@ -250,13 +250,13 @@ void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
 
 void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diffuseColor)
 {
-    auto &compData = m_pimpl->data.getData(e.handle);
+    auto &compData = m_pimpl->data.getData(e);
     compData.pass.getPassParam(compData.diffuseColorParam)->setValue(diffuseColor);
 }
 
 void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
 {
-    if (m_pimpl->data.contains(e.handle))
+    if (m_pimpl->data.contains(e))
     {
         DFLOG_WARN("An entity already has a sprite2d component");
         return;
@@ -274,21 +274,21 @@ void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
     data.diffuseMapParam = {};
     data.op.worldTransform = m_world->sceneGraph().getWorldTransformMatrix(e);
 
-    m_pimpl->data.add(e.handle, data);
+    m_pimpl->data.add(e, data);
 
     useTexture(e, texturePath);
 
-    m_pimpl->data.getData(e.handle).pass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
+    m_pimpl->data.getData(e).pass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
 }
 
 void Sprite2DComponentProcessor::remove(Entity e)
 {
-    m_pimpl->data.remove(e.handle);
+    m_pimpl->data.remove(e);
 }
 
 bool Sprite2DComponentProcessor::has(Entity e)
 {
-    return m_pimpl->data.contains(e.handle);
+    return m_pimpl->data.contains(e);
 }
 
 }

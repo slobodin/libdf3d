@@ -31,7 +31,7 @@ struct SceneGraphComponentProcessor::Impl
         {
             auto &myWTransform = component.wTransform;
             const auto &myLTransform = component.lTransform;
-            const auto &parentWTransform = data.getData(component.parent.handle).wTransform;
+            const auto &parentWTransform = data.getData(component.parent).wTransform;
 
             myWTransform.combined = parentWTransform.combined * myLTransform.combined; // tr = parent * me
 
@@ -63,7 +63,7 @@ struct SceneGraphComponentProcessor::Impl
     void updateChildren(Data &component)
     {
         for (auto child : component.children)
-            updateWorldTransformation(data.getData(child.handle));
+            updateWorldTransformation(data.getData(child));
     }
 };
 
@@ -80,7 +80,7 @@ SceneGraphComponentProcessor::~SceneGraphComponentProcessor()
 
 void SceneGraphComponentProcessor::setPosition(Entity e, const glm::vec3 &newPosition)
 {
-    auto &compData = m_pimpl->data.getData(e.handle);
+    auto &compData = m_pimpl->data.getData(e);
 
     compData.lTransform.position = newPosition;
     compData.localTransformDirty = true;
@@ -90,7 +90,7 @@ void SceneGraphComponentProcessor::setPosition(Entity e, const glm::vec3 &newPos
 
 void SceneGraphComponentProcessor::setScale(Entity e, const glm::vec3 &newScale)
 {
-    auto &compData = m_pimpl->data.getData(e.handle);
+    auto &compData = m_pimpl->data.getData(e);
 
     compData.lTransform.scaling = newScale;
     compData.localTransformDirty = true;
@@ -105,7 +105,7 @@ void SceneGraphComponentProcessor::setScale(Entity e, float uniform)
 
 void SceneGraphComponentProcessor::setOrientation(Entity e, const glm::quat &newOrientation)
 {
-    auto &compData = m_pimpl->data.getData(e.handle);
+    auto &compData = m_pimpl->data.getData(e);
 
     compData.lTransform.orientation = newOrientation;
     compData.localTransformDirty = true;
@@ -120,7 +120,7 @@ void SceneGraphComponentProcessor::setOrientation(Entity e, const glm::vec3 &eul
 
 void SceneGraphComponentProcessor::setWorldTransform(Entity e, const btTransform &worldTrans)
 {
-    auto &compData = m_pimpl->data.getData(e.handle);
+    auto &compData = m_pimpl->data.getData(e);
 
     DF3D_ASSERT_MESS(!compData.parent.isValid(), "physics is not supported for entities without parent");
 
@@ -139,7 +139,7 @@ void SceneGraphComponentProcessor::setWorldTransform(Entity e, const btTransform
 
 void SceneGraphComponentProcessor::translate(Entity e, const glm::vec3 &v)
 {
-    auto &compData = m_pimpl->data.getData(e.handle);
+    auto &compData = m_pimpl->data.getData(e);
 
     compData.lTransform.position += v;
     compData.localTransformDirty = true;
@@ -149,7 +149,7 @@ void SceneGraphComponentProcessor::translate(Entity e, const glm::vec3 &v)
 
 void SceneGraphComponentProcessor::scale(Entity e, const glm::vec3 &v)
 {
-    auto &compData = m_pimpl->data.getData(e.handle);
+    auto &compData = m_pimpl->data.getData(e);
 
     compData.lTransform.scaling *= v;
     compData.localTransformDirty = true;
@@ -182,7 +182,7 @@ void SceneGraphComponentProcessor::rotateAxis(Entity e, float angle, const glm::
     auto q = glm::angleAxis(glm::radians(angle), axis);
     q = glm::normalize(q);
 
-    auto &compData = m_pimpl->data.getData(e.handle);
+    auto &compData = m_pimpl->data.getData(e);
     compData.lTransform.orientation = q * compData.lTransform.orientation;
     compData.localTransformDirty = true;
 
@@ -191,12 +191,12 @@ void SceneGraphComponentProcessor::rotateAxis(Entity e, float angle, const glm::
 
 void SceneGraphComponentProcessor::setName(Entity e, const std::string &name)
 {
-    m_pimpl->data.getData(e.handle).name = name;
+    m_pimpl->data.getData(e).name = name;
 }
 
 const std::string& SceneGraphComponentProcessor::getName(Entity e) const
 {
-    return m_pimpl->data.getData(e.handle).name;
+    return m_pimpl->data.getData(e).name;
 }
 
 Entity SceneGraphComponentProcessor::getByName(const std::string &name) const
@@ -231,51 +231,51 @@ Entity SceneGraphComponentProcessor::getByName(Entity parent, const std::string 
 
 glm::vec3 SceneGraphComponentProcessor::getWorldPosition(Entity e) const
 {
-    return m_pimpl->data.getData(e.handle).wTransform.position;
+    return m_pimpl->data.getData(e).wTransform.position;
 }
 
 glm::quat SceneGraphComponentProcessor::getWorldOrientation(Entity e) const
 {
-    return m_pimpl->data.getData(e.handle).wTransform.orientation;
+    return m_pimpl->data.getData(e).wTransform.orientation;
 }
 
 glm::vec3 SceneGraphComponentProcessor::getWorldRotation(Entity e) const
 {
-    const auto &compData = m_pimpl->data.getData(e.handle);
+    const auto &compData = m_pimpl->data.getData(e);
 
     return glm::degrees(glm::eulerAngles(compData.wTransform.orientation));
 }
 
 glm::vec3 SceneGraphComponentProcessor::getLocalPosition(Entity e) const
 {
-    return m_pimpl->data.getData(e.handle).lTransform.position;
+    return m_pimpl->data.getData(e).lTransform.position;
 }
 
 glm::vec3 SceneGraphComponentProcessor::getLocalScale(Entity e) const
 {
-    return m_pimpl->data.getData(e.handle).lTransform.scaling;
+    return m_pimpl->data.getData(e).lTransform.scaling;
 }
 
 glm::quat SceneGraphComponentProcessor::getLocalOrientation(Entity e) const
 {
-    return m_pimpl->data.getData(e.handle).lTransform.orientation;
+    return m_pimpl->data.getData(e).lTransform.orientation;
 }
 
 glm::vec3 SceneGraphComponentProcessor::getLocalRotation(Entity e) const
 {
-    const auto &compData = m_pimpl->data.getData(e.handle);
+    const auto &compData = m_pimpl->data.getData(e);
 
     return glm::degrees(glm::eulerAngles(compData.lTransform.orientation));
 }
 
 glm::mat4 SceneGraphComponentProcessor::getWorldTransformMatrix(Entity e) const
 {
-    return m_pimpl->data.getData(e.handle).wTransform.combined;
+    return m_pimpl->data.getData(e).wTransform.combined;
 }
 
 Transform SceneGraphComponentProcessor::getWorldTransform(Entity e) const
 {
-    return m_pimpl->data.getData(e.handle).wTransform;
+    return m_pimpl->data.getData(e).wTransform;
 }
 
 glm::vec3 SceneGraphComponentProcessor::getWorldDirection(Entity e) const
@@ -301,8 +301,8 @@ void SceneGraphComponentProcessor::attachChild(Entity parent, Entity child)
         return;
     }
 
-    auto &parentCompData = m_pimpl->data.getData(parent.handle);
-    auto &childCompData = m_pimpl->data.getData(child.handle);
+    auto &parentCompData = m_pimpl->data.getData(parent);
+    auto &childCompData = m_pimpl->data.getData(child);
 
     parentCompData.children.push_back(child);
     childCompData.parent = parent;
@@ -315,10 +315,10 @@ void SceneGraphComponentProcessor::attachChildren(Entity parent, const std::vect
     for (auto c : children)
     {
         DF3D_ASSERT_MESS(!getParent(c).isValid(), "already have a parent");
-        m_pimpl->data.getData(c.handle).parent = parent;
+        m_pimpl->data.getData(c).parent = parent;
     }
 
-    auto &parentCompData = m_pimpl->data.getData(parent.handle);
+    auto &parentCompData = m_pimpl->data.getData(parent);
     parentCompData.children.insert(parentCompData.children.end(), children.begin(), children.end());
 
     m_pimpl->updateWorldTransformation(parentCompData);
@@ -332,8 +332,8 @@ void SceneGraphComponentProcessor::detachChild(Entity parent, Entity child)
         return;
     }
 
-    auto &parentData = m_pimpl->data.getData(parent.handle);
-    auto &childData = m_pimpl->data.getData(child.handle);
+    auto &parentData = m_pimpl->data.getData(parent);
+    auto &childData = m_pimpl->data.getData(child);
 
     childData.parent = {};
 
@@ -346,12 +346,12 @@ void SceneGraphComponentProcessor::detachChild(Entity parent, Entity child)
 
 void SceneGraphComponentProcessor::detachAllChildren(Entity e)
 {
-    auto &compData = m_pimpl->data.getData(e.handle);
+    auto &compData = m_pimpl->data.getData(e);
 
     for (auto childEnt : compData.children)
     {
-        m_pimpl->data.getData(childEnt.handle).parent = {};
-        m_pimpl->updateWorldTransformation(m_pimpl->data.getData(childEnt.handle));
+        m_pimpl->data.getData(childEnt).parent = {};
+        m_pimpl->updateWorldTransformation(m_pimpl->data.getData(childEnt));
     }
 
     compData.children.clear();
@@ -359,17 +359,17 @@ void SceneGraphComponentProcessor::detachAllChildren(Entity e)
 
 Entity SceneGraphComponentProcessor::getParent(Entity e)
 {
-    return m_pimpl->data.getData(e.handle).parent;
+    return m_pimpl->data.getData(e).parent;
 }
 
 const std::vector<Entity>& SceneGraphComponentProcessor::getChildren(Entity e) const
 {
-    return m_pimpl->data.getData(e.handle).children;
+    return m_pimpl->data.getData(e).children;
 }
 
 void SceneGraphComponentProcessor::add(Entity e)
 {
-    if (m_pimpl->data.contains(e.handle))
+    if (m_pimpl->data.contains(e))
     {
         DFLOG_WARN("An entity already has a scene graph component");
         return;
@@ -378,26 +378,26 @@ void SceneGraphComponentProcessor::add(Entity e)
     Impl::Data data;
     data.holder = e;
 
-    m_pimpl->data.add(e.handle, data);
+    m_pimpl->data.add(e, data);
 
-    m_pimpl->updateWorldTransformation(m_pimpl->data.getData(e.handle));
+    m_pimpl->updateWorldTransformation(m_pimpl->data.getData(e));
 }
 
 void SceneGraphComponentProcessor::remove(Entity e)
 {
-    auto &compData = m_pimpl->data.getData(e.handle);
+    auto &compData = m_pimpl->data.getData(e);
     for (auto child : compData.children)
-        m_pimpl->data.getData(child.handle).parent = {};
+        m_pimpl->data.getData(child).parent = {};
 
     if (compData.parent.isValid())
         detachChild(compData.parent, e);
 
-    m_pimpl->data.remove(e.handle);
+    m_pimpl->data.remove(e);
 }
 
 bool SceneGraphComponentProcessor::has(Entity e)
 {
-    return m_pimpl->data.contains(e.handle);
+    return m_pimpl->data.contains(e);
 }
 
 }
