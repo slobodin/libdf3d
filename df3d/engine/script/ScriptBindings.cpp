@@ -57,6 +57,11 @@ inline glm::quat slerp(const glm::quat &a, const glm::quat &b, float t)
     return glm::slerp(a, b, t);
 }
 
+inline glm::quat toQuat(const glm::vec3 &eulerAngles)
+{
+    return glm::quat(eulerAngles);
+}
+
 inline World* df3dWorld()
 {
     return &svc().defaultWorld();
@@ -153,6 +158,7 @@ void bindGlm(Table &df3dNamespace)
     df3dNamespace.Func(_SC("srand_reset"), df3d::script_impl::srandReset);
     df3dNamespace.Func(_SC("gaussian"), MathUtils::gaussian);
     df3dNamespace.Func(_SC("slerp"), slerp);
+    df3dNamespace.Func(_SC("toQuat"), toQuat);
 }
 
 void bindBase(Table &df3dNamespace)
