@@ -227,7 +227,7 @@ struct PhysicsComponentProcessor::Impl
 
             return colShape;
         }
-        case CollisionShapeType::STATIC_TRIANGLE_MESH:
+        case CollisionShapeType::STATIC_MESH:
         {
             DF3D_ASSERT_MESS(data.params->mass == 0.0f, "body should not be dynamic");
 
@@ -247,6 +247,15 @@ struct PhysicsComponentProcessor::Impl
             auto colShape = new btGImpactConvexDecompositionShape(data.meshInterface, PhysicsHelpers::glmTobt(scale));
 
             colShape->setMargin(0.07f);
+            colShape->updateBound();
+            return colShape;
+        }
+        case CollisionShapeType::DYNAMIC_MESH:
+        {
+            data.meshInterface = CreateBulletTriangleMesh(data.mesh.lock()->getFilePath());
+            auto colShape = new btGImpactMeshShape(data.meshInterface);
+            auto scale = svc().defaultWorld().sceneGraph().getLocalScale(data.holder);
+            colShape->setLocalScaling(PhysicsHelpers::glmTobt(scale));
             colShape->updateBound();
             return colShape;
         }
