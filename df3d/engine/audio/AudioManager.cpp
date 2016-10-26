@@ -27,7 +27,7 @@ void AudioManager::initialize()
 
 #ifdef _DEBUG
 #if defined(DF3D_WINDOWS)
-    _putenv_s("ALSOFT_LOGLEVEL", "3");
+    //_putenv_s("ALSOFT_LOGLEVEL", "3");
 #endif
 #endif
 
