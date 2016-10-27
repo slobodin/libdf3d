@@ -14,6 +14,7 @@
 #include <df3d/engine/EngineController.h>
 #include <df3d/game/Entity.h>
 #include <df3d/game/World.h>
+#include <df3d/game/TagComponentProcessor.h>
 #include <df3d/engine/2d/Sprite2DComponentProcessor.h>
 #include <df3d/engine/3d/SceneGraphComponentProcessor.h>
 #include <df3d/engine/3d/Camera.h>
@@ -272,6 +273,15 @@ void bindProcessors(Table &df3dNamespace)
 
         df3dNamespace.Bind(_SC("StaticMeshComponentProcessor"), smProcessor);
     }
+
+    {
+        Class<TagComponentProcessor, NoConstructor<TagComponentProcessor>> cls(vm, _SC("TagComponentProcessor"));
+        cls
+            .Func(_SC("add"), &TagComponentProcessor::add)
+            ;
+
+        df3dNamespace.Bind(_SC("TagComponentProcessor"), cls);
+    }
 }
 
 void bindGame(Table &df3dNamespace)
@@ -299,6 +309,7 @@ void bindGame(Table &df3dNamespace)
             .Func<WorldRenderingParams&(World::*)()>(_SC("getRenderingParams"), &World::getRenderingParams)
 
             .Prop(_SC("sceneGraph"), &World::sceneGraph)
+            .Prop(_SC("tags"), &World::tags)
             .Prop(_SC("sprite2d"), &World::sprite2d)
             .Prop(_SC("vfx"), &World::vfx)
             .Prop(_SC("staticMesh"), &World::staticMesh)

@@ -45,7 +45,7 @@ Entity EntityLoader::createEntityFromJson(const Json::Value &root, World &w)
     for (const auto &componentJson : componentsJson)
     {
         const auto &dataJson = componentJson["data"];
-        if (dataJson.empty())
+        if (dataJson.isNull())
         {
             DFLOG_WARN("Failed to init a component. Empty \"data\" field");
             w.destroy(res);
@@ -69,6 +69,7 @@ Entity EntityLoader::createEntityFromJson(const Json::Value &root, World &w)
 
 void EntityLoader::registerEntityComponentLoader(const std::string &name, unique_ptr<EntityComponentLoader> loader)
 {
+    DF3D_ASSERT(!df3d::utils::contains_key(m_loaders, name));
     m_loaders.insert(std::make_pair(name, std::move(loader)));
 }
 
