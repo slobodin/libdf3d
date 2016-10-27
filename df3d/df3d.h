@@ -87,6 +87,7 @@
 #include <df3d/game/WorldRenderingParams.h>
 #include <df3d/game/WorldSize.h>
 #include <df3d/game/TagComponentProcessor.h>
+#include <df3d/game/EntityComponentLoader.h>
 
 #include <df3d/engine/particlesys/ParticleSystemComponentProcessor.h>
 #include <df3d/engine/particlesys/ParticleSystemUtils.h>

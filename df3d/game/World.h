@@ -18,6 +18,7 @@ class RenderQueue;
 class EntityComponentProcessor;
 class Camera;
 class TimeManager;
+class EntityComponentLoader;
 
 class DF3D_DLL World : NonCopyable
 {
@@ -82,6 +83,8 @@ public:
         DF3D_ASSERT_MESS(found != m_userProcessors.end(), "failed to lookup a component data processor");
         return static_cast<T&>(*found->second);
     }
+
+    void registerEntityComponentLoader(const std::string &name, unique_ptr<EntityComponentLoader> loader);
 
     void setCamera(shared_ptr<Camera> camera) { m_camera = camera; }
     void setRenderingParams(const WorldRenderingParams &params) { m_renderingParams = params; }

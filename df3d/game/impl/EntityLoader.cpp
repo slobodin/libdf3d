@@ -12,13 +12,6 @@
 
 namespace df3d { namespace game_impl {
 
-// A workaround for ordering of components loading (e.g. physics should be loaded after mesh).
-// FIXME:
-static std::map<std::string, int> LoadingPriority = {
-    { "scenegraph", 10 },
-    { "mesh", 9 }
-};
-
 EntityLoader::EntityLoader()
 {
     registerEntityComponentLoader("scenegraph", make_unique<SceneGraphComponentLoader>());
@@ -33,12 +26,12 @@ EntityLoader::~EntityLoader()
 
 }
 
-Entity EntityLoader::createEntity(const char *resourceFile, World &w)
+Entity EntityLoader::createEntityFromFile(const char *resourceFile, World &w)
 {
-    return createEntity(JsonUtils::fromFile(resourceFile, svc().fileSystem()), w);
+    return createEntityFromJson(JsonUtils::fromFile(resourceFile, svc().fileSystem()), w);
 }
 
-Entity EntityLoader::createEntity(const Json::Value &root, World &w)
+Entity EntityLoader::createEntityFromJson(const Json::Value &root, World &w)
 {
     if (root.empty())
     {
@@ -46,21 +39,9 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
         return {};
     }
 
-    const auto &componentsJson = root["components"];
-
     Entity res = w.spawn();
 
-    struct LoadHandler
-    {
-        std::string type;
-        std::function<void()> handler;
-        bool operator<(const LoadHandler &other) const
-        {
-            return LoadingPriority[type] < LoadingPriority[other.type];
-        }
-    };
-
-    std::priority_queue<LoadHandler> loadHandlers;
+    const auto &componentsJson = root["components"];
     for (const auto &componentJson : componentsJson)
     {
         const auto &dataJson = componentJson["data"];
@@ -73,24 +54,15 @@ Entity EntityLoader::createEntity(const Json::Value &root, World &w)
 
         auto componentType = componentJson["type"].asString();
         auto foundLoader = m_loaders.find(componentType);
-        if (foundLoader == m_loaders.end())
-            DFLOG_WARN("Failed to parse entity description, unknown component %s", componentType.c_str());
+        if (foundLoader != m_loaders.end())
+            foundLoader->second->loadComponent(dataJson, res, w);
         else
-            loadHandlers.push({ componentType, [&dataJson, res, &w, foundLoader]() { foundLoader->second->loadComponent(dataJson, res, w); } });
-    }
-
-    if (loadHandlers.empty())
-        DFLOG_WARN("An entity has no components");
-
-    while (!loadHandlers.empty())
-    {
-        loadHandlers.top().handler();
-        loadHandlers.pop();
+            DFLOG_WARN("Failed to parse entity description, unknown component %s", componentType.c_str());
     }
 
     const auto &childrenJson = root["children"];
     for (auto &childJson : childrenJson)
-        w.sceneGraph().attachChild(res, createEntity(childJson, w));
+        w.sceneGraph().attachChild(res, createEntityFromJson(childJson, w));
 
     return res;
 }

@@ -9,6 +9,7 @@
 #include <df3d/engine/3d/Camera.h>
 #include <df3d/engine/particlesys/ParticleSystemComponentProcessor.h>
 #include <df3d/game/TagComponentProcessor.h>
+#include <df3d/game/EntityComponentLoader.h>
 #include <df3d/engine/physics/PhysicsComponentProcessor.h>
 #include <df3d/engine/render/RenderQueue.h>
 
@@ -109,12 +110,12 @@ Entity World::spawn()
 
 Entity World::spawnFromFile(const char *entityResource)
 {
-    return m_entityLoader->createEntity(entityResource, *this);
+    return m_entityLoader->createEntityFromFile(entityResource, *this);
 }
 
 Entity World::spawnFromJson(const Json::Value &entityResource)
 {
-    return m_entityLoader->createEntity(entityResource, *this);
+    return m_entityLoader->createEntityFromJson(entityResource, *this);
 }
 
 bool World::alive(Entity e)
@@ -163,6 +164,11 @@ size_t World::getEntitiesCount()
 void World::pauseSimulation(bool paused)
 {
     m_paused = paused;
+}
+
+void World::registerEntityComponentLoader(const std::string &name, unique_ptr<EntityComponentLoader> loader)
+{
+    m_entityLoader->registerEntityComponentLoader(name, std::move(loader));
 }
 
 StaticMeshComponentProcessor& World::staticMesh()

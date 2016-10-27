@@ -13,7 +13,7 @@ public:
         glm::vec3 position, rotation;
         glm::vec3 scale(1.0f, 1.0f, 1.0f);
         std::string name;
-        
+
         root["position"] >> position;
         root["rotation"] >> rotation;
         root["scale"] >> scale;
