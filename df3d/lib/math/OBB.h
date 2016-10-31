@@ -4,7 +4,7 @@
 
 namespace df3d {
 
-class DF3D_DLL OBB : public BoundingVolume
+class OBB : public BoundingVolume
 {
     glm::vec3 m_min;
     glm::vec3 m_max;

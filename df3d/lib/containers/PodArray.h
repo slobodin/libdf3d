@@ -6,7 +6,7 @@ class Allocator;
 
 //! Doesn't call ctor or dtor on T. Use only for POD types.
 template<typename T>
-class DF3D_DLL PodArray final
+class PodArray final
 {
     T *m_data;
     //! Actual elements count.
@@ -54,30 +54,30 @@ class DF3D_DLL PodArray final
     }
 
 public:
-    PodArray(Allocator *allocator)
+    PodArray(Allocator &allocator)
         : m_data(nullptr),
         m_size(0),
         m_capacity(0),
-        m_allocator(allocator)
+        m_allocator(&allocator)
     {
 
     }
 
-    PodArray(Allocator *allocator, size_t count, const T &def = {})
+    PodArray(Allocator &allocator, size_t count, const T &def = {})
         : PodArray<T>(allocator)
     {
         resize(count, def);
     }
 
     PodArray(const PodArray<T> &other)
-        : PodArray<T>(other.m_allocator)
+        : PodArray<T>(*other.m_allocator)
     {
         resize(other.m_size);
         memcpy(m_data, other.m_data, sizeof(T) * other.m_size);
     }
 
     PodArray(PodArray<T> &&other)
-        : PodArray<T>(other.m_allocator)
+        : PodArray<T>(*other.m_allocator)
     {
         swap(*this, other);
     }

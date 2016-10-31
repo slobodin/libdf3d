@@ -4,7 +4,7 @@ namespace df3d {
 
 class BoundingSphere;
 
-class DF3D_DLL Frustum
+class Frustum
 {
     enum
     {

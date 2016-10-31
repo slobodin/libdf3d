@@ -8,7 +8,7 @@ static const HandleType HANDLE_INDEX_MASK = (1 << HANDLE_INDEX_BITS) - 1;
 static const HandleType HANDLE_GENERATION_BITS = 13;
 static const HandleType HANDLE_GENERATION_MASK = (1 << HANDLE_GENERATION_BITS) - 1;
 
-HandleBag::HandleBag(Allocator *allocator)
+HandleBag::HandleBag(Allocator &allocator)
     : m_generations(allocator),
     m_freeList(allocator)
 {

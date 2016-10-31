@@ -9,7 +9,7 @@
 namespace df3d {
 
 // Distribution should be consistent across all platforms.
-class DF3D_DLL RandomUtils
+class RandomUtils
 {
 public:
     static std::mt19937 gen;
@@ -25,7 +25,7 @@ public:
     static int randRange(int a, int b);
 };
 
-class DF3D_DLL TimeUtils
+class TimeUtils
 {
 public:
     using TimePoint = std::chrono::time_point<std::chrono::system_clock>;

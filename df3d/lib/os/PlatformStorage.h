@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-class DF3D_DLL PlatformStorage
+class PlatformStorage
 {
 public:
     static bool saveData(const char *id, const PodArray<uint8_t> &data);

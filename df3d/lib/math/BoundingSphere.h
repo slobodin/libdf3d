@@ -7,7 +7,7 @@ namespace df3d {
 class AABB;
 struct Ray;
 
-class DF3D_DLL BoundingSphere : public BoundingVolume
+class BoundingSphere : public BoundingVolume
 {
     glm::vec3 m_position;
     float m_radius;

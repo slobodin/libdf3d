@@ -2,9 +2,7 @@
 
 namespace df3d {
 
-struct SubMesh;
-
-class DF3D_DLL BoundingVolume
+class BoundingVolume
 {
 public:
     virtual ~BoundingVolume() = default;
@@ -13,8 +11,6 @@ public:
     virtual void updateBounds(const glm::vec3 &point) = 0;
 
     virtual bool isValid() const = 0;
-
-    virtual void constructFromGeometry(const std::vector<SubMesh> &submeshes);
 };
 
 }

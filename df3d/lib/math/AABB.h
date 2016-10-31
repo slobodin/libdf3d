@@ -6,7 +6,7 @@ namespace df3d {
 
 class BoundingSphere;
 
-class DF3D_DLL AABB : public BoundingVolume
+class AABB : public BoundingVolume
 {
     glm::vec3 m_min;
     glm::vec3 m_max;

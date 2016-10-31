@@ -4,7 +4,7 @@
 
 namespace df3d {
 
-class DF3D_DLL MallocAllocator : public Allocator
+class MallocAllocator : public Allocator
 {
     int m_totalAllocated = 0;
     std::mutex m_lock;

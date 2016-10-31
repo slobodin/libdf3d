@@ -9,7 +9,7 @@ namespace df3d {
 /*!
  * \brief Prefer to use only with POD types.
  */
-class DF3D_DLL Dict
+class Dict
 {
     std::unordered_map<std::string, Any> m_kvPairs;
 

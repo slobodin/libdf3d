@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-class DF3D_DLL PlatformUtils
+class PlatformUtils
 {
 public:
     static size_t getProcessMemUsed();

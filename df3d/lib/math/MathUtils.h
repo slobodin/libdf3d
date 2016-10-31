@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-class DF3D_DLL MathUtils
+class MathUtils
 {
 public:
     static const glm::vec4 XAxis;
@@ -29,7 +29,7 @@ public:
     }
 };
 
-struct DF3D_DLL Spherical
+struct Spherical
 {
     float r;
     float yaw;
@@ -42,7 +42,7 @@ struct DF3D_DLL Spherical
     glm::vec3 toCartesian();
 };
 
-struct DF3D_DLL Ray
+struct Ray
 {
     glm::vec3 origin;
     glm::vec3 dir;

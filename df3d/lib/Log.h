@@ -9,7 +9,7 @@ namespace df3d {
 
 class LoggerImpl;
 
-class DF3D_DLL Log
+class Log
 {
 public:
     enum LogChannel
@@ -41,7 +41,7 @@ public:
     void vprint(LogChannel channel, const char *fmt, va_list argList);
 };
 
-extern DF3D_DLL Log &glog;
+extern Log &glog;
 
 #define DFLOG_DEBUG(...) df3d::glog.print(df3d::Log::CHANNEL_DEBUG, __VA_ARGS__)
 #define DFLOG_MESS(...) df3d::glog.print(df3d::Log::CHANNEL_MESS, __VA_ARGS__)

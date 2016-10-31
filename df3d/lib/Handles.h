@@ -6,14 +6,14 @@ namespace df3d {
 
 using HandleType = uint32_t;
 
-class DF3D_DLL HandleBag
+class HandleBag
 {
     PodArray<HandleType> m_generations;
     PodArray<HandleType> m_freeList;
     uint32_t m_count = 0;
 
 public:
-    HandleBag(Allocator *allocator);
+    HandleBag(Allocator &allocator);
     ~HandleBag();
 
     HandleType getNew();

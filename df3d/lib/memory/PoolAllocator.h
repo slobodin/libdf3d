@@ -4,7 +4,7 @@
 
 namespace df3d {
 
-class DF3D_DLL PoolAllocator : public Allocator
+class PoolAllocator : public Allocator
 {
 public:
     PoolAllocator();
