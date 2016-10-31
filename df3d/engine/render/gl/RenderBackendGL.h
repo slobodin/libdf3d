@@ -6,7 +6,7 @@
 #endif
 
 #include <df3d/engine/render/IRenderBackend.h>
-#include <df3d/engine/render/Texture.h>
+#include <df3d/engine/resources/TextureResource.h>
 #include <df3d/lib/Handles.h>
 #include <df3d/lib/Utils.h>
 
@@ -38,8 +38,6 @@
 #endif
 
 namespace df3d {
-
-class Texture;
 
 class GpuMemoryStats
 {
@@ -229,7 +227,7 @@ public:
     void bindIndexBuffer(IndexBufferHandle ibHandle) override;
     void updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data) override;
 
-    TextureHandle createTexture2D(const TextureInfo &info, const void *data, size_t dataSize) override;
+    TextureHandle createTexture2D(const TextureInfo &info, uint32_t flags, const void *data, size_t dataSize) override;
     void updateTexture(TextureHandle textureHandle, int w, int h, const void *data) override;
     void destroyTexture(TextureHandle textureHandle) override;
 

@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-struct DF3D_DLL EngineInitParams
+struct EngineInitParams
 {
     int windowWidth = DEFAULT_WINDOW_WIDTH;
     int windowHeight = DEFAULT_WINDOW_HEIGHT;

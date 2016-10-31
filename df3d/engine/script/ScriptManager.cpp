@@ -9,9 +9,9 @@
 #include <cstdio>
 #include <sqrat/sqrat.h>
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/FileSystem.h>
-#include <df3d/engine/io/DataSource.h>
-#include <df3d/lib/Utils.h>
+#include <df3d/engine/resources/ResourceManager.h>
+#include <df3d/engine/resources/ResourceFileSystem.h>
+#include <df3d/engine/resources/ResourceDataSource.h>
 
 namespace df3d {
 
@@ -25,16 +25,6 @@ static void printfunc(HSQUIRRELVM v, const SQChar *s, ...)
 
     va_end(arglist);
 #endif
-}
-
-ScriptManager::ScriptManager()
-{
-
-}
-
-ScriptManager::~ScriptManager()
-{
-
 }
 
 void ScriptManager::initialize()
@@ -72,19 +62,14 @@ void ScriptManager::shutdown()
 
 bool ScriptManager::doFile(const char *fileName)
 {
-    if (auto file = svc().fileSystem().open(fileName))
+    if (auto file = svc().resourceManager().getFS().open(fileName))
     {
-        // FIXME: store execution result too.
-        if (utils::contains_key(m_executedFiles, file->getPath()))
-            return true;
-
         std::string buffer(file->getSize(), 0);
         file->read(&buffer[0], buffer.size());
 
         DFLOG_DEBUG("Executing %s", fileName);
-        m_executedFiles.insert(file->getPath());
 
-        file.reset();
+        svc().resourceManager().getFS().close(file);
 
         return doString(buffer.c_str());
     }
@@ -95,7 +80,7 @@ bool ScriptManager::doFile(const char *fileName)
     }
 }
 
-bool ScriptManager::doString(const SQChar *str)
+bool ScriptManager::doString(const char *str)
 {
     Sqrat::Script squirrelScript(m_squirrel);
 

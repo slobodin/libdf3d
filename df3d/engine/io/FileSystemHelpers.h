@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-class DF3D_DLL FileSystemHelpers
+class FileSystemHelpers
 {
 public:
     static std::string getFileDirectory(const std::string &filePath);

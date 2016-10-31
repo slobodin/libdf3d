@@ -4,7 +4,7 @@
 
 namespace df3d {
 
-class DF3D_DLL EngineCVars
+class EngineCVars
 {
 public:
     static ConfigVariableBool bulletDebugDraw;

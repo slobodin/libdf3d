@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-class DF3D_DLL Light
+class Light
 {
 public:
     enum class Type

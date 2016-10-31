@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-class DF3D_DLL GLSLPreprocess
+class GLSLPreprocess
 {
 public:
     static std::string preprocess(const std::string &input, const std::string &shaderPath);

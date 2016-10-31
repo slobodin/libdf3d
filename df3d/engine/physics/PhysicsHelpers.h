@@ -8,7 +8,7 @@
 
 namespace df3d {
 
-class DF3D_DLL PhysicsHelpers
+class PhysicsHelpers
 {
 public:
     static btVector3 glmTobt(const glm::vec3 &v)

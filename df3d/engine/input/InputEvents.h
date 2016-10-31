@@ -113,7 +113,7 @@ enum KeyModifier
 
 using TouchID = intptr_t;
 
-class DF3D_DLL Touch
+class Touch
 {
 public:
     static const TouchID INVALID_ID = -1;

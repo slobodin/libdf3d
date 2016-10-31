@@ -3,7 +3,7 @@
 namespace df3d {
 
 template<typename T>
-class DF3D_DLL ConfigVariable
+class ConfigVariable
 {
     T m_val;
     std::string m_name;

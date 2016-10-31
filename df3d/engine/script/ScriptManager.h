@@ -4,15 +4,13 @@
 
 namespace df3d {
 
-class DF3D_DLL ScriptManager : NonCopyable
+class ScriptManager : NonCopyable
 {
     HSQUIRRELVM m_squirrel = nullptr;
 
-    std::set<ResourceGUID> m_executedFiles;
-
 public:
-    ScriptManager();
-    ~ScriptManager();
+    ScriptManager() = default;
+    ~ScriptManager() = default;
 
     void initialize();
     void shutdown();

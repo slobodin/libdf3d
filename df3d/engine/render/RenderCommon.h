@@ -16,6 +16,20 @@ extern const uint32_t TEXTURE_WRAP_MODE_MASK;
 extern const uint32_t TEXTURE_MAX_ANISOTROPY;
 extern const uint32_t TEXTURE_MAX_ANISOTROPY_MASK;
 
+enum class PixelFormat
+{
+    INVALID,
+
+    RGB,
+    RGBA,
+    DEPTH,
+
+    PVRTC_2RGB_V1,
+    PVRTC_2RGBA_V1,
+    PVRTC_4RGB_V1,
+    PVRTC_4RGBA_V1
+};
+
 //! Hint to graphics backend as to how a buffer's data will be accessed.
 enum class GpuBufferUsageType
 {
@@ -85,7 +99,7 @@ DF3D_DECLARE_HANDLE(GpuProgramHandle)
 DF3D_DECLARE_HANDLE(UniformHandle)
 DF3D_DECLARE_HANDLE(FrameBufferHandle)
 
-struct DF3D_DLL FrameStats
+struct FrameStats
 {
     size_t drawCalls = 0;
     size_t totalTriangles = 0;
@@ -93,6 +107,35 @@ struct DF3D_DLL FrameStats
 
     size_t textures = 0;
     size_t gpuMemBytes = 0;
+};
+
+enum class SharedUniformType
+{
+    WORLD_VIEW_PROJECTION_MATRIX_UNIFORM,
+    WORLD_VIEW_MATRIX_UNIFORM,
+    WORLD_VIEW_3X3_MATRIX_UNIFORM,
+    VIEW_INVERSE_MATRIX_UNIFORM,
+    VIEW_MATRIX_UNIFORM,
+    WORLD_INVERSE_MATRIX_UNIFORM,
+    WORLD_MATRIX_UNIFORM,
+    NORMAL_MATRIX_UNIFORM,
+    PROJECTION_MATRIX_UNIFORM,
+
+    CAMERA_POSITION_UNIFORM,
+
+    GLOBAL_AMBIENT_UNIFORM,
+
+    FOG_DENSITY_UNIFORM,
+    FOG_COLOR_UNIFORM,
+
+    PIXEL_SIZE_UNIFORM,
+
+    ELAPSED_TIME_UNIFORM,
+
+    SCENE_LIGHT_COLOR_UNIFORM,
+    SCENE_LIGHT_POSITION_UNIFORM,
+
+    COUNT
 };
 
 }

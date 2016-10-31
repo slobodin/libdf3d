@@ -6,7 +6,7 @@
 
 namespace df3d {
 
-class DF3D_DLL Camera : NonCopyable  // Should be polymorphic.
+class Camera : NonCopyable  // Should be polymorphic.
 {
     glm::mat4 m_worldToCamera;
     glm::mat4 m_projectionMatrix;

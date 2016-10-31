@@ -15,7 +15,7 @@ struct Transform
     glm::vec3 scaling = glm::vec3(1.0f, 1.0f, 1.0f);
 };
 
-class DF3D_DLL SceneGraphComponentProcessor : public EntityComponentProcessor
+class SceneGraphComponentProcessor : public EntityComponentProcessor
 {
     struct Impl;
     unique_ptr<Impl> m_pimpl;

@@ -4,12 +4,12 @@
 
 namespace df3d {
 
-class FileSystem;
+class ResourceFileSystem;
 
-class DF3D_DLL JsonUtils
+class JsonUtils
 {
 public:
-    static Json::Value fromFile(const char *path, FileSystem &fs);
+    static Json::Value fromFile(const char *path);
     static Json::Value fromSource(const std::string &data);
 
     static glm::vec2 getOrDefault(const Json::Value &v, const glm::vec2 &defVal = {});

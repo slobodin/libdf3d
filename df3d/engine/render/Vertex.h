@@ -5,7 +5,7 @@ namespace df3d {
 // Silly assert but we support only floats.
 static_assert(std::is_same<glm::vec3::value_type, float>::value, "glm: only floats are supported");
 
-class DF3D_DLL VertexFormat
+class VertexFormat
 {
 public:
     enum VertexAttribute : uint16_t
@@ -62,7 +62,7 @@ public:
     }
 };
 
-class DF3D_DLL VertexData
+class VertexData
 {
     PodArray<uint8_t> m_data;
     VertexFormat m_format;
@@ -82,7 +82,7 @@ public:
     size_t getSizeInBytes() const { return m_data.size(); }
 };
 
-struct DF3D_DLL Vertex_p_c
+struct Vertex_p_c
 {
     glm::vec3 pos;
     glm::vec4 color;
@@ -90,7 +90,7 @@ struct DF3D_DLL Vertex_p_c
     static const VertexFormat& getFormat();
 };
 
-struct DF3D_DLL Vertex_p_tx_c
+struct Vertex_p_tx_c
 {
     glm::vec3 pos;
     glm::vec2 uv;
@@ -99,7 +99,7 @@ struct DF3D_DLL Vertex_p_tx_c
     static const VertexFormat& getFormat();
 };
 
-struct DF3D_DLL Vertex_p_n_tx_tan_bitan
+struct Vertex_p_n_tx_tan_bitan
 {
     glm::vec3 pos;
     glm::vec3 normal;

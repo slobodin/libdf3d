@@ -6,7 +6,7 @@ namespace df3d {
 
 struct Vertex_p_n_tx_tan_bitan;
 
-class DF3D_DLL MeshUtils
+class MeshUtils
 {
 public:
     static void indexize(const Vertex_p_n_tx_tan_bitan *vdata, size_t count,

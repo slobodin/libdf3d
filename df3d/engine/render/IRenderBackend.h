@@ -40,7 +40,7 @@ public:
     virtual void bindIndexBuffer(IndexBufferHandle ibHandle) = 0;
     virtual void updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data) = 0;
 
-    virtual TextureHandle createTexture2D(const TextureInfo &info, const void *data, size_t dataSize) = 0;
+    virtual TextureHandle createTexture2D(const TextureInfo &info, uint32_t flags, const void *data, size_t dataSize) = 0;
     virtual void updateTexture(TextureHandle textureHandle, int w, int h, const void *data) = 0;
     virtual void destroyTexture(TextureHandle textureHandle) = 0;
 

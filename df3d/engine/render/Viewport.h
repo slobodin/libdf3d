@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-class DF3D_DLL Viewport
+class Viewport
 {
     int m_x;
     int m_y;

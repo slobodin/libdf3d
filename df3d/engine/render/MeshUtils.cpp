@@ -1,7 +1,7 @@
 #include "MeshUtils.h"
 
 #include <df3d/lib/math/MathUtils.h>
-#include <df3d/engine/render/MeshData.h>
+#include <df3d/engine/render/Vertex.h>
 #include <df3d/engine/EngineController.h>
 #include <mikktspace/mikktspace.h>
 
