@@ -14,7 +14,7 @@ enum TimeChannel
     TIME_CHANNEL_COUNT
 };
 
-class DF3D_DLL Timer
+class Timer
 {
     friend class EngineController;
 
@@ -47,13 +47,13 @@ public:
     float getElapsedTime() { return m_timeElapsed; }
 };
 
-class DF3D_DLL ITimeListener
+class ITimeListener
 {
 public:
     virtual void onUpdate() = 0;
 };
 
-class DF3D_DLL TimeManager : NonCopyable
+class TimeManager : NonCopyable
 {
 public:
     using UpdateFn = std::function<void()>;

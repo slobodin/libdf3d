@@ -21,6 +21,7 @@ public:
 
     bool isValid(HandleType handle) const;
     uint32_t getSize() const { return m_count; }
+    bool empty() const { return getSize() == 0; }
 
     void reset();
 
