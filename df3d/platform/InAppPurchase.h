@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-struct DF3D_DLL StoreProduct
+struct StoreProduct
 {
     std::string identifier;
     std::string localizedPrice;
@@ -20,7 +20,7 @@ struct StorePurchaseResult
     std::string productId;
 };
 
-class DF3D_DLL InAppPurchase : NonCopyable
+class InAppPurchase : NonCopyable
 {
     struct Impl;
     unique_ptr<Impl> m_pImpl;

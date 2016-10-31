@@ -5,7 +5,7 @@
 
 namespace df3d {
 
-class DF3D_DLL AppDelegate
+class AppDelegate
 {
 public:
     AppDelegate() = default;
@@ -30,7 +30,7 @@ public:
     static AppDelegate* getInstance();
 };
 
-class DF3D_DLL Application final
+class Application final
 {
 public:
     static void setTitle(const std::string &title);

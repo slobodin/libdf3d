@@ -5,7 +5,7 @@
 
 namespace df3d {
 
-class DF3D_DLL FPSCamera : public Camera, public ITimeListener
+class FPSCamera : public Camera, public ITimeListener
 {
     bool m_freeMove;
     float m_velocity = 0.0f;

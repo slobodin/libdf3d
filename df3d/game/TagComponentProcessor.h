@@ -5,7 +5,7 @@
 
 namespace df3d {
 
-class DF3D_DLL TagComponentProcessor : public EntityComponentProcessor
+class TagComponentProcessor : public EntityComponentProcessor
 {
     // Tag to entities with this tag lookup.
     std::unordered_map<int, std::unordered_set<Entity>> m_entities;

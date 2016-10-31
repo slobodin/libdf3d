@@ -6,7 +6,7 @@ namespace df3d {
 
 class RenderQueue;
 
-class DF3D_DLL EntityComponentProcessor : NonCopyable
+class EntityComponentProcessor : NonCopyable
 {
 public:
     EntityComponentProcessor() = default;

@@ -6,7 +6,7 @@ namespace df3d {
 
 class World;
 
-class DF3D_DLL EntityComponentLoader
+class EntityComponentLoader
 {
 public:
     virtual ~EntityComponentLoader() = default;
