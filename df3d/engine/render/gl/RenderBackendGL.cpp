@@ -2,9 +2,9 @@
 
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/render/RenderCommon.h>
-#include <df3d/engine/render/Texture.h>
 #include <df3d/engine/render/RenderOperation.h>
-#include <df3d/engine/render/GpuProgram.h>
+#include <df3d/engine/resources/TextureResource.h>
+#include <df3d/engine/resources/GpuProgramResource.h>
 #include <df3d/lib/Utils.h>
 
 namespace df3d {
@@ -250,7 +250,13 @@ RenderBackendGL::RenderBackendGL(int width, int height)
 
 RenderBackendGL::~RenderBackendGL()
 {
-
+    DF3D_ASSERT(m_vertexBuffersBag.empty());
+    DF3D_ASSERT(m_indexBuffersBag.empty());
+    DF3D_ASSERT(m_texturesBag.empty());
+    DF3D_ASSERT(m_shadersBag.empty());
+    DF3D_ASSERT(m_gpuProgramsBag.empty());
+    DF3D_ASSERT(m_uniformsBag.empty());
+    DF3D_ASSERT(m_framebuffersBag.empty());
 }
 
 const RenderBackendCaps& RenderBackendGL::getCaps() const
@@ -542,7 +548,7 @@ void RenderBackendGL::updateIndexBuffer(IndexBufferHandle ibHandle, size_t indic
     m_currentIndexBuffer = {};
 }
 
-TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const void *data, size_t dataSize)
+TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, uint32_t flags, const void *data, size_t dataSize)
 {
     TextureGL texture;
 
@@ -595,8 +601,8 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const vo
 
     GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture.glID));
 
-    SetupGLWrapMode(GL_TEXTURE_2D, info.flags);
-    SetupGLTextureFiltering(GL_TEXTURE_2D, info.flags);
+    SetupGLWrapMode(GL_TEXTURE_2D, flags);
+    SetupGLTextureFiltering(GL_TEXTURE_2D, flags);
 
     if (IsCompressedTexture(info.format))
     {
@@ -626,7 +632,7 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const vo
     {
         GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, info.width, info.height, 0, pixelDataFormat, GL_UNSIGNED_BYTE, data));
 
-        if ((info.flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_TRILINEAR)
+        if ((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_TRILINEAR)
         {
             // Generate mip maps if not provided with texture.
             if (info.numMips == 0)
@@ -636,7 +642,7 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, const vo
 
     if (m_anisotropicFilteringSupported && m_caps.maxAnisotropy > 0.0f)
     {
-        if ((info.flags & TEXTURE_MAX_ANISOTROPY_MASK) == TEXTURE_MAX_ANISOTROPY)
+        if ((flags & TEXTURE_MAX_ANISOTROPY_MASK) == TEXTURE_MAX_ANISOTROPY)
             GL_CHECK(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, std::max(1.0f, m_caps.maxAnisotropy)));
     }
 
