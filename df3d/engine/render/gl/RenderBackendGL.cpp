@@ -4,7 +4,6 @@
 #include <df3d/engine/render/RenderCommon.h>
 #include <df3d/engine/render/RenderOperation.h>
 #include <df3d/engine/resources/TextureResource.h>
-#include <df3d/engine/resources/GpuProgramResource.h>
 #include <df3d/lib/Utils.h>
 
 namespace df3d {
