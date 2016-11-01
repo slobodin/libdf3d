@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../MeshLoaders.h"
-
-namespace df3d { namespace resource_loaders {
+namespace df3d {
 
 const int DFMESH_MAX_MATERIAL_ID = 128;
 const int DFMESH_MAX_MATERIAL_LIB_ID = 128;
@@ -57,16 +55,9 @@ struct DFMeshSubmeshHeader
 
 #pragma pack(pop)
 
-//! DFMesh file format decoder.
-/*!
- * DFMesh is a file format for meshes used in libdf3d.
- */
-class MeshLoader_dfmesh
-{
-public:
-    MeshLoader_dfmesh();
+struct MeshResourceData;
+class ResourceDataSource;
 
-    unique_ptr<MeshDataFSLoader::Mesh> load(shared_ptr<DataSource> source);
-};
+MeshResourceData* MeshLoader_dfmesh(ResourceDataSource &dataSource, Allocator &alloc);
 
-} }
+}

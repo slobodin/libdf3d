@@ -2,13 +2,9 @@
 
 namespace df3d {
 
-class DataSource;
-struct PixelData;
+class ResourceDataSource;
+struct TextureResourceData;
 
-class TextureLoader_pvrtc
-{
-public:
-    static bool load(shared_ptr<DataSource> source, PixelData &outPixelData);
-};
+TextureResourceData* TextureLoader_pvrtc(ResourceDataSource &dataSource, Allocator &alloc);
 
 }

@@ -6,7 +6,6 @@ namespace df3d {
 
 class RenderManager;
 class ResourceManager;
-class FileSystem;
 class GuiManager;
 class AudioManager;
 class InputManager;
@@ -17,14 +16,13 @@ class Viewport;
 class World;
 class Allocator;
 
-class DF3D_DLL EngineController : NonCopyable
+class EngineController : NonCopyable
 {
     friend bool EngineInit(EngineInitParams params);
     friend void EngineShutdown();
 
     unique_ptr<RenderManager> m_renderManager;
     unique_ptr<ResourceManager> m_resourceManager;
-    unique_ptr<FileSystem> m_fileSystem;
     unique_ptr<GuiManager> m_guiManager;
     unique_ptr<AudioManager> m_audioManager;
     unique_ptr<InputManager> m_inputManager;
@@ -55,7 +53,6 @@ public:
 
     RenderManager& renderManager() { return *m_renderManager; }
     ResourceManager& resourceManager() { return *m_resourceManager; }
-    FileSystem& fileSystem() { return *m_fileSystem; }
     GuiManager& guiManager() { return *m_guiManager; }
     AudioManager& audioManager() { return *m_audioManager; }
     InputManager& inputManager() { return *m_inputManager; }
@@ -70,10 +67,10 @@ public:
     void deleteWorld();
 };
 
-DF3D_DLL EngineController& svc();
+EngineController& svc();
 
 // TODO: move from here.
-class DF3D_DLL MemoryManager
+class MemoryManager
 {
     static Allocator *m_defaultAllocator;
 
@@ -81,7 +78,7 @@ public:
     static void init();
     static void shutdown();
 
-    static Allocator* allocDefault() { return m_defaultAllocator; }
+    static Allocator& allocDefault() { return *m_defaultAllocator; }
 };
 
 }

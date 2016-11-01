@@ -41,8 +41,8 @@ public:
     bool isPlaying(Entity e) const;
     bool isVisible(Entity e) const;
 
+    // NOTE: duplicating particle system!
     void add(Entity e, ResourceID resourceID);
-    void add(Entity e, SPK::Ref<SPK::System> spkSystem, bool worldTransformed, float lifeTime);
     void remove(Entity e) override;
     bool has(Entity e) override;
 

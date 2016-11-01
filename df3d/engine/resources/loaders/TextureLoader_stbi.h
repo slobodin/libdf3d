@@ -2,13 +2,9 @@
 
 namespace df3d {
 
-class DataSource;
-struct PixelData;
+class ResourceDataSource;
+struct TextureResourceData;
 
-class TextureLoader_stbi
-{
-public:
-    static bool load(shared_ptr<DataSource> source, bool forceRGBA, PixelData &outPixelData);
-};
+TextureResourceData* TextureLoader_stbi(ResourceDataSource &dataSource, Allocator &alloc, bool forceRGBA);
 
 }

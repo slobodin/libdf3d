@@ -1,10 +1,11 @@
 #pragma once
 
 #include <SPARK.h>
+#include <df3d/engine/render/Material.h>
 
 namespace df3d {
 
-class Texture;
+struct TextureResource;
 class RenderPass;
 
 namespace particlesys_impl {
@@ -16,7 +17,7 @@ class ParticleSystemRenderer : public SPK::Renderer
     spark_description(ParticleSystemRenderer, SPK::Renderer)
 
 public:
-    shared_ptr<RenderPass> m_pass;
+    mutable RenderPass m_pass;
 
     // This is a workaround.
     // We need to pass RenderQueue in order to populate it when renderParticles called.
@@ -27,7 +28,7 @@ public:
     ~ParticleSystemRenderer();
 
     void setBlendMode(SPK::BlendMode blendMode) override;
-    void setDiffuseMap(shared_ptr<Texture> texture);
+    void setDiffuseMap(TextureHandle texture);
     void enableFaceCulling(bool enable);
 };
 

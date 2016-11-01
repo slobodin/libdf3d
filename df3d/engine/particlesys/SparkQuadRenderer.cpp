@@ -2,7 +2,7 @@
 
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/render/RenderManager.h>
-#include <df3d/engine/render/RenderPass.h>
+#include <df3d/engine/render/Material.h>
 #include <df3d/engine/render/IRenderBackend.h>
 #include <df3d/engine/render/RenderOperation.h>
 #include <df3d/engine/render/Vertex.h>
@@ -31,7 +31,7 @@ void ParticleSystemBuffers_Quad::cleanup()
 {
     if (m_vertexData)
     {
-        MemoryManager::allocDefault()->dealloc(m_vertexData);
+        MemoryManager::allocDefault().dealloc(m_vertexData);
         m_vertexData = nullptr;
     }
 
@@ -59,7 +59,7 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
     DF3D_ASSERT_MESS(verticesCount < 0xFFFF, "Using 16-bit indices for particle system");
 
     // Allocate main memory storage copy (no glMapBuffer on ES2.0)
-    m_vertexData = (Vertex_p_tx_c*)MemoryManager::allocDefault()->alloc(sizeof(Vertex_p_tx_c) * verticesCount);
+    m_vertexData = (Vertex_p_tx_c*)MemoryManager::allocDefault().alloc(sizeof(Vertex_p_tx_c) * verticesCount);
 
     positionAtStart();
 
@@ -195,7 +195,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
     auto &buffer = static_cast<MyRenderBuffer&>(*renderBuffer);
     buffer.m_buffers->positionAtStart(); // Repositions all the buffers at the start.
 
-    m_pass->enableDepthWrite(isRenderingOptionEnabled(SPK::RENDERING_OPTION_DEPTH_WRITE));
+    m_pass.depthWrite = isRenderingOptionEnabled(SPK::RENDERING_OPTION_DEPTH_WRITE);
 
     switch (texturingMode)
     {
@@ -260,7 +260,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
         }
     }
 
-    buffer.m_buffers->draw(group.getNbParticles(), m_pass.get(), *m_currentTransformation);
+    buffer.m_buffers->draw(group.getNbParticles(), &m_pass, *m_currentTransformation);
 }
 
 void QuadParticleSystemRenderer::computeAABB(SPK::Vector3D &AABBMin, SPK::Vector3D &AABBMax, const SPK::Group &group, const SPK::DataSet *dataSet) const
