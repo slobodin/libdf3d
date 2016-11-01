@@ -1,6 +1,8 @@
 #include "WorldRenderingParams.h"
 
 #include <df3d/lib/Utils.h>
+#include <df3d/engine/EngineController.h>
+#include <df3d/engine/render/Material.h>
 
 namespace df3d {
 
@@ -11,7 +13,7 @@ WorldRenderingParams::WorldRenderingParams()
 
 WorldRenderingParams::~WorldRenderingParams()
 {
-
+    MemoryManager::allocDefault().makeDelete(m_postProcessMaterial);
 }
 
 void WorldRenderingParams::setAmbientLight(float ra, float ga, float ba)
@@ -47,12 +49,14 @@ const glm::vec3& WorldRenderingParams::getFogColor() const
     return m_fogColor;
 }
 
-void WorldRenderingParams::setPostProcessMaterial(shared_ptr<Material> material)
+void WorldRenderingParams::setPostProcessMaterial(const Material &material)
 {
-    m_postProcessMaterial = material;
+    if (m_postProcessMaterial)
+        MemoryManager::allocDefault().makeDelete(m_postProcessMaterial);
+    m_postProcessMaterial = MemoryManager::allocDefault().makeNew<Material>(material);
 }
 
-shared_ptr<Material> WorldRenderingParams::getPostProcessMaterial() const
+const Material* WorldRenderingParams::getPostProcessMaterial() const
 {
     return m_postProcessMaterial;
 }

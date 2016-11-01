@@ -6,9 +6,9 @@ namespace df3d {
 
 class Material;
 
-class DF3D_DLL WorldRenderingParams
+class WorldRenderingParams
 {
-    shared_ptr<Material> m_postProcessMaterial;
+    Material *m_postProcessMaterial = nullptr;
 
     glm::vec3 m_ambientLight = glm::vec3(1.0f, 1.0f, 1.0f);
     float m_fogDensity = 0.0f;
@@ -28,8 +28,8 @@ public:
     float getFogDensity() const;
     const glm::vec3& getFogColor() const;
 
-    void setPostProcessMaterial(shared_ptr<Material> material);
-    shared_ptr<Material> getPostProcessMaterial() const;
+    void setPostProcessMaterial(const Material &material);
+    const Material* getPostProcessMaterial() const;
 
     void addLight(const Light &light) { m_lights.push_back(light); }
     const std::vector<Light>& getLights() const { return m_lights; }

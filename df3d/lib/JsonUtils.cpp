@@ -11,12 +11,10 @@ Json::Value JsonUtils::fromFile(const char *path)
 {
     if (auto fileSource = svc().resourceManager().getFS().open(path))
     {
-        std::string buffer;
-        buffer.resize(fileSource->getSize());
-        fileSource->read(&buffer[0], buffer.size());
+        Json::Value retVal = fromFile(*fileSource);
         svc().resourceManager().getFS().close(fileSource);
 
-        return JsonUtils::fromSource(buffer);
+        return retVal;
     }
     else
     {
@@ -25,7 +23,15 @@ Json::Value JsonUtils::fromFile(const char *path)
     }
 }
 
-Json::Value JsonUtils::fromSource(const std::string &data)
+Json::Value JsonUtils::fromFile(ResourceDataSource &dataSource)
+{
+    std::string buffer;
+    buffer.resize(dataSource.getSize());
+    dataSource.read(&buffer[0], buffer.size());
+    return fromString(buffer);
+}
+
+Json::Value JsonUtils::fromString(const std::string &data)
 {
     Json::Value root;
     Json::Reader reader;

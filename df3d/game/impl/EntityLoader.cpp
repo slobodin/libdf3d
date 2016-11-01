@@ -4,6 +4,7 @@
 #include <df3d/engine/3d/SceneGraphComponentProcessor.h>
 #include <df3d/engine/EngineController.h>
 #include <df3d/lib/JsonUtils.h>
+#include <df3d/lib/Utils.h>
 #include "MeshComponentLoader.h"
 #include "PhysicsComponentLoader.h"
 #include "Sprite2DComponentLoader.h"
@@ -28,7 +29,7 @@ EntityLoader::~EntityLoader()
 
 Entity EntityLoader::createEntityFromFile(const char *resourceFile, World &w)
 {
-    return createEntityFromJson(JsonUtils::fromFile(resourceFile, svc().fileSystem()), w);
+    return createEntityFromJson(JsonUtils::fromFile(resourceFile), w);
 }
 
 Entity EntityLoader::createEntityFromJson(const Json::Value &root, World &w)
@@ -69,7 +70,7 @@ Entity EntityLoader::createEntityFromJson(const Json::Value &root, World &w)
 
 void EntityLoader::registerEntityComponentLoader(const std::string &name, unique_ptr<EntityComponentLoader> loader)
 {
-    DF3D_ASSERT(!df3d::utils::contains_key(m_loaders, name));
+    DF3D_ASSERT(!utils::contains_key(m_loaders, name));
     m_loaders.insert(std::make_pair(name, std::move(loader)));
 }
 
