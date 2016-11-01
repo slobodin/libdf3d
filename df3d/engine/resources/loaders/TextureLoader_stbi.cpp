@@ -9,9 +9,8 @@
 #endif
 #include <stb/stb_image.h>
 
-#include "../TextureLoaders.h"
-#include <df3d/engine/render/Texture.h>
-#include <df3d/engine/io/DataSource.h>
+#include <df3d/engine/resources/ResourceDataSource.h>
+#include <df3d/engine/resources/TextureResource.h>
 
 namespace df3d {
 
@@ -20,7 +19,7 @@ namespace df3d {
 // fill 'data' with 'size' bytes.  return number of bytes actually read
 static int read(void *user, char *data, int size)
 {
-    auto dataSource = static_cast<DataSource*>(user);
+    auto dataSource = (ResourceDataSource*)user;
     return dataSource->read(data, size);
 }
 
@@ -33,38 +32,32 @@ static void skip(void *user, int n)
         DF3D_ASSERT_MESS(false, "not implemented");
     }
 
-    auto dataSource = static_cast<DataSource*>(user);
+    auto dataSource = (ResourceDataSource*)user;
     dataSource->seek(n, SeekDir::CURRENT);
 }
 
 // returns nonzero if we are at end of file/data
 static int eof(void *user)
 {
-    auto dataSource = static_cast<DataSource*>(user);
+    auto dataSource = (ResourceDataSource*)user;
     return dataSource->tell() >= dataSource->getSize();
 }
 
-bool TextureLoader_stbi::load(shared_ptr<DataSource> source, bool forceRGBA, PixelData &outPixelData)
+TextureResourceData* TextureLoader_stbi(ResourceDataSource &dataSource, Allocator &alloc, bool forceRGBA)
 {
-    outPixelData.data.clear();
-
-    if (!source)
-        return false;
-
     stbi_io_callbacks callbacks;
     callbacks.read = read;
     callbacks.skip = skip;
     callbacks.eof = eof;
 
     int x, y, bpp;
-    auto pixels = stbi_load_from_callbacks(&callbacks, source.get(), &x, &y, &bpp, forceRGBA ? 4 : 0);
+    auto pixels = stbi_load_from_callbacks(&callbacks, &dataSource, &x, &y, &bpp, forceRGBA ? 4 : 0);
     if (!pixels)
     {
-        DFLOG_WARN("Can not load image %s", source->getPath().c_str());
 #ifdef STB_DO_ERROR_PRINT
         DFLOG_WARN(stbi_failure_reason());
 #endif
-        return false;
+        return nullptr;
     }
 
     auto fmt = PixelFormat::INVALID;
@@ -81,24 +74,25 @@ bool TextureLoader_stbi::load(shared_ptr<DataSource> source, bool forceRGBA, Pix
     {
         DFLOG_WARN("Parsed image with an invalid bpp");
         stbi_image_free(pixels);
-        return false;
+        return nullptr;
     }
 
     if (forceRGBA)
         DF3D_ASSERT(fmt == PixelFormat::RGBA);
 
-    outPixelData.info.format = fmt;
-    outPixelData.info.numMips = 0;
-    outPixelData.info.width = x;
-    outPixelData.info.height = y;
+    auto resource = alloc.makeNew<TextureResourceData>(alloc);
+    resource->info.format = fmt;
+    resource->info.numMips = 0;
+    resource->info.width = x;
+    resource->info.height = y;
 
     int compCount = forceRGBA ? 4 : bpp;
 
-    outPixelData.data.assign(pixels, compCount * x * y);
+    resource->pixels.assign(pixels, compCount * x * y);
 
     stbi_image_free(pixels);
 
-    return true;
+    return resource;
 }
 
 }

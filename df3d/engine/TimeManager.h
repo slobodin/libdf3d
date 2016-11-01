@@ -88,7 +88,6 @@ public:
     void unsubscribeUpdate(ITimeListener *listener);
 
     void enqueueForNextUpdate(UpdateFn &&callback);
-    void clearNextUpdateQueue();
 
     void enqueueAction(UpdateFn &&callback, float delay);
 
