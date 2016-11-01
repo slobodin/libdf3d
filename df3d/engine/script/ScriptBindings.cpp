@@ -18,9 +18,12 @@
 #include <df3d/engine/2d/Sprite2DComponentProcessor.h>
 #include <df3d/engine/3d/SceneGraphComponentProcessor.h>
 #include <df3d/engine/3d/Camera.h>
-#include <df3d/engine/particlesys/ParticleSystemComponentProcessor.h>
 #include <df3d/engine/3d/StaticMeshComponentProcessor.h>
 #include <df3d/engine/3d/Light.h>
+#include <df3d/engine/particlesys/ParticleSystemComponentProcessor.h>
+#include <df3d/engine/resources/ResourceManager.h>
+#include <df3d/engine/resources/ResourceFileSystem.h>
+#include <df3d/engine/resources/ResourceDataSource.h>
 
 using namespace Sqrat;
 
@@ -255,7 +258,7 @@ void bindProcessors(Table &df3dNamespace)
             .Func(_SC("getSystem"), &ParticleSystemComponentProcessor::getSystem)
             .Func(_SC("isWorldTransformed"), &ParticleSystemComponentProcessor::isWorldTransformed)
             .Func(_SC("isPlaying"), &ParticleSystemComponentProcessor::isPlaying)
-            .Func<void(ParticleSystemComponentProcessor::*)(Entity, const char *)>(_SC("add"), &ParticleSystemComponentProcessor::add)
+            .Func<void(ParticleSystemComponentProcessor::*)(Entity, std::string)>(_SC("add"), &ParticleSystemComponentProcessor::add)
             .Func(_SC("remove"), &ParticleSystemComponentProcessor::remove)
             .Func(_SC("has"), &ParticleSystemComponentProcessor::has)
             ;
@@ -267,7 +270,7 @@ void bindProcessors(Table &df3dNamespace)
         Class<StaticMeshComponentProcessor, NoConstructor<StaticMeshComponentProcessor>> smProcessor(vm, _SC("StaticMeshComponentProcessor"));
         smProcessor
             .Func(_SC("setVisible"), &StaticMeshComponentProcessor::setVisible)
-            .Func<void(StaticMeshComponentProcessor::*)(Entity, const std::string&)>(_SC("add"), &StaticMeshComponentProcessor::add)
+            //.Func<void(StaticMeshComponentProcessor::*)(Entity, Res)>(_SC("add"), &StaticMeshComponentProcessor::add)
             .Func(_SC("disableFrustumCulling"), &StaticMeshComponentProcessor::disableFrustumCulling)
             ;
 

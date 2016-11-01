@@ -10,11 +10,10 @@ class btMotionState;
 namespace df3d {
 
 class RenderQueue;
-class MeshData;
 class World;
 struct PhysicsComponentCreationParams;
 
-class DF3D_DLL PhysicsComponentProcessor : public EntityComponentProcessor
+class PhysicsComponentProcessor : public EntityComponentProcessor
 {
     friend class World;
 
@@ -34,7 +33,7 @@ public:
     void teleportPosition(Entity e, const glm::vec3 &pos);
     void teleportOrientation(Entity e, const glm::quat &orient);
 
-    void add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> mesh);
+    void add(Entity e, const PhysicsComponentCreationParams &params, ResourceID meshResource);
     // NOTE: body should not be added to the Physics World as it will be added via this processor.
     void add(Entity e, btRigidBody *body, short group = -1, short mask = -1);
 

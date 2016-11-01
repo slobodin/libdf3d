@@ -14,7 +14,7 @@ enum class CollisionShapeType
     UNDEFINED
 };
 
-struct DF3D_DLL PhysicsComponentCreationParams
+struct PhysicsComponentCreationParams
 {
     CollisionShapeType shape = CollisionShapeType::UNDEFINED;
 

@@ -2,7 +2,7 @@
 
 #include <df3d/game/Entity.h>
 #include <df3d/game/EntityComponentProcessor.h>
-#include <df3d/engine/render/RenderPass.h>
+#include <df3d/engine/render/RenderCommon.h>
 
 namespace df3d {
 
@@ -11,7 +11,7 @@ class World;
 
 // FIXME: improve 2d submodule, ideally remove this class.
 
-class DF3D_DLL Sprite2DComponentProcessor : public EntityComponentProcessor
+class Sprite2DComponentProcessor : public EntityComponentProcessor
 {
     friend class World;
 
@@ -41,7 +41,7 @@ public:
 
     const glm::vec2& getScreenPosition(Entity e);
 
-    void useTexture(Entity e, const std::string &pathToTexture);
+    void useTexture(Entity e, ResourceID textureResource);
     const glm::vec2& getTextureSize(Entity e) const;
 
     void setBlendMode(Entity e, BlendingMode bm);
@@ -49,7 +49,7 @@ public:
     void setBlendMode2(Entity e, int bm);
     void setDiffuseColor(Entity e, const glm::vec4 &diffuseColor);
 
-    void add(Entity e, const std::string &texturePath);
+    void add(Entity e, ResourceID textureResource);
     void remove(Entity e) override;
     bool has(Entity e) override;
 };

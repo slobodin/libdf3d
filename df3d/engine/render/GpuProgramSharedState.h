@@ -2,9 +2,9 @@
 
 namespace df3d {
 
-class GpuProgram;
 class Light;
 class Viewport;
+struct GpuProgramResource;
 
 class GpuProgramSharedState
 {
@@ -73,8 +73,8 @@ public:
 
     void clear();
 
-    void updateSharedUniforms(const GpuProgram &program);
-    void updateSharedLightUniforms(const GpuProgram &program);  // Forward rendering
+    void updateSharedUniforms(const GpuProgramResource &program);
+    void updateSharedLightUniforms(const GpuProgramResource &program);  // Forward rendering
 };
 
 }

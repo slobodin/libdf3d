@@ -1,11 +1,11 @@
 #include "GpuProgramSharedState.h"
 
-#include "GpuProgram.h"
 #include "IRenderBackend.h"
 #include "RenderManager.h"
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/TimeManager.h>
 #include <df3d/engine/3d/Camera.h>
+#include <df3d/engine/resources/GpuProgramResource.h>
 #include <df3d/game/World.h>
 
 namespace df3d {
@@ -163,11 +163,9 @@ void GpuProgramSharedState::clear()
     m_engineElapsedTime = svc().timer().getElapsedTime();
 }
 
-void GpuProgramSharedState::updateSharedUniforms(const GpuProgram &program)
+void GpuProgramSharedState::updateSharedUniforms(const GpuProgramResource &program)
 {
-    const auto &sharedUniforms = program.getSharedUniforms();
-
-    for (const auto &sharedUni : sharedUniforms)
+    for (const auto &sharedUni : program.sharedUniforms)
     {
         const void *data = nullptr;
 
@@ -228,11 +226,9 @@ void GpuProgramSharedState::updateSharedUniforms(const GpuProgram &program)
     }
 }
 
-void GpuProgramSharedState::updateSharedLightUniforms(const GpuProgram &program)
+void GpuProgramSharedState::updateSharedLightUniforms(const GpuProgramResource &program)
 {
-    const auto &sharedUniforms = program.getSharedUniforms();
-
-    for (const auto &sharedUni : sharedUniforms)
+    for (const auto &sharedUni : program.sharedUniforms)
     {
         const void *data = nullptr;
 

@@ -7,14 +7,12 @@ namespace df3d {
 extern const uint32_t TEXTURE_FILTERING_NEAREST;
 extern const uint32_t TEXTURE_FILTERING_BILINEAR;
 extern const uint32_t TEXTURE_FILTERING_TRILINEAR;
+extern const uint32_t TEXTURE_FILTERING_ANISOTROPIC;
 extern const uint32_t TEXTURE_FILTERING_MASK;
 
 extern const uint32_t TEXTURE_WRAP_MODE_REPEAT;
 extern const uint32_t TEXTURE_WRAP_MODE_CLAMP;
 extern const uint32_t TEXTURE_WRAP_MODE_MASK;
-
-extern const uint32_t TEXTURE_MAX_ANISOTROPY;
-extern const uint32_t TEXTURE_MAX_ANISOTROPY_MASK;
 
 enum class PixelFormat
 {

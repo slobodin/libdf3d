@@ -60,7 +60,7 @@ bool Storage::load()
     std::string jsonSource;
     jsonSource.assign(output.begin(), output.end());
 
-    auto jsonData = JsonUtils::fromSource(jsonSource);
+    auto jsonData = JsonUtils::fromString(jsonSource);
     if (jsonData.isNull())
         return false;
 

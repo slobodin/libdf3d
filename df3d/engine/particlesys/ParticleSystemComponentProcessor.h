@@ -9,23 +9,7 @@ namespace df3d {
 class RenderQueue;
 class World;
 
-struct ParticleSystemCreationParams
-{
-    bool worldTransformed = true;
-    float systemLifeTime = -1.0f;
-    SPK::Ref<SPK::System> spkSystem;
-
-    ParticleSystemCreationParams clone() const
-    {
-        ParticleSystemCreationParams result;
-        result.worldTransformed = worldTransformed;
-        result.systemLifeTime = systemLifeTime;
-        result.spkSystem = SPK::SPKObject::copy(spkSystem);
-        return result;
-    }
-};
-
-class DF3D_DLL ParticleSystemComponentProcessor : public EntityComponentProcessor
+class ParticleSystemComponentProcessor : public EntityComponentProcessor
 {
     friend class World;
 
@@ -57,8 +41,8 @@ public:
     bool isPlaying(Entity e) const;
     bool isVisible(Entity e) const;
 
-    void add(Entity e, const char *vfxResource);
-    void add(Entity e, const ParticleSystemCreationParams &params);
+    void add(Entity e, ResourceID resourceID);
+    void add(Entity e, SPK::Ref<SPK::System> spkSystem, bool worldTransformed, float lifeTime);
     void remove(Entity e) override;
     bool has(Entity e) override;
 

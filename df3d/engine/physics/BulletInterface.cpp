@@ -2,26 +2,24 @@
 
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/render/RenderManager.h>
-#include <df3d/engine/render/RenderPass.h>
+#include <df3d/engine/render/Material.h>
 #include <df3d/engine/render/IRenderBackend.h>
 #include <df3d/engine/render/RenderQueue.h>
 #include <df3d/engine/resources/ResourceManager.h>
-#include <df3d/engine/resources/ResourceFactory.h>
+#include <df3d/engine/resources/TextureResource.h>
 #include "PhysicsHelpers.h"
 
 namespace df3d { namespace physics_impl {
 
 static unique_ptr<RenderPass> CreateDebugDrawPass()
 {
-    auto pass = make_unique<RenderPass>("bullet_debug_draw_pass");
-    pass->setFaceCullMode(FaceCullMode::NONE);
-    pass->setBlendMode(BlendingMode::ALPHA);
-    pass->getPassParam("material_diffuse")->setValue(glm::vec4(1.0f, 1.0f, 1.0f, 0.7f));
-    // FIXME: force to use default white texture because using colored shader.
-    pass->getPassParam("diffuseMap")->setValue(nullptr);
-
-    auto program = svc().resourceManager().getFactory().createColoredGpuProgram();
-    pass->setGpuProgram(program);
+    auto &embedResources = svc().renderManager().getEmbedResources();
+    auto pass = make_unique<RenderPass>();
+    pass->faceCullMode = FaceCullMode::NONE;
+    pass->blendMode = BlendingMode::ALPHA;
+    pass->setParam("material_diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 0.7f));
+    pass->setParam("diffuseMap", embedResources.whiteTexture);
+    pass->program = embedResources.coloredProgram;
 
     return pass;
 }
