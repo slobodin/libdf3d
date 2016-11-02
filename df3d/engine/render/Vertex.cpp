@@ -22,10 +22,9 @@ static uint16_t GetAttributeSize(VertexFormat::VertexAttribute attrib)
     case VertexFormat::BITANGENT:
         return 3 * sizeof(float);
     default:
-        break;
+        DF3D_FATAL("no such attribute in vertex format");
     }
 
-    DF3D_ASSERT_MESS(false, "no such attribute in vertex format");
     return 0;
 }
 
@@ -43,7 +42,7 @@ static uint16_t GetAttributeCompCount(VertexFormat::VertexAttribute attrib)
     case VertexFormat::COLOR:
         return 4;
     default:
-        DF3D_ASSERT(false);
+        DF3D_FATAL("Unknown vertex attribute");
     }
 
     return 0;

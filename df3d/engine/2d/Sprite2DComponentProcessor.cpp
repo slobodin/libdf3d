@@ -7,13 +7,11 @@
 #include <df3d/engine/render/RenderManager.h>
 #include <df3d/engine/render/IRenderBackend.h>
 #include <df3d/engine/render/RenderQueue.h>
-#include <df3d/engine/render/RenderPass.h>
+#include <df3d/engine/render/Material.h>
 #include <df3d/engine/render/Vertex.h>
-#include <df3d/engine/render/Texture.h>
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/resources/ResourceManager.h>
-#include <df3d/engine/resources/ResourceFactory.h>
-#include <df3d/engine/io/FileSystem.h>
+#include <df3d/engine/resources/TextureResource.h>
 
 namespace df3d {
 
@@ -40,13 +38,11 @@ struct Sprite2DComponentProcessor::Impl
     struct Data
     {
         RenderPass pass;
-        PassParamHandle diffuseColorParam = INVALID_PASS_PARAM_HANDLE;
-        PassParamHandle diffuseMapParam = INVALID_PASS_PARAM_HANDLE;
         RenderOperation2D op;
         glm::vec2 anchor = glm::vec2(0.5f, 0.5f);
         glm::vec2 textureOriginalSize;
         glm::vec2 screenPosition;
-        ResourceGUID textureGuid;
+        ResourceID textureResourceId;
         Entity holder;
         float rotation = 0.0f;
         bool visible = true;
@@ -211,26 +207,22 @@ const glm::vec2& Sprite2DComponentProcessor::getScreenPosition(Entity e)
     return compData.screenPosition;
 }
 
-void Sprite2DComponentProcessor::useTexture(Entity e, const std::string &pathToTexture)
+void Sprite2DComponentProcessor::useTexture(Entity e, ResourceID textureResource)
 {
-    uint32_t flags = TEXTURE_FILTERING_BILINEAR | TEXTURE_WRAP_MODE_CLAMP;
+    auto &compData = m_pimpl->data.getData(e);
+    if (compData.textureResourceId == textureResource)
+        return;
 
-    auto texture = svc().resourceManager().getFactory().createTexture(pathToTexture, flags, ResourceLoadingMode::IMMEDIATE);
-    if (!texture || !texture->isInitialized())
+    auto texture = svc().resourceManager().getResource<TextureResource>(textureResource);
+    if (!texture)
     {
-        DFLOG_WARN("Failed to init Sprite2DComponent with texture %s", pathToTexture.c_str());
+        DFLOG_WARN("Failed to init Sprite2DComponent with texture %s", textureResource.c_str());
         return;
     }
 
-    auto &compData = m_pimpl->data.getData(e);
-
-    if (compData.textureGuid == texture->getGUID())
-        return;
-
-    compData.diffuseMapParam = compData.pass.getPassParamHandle("diffuseMap");
-    compData.pass.getPassParam(compData.diffuseMapParam)->setValue(texture);
-    compData.textureOriginalSize = { texture->getWidth(), texture->getHeight() };
-    compData.textureGuid = texture->getGUID();
+    compData.pass.setParam("diffuseMap", texture->handle);
+    compData.textureOriginalSize = { texture->width, texture->height };
+    compData.textureResourceId = textureResource;
 }
 
 const glm::vec2& Sprite2DComponentProcessor::getTextureSize(Entity e) const
@@ -240,7 +232,7 @@ const glm::vec2& Sprite2DComponentProcessor::getTextureSize(Entity e) const
 
 void Sprite2DComponentProcessor::setBlendMode(Entity e, BlendingMode bm)
 {
-    m_pimpl->data.getData(e).pass.setBlendMode(bm);
+    m_pimpl->data.getData(e).pass.blendMode = bm;
 }
 
 void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
@@ -251,10 +243,10 @@ void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
 void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diffuseColor)
 {
     auto &compData = m_pimpl->data.getData(e);
-    compData.pass.getPassParam(compData.diffuseColorParam)->setValue(diffuseColor);
+    compData.pass.setParam("material_diffuse", diffuseColor);
 }
 
-void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
+void Sprite2DComponentProcessor::add(Entity e, ResourceID textureResource)
 {
     if (m_pimpl->data.contains(e))
     {
@@ -265,20 +257,19 @@ void Sprite2DComponentProcessor::add(Entity e, const std::string &texturePath)
     Impl::Data data;
 
     data.holder = e;
-    data.pass.setFaceCullMode(FaceCullMode::NONE);
-    data.pass.enableDepthTest(false);
-    data.pass.enableDepthWrite(false);
-    data.pass.setBlendMode(BlendingMode::ALPHA);
-    data.pass.getPassParam("material_diffuse")->setValue(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    data.diffuseColorParam = data.pass.getPassParamHandle("material_diffuse");
-    data.diffuseMapParam = {};
+    data.pass.faceCullMode = FaceCullMode::NONE;
+    data.pass.depthTest = false;
+    data.pass.depthWrite = false;
+    data.pass.blendMode = BlendingMode::ALPHA;
+    data.pass.setParam("material_diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
     data.op.worldTransform = m_world->sceneGraph().getWorldTransformMatrix(e);
 
     m_pimpl->data.add(e, data);
 
-    useTexture(e, texturePath);
+    useTexture(e, textureResource);
 
-    m_pimpl->data.getData(e).pass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
+    auto gpuProgram = svc().renderManager().getEmbedResources().coloredProgram;
+    m_pimpl->data.getData(e).pass.program = gpuProgram;
 }
 
 void Sprite2DComponentProcessor::remove(Entity e)

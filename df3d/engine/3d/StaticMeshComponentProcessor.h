@@ -4,15 +4,14 @@
 #include <df3d/game/EntityComponentProcessor.h>
 #include <df3d/lib/math/AABB.h>
 #include <df3d/lib/math/BoundingSphere.h>
-#include <df3d/lib/math/OBB.h>
 
 namespace df3d {
 
-class MeshData;
 class RenderQueue;
 class World;
+class Material;
 
-class DF3D_DLL StaticMeshComponentProcessor : public EntityComponentProcessor
+class StaticMeshComponentProcessor : public EntityComponentProcessor
 {
     friend class World;
 
@@ -29,11 +28,12 @@ public:
     StaticMeshComponentProcessor(World *world);
     ~StaticMeshComponentProcessor();
 
-    shared_ptr<MeshData> getMeshData(Entity e) const;
+    void setMaterial(Entity e, const Material &material);
+    void setMaterial(Entity e, size_t meshPartIdx, const Material &material);
+    Material* getMaterial(Entity e, size_t meshPartIdx);
 
     AABB getAABB(Entity e);
     BoundingSphere getBoundingSphere(Entity e);
-    OBB getOBB(Entity e);
 
     void enableRender(bool enable);
     void setVisible(Entity e, bool visible);
@@ -41,10 +41,7 @@ public:
 
     bool isVisible(Entity e);
 
-    void add(Entity e, const std::string &meshFilePath);
-    void add(Entity e, const std::string &meshFilePath, ResourceLoadingMode lm);
-    void add(Entity e, shared_ptr<MeshData> meshData);
-
+    void add(Entity e, ResourceID meshResource);
     void remove(Entity e) override;
     bool has(Entity e) override;
 };

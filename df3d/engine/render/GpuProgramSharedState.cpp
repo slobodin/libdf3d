@@ -146,7 +146,7 @@ void GpuProgramSharedState::setLight(const Light &light)
     }
     else
     {
-        DF3D_ASSERT_MESS(false, "unsupported"); // TODO:
+        DF3D_FATAL("not implemented"); // TODO:
     }
 }
 

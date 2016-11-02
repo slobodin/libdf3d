@@ -1,95 +1,133 @@
 #include "Material.h"
 
-#include "Technique.h"
+#include <df3d/engine/render/IRenderBackend.h>
+#include <df3d/engine/resources/GpuProgramResource.h>
 
 namespace df3d {
 
-shared_ptr<Technique> Material::findTechnique(const std::string &name)
+ValuePassParam::ValuePassParam()
 {
-    auto findFn = [&name](const shared_ptr<Technique> &tech)
+    memset(&m_value, 0, sizeof(m_value));
+}
+
+ValuePassParam::~ValuePassParam()
+{
+
+}
+
+void ValuePassParam::setValue(int val)
+{
+    m_value.intVal = val;
+}
+
+void ValuePassParam::setValue(float val)
+{
+    m_value.floatVal = val;
+}
+
+void ValuePassParam::setValue(const glm::vec4 &val)
+{
+    m_value.vec4Val[0] = val.x;
+    m_value.vec4Val[1] = val.y;
+    m_value.vec4Val[2] = val.z;
+    m_value.vec4Val[3] = val.w;
+}
+
+void ValuePassParam::updateToProgram(IRenderBackend &backend, const  GpuProgramResource &program, const std::string &name)
+{
+    if (!m_handle.isValid())
     {
-        return tech->getName() == name;
-    };
+        auto handleFound = program.customUniforms.find(name);
+        if (handleFound == program.customUniforms.end())
+        {
+            DFLOG_WARN("Failed to lookup uniform %s in a shader", name.c_str());
+            //DF3D_ASSERT(false);
+            return;
+        }
 
-    auto found = std::find_if(m_techniques.cbegin(), m_techniques.cend(), findFn);
-    if (found == m_techniques.cend())
-        return nullptr;
-
-    return *found;
-}
-
-Material::Material(const std::string &name)
-    : m_name(name)
-{
-    if (name.empty())
-        DFLOG_WARN("Creating material with an empty name");
-}
-
-Material::Material(const Material &other)
-    : m_name(other.m_name)
-{
-    for (const auto &tech : other.m_techniques)
-        m_techniques.push_back(make_shared<Technique>(*tech));
-
-    if (other.m_currentTechnique)
-        m_currentTechnique = findTechnique(other.m_currentTechnique->getName());
-}
-
-Material& Material::operator= (Material other)
-{
-    std::swap(m_name, other.m_name);
-    std::swap(m_techniques, other.m_techniques);
-    std::swap(m_currentTechnique, other.m_currentTechnique);
-
-    return *this;
-}
-
-Material::~Material()
-{
-
-}
-
-const std::string &Material::getName() const
-{
-    return m_name;
-}
-
-void Material::appendTechnique(const Technique &technique)
-{
-    if (findTechnique(technique.getName()))
-    {
-        DFLOG_WARN("Trying to add duplicate technique %s to material %s", technique.getName().c_str(), m_name.c_str());
-        return;
+        m_handle = handleFound->second;
     }
 
-    m_techniques.push_back(make_shared<Technique>(technique));
+    backend.setUniformValue(m_handle, &m_value);
+}
+
+void RenderPass::bindCustomPassParams(IRenderBackend &backend)
+{
+    // Samplers.
+    int textureUnit = 0;
+    for (auto &kv : m_samplers)
+    {
+        auto &sampler = kv.second;
+        backend.bindTexture(sampler.texture, textureUnit);
+        sampler.uniform.setValue(textureUnit);
+        sampler.uniform.updateToProgram(backend, *program, kv.first);
+
+        textureUnit++;
+    }
+
+    // Custom uniforms.
+    for (auto &passParam : m_shaderParams)
+        passParam.second.updateToProgram(backend, *program, passParam.first);
+}
+
+void RenderPass::setParam(const std::string &name, TextureHandle texture)
+{
+    m_samplers[name].texture = texture;
+}
+
+void RenderPass::setParam(const std::string &name, int value)
+{
+    m_shaderParams[name].setValue(value);
+}
+
+void RenderPass::setParam(const std::string &name, float value)
+{
+    m_shaderParams[name].setValue(value);
+}
+
+void RenderPass::setParam(const std::string &name, const glm::vec4 &value)
+{
+    m_shaderParams[name].setValue(value);
+}
+
+void Material::addTechnique(const Technique &technique)
+{
+    auto found = std::find_if(m_techniques.begin(), m_techniques.end(), [&technique](const Technique &other) {
+        return other.name == technique.name;
+    });
+
+    if (found == m_techniques.end())
+        m_techniques.push_back(technique);
+    else
+        DFLOG_WARN("Duplicate technique!");
+}
+
+Technique* Material::getCurrentTechnique()
+{
+    if (m_currentTechIdx < 0 || m_currentTechIdx >= m_techniques.size())
+        return nullptr;
+    return &m_techniques[m_currentTechIdx];
+}
+
+const Technique* Material::getCurrentTechnique() const
+{
+    if (m_currentTechIdx < 0 || m_currentTechIdx >= m_techniques.size())
+        return nullptr;
+    return &m_techniques[m_currentTechIdx];
 }
 
 void Material::setCurrentTechnique(const std::string &name)
 {
-    if (m_currentTechnique && m_currentTechnique->getName() == name)
-        return;
+    auto found = std::find_if(m_techniques.begin(), m_techniques.end(), [name](const Technique &other) {
+        return other.name == name;
+    });
 
-    auto found = findTechnique(name);
-    if (found)
-        m_currentTechnique = found;
+    if (found != m_techniques.end())
+        m_currentTechIdx = std::distance(m_techniques.begin(), found);
     else
-        DFLOG_WARN("Trying to set empty technique %s to material %s", name.c_str(), m_name.c_str());
+        DFLOG_WARN("Failed to set technique");
 }
 
-shared_ptr<Technique> Material::getCurrentTechnique()
-{
-    return m_currentTechnique;
-}
-
-shared_ptr<Technique> Material::getTechnique(const std::string &name)
-{
-    return findTechnique(name);
-}
-
-size_t Material::getTechniquesCount() const
-{
-    return m_techniques.size();
-}
+std::string PREFERRED_TECHNIQUE;
 
 }

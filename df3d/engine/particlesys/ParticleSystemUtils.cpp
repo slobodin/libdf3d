@@ -14,7 +14,7 @@ SPK::Ref<SPK::Renderer> ParticleSystemUtils::createQuadRenderer(const glm::vec2 
 
     auto resource = svc().resourceManager().getResource<TextureResource>(textureResource);
     DF3D_ASSERT(resource != nullptr);
-    quadRenderer->setDiffuseMap(resource->handle);
+    quadRenderer->m_pass.setParam("diffuseMap", resource->handle);
     quadRenderer->setTexturingMode(SPK::TEXTURE_MODE_2D);
     quadRenderer->m_pass.depthTest = depthTest;
 

@@ -43,6 +43,7 @@ public:
 
     // NOTE: duplicating particle system!
     void add(Entity e, ResourceID resourceID);
+    void add(Entity e, SPK::Ref<SPK::System> system, bool worldTransformed, float lifetime);
     void remove(Entity e) override;
     bool has(Entity e) override;
 

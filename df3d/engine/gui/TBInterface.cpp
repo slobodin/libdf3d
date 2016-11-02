@@ -6,16 +6,14 @@
 #include <tb_bitmap_fragment.h>
 
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/render/Texture.h>
 #include <df3d/engine/render/RenderManager.h>
 #include <df3d/engine/render/IRenderBackend.h>
-#include <df3d/engine/render/RenderPass.h>
+#include <df3d/engine/render/Material.h>
 #include <df3d/engine/render/RenderOperation.h>
 #include <df3d/engine/resources/ResourceManager.h>
-#include <df3d/engine/resources/ResourceFactory.h>
-#include <df3d/engine/io/FileSystem.h>
-#include <df3d/engine/io/DataSource.h>
-#include <df3d/engine/resources/TextureLoaders.h>
+#include <df3d/engine/resources/ResourceDataSource.h>
+#include <df3d/engine/resources/ResourceFileSystem.h>
+#include <df3d/engine/resources/TextureResource.h>
 #include <df3d/lib/os/PlatformUtils.h>
 
 namespace df3d {
@@ -23,50 +21,52 @@ namespace gui_impl {
 
 class TBFileImpl : public tb::TBFile
 {
-    shared_ptr<DataSource> m_file;
+    ResourceDataSource *m_dataSource;
 
 public:
-    TBFileImpl(shared_ptr<DataSource> file)
-        : m_file(file)
+    TBFileImpl(ResourceDataSource *dataSource)
+        : m_dataSource(dataSource)
     {
-
+        DF3D_ASSERT(m_dataSource != nullptr);
     }
 
     ~TBFileImpl()
     {
-
+        svc().resourceManager().getFS().close(m_dataSource);
     }
 
     long Size() override
     {
-        return m_file->getSize();
+        return m_dataSource->getSize();
     }
 
     size_t Read(void *buf, size_t elemSize, size_t count) override
     {
         if (elemSize != 1)
         {
-            DF3D_ASSERT_MESS(false, "not implemented");
+            DF3D_FATAL("not implemented");
             return 0;
         }
 
-        return m_file->read(buf, count);
+        return m_dataSource->read(buf, count);
     }
 };
 
 class TBImageLoaderImpl : public tb::TBImageLoader
 {
-    unique_ptr<PixelData> m_data;
+    TextureResourceData *m_data = nullptr;
 
 public:
-    TBImageLoaderImpl(unique_ptr<PixelData> buffer)
-        : m_data(std::move(buffer))
+    TBImageLoaderImpl(ResourceDataSource &dataSource)
     {
+        m_data = LoadTexture_Workaround(dataSource, MemoryManager::allocDefault());
+        DF3D_ASSERT(m_data);
+        DF3D_ASSERT(m_data->info.format == PixelFormat::RGBA);
     }
 
     ~TBImageLoaderImpl()
     {
-
+        MemoryManager::allocDefault().makeDelete(m_data);
     }
 
     int Width() override
@@ -81,7 +81,7 @@ public:
 
     tb::uint32* Data() override
     {
-        return (tb::uint32*)m_data->data.data();
+        return (tb::uint32*)m_data->pixels.data();
     }
 };
 
@@ -109,13 +109,13 @@ class TBRendererImpl : public tb::TBRenderer
         ~TBBitmapImpl()
         {
             m_renderer->FlushBitmap(this);
-            svc().resourceManager().unloadResource(m_texture);
+            svc().renderManager().getBackend().destroyTexture(m_texture);
         }
 
         bool Init(int width, int height, tb::uint32 *data)
         {
-            assert(width == tb::TBGetNearestPowerOfTwo(width));
-            assert(height == tb::TBGetNearestPowerOfTwo(height));
+            DF3D_ASSERT(width == tb::TBGetNearestPowerOfTwo(width));
+            DF3D_ASSERT(height == tb::TBGetNearestPowerOfTwo(height));
 
             m_w = width;
             m_h = height;
@@ -125,11 +125,11 @@ class TBRendererImpl : public tb::TBRenderer
             info.height = height;
             info.numMips = 0;
             info.format = PixelFormat::RGBA;
-            info.flags = TEXTURE_FILTERING_BILINEAR | TEXTURE_WRAP_MODE_REPEAT;
+            uint32_t flags = TEXTURE_FILTERING_BILINEAR | TEXTURE_WRAP_MODE_REPEAT;
 
-            m_texture = svc().resourceManager().getFactory().createTexture(info, data, width * height * 4);
+            m_texture = svc().renderManager().getBackend().createTexture2D(info, flags, data, width * height * 4);
 
-            return m_texture != nullptr;
+            return m_texture.isValid();
         }
 
         int Width() override { return m_w; }
@@ -137,13 +137,13 @@ class TBRendererImpl : public tb::TBRenderer
 
         void SetData(tb::uint32 *data) override
         {
-            svc().renderManager().getBackend().updateTexture(m_texture->getHandle(), m_w, m_h, data);
+            svc().renderManager().getBackend().updateTexture(m_texture, m_w, m_h, data);
         }
 
     public:
         TBRendererImpl *m_renderer;
         int m_w = 0, m_h = 0;
-        shared_ptr<Texture> m_texture;
+        TextureHandle m_texture;
     };
 
     /** A batch which should be rendered. */
@@ -182,7 +182,7 @@ class TBRendererImpl : public tb::TBRenderer
                 // with TB_VALIDATE_ALWAYS should guarantee that its data is validated.
                 TBBitmap *frag_bitmap = fragment->GetBitmap(TB_VALIDATE_ALWAYS);
                 ((void)frag_bitmap); // silence warning about unused variable
-                assert(frag_bitmap == bitmap);
+                DF3D_ASSERT(frag_bitmap == bitmap);
             }
 
             auto &backend = svc().renderManager().getBackend();
@@ -215,7 +215,6 @@ class TBRendererImpl : public tb::TBRenderer
 
     unique_ptr<Batch> m_batch;
     RenderPass m_guipass;
-    PassParamHandle m_diffuseMapParam;
 
     void InvokeContextLost() override
     {
@@ -233,15 +232,14 @@ class TBRendererImpl : public tb::TBRenderer
 
     void createGuiPass()
     {
-        m_guipass.setFaceCullMode(FaceCullMode::BACK);
-        m_guipass.enableDepthTest(false);
-        m_guipass.enableDepthWrite(false);
-        m_guipass.setBlendMode(BlendingMode::ALPHA);
-        m_diffuseMapParam = m_guipass.getPassParamHandle("diffuseMap");
-        m_guipass.getPassParam(m_diffuseMapParam)->setValue(nullptr);
-        m_guipass.getPassParam("material_diffuse")->setValue(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        m_guipass.faceCullMode = FaceCullMode::BACK;
+        m_guipass.depthTest = false;
+        m_guipass.depthWrite = false;
+        m_guipass.blendMode = BlendingMode::ALPHA;
+        m_guipass.setParam("material_diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-        m_guipass.setGpuProgram(svc().resourceManager().getFactory().createColoredGpuProgram());
+        m_guipass.program = svc().renderManager().getEmbedResources().coloredProgram;
+        DF3D_ASSERT(m_guipass.program != nullptr);
     }
 
     IndexBufferHandle m_indexBuffer;
@@ -480,11 +478,13 @@ public:
 
     void RenderBatch(Batch *batch, VertexBufferHandle vb)
     {
-        shared_ptr<Texture> texture = nullptr;
+        TextureHandle texture;
         if (batch->bitmap)
             texture = static_cast<TBBitmapImpl*>(batch->bitmap)->m_texture;
+        else
+            texture = svc().renderManager().getEmbedResources().whiteTexture;
 
-        m_guipass.getPassParam(m_diffuseMapParam)->setValue(texture);
+        m_guipass.setParam("diffuseMap", texture);
 
         RenderOperation op;
         op.vertexBuffer = vb;
@@ -509,22 +509,15 @@ namespace tb
 
 TBImageLoader* TBImageLoader::CreateFromFile(const char *filename)
 {
-    auto dataSource = df3d::svc().fileSystem().open(filename);
+    auto dataSource = df3d::svc().resourceManager().getFS().open(filename);
     if (!dataSource)
         return nullptr;
 
-    auto pixels = make_unique<df3d::PixelData>();
+    auto result = new df3d::gui_impl::TBImageLoaderImpl(*dataSource);
 
-    if (!df3d::GetPixelBufferFromSource(dataSource, true, *pixels))
-        return nullptr;
+    df3d::svc().resourceManager().getFS().close(dataSource);
 
-    if (pixels->info.format != df3d::PixelFormat::RGBA)
-    {
-        DFLOG_WARN("Unsupported tb image format. Filename: %s", filename);
-        return nullptr;
-    }
-
-    return new df3d::gui_impl::TBImageLoaderImpl(std::move(pixels));
+    return result;
 }
 
 void TBSystem::RescheduleTimer(double fire_time)
@@ -537,11 +530,9 @@ TBFile* TBFile::Open(const char *filename, TBFileMode mode)
     if (mode != MODE_READ)
         return nullptr;
 
-    auto file = df3d::svc().fileSystem().open(filename);
-    if (!file)
-        return nullptr;
-
-    return new df3d::gui_impl::TBFileImpl(file);
+    if (auto dataSource = df3d::svc().resourceManager().getFS().open(filename))
+        return new df3d::gui_impl::TBFileImpl(dataSource);
+    return nullptr;
 }
 
 void TBClipboard::Empty()

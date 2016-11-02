@@ -1,6 +1,5 @@
 #include "ParticleSystemComponentProcessor.h"
 
-#include "ParticleSystemLoader.h"
 #include "SparkCommon.h"
 #include "SparkQuadRenderer.h"
 #include "ParticleSystemUtils.h"
@@ -10,6 +9,8 @@
 #include <df3d/engine/3d/SceneGraphComponentProcessor.h>
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/TimeManager.h>
+#include <df3d/engine/resources/ResourceManager.h>
+#include <df3d/engine/resources/ParticleSystemResource.h>
 #include <df3d/lib/JsonUtils.h>
 
 namespace df3d {
@@ -99,7 +100,6 @@ ParticleSystemComponentProcessor::ParticleSystemComponentProcessor(World *world)
 ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor()
 {
     m_pimpl->data.clear();
-    SPK_DUMP_MEMORY
 }
 
 void ParticleSystemComponentProcessor::useRealStep()
@@ -115,7 +115,7 @@ void ParticleSystemComponentProcessor::useConstantStep(float time)
 void ParticleSystemComponentProcessor::stop(Entity e)
 {
     // TODO:
-    DF3D_ASSERT_MESS(false, "not implemented");
+    DF3D_FATAL("not implemented");
 }
 
 void ParticleSystemComponentProcessor::pause(Entity e, bool paused)
@@ -168,12 +168,16 @@ bool ParticleSystemComponentProcessor::isVisible(Entity e) const
     return !m_pimpl->data.getData(e).visible;
 }
 
-void ParticleSystemComponentProcessor::add(Entity e, const char *vfxResource)
+void ParticleSystemComponentProcessor::add(Entity e, ResourceID resourceID)
 {
-    add(e, ParticleSystemUtils::parseVfx(vfxResource));
+    auto resource = svc().resourceManager().getResource<ParticleSystemResource>(resourceID);
+    if (resource)
+        add(e, SPK::SPKObject::copy(resource->spkSystem), resource->worldTransformed, resource->systemLifeTime);
+    else
+        DFLOG_WARN("Can not add vfx, resource %s not found", resourceID.c_str());
 }
 
-void ParticleSystemComponentProcessor::add(Entity e, const ParticleSystemCreationParams &params)
+void ParticleSystemComponentProcessor::add(Entity e, SPK::Ref<SPK::System> system, bool worldTransformed, float lifetime)
 {
     if (m_pimpl->data.contains(e))
     {
@@ -182,10 +186,10 @@ void ParticleSystemComponentProcessor::add(Entity e, const ParticleSystemCreatio
     }
 
     Impl::Data data;
-    data.system = params.spkSystem;
+    data.system = system;
     data.holder = e;
-    data.systemLifeTime = params.systemLifeTime;
-    data.worldTransformed = params.worldTransformed;
+    data.systemLifeTime = lifetime;
+    data.worldTransformed = worldTransformed;
     data.holderTransform = m_world->sceneGraph().getWorldTransformMatrix(e);
 
     m_pimpl->data.add(e, data);
