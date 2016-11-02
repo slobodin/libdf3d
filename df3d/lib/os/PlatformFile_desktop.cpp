@@ -71,7 +71,6 @@ unique_ptr<PlatformFile> PlatformOpenFile(const char *path)
         return make_unique<PlatformFileDesktop>(fh);
 
     DFLOG_WARN("Can not open file %s", path);
-    DF3D_ASSERT(false);
     return nullptr;
 }
 

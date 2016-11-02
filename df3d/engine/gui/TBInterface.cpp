@@ -236,6 +236,7 @@ class TBRendererImpl : public tb::TBRenderer
         m_guipass.depthTest = false;
         m_guipass.depthWrite = false;
         m_guipass.blendMode = BlendingMode::ALPHA;
+        m_guipass.isTransparent = true;
         m_guipass.setParam("material_diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
         m_guipass.program = svc().renderManager().getEmbedResources().coloredProgram;

@@ -233,6 +233,8 @@ const glm::vec2& Sprite2DComponentProcessor::getTextureSize(Entity e) const
 void Sprite2DComponentProcessor::setBlendMode(Entity e, BlendingMode bm)
 {
     m_pimpl->data.getData(e).pass.blendMode = bm;
+    if (bm != BlendingMode::NONE)
+        m_pimpl->data.getData(e).pass.isTransparent = true;
 }
 
 void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
@@ -261,6 +263,7 @@ void Sprite2DComponentProcessor::add(Entity e, ResourceID textureResource)
     data.pass.depthTest = false;
     data.pass.depthWrite = false;
     data.pass.blendMode = BlendingMode::ALPHA;
+    data.pass.isTransparent = true;
     data.pass.setParam("material_diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
     data.op.worldTransform = m_world->sceneGraph().getWorldTransformMatrix(e);
 

@@ -3,18 +3,15 @@
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/EngineCVars.h>
 #include <df3d/engine/resources/ResourceManager.h>
-#include <df3d/engine/resources/ResourceFactory.h>
+#include <df3d/engine/resources/MaterialResource.h>
+#include <df3d/engine/resources/GpuProgramResource.h>
+#include <df3d/engine/resources/TextureResource.h>
 #include <df3d/engine/3d/Camera.h>
 #include <df3d/game/World.h>
 #include <df3d/engine/gui/GuiManager.h>
 #include <df3d/engine/particlesys/ParticleSystemComponentProcessor.h>
 #include "RenderOperation.h"
-#include "MeshData.h"
-#include "Texture.h"
 #include "Material.h"
-#include "Technique.h"
-#include "RenderPass.h"
-#include "GpuProgram.h"
 #include "Viewport.h"
 #include "RenderQueue.h"
 #include "IRenderBackend.h"
@@ -24,6 +21,65 @@
 #include <animation/tb_widget_animation.h>
 
 namespace df3d {
+
+RenderManagerEmbedResources::RenderManagerEmbedResources(RenderManager *render)
+{
+    auto &allocator = MemoryManager::allocDefault();
+
+    // Create white texture.
+    {
+        const auto w = 8;
+        const auto h = 8;
+        const auto pf = PixelFormat::RGBA;
+
+        PodArray<uint8_t> pixels(allocator);
+        pixels.resize(w * h * 4, 255);
+
+        TextureInfo info;
+        info.width = w;
+        info.height = h;
+        info.numMips = 0;
+        info.format = pf;
+
+        whiteTexture = render->getBackend().createTexture2D(info,
+                                                            TEXTURE_FILTERING_NEAREST | TEXTURE_WRAP_MODE_REPEAT,
+                                                            pixels.data(),
+                                                            pixels.size());
+    }
+
+    // Load GPU programs.
+    {
+        const std::string colored_vert =
+#include "gl/embed_glsl/colored_vert.h"
+            ;
+        const std::string colored_frag =
+#include "gl/embed_glsl/colored_frag.h"
+            ;
+        const std::string ambient_vert =
+#include "gl/embed_glsl/ambient_vert.h"
+            ;
+        const std::string ambient_frag =
+#include "gl/embed_glsl/ambient_frag.h"
+            ;
+
+        coloredProgram = GpuProgramFromData(colored_vert, colored_frag, allocator);
+        ambientPassProgram = GpuProgramFromData(ambient_vert, ambient_frag, allocator);
+    }
+
+    ambientPass = allocator.makeNew<RenderPass>();
+    ambientPass->program = ambientPassProgram;
+}
+
+RenderManagerEmbedResources::~RenderManagerEmbedResources()
+{
+    auto &allocator = MemoryManager::allocDefault();
+    svc().renderManager().getBackend().destroyTexture(whiteTexture);
+    svc().renderManager().getBackend().destroyGpuProgram(coloredProgram->handle);
+    svc().renderManager().getBackend().destroyGpuProgram(ambientPassProgram->handle);
+    allocator.makeDelete(coloredProgram);
+    allocator.makeDelete(ambientPassProgram);
+    allocator.makeDelete(ambientPass);
+}
 
 void RenderManager::onFrameBegin()
 {
@@ -77,7 +133,7 @@ void RenderManager::doRenderWorld(World &world)
     {
         m_sharedState->setWorldMatrix(op.worldTransform);
 
-        bindPass(m_ambientPassProps.get());
+        bindPass(m_embedResources->ambientPass);
 
         m_renderBackend->bindVertexBuffer(op.vertexBuffer);
         if (op.indexBuffer.isValid())
@@ -92,9 +148,6 @@ void RenderManager::doRenderWorld(World &world)
 
     for (const auto &op : m_renderQueue->litOpaqueOperations)
     {
-        if (UNLIKELY(!op.passProps->getGpuProgram()))
-            continue;
-
         m_sharedState->setWorldMatrix(op.worldTransform);
 
         bindPass(op.passProps);
@@ -103,7 +156,7 @@ void RenderManager::doRenderWorld(World &world)
         {
             m_sharedState->setLight(*light);
             // Update only light uniforms.
-            m_sharedState->updateSharedLightUniforms(*op.passProps->getGpuProgram());
+            m_sharedState->updateSharedLightUniforms(*op.passProps->program);
 
             m_renderBackend->bindVertexBuffer(op.vertexBuffer);
             if (op.indexBuffer.isValid())
@@ -143,49 +196,21 @@ void RenderManager::bindPass(RenderPass *pass)
     if (UNLIKELY(!pass))
         return;
 
-    auto gpuProgram = pass->getGpuProgram();
-    if (UNLIKELY(!gpuProgram))
-    {
-        DFLOG_WARN("Failed to bind pass. No GPU program");
-        return;
-    }
+    // Use pass program.
+    m_renderBackend->bindGpuProgram(pass->program->handle);
+    // Update shared uniforms.
+    m_sharedState->updateSharedUniforms(*pass->program);
+    // Update custom uniforms.
+    pass->bindCustomPassParams(getBackend());
 
-    m_renderBackend->bindGpuProgram(gpuProgram->getHandle());
-
-    // Update pass uniforms.
-    {
-        // Shared uniforms.
-        m_sharedState->updateSharedUniforms(*gpuProgram);
-
-        int textureUnit = 0;
-        // Custom uniforms.
-        auto &passParams = pass->getPassParams();
-        for (auto &passParam : passParams)
-        {
-            if (passParam.hasTexture())
-            {
-                auto texture = passParam.getTexture();
-                if (texture && texture->isInitialized())
-                    m_renderBackend->bindTexture(texture->getHandle(), textureUnit);
-                else
-                    m_renderBackend->bindTexture(m_whiteTexture->getHandle(), textureUnit);
-
-                passParam.setValue(textureUnit);
-
-                textureUnit++;
-            }
-
-            passParam.updateToProgram(*m_renderBackend, *gpuProgram);
-        }
-    }
-
+    // Set pass state.
     if (!m_depthTestOverriden)
-        m_renderBackend->enableDepthTest(pass->isDepthTestEnabled());
+        m_renderBackend->enableDepthTest(pass->depthTest);
     if (!m_depthWriteOverriden)
-        m_renderBackend->enableDepthWrite(pass->isDepthWriteEnabled());
+        m_renderBackend->enableDepthWrite(pass->depthWrite);
     if (!m_blendModeOverriden)
-        m_renderBackend->setBlendingMode(pass->getBlendingMode());
-    m_renderBackend->setCullFaceMode(pass->getFaceCullMode());
+        m_renderBackend->setBlendingMode(pass->blendMode);
+    m_renderBackend->setCullFaceMode(pass->faceCullMode);
 }
 
 void RenderManager::render2D()
@@ -207,11 +232,9 @@ void RenderManager::render2D()
         svc().guiManager().getRoot()->Invalidate();
 }
 
-RenderManager::RenderManager(EngineInitParams params)
-    : m_initParams(params),
-    m_renderQueue(make_unique<RenderQueue>())
+RenderManager::RenderManager()
 {
-    m_viewport = Viewport(0, 0, params.windowWidth, params.windowHeight);
+
 }
 
 RenderManager::~RenderManager()
@@ -219,95 +242,25 @@ RenderManager::~RenderManager()
 
 }
 
-void RenderManager::initialize()
+void RenderManager::initialize(int width, int height)
 {
-    m_renderBackend = IRenderBackend::create(m_initParams.windowWidth, m_initParams.windowHeight);
+    m_renderQueue = make_unique<RenderQueue>();
+    m_viewport = Viewport(0, 0, width, height);
+    m_renderBackend = IRenderBackend::create(width, height);
     m_sharedState = make_unique<GpuProgramSharedState>();
 
-    loadEmbedResources();
+    reloadEmbedResources();
 }
 
 void RenderManager::shutdown()
 {
-    forgetEmbedResources();
+    m_embedResources.reset();
+    m_renderBackend.reset();
 }
 
-void RenderManager::loadEmbedResources()
+void RenderManager::reloadEmbedResources()
 {
-    // Create white texture.
-    {
-        const auto w = 8;
-        const auto h = 8;
-        const auto pf = PixelFormat::RGBA;
-
-        auto data = new uint8_t[w * h * 4];
-        memset(data, 255, w * h * 4);
-
-        TextureInfo info;
-        info.width = w;
-        info.height = h;
-        info.flags = TEXTURE_FILTERING_NEAREST | TEXTURE_WRAP_MODE_REPEAT;
-        info.numMips = 0;
-        info.format = pf;
-
-        m_whiteTexture = svc().resourceManager().getFactory().createTexture(info, data, w * h * 4);
-        m_whiteTexture->setResident(true);
-
-        delete [] data;
-    }
-
-    // Load resident GPU programs.
-    {
-        const std::string simple_lighting_vert =
-#include "gl/embed_glsl/simple_lighting_vert.h"
-            ;
-        const std::string simple_lighting_frag =
-#include "gl/embed_glsl/simple_lighting_frag.h"
-            ;
-        const std::string colored_vert =
-#include "gl/embed_glsl/colored_vert.h"
-            ;
-        const std::string colored_frag =
-#include "gl/embed_glsl/colored_frag.h"
-            ;
-        const std::string ambient_vert =
-#include "gl/embed_glsl/ambient_vert.h"
-            ;
-        const std::string ambient_frag =
-#include "gl/embed_glsl/ambient_frag.h"
-            ;
-
-        auto &factory = svc().resourceManager().getFactory();
-
-        m_simpleLightingProgram = factory.createGpuProgram(SIMPLE_LIGHTING_PROGRAM_EMBED_PATH, simple_lighting_vert, simple_lighting_frag);
-        m_coloredProgram = factory.createGpuProgram(COLORED_PROGRAM_EMBED_PATH, colored_vert, colored_frag);
-        m_ambientPassProgram = factory.createGpuProgram(AMBIENT_PASS_PROGRAM_EMBED_PATH, ambient_vert, ambient_frag);
-
-        m_simpleLightingProgram->setResident(true);
-        m_coloredProgram->setResident(true);
-        m_ambientPassProgram->setResident(true);
-    }
-
-    m_ambientPassProps = make_unique<RenderPass>();
-    m_ambientPassProps->setGpuProgram(svc().resourceManager().getFactory().createAmbientPassProgram());
-}
-
-void RenderManager::forgetEmbedResources()
-{
-    if (m_whiteTexture)
-        m_whiteTexture->setResident(false);
-    if (m_simpleLightingProgram)
-        m_simpleLightingProgram->setResident(false);
-    if (m_coloredProgram)
-        m_coloredProgram->setResident(false);
-    if (m_ambientPassProgram)
-        m_ambientPassProgram->setResident(false);
-
-    m_whiteTexture.reset();
-    m_ambientPassProps.reset();
-    m_simpleLightingProgram.reset();
-    m_coloredProgram.reset();
-    m_ambientPassProgram.reset();
+    m_embedResources = make_unique<RenderManagerEmbedResources>(this);
 }
 
 void RenderManager::drawWorld(World &world)
@@ -326,7 +279,7 @@ void RenderManager::drawRenderOperation(const RenderOperation &op)
 {
     if (UNLIKELY(op.numberOfElements == 0))
     {
-        DF3D_ASSERT_MESS(false, "invalid elements count to draw");
+        DF3D_FATAL("invalid elements count to draw");
         return;
     }
 

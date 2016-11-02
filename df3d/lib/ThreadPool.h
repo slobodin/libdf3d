@@ -11,7 +11,8 @@ class ThreadPool : NonCopyable
 
     std::vector<std::thread> m_workers;
     std::deque<std::function<void ()>> m_jobs;
-    bool m_stop;
+    std::atomic<size_t> m_currentJobs = 0;
+    bool m_stop = false;
     size_t m_numWorkers;
 
 public:
@@ -19,8 +20,7 @@ public:
     ~ThreadPool();
 
     void enqueue(const std::function<void ()> &fn);
-    void clear();
-    size_t getJobsCount();
+    size_t getJobsCount() const { return m_currentJobs; }
 
     void suspend();
     void resume();

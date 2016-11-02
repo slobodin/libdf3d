@@ -40,7 +40,7 @@ public:
         if (found != m_sources.end())
             m_sources.erase(found);
         else
-            DF3D_ASSERT(false);
+            DFLOG_WARN("Failed to close resource data source");
     }
 };
 

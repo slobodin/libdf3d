@@ -1,9 +1,10 @@
 #pragma once
 
+#include <df3d/engine/render/Vertex.h>
+
 namespace df3d {
 
 const int DFMESH_MAX_MATERIAL_ID = 128;
-const int DFMESH_MAX_MATERIAL_LIB_ID = 128;
 const char DFMESH_MAGIC[4] = { 'D', 'F', 'M', 'E' };
 const uint16_t DFMESH_VERSION = 1;
 
@@ -29,16 +30,13 @@ struct DFMeshHeader
 {
     uint32_t magic;
     uint16_t version;
-
-    uint64_t vertexFormat;      // 64 attrib per vertex max.
+    uint16_t vertexFormat;
     uint32_t indexSize;
 
     // ! Number of submesh chunks.
     uint16_t submeshesCount;
     //! Offset to submeshes data relative to the start.
     uint32_t submeshesOffset;
-    //! Material lib path.
-    char materialLib[DFMESH_MAX_MATERIAL_LIB_ID];
 };
 
 struct DFMeshSubmeshHeader
@@ -49,11 +47,14 @@ struct DFMeshSubmeshHeader
 
     char materialId[DFMESH_MAX_MATERIAL_ID];
 
-    // Vertex data goes after the header.
-    // Index data then.
+    // Vertex data.
+    // Index data.
 };
 
 #pragma pack(pop)
+
+// TODO: refactor.
+VertexFormat VertexFormat_dfmesh(uint16_t id);
 
 struct MeshResourceData;
 class ResourceDataSource;

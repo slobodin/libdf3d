@@ -12,13 +12,16 @@ Json::Value JsonUtils::fromFile(const char *path)
     if (auto fileSource = svc().resourceManager().getFS().open(path))
     {
         Json::Value retVal = fromFile(*fileSource);
+        if (retVal.isNull())
+            DFLOG_WARN("Failed to parse json from %s", path);
+
         svc().resourceManager().getFS().close(fileSource);
 
         return retVal;
     }
     else
     {
-        DFLOG_WARN("Couldn't load json configs from %s", path);
+        DFLOG_WARN("Couldn't load json configs from %s. File not found", path);
         return{};
     }
 }

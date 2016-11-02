@@ -29,7 +29,7 @@ static void skip(void *user, int n)
     if (n < 0)
     {
         // TODO:
-        DF3D_ASSERT_MESS(false, "not implemented");
+        DF3D_FATAL("not implemented");
     }
 
     auto dataSource = (ResourceDataSource*)user;

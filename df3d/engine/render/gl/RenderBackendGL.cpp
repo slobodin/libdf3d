@@ -113,7 +113,7 @@ static void SetupGLTextureFiltering(GLenum glType, uint32_t flags)
         GL_CHECK(glTexParameteri(glType, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
         GL_CHECK(glTexParameteri(glType, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     }
-    else if (filtering == TEXTURE_FILTERING_TRILINEAR)
+    else if (filtering == TEXTURE_FILTERING_TRILINEAR || filtering == TEXTURE_FILTERING_ANISOTROPIC)
     {
         GL_CHECK(glTexParameteri(glType, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
         GL_CHECK(glTexParameteri(glType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
@@ -631,7 +631,8 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, uint32_t
     {
         GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, info.width, info.height, 0, pixelDataFormat, GL_UNSIGNED_BYTE, data));
 
-        if ((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_TRILINEAR)
+        if (((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_TRILINEAR) ||
+            ((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_ANISOTROPIC))
         {
             // Generate mip maps if not provided with texture.
             if (info.numMips == 0)
@@ -641,7 +642,7 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, uint32_t
 
     if (m_anisotropicFilteringSupported && m_caps.maxAnisotropy > 0.0f)
     {
-        if ((flags & TEXTURE_MAX_ANISOTROPY_MASK) == TEXTURE_MAX_ANISOTROPY)
+        if ((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_ANISOTROPIC)
             GL_CHECK(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, std::max(1.0f, m_caps.maxAnisotropy)));
     }
 
@@ -868,7 +869,7 @@ FrameBufferHandle RenderBackendGL::createFrameBuffer(TextureHandle *attachments,
     m_frameBuffers[fbHandle.getIndex()] = framebufferGL;
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        DF3D_ASSERT_MESS(false, "Failed to create GL framebuffer!");
+        DFLOG_WARN("Failed to create GL framebuffer!");
 
     return fbHandle;
 }

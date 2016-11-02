@@ -27,12 +27,15 @@ void ParticleSystemRenderer::setBlendMode(SPK::BlendMode blendMode)
     {
     case SPK::BLEND_MODE_NONE:
         m_pass.blendMode = BlendingMode::NONE;
+        m_pass.isTransparent = false;
         break;
     case SPK::BLEND_MODE_ADD:
         m_pass.blendMode = BlendingMode::ADDALPHA;
+        m_pass.isTransparent = true;
         break;
     case SPK::BLEND_MODE_ALPHA:
         m_pass.blendMode = BlendingMode::ALPHA;
+        m_pass.isTransparent = true;
         break;
     default:
         break;

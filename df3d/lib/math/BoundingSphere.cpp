@@ -61,7 +61,7 @@ bool BoundingSphere::intersects(const AABB &aabb) const
     if (!isValid())
         return false;
     // TODO:
-    DF3D_ASSERT_MESS(false, "not implemented");
+    DF3D_FATAL("not implemented");
     return false;
 }
 
