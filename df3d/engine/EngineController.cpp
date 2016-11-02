@@ -7,8 +7,6 @@
 #include <df3d/game/impl/WorldLoader.h>
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/input/InputManager.h>
-#include <df3d/engine/io/FileSystem.h>
-#include <df3d/engine/io/DefaultFileDevice.h>
 #include <df3d/engine/gui/GuiManager.h>
 #include <df3d/engine/audio/AudioManager.h>
 #include <df3d/platform/AppDelegate.h>
@@ -31,47 +29,28 @@ void EngineController::initialize(EngineInitParams params)
     platform_impl::CrashHandler::setup();
 #endif
 
-    // Create timer.
     m_timer = make_unique<Timer>();
-
-    // Init filesystem.
-    m_fileSystem = make_unique<FileSystem>();
-    m_fileSystem->setFileDevice(make_unique<DefaultFileDevice>());
-
-    // Init resource manager.
+    m_systemTimeManager = make_unique<TimeManager>();
     m_resourceManager = make_unique<ResourceManager>();
-    m_resourceManager->initialize();
-
-    // Init render system.
-    m_renderManager = make_unique<RenderManager>(params);
-    m_renderManager->initialize();
-
-    // Init GUI.
+    m_renderManager = make_unique<RenderManager>();
     m_guiManager = make_unique<GuiManager>();
-    m_guiManager->initialize(params.windowWidth, params.windowHeight);
-
-    // Init audio subsystem.
     m_audioManager = make_unique<AudioManager>();
+    m_inputManager = make_unique<InputManager>();
+    m_scriptManager = make_unique<ScriptManager>();
+
+    m_resourceManager->initialize();
+    m_renderManager->initialize(params.windowWidth, params.windowHeight);
+    m_guiManager->initialize(params.windowWidth, params.windowHeight);
+    m_scriptManager->initialize();
     m_audioManager->initialize();
 
-    // Create console.
     if (params.createConsole)
     {
 
     }
 
-    // Create input subsystem.
-    m_inputManager = make_unique<InputManager>();
-
     // Create a blank default world.
     replaceWorld();
-
-    // Startup squirrel.
-    m_scriptManager = make_unique<ScriptManager>();
-    m_scriptManager->initialize();
-
-    // Allow to a client to listen system time.
-    m_systemTimeManager = make_unique<TimeManager>();
 
     m_initialized = true;
     DFLOG_MESS("Engine initialized");
@@ -101,7 +80,6 @@ void EngineController::shutdown()
     m_guiManager.reset();
     m_renderManager.reset();
     m_resourceManager.reset();
-    m_fileSystem.reset();
     m_audioManager.reset();
     m_inputManager.reset();
     m_timer.reset();
@@ -117,7 +95,6 @@ void EngineController::step()
     m_timer->update();
 
     // Update some engine subsystems.
-    m_resourceManager->poll();
     m_guiManager->update();
 
     // Update client code.

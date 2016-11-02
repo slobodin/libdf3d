@@ -74,7 +74,7 @@ void TimeManager::subscribeUpdate(ITimeListener *listener)
 {
     if (findSubscriber(listener))
     {
-        DF3D_ASSERT_MESS(false, "Duplicate time manager listener!");
+        DFLOG_WARN("Duplicate time manager listener!");
         return;
     }
 

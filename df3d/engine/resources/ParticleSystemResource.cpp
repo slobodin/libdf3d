@@ -4,6 +4,7 @@
 #include <df3d/lib/Utils.h>
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/resources/ResourceManager.h>
+#include <df3d/engine/resources/TextureResource.h>
 #include <df3d/engine/particlesys/SparkCommon.h>
 #include <df3d/engine/particlesys/SparkQuadRenderer.h>
 
@@ -408,8 +409,12 @@ static SPK::Ref<particlesys_impl::ParticleSystemRenderer> CreateRenderer(const J
         SPK::TextureMode textureMode = SPK::TEXTURE_MODE_NONE;
         if (!pathToTexture.empty())
         {
-            quadRenderer->setDiffuseMap(pathToTexture);
-            textureMode = SPK::TEXTURE_MODE_2D;
+            auto texture = svc().resourceManager().getResource<TextureResource>(pathToTexture);
+            if (texture)
+            {
+                quadRenderer->setDiffuseMap(texture->handle);
+                textureMode = SPK::TEXTURE_MODE_2D;
+            }
         }
 
         quadRenderer->setTexturingMode(textureMode);

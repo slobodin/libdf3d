@@ -153,9 +153,9 @@ static void PreloadTechniqueData(const Json::Value &root)
     }
 }
 
-void MaterialLibResource::parse()
+void MaterialLibResource::parse(const Json::Value &root)
 {
-    const auto &jsonMaterials = m_root["materials"];
+    const auto &jsonMaterials = root["materials"];
     for (const auto &jsonMaterial : jsonMaterials)
     {
         auto id = jsonMaterial["id"].asString();
@@ -191,22 +191,12 @@ void MaterialLibResource::parse()
 }
 
 MaterialLibResource::MaterialLibResource(const Json::Value &root)
-    : m_root(root) 
 {
-
+    parse(root);
 }
 
 const Material* MaterialLibResource::getMaterial(const std::string &name) const
 {
-    // FIXME: ugly workarounds
-    if (!m_initialized)
-    {
-        MaterialLibResource *self = const_cast<MaterialLibResource*>(this);
-        self->parse();
-        self->m_root.clear();
-        self->m_initialized = true;
-    }
-
     auto found = m_materials.find(name);
     if (found != m_materials.end())
         return &found->second;

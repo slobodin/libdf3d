@@ -8,11 +8,8 @@ namespace df3d {
 class MaterialLibResource
 {
     std::unordered_map<std::string, Material> m_materials;
-    Json::Value m_root;
-    // FIXME: resources are still being loaded while constructing material lib.
-    bool m_initialized = false;
 
-    void parse();
+    void parse(const Json::Value &root);
 
 public:
     MaterialLibResource(const Json::Value &root);

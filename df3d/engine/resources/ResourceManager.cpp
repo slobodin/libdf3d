@@ -1,117 +1,157 @@
 #include "ResourceManager.h"
 
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/TimeManager.h>
+#include <df3d/engine/io/FileSystemHelpers.h>
 #include <df3d/lib/ThreadPool.h>
 #include <df3d/lib/Utils.h>
-#include <df3d/engine/io/FileSystem.h>
-#include <df3d/engine/io/DataSource.h>
-#include "Resource.h"
-#include "ResourceFactory.h"
+#include <df3d/lib/JsonUtils.h>
+#include "ResourceFileSystem.h"
+#include "GpuProgramResource.h"
+#include "MaterialResource.h"
+#include "MeshResource.h"
+#include "ParticleSystemResource.h"
+#include "TextureResource.h"
+#include "IResourceHolder.h"
 
 namespace df3d {
 
-void ResourceManager::doRequest(DecodeRequest req)
+class ResourceLoader
 {
-    //DFLOG_DEBUG("ASYNC decoding %s", req.resource->getFilePath().c_str());
+    std::recursive_mutex m_lock;
+    unique_ptr<ThreadPool> m_threadPool;
+    std::unordered_set<ResourceID> m_decoding;
+    std::unordered_map<ResourceID, shared_ptr<IResourceHolder>> m_decoded;
+    ResourceManager &m_rmgr;
+    Allocator &m_allocator;
 
-    if (auto source = svc().fileSystem().open(req.resourcePath.c_str()))
+public:
+    ResourceLoader(ResourceManager &rmgr, Allocator &allocator) 
+        : m_threadPool(new ThreadPool(2)),
+        m_rmgr(rmgr),
+        m_allocator(allocator)
     {
-        req.result = req.loader->decode(source);
-        if (!req.result)
-            DFLOG_WARN("ASYNC decoding failed");
+
     }
-    else
-        DFLOG_WARN("Failed to ASYNC decode a resource. Failed to open file");
-
-    m_decodedResources.push(req);
-}
-
-shared_ptr<Resource> ResourceManager::findResource(const std::string &fullPath) const
-{
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-    auto found = m_loadedResources.find(fullPath);
-    if (found == m_loadedResources.end())
-        return nullptr;
-
-    return found->second;
-}
-
-shared_ptr<Resource> ResourceManager::loadManual(ManualResourceLoader &loader)
-{
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-    auto resource = shared_ptr<Resource>(loader.load());
-    if (!resource)
+    ~ResourceLoader()
     {
-        DFLOG_WARN("Failed to manual load a resource");
-        return nullptr;
+        m_threadPool.reset();
+        DF3D_ASSERT(m_decoding.empty() && m_decoded.empty());
     }
 
-    resource->m_initialized = true;
-
-    // FIXME: maybe check in cache and return existing instead?
-    DF3D_ASSERT_MESS(!isResourceExist(resource->getGUID()), "resource already exists");
-
-    m_loadedResources[resource->getGUID()] = resource;
-
-    DFLOG_DEBUG("Manually loaded a resource");
-
-    return resource;
-}
-
-shared_ptr<Resource> ResourceManager::loadFromFS(const std::string &path, shared_ptr<FSResourceLoader> loader)
-{
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-    auto guid = CreateGUIDFromPath(path);
-
-    // First, try to find resource with given path.
-    if (auto alreadyLoadedResource = findResource(guid))
-        return alreadyLoadedResource;
-
-    // Create resource dummy. It will not be fully valid until its completely loaded.
-    auto resource = shared_ptr<Resource>(loader->createDummy());
-    resource->setGUID(guid);
-    // Cache the resource.
-    m_loadedResources[resource->getGUID()] = resource;
-
-    for (auto listener : m_listeners)
-        listener->onLoadFromFileSystemRequest(resource->getGUID());
-
-    DecodeRequest req;
-    req.loader = loader;
-    req.resource = resource;
-    req.resourcePath = guid;
-
-    if (loader->loadingMode == ResourceLoadingMode::ASYNC)
-        m_threadPool->enqueue(std::bind(&ResourceManager::doRequest, this, req));
-    else
+    void load(ResourceID resourceId)
     {
-        auto dataSource = svc().fileSystem().open(req.resourcePath.c_str());
+        std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-        if (dataSource)
+        if (utils::contains_key(m_decoding, resourceId)
+            || utils::contains_key(m_decoded, resourceId))
+            return;
+
+        shared_ptr<IResourceHolder> resourceHolder;
+
+        const auto ext = FileSystemHelpers::getFileExtension(resourceId);
+        if (ext == ".texture")
+            resourceHolder = make_shared<TextureHolder>();
+        else if (ext == ".shader")
+            resourceHolder = make_shared<GpuProgramHolder>();
+        else if (ext == ".mtl")
+            resourceHolder = make_shared<MaterialLibHolder>();
+        else if (ext == ".mesh")
+            resourceHolder = make_shared<MeshHolder>();
+        else if (ext == ".vfx")
+            resourceHolder = make_shared<ParticleSystemHolder>();
+        else
+            DF3D_FATAL("Failed to load resource: unknown resource type %s", ext.c_str());
+
+        m_decoding.insert(resourceId);
+
+        m_threadPool->enqueue([this, resourceId, resourceHolder]()
         {
-            if (loader->decode(dataSource))
+            auto &fs = m_rmgr.getFS();
+            if (auto dataSource = fs.open(resourceId.c_str()))
             {
-                loader->onDecoded(resource.get());
-                resource->m_initialized = true;
+                if (resourceHolder->decodeStartup(*dataSource, m_allocator))
+                {
+                    std::lock_guard<std::recursive_mutex> lock(m_lock);
+                    m_decoded[resourceId] = resourceHolder;
+                }
+                else
+                {
+                    DFLOG_WARN("Resource '%s' decode failed!", resourceId.c_str());
+                }
+
+                fs.close(dataSource);
             }
             else
-                DFLOG_WARN("Manual decode failed for %s", req.resource->getFilePath().c_str());
-        }
-        else
-            DFLOG_WARN("Failed to open %s for manual decoding", req.resource->getFilePath().c_str());
+                DFLOG_WARN("Decode request failed. File not found.");
 
-        for (auto listener : m_listeners)
-            listener->onLoadFromFileSystemRequestComplete(resource->getGUID());
+            {
+                std::lock_guard<std::recursive_mutex> lock(m_lock);
+                DF3D_VERIFY(m_decoding.erase(resourceId) == 1);
+            }
+        });
     }
 
-    return resource;
+    std::unordered_map<ResourceID, shared_ptr<IResourceHolder>>& getDecoded()
+    {
+        std::lock_guard<std::recursive_mutex> lock(m_lock);
+        return m_decoded;
+    }
+
+    bool isLoading() const { return m_threadPool->getJobsCount() > 0; }
+
+    void suspend()
+    {
+        m_threadPool->suspend();
+    }
+
+    void resume()
+    {
+        m_threadPool->resume();
+    }
+};
+
+const void* ResourceManager::getResourceData(ResourceID resourceID)
+{
+    std::lock_guard<std::recursive_mutex> lock(m_lock);
+
+    auto found = m_cache.find(resourceID);
+    if (found == m_cache.end())
+    {
+        auto &decoded = m_loader->getDecoded();
+        auto foundDecoded = decoded.find(resourceID);
+        if (foundDecoded != decoded.end())
+        {
+            createResource(resourceID, foundDecoded->second);
+            return getResourceData(resourceID);
+        }
+        else
+            DFLOG_WARN("Resource %s lookup failed", resourceID.c_str());
+    }
+    else
+        return found->second->getResource();
+
+    return nullptr;
+}
+
+void ResourceManager::createResource(ResourceID resourceId, shared_ptr<IResourceHolder> loader)
+{
+    if (loader->createResource(m_allocator))
+    {
+        DF3D_ASSERT(!utils::contains_key(m_cache, resourceId));
+
+        m_cache[resourceId] = loader;
+    }
+    else
+    {
+        DFLOG_WARN("Resource '%s' creation failed!", resourceId.c_str());
+    }
+    loader->decodeCleanup(m_allocator);
+
+    DF3D_VERIFY(m_loader->getDecoded().erase(resourceId) == 1);
 }
 
 ResourceManager::ResourceManager()
+    : m_allocator(MemoryManager::allocDefault())
 {
 
 }
@@ -121,141 +161,87 @@ ResourceManager::~ResourceManager()
 
 }
 
+
 void ResourceManager::initialize()
 {
-    m_factory = make_unique<ResourceFactory>(this);
-
-    m_threadPool = make_unique<ThreadPool>(2);
+    m_loader = make_unique<ResourceLoader>(*this, m_allocator);
+    setDefaultFileSystem();
 }
 
 void ResourceManager::shutdown()
 {
-    //std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-    m_threadPool.reset(nullptr);
-    m_loadedResources.clear();
-    m_decodedResources.clear();
-}
-
-void ResourceManager::poll()
-{
-    while (!m_decodedResources.empty())
-    {
-        auto request = m_decodedResources.pop();
-        if (request.result)
-        {
-            request.loader->onDecoded(request.resource.get());
-            request.resource->m_initialized = true;
-        }
-
-        // Push into timemgr queue in order to invoke this when client is updated.
-        for (auto listener : m_listeners)
-        {
-            ResourceGUID rGuid = request.resource->getGUID();
-            svc().systemTimeManager().enqueueForNextUpdate([listener, rGuid]() {
-                listener->onLoadFromFileSystemRequestComplete(rGuid);
-            });
-        }
-    }
+    m_loader.reset();
+    m_fs.reset();
+    DF3D_ASSERT(m_cache.empty());
 }
 
 void ResourceManager::suspend()
 {
     DFLOG_DEBUG("Suspending resource manager");
-    m_threadPool->suspend();
+    m_loader->suspend();
 }
 
 void ResourceManager::resume()
 {
     DFLOG_GAME("Resuming resource manager");
-    m_threadPool->resume();
+    m_loader->resume();
 }
 
-void ResourceManager::unloadResource(const ResourceGUID &guid)
+void ResourceManager::setDefaultFileSystem()
+{
+    m_fs = CreateDefaultResourceFileSystem();
+}
+
+void ResourceManager::setFileSystem(unique_ptr<ResourceFileSystem> fs)
+{
+    m_fs = std::move(fs);
+}
+
+void ResourceManager::loadResource(ResourceID resourceId)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-    auto found = m_loadedResources.find(guid);
-    if (found == m_loadedResources.end() || found->second->isResident())
+    if (utils::contains_key(m_cache, resourceId))
         return;
 
-    m_loadedResources.erase(found);
+    m_loader->load(resourceId);
 }
 
-void ResourceManager::unloadResource(shared_ptr<Resource> resource)
-{
-    unloadResource(resource->getGUID());
-}
-
-void ResourceManager::unloadUnused()
+void ResourceManager::unloadResource(ResourceID resourceId)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-    // Do this in such a way, because one resource can reference to an another.
-    while (true)
+    flush();
+
+    auto found = m_cache.find(resourceId);
+    if (found != m_cache.end())
     {
-        bool somethingRemoved = false;
-
-        auto it = m_loadedResources.cbegin();
-        while (it != m_loadedResources.cend())
-        {
-            if (it->second.unique() && !it->second->isResident())
-            {
-                m_loadedResources.erase(it++);
-                somethingRemoved = true;
-            }
-            else
-                it++;
-        }
-
-        if (!somethingRemoved)
-            break;
+        found->second->destroyResource(m_allocator);
+        m_cache.erase(found);
     }
-}
-
-void ResourceManager::clear()
-{
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-    m_threadPool = make_unique<ThreadPool>(2);
-    m_decodedResources.clear();
-
-    unloadUnused();
-}
-
-bool ResourceManager::isResourceExist(const ResourceGUID &guid) const
-{
-    return findResource(guid) != nullptr;
-}
-
-bool ResourceManager::isResourceLoaded(const ResourceGUID &guid) const
-{
-    auto res = findResource(guid);
-    return res && res->isInitialized();
-}
-
-void ResourceManager::addListener(Listener *listener)
-{
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-    if (utils::contains(m_listeners, listener))
-    {
-        DFLOG_WARN("Trying to add duplicate ResourceManager listener");
-        return;
-    }
-
-    m_listeners.push_back(listener);
-}
-
-void ResourceManager::removeListener(Listener *listener)
-{
-    std::lock_guard<std::recursive_mutex> lock(m_lock);
-
-    auto found = std::find(m_listeners.begin(), m_listeners.end(), listener);
-    if (found != m_listeners.end())
-        m_listeners.erase(found);
     else
-        DFLOG_WARN("ResourceManager::removeListener failed: listener doesn't exist");
+        DFLOG_WARN("Can't unload resource '%s', resource is not loaded", resourceId.c_str());
+}
+
+void ResourceManager::unloadAll()
+{
+    flush();
+    while (!m_cache.empty())
+        unloadResource(m_cache.begin()->first);
+}
+
+void ResourceManager::flush()
+{
+    while(isLoading()) { }
+
+    auto &decoded = m_loader->getDecoded();
+    while (!decoded.empty())
+        createResource(decoded.begin()->first, decoded.begin()->second);
+}
+
+bool ResourceManager::isLoading() const
+{
+    return m_loader->isLoading();
 }
 
 }

@@ -18,9 +18,6 @@ class ParticleSystemRenderer : public SPK::Renderer
 
 public:
     mutable RenderPass m_pass;
-    // Workaround.
-    mutable bool m_textureInitialized = false;
-    df3d::ResourceID m_texturePath;
 
     // This is a workaround.
     // We need to pass RenderQueue in order to populate it when renderParticles called.
@@ -31,7 +28,7 @@ public:
     ~ParticleSystemRenderer();
 
     void setBlendMode(SPK::BlendMode blendMode) override;
-    void setDiffuseMap(df3d::ResourceID texturePath);
+    void setDiffuseMap(TextureHandle texture);
     void enableFaceCulling(bool enable);
 };
 

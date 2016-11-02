@@ -42,9 +42,9 @@ void ParticleSystemRenderer::setBlendMode(SPK::BlendMode blendMode)
     }
 }
 
-void ParticleSystemRenderer::setDiffuseMap(df3d::ResourceID texturePath)
+void ParticleSystemRenderer::setDiffuseMap(TextureHandle texture)
 {
-    m_texturePath = texturePath;
+    m_pass.setParam("diffuseMap", texture);
 }
 
 void ParticleSystemRenderer::enableFaceCulling(bool enable)

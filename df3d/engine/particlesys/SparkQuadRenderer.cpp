@@ -204,15 +204,6 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
     case SPK::TEXTURE_MODE_NONE:
         break;
     case SPK::TEXTURE_MODE_2D:
-        if (!m_textureInitialized)
-        {
-            auto textureResource = svc().resourceManager().getResource<TextureResource>(m_texturePath);
-            DF3D_ASSERT(textureResource);
-
-            m_pass.setParam("diffuseMap", textureResource->handle);
-
-            m_textureInitialized = true;
-        }
         if (!group.isEnabled(SPK::PARAM_TEXTURE_INDEX))
         {
             // FIXME: inverted UV's Y because of OpenGL.
