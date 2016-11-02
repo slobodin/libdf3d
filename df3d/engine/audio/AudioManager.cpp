@@ -11,7 +11,6 @@ struct AudioManager::Impl
 };
 
 AudioManager::AudioManager()
-    : m_pimpl(new AudioManager::Impl())
 {
 
 }
@@ -24,6 +23,8 @@ AudioManager::~AudioManager()
 void AudioManager::initialize()
 {
     DFLOG_MESS("Initializing OpenAL");
+
+    m_pimpl = make_unique<Impl>();
 
 #ifdef _DEBUG
 #if defined(DF3D_WINDOWS)
@@ -64,6 +65,7 @@ void AudioManager::shutdown()
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(m_pimpl->m_context);
     alcCloseDevice(m_pimpl->m_device);
+    m_pimpl.reset();
 }
 
 void AudioManager::suspend()

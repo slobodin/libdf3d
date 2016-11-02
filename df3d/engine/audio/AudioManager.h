@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-class DF3D_DLL AudioManager : NonCopyable
+class AudioManager : NonCopyable
 {
     struct Impl;
     unique_ptr<Impl> m_pimpl;
