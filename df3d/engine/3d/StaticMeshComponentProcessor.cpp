@@ -6,8 +6,11 @@
 #include <df3d/engine/3d/SceneGraphComponentProcessor.h>
 #include <df3d/game/ComponentDataHolder.h>
 #include <df3d/engine/resources/ResourceManager.h>
-#include <df3d/engine/resources/ResourceFactory.h>
-#include <df3d/engine/render/MeshData.h>
+#include <df3d/engine/resources/MeshResource.h>
+#include <df3d/engine/resources/MaterialResource.h>
+#include <df3d/engine/render/Material.h>
+#include <df3d/engine/render/RenderOperation.h>
+#include <df3d/engine/render/RenderQueue.h>
 #include <df3d/lib/math/MathUtils.h>
 
 namespace df3d {
@@ -18,21 +21,19 @@ struct StaticMeshComponentProcessor::Impl
     {
         Transform holderWorldTransform;
         Entity holder;
-        shared_ptr<MeshData> meshData;
         bool visible = true;
         bool frustumCullingDisabled = false;
+        std::vector<MeshPart> parts;
+        std::vector<Material> materials;
+        AABB localAABB;
+        BoundingSphere localBoundingSphere;
     };
 
     ComponentDataHolder<Data> data;
 
     static BoundingSphere getBoundingSphere(const Data &compData)
     {
-        // TODO_ecs: mb move this to helpers.
-        auto meshDataSphere = compData.meshData->getBoundingSphere();
-        if (!meshDataSphere || !meshDataSphere->isValid())
-            return {};
-
-        BoundingSphere sphere = *meshDataSphere;
+        BoundingSphere sphere = compData.localBoundingSphere;
 
         // Update transformation.
         sphere.setPosition(compData.holderWorldTransform.position);
@@ -64,11 +65,8 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
     if (!m_renderingEnabled)
         return;
 
-    for (const auto &compData : m_pimpl->data.rawData())
+    for (auto &compData : m_pimpl->data.rawData())
     {
-        if (!compData.meshData->isInitialized())
-            continue;
-
         if (!compData.visible)
             continue;
 
@@ -79,8 +77,36 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
                 continue;
         }
 
-        // TODO_ecs: remove this method.
-        compData.meshData->populateRenderQueue(ops, compData.holderWorldTransform.combined);
+        for (size_t i = 0; i < compData.parts.size(); i++)
+        {
+            auto tech = compData.materials[i].getCurrentTechnique();
+            if (!tech)
+                continue;
+
+            const auto &meshPart = compData.parts[i];
+
+            for (auto &pass : tech->passes)
+            {
+                RenderOperation op;
+                op.vertexBuffer = meshPart.vertexBuffer;
+                op.indexBuffer = meshPart.indexBuffer;
+                op.numberOfElements = meshPart.numberOfElements;
+                op.worldTransform = compData.holderWorldTransform.combined;
+                op.passProps = &pass;
+
+                if (op.passProps->isTransparent)
+                {
+                    ops->transparentOperations.push_back(op);
+                }
+                else
+                {
+                    if (op.passProps->lightingEnabled)
+                        ops->litOpaqueOperations.push_back(op);
+                    else
+                        ops->notLitOpaqueOperations.push_back(op);
+                }
+            }
+        }
     }
 }
 
@@ -96,9 +122,24 @@ StaticMeshComponentProcessor::~StaticMeshComponentProcessor()
 
 }
 
-shared_ptr<MeshData> StaticMeshComponentProcessor::getMeshData(Entity e) const
+void StaticMeshComponentProcessor::setMaterial(Entity e, const Material &material)
 {
-    return m_pimpl->data.getData(e).meshData;
+    auto &compData = m_pimpl->data.getData(e);
+    for (size_t i = 0; i < compData.materials.size(); i++)
+        compData.materials[i] = material;
+}
+
+void StaticMeshComponentProcessor::setMaterial(Entity e, size_t meshPartIdx, const Material &material)
+{
+    DF3D_FATAL("not implemented");
+}
+
+Material* StaticMeshComponentProcessor::getMaterial(Entity e, size_t meshPartIdx)
+{
+    auto &compData = m_pimpl->data.getData(e);
+    if (meshPartIdx >= compData.materials.size())
+        return nullptr;
+    return &compData.materials[meshPartIdx];
 }
 
 AABB StaticMeshComponentProcessor::getAABB(Entity e)
@@ -110,13 +151,11 @@ AABB StaticMeshComponentProcessor::getAABB(Entity e)
 
     AABB transformedAABB;
 
-    auto modelSpaceAABB = compData.meshData->getAABB();
-    if (!modelSpaceAABB || !modelSpaceAABB->isValid())
-        return transformedAABB;
+    auto modelSpaceAABB = compData.localAABB;
 
     // Get the corners of original AABB (model-space).
     glm::vec4 aabbCorners[8];
-    modelSpaceAABB->getCorners(aabbCorners);
+    modelSpaceAABB.getCorners(aabbCorners);
 
     // Create new AABB from the corners of the original also applying world transformation.
     for (const auto &p : aabbCorners)
@@ -132,13 +171,6 @@ BoundingSphere StaticMeshComponentProcessor::getBoundingSphere(Entity e)
 {
     // FIXME: mb cache if transformation hasn't been changed?
     return Impl::getBoundingSphere(m_pimpl->data.getData(e));
-}
-
-OBB StaticMeshComponentProcessor::getOBB(Entity e)
-{
-    // FIXME: mb cache if transformation hasn't been changed?
-    DF3D_ASSERT_MESS(false, "not implemented");
-    return OBB();
 }
 
 void StaticMeshComponentProcessor::enableRender(bool enable)
@@ -161,17 +193,7 @@ bool StaticMeshComponentProcessor::isVisible(Entity e)
     return m_pimpl->data.getData(e).visible;
 }
 
-void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath)
-{
-    add(e, meshFilePath, ResourceLoadingMode::ASYNC);
-}
-
-void StaticMeshComponentProcessor::add(Entity e, const std::string &meshFilePath, ResourceLoadingMode lm)
-{
-    add(e, svc().resourceManager().getFactory().createMeshData(meshFilePath, lm));
-}
-
-void StaticMeshComponentProcessor::add(Entity e, shared_ptr<MeshData> meshData)
+void StaticMeshComponentProcessor::add(Entity e, ResourceID meshResource)
 {
     if (m_pimpl->data.contains(e))
     {
@@ -179,12 +201,39 @@ void StaticMeshComponentProcessor::add(Entity e, shared_ptr<MeshData> meshData)
         return;
     }
 
-    Impl::Data data;
-    data.meshData = meshData;
-    data.holder = e;
-    data.holderWorldTransform = m_world->sceneGraph().getWorldTransform(e);
+    auto &rmgr = svc().resourceManager();
+    if (auto mesh = rmgr.getResource<MeshResource>(meshResource))
+    {
+        Impl::Data data;
 
-    m_pimpl->data.add(e, data);
+        data.parts = mesh->meshParts;
+        data.materials.resize(data.parts.size());
+        data.localAABB = mesh->localAABB;
+        data.localBoundingSphere = mesh->localBoundingSphere;
+
+        if (!mesh->materialLibResourceId.empty())
+        {
+            auto materialLib = rmgr.getResource<MaterialLibResource>(mesh->materialLibResourceId);
+            DF3D_ASSERT(materialLib);
+            DF3D_ASSERT(mesh->meshParts.size() == mesh->materialNames.size());
+
+            size_t idx = 0;
+            for (const auto &mtlName : mesh->materialNames)
+            {
+                auto material = materialLib->getMaterial(mtlName);
+                if (material)
+                    data.materials[idx] = *material;
+                ++idx;
+            }
+        }
+
+        data.holder = e;
+        data.holderWorldTransform = m_world->sceneGraph().getWorldTransform(e);
+
+        m_pimpl->data.add(e, data);
+    }
+    else
+        DFLOG_WARN("Failed to add static mesh to an entity. Resource '%s' is not loaded", meshResource.c_str());
 }
 
 void StaticMeshComponentProcessor::remove(Entity e)
