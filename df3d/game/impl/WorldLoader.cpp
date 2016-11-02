@@ -6,8 +6,6 @@
 #include <df3d/engine/3d/Light.h>
 #include <df3d/lib/JsonUtils.h>
 #include <df3d/engine/resources/ResourceManager.h>
-#include <df3d/engine/resources/ResourceFactory.h>
-#include <df3d/engine/render/MaterialLib.h>
 
 namespace df3d { namespace game_impl {
 
@@ -43,6 +41,9 @@ static void parsePostProcessOption(const Json::Value &postFxNode, World &w)
     if (postFxNode.empty())
         return;
 
+    DF3D_ASSERT(false);
+    /*
+
     auto mtlLib = postFxNode["materialLib"].asString();
     auto mtlName = postFxNode["materialName"].asString();
 
@@ -57,7 +58,7 @@ static void parsePostProcessOption(const Json::Value &postFxNode, World &w)
     if (!material)
         return;
 
-    w.getRenderingParams().setPostProcessMaterial(make_shared<Material>(*material));
+    w.getRenderingParams().setPostProcessMaterial(make_shared<Material>(*material));*/
 }
 
 static void parseCamera(const Json::Value &cameraNode, World &w)
@@ -103,7 +104,7 @@ static void parseLights(const Json::Value &lightsNode, World &w)
 
 void WorldLoader::initWorld(const char *resourceFile, World &w)
 {
-    auto root = JsonUtils::fromFile(resourceFile, svc().fileSystem());
+    auto root = JsonUtils::fromFile(resourceFile);
 
     parseEntities(root["entities"], w);
     parseFog(root["fog"], w);
