@@ -59,26 +59,6 @@ using std::static_pointer_cast;
 
 namespace df3d {
 
-enum class ResourceLoadingMode
-{
-    IMMEDIATE,
-    ASYNC
-};
-
-enum class PixelFormat
-{
-    INVALID,
-
-    RGB,
-    RGBA,
-    DEPTH,
-
-    PVRTC_2RGB_V1,
-    PVRTC_2RGBA_V1,
-    PVRTC_4RGB_V1,
-    PVRTC_4RGBA_V1
-};
-
 enum class SeekDir
 {
     BEGIN,
@@ -86,10 +66,10 @@ enum class SeekDir
     CURRENT
 };
 
-using ResourceGUID = std::string;
-
 static const int DEFAULT_WINDOW_WIDTH = 640;
 static const int DEFAULT_WINDOW_HEIGHT = 480;
+
+using ResourceID = std::string;
 
 }
 
