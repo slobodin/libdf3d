@@ -258,7 +258,7 @@ void bindProcessors(Table &df3dNamespace)
             .Func(_SC("getSystem"), &ParticleSystemComponentProcessor::getSystem)
             .Func(_SC("isWorldTransformed"), &ParticleSystemComponentProcessor::isWorldTransformed)
             .Func(_SC("isPlaying"), &ParticleSystemComponentProcessor::isPlaying)
-            .Func<void(ParticleSystemComponentProcessor::*)(Entity, std::string)>(_SC("add"), &ParticleSystemComponentProcessor::add)
+            .Func<void(ParticleSystemComponentProcessor::*)(Entity, std::string)>(_SC("addWithResource"), &ParticleSystemComponentProcessor::addWithResource)
             .Func(_SC("remove"), &ParticleSystemComponentProcessor::remove)
             .Func(_SC("has"), &ParticleSystemComponentProcessor::has)
             ;

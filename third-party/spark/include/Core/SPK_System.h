@@ -279,6 +279,9 @@ namespace SPK
 		bool isInitialized() const;
 
 		virtual Ref<SPKObject> findByName(const std::string& name);
+
+        bool worldTransformed;
+        float lifetime;
 		
 	public :
 		spark_description(System, Transformable)

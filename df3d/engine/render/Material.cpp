@@ -41,7 +41,7 @@ void ValuePassParam::updateToProgram(IRenderBackend &backend, const  GpuProgramR
         if (handleFound == program.customUniforms.end())
         {
             DFLOG_WARN("Failed to lookup uniform %s in a shader", name.c_str());
-            //DF3D_ASSERT(false);
+            DF3D_ASSERT(false);
             return;
         }
 

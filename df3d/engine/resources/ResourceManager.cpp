@@ -11,6 +11,7 @@
 #include "MeshResource.h"
 #include "ParticleSystemResource.h"
 #include "TextureResource.h"
+#include "EntityResource.h"
 #include "IResourceHolder.h"
 
 namespace df3d {
@@ -59,6 +60,8 @@ public:
             resourceHolder = make_shared<MeshHolder>();
         else if (ext == ".vfx")
             resourceHolder = make_shared<ParticleSystemHolder>();
+        else if (ext == ".entity")
+            resourceHolder = make_shared<EntityHolder>();
         else
             DF3D_FATAL("Failed to load resource: unknown resource type %s", ext.c_str());
 

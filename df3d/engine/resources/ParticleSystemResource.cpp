@@ -568,6 +568,14 @@ static SPK::Ref<SPK::System> CreateSpkSystem(const Json::Value &root)
 
     result->initialize();
 
+    bool worldTransformed = true;
+    float systemLifeTime = -1.0f;
+
+    root["worldTransformed"] >> worldTransformed;
+    root["systemLifeTime"] >> systemLifeTime;
+    result->worldTransformed = worldTransformed;
+    result->lifetime = systemLifeTime;
+
     return result;
 }
 
@@ -605,14 +613,6 @@ bool ParticleSystemHolder::createResource(Allocator &allocator)
 {
     m_resource = allocator.makeNew<ParticleSystemResource>();
 
-    bool worldTransformed = true;
-    float systemLifeTime = -1.0f;
-
-    m_root["worldTransformed"] >> worldTransformed;
-    m_root["systemLifeTime"] >> systemLifeTime;
-
-    m_resource->worldTransformed = worldTransformed;
-    m_resource->systemLifeTime = systemLifeTime;
     m_resource->spkSystem = CreateSpkSystem(m_root);
 
     return m_resource->spkSystem.get() != nullptr;

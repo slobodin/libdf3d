@@ -7,8 +7,6 @@ namespace df3d {
 
 struct ParticleSystemResource
 {
-    bool worldTransformed = true;
-    float systemLifeTime = -1.0f;
     SPK::Ref<SPK::System> spkSystem;
 };
 

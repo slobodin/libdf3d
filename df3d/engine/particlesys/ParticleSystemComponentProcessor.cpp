@@ -168,16 +168,16 @@ bool ParticleSystemComponentProcessor::isVisible(Entity e) const
     return !m_pimpl->data.getData(e).visible;
 }
 
-void ParticleSystemComponentProcessor::add(Entity e, ResourceID resourceID)
+void ParticleSystemComponentProcessor::addWithResource(Entity e, ResourceID resourceID)
 {
     auto resource = svc().resourceManager().getResource<ParticleSystemResource>(resourceID);
     if (resource)
-        add(e, SPK::SPKObject::copy(resource->spkSystem), resource->worldTransformed, resource->systemLifeTime);
+        addWithSpkSystem(e, SPK::SPKObject::copy(resource->spkSystem));
     else
         DFLOG_WARN("Can not add vfx, resource %s not found", resourceID.c_str());
 }
 
-void ParticleSystemComponentProcessor::add(Entity e, SPK::Ref<SPK::System> system, bool worldTransformed, float lifetime)
+void ParticleSystemComponentProcessor::addWithSpkSystem(Entity e, SPK::Ref<SPK::System> system)
 {
     if (m_pimpl->data.contains(e))
     {
@@ -188,8 +188,8 @@ void ParticleSystemComponentProcessor::add(Entity e, SPK::Ref<SPK::System> syste
     Impl::Data data;
     data.system = system;
     data.holder = e;
-    data.systemLifeTime = lifetime;
-    data.worldTransformed = worldTransformed;
+    data.systemLifeTime = system->lifetime;
+    data.worldTransformed = system->worldTransformed;
     data.holderTransform = m_world->sceneGraph().getWorldTransformMatrix(e);
 
     m_pimpl->data.add(e, data);

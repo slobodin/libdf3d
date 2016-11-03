@@ -12,6 +12,7 @@
 #include <df3d/platform/AppDelegate.h>
 #include <df3d/engine/script/ScriptManager.h>
 #include <df3d/lib/JsonUtils.h>
+#include <df3d/lib/memory/MallocAllocator.h>
 
 #if defined(DF3D_WINDOWS)
 #include <df3d/platform/windows/CrashHandler.h>
