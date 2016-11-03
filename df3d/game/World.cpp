@@ -59,7 +59,7 @@ World::World()
     m_entityLoader(new game_impl::EntityLoader()),
     m_staticMeshes(new StaticMeshComponentProcessor(this)),
     m_vfx(new ParticleSystemComponentProcessor(this)),
-    m_physics(new PhysicsComponentProcessor(this)),
+    m_physics(new PhysicsComponentProcessor(*this)),
     m_sceneGraph(new SceneGraphComponentProcessor()),
     m_sprite2D(new Sprite2DComponentProcessor(this)),
     m_tags(new TagComponentProcessor()),

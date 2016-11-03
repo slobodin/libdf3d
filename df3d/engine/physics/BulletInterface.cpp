@@ -9,7 +9,7 @@
 #include <df3d/engine/resources/TextureResource.h>
 #include "PhysicsHelpers.h"
 
-namespace df3d { namespace physics_impl {
+namespace df3d {
 
 static unique_ptr<RenderPass> CreateDebugDrawPass()
 {
@@ -109,4 +109,4 @@ void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
     ops->debugDrawOperations.push_back(op);
 }
 
-} }
+}

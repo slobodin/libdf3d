@@ -10,8 +10,6 @@ namespace df3d {
 class RenderPass;
 class RenderQueue;
 
-namespace physics_impl {
-
 class BulletDebugDraw : public btIDebugDraw
 {
     unique_ptr<RenderPass> m_pass;
@@ -36,4 +34,4 @@ public:
     void flushRenderOperations(RenderQueue *ops);
 };
 
-} }
+}
