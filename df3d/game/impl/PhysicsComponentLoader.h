@@ -13,8 +13,8 @@ public:
     {
         auto params = PhysicsComponentCreationParams(root);
 
-        // NOTE: assuming that mesh already added to this entity.
-        w.physics().add(e, params, w.staticMesh().getMeshData(e));
+        DF3D_ASSERT(!root["mesh"].isNull());
+        w.physics().add(e, params, root["mesh"].asString());
     }
 };
 

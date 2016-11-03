@@ -11,7 +11,7 @@ class VfxComponentLoader : public EntityComponentLoader
 public:
     void loadComponent(const Json::Value &root, Entity e, World &w) const override
     {
-        w.vfx().add(e, root["path"].asString());
+        w.vfx().addWithResource(e, root["path"].asString());
     }
 };
 
