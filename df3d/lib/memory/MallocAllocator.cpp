@@ -1,5 +1,7 @@
 #include "MallocAllocator.h"
 
+#include <df3d/lib/Utils.h>
+
 namespace df3d {
 
 MallocAllocator::MallocAllocator()
@@ -32,6 +34,11 @@ void MallocAllocator::dealloc(void *mem)
     DF3D_ASSERT(m_totalAllocated >= 0);
 
     free(mem);
+}
+
+size_t MallocAllocator::bytesAllocated()
+{
+    return 0;
 }
 
 }

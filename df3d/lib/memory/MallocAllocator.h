@@ -15,6 +15,7 @@ public:
 
     void* alloc(size_t size, size_t alignment = DEFAULT_ALIGN) override;
     void dealloc(void *mem) override;
+    size_t bytesAllocated() override;
 };
 
 }
