@@ -6,7 +6,6 @@
 #include <df3d/Common.h>
 
 #include <df3d/lib/memory/Allocator.h>
-#include <df3d/lib/memory/MallocAllocator.h>
 #include <df3d/lib/assert/Assert.h>
 #include <df3d/lib/containers/ConcurrentQueue.h>
 #include <df3d/lib/containers/PodArray.h>
@@ -40,34 +39,30 @@
 #include <df3d/lib/math/AABB.h>
 #include <df3d/lib/math/BoundingSphere.h>
 #include <df3d/lib/math/OBB.h>
-#include <df3d/lib/math/ConvexHull.h>
 
 #include <df3d/engine/render/RenderCommon.h>
 #include <df3d/engine/render/Material.h>
-#include <df3d/engine/render/MaterialLib.h>
-#include <df3d/engine/render/Technique.h>
-#include <df3d/engine/render/RenderPass.h>
 #include <df3d/engine/render/Viewport.h>
 #include <df3d/engine/render/Vertex.h>
-#include <df3d/engine/render/MeshData.h>
 #include <df3d/engine/render/RenderQueue.h>
 #include <df3d/engine/render/IRenderBackend.h>
 #include <df3d/engine/render/RenderManager.h>
-#include <df3d/engine/render/Texture.h>
 
 #include <df3d/engine/input/InputEvents.h>
 #include <df3d/engine/input/InputManager.h>
 
-#include <df3d/engine/io/FileSystem.h>
 #include <df3d/engine/io/FileSystemHelpers.h>
-#include <df3d/engine/io/DataSource.h>
-#include <df3d/engine/io/DefaultFileDevice.h>
 #include <df3d/engine/io/Storage.h>
-#include <df3d/engine/io/MemoryDataSource.h>
-#include <df3d/engine/io/FileDataSource.h>
 
+#include <df3d/engine/resources/AudioResource.h>
+#include <df3d/engine/resources/GpuProgramResource.h>
+#include <df3d/engine/resources/MaterialResource.h>
+#include <df3d/engine/resources/MeshResource.h>
+#include <df3d/engine/resources/ParticleSystemResource.h>
+#include <df3d/engine/resources/TextureResource.h>
 #include <df3d/engine/resources/ResourceManager.h>
-#include <df3d/engine/resources/ResourceFactory.h>
+#include <df3d/engine/resources/ResourceDataSource.h>
+#include <df3d/engine/resources/ResourceFileSystem.h>
 
 #include <df3d/engine/gui/GuiManager.h>
 
@@ -77,7 +72,6 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 
-#include <df3d/engine/audio/AudioManager.h>
 #include <df3d/engine/audio/AudioWorld.h>
 
 #include <df3d/game/FPSCamera.h>
