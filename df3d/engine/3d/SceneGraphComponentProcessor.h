@@ -2,6 +2,7 @@
 
 #include <df3d/game/Entity.h>
 #include <df3d/game/EntityComponentProcessor.h>
+#include <df3d/game/ComponentDataHolder.h>
 
 class btTransform;
 
@@ -17,8 +18,22 @@ struct Transform
 
 class SceneGraphComponentProcessor : public EntityComponentProcessor
 {
-    struct Impl;
-    unique_ptr<Impl> m_pimpl;
+    struct Data
+    {
+        Transform wTransform;   // world transform
+        Transform lTransform;   // local transform
+        std::string name;
+        Entity parent;
+        Entity holder;
+        std::vector<Entity> children;
+        bool localTransformDirty = true;
+    };
+
+    ComponentDataHolder<Data> m_data;
+
+    void updateWorldTransformation(Data &component);
+    void updateLocalTransform(Data &component);
+    void updateChildren(Data &component);
 
     void update() override { }
 
