@@ -2,27 +2,43 @@
 
 #include <df3d/game/Entity.h>
 #include <df3d/game/EntityComponentProcessor.h>
+#include <df3d/game/ComponentDataHolder.h>
 #include <SPARK.h>
 
 namespace df3d {
 
 class RenderQueue;
 class World;
+class ParticleSystemBuffers_Quad;
 
 class ParticleSystemComponentProcessor : public EntityComponentProcessor
 {
     friend class World;
 
-    struct Impl;
-    unique_ptr<Impl> m_pimpl;
+    struct Data
+    {
+        glm::mat4 holderTransform;
+        SPK::Ref<SPK::System> system;
+        Entity holder;
+        float systemLifeTime = -1.0f;
+        float systemAge = 0.0f;
+        bool paused = false;
+        bool visible = true;
+        bool worldTransformed = true;
+    };
 
-    World *m_world;
+    ComponentDataHolder<Data> m_data;
+    ParticleSystemBuffers_Quad *m_quadBuffers = nullptr;
+
+    World &m_world;
+    Allocator &m_allocator;
     bool m_pausedGlobal = false;
 
+    void updateCameraPosition(Data &compData);
     void update() override;
 
 public:
-    ParticleSystemComponentProcessor(World *world);
+    ParticleSystemComponentProcessor(World &world);
     ~ParticleSystemComponentProcessor();
 
     void useRealStep();

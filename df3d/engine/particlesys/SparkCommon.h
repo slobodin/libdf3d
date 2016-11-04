@@ -8,8 +8,6 @@ namespace df3d {
 struct TextureResource;
 class RenderPass;
 
-namespace particlesys_impl {
-
 class ParticleSystemBuffers_Quad;
 
 class ParticleSystemRenderer : public SPK::Renderer
@@ -42,4 +40,4 @@ inline glm::vec3 spkToGlm(const SPK::Vector3D &v)
     return glm::vec3(v.x, v.y, v.z);
 }
 
-} }
+}

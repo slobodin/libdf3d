@@ -3,7 +3,7 @@
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/render/RenderManager.h>
 
-namespace df3d { namespace particlesys_impl {
+namespace df3d {
 
 ParticleSystemRenderer::ParticleSystemRenderer(bool NEEDS_DATASET)
     : SPK::Renderer(NEEDS_DATASET)
@@ -55,4 +55,4 @@ void ParticleSystemRenderer::enableFaceCulling(bool enable)
         m_pass.faceCullMode = FaceCullMode::NONE;
 }
 
-} }
+}

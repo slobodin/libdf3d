@@ -5,8 +5,6 @@
 
 namespace df3d {
 
-namespace particlesys_impl {
-
 class TrailsParticleSystemRenderer : public ParticleSystemRenderer
 {
     spark_description(TrailsParticleSystemRenderer, ParticleSystemRenderer)
@@ -126,4 +124,4 @@ public:
     }
 };
 
-} }
+}

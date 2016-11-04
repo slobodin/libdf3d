@@ -1,6 +1,6 @@
 #include "SparkLineTrailRenderer.h"
 
-namespace df3d { namespace particlesys_impl {
+namespace df3d {
 
 TrailsParticleSystemRenderer::TrailsParticleSystemRenderer(size_t nbSamples, float duration, float width)
     : ParticleSystemRenderer(true),
@@ -147,4 +147,4 @@ void TrailsParticleSystemRenderer::checkData(SPK::DataSet& dataSet, const SPK::G
     }
 }
 
-} }
+}

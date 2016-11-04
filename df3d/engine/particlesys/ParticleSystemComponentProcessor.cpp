@@ -15,46 +15,28 @@
 
 namespace df3d {
 
-struct ParticleSystemComponentProcessor::Impl
+void ParticleSystemComponentProcessor::updateCameraPosition(Data &compData)
 {
-    struct Data
+    auto spkSystem = compData.system;
+    const auto &camPos = m_world.getCamera()->getPosition();
+    for (size_t i = 0; i < spkSystem->getNbGroups(); ++i)
     {
-        SPK::Ref<SPK::System> system;
-
-        Entity holder;
-        glm::mat4 holderTransform;
-        bool paused = false;
-        bool visible = true;
-        bool worldTransformed = true;
-        float systemLifeTime = -1.0f;
-        float systemAge = 0.0f;
-    };
-
-    ComponentDataHolder<Data> data;
-    particlesys_impl::ParticleSystemBuffers_Quad m_quadBuffers;
-
-    static void updateCameraPosition(Data &compData, World *w)
-    {
-        auto spkSystem = compData.system;
-        for (size_t i = 0; i < spkSystem->getNbGroups(); ++i)
+        if (spkSystem->getGroup(i)->isDistanceComputationEnabled())
         {
-            if (spkSystem->getGroup(i)->isDistanceComputationEnabled())
+            auto pos = camPos;
+            if (!compData.worldTransformed)
             {
-                auto pos = w->getCamera()->getPosition();
-                if (!compData.worldTransformed)
-                {
-                    // Transform camera position into this node space.
-                    auto invWorldTransform = glm::inverse(compData.holderTransform);
+                // Transform camera position into this node space.
+                auto invWorldTransform = glm::inverse(compData.holderTransform);
 
-                    pos = glm::vec3((invWorldTransform * glm::vec4(pos, 1.0f)));
-                }
-
-                spkSystem->setCameraPosition(particlesys_impl::glmToSpk(pos));
-                break;
+                pos = glm::vec3((invWorldTransform * glm::vec4(pos, 1.0f)));
             }
+
+            spkSystem->setCameraPosition(glmToSpk(pos));
+            break;
         }
     }
-};
+}
 
 void ParticleSystemComponentProcessor::update()
 {
@@ -62,11 +44,12 @@ void ParticleSystemComponentProcessor::update()
         return;
 
     // Update the transform component.
-    for (auto &compData : m_pimpl->data.rawData())
-        compData.holderTransform = m_world->sceneGraph().getWorldTransformMatrix(compData.holder);
+    auto &sceneGr = m_world.sceneGraph();
+    for (auto &compData : m_data.rawData())
+        compData.holderTransform = sceneGr.getWorldTransformMatrix(compData.holder);
 
-    auto dt = svc().timer().getFrameDelta(TIME_CHANNEL_GAME);
-    for (auto &compData : m_pimpl->data.rawData())
+    const auto dt = svc().timer().getFrameDelta(TIME_CHANNEL_GAME);
+    for (auto &compData : m_data.rawData())
     {
         if (compData.paused)
             continue;
@@ -76,7 +59,7 @@ void ParticleSystemComponentProcessor::update()
         if (compData.worldTransformed)
             spkSystem->getTransform().set(glm::value_ptr(compData.holderTransform));
 
-        Impl::updateCameraPosition(compData, m_world);
+        updateCameraPosition(compData);
         spkSystem->updateParticles(dt);
 
         if (compData.systemLifeTime > 0.0f)
@@ -88,10 +71,12 @@ void ParticleSystemComponentProcessor::update()
     }
 }
 
-ParticleSystemComponentProcessor::ParticleSystemComponentProcessor(World *world)
-    : m_pimpl(new Impl()),
-    m_world(world)
+ParticleSystemComponentProcessor::ParticleSystemComponentProcessor(World &world)
+    : m_world(world),
+    m_allocator(MemoryManager::allocDefault())
 {
+    m_quadBuffers = MAKE_NEW(MemoryManager::allocDefault(), ParticleSystemBuffers_Quad);
+
     // Clamp the step to 100 ms.
     SPK::System::setClampStep(true, 0.1f);
     useRealStep();
@@ -99,7 +84,8 @@ ParticleSystemComponentProcessor::ParticleSystemComponentProcessor(World *world)
 
 ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor()
 {
-    m_pimpl->data.clear();
+    m_data.clear();
+    MAKE_DELETE(m_allocator, m_quadBuffers);
 }
 
 void ParticleSystemComponentProcessor::useRealStep()
@@ -120,7 +106,7 @@ void ParticleSystemComponentProcessor::stop(Entity e)
 
 void ParticleSystemComponentProcessor::pause(Entity e, bool paused)
 {
-    m_pimpl->data.getData(e).paused = paused;
+    m_data.getData(e).paused = paused;
 }
 
 void ParticleSystemComponentProcessor::pauseGlobal(bool paused)
@@ -130,42 +116,42 @@ void ParticleSystemComponentProcessor::pauseGlobal(bool paused)
 
 void ParticleSystemComponentProcessor::setVisible(Entity e, bool visible)
 {
-    m_pimpl->data.getData(e).visible = visible;
+    m_data.getData(e).visible = visible;
 }
 
 void ParticleSystemComponentProcessor::setSystemLifeTime(Entity e, float lifeTime)
 {
-    m_pimpl->data.getData(e).systemLifeTime = lifeTime;
+    m_data.getData(e).systemLifeTime = lifeTime;
 }
 
 void ParticleSystemComponentProcessor::setWorldTransformed(Entity e, bool worldTransformed)
 {
-    m_pimpl->data.getData(e).worldTransformed = worldTransformed;
+    m_data.getData(e).worldTransformed = worldTransformed;
 }
 
 float ParticleSystemComponentProcessor::getSystemLifeTime(Entity e) const
 {
-    return m_pimpl->data.getData(e).systemLifeTime;
+    return m_data.getData(e).systemLifeTime;
 }
 
 SPK::Ref<SPK::System> ParticleSystemComponentProcessor::getSystem(Entity e) const
 {
-    return m_pimpl->data.getData(e).system;
+    return m_data.getData(e).system;
 }
 
 bool ParticleSystemComponentProcessor::isWorldTransformed(Entity e) const
 {
-    return m_pimpl->data.getData(e).worldTransformed;
+    return m_data.getData(e).worldTransformed;
 }
 
 bool ParticleSystemComponentProcessor::isPlaying(Entity e) const
 {
-    return !m_pimpl->data.getData(e).paused;
+    return !m_data.getData(e).paused;
 }
 
 bool ParticleSystemComponentProcessor::isVisible(Entity e) const
 {
-    return !m_pimpl->data.getData(e).visible;
+    return !m_data.getData(e).visible;
 }
 
 void ParticleSystemComponentProcessor::addWithResource(Entity e, ResourceID resourceID)
@@ -179,30 +165,30 @@ void ParticleSystemComponentProcessor::addWithResource(Entity e, ResourceID reso
 
 void ParticleSystemComponentProcessor::addWithSpkSystem(Entity e, SPK::Ref<SPK::System> system)
 {
-    if (m_pimpl->data.contains(e))
+    if (m_data.contains(e))
     {
         DFLOG_WARN("An entity already has a particle system component");
         return;
     }
 
-    Impl::Data data;
+    Data data;
     data.system = system;
     data.holder = e;
     data.systemLifeTime = system->lifetime;
     data.worldTransformed = system->worldTransformed;
-    data.holderTransform = m_world->sceneGraph().getWorldTransformMatrix(e);
+    data.holderTransform = m_world.sceneGraph().getWorldTransformMatrix(e);
 
-    m_pimpl->data.add(e, data);
+    m_data.add(e, data);
 }
 
 void ParticleSystemComponentProcessor::remove(Entity e)
 {
-    m_pimpl->data.remove(e);
+    m_data.remove(e);
 }
 
 bool ParticleSystemComponentProcessor::has(Entity e)
 {
-    return m_pimpl->data.contains(e);
+    return m_data.contains(e);
 }
 
 void ParticleSystemComponentProcessor::render()
@@ -210,7 +196,7 @@ void ParticleSystemComponentProcessor::render()
     if (m_pausedGlobal)
         return;
 
-    for (const auto &compData : m_pimpl->data.rawData())
+    for (const auto &compData : m_data.rawData())
     {
         if (compData.paused || !compData.visible)
             continue;
@@ -223,9 +209,9 @@ void ParticleSystemComponentProcessor::render()
         // Prepare drawing of spark system.
         for (size_t i = 0; i < spkSystem->getNbGroups(); i++)
         {
-            auto renderer = static_cast<particlesys_impl::ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
+            auto renderer = static_cast<ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
             renderer->m_currentTransformation = &transf;
-            renderer->m_quadBuffers = &m_pimpl->m_quadBuffers;
+            renderer->m_quadBuffers = m_quadBuffers;
         }
 
         spkSystem->renderParticles();

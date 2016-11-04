@@ -11,7 +11,7 @@
 #include <df3d/engine/3d/Camera.h>
 #include <df3d/game/World.h>
 
-namespace df3d { namespace particlesys_impl {
+namespace df3d {
 
 static const size_t QUAD_VERTICES_PER_PARTICLE = 4;
 static const size_t QUAD_INDICES_PER_PARTICLE = 6;
@@ -33,7 +33,7 @@ void ParticleSystemBuffers_Quad::cleanup()
 {
     if (m_vertexData)
     {
-        MemoryManager::allocDefault().dealloc(m_vertexData);
+        MEM_FREE(MemoryManager::allocDefault(), m_vertexData);
         m_vertexData = nullptr;
     }
 
@@ -61,7 +61,7 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
     DF3D_ASSERT_MESS(verticesCount < 0xFFFF, "Using 16-bit indices for particle system");
 
     // Allocate main memory storage copy (no glMapBuffer on ES2.0)
-    m_vertexData = (Vertex_p_tx_c*)MemoryManager::allocDefault().alloc(sizeof(Vertex_p_tx_c) * verticesCount);
+    m_vertexData = MEM_ALLOC(MemoryManager::allocDefault(), Vertex_p_tx_c, verticesCount);
 
     positionAtStart();
 
@@ -291,4 +291,4 @@ void QuadParticleSystemRenderer::computeAABB(SPK::Vector3D &AABBMin, SPK::Vector
     }
 }
 
-} }
+}

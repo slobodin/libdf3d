@@ -10,7 +10,7 @@ namespace df3d {
 
 SPK::Ref<SPK::Renderer> ParticleSystemUtils::createQuadRenderer(const glm::vec2 &scale, ResourceID textureResource, bool depthTest)
 {
-    auto quadRenderer = particlesys_impl::QuadParticleSystemRenderer::create(scale.x, scale.y);
+    auto quadRenderer = QuadParticleSystemRenderer::create(scale.x, scale.y);
 
     auto resource = svc().resourceManager().getResource<TextureResource>(textureResource);
     DF3D_ASSERT(resource != nullptr);
@@ -23,7 +23,7 @@ SPK::Ref<SPK::Renderer> ParticleSystemUtils::createQuadRenderer(const glm::vec2 
 
 SPK::Ref<SPK::Renderer> ParticleSystemUtils::createTrailRenderer(size_t nbSamples, float duration, float width, bool depthTest)
 {
-    return particlesys_impl::TrailsParticleSystemRenderer::create(nbSamples, duration, width);
+    return TrailsParticleSystemRenderer::create(nbSamples, duration, width);
 }
 
 }

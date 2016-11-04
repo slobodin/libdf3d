@@ -66,7 +66,7 @@ public:
 
     ~TBImageLoaderImpl()
     {
-        MemoryManager::allocDefault().makeDelete(m_data);
+        MAKE_DELETE(MemoryManager::allocDefault(), m_data);
     }
 
     int Width() override

@@ -7,8 +7,6 @@
 
 namespace df3d {
 
-namespace particlesys_impl {
-
 class MyRenderBuffer;
 
 // A cache for all systems vertex & index data.
@@ -109,4 +107,4 @@ public:
     }
 };
 
-} }
+}
