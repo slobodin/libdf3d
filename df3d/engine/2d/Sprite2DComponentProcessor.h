@@ -2,12 +2,16 @@
 
 #include <df3d/game/Entity.h>
 #include <df3d/game/EntityComponentProcessor.h>
+#include <df3d/game/ComponentDataHolder.h>
 #include <df3d/engine/render/RenderCommon.h>
+#include <df3d/engine/render/Material.h>
+#include <df3d/engine/render/RenderOperation.h>
 
 namespace df3d {
 
 class RenderQueue;
 class World;
+class SceneGraphComponentProcessor;
 
 // FIXME: improve 2d submodule, ideally remove this class.
 
@@ -15,15 +19,31 @@ class Sprite2DComponentProcessor : public EntityComponentProcessor
 {
     friend class World;
 
-    struct Impl;
-    unique_ptr<Impl> m_pimpl;
-    World *m_world;
+    struct Data
+    {
+        RenderPass pass;
+        RenderOperation2D op;
+        glm::vec2 anchor = glm::vec2(0.5f, 0.5f);
+        glm::vec2 textureOriginalSize;
+        glm::vec2 screenPosition;
+        ResourceID textureResourceId;
+        Entity holder;
+        float rotation = 0.0f;
+        bool visible = true;
+    };
+
+    ComponentDataHolder<Data> m_data;
+    VertexBufferHandle m_vertexBuffer;
+
+    World &m_world;
+
+    void updateTransform(Data &compData, SceneGraphComponentProcessor &sceneGr);
 
     void draw(RenderQueue *ops) override;
     void update() override { }
 
 public:
-    Sprite2DComponentProcessor(World *world);
+    Sprite2DComponentProcessor(World &world);
     ~Sprite2DComponentProcessor();
 
     void setAnchorPoint(Entity e, const glm::vec2 &pt);

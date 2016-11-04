@@ -33,85 +33,56 @@ static VertexBufferHandle CreateQuad(float x, float y, float w, float h, GpuBuff
     return svc().renderManager().getBackend().createVertexBuffer(Vertex_p_tx_c::getFormat(), 6, quadData, usage);
 }
 
-struct Sprite2DComponentProcessor::Impl
+void Sprite2DComponentProcessor::updateTransform(Data &compData, SceneGraphComponentProcessor &sceneGr)
 {
-    struct Data
-    {
-        RenderPass pass;
-        RenderOperation2D op;
-        glm::vec2 anchor = glm::vec2(0.5f, 0.5f);
-        glm::vec2 textureOriginalSize;
-        glm::vec2 screenPosition;
-        ResourceID textureResourceId;
-        Entity holder;
-        float rotation = 0.0f;
-        bool visible = true;
-    };
+    compData.op.worldTransform = sceneGr.getWorldTransformMatrix(compData.holder);
 
-    ComponentDataHolder<Data> data;
-    VertexBufferHandle vertexBuffer;
+    auto &worldTransform = compData.op.worldTransform;
 
-    Impl()
+    compData.op.z = worldTransform[3][2];
+
+    if (compData.rotation != 0.0f)
     {
-        vertexBuffer = CreateQuad(0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
+        auto r = glm::radians(compData.rotation);
+        glm::mat2 m;
+        m[0][0] = compData.textureOriginalSize.x * worldTransform[0][0];
+        m[1][1] = compData.textureOriginalSize.y * worldTransform[1][1];
+
+        m = glm::mat2(std::cos(r), -std::sin(r), std::sin(r), std::cos(r)) * m;
+
+        worldTransform[0] = glm::vec4(m[0], 0.0f, 0.0f);
+        worldTransform[1] = glm::vec4(m[1], 0.0f, 0.0f);
+        worldTransform[2][2] = 1.0f;
+    }
+    else
+    {
+        // Set just quad scale.
+        worldTransform[0][0] *= compData.textureOriginalSize.x;
+        worldTransform[1][1] *= compData.textureOriginalSize.y;
+        worldTransform[2][2] = 1.0f;
     }
 
-    ~Impl()
-    {
-        if (vertexBuffer.isValid())
-            svc().renderManager().getBackend().destroyVertexBuffer(vertexBuffer);
-    }
+    // Set position.
+    worldTransform[3][0] += (0.5f - compData.anchor.x) * worldTransform[0][0];
+    worldTransform[3][1] += (0.5f - compData.anchor.y) * worldTransform[1][1];
+    worldTransform[3][2] = 0.0f;
 
-    static void updateTransform(World &world, Data &compData)
-    {
-        compData.op.worldTransform = world.sceneGraph().getWorldTransformMatrix(compData.holder);
-
-        auto &worldTransform = compData.op.worldTransform;
-
-        compData.op.z = worldTransform[3][2];
-
-        if (compData.rotation != 0.0f)
-        {
-            auto r = glm::radians(compData.rotation);
-            glm::mat2 m;
-            m[0][0] = compData.textureOriginalSize.x * worldTransform[0][0];
-            m[1][1] = compData.textureOriginalSize.y * worldTransform[1][1];
-
-            m = glm::mat2(std::cos(r), -std::sin(r), std::sin(r), std::cos(r)) * m;
-
-            worldTransform[0] = glm::vec4(m[0], 0.0f, 0.0f);
-            worldTransform[1] = glm::vec4(m[1], 0.0f, 0.0f);
-            worldTransform[2][2] = 1.0f;
-        }
-        else
-        {
-            // Set just quad scale.
-            worldTransform[0][0] *= compData.textureOriginalSize.x;
-            worldTransform[1][1] *= compData.textureOriginalSize.y;
-            worldTransform[2][2] = 1.0f;
-        }
-
-        // Set position.
-        worldTransform[3][0] += (0.5f - compData.anchor.x) * worldTransform[0][0];
-        worldTransform[3][1] += (0.5f - compData.anchor.y) * worldTransform[1][1];
-        worldTransform[3][2] = 0.0f;
-
-        compData.screenPosition = { worldTransform[3][0], worldTransform[3][1] };
-    }
-};
+    compData.screenPosition = { worldTransform[3][0], worldTransform[3][1] };
+}
 
 void Sprite2DComponentProcessor::draw(RenderQueue *ops)
 {
     // TODO:
     // Camera transform.
-    for (auto &compData : m_pimpl->data.rawData())
+    auto &sceneGr = m_world.sceneGraph();
+    for (auto &compData : m_data.rawData())
     {
         if (!compData.visible)
             continue;
 
-        Impl::updateTransform(*m_world, compData);
+        updateTransform(compData, sceneGr);
 
-        compData.op.vertexBuffer = m_pimpl->vertexBuffer;
+        compData.op.vertexBuffer = m_vertexBuffer;
         compData.op.passProps = &compData.pass;
         compData.op.numberOfElements = 6;       // This is a quad! Two triangles.
 
@@ -119,36 +90,36 @@ void Sprite2DComponentProcessor::draw(RenderQueue *ops)
     }
 }
 
-Sprite2DComponentProcessor::Sprite2DComponentProcessor(World *world)
-    : m_pimpl(new Impl()),
-    m_world(world)
+Sprite2DComponentProcessor::Sprite2DComponentProcessor(World &world)
+    : m_world(world)
 {
-
+    m_vertexBuffer = CreateQuad(0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
 }
 
 Sprite2DComponentProcessor::~Sprite2DComponentProcessor()
 {
-
+    if (m_vertexBuffer.isValid())
+        svc().renderManager().getBackend().destroyVertexBuffer(m_vertexBuffer);
 }
 
 void Sprite2DComponentProcessor::setAnchorPoint(Entity e, const glm::vec2 &pt)
 {
-    m_pimpl->data.getData(e).anchor = pt;
+    m_data.getData(e).anchor = pt;
 }
 
 void Sprite2DComponentProcessor::setZIdx(Entity e, float z)
 {
-    auto newPos = m_world->sceneGraph().getLocalPosition(e);
+    auto newPos = m_world.sceneGraph().getLocalPosition(e);
     newPos.z = z;
 
-    m_world->sceneGraph().setPosition(e, newPos);
+    m_world.sceneGraph().setPosition(e, newPos);
 }
 
 void Sprite2DComponentProcessor::setVisible(Entity e, bool visible)
 {
-    m_pimpl->data.getData(e).visible = visible;
+    m_data.getData(e).visible = visible;
 
-    const auto &children = m_world->sceneGraph().getChildren(e);
+    const auto &children = m_world.sceneGraph().getChildren(e);
     for (auto child : children)
     {
         if (has(child))
@@ -158,11 +129,11 @@ void Sprite2DComponentProcessor::setVisible(Entity e, bool visible)
 
 void Sprite2DComponentProcessor::setSize(Entity e, const glm::vec2 &size)
 {
-    auto &compData = m_pimpl->data.getData(e);
+    auto &compData = m_data.getData(e);
 
     // Compute new scale to fit desired size.
     auto sc = size / compData.textureOriginalSize;
-    m_world->sceneGraph().setScale(e, { sc.x, sc.y, 1.0f });
+    m_world.sceneGraph().setScale(e, { sc.x, sc.y, 1.0f });
 }
 
 void Sprite2DComponentProcessor::setWidth(Entity e, float w)
@@ -177,13 +148,13 @@ void Sprite2DComponentProcessor::setHeight(Entity e, float h)
 
 void Sprite2DComponentProcessor::setRotation(Entity e, float rotation)
 {
-    m_pimpl->data.getData(e).rotation = rotation;
+    m_data.getData(e).rotation = rotation;
 }
 
 glm::vec2 Sprite2DComponentProcessor::getSize(Entity e) const
 {
-    const auto &compData = m_pimpl->data.getData(e);
-    auto scale = m_world->sceneGraph().getLocalScale(e);
+    const auto &compData = m_data.getData(e);
+    auto scale = m_world.sceneGraph().getLocalScale(e);
 
     return{ scale.x * compData.textureOriginalSize.x, scale.y * compData.textureOriginalSize.y };
 }
@@ -200,16 +171,16 @@ float Sprite2DComponentProcessor::getHeight(Entity e) const
 
 const glm::vec2& Sprite2DComponentProcessor::getScreenPosition(Entity e)
 {
-    auto &compData = m_pimpl->data.getData(e);
+    auto &compData = m_data.getData(e);
 
-    Impl::updateTransform(*m_world, compData);
+    updateTransform(compData, m_world.sceneGraph());
 
     return compData.screenPosition;
 }
 
 void Sprite2DComponentProcessor::useTexture(Entity e, ResourceID textureResource)
 {
-    auto &compData = m_pimpl->data.getData(e);
+    auto &compData = m_data.getData(e);
     if (compData.textureResourceId == textureResource)
         return;
 
@@ -227,14 +198,14 @@ void Sprite2DComponentProcessor::useTexture(Entity e, ResourceID textureResource
 
 const glm::vec2& Sprite2DComponentProcessor::getTextureSize(Entity e) const
 {
-    return m_pimpl->data.getData(e).textureOriginalSize;
+    return m_data.getData(e).textureOriginalSize;
 }
 
 void Sprite2DComponentProcessor::setBlendMode(Entity e, BlendingMode bm)
 {
-    m_pimpl->data.getData(e).pass.blendMode = bm;
+    m_data.getData(e).pass.blendMode = bm;
     if (bm != BlendingMode::NONE)
-        m_pimpl->data.getData(e).pass.isTransparent = true;
+        m_data.getData(e).pass.isTransparent = true;
 }
 
 void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
@@ -244,19 +215,19 @@ void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
 
 void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diffuseColor)
 {
-    auto &compData = m_pimpl->data.getData(e);
+    auto &compData = m_data.getData(e);
     compData.pass.setParam("material_diffuse", diffuseColor);
 }
 
 void Sprite2DComponentProcessor::add(Entity e, ResourceID textureResource)
 {
-    if (m_pimpl->data.contains(e))
+    if (m_data.contains(e))
     {
         DFLOG_WARN("An entity already has a sprite2d component");
         return;
     }
 
-    Impl::Data data;
+    Data data;
 
     data.holder = e;
     data.pass.faceCullMode = FaceCullMode::NONE;
@@ -265,24 +236,24 @@ void Sprite2DComponentProcessor::add(Entity e, ResourceID textureResource)
     data.pass.blendMode = BlendingMode::ALPHA;
     data.pass.isTransparent = true;
     data.pass.setParam("material_diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    data.op.worldTransform = m_world->sceneGraph().getWorldTransformMatrix(e);
+    data.op.worldTransform = m_world.sceneGraph().getWorldTransformMatrix(e);
 
-    m_pimpl->data.add(e, data);
+    m_data.add(e, data);
 
     useTexture(e, textureResource);
 
     auto gpuProgram = svc().renderManager().getEmbedResources().coloredProgram;
-    m_pimpl->data.getData(e).pass.program = gpuProgram;
+    m_data.getData(e).pass.program = gpuProgram;
 }
 
 void Sprite2DComponentProcessor::remove(Entity e)
 {
-    m_pimpl->data.remove(e);
+    m_data.remove(e);
 }
 
 bool Sprite2DComponentProcessor::has(Entity e)
 {
-    return m_pimpl->data.contains(e);
+    return m_data.contains(e);
 }
 
 }
