@@ -44,15 +44,9 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/gui/TBInterface.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputEvents.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputManager.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/io/DataSource.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileDataSource.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/io/DefaultFileDevice.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileSystemHelpers.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileSystem.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/io/MemoryDataSource.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/Storage.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/ParticleSystemComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/ParticleSystemLoader.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/ParticleSystemUtils.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkCommon.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkLineTrailRenderer.h
@@ -62,20 +56,14 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/physics/PhysicsComponentCreationParams.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/physics/PhysicsComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/physics/PhysicsHelpers.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/render/GpuProgram.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/GpuProgramSharedState.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/IRenderBackend.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/Material.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/render/MaterialLib.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/render/MeshData.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/MeshUtils.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderCommon.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderManager.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderOperation.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderPass.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderQueue.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/render/Technique.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/render/Texture.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/Vertex.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/Viewport.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/GLSLPreprocess.h
@@ -86,13 +74,17 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/colored_vert.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/simple_lighting_frag.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/simple_lighting_vert.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/AudioLoaders.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MaterialLibLoaders.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MeshLoaders.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/Resource.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceFactory.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/AudioResource.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/EntityResource.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/GpuProgramResource.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/IResourceHolder.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MaterialResource.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MeshResource.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ParticleSystemResource.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceDataSource.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceFileSystem.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceManager.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/TextureLoaders.h
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/TextureResource.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/AudioLoader_ogg.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/AudioLoader_wav.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/MeshLoader_dfmesh.h
@@ -166,14 +158,9 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/gui/TBInterface.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputEvents.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/input/InputManager.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileDataSource.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileSystem.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/io/DefaultFileDevice.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/FileSystemHelpers.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/io/MemoryDataSource.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/io/Storage.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/ParticleSystemComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/ParticleSystemLoader.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/ParticleSystemUtils.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkCommon.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/particlesys/SparkLineTrailRenderer.cpp
@@ -182,30 +169,27 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/physics/BulletInterface.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/physics/PhysicsComponentCreationParams.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/physics/PhysicsComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/render/GpuProgram.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/GpuProgramSharedState.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/Material.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/render/MaterialLib.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/render/MeshData.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/MeshUtils.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderCommon.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderManager.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderOperation.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderPass.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/RenderQueue.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/render/Technique.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/render/Texture.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/Vertex.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/Viewport.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/GLSLPreprocess.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/RenderBackendGL.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/AudioLoaders.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MaterialLibLoaders.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MeshLoaders.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/Resource.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceFactory.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/AudioResource.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/EntityResource.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/GpuProgramResource.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MaterialResource.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/MeshResource.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ParticleSystemResource.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceDataSource.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceFileSystem.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/ResourceManager.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/TextureLoaders.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/engine/resources/TextureResource.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/AudioLoader_ogg.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/AudioLoader_wav.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/loaders/MeshLoader_dfmesh.cpp
@@ -232,7 +216,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/memory/PoolAllocator.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/AABB.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/BoundingSphere.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/lib/math/BoundingVolume.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/ConvexHull.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/Frustum.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/math/MathUtils.cpp
