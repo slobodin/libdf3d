@@ -88,7 +88,7 @@ bool TextureHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &all
 
 void TextureHolder::decodeCleanup(Allocator &allocator)
 {
-    allocator.makeDelete(m_resourceData);
+    MAKE_DELETE(allocator, m_resourceData);
     m_resourceData = nullptr;
 }
 
@@ -103,7 +103,7 @@ bool TextureHolder::createResource(Allocator &allocator)
     if (!handle.isValid())
         return false;
 
-    m_resource = allocator.makeNew<TextureResource>();
+    m_resource = MAKE_NEW(allocator, TextureResource)();
     m_resource->handle = handle;
     m_resource->width = m_resourceData->info.width;
     m_resource->height = m_resourceData->info.height;
@@ -114,7 +114,7 @@ void TextureHolder::destroyResource(Allocator &allocator)
 {
     DF3D_ASSERT(m_resource->handle.isValid());
     svc().renderManager().getBackend().destroyTexture(m_resource->handle);
-    allocator.makeDelete(m_resource);
+    MAKE_DELETE(allocator, m_resource);
     m_resource = nullptr;
 }
 

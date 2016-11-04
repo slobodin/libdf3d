@@ -2,32 +2,63 @@
 
 #include <df3d/game/Entity.h>
 #include <df3d/game/EntityComponentProcessor.h>
+#include <df3d/game/ComponentDataHolder.h>
+#include <third-party/bullet/src/BulletDynamics/Dynamics/btRigidBody.h>
 
-class btRigidBody;
 class btDynamicsWorld;
 class btMotionState;
+class btDefaultCollisionConfiguration;
+class btCollisionDispatcher;
+class btBroadphaseInterface;
+class btSequentialImpulseConstraintSolver;
+class btDiscreteDynamicsWorld;
+class btStridingMeshInterface;
+class btCollisionShape;
+class btSphereShape;
+class btBoxShape;
 
 namespace df3d {
 
 class RenderQueue;
 class World;
 struct PhysicsComponentCreationParams;
+class BulletDebugDraw;
 
 class PhysicsComponentProcessor : public EntityComponentProcessor
 {
-    friend class World;
+    World &m_df3dWorld;
+    Allocator &m_allocator;
 
-    struct Impl;
-    unique_ptr<Impl> m_pimpl;
+    btDefaultCollisionConfiguration *m_collisionConfiguration = nullptr;
+    btCollisionDispatcher *m_dispatcher = nullptr;
+    btBroadphaseInterface *m_overlappingPairCache = nullptr;
+    btSequentialImpulseConstraintSolver *m_solver = nullptr;
+    btDiscreteDynamicsWorld *m_dynamicsWorld = nullptr;
 
+    BulletDebugDraw *m_debugDraw = nullptr;
+
+    struct Data
+    {
+        Entity holder;
+        btRigidBody *body = nullptr;
+        btStridingMeshInterface *meshInterface = nullptr;
+    };
+
+    ComponentDataHolder<Data> m_data;
+
+    btCollisionShape* createCollisionShape(Data &data, ResourceID meshResourceID, const PhysicsComponentCreationParams &params);
+    void initialize(Data &data, ResourceID meshResourceID, const PhysicsComponentCreationParams &params);
     void update() override;
     void draw(RenderQueue *ops) override;
 
 public:
-    PhysicsComponentProcessor(World *w);
+    PhysicsComponentProcessor(World &w);
     ~PhysicsComponentProcessor();
 
     btRigidBody* getBody(Entity e);
+    btRigidBody* createBody(const btRigidBody::btRigidBodyConstructionInfo &info);
+    btSphereShape* createSphereShape(float raidus);
+    btBoxShape* createBoxShape(const glm::vec3 &halfSize);
     glm::vec3 getCenterOfMass(Entity e);
 
     void teleportPosition(Entity e, const glm::vec3 &pos);

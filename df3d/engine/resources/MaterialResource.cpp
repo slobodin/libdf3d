@@ -205,12 +205,11 @@ const Material* MaterialLibResource::getMaterial(const std::string &name) const
 
 bool MaterialLibHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
 {
-    m_root = make_unique<Json::Value>(JsonUtils::fromFile(dataSource));
-
-    if (m_root->isNull())
+    auto root = JsonUtils::fromFile(dataSource);
+    if (root.isNull())
         return false;
 
-    const auto &jsonMaterials = (*m_root)["materials"];
+    const auto &jsonMaterials = root["materials"];
     for (const auto &jsonMaterial : jsonMaterials)
     {
         const auto &jsonTechniques = jsonMaterial["techniques"];
@@ -232,24 +231,27 @@ bool MaterialLibHolder::decodeStartup(ResourceDataSource &dataSource, Allocator 
         }
     }
 
+    m_root = MAKE_NEW(allocator, Json::Value)(std::move(root));
+
     return true;
 }
 
 void MaterialLibHolder::decodeCleanup(Allocator &allocator)
 {
-    m_root.reset();
+    MAKE_DELETE(allocator, m_root);
+    m_root = nullptr;
 }
 
 bool MaterialLibHolder::createResource(Allocator &allocator)
 {
-    m_resource = allocator.makeNew<MaterialLibResource>(*m_root);
+    m_resource = MAKE_NEW(allocator, MaterialLibResource)(*m_root);
 
     return true;
 }
 
 void MaterialLibHolder::destroyResource(Allocator &allocator)
 {
-    allocator.makeDelete(m_resource);
+    MAKE_DELETE(allocator, m_resource);
     m_resource = nullptr;
 }
 

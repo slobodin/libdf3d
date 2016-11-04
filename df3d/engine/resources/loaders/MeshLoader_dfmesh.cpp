@@ -37,7 +37,7 @@ MeshResourceData* MeshLoader_dfmesh(ResourceDataSource &dataSource, Allocator &a
     // TODO: vertex format is hardcoded.
     auto vf = VertexFormat_dfmesh(header.vertexFormat);
 
-    auto result = alloc.makeNew<MeshResourceData>();
+    auto result = MAKE_NEW(alloc, MeshResourceData)();
 
     dataSource.seek(header.submeshesOffset, SeekDir::BEGIN);
 
@@ -49,7 +49,7 @@ MeshResourceData* MeshLoader_dfmesh(ResourceDataSource &dataSource, Allocator &a
         const size_t verticesCount = smHeader.vertexDataSizeInBytes / vf.getVertexSize();
         const size_t indicesCount = smHeader.indexDataSizeInBytes / header.indexSize;
 
-        auto meshPart = alloc.makeNew<MeshResourceData::Part>(vf, alloc);
+        auto meshPart = MAKE_NEW(alloc, MeshResourceData::Part)(vf, alloc);
         meshPart->vertexData.addVertices(verticesCount);
         dataSource.getObjects((uint8_t*)meshPart->vertexData.getRawData(), meshPart->vertexData.getSizeInBytes());
 

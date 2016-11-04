@@ -4,6 +4,7 @@
 #include <df3d/engine/render/Vertex.h>
 #include <df3d/lib/math/AABB.h>
 #include <df3d/lib/math/BoundingSphere.h>
+#include <df3d/lib/math/ConvexHull.h>
 #include "IResourceHolder.h"
 
 namespace df3d {
@@ -37,6 +38,7 @@ struct MeshResource
     ResourceID materialLibResourceId;
     AABB localAABB;
     BoundingSphere localBoundingSphere;
+    ConvexHull convexHull;
 };
 
 class MeshHolder : public IResourceHolder
@@ -53,5 +55,8 @@ public:
 
     void* getResource() override { return m_resource; }
 };
+
+MeshResourceData *LoadMeshDataFromFile_Workaround(ResourceID path, Allocator &allocator);
+void DestroyMeshData(MeshResourceData *resource, Allocator &allocator);
 
 }

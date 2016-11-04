@@ -20,7 +20,7 @@ TextureResourceData* TextureLoader_webp(ResourceDataSource &dataSource, Allocato
     }
 
     bool result = false;
-    auto resource = alloc.makeNew<TextureResourceData>(alloc);
+    auto resource = MAKE_NEW(alloc, TextureResourceData)(alloc);
     if (features.has_alpha || forceRGBA)
     {
         resource->info.format = PixelFormat::RGBA;
@@ -47,7 +47,7 @@ TextureResourceData* TextureLoader_webp(ResourceDataSource &dataSource, Allocato
     if (!result)
     {
         DFLOG_WARN("Failed to decode WEBP data");
-        alloc.makeDelete(resource);
+        MAKE_DELETE(alloc, resource);
         return nullptr;
     }
 

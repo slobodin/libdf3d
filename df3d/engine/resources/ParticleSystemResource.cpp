@@ -190,7 +190,7 @@ static SPK::Ref<SPK::Emitter> ParseSparkEmitter(const Json::Value &emitterJson)
     {
         glm::vec3 position;
         zoneJson["position"] >> position;
-        zone = SPK::Point::create(particlesys_impl::glmToSpk(position));
+        zone = SPK::Point::create(glmToSpk(position));
     }
     else if (zoneType == "Box")
     {
@@ -201,10 +201,10 @@ static SPK::Ref<SPK::Emitter> ParseSparkEmitter(const Json::Value &emitterJson)
         zoneJson["front"] >> front;
         zoneJson["up"] >> up;
 
-        zone = SPK::Box::create(particlesys_impl::glmToSpk(position),
-                                particlesys_impl::glmToSpk(dimension),
-                                particlesys_impl::glmToSpk(front),
-                                particlesys_impl::glmToSpk(up));
+        zone = SPK::Box::create(glmToSpk(position),
+                                glmToSpk(dimension),
+                                glmToSpk(front),
+                                glmToSpk(up));
     }
     else if (zoneType == "Cylinder")
     {
@@ -216,10 +216,10 @@ static SPK::Ref<SPK::Emitter> ParseSparkEmitter(const Json::Value &emitterJson)
         zoneJson["radius"] >> radius;
         zoneJson["height"] >> height;
 
-        zone = SPK::Cylinder::create(particlesys_impl::glmToSpk(position),
+        zone = SPK::Cylinder::create(glmToSpk(position),
                                      height,
                                      radius,
-                                     particlesys_impl::glmToSpk(axis));
+                                     glmToSpk(axis));
     }
     else if (zoneType == "Plane")
     {
@@ -228,8 +228,8 @@ static SPK::Ref<SPK::Emitter> ParseSparkEmitter(const Json::Value &emitterJson)
         zoneJson["position"] >> position;
         zoneJson["normal"] >> normal;
 
-        zone = SPK::Plane::create(particlesys_impl::glmToSpk(position), 
-                                  particlesys_impl::glmToSpk(normal));
+        zone = SPK::Plane::create(glmToSpk(position),
+                                  glmToSpk(normal));
     }
     else if (zoneType == "Ring")
     {
@@ -241,8 +241,8 @@ static SPK::Ref<SPK::Emitter> ParseSparkEmitter(const Json::Value &emitterJson)
         zoneJson["minRadius"] >> minRadius;
         zoneJson["maxRadius"] >> maxRadius;
 
-        zone = SPK::Ring::create(particlesys_impl::glmToSpk(position),
-                                 particlesys_impl::glmToSpk(normal),
+        zone = SPK::Ring::create(glmToSpk(position),
+                                 glmToSpk(normal),
                                  minRadius,
                                  maxRadius);
     }
@@ -254,7 +254,7 @@ static SPK::Ref<SPK::Emitter> ParseSparkEmitter(const Json::Value &emitterJson)
         zoneJson["position"] >> position;
         zoneJson["radius"] >> radius;
 
-        zone = SPK::Sphere::create(particlesys_impl::glmToSpk(position), radius);
+        zone = SPK::Sphere::create(glmToSpk(position), radius);
     }
     else
     {
@@ -276,7 +276,7 @@ static SPK::Ref<SPK::Emitter> ParseSparkEmitter(const Json::Value &emitterJson)
 
         emitterJson["direction"] >> dir;
 
-        emitter = SPK::StraightEmitter::create(particlesys_impl::glmToSpk(dir));
+        emitter = SPK::StraightEmitter::create(glmToSpk(dir));
     }
     else if (emitterType == "Static")
     {
@@ -291,7 +291,7 @@ static SPK::Ref<SPK::Emitter> ParseSparkEmitter(const Json::Value &emitterJson)
         emitterJson["angleA"] >> angleA;
         emitterJson["angleB"] >> angleB;
 
-        emitter = SPK::SphericEmitter::create(particlesys_impl::glmToSpk(dir),
+        emitter = SPK::SphericEmitter::create(glmToSpk(dir),
                                               glm::radians(angleA),
                                               glm::radians(angleB));
     }
@@ -359,8 +359,8 @@ static void ParseSparkModifiers(SPK::Ref<SPK::Group> group, const Json::Value &m
             modifierJson["minPeriod"] >> minPeriod;
             modifierJson["maxPeriod"] >> maxPeriod;
 
-            group->addModifier(SPK::RandomForce::create(particlesys_impl::glmToSpk(minForce),
-                                                        particlesys_impl::glmToSpk(maxForce),
+            group->addModifier(SPK::RandomForce::create(glmToSpk(minForce),
+                                                        glmToSpk(maxForce),
                                                         minPeriod,
                                                         maxPeriod));
         }
@@ -371,7 +371,7 @@ static void ParseSparkModifiers(SPK::Ref<SPK::Group> group, const Json::Value &m
     }
 }
 
-static SPK::Ref<particlesys_impl::ParticleSystemRenderer> CreateRenderer(const Json::Value &rendererJson)
+static SPK::Ref<ParticleSystemRenderer> CreateRenderer(const Json::Value &rendererJson)
 {
     if (rendererJson.empty())
     {
@@ -383,14 +383,14 @@ static SPK::Ref<particlesys_impl::ParticleSystemRenderer> CreateRenderer(const J
     rendererJson["type"] >> rendererType;
 
     // Create particle system renderer.
-    SPK::Ref<particlesys_impl::ParticleSystemRenderer> renderer;
+    SPK::Ref<ParticleSystemRenderer> renderer;
     if (rendererType == "quad")
     {
         float scaleX = 1.0f, scaleY = 1.0f;
         rendererJson["quadScaleX"] >> scaleX;
         rendererJson["quadScaleY"] >> scaleY;
 
-        auto quadRenderer = particlesys_impl::QuadParticleSystemRenderer::create(scaleX, scaleY);
+        auto quadRenderer = QuadParticleSystemRenderer::create(scaleX, scaleY);
 
         // Setup special renderer params.
         if (!rendererJson["orientation"].empty())
@@ -599,28 +599,29 @@ bool ParticleSystemHolder::decodeStartup(ResourceDataSource &dataSource, Allocat
         }
     }
 
-    m_root = std::move(root);
+    m_root = MAKE_NEW(allocator, Json::Value)(std::move(root));
 
     return true;
 }
 
 void ParticleSystemHolder::decodeCleanup(Allocator &allocator)
 {
-
+    MAKE_DELETE(allocator, m_root);
+    m_root = nullptr;
 }
 
 bool ParticleSystemHolder::createResource(Allocator &allocator)
 {
-    m_resource = allocator.makeNew<ParticleSystemResource>();
+    m_resource = MAKE_NEW(allocator, ParticleSystemResource)();
 
-    m_resource->spkSystem = CreateSpkSystem(m_root);
+    m_resource->spkSystem = CreateSpkSystem(*m_root);
 
     return m_resource->spkSystem.get() != nullptr;
 }
 
 void ParticleSystemHolder::destroyResource(Allocator &allocator)
 {
-    allocator.makeDelete(m_resource);
+    MAKE_DELETE(allocator, m_resource);
     m_resource = nullptr;
 }
 

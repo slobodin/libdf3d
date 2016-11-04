@@ -106,12 +106,12 @@ TextureResourceData* TextureLoader_pvrtc(ResourceDataSource &dataSource, Allocat
         h = std::max(h >> 1, 1);
     }
 
-    auto resource = alloc.makeNew<TextureResourceData>(alloc);
+    auto resource = MAKE_NEW(alloc, TextureResourceData)(alloc);
     resource->pixels.resize(dataSize);
     if (dataSource.read(&resource->pixels[0], dataSize) != dataSize)
     {
         DFLOG_WARN("Failed to read PVRTC pixels");
-        alloc.makeDelete(resource);
+        MAKE_DELETE(alloc, resource);
         return nullptr;
     }
 

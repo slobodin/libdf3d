@@ -1,19 +1,17 @@
 #pragma once
 
-#include <SPARK.h>
 #include "IResourceHolder.h"
 
 namespace df3d {
 
-struct ParticleSystemResource
+struct EntityResource
 {
-    SPK::Ref<SPK::System> spkSystem;
+    Json::Value root;
 };
 
-class ParticleSystemHolder : public IResourceHolder
+class EntityHolder : public IResourceHolder
 {
-    ParticleSystemResource *m_resource = nullptr;
-    Json::Value *m_root = nullptr;
+    EntityResource *m_resource = nullptr;
 
 public:
     bool decodeStartup(ResourceDataSource &dataSource, Allocator &allocator) override;

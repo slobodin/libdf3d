@@ -98,7 +98,7 @@ GpuProgramResource* CreateGpuProgram(ShaderHandle vShader, ShaderHandle fShader,
     if (!gpuProgramHandle.isValid())
         return nullptr;
 
-    auto resource = allocator.makeNew<GpuProgramResource>(allocator);
+    auto resource = MAKE_NEW(allocator, GpuProgramResource)(allocator);
     resource->handle = gpuProgramHandle;
 
     std::vector<UniformHandle> uniforms;
@@ -158,7 +158,7 @@ bool GpuProgramHolder::createResource(Allocator &allocator)
 void GpuProgramHolder::destroyResource(Allocator &allocator)
 {
     svc().renderManager().getBackend().destroyGpuProgram(m_resource->handle);
-    allocator.makeDelete(m_resource);
+    MAKE_DELETE(allocator, m_resource);
     m_resource = nullptr;
 }
 

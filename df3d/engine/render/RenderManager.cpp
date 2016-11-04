@@ -66,7 +66,7 @@ RenderManagerEmbedResources::RenderManagerEmbedResources(RenderManager *render)
         ambientPassProgram = GpuProgramFromData(ambient_vert, ambient_frag, allocator);
     }
 
-    ambientPass = allocator.makeNew<RenderPass>();
+    ambientPass = MAKE_NEW(allocator, RenderPass)();
     ambientPass->program = ambientPassProgram;
 }
 
@@ -76,9 +76,9 @@ RenderManagerEmbedResources::~RenderManagerEmbedResources()
     svc().renderManager().getBackend().destroyTexture(whiteTexture);
     svc().renderManager().getBackend().destroyGpuProgram(coloredProgram->handle);
     svc().renderManager().getBackend().destroyGpuProgram(ambientPassProgram->handle);
-    allocator.makeDelete(coloredProgram);
-    allocator.makeDelete(ambientPassProgram);
-    allocator.makeDelete(ambientPass);
+    MAKE_DELETE(allocator, coloredProgram);
+    MAKE_DELETE(allocator, ambientPassProgram);
+    MAKE_DELETE(allocator, ambientPass);
 }
 
 void RenderManager::onFrameBegin()

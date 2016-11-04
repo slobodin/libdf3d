@@ -15,6 +15,27 @@
 
 namespace df3d {
 
+static MeshResourceData *LoadMeshDataFromFile(ResourceID path, Allocator &allocator)
+{
+    const auto extension = FileSystemHelpers::getFileExtension(path);
+
+    auto meshSource = svc().resourceManager().getFS().open(path.c_str());
+    if (!meshSource)
+        return nullptr;
+
+    MeshResourceData *result;
+    if (extension == ".obj")
+        result = MeshLoader_obj(*meshSource, allocator);
+    else if (extension == ".dfmesh")
+        result = MeshLoader_dfmesh(*meshSource, allocator);
+    else
+        DFLOG_WARN(false, "Unsupported mesh file format!");
+
+    svc().resourceManager().getFS().close(meshSource);
+
+    return result;
+}
+
 static void BoundingVolumeFromGeometry(BoundingVolume *volume, const MeshResourceData &resource)
 {
     volume->reset();
@@ -44,40 +65,23 @@ bool MeshHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &alloca
     if (root.isMember("material_lib"))
         m_materialLib = root["material_lib"].asString();
 
-    auto path = root["path"].asString();
-
-    const auto extension = FileSystemHelpers::getFileExtension(path);
-
-    auto meshSource = svc().resourceManager().getFS().open(path.c_str());
-    if (!meshSource)
-        return false;
-
-    if (extension == ".obj")
-        m_resourceData = MeshLoader_obj(*meshSource, allocator);
-    else if (extension == ".dfmesh")
-        m_resourceData = MeshLoader_dfmesh(*meshSource, allocator);
-    else
-        DFLOG_WARN(false, "Unsupported mesh file format!");
-
-    svc().resourceManager().getFS().close(meshSource);
-
     if (!m_materialLib.empty())
         svc().resourceManager().loadResource(m_materialLib);
+
+    m_resourceData = LoadMeshDataFromFile(root["path"].asString(), allocator);
 
     return m_resourceData != nullptr;
 }
 
 void MeshHolder::decodeCleanup(Allocator &allocator)
 {
-    for (auto part : m_resourceData->parts)
-        allocator.makeDelete(part);
-    allocator.makeDelete(m_resourceData);
+    DestroyMeshData(m_resourceData, allocator);
     m_resourceData = nullptr;
 }
 
 bool MeshHolder::createResource(Allocator &allocator)
 {
-    m_resource = allocator.makeNew<MeshResource>();
+    m_resource = MAKE_NEW(allocator, MeshResource)();
     m_resource->materialLibResourceId = m_materialLib;
 
     auto &backend = svc().renderManager().getBackend();
@@ -105,6 +109,7 @@ bool MeshHolder::createResource(Allocator &allocator)
 
     BoundingVolumeFromGeometry(&m_resource->localAABB, *m_resourceData);
     BoundingVolumeFromGeometry(&m_resource->localBoundingSphere, *m_resourceData);
+    m_resource->convexHull.constructFromGeometry(*m_resourceData, allocator);
 
     return true;
 }
@@ -118,8 +123,24 @@ void MeshHolder::destroyResource(Allocator &allocator)
             svc().renderManager().getBackend().destroyIndexBuffer(hwPart.indexBuffer);
     }
 
-    allocator.makeDelete(m_resource);
+    MAKE_DELETE(allocator, m_resource);
     m_resource = nullptr;
+}
+
+MeshResourceData *LoadMeshDataFromFile_Workaround(ResourceID path, Allocator &allocator)
+{
+    Json::Value root = JsonUtils::fromFile(path.c_str());
+    if (root.isNull())
+        return false;
+
+    return LoadMeshDataFromFile(root["path"].asString(), allocator);
+}
+
+void DestroyMeshData(MeshResourceData *resource, Allocator &allocator)
+{
+    for (auto part : resource->parts)
+        MAKE_DELETE(allocator, part);
+    MAKE_DELETE(allocator, resource);
 }
 
 }

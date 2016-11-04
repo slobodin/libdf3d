@@ -9,42 +9,38 @@
 #include "PhysicsHelpers.h"
 #include <df3d/lib/math/AABB.h>
 #include <df3d/lib/math/BoundingSphere.h>
-#include <df3d/lib/math/ConvexHull.h>
-#include <df3d/engine/render/MeshData.h>
-#include <df3d/engine/3d/StaticMeshComponentProcessor.h>
 #include <df3d/engine/3d/SceneGraphComponentProcessor.h>
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/EngineCVars.h>
 #include <df3d/engine/TimeManager.h>
+#include <df3d/engine/resources/ResourceManager.h>
+#include <df3d/engine/resources/MeshResource.h>
 #include <df3d/game/ComponentDataHolder.h>
 #include <df3d/game/World.h>
-#include <df3d/engine/io/FileSystem.h>
-#include <df3d/engine/resources/MeshLoaders.h>
 
 namespace df3d {
 
-static btTriangleMesh* CreateBulletTriangleMesh(const std::string &meshPath)
+static btTriangleMesh* CreateBulletTriangleMesh(const std::string &meshPath, Allocator &allocator)
 {
     // FIXME: XXX! Reading the mesh twice! This is a workaround.
-    auto meshFileData = svc().fileSystem().open(meshPath.c_str());
-    auto softwareMesh = LoadMeshDataFromFile_Workaround(meshFileData);
+    auto meshFileData = LoadMeshDataFromFile_Workaround(meshPath, allocator);
 
-    auto bulletMesh = new btTriangleMesh(true, false);
+    auto bulletMesh = MAKE_NEW(allocator, btTriangleMesh)(true, false);
 
-    for (size_t smIdx = 0; smIdx < softwareMesh->submeshes.size(); smIdx++)
+    for (size_t smIdx = 0; smIdx < meshFileData->parts.size(); smIdx++)
     {
-        auto &submesh = softwareMesh->submeshes[smIdx];
-        auto &vdata = submesh.vertexData;
+        auto &submesh = meshFileData->parts[smIdx];
+        auto &vdata = submesh->vertexData;
 
         bulletMesh->preallocateVertices(vdata.getVerticesCount());
 
-        if (submesh.indices.size() > 0)
+        if (submesh->indices.size() > 0)
         {
-            for (size_t i = 0; i < submesh.indices.size(); i += 3)
+            for (size_t i = 0; i < submesh->indices.size(); i += 3)
             {
-                auto i1 = submesh.indices[i + 0];
-                auto i2 = submesh.indices[i + 1];
-                auto i3 = submesh.indices[i + 2];
+                auto i1 = submesh->indices[i + 0];
+                auto i2 = submesh->indices[i + 1];
+                auto i3 = submesh->indices[i + 2];
 
                 auto v1 = (glm::vec3*)vdata.getVertexAttribute(i1, VertexFormat::POSITION);
                 auto v2 = (glm::vec3*)vdata.getVertexAttribute(i2, VertexFormat::POSITION);
@@ -65,6 +61,8 @@ static btTriangleMesh* CreateBulletTriangleMesh(const std::string &meshPath)
             }
         }
     }
+
+    DestroyMeshData(meshFileData, allocator);
 
     return bulletMesh;
 }
@@ -105,235 +103,126 @@ public:
     }
 };
 
-struct PhysicsComponentProcessor::Impl
+btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, ResourceID meshResourceID, const PhysicsComponentCreationParams &params)
 {
-    World &df3dWorld;
+    // FIXME: what to do if scale has been changed?
+    auto scale = PhysicsHelpers::glmTobt(svc().defaultWorld().sceneGraph().getLocalScale(data.holder));
 
-    btDefaultCollisionConfiguration *collisionConfiguration = nullptr;
-    btCollisionDispatcher *dispatcher = nullptr;
-    btBroadphaseInterface *overlappingPairCache = nullptr;
-    btSequentialImpulseConstraintSolver *solver = nullptr;
-    btDiscreteDynamicsWorld *dynamicsWorld = nullptr;
-
-    physics_impl::BulletDebugDraw *debugDraw;
-
-    struct Data
+    switch (params.shape)
     {
-        weak_ptr<MeshData> mesh;
-        shared_ptr<PhysicsComponentCreationParams> params;
-        Entity holder;
-        btRigidBody *body = nullptr;
-        bool initialized = false;
-
-        btStridingMeshInterface *meshInterface = nullptr;
-    };
-
-    ComponentDataHolder<Data> data;
-
-    Impl(World &w)
-        : df3dWorld(w)
+    case CollisionShapeType::BOX:
     {
-        collisionConfiguration = new btDefaultCollisionConfiguration();
-        dispatcher = new btCollisionDispatcher(collisionConfiguration);
-        overlappingPairCache = new btDbvtBroadphase();
-        solver = new btSequentialImpulseConstraintSolver();
-        dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+        auto mesh = svc().resourceManager().getResource<MeshResource>(meshResourceID);
+        DF3D_ASSERT(mesh);
 
-        dynamicsWorld->setGravity(btVector3(0, 0, 0));
+        auto half = (mesh->localAABB.maxPoint() - mesh->localAABB.minPoint()) / 2.0f;
+        auto shape = MAKE_NEW(m_allocator, btBoxShape)(btVector3(half.x, half.y, half.z));
+        shape->setLocalScaling(scale);
+        return shape;
+    }
+    case CollisionShapeType::SPHERE:
+    {
+        auto mesh = svc().resourceManager().getResource<MeshResource>(meshResourceID);
+        DF3D_ASSERT(mesh);
 
-#ifdef _DEBUG
-        debugDraw = new physics_impl::BulletDebugDraw();
-        dynamicsWorld->setDebugDrawer(debugDraw);
-#endif
+        auto shape = MAKE_NEW(m_allocator, btSphereShape)(mesh->localBoundingSphere.getRadius());
+        shape->setLocalScaling(scale);
+
+        return shape;
+    }
+    case CollisionShapeType::CONVEX_HULL:
+    {
+        auto mesh = svc().resourceManager().getResource<MeshResource>(meshResourceID);
+        DF3D_ASSERT(mesh);
+
+        auto &points = mesh->convexHull.m_vertices;
+        auto colShape = MAKE_NEW(m_allocator, btConvexHullShape)((btScalar*)points.data(), points.size());
+        colShape->setLocalScaling(scale);
+
+        return colShape;
+    }
+    case CollisionShapeType::STATIC_MESH:
+    {
+        DF3D_ASSERT_MESS(params.mass == 0.0f, "body should not be dynamic");
+
+        data.meshInterface = CreateBulletTriangleMesh(meshResourceID, m_allocator);
+
+        auto colShape = MAKE_NEW(m_allocator, btBvhTriangleMeshShape)(data.meshInterface, true);
+        colShape->setLocalScaling(scale);
+
+        return colShape;
+    }
+    case CollisionShapeType::CONVEX_DECOMPOSITION:
+    {
+        data.meshInterface = CreateBulletTriangleMesh(meshResourceID, m_allocator);
+
+        auto colShape = MAKE_NEW(m_allocator, btGImpactConvexDecompositionShape)(data.meshInterface, scale);
+
+        colShape->setMargin(0.07f);
+        colShape->updateBound();
+        return colShape;
+    }
+    case CollisionShapeType::DYNAMIC_MESH:
+    {
+        data.meshInterface = CreateBulletTriangleMesh(meshResourceID, m_allocator);
+        auto colShape = MAKE_NEW(m_allocator, btGImpactMeshShape)(data.meshInterface);
+        colShape->setLocalScaling(scale);
+        colShape->updateBound();
+        return colShape;
+    }
+    break;
+    default:
+        DF3D_FATAL("undefined physics shape!");
+        break;
     }
 
-    ~Impl()
+    return nullptr;
+}
+
+void PhysicsComponentProcessor::initialize(Data &data, ResourceID meshResourceID, const PhysicsComponentCreationParams &params)
+{
+    btCollisionShape *colShape = createCollisionShape(data, meshResourceID, params);
+    if (!colShape)
     {
-        // Calls destruction callback which does the deletion.
-        data.clear();
-
-        for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
-        {
-            btCollisionObject *obj = dynamicsWorld->getCollisionObjectArray()[i];
-            btRigidBody *body = btRigidBody::upcast(obj);
-            if (body && body->getMotionState())
-                delete body->getMotionState();
-            if (body && body->getCollisionShape())
-                delete body->getCollisionShape();
-
-            dynamicsWorld->removeCollisionObject(obj);
-            delete obj;
-        }
-
-        delete dynamicsWorld;
-        delete solver;
-        delete overlappingPairCache;
-        delete dispatcher;
-        delete collisionConfiguration;
-#ifdef _DEBUG
-        delete debugDraw;
-#endif
+        DF3D_FATAL("Failed to create a collision shape.");
+        return;
     }
 
-    btCollisionShape* createCollisionShape(Data &data)
-    {
-        switch (data.params->shape)
-        {
-        case CollisionShapeType::BOX:
-        {
-            auto aabb = svc().defaultWorld().staticMesh().getAABB(data.holder);
-            if (!aabb.isValid())
-            {
-                DFLOG_WARN("Can not create box shape for rigid body. AABB is invalid");
-                return nullptr;
-            }
+    btVector3 localInertia(0, 0, 0);
+    if (!glm::epsilonEqual(params.mass, 0.0f, glm::epsilon<float>()))
+        colShape->calculateLocalInertia(params.mass, localInertia);
 
-            auto half = (aabb.maxPoint() - aabb.minPoint()) / 2.0f;
-            return new btBoxShape(btVector3(half.x, half.y, half.z));
-        }
-        case CollisionShapeType::SPHERE:
-        {
-            auto sphere = svc().defaultWorld().staticMesh().getBoundingSphere(data.holder);
-            if (!sphere.isValid())
-            {
-                DFLOG_WARN("Can not create sphere shape for rigid body. Bounding sphere is invalid");
-                return  nullptr;
-            }
+    // Set motion state.
+    auto myMotionState = createMotionState(data.holder);
 
-            auto radius = sphere.getRadius();
-            return new btSphereShape(radius);
-        }
-        case CollisionShapeType::CONVEX_HULL:
-        {
-            auto convexHull = data.mesh.lock()->getConvexHull();
-            if (!convexHull || !convexHull->isValid())
-            {
-                DFLOG_WARN("Can not create convex hull shape for rigid body. Hull is invalid");
-                return nullptr;
-            }
+    // Fill body properties.
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(params.mass, myMotionState, colShape, localInertia);
+    rbInfo.m_friction = params.friction;
+    rbInfo.m_restitution = params.restitution;
+    rbInfo.m_linearDamping = params.linearDamping;
+    rbInfo.m_angularDamping = params.angularDamping;
 
-            const auto &vertices = convexHull->getVertices();
-            PodArray<btVector3> tempPoints(MemoryManager::allocDefault());
-            tempPoints.resize(vertices.size());
+    data.body = createBody(rbInfo);
 
-            for (size_t i = 0; i < vertices.size(); i++)
-                tempPoints[i] = PhysicsHelpers::glmTobt(vertices[i]);
+    if (params.group != -1 && params.mask != -1)
+        m_dynamicsWorld->addRigidBody(data.body, params.group, params.mask);
+    else
+        m_dynamicsWorld->addRigidBody(data.body);
 
-            auto colShape = new btConvexHullShape((btScalar*)tempPoints.data(), tempPoints.size());
+    if (params.disableDeactivation)
+        data.body->setActivationState(DISABLE_DEACTIVATION);
 
-            // FIXME: what to do if scale has been changed?
-            auto scale = svc().defaultWorld().sceneGraph().getLocalScale(data.holder);
-            colShape->setLocalScaling(PhysicsHelpers::glmTobt(scale));
+    static_assert(sizeof(int) >= sizeof(Entity), "Can't store user data in bullet user data");
 
-            return colShape;
-        }
-        case CollisionShapeType::STATIC_MESH:
-        {
-            DF3D_ASSERT_MESS(data.params->mass == 0.0f, "body should not be dynamic");
+    data.body->setUserIndex(*reinterpret_cast<int*>(&data.holder));
 
-            data.meshInterface = CreateBulletTriangleMesh(data.mesh.lock()->getFilePath());
-
-            auto colShape = new btBvhTriangleMeshShape(data.meshInterface, true);
-            auto scale = svc().defaultWorld().sceneGraph().getLocalScale(data.holder);
-            colShape->setLocalScaling(PhysicsHelpers::glmTobt(scale));
-
-            return colShape;
-        }
-        case CollisionShapeType::CONVEX_DECOMPOSITION:
-        {
-            data.meshInterface = CreateBulletTriangleMesh(data.mesh.lock()->getFilePath());
-
-            auto scale = svc().defaultWorld().sceneGraph().getLocalScale(data.holder);
-            auto colShape = new btGImpactConvexDecompositionShape(data.meshInterface, PhysicsHelpers::glmTobt(scale));
-
-            colShape->setMargin(0.07f);
-            colShape->updateBound();
-            return colShape;
-        }
-        case CollisionShapeType::DYNAMIC_MESH:
-        {
-            data.meshInterface = CreateBulletTriangleMesh(data.mesh.lock()->getFilePath());
-            auto colShape = new btGImpactMeshShape(data.meshInterface);
-            auto scale = svc().defaultWorld().sceneGraph().getLocalScale(data.holder);
-            colShape->setLocalScaling(PhysicsHelpers::glmTobt(scale));
-            colShape->updateBound();
-            return colShape;
-        }
-            break;
-        default:
-            DF3D_ASSERT_MESS(false, "undefined physics shape!");
-            break;
-        }
-
-        return nullptr;
-    }
-
-    void initialize(Data &data)
-    {
-        DF3D_ASSERT_MESS(!data.initialized, "physics body already initialized");
-
-        btCollisionShape *colShape = createCollisionShape(data);
-        if (!colShape)
-        {
-            DFLOG_WARN("Failed to create a collision shape.");
-            data.initialized = true;
-            data.params.reset();
-            return;
-        }
-
-        btVector3 localInertia(0, 0, 0);
-        if (!glm::epsilonEqual(data.params->mass, 0.0f, glm::epsilon<float>()))
-            colShape->calculateLocalInertia(data.params->mass, localInertia);
-
-        // Set motion state.
-        auto myMotionState = createMotionState(data.holder);
-
-        // Fill body properties.
-        btRigidBody::btRigidBodyConstructionInfo rbInfo(data.params->mass, myMotionState, colShape, localInertia);
-        rbInfo.m_friction = data.params->friction;
-        rbInfo.m_restitution = data.params->restitution;
-        rbInfo.m_linearDamping = data.params->linearDamping;
-        rbInfo.m_angularDamping = data.params->angularDamping;
-
-        data.body = new btRigidBody(rbInfo);
-
-        if (data.params->group != -1 && data.params->mask != -1)
-            dynamicsWorld->addRigidBody(data.body, data.params->group, data.params->mask);
-        else
-            dynamicsWorld->addRigidBody(data.body);
-
-        if (data.params->disableDeactivation)
-            data.body->setActivationState(DISABLE_DEACTIVATION);
-
-        static_assert(sizeof(int) >= sizeof(Entity), "Can't store user data in bullet user data");
-
-        data.body->setUserIndex(*reinterpret_cast<int*>(&data.holder));
-
-        if (data.params->noContactResponse)
-            data.body->setCollisionFlags(data.body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-
-        data.initialized = true;
-        data.params.reset();
-    }
-
-    btMotionState* createMotionState(Entity e)
-    {
-        return new PhysicsComponentMotionState(e, df3dWorld);
-    }
-};
+    if (params.noContactResponse)
+        data.body->setCollisionFlags(data.body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+}
 
 void PhysicsComponentProcessor::update()
 {
-    for (auto &data : m_pimpl->data.rawData())
-    {
-        if (!data.initialized)
-        {
-            if (data.mesh.lock()->isInitialized())
-                m_pimpl->initialize(data);
-        }
-    }
-
-    m_pimpl->dynamicsWorld->stepSimulation(svc().timer().getFrameDelta(TIME_CHANNEL_GAME), 10);
+    m_dynamicsWorld->stepSimulation(svc().timer().getFrameDelta(TIME_CHANNEL_GAME), 10);
 }
 
 void PhysicsComponentProcessor::draw(RenderQueue *ops)
@@ -342,149 +231,183 @@ void PhysicsComponentProcessor::draw(RenderQueue *ops)
     if (!EngineCVars::bulletDebugDraw)
         return;
 
-    m_pimpl->debugDraw->clean();
+    m_debugDraw->clean();
 
     // Collect render operations.
-    m_pimpl->dynamicsWorld->debugDrawWorld();
+    m_dynamicsWorld->debugDrawWorld();
     // Append to render queue.
-    m_pimpl->debugDraw->flushRenderOperations(ops);
+    m_debugDraw->flushRenderOperations(ops);
 #endif
 }
 
-PhysicsComponentProcessor::PhysicsComponentProcessor(World *w)
-    : m_pimpl(new Impl(*w))
+PhysicsComponentProcessor::PhysicsComponentProcessor(World &w)
+    : m_df3dWorld(w),
+    m_allocator(MemoryManager::allocDefault())
 {
-    auto physicsWorld = m_pimpl->dynamicsWorld;
-    m_pimpl->data.setDestructionCallback([this, physicsWorld](const Impl::Data &data) {
+    m_collisionConfiguration = MAKE_NEW(m_allocator, btDefaultCollisionConfiguration)();
+    m_dispatcher = MAKE_NEW(m_allocator, btCollisionDispatcher)(m_collisionConfiguration);
+    m_overlappingPairCache = MAKE_NEW(m_allocator, btDbvtBroadphase)();
+    m_solver = MAKE_NEW(m_allocator, btSequentialImpulseConstraintSolver)();
+    m_dynamicsWorld = MAKE_NEW(m_allocator, btDiscreteDynamicsWorld)(m_dispatcher,
+         m_overlappingPairCache,
+         m_solver,
+         m_collisionConfiguration);
+
+    m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
+
+#ifdef _DEBUG
+    m_debugDraw = MAKE_NEW(m_allocator, BulletDebugDraw)();
+    m_dynamicsWorld->setDebugDrawer(m_debugDraw);
+#endif
+
+    m_data.setDestructionCallback([this](const Data &data) {
         if (data.body)
         {
             auto motionState = data.body->getMotionState();
-            delete motionState;
+            MAKE_DELETE(m_allocator, motionState);
             auto shape = data.body->getCollisionShape();
-            delete shape;
+            MAKE_DELETE(m_allocator, shape);
 
-            physicsWorld->removeRigidBody(data.body);
-            delete data.body;
-            delete data.meshInterface;
+            m_dynamicsWorld->removeRigidBody(data.body);
+            MAKE_DELETE(m_allocator, data.body);
+            MAKE_DELETE(m_allocator, data.meshInterface);
         }
     });
 }
 
 PhysicsComponentProcessor::~PhysicsComponentProcessor()
 {
+    // Calls destruction callback which does the deletion.
+    m_data.clear();
 
+    for (int i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
+    {
+        btCollisionObject *obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+        btRigidBody *body = btRigidBody::upcast(obj);
+        if (auto motionState = body->getMotionState())
+            MAKE_DELETE(m_allocator, motionState);
+        if (auto shape = body->getCollisionShape())
+            MAKE_DELETE(m_allocator, shape);
+
+        m_dynamicsWorld->removeCollisionObject(obj);
+        MAKE_DELETE(m_allocator, obj);
+    }
+
+    MAKE_DELETE(m_allocator, m_dynamicsWorld);
+    MAKE_DELETE(m_allocator, m_solver);
+    MAKE_DELETE(m_allocator, m_overlappingPairCache);
+    MAKE_DELETE(m_allocator, m_dispatcher);
+    MAKE_DELETE(m_allocator, m_collisionConfiguration);
+#ifdef _DEBUG
+    MAKE_DELETE(m_allocator, m_debugDraw);
+#endif
 }
 
 btRigidBody* PhysicsComponentProcessor::getBody(Entity e)
 {
-    return m_pimpl->data.getData(e).body;
+    return m_data.getData(e).body;
+}
+
+btRigidBody* PhysicsComponentProcessor::createBody(const btRigidBody::btRigidBodyConstructionInfo &info)
+{
+    // TODO: get from pool
+    return MAKE_NEW(m_allocator, btRigidBody)(info);
+}
+
+btSphereShape* PhysicsComponentProcessor::createSphereShape(float raidus)
+{
+    return MAKE_NEW(m_allocator, btSphereShape)(raidus);
+}
+
+btBoxShape* PhysicsComponentProcessor::createBoxShape(const glm::vec3 &halfSize)
+{
+    return MAKE_NEW(m_allocator, btBoxShape)(PhysicsHelpers::glmTobt(halfSize));
 }
 
 glm::vec3 PhysicsComponentProcessor::getCenterOfMass(Entity e)
 {
-    auto body = m_pimpl->data.getData(e).body;
-    DF3D_ASSERT(body);
+    auto body = m_data.getData(e).body;
     return PhysicsHelpers::btToGlm(body->getCenterOfMassPosition());
 }
 
 void PhysicsComponentProcessor::teleportPosition(Entity e, const glm::vec3 &pos)
 {
     auto body = getBody(e);
-    if (body)
-    {
-        auto tr = body->getWorldTransform();
-        tr.setOrigin(PhysicsHelpers::glmTobt(pos));
+    auto tr = body->getWorldTransform();
+    tr.setOrigin(PhysicsHelpers::glmTobt(pos));
 
-        body->setWorldTransform(tr);
+    body->setWorldTransform(tr);
 
-        m_pimpl->dynamicsWorld->synchronizeSingleMotionState(body);
-    }
-    else
-    {
-        m_pimpl->df3dWorld.sceneGraph().setPosition(e, pos);
-    }
+    m_dynamicsWorld->synchronizeSingleMotionState(body);
 }
 
 void PhysicsComponentProcessor::teleportOrientation(Entity e, const glm::quat &orient)
 {
     auto body = getBody(e);
-    if (body)
-    {
-        auto tr = body->getWorldTransform();
-        tr.setRotation(btQuaternion(orient.x, orient.y, orient.z, orient.w));
+    auto tr = body->getWorldTransform();
+    tr.setRotation(btQuaternion(orient.x, orient.y, orient.z, orient.w));
 
-        body->setWorldTransform(tr);
+    body->setWorldTransform(tr);
 
-        m_pimpl->dynamicsWorld->synchronizeSingleMotionState(body);
-    }
-    else
-    {
-        m_pimpl->df3dWorld.sceneGraph().setOrientation(e, orient);
-    }
+    m_dynamicsWorld->synchronizeSingleMotionState(body);
 }
 
-void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, shared_ptr<MeshData> mesh)
+void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, ResourceID meshResource)
 {
-    if (m_pimpl->data.contains(e))
+    if (m_data.contains(e))
     {
         DFLOG_WARN("An entity already has an physics component");
         return;
     }
 
-    Impl::Data data;
-    data.mesh = mesh;
+    Data data;
     data.holder = e;
-    data.params = make_shared<PhysicsComponentCreationParams>(params);
-
-    if (mesh->isInitialized())
-        m_pimpl->initialize(data);
-
-    m_pimpl->data.add(e, data);
+    initialize(data, meshResource, params);
+    m_data.add(e, data);
 }
 
 void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, short mask)
 {
     DF3D_ASSERT(body);
 
-    if (m_pimpl->data.contains(e))
+    if (m_data.contains(e))
     {
         DFLOG_WARN("An entity already has an physics component");
         return;
     }
 
-    Impl::Data data;
+    Data data;
     data.holder = e;
     data.body = body;
-    data.initialized = true;
 
     if (group != -1 && mask != -1)
-        m_pimpl->dynamicsWorld->addRigidBody(body, group, mask);
+        m_dynamicsWorld->addRigidBody(body, group, mask);
     else
-        m_pimpl->dynamicsWorld->addRigidBody(body);
+        m_dynamicsWorld->addRigidBody(body);
 
     data.body->setUserIndex(*reinterpret_cast<int*>(&e));
 
-    m_pimpl->data.add(e, data);
+    m_data.add(e, data);
 }
 
 void PhysicsComponentProcessor::remove(Entity e)
 {
-    m_pimpl->data.remove(e);
+    m_data.remove(e);
 }
 
 bool PhysicsComponentProcessor::has(Entity e)
 {
-    return m_pimpl->data.contains(e);
+    return m_data.contains(e);
 }
 
 btDynamicsWorld* PhysicsComponentProcessor::getPhysicsWorld()
 {
-    return m_pimpl->dynamicsWorld;
+    return m_dynamicsWorld;
 }
 
 btMotionState* PhysicsComponentProcessor::createMotionState(Entity e)
 {
-    return m_pimpl->createMotionState(e);
+    return MAKE_NEW(m_allocator, PhysicsComponentMotionState)(e, m_df3dWorld);
 }
 
 }

@@ -80,7 +80,7 @@ TextureResourceData* TextureLoader_stbi(ResourceDataSource &dataSource, Allocato
     if (forceRGBA)
         DF3D_ASSERT(fmt == PixelFormat::RGBA);
 
-    auto resource = alloc.makeNew<TextureResourceData>(alloc);
+    auto resource = MAKE_NEW(alloc, TextureResourceData)(alloc);
     resource->info.format = fmt;
     resource->info.numMips = 0;
     resource->info.width = x;

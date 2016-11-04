@@ -20,7 +20,7 @@ public:
 class MaterialLibHolder : public IResourceHolder
 {
     MaterialLibResource *m_resource = nullptr;
-    unique_ptr<Json::Value> m_root;
+    Json::Value *m_root = nullptr;
 
 public:
     bool decodeStartup(ResourceDataSource &dataSource, Allocator &allocator) override;

@@ -22,7 +22,7 @@ class MeshLoader_obj_state
     MeshResourceData::Part* createMeshPart(const std::string &materialName)
     {
         const auto &vertexFormat = Vertex_p_n_tx_tan_bitan::getFormat();
-        return m_alloc.makeNew<MeshResourceData::Part>(vertexFormat, m_alloc);
+        return MAKE_NEW(m_alloc, MeshResourceData::Part)(vertexFormat, m_alloc);
     }
 
     bool hasNormals() const { return m_normals.size() > 0; }
@@ -219,7 +219,7 @@ public:
 
         bool computeNormals = !hasNormals();
 
-        auto result = m_alloc.makeNew<MeshResourceData>();
+        auto result = MAKE_NEW(m_alloc, MeshResourceData)();
 
         for (auto &kv : m_meshParts)
         {
@@ -267,9 +267,9 @@ public:
 
 MeshResourceData* MeshLoader_obj(ResourceDataSource &dataSource, Allocator &alloc)
 {
-    auto loader = alloc.makeNew<MeshLoader_obj_state>(alloc);
+    auto loader = MAKE_NEW(alloc, MeshLoader_obj_state)(alloc);
     auto result = loader->load(dataSource);
-    alloc.makeDelete(loader);
+    MAKE_DELETE(alloc, loader);
     return result;
 }
 
