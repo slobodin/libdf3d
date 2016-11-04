@@ -15,49 +15,34 @@
 
 namespace df3d {
 
-struct StaticMeshComponentProcessor::Impl
+BoundingSphere StaticMeshComponentProcessor::getBoundingSphere(const Data &compData)
 {
-    struct Data
-    {
-        Transform holderWorldTransform;
-        Entity holder;
-        bool visible = true;
-        bool frustumCullingDisabled = false;
-        std::vector<MeshPart> parts;
-        std::vector<Material> materials;
-        AABB localAABB;
-        BoundingSphere localBoundingSphere;
-    };
+    BoundingSphere sphere = compData.localBoundingSphere;
 
-    ComponentDataHolder<Data> data;
+    // Update transformation.
+    sphere.setPosition(compData.holderWorldTransform.position);
 
-    static BoundingSphere getBoundingSphere(const Data &compData)
-    {
-        BoundingSphere sphere = compData.localBoundingSphere;
+    // FIXME: absolutely incorrect!!! Should take into account children.
+    // TODO_ecs:
 
-        // Update transformation.
-        sphere.setPosition(compData.holderWorldTransform.position);
+    // FIXME: wtf is this??? Why can't just scale radius?
+    auto rad = sphere.getRadius() * MathUtils::UnitVec3;
+    rad.x *= compData.holderWorldTransform.scaling.x;
+    rad.y *= compData.holderWorldTransform.scaling.y;
+    rad.z *= compData.holderWorldTransform.scaling.z;
+    sphere.setRadius(glm::length(rad));
 
-        // FIXME: absolutely incorrect!!! Should take into account children.
-        // TODO_ecs:
-
-        // FIXME: wtf is this??? Why can't just scale radius?
-        auto rad = sphere.getRadius() * MathUtils::UnitVec3;
-        rad.x *= compData.holderWorldTransform.scaling.x;
-        rad.y *= compData.holderWorldTransform.scaling.y;
-        rad.z *= compData.holderWorldTransform.scaling.z;
-        sphere.setRadius(glm::length(rad));
-
-        return sphere;
-    }
-};
+    return sphere;
+}
 
 void StaticMeshComponentProcessor::update()
 {
-    // TODO_ecs: get only changed components.
+    auto &sceneGr = m_world.sceneGraph();
+
+    // TODO: get only changed components.
     // Update the transform component.
-    for (auto &compData : m_pimpl->data.rawData())
-        compData.holderWorldTransform = m_world->sceneGraph().getWorldTransform(compData.holder);
+    for (auto &compData : m_data.rawData())
+        compData.holderWorldTransform = sceneGr.getWorldTransform(compData.holder);
 }
 
 void StaticMeshComponentProcessor::draw(RenderQueue *ops)
@@ -65,15 +50,15 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
     if (!m_renderingEnabled)
         return;
 
-    for (auto &compData : m_pimpl->data.rawData())
+    const auto &frustum = m_world.getCamera()->getFrustum();
+    for (auto &compData : m_data.rawData())
     {
         if (!compData.visible)
             continue;
 
         if (!compData.frustumCullingDisabled)
         {
-            const auto &frustum = m_world->getCamera()->getFrustum();
-            if (!frustum.sphereInFrustum(Impl::getBoundingSphere(compData)))
+            if (!frustum.sphereInFrustum(getBoundingSphere(compData)))
                 continue;
         }
 
@@ -110,9 +95,8 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
     }
 }
 
-StaticMeshComponentProcessor::StaticMeshComponentProcessor(World *world)
-    : m_pimpl(new Impl()),
-    m_world(world)
+StaticMeshComponentProcessor::StaticMeshComponentProcessor(World &world)
+    : m_world(world)
 {
 
 }
@@ -124,7 +108,7 @@ StaticMeshComponentProcessor::~StaticMeshComponentProcessor()
 
 void StaticMeshComponentProcessor::setMaterial(Entity e, const Material &material)
 {
-    auto &compData = m_pimpl->data.getData(e);
+    auto &compData = m_data.getData(e);
     for (size_t i = 0; i < compData.materials.size(); i++)
         compData.materials[i] = material;
 }
@@ -136,7 +120,7 @@ void StaticMeshComponentProcessor::setMaterial(Entity e, size_t meshPartIdx, con
 
 Material* StaticMeshComponentProcessor::getMaterial(Entity e, size_t meshPartIdx)
 {
-    auto &compData = m_pimpl->data.getData(e);
+    auto &compData = m_data.getData(e);
     if (meshPartIdx >= compData.materials.size())
         return nullptr;
     return &compData.materials[meshPartIdx];
@@ -145,9 +129,9 @@ Material* StaticMeshComponentProcessor::getMaterial(Entity e, size_t meshPartIdx
 AABB StaticMeshComponentProcessor::getAABB(Entity e)
 {
     // FIXME: mb cache if transformation hasn't been changed?
-    auto &compData = m_pimpl->data.getData(e);
+    auto &compData = m_data.getData(e);
     // Update transformation.
-    compData.holderWorldTransform = m_world->sceneGraph().getWorldTransform(e);
+    compData.holderWorldTransform = m_world.sceneGraph().getWorldTransform(e);
 
     AABB transformedAABB;
 
@@ -170,7 +154,7 @@ AABB StaticMeshComponentProcessor::getAABB(Entity e)
 BoundingSphere StaticMeshComponentProcessor::getBoundingSphere(Entity e)
 {
     // FIXME: mb cache if transformation hasn't been changed?
-    return Impl::getBoundingSphere(m_pimpl->data.getData(e));
+    return getBoundingSphere(m_data.getData(e));
 }
 
 void StaticMeshComponentProcessor::enableRender(bool enable)
@@ -180,22 +164,22 @@ void StaticMeshComponentProcessor::enableRender(bool enable)
 
 void StaticMeshComponentProcessor::setVisible(Entity e, bool visible)
 {
-    m_pimpl->data.getData(e).visible = visible;
+    m_data.getData(e).visible = visible;
 }
 
 void StaticMeshComponentProcessor::disableFrustumCulling(Entity e, bool disable)
 {
-    m_pimpl->data.getData(e).frustumCullingDisabled = disable;
+    m_data.getData(e).frustumCullingDisabled = disable;
 }
 
 bool StaticMeshComponentProcessor::isVisible(Entity e)
 {
-    return m_pimpl->data.getData(e).visible;
+    return m_data.getData(e).visible;
 }
 
 void StaticMeshComponentProcessor::add(Entity e, ResourceID meshResource)
 {
-    if (m_pimpl->data.contains(e))
+    if (m_data.contains(e))
     {
         DFLOG_WARN("An entity already has a static mesh component");
         return;
@@ -204,7 +188,7 @@ void StaticMeshComponentProcessor::add(Entity e, ResourceID meshResource)
     auto &rmgr = svc().resourceManager();
     if (auto mesh = rmgr.getResource<MeshResource>(meshResource))
     {
-        Impl::Data data;
+        Data data;
 
         data.parts = mesh->meshParts;
         data.materials.resize(data.parts.size());
@@ -228,9 +212,9 @@ void StaticMeshComponentProcessor::add(Entity e, ResourceID meshResource)
         }
 
         data.holder = e;
-        data.holderWorldTransform = m_world->sceneGraph().getWorldTransform(e);
+        data.holderWorldTransform = m_world.sceneGraph().getWorldTransform(e);
 
-        m_pimpl->data.add(e, data);
+        m_data.add(e, data);
     }
     else
         DFLOG_WARN("Failed to add static mesh to an entity. Resource '%s' is not loaded", meshResource.c_str());
@@ -238,12 +222,12 @@ void StaticMeshComponentProcessor::add(Entity e, ResourceID meshResource)
 
 void StaticMeshComponentProcessor::remove(Entity e)
 {
-    m_pimpl->data.remove(e);
+    m_data.remove(e);
 }
 
 bool StaticMeshComponentProcessor::has(Entity e)
 {
-    return m_pimpl->data.contains(e);
+    return m_data.contains(e);
 }
 
 }

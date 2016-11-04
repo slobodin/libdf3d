@@ -8,6 +8,7 @@ class btTransform;
 
 namespace df3d {
 
+// TODO: move to world types.
 struct Transform
 {
     glm::mat4 combined;
