@@ -31,6 +31,8 @@ public:
 
     std::vector<T>& rawData() { return m_data; }
 
+    const std::vector<T>& rawData() const { return m_data; }
+
     T& getData(Entity ent)
     {
         return m_data[m_lookup[ent.getIndex()]];

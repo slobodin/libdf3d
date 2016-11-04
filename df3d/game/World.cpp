@@ -57,11 +57,11 @@ void World::cleanStep()
 World::World()
     : m_entitiesMgr(df3d::MemoryManager::allocDefault()),
     m_entityLoader(new game_impl::EntityLoader()),
-    m_staticMeshes(new StaticMeshComponentProcessor(this)),
+    m_staticMeshes(new StaticMeshComponentProcessor(*this)),
     m_vfx(new ParticleSystemComponentProcessor(*this)),
     m_physics(new PhysicsComponentProcessor(*this)),
     m_sceneGraph(new SceneGraphComponentProcessor()),
-    m_sprite2D(new Sprite2DComponentProcessor(this)),
+    m_sprite2D(new Sprite2DComponentProcessor(*this)),
     m_tags(new TagComponentProcessor()),
     m_camera(new Camera(glm::vec3(), Camera::DEFAULT_FOV, Camera::DEFAULT_NEAR_Z, Camera::DEFAULT_FAR_Z)),
     m_timeMgr(new TimeManager()),
