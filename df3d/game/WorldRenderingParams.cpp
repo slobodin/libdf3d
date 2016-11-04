@@ -13,7 +13,7 @@ WorldRenderingParams::WorldRenderingParams()
 
 WorldRenderingParams::~WorldRenderingParams()
 {
-    MemoryManager::allocDefault().makeDelete(m_postProcessMaterial);
+    MAKE_DELETE(MemoryManager::allocDefault(), m_postProcessMaterial);
 }
 
 void WorldRenderingParams::setAmbientLight(float ra, float ga, float ba)
@@ -52,8 +52,8 @@ const glm::vec3& WorldRenderingParams::getFogColor() const
 void WorldRenderingParams::setPostProcessMaterial(const Material &material)
 {
     if (m_postProcessMaterial)
-        MemoryManager::allocDefault().makeDelete(m_postProcessMaterial);
-    m_postProcessMaterial = MemoryManager::allocDefault().makeNew<Material>(material);
+        MAKE_DELETE(MemoryManager::allocDefault(), m_postProcessMaterial);
+    m_postProcessMaterial = MAKE_NEW(MemoryManager::allocDefault(), Material)(material);
 }
 
 const Material* WorldRenderingParams::getPostProcessMaterial() const

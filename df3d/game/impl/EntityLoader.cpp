@@ -3,6 +3,8 @@
 #include <df3d/game/World.h>
 #include <df3d/engine/3d/SceneGraphComponentProcessor.h>
 #include <df3d/engine/EngineController.h>
+#include <df3d/engine/resources/ResourceManager.h>
+#include <df3d/engine/resources/EntityResource.h>
 #include <df3d/lib/JsonUtils.h>
 #include <df3d/lib/Utils.h>
 #include "MeshComponentLoader.h"
@@ -29,12 +31,16 @@ EntityLoader::~EntityLoader()
 
 Entity EntityLoader::createEntityFromFile(const char *resourceFile, World &w)
 {
-    return createEntityFromJson(JsonUtils::fromFile(resourceFile), w);
+    auto resource = svc().resourceManager().getResource<EntityResource>(resourceFile);
+    if (!resource)
+        return {};
+
+    return createEntityFromJson(resource->root, w);
 }
 
 Entity EntityLoader::createEntityFromJson(const Json::Value &root, World &w)
 {
-    if (root.empty())
+    if (root.isNull())
     {
         DFLOG_WARN("Failed to init an entity from Json node");
         return {};

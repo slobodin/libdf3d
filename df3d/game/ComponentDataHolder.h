@@ -97,7 +97,7 @@ public:
         m_holdersLookup.clear();
     }
 
-    void setDestructionCallback(const DestructionCallback &callback) { m_destructionCallback = callback; }
+    void setDestructionCallback(DestructionCallback &&callback) { m_destructionCallback = std::move(callback); }
 };
 
 }
