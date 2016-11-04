@@ -10,7 +10,7 @@ struct DF3D_DLL ConvexHull
 {
     std::vector<btVector3> m_vertices;
 
-    void constructFromGeometry(const MeshResourceData &resource);
+    void constructFromGeometry(const MeshResourceData &resource, Allocator &alloc);
 };
 
 }

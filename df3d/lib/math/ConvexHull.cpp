@@ -6,9 +6,9 @@
 
 namespace df3d {
 
-void ConvexHull::constructFromGeometry(const MeshResourceData &resource)
+void ConvexHull::constructFromGeometry(const MeshResourceData &resource, Allocator &alloc)
 {
-    auto tempHull = new btConvexHullShape();
+    auto tempHull = MAKE_NEW(alloc, btConvexHullShape)();
 
     // Compute the volume.
     for (auto submesh : resource.parts)
@@ -26,7 +26,7 @@ void ConvexHull::constructFromGeometry(const MeshResourceData &resource)
         tempHull->recalcLocalAabb();
     }
 
-    auto convexHull = new btShapeHull(tempHull);
+    auto convexHull = MAKE_NEW(alloc, btShapeHull)(tempHull);
     convexHull->buildHull(tempHull->getMargin());
 
     auto vertices = convexHull->getVertexPointer();
@@ -37,8 +37,8 @@ void ConvexHull::constructFromGeometry(const MeshResourceData &resource)
         m_vertices.push_back({ p.x(), p.y(), p.z() });
     }
 
-    delete convexHull;
-    delete tempHull;
+    MAKE_DELETE(alloc, convexHull);
+    MAKE_DELETE(alloc, tempHull);
 }
 
 }

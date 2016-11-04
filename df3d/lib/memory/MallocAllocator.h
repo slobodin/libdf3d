@@ -13,7 +13,7 @@ public:
     MallocAllocator();
     ~MallocAllocator();
 
-    void* alloc(size_t size, size_t alignment = DEFAULT_ALIGN) override;
+    void* alloc(size_t size, size_t alignment) override;
     void dealloc(void *mem) override;
     size_t bytesAllocated() override;
 };
