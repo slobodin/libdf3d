@@ -46,8 +46,8 @@ class PhysicsComponentProcessor : public EntityComponentProcessor
 
     ComponentDataHolder<Data> m_data;
 
-    btCollisionShape* createCollisionShape(Data &data, ResourceID meshResourceID, const PhysicsComponentCreationParams &params);
-    void initialize(Data &data, ResourceID meshResourceID, const PhysicsComponentCreationParams &params);
+    btCollisionShape* createCollisionShape(Data &data, const ResourceID &meshResourceID, const PhysicsComponentCreationParams &params);
+    void initialize(Data &data, const ResourceID &meshResourceID, const PhysicsComponentCreationParams &params);
     void update() override;
     void draw(RenderQueue *ops) override;
 
@@ -64,7 +64,7 @@ public:
     void teleportPosition(Entity e, const glm::vec3 &pos);
     void teleportOrientation(Entity e, const glm::quat &orient);
 
-    void add(Entity e, const PhysicsComponentCreationParams &params, ResourceID meshResource);
+    void add(Entity e, const PhysicsComponentCreationParams &params, const ResourceID &meshResource);
     // NOTE: body should not be added to the Physics World as it will be added via this processor.
     void add(Entity e, btRigidBody *body, short group = -1, short mask = -1);
 

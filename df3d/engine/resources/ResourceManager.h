@@ -5,19 +5,33 @@ namespace df3d {
 class ThreadPool;
 class ResourceFileSystem;
 class IResourceHolder;
-class ResourceLoader;
+struct LoadingState;
+
+// TODO: refactor
+
+using ResourcePackage = std::vector<ResourceID>;
 
 class ResourceManager : NonCopyable
 {
+    friend struct LoadingState;
+
     mutable std::recursive_mutex m_lock;
     Allocator &m_allocator;
     unique_ptr<ResourceFileSystem> m_fs;
-    unique_ptr<ResourceLoader> m_loader;
+    unique_ptr<LoadingState> m_loadingState;
 
-    std::unordered_map<ResourceID, shared_ptr<IResourceHolder>> m_cache;
+    struct Entry
+    {
+        shared_ptr<IResourceHolder> holder;
+        int refCount = 0;
+        bool valid = false;
+    };
 
-    const void* getResourceData(ResourceID resourceID);
-    void createResource(ResourceID resourceId, shared_ptr<IResourceHolder> loader);
+    std::unordered_map<ResourceID, Entry> m_cache;
+
+    const void* getResourceData(const ResourceID &resourceID);
+    void listDependencies(const ResourcePackage &input, ResourcePackage &output, LoadingState *loadingState);
+    void unloadResource(const ResourceID &resource);
 
 public:
     ResourceManager();
@@ -25,6 +39,7 @@ public:
 
     void initialize();
     void shutdown();
+    void poll();
 
     void suspend();
     void resume();
@@ -32,21 +47,16 @@ public:
     void setDefaultFileSystem();
     void setFileSystem(unique_ptr<ResourceFileSystem> fs);
 
-    // TODO: decodeREsources
-    // Create resources
-    // block until loads done.
-    // Remove package
-
-    void loadResource(ResourceID resourceId);
-    void unloadResource(ResourceID resourceId);
-    void unloadAll();
-    void flush();
+    // Can load only 1 package at a time.
+    void loadPackageAsync(const ResourcePackage &resources);
+    void unloadPackage(const ResourcePackage &resources);
     bool isLoading() const;
+    void flush();
 
     ResourceFileSystem& getFS() { std::lock_guard<std::recursive_mutex> lock(m_lock); return *m_fs; }
 
     template<typename T>
-    const T* getResource(ResourceID resourceID) { return static_cast<const T*>(getResourceData(resourceID)); }
+    const T* getResource(const ResourceID &resourceID) { return static_cast<const T*>(getResourceData(resourceID)); }
 };
 
 }

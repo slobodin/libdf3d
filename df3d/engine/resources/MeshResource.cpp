@@ -15,7 +15,7 @@
 
 namespace df3d {
 
-static MeshResourceData *LoadMeshDataFromFile(ResourceID path, Allocator &allocator)
+static MeshResourceData *LoadMeshDataFromFile(const ResourceID &path, Allocator &allocator)
 {
     const auto extension = FileSystemHelpers::getFileExtension(path);
 
@@ -56,6 +56,16 @@ static void BoundingVolumeFromGeometry(BoundingVolume *volume, const MeshResourc
     }
 }
 
+void MeshHolder::listDependencies(ResourceDataSource &dataSource, std::vector<ResourceID> &outDeps)
+{
+    Json::Value root = JsonUtils::fromFile(dataSource);
+    if (root.isNull())
+        return;
+
+    if (root.isMember("material_lib"))
+        outDeps.push_back(root["material_lib"].asString());
+}
+
 bool MeshHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
 {
     Json::Value root = JsonUtils::fromFile(dataSource);
@@ -64,9 +74,6 @@ bool MeshHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &alloca
 
     if (root.isMember("material_lib"))
         m_materialLib = root["material_lib"].asString();
-
-    if (!m_materialLib.empty())
-        svc().resourceManager().loadResource(m_materialLib);
 
     m_resourceData = LoadMeshDataFromFile(root["path"].asString(), allocator);
 
@@ -127,7 +134,7 @@ void MeshHolder::destroyResource(Allocator &allocator)
     m_resource = nullptr;
 }
 
-MeshResourceData *LoadMeshDataFromFile_Workaround(ResourceID path, Allocator &allocator)
+MeshResourceData *LoadMeshDataFromFile_Workaround(const ResourceID &path, Allocator &allocator)
 {
     Json::Value root = JsonUtils::fromFile(path.c_str());
     if (root.isNull())

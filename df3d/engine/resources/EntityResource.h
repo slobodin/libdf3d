@@ -14,6 +14,7 @@ class EntityHolder : public IResourceHolder
     EntityResource *m_resource = nullptr;
 
 public:
+    void listDependencies(ResourceDataSource &dataSource, std::vector<ResourceID> &outDeps) override;
     bool decodeStartup(ResourceDataSource &dataSource, Allocator &allocator) override;
     void decodeCleanup(Allocator &allocator) override;
     bool createResource(Allocator &allocator) override;

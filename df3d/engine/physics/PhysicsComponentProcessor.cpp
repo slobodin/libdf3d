@@ -103,7 +103,7 @@ public:
     }
 };
 
-btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, ResourceID meshResourceID, const PhysicsComponentCreationParams &params)
+btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, const ResourceID &meshResourceID, const PhysicsComponentCreationParams &params)
 {
     // FIXME: what to do if scale has been changed?
     auto scale = PhysicsHelpers::glmTobt(svc().defaultWorld().sceneGraph().getLocalScale(data.holder));
@@ -179,7 +179,7 @@ btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, Re
     return nullptr;
 }
 
-void PhysicsComponentProcessor::initialize(Data &data, ResourceID meshResourceID, const PhysicsComponentCreationParams &params)
+void PhysicsComponentProcessor::initialize(Data &data, const ResourceID &meshResourceID, const PhysicsComponentCreationParams &params)
 {
     btCollisionShape *colShape = createCollisionShape(data, meshResourceID, params);
     if (!colShape)
@@ -352,7 +352,7 @@ void PhysicsComponentProcessor::teleportOrientation(Entity e, const glm::quat &o
     m_dynamicsWorld->synchronizeSingleMotionState(body);
 }
 
-void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, ResourceID meshResource)
+void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, const ResourceID &meshResource)
 {
     if (m_data.contains(e))
     {

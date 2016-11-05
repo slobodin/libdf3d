@@ -177,7 +177,7 @@ bool StaticMeshComponentProcessor::isVisible(Entity e)
     return m_data.getData(e).visible;
 }
 
-void StaticMeshComponentProcessor::add(Entity e, ResourceID meshResource)
+void StaticMeshComponentProcessor::add(Entity e, const ResourceID &meshResource)
 {
     if (m_data.contains(e))
     {

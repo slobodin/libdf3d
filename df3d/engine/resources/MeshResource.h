@@ -48,6 +48,7 @@ class MeshHolder : public IResourceHolder
     ResourceID m_materialLib;
 
 public:
+    void listDependencies(ResourceDataSource &dataSource, std::vector<ResourceID> &outDeps);
     bool decodeStartup(ResourceDataSource &dataSource, Allocator &allocator) override;
     void decodeCleanup(Allocator &allocator) override;
     bool createResource(Allocator &allocator) override;
@@ -56,7 +57,7 @@ public:
     void* getResource() override { return m_resource; }
 };
 
-MeshResourceData *LoadMeshDataFromFile_Workaround(ResourceID path, Allocator &allocator);
+MeshResourceData *LoadMeshDataFromFile_Workaround(const ResourceID &path, Allocator &allocator);
 void DestroyMeshData(MeshResourceData *resource, Allocator &allocator);
 
 }

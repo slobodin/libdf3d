@@ -8,7 +8,7 @@
 
 namespace df3d {
 
-SPK::Ref<SPK::Renderer> ParticleSystemUtils::createQuadRenderer(const glm::vec2 &scale, ResourceID textureResource, bool depthTest)
+SPK::Ref<SPK::Renderer> ParticleSystemUtils::createQuadRenderer(const glm::vec2 &scale, const ResourceID &textureResource, bool depthTest)
 {
     auto quadRenderer = QuadParticleSystemRenderer::create(scale.x, scale.y);
 

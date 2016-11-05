@@ -2,6 +2,8 @@
 
 namespace df3d {
 
+static const size_t MAX_WORKERS = 4;
+
 struct ThreadPoolWorker
 {
     ThreadPool &pool;
@@ -32,57 +34,23 @@ struct ThreadPoolWorker
             // Clean up job.
             auto fn = std::function<void ()>();
             job.swap(fn);
+            DF3D_ASSERT(pool.m_currentJobs > 0);
+            --pool.m_currentJobs;
         }
     }
 };
 
 ThreadPool::ThreadPool(size_t numWorkers)
-    : m_stop(false)
+    : m_stop(false),
+    m_numWorkers(numWorkers)
 {
-    const size_t MAX_WORKERS = 4;
+    DF3D_ASSERT(m_numWorkers <= MAX_WORKERS);
 
-    if (numWorkers > MAX_WORKERS)
-        numWorkers = MAX_WORKERS;
-
-    m_numWorkers = numWorkers;
-
-    resume();
+    for (size_t i = 0; i < m_numWorkers; i++)
+        m_workers.push_back(std::thread(ThreadPoolWorker(*this)));
 }
 
 ThreadPool::~ThreadPool()
-{
-    suspend();
-}
-
-void ThreadPool::enqueue(const std::function<void ()> &fn)
-{
-    {
-        std::unique_lock<std::mutex> lock(m_mutex);
-
-        m_jobs.push_back(fn);
-    }
-
-    m_condition.notify_one();
-}
-
-void ThreadPool::clear()
-{
-    {
-        std::unique_lock<std::mutex> lock(m_mutex);
-
-        m_jobs.clear();
-    }
-
-    m_condition.notify_all();
-}
-
-size_t ThreadPool::getJobsCount()
-{
-    std::unique_lock<std::mutex> lock(m_mutex);
-    return m_jobs.size();
-}
-
-void ThreadPool::suspend()
 {
     {
         std::unique_lock<std::mutex> lock(m_mutex);
@@ -93,19 +61,18 @@ void ThreadPool::suspend()
 
     for (auto &w : m_workers)
         w.join();
-
-    m_workers.clear();
 }
 
-void ThreadPool::resume()
+void ThreadPool::enqueue(const std::function<void ()> &fn)
 {
-    DF3D_ASSERT(m_workers.empty());
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
 
-    m_stop = false;
-    m_workers.clear();
+        m_jobs.push_back(fn);
+        m_currentJobs++;
+    }
 
-    for (size_t i = 0; i < m_numWorkers; i++)
-        m_workers.push_back(std::thread(ThreadPoolWorker(*this)));
+    m_condition.notify_one();
 }
 
 }

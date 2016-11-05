@@ -29,6 +29,7 @@ class DesktopAppState
     GLFWwindow *m_window = nullptr;
     AppDelegate *m_appDelegate;
     bool m_vsync = false;
+    bool m_initialized = false;
 
 public:
     DesktopAppState() = default;
@@ -90,6 +91,8 @@ public:
             return false;
         }
 
+        m_initialized = true;
+
         return true;
     }
 
@@ -131,6 +134,9 @@ public:
 
     void onMouseButton(int button, int action, int mods)
     {
+        if (!m_initialized)
+            return;
+
         double x, y;
         glfwGetCursorPos(m_window, &x, &y);
 
@@ -163,6 +169,9 @@ public:
 
     void onKey(int key, int scancode, int action, int mods)
     {
+        if (!m_initialized)
+            return;
+
         int keyModifiers = 0;
         if (mods & GLFW_MOD_SHIFT)
             keyModifiers |= KeyModifier::KM_SHIFT;
@@ -188,16 +197,22 @@ public:
 
     void onTextInput(unsigned int codepoint)
     {
+        if (!m_initialized)
+            return;
         svc().inputManager().onTextInput(codepoint);
     }
 
     void onScroll(double xoffset, double yoffset)
     {
+        if (!m_initialized)
+            return;
         svc().inputManager().setMouseWheelDelta((float)-yoffset);
     }
 
     void onCursorMove(double x, double y)
     {
+        if (!m_initialized)
+            return;
         svc().inputManager().setMousePosition((int)x, (int)y);
 
 #ifdef DF3D_EMULATE_TOUCHES
@@ -209,6 +224,8 @@ public:
 
     void onFocus(int focused)
     {
+        if (!m_initialized)
+            return;
         if (focused == 1)
         {
             m_appDelegate->onAppWillEnterForeground();

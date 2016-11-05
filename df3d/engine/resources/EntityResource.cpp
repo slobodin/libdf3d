@@ -1,12 +1,10 @@
 #include "EntityResource.h"
 
-#include <df3d/engine/EngineController.h>
-#include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/lib/JsonUtils.h>
 
 namespace df3d {
 
-static void PreloadEntityData(const Json::Value &root)
+static void PreloadEntityData(const Json::Value &root, std::vector<ResourceID> &outDeps)
 {
     const auto &componentsJson = root["components"];
     for (const auto &compJson : componentsJson)
@@ -14,14 +12,23 @@ static void PreloadEntityData(const Json::Value &root)
         auto type = compJson["type"].asString();
         const auto &data = compJson["data"];
         if (type == "mesh")
-            svc().resourceManager().loadResource(data["path"].asString());
+            outDeps.push_back(data["path"].asString());
         else if (type == "vfx")
-            svc().resourceManager().loadResource(data["path"].asString());
+            outDeps.push_back(data["path"].asString());
     }
 
     const auto &childrenJson = root["children"];
     for (const auto &child : childrenJson)
-        PreloadEntityData(child);
+        PreloadEntityData(child, outDeps);
+}
+
+void EntityHolder::listDependencies(ResourceDataSource &dataSource, std::vector<ResourceID> &outDeps)
+{
+    Json::Value root = JsonUtils::fromFile(dataSource);
+    if (root.isNull())
+        return;
+
+    PreloadEntityData(root, outDeps);
 }
 
 bool EntityHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
@@ -32,8 +39,6 @@ bool EntityHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allo
 
     m_resource = MAKE_NEW(allocator, EntityResource)();
     m_resource->root = std::move(root);
-
-    PreloadEntityData(m_resource->root);
 
     return true;
 }

@@ -125,9 +125,8 @@ static unique_ptr<Technique> ParseTechnique(const Json::Value &jsonTechnique)
     return technique;
 }
 
-static void PreloadTechniqueData(const Json::Value &root)
+static void PreloadTechniqueData(const Json::Value &root, std::vector<ResourceID> &outDeps)
 {
-    auto &rmgr = svc().resourceManager();
     const auto &jsonPasses = root["passes"];
     for (const auto &jsonPass : jsonPasses)
     {
@@ -137,7 +136,7 @@ static void PreloadTechniqueData(const Json::Value &root)
             for (const auto &sampler : samplersJson)
             {
                 DF3D_ASSERT(sampler.isMember("path"));
-                rmgr.loadResource(sampler["path"].asString());
+                outDeps.push_back(sampler["path"].asString());
             }
         }
 
@@ -148,7 +147,7 @@ static void PreloadTechniqueData(const Json::Value &root)
             auto shaderId = jsonPass["shader"].asString();
             // TODO: remove embed resources.
             if (shaderId != "colored")
-                rmgr.loadResource(shaderId);
+                outDeps.push_back(shaderId);
         }
     }
 }
@@ -203,11 +202,11 @@ const Material* MaterialLibResource::getMaterial(const std::string &name) const
     return nullptr;
 }
 
-bool MaterialLibHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
+void MaterialLibHolder::listDependencies(ResourceDataSource &dataSource, std::vector<ResourceID> &outDeps)
 {
     auto root = JsonUtils::fromFile(dataSource);
     if (root.isNull())
-        return false;
+        return;
 
     const auto &jsonMaterials = root["materials"];
     for (const auto &jsonMaterial : jsonMaterials)
@@ -223,13 +222,20 @@ bool MaterialLibHolder::decodeStartup(ResourceDataSource &dataSource, Allocator 
 
         if (foundPrefTech != jsonTechniques.end())
         {
-            PreloadTechniqueData(*foundPrefTech);
+            PreloadTechniqueData(*foundPrefTech, outDeps);
         }
         else
         {
-            PreloadTechniqueData(*jsonTechniques.begin());
+            PreloadTechniqueData(*jsonTechniques.begin(), outDeps);
         }
     }
+}
+
+bool MaterialLibHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
+{
+    auto root = JsonUtils::fromFile(dataSource);
+    if (root.isNull())
+        return false;
 
     m_root = MAKE_NEW(allocator, Json::Value)(std::move(root));
 

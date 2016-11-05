@@ -178,7 +178,7 @@ const glm::vec2& Sprite2DComponentProcessor::getScreenPosition(Entity e)
     return compData.screenPosition;
 }
 
-void Sprite2DComponentProcessor::useTexture(Entity e, ResourceID textureResource)
+void Sprite2DComponentProcessor::useTexture(Entity e, const ResourceID &textureResource)
 {
     auto &compData = m_data.getData(e);
     if (compData.textureResourceId == textureResource)
@@ -219,7 +219,7 @@ void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diff
     compData.pass.setParam("material_diffuse", diffuseColor);
 }
 
-void Sprite2DComponentProcessor::add(Entity e, ResourceID textureResource)
+void Sprite2DComponentProcessor::add(Entity e, const ResourceID &textureResource)
 {
     if (m_data.contains(e))
     {

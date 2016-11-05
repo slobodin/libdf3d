@@ -11,6 +11,7 @@ public:
     IResourceHolder() = default;
     virtual ~IResourceHolder() = default;
 
+    virtual void listDependencies(ResourceDataSource &dataSource, std::vector<ResourceID> &outDeps) = 0;
     virtual bool decodeStartup(ResourceDataSource &dataSource, Allocator &allocator) = 0;
     virtual void decodeCleanup(Allocator &allocator) = 0;
     virtual bool createResource(Allocator &allocator) = 0;

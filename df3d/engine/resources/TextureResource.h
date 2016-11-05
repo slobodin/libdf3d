@@ -35,6 +35,7 @@ class TextureHolder : public IResourceHolder
     uint32_t m_flags = 0;
 
 public:
+    void listDependencies(ResourceDataSource &dataSource, std::vector<ResourceID> &outDeps) override { }
     bool decodeStartup(ResourceDataSource &dataSource, Allocator &allocator) override;
     void decodeCleanup(Allocator &allocator) override;
     bool createResource(Allocator &allocator) override;

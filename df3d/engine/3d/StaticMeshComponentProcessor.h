@@ -56,7 +56,7 @@ public:
 
     bool isVisible(Entity e);
 
-    void add(Entity e, ResourceID meshResource);
+    void add(Entity e, const ResourceID &meshResource);
     void remove(Entity e) override;
     bool has(Entity e) override;
 };

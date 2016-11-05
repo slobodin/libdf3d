@@ -20,10 +20,7 @@ public:
     ~ThreadPool();
 
     void enqueue(const std::function<void ()> &fn);
-    size_t getJobsCount() const { return m_currentJobs; }
-
-    void suspend();
-    void resume();
+    size_t getCurrentJobsCount() const { return m_currentJobs; }
 };
 
 }

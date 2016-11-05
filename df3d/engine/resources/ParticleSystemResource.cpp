@@ -579,11 +579,11 @@ static SPK::Ref<SPK::System> CreateSpkSystem(const Json::Value &root)
     return result;
 }
 
-bool ParticleSystemHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
+void ParticleSystemHolder::listDependencies(ResourceDataSource &dataSource, std::vector<ResourceID> &outDeps)
 {
     Json::Value root = JsonUtils::fromFile(dataSource);
     if (root.isNull())
-        return false;
+        return;
 
     const auto &jsonGroups = root["groups"];
     for (const auto &jsonGroup : jsonGroups)
@@ -594,10 +594,17 @@ bool ParticleSystemHolder::decodeStartup(ResourceDataSource &dataSource, Allocat
             if (renderJson.isMember("texture"))
             {
                 auto path = renderJson["texture"].asString();
-                svc().resourceManager().loadResource(path);
+                outDeps.push_back(path);
             }
         }
     }
+}
+
+bool ParticleSystemHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
+{
+    Json::Value root = JsonUtils::fromFile(dataSource);
+    if (root.isNull())
+        return false;
 
     m_root = MAKE_NEW(allocator, Json::Value)(std::move(root));
 

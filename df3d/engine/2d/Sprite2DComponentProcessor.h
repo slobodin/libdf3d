@@ -61,7 +61,7 @@ public:
 
     const glm::vec2& getScreenPosition(Entity e);
 
-    void useTexture(Entity e, ResourceID textureResource);
+    void useTexture(Entity e, const ResourceID &textureResource);
     const glm::vec2& getTextureSize(Entity e) const;
 
     void setBlendMode(Entity e, BlendingMode bm);
@@ -69,7 +69,7 @@ public:
     void setBlendMode2(Entity e, int bm);
     void setDiffuseColor(Entity e, const glm::vec4 &diffuseColor);
 
-    void add(Entity e, ResourceID textureResource);
+    void add(Entity e, const ResourceID &textureResource);
     void remove(Entity e) override;
     bool has(Entity e) override;
 };

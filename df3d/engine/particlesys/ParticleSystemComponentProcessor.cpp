@@ -154,7 +154,7 @@ bool ParticleSystemComponentProcessor::isVisible(Entity e) const
     return !m_data.getData(e).visible;
 }
 
-void ParticleSystemComponentProcessor::addWithResource(Entity e, ResourceID resourceID)
+void ParticleSystemComponentProcessor::addWithResource(Entity e, const ResourceID &resourceID)
 {
     auto resource = svc().resourceManager().getResource<ParticleSystemResource>(resourceID);
     if (resource)

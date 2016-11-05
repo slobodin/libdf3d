@@ -97,6 +97,7 @@ void EngineController::step()
 
     // Update some engine subsystems.
     m_guiManager->update();
+    m_resourceManager->poll();
 
     // Update client code.
     m_systemTimeManager->update(m_timer->getFrameDelta(TIME_CHANNEL_SYSTEM));
