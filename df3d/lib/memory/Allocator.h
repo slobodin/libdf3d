@@ -27,7 +27,7 @@ static void DeleteHelper(Alloc &a, T *obj)
 #define MAKE_NEW(allocator, T) new ((allocator).alloc(sizeof(T), alignof(T))) T
 #define MAKE_DELETE(allocator, obj) DeleteHelper(allocator, obj)
 
-#define MEM_ALLOC(allocator, T, count) (T*)((allocator).alloc(sizeof(T) * count, alignof(T)))
-#define MEM_FREE(allocator, mem) (allocator).dealloc(mem)
+#define MEMORY_ALLOC(allocator, T, count) (T*)((allocator).alloc(sizeof(T) * count, alignof(T)))
+#define MEMORY_FREE(allocator, mem) (allocator).dealloc(mem)
 
 }
