@@ -20,9 +20,9 @@ struct hash<df3d::AudioSourceHandle>
 
 namespace df3d {
 
-class AudioBuffer;
+struct AudioResource;
 
-class DF3D_DLL AudioWorld : NonCopyable
+class AudioWorld : NonCopyable
 {
 public:
     enum class State
@@ -40,13 +40,12 @@ private:
         float pitch = 1.0f;
         float gain = 1.0f;
         bool looped = false;
-
-        shared_ptr<AudioBuffer> buffer;
+        const AudioResource *audioResource = nullptr;
     };
 
     struct StreamingData
     {
-        shared_ptr<AudioBuffer> buffer;
+        const AudioResource *audioResource = nullptr;
         unsigned int sourceId = 0;
         bool looped = false;
     };
@@ -100,7 +99,7 @@ public:
     bool isLooped(AudioSourceHandle handle) const;
     State getState(AudioSourceHandle handle) const;
 
-    AudioSourceHandle create(const std::string &audioFilePath, bool streamed, bool looped);
+    AudioSourceHandle create(const std::string &audioFilePath, bool looped);
     void destroy(AudioSourceHandle handle);
 };
 

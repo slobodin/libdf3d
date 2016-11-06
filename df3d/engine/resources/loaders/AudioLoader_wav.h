@@ -1,13 +1,10 @@
 #pragma once
 
-#include "../AudioLoaders.h"
+namespace df3d {
 
-namespace df3d { namespace resource_loaders {
+struct PCMData;
+class Allocator;
 
-class AudioLoader_wav
-{
-public:
-    unique_ptr<PCMData> load(shared_ptr<DataSource> source);
-};
+unique_ptr<PCMData> AudioLoader_wav(const char *path, Allocator &alloc);
 
-} }
+}

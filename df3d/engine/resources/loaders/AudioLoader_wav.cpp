@@ -1,9 +1,13 @@
 #include "AudioLoader_wav.h"
 
+#include <df3d/engine/audio/OpenALCommon.h>
+#include <df3d/engine/resources/AudioResource.h>
 #include <df3d/engine/EngineController.h>
-#include <df3d/engine/io/DataSource.h>
+#include <df3d/engine/resources/ResourceManager.h>
+#include <df3d/engine/resources/ResourceFileSystem.h>
+#include <df3d/engine/resources/ResourceDataSource.h>
 
-namespace df3d { namespace resource_loaders {
+namespace df3d {
 
 #pragma pack(push, 1)
 
@@ -34,45 +38,54 @@ struct WAVEData
 
 #pragma pack(pop)
 
-unique_ptr<PCMData> AudioLoader_wav::load(shared_ptr<DataSource> source)
+unique_ptr<PCMData> AudioLoader_wav(const char *path, Allocator &alloc)
 {
+    auto dataSource = svc().resourceManager().getFS().open(path);
+    if (!dataSource)
+        return nullptr;
+
     RIFFHeader header;
-    DataSourceGetObjects(source.get(), &header, 1);
+    dataSource->getObjects(&header, 1);
 
     if (strncmp(header.chunkID, "RIFF", 4) != 0 || strncmp(header.format, "WAVE", 4) != 0)
     {
-        DFLOG_WARN("Invalid WAVE file header: %s", source->getPath().c_str());
+        DFLOG_WARN("Invalid WAVE file header: %s", path);
+        svc().resourceManager().getFS().close(dataSource);
         return nullptr;
     }
 
     WAVEFormat format;
-    DataSourceGetObjects(source.get(), &format, 1);
+    dataSource->getObjects(&format, 1);
 
     if (memcmp(format.subChunkID, "fmt ", 4))
     {
-        DFLOG_WARN("Invalid WAVE format: %s", source->getPath().c_str());
+        DFLOG_WARN("Invalid WAVE format: %s", path);
+        svc().resourceManager().getFS().close(dataSource);
         return nullptr;
     }
 
     if (format.subChunkSize > 16)
-        source->seek(sizeof(short), SeekDir::CURRENT);
+        dataSource->seek(sizeof(short), SeekDir::CURRENT);
 
-    auto result = make_unique<PCMData>();
+    auto result = make_unique<PCMData>(alloc);
 
     while (true)
     {
         WAVEData data;
-        if (!DataSourceGetObjects(source.get(), &data, 1))
+        if (!dataSource->getObjects(&data, 1))
+        {
+            svc().resourceManager().getFS().close(dataSource);
             return nullptr;
+        }
 
         if (memcmp(data.subChunkID, "data", 4) == 0)
         {
-            char *sounddata = new char[data.subChunk2Size];
-
-            auto got = source->read(sounddata, data.subChunk2Size);
+            result->data.resize(data.subChunk2Size);
+            auto got = dataSource->read(result->data.data(), data.subChunk2Size);
             if (got != data.subChunk2Size)
             {
-                DFLOG_WARN("Error loading WAVE data: %s", source->getPath().c_str());
+                DFLOG_WARN("Error loading WAVE data: %s", path);
+                svc().resourceManager().getFS().close(dataSource);
                 return nullptr;
             }
 
@@ -91,20 +104,19 @@ unique_ptr<PCMData> AudioLoader_wav::load(shared_ptr<DataSource> source)
                     result->format = AL_FORMAT_STEREO16;
             }
 
-            result->data = sounddata;
-            result->totalSize = data.subChunk2Size;
             result->sampleRate = format.sampleRate;
 
+            svc().resourceManager().getFS().close(dataSource);
             return result;
         }
         else
         {
-            source->seek(data.subChunk2Size, SeekDir::CURRENT);
+            dataSource->seek(data.subChunk2Size, SeekDir::CURRENT);
         }
     }
 
+    svc().resourceManager().getFS().close(dataSource);
     return nullptr;
 }
 
-} }
-
+}

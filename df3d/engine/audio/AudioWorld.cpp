@@ -1,6 +1,5 @@
 #include "AudioWorld.h"
 
-#include "AudioBuffer.h"
 #include "OpenALCommon.h"
 #include <df3d/game/ComponentDataHolder.h>
 #include <df3d/engine/3d/SceneGraphComponentProcessor.h>
@@ -8,7 +7,7 @@
 #include <df3d/engine/3d/Camera.h>
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/resources/ResourceManager.h>
-#include <df3d/engine/resources/ResourceFactory.h>
+#include <df3d/engine/resources/AudioResource.h>
 #include <df3d/lib/Utils.h>
 
 namespace df3d {
@@ -43,10 +42,7 @@ const AudioWorld::AudioSource* AudioWorld::lookupSource(AudioSourceHandle handle
 AudioWorld::AudioSource* AudioWorld::lookupSource(AudioSourceHandle handle)
 {
     if (!handle.isValid())
-    {
-        DF3D_ASSERT(false);
         return nullptr;
-    }
 
     auto found = m_lookup.find(handle);
     if (found == m_lookup.end())
@@ -62,8 +58,8 @@ void AudioWorld::streamThread()
 
         for (auto &data : m_streamingData)
         {
-            if (data.buffer && GetAudioState(data.sourceId) == State::PLAYING)
-                data.buffer->streamData(data.sourceId, data.looped);
+            if (data.audioResource && GetAudioState(data.sourceId) == State::PLAYING)
+                data.audioResource->streamData(data.sourceId, data.looped);
         }
 
         m_streamingMutex.unlock();
@@ -92,7 +88,7 @@ AudioWorld::~AudioWorld()
 
 void AudioWorld::update()
 {
-
+    printOpenALError();
 }
 
 void AudioWorld::suspend()
@@ -211,13 +207,13 @@ void AudioWorld::setLooped(AudioSourceHandle handle, bool looped)
     if (auto source = lookupSource(handle))
     {
         source->looped = looped;
-        if (!source->buffer->isStreamed())
+        if (!source->audioResource->isStreamed())
             alSourcei(source->audioSourceId, AL_LOOPING, looped);
 
         m_streamingMutex.lock();
 
         auto foundStreamed = std::find_if(m_streamingData.begin(), m_streamingData.end(),
-                                          [source](const StreamingData &data) { return data.buffer.get() == source->buffer.get(); });
+                                          [source](const StreamingData &data) { return data.audioResource == source->audioResource; });
         if (foundStreamed != m_streamingData.end())
             foundStreamed->looped = looped;
 
@@ -273,7 +269,7 @@ AudioWorld::State AudioWorld::getState(AudioSourceHandle handle) const
     return GetAudioState(audioSource->audioSourceId);
 }
 
-AudioSourceHandle AudioWorld::create(const std::string &audioFilePath, bool streamed, bool looped)
+AudioSourceHandle AudioWorld::create(const std::string &audioFilePath, bool looped)
 {
     AudioSource source;
 
@@ -288,26 +284,30 @@ AudioSourceHandle AudioWorld::create(const std::string &audioFilePath, bool stre
 
     DF3D_ASSERT(!utils::contains_key(m_lookup, handle));
 
-    alSourcef(source.audioSourceId, AL_PITCH, source.pitch);
-    alSourcef(source.audioSourceId, AL_GAIN, source.gain);
-
-    auto buffer = svc().resourceManager().getFactory().createAudioBuffer(audioFilePath, streamed);
-    if (buffer && buffer->isInitialized())
-        buffer->attachToSource(source.audioSourceId);
+    auto audioResource = svc().resourceManager().getResource<AudioResource>(audioFilePath);
+    if (audioResource)
+    {
+        source.gain = audioResource->gain;
+        alSourcef(source.audioSourceId, AL_ROLLOFF_FACTOR, audioResource->rolloff);
+        audioResource->attachToSource(source.audioSourceId);
+    }
     else
         DFLOG_WARN("Can not add a buffer to an audio source. Audio path: %s", audioFilePath.c_str());
 
-    source.buffer = buffer;
+    alSourcef(source.audioSourceId, AL_PITCH, source.pitch);
+    alSourcef(source.audioSourceId, AL_GAIN, source.gain);
+
+    source.audioResource = audioResource;
     source.looped = looped;
 
     printOpenALError();
 
     m_lookup[handle] = source;
 
-    if (streamed)
+    if (audioResource->isStreamed())
     {
         StreamingData streamingData;
-        streamingData.buffer = buffer;
+        streamingData.audioResource = audioResource;
         streamingData.looped = looped;
         streamingData.sourceId = source.audioSourceId;
 
@@ -327,7 +327,7 @@ void AudioWorld::destroy(AudioSourceHandle handle)
 
     if (found != m_lookup.end())
     {
-        if (found->second.buffer && found->second.buffer->isStreamed())
+        if (found->second.audioResource && found->second.audioResource->isStreamed())
         {
             m_streamingMutex.lock();
 
