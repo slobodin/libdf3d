@@ -115,7 +115,7 @@ void StaticMeshComponentProcessor::setMaterial(Entity e, const Material &materia
 
 void StaticMeshComponentProcessor::setMaterial(Entity e, size_t meshPartIdx, const Material &material)
 {
-    DF3D_FATAL("not implemented");
+    DF3D_ASSERT_MESS(false, "not implemented");
 }
 
 Material* StaticMeshComponentProcessor::getMaterial(Entity e, size_t meshPartIdx)

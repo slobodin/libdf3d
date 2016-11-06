@@ -2,8 +2,8 @@
 
 namespace tb { class TBRenderer; }
 
-namespace df3d { namespace gui_impl {
+namespace df3d {
 
-unique_ptr<tb::TBRenderer> CreateRenderer();
+unique_ptr<tb::TBRenderer> CreateTBRenderer();
 
-} }
+}

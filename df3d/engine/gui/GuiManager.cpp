@@ -32,7 +32,7 @@ void GuiManager::initialize(int contextWidth, int contextHeight)
     m_width = contextWidth;
     m_height = contextHeight;
 
-    m_renderer = gui_impl::CreateRenderer();
+    m_renderer = CreateTBRenderer();
 
     tb::tb_core_init(m_renderer.get(), m_width, m_height);
 

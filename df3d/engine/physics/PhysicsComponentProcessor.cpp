@@ -172,7 +172,7 @@ btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, co
     }
     break;
     default:
-        DF3D_FATAL("undefined physics shape!");
+        DF3D_ASSERT_MESS(false, "undefined physics shape!");
         break;
     }
 
@@ -184,7 +184,7 @@ void PhysicsComponentProcessor::initialize(Data &data, const ResourceID &meshRes
     btCollisionShape *colShape = createCollisionShape(data, meshResourceID, params);
     if (!colShape)
     {
-        DF3D_FATAL("Failed to create a collision shape.");
+        DF3D_ASSERT_MESS(false, "Failed to create a collision shape.");
         return;
     }
 

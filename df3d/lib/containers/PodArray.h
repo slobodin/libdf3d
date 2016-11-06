@@ -37,12 +37,12 @@ class PodArray final
         T *newData = nullptr;
         if (newCapacity > 0)
         {
-            newData = MEM_ALLOC(*m_allocator, T, newCapacity);
+            newData = MEMORY_ALLOC(*m_allocator, T, newCapacity);
             memcpy(newData, m_data, sizeof(T) * m_size);
         }
 
         // Get rid of old data.
-        MEM_FREE(*m_allocator, m_data);
+        MEMORY_FREE(*m_allocator, m_data);
 
         m_data = newData;
         m_capacity = newCapacity;
@@ -90,7 +90,7 @@ public:
 
     ~PodArray()
     {
-        MEM_FREE(*m_allocator, m_data);
+        MEMORY_FREE(*m_allocator, m_data);
     }
 
     T& operator[] (size_t i)

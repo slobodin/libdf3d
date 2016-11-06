@@ -17,7 +17,6 @@
 #include <df3d/lib/os/PlatformUtils.h>
 
 namespace df3d {
-namespace gui_impl {
 
 class TBFileImpl : public tb::TBFile
 {
@@ -44,7 +43,7 @@ public:
     {
         if (elemSize != 1)
         {
-            DF3D_FATAL("not implemented");
+            DF3D_ASSERT_MESS(false, "not implemented");
             return 0;
         }
 
@@ -497,12 +496,11 @@ public:
     }
 };
 
-unique_ptr<tb::TBRenderer> CreateRenderer()
+unique_ptr<tb::TBRenderer> CreateTBRenderer()
 {
     return make_unique<TBRendererImpl>();
 }
 
-}
 }
 
 namespace tb
@@ -514,7 +512,7 @@ TBImageLoader* TBImageLoader::CreateFromFile(const char *filename)
     if (!dataSource)
         return nullptr;
 
-    auto result = new df3d::gui_impl::TBImageLoaderImpl(*dataSource);
+    auto result = new df3d::TBImageLoaderImpl(*dataSource);
 
     df3d::svc().resourceManager().getFS().close(dataSource);
 
@@ -532,7 +530,7 @@ TBFile* TBFile::Open(const char *filename, TBFileMode mode)
         return nullptr;
 
     if (auto dataSource = df3d::svc().resourceManager().getFS().open(filename))
-        return new df3d::gui_impl::TBFileImpl(dataSource);
+        return new df3d::TBFileImpl(dataSource);
     return nullptr;
 }
 

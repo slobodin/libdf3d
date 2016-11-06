@@ -33,7 +33,7 @@ void ParticleSystemBuffers_Quad::cleanup()
 {
     if (m_vertexData)
     {
-        MEM_FREE(MemoryManager::allocDefault(), m_vertexData);
+        MEMORY_FREE(MemoryManager::allocDefault(), m_vertexData);
         m_vertexData = nullptr;
     }
 
@@ -61,7 +61,7 @@ void ParticleSystemBuffers_Quad::realloc(size_t nbParticles)
     DF3D_ASSERT_MESS(verticesCount < 0xFFFF, "Using 16-bit indices for particle system");
 
     // Allocate main memory storage copy (no glMapBuffer on ES2.0)
-    m_vertexData = MEM_ALLOC(MemoryManager::allocDefault(), Vertex_p_tx_c, verticesCount);
+    m_vertexData = MEMORY_ALLOC(MemoryManager::allocDefault(), Vertex_p_tx_c, verticesCount);
 
     positionAtStart();
 
