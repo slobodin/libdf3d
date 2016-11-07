@@ -24,7 +24,7 @@ namespace df3d {
         } \
     } while (0)
 
-#define DF3D_ASSERT_MESS(cond, msg) \
+#define DF3D_ASSERT_MESS(cond, msg, ...) \
     do { \
         if (!(cond)) { \
             DFLOG_CRITICAL("Assertion failed: %s. File: %s, line: %d", msg, __FILE__, __LINE__); \
@@ -39,6 +39,7 @@ namespace df3d {
 #define DF3D_VERIFY(cond) do { (void)(cond); } while(0)
 #define DF3D_ASSERT(cond) ((void) 0)
 #define DF3D_ASSERT_MESS(cond, msg) ((void) 0)
+#define DF3D_ASSERT_FALSE(cond, msg) ((void) 0)
 
 #endif
 
