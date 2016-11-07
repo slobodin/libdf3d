@@ -41,9 +41,6 @@ public:
     void shutdown();
     void poll();
 
-    void suspend();
-    void resume();
-
     void setDefaultFileSystem();
     void setFileSystem(unique_ptr<ResourceFileSystem> fs);
 
