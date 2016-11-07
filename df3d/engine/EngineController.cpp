@@ -116,7 +116,6 @@ void EngineController::suspend()
     DF3D_ASSERT_MESS(m_initialized, "EngineController must be initialized");
     if (!m_suspended)
     {
-        m_resourceManager->suspend();
         m_audioManager->suspend();
 
         m_suspended = true;
@@ -128,7 +127,6 @@ void EngineController::resume()
     DF3D_ASSERT_MESS(m_initialized, "EngineController must be initialized");
     if (m_suspended)
     {
-        m_resourceManager->resume();
         m_audioManager->resume();
         m_suspended = false;
     }
