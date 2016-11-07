@@ -60,7 +60,7 @@ World::World()
     m_staticMeshes(new StaticMeshComponentProcessor(*this)),
     m_vfx(new ParticleSystemComponentProcessor(*this)),
     m_physics(new PhysicsComponentProcessor(*this)),
-    m_sceneGraph(new SceneGraphComponentProcessor()),
+    m_sceneGraph(new SceneGraphComponentProcessor(*this)),
     m_sprite2D(new Sprite2DComponentProcessor(*this)),
     m_tags(new TagComponentProcessor()),
     m_camera(new Camera(glm::vec3(), Camera::DEFAULT_FOV, Camera::DEFAULT_NEAR_Z, Camera::DEFAULT_FAR_Z)),

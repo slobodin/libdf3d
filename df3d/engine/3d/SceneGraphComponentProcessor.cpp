@@ -2,7 +2,9 @@
 
 #include <LinearMath/btTransform.h>
 #include <df3d/game/ComponentDataHolder.h>
+#include <df3d/game/World.h>
 #include <df3d/engine/physics/PhysicsHelpers.h>
+#include <df3d/engine/physics/PhysicsComponentProcessor.h>
 #include <df3d/lib/math/MathUtils.h>
 
 namespace df3d {
@@ -50,7 +52,8 @@ void SceneGraphComponentProcessor::updateChildren(Data &component)
         updateWorldTransformation(m_data.getData(child));
 }
 
-SceneGraphComponentProcessor::SceneGraphComponentProcessor()
+SceneGraphComponentProcessor::SceneGraphComponentProcessor(World &world)
+    : m_world(world)
 {
 
 }
@@ -68,6 +71,8 @@ void SceneGraphComponentProcessor::setPosition(Entity e, const glm::vec3 &newPos
     compData.localTransformDirty = true;
 
     updateWorldTransformation(compData);
+    if (m_world.physics().has(e))
+        m_world.physics().teleportPosition(e, newPosition);
 }
 
 void SceneGraphComponentProcessor::setScale(Entity e, const glm::vec3 &newScale)
@@ -93,6 +98,9 @@ void SceneGraphComponentProcessor::setOrientation(Entity e, const glm::quat &new
     compData.localTransformDirty = true;
 
     updateWorldTransformation(compData);
+
+    if (m_world.physics().has(e))
+        m_world.physics().teleportOrientation(e, newOrientation);
 }
 
 void SceneGraphComponentProcessor::setOrientation(Entity e, const glm::vec3 &eulerAngles)
@@ -169,6 +177,9 @@ void SceneGraphComponentProcessor::rotateAxis(Entity e, float angle, const glm::
     compData.localTransformDirty = true;
 
     updateWorldTransformation(compData);
+
+    if (m_world.physics().has(e))
+        m_world.physics().teleportOrientation(e, q);
 }
 
 void SceneGraphComponentProcessor::setName(Entity e, const std::string &name)

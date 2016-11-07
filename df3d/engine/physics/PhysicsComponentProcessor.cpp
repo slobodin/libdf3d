@@ -338,7 +338,7 @@ void PhysicsComponentProcessor::teleportPosition(Entity e, const glm::vec3 &pos)
 
     body->setWorldTransform(tr);
 
-    m_dynamicsWorld->synchronizeSingleMotionState(body);
+    //m_dynamicsWorld->synchronizeSingleMotionState(body);
 }
 
 void PhysicsComponentProcessor::teleportOrientation(Entity e, const glm::quat &orient)
@@ -349,7 +349,7 @@ void PhysicsComponentProcessor::teleportOrientation(Entity e, const glm::quat &o
 
     body->setWorldTransform(tr);
 
-    m_dynamicsWorld->synchronizeSingleMotionState(body);
+    //m_dynamicsWorld->synchronizeSingleMotionState(body);
 }
 
 void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, const ResourceID &meshResource)

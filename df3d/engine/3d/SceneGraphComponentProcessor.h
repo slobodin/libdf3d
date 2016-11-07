@@ -8,6 +8,8 @@ class btTransform;
 
 namespace df3d {
 
+class World;
+
 // TODO: move to world types.
 struct Transform
 {
@@ -31,6 +33,7 @@ class SceneGraphComponentProcessor : public EntityComponentProcessor
     };
 
     ComponentDataHolder<Data> m_data;
+    World &m_world;
 
     void updateWorldTransformation(Data &component);
     void updateLocalTransform(Data &component);
@@ -39,7 +42,7 @@ class SceneGraphComponentProcessor : public EntityComponentProcessor
     void update() override { }
 
 public:
-    SceneGraphComponentProcessor();
+    SceneGraphComponentProcessor(World &world);
     ~SceneGraphComponentProcessor();
 
     //! Sets new local position for an entity.

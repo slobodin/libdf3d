@@ -32,6 +32,7 @@ public:
     AudioBuffer(const PCMData &pcmData)
     {
         initCommon(false);
+
         alBufferData(m_alBuffers[0], pcmData.format, pcmData.data.data(), pcmData.data.size(), pcmData.sampleRate);
     }
 

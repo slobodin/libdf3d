@@ -34,7 +34,6 @@ public:
     ~AudioStream_Ogg()
     {
         ov_clear(m_oggVorbisFile.get());
-        svc().resourceManager().getFS().close(m_source);
     }
 
     bool streamData(ALuint alBuffer, int32_t dataSize, char *buffer, bool looped) override
@@ -191,10 +190,7 @@ unique_ptr<IAudioStream> AudioLoader_ogg_streamed(const char *path, Allocator &a
 
     auto oggVorbisFile = CreateVorbisFile(source);
     if (!oggVorbisFile)
-    {
-        svc().resourceManager().getFS().close(source);
         return nullptr;
-    }
 
     return make_unique<AudioStream_Ogg>(source, std::move(oggVorbisFile));
 }

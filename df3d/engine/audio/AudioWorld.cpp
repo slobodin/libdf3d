@@ -269,6 +269,14 @@ AudioWorld::State AudioWorld::getState(AudioSourceHandle handle) const
     return GetAudioState(audioSource->audioSourceId);
 }
 
+ResourceID AudioWorld::getResourceId(AudioSourceHandle handle) const
+{
+    auto audioSource = lookupSource(handle);
+    if (!audioSource)
+        return{};
+    return audioSource->resourceId;
+}
+
 AudioSourceHandle AudioWorld::create(const std::string &audioFilePath, bool looped)
 {
     AudioSource source;
@@ -299,12 +307,13 @@ AudioSourceHandle AudioWorld::create(const std::string &audioFilePath, bool loop
 
     source.audioResource = audioResource;
     source.looped = looped;
+    source.resourceId = audioFilePath;
 
     printOpenALError();
 
     m_lookup[handle] = source;
 
-    if (audioResource->isStreamed())
+    if (audioResource && audioResource->isStreamed())
     {
         StreamingData streamingData;
         streamingData.audioResource = audioResource;
