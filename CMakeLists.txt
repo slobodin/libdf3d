@@ -36,7 +36,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/3d/Light.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/3d/SceneGraphComponentProcessor.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/3d/StaticMeshComponentProcessor.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/audio/AudioBuffer.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/audio/AudioWorld.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/audio/AudioManager.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/audio/OpenALCommon.h
@@ -150,7 +149,6 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/3d/Light.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/3d/SceneGraphComponentProcessor.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/3d/StaticMeshComponentProcessor.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/engine/audio/AudioBuffer.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/audio/AudioWorld.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/audio/AudioManager.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/audio/OpenALCommon.cpp
