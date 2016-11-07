@@ -26,6 +26,8 @@ void EngineController::initialize(EngineInitParams params)
 
     DFLOG_MESS("Initializing df3d engine, width %d, height %d", params.windowWidth, params.windowHeight);
 
+    m_initParams = params;
+
 #ifdef DF3D_WINDOWS
     platform_impl::CrashHandler::setup();
 #endif

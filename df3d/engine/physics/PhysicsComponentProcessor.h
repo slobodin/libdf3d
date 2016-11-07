@@ -24,6 +24,18 @@ class World;
 struct PhysicsComponentCreationParams;
 class BulletDebugDraw;
 
+class PhysicsConfig
+{
+    glm::vec3 m_gravity;
+    std::unordered_map<std::string, std::pair<short, short>> m_collisionGroups;
+
+public:
+    PhysicsConfig(const std::string &physicsConfigPath);
+    const glm::vec3& getGravity() const { return m_gravity; }
+
+    const std::pair<short, short>* getGroupMask(const std::string &groupId) const;
+};
+
 class PhysicsComponentProcessor : public EntityComponentProcessor
 {
     World &m_df3dWorld;
@@ -45,7 +57,9 @@ class PhysicsComponentProcessor : public EntityComponentProcessor
     };
 
     ComponentDataHolder<Data> m_data;
+    PhysicsConfig m_config;
 
+    void addRigidBodyToWorld(btRigidBody *body, const std::string &groupId);
     btCollisionShape* createCollisionShape(Data &data, const ResourceID &meshResourceID, const PhysicsComponentCreationParams &params);
     void initialize(Data &data, const ResourceID &meshResourceID, const PhysicsComponentCreationParams &params);
     void update() override;
@@ -54,6 +68,8 @@ class PhysicsComponentProcessor : public EntityComponentProcessor
 public:
     PhysicsComponentProcessor(World &w);
     ~PhysicsComponentProcessor();
+
+    const PhysicsConfig& getConfig() const { return m_config; }
 
     btRigidBody* getBody(Entity e);
     btRigidBody* createBody(const btRigidBody::btRigidBodyConstructionInfo &info);
@@ -66,7 +82,7 @@ public:
 
     void add(Entity e, const PhysicsComponentCreationParams &params, const ResourceID &meshResource);
     // NOTE: body should not be added to the Physics World as it will be added via this processor.
-    void add(Entity e, btRigidBody *body, short group = -1, short mask = -1);
+    void add(Entity e, btRigidBody *body, const std::string &groupId);
 
     void remove(Entity e) override;
     bool has(Entity e) override;

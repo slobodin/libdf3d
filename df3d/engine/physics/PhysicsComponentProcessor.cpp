@@ -9,6 +9,7 @@
 #include "PhysicsHelpers.h"
 #include <df3d/lib/math/AABB.h>
 #include <df3d/lib/math/BoundingSphere.h>
+#include <df3d/lib/JsonUtils.h>
 #include <df3d/engine/3d/SceneGraphComponentProcessor.h>
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/EngineCVars.h>
@@ -102,6 +103,70 @@ public:
         m_world.sceneGraph().setWorldTransform(m_holder, worldTrans);
     }
 };
+
+PhysicsConfig::PhysicsConfig(const std::string &physicsConfigPath)
+{
+    auto jsonVal = JsonUtils::fromFile(physicsConfigPath.c_str());
+    if (!jsonVal.isNull())
+    {
+        jsonVal["gravity"] >> m_gravity;
+
+        const auto &jsonCollisionGroups = jsonVal["collisionGroups"];
+        short currGroup = 1;
+        for (auto it = jsonCollisionGroups.begin(); it != jsonCollisionGroups.end(); ++it)
+        {
+            auto groupid = it.key().asString();
+            DF3D_ASSERT(!utils::contains_key(m_collisionGroups, groupid));
+
+            m_collisionGroups[groupid].first = currGroup;
+            currGroup <<= 1;
+        }
+
+        DF3D_ASSERT(m_collisionGroups.size() < 16);
+
+        for (auto it = jsonCollisionGroups.begin(); it != jsonCollisionGroups.end(); ++it)
+        {
+            auto groupid = it.key().asString();
+            short mask = 0;
+            for (const auto &collidesWith : *it)
+            {
+                auto found = m_collisionGroups.find(collidesWith.asString());
+                if (found != m_collisionGroups.end())
+                {
+                    mask |= found->second.first;
+                }
+                else
+                    DF3D_ASSERT(false);
+            }
+
+            m_collisionGroups[groupid].second = mask;
+        }
+    }
+    else
+        DF3D_ASSERT_MESS(false, "Failed to find physics config");
+}
+
+const std::pair<short, short>* PhysicsConfig::getGroupMask(const std::string &groupId) const
+{
+    auto found = m_collisionGroups.find(groupId);
+    if (found != m_collisionGroups.end())
+        return &found->second;
+    return nullptr;
+}
+
+void PhysicsComponentProcessor::addRigidBodyToWorld(btRigidBody *body, const std::string &groupId)
+{
+    if (auto groupMask = m_config.getGroupMask(groupId))
+    {
+        m_dynamicsWorld->addRigidBody(body, groupMask->first, groupMask->second);
+    }
+    else
+    {
+        // Fallback to bullet default collision filtering.
+        DF3D_ASSERT(false);
+        m_dynamicsWorld->addRigidBody(body);
+    }
+}
 
 btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, const ResourceID &meshResourceID, const PhysicsComponentCreationParams &params)
 {
@@ -204,10 +269,7 @@ void PhysicsComponentProcessor::initialize(Data &data, const ResourceID &meshRes
 
     data.body = createBody(rbInfo);
 
-    if (params.group != -1 && params.mask != -1)
-        m_dynamicsWorld->addRigidBody(data.body, params.group, params.mask);
-    else
-        m_dynamicsWorld->addRigidBody(data.body);
+    addRigidBodyToWorld(data.body, params.groupId);
 
     if (params.disableDeactivation)
         data.body->setActivationState(DISABLE_DEACTIVATION);
@@ -242,7 +304,8 @@ void PhysicsComponentProcessor::draw(RenderQueue *ops)
 
 PhysicsComponentProcessor::PhysicsComponentProcessor(World &w)
     : m_df3dWorld(w),
-    m_allocator(MemoryManager::allocDefault())
+    m_allocator(MemoryManager::allocDefault()),
+    m_config(svc().getInitParams().physicsConfigPath)
 {
     m_collisionConfiguration = MAKE_NEW(m_allocator, btDefaultCollisionConfiguration)();
     m_dispatcher = MAKE_NEW(m_allocator, btCollisionDispatcher)(m_collisionConfiguration);
@@ -253,7 +316,7 @@ PhysicsComponentProcessor::PhysicsComponentProcessor(World &w)
          m_solver,
          m_collisionConfiguration);
 
-    m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
+    m_dynamicsWorld->setGravity(PhysicsHelpers::glmTobt(m_config.getGravity()));
 
 #ifdef _DEBUG
     m_debugDraw = MAKE_NEW(m_allocator, BulletDebugDraw)();
@@ -366,7 +429,7 @@ void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationPara
     m_data.add(e, data);
 }
 
-void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, short mask)
+void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, const std::string &groupId)
 {
     DF3D_ASSERT(body);
 
@@ -380,10 +443,7 @@ void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, sh
     data.holder = e;
     data.body = body;
 
-    if (group != -1 && mask != -1)
-        m_dynamicsWorld->addRigidBody(body, group, mask);
-    else
-        m_dynamicsWorld->addRigidBody(body);
+    addRigidBodyToWorld(body, groupId);
 
     data.body->setUserIndex(*reinterpret_cast<int*>(&e));
 

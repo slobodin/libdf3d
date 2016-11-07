@@ -16,15 +16,13 @@ enum class CollisionShapeType
 
 struct PhysicsComponentCreationParams
 {
+    std::string groupId;
     CollisionShapeType shape = CollisionShapeType::UNDEFINED;
-
     float mass = 1.0f;
     float friction = 0.5f;
     float restitution = 0.0f;
     float linearDamping = 0.0f;
     float angularDamping = 0.0f;
-    short group = -1;
-    short mask = -1;
     bool disableDeactivation = false;
     bool noContactResponse = false;
 

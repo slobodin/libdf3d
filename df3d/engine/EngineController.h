@@ -21,6 +21,7 @@ class EngineController : NonCopyable
     friend bool EngineInit(EngineInitParams params);
     friend void EngineShutdown();
 
+    EngineInitParams m_initParams;
     unique_ptr<RenderManager> m_renderManager;
     unique_ptr<ResourceManager> m_resourceManager;
     unique_ptr<GuiManager> m_guiManager;
@@ -50,6 +51,8 @@ public:
     bool isInitialized() const { return m_initialized; }
 
     glm::vec2 getScreenSize() const;
+
+    const EngineInitParams& getInitParams() const { return m_initParams; }
 
     RenderManager& renderManager() { return *m_renderManager; }
     ResourceManager& resourceManager() { return *m_resourceManager; }

@@ -15,6 +15,8 @@ struct EngineInitParams
     // More rendering params
     // Paths to the resources, etc
     // windowed, fullscreen mode
+
+    std::string physicsConfigPath;
 };
 
 }
