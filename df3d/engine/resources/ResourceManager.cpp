@@ -188,6 +188,9 @@ void ResourceManager::setFileSystem(unique_ptr<ResourceFileSystem> fs)
 
 void ResourceManager::loadPackageAsync(const ResourcePackage &resources)
 {
+    if (resources.empty())
+        return;
+
     if (isLoading())
     {
         DF3D_ASSERT_MESS(false, "Can not load packages simultaneously!");
@@ -253,6 +256,8 @@ void ResourceManager::loadPackageAsync(const ResourcePackage &resources)
 
 void ResourceManager::unloadPackage(const ResourcePackage &resources)
 {
+    if (resources.empty())
+        return;
     flush();
 
     std::vector<ResourceID> resourcesToUnLoad;
