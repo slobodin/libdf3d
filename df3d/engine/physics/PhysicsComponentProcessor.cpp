@@ -400,6 +400,7 @@ void PhysicsComponentProcessor::teleportPosition(Entity e, const glm::vec3 &pos)
     tr.setOrigin(PhysicsHelpers::glmTobt(pos));
 
     body->setWorldTransform(tr);
+    body->setInterpolationWorldTransform(tr);
 
     //m_dynamicsWorld->synchronizeSingleMotionState(body);
 }
@@ -411,6 +412,7 @@ void PhysicsComponentProcessor::teleportOrientation(Entity e, const glm::quat &o
     tr.setRotation(btQuaternion(orient.x, orient.y, orient.z, orient.w));
 
     body->setWorldTransform(tr);
+    body->setInterpolationWorldTransform(tr);
 
     //m_dynamicsWorld->synchronizeSingleMotionState(body);
 }
