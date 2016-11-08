@@ -120,6 +120,8 @@ Entity World::spawnFromJson(const Json::Value &entityResource)
 
 bool World::alive(Entity e)
 {
+    if (!e.isValid())
+        return false;
     return m_entitiesMgr.isValid(e.getID());
 }
 
