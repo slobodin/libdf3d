@@ -25,7 +25,7 @@ static void DeleteHelper(Alloc &a, T *obj)
 }
 
 #define MAKE_NEW(allocator, T) new ((allocator).alloc(sizeof(T), alignof(T))) T
-#define MAKE_DELETE(allocator, obj) DeleteHelper(allocator, obj)
+#define MAKE_DELETE(allocator, obj) df3d::DeleteHelper(allocator, obj)
 
 #define MEMORY_ALLOC(allocator, T, count) (T*)((allocator).alloc(sizeof(T) * count, alignof(T)))
 #define MEMORY_FREE(allocator, mem) (allocator).dealloc(mem)

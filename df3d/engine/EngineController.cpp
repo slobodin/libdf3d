@@ -52,9 +52,6 @@ void EngineController::initialize(EngineInitParams params)
 
     }
 
-    // Create a blank default world.
-    replaceWorld();
-
     m_initialized = true;
     DFLOG_MESS("Engine initialized");
 
