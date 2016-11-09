@@ -14,6 +14,28 @@
 
 namespace df3d {
 
+static df3d::TextureResourceData* LoadTextureDataFromFile(const std::string &path, Allocator &allocator, bool forceRgba = false)
+{
+    auto &fs = svc().resourceManager().getFS();
+
+    auto textureSource = fs.open(path.c_str());
+    if (!textureSource)
+        return nullptr;
+
+    df3d::TextureResourceData *result = nullptr;
+    const auto ext = FileSystemHelpers::getFileExtension(path);
+    if (ext == ".webp")
+        result = TextureLoader_webp(*textureSource, allocator, forceRgba);
+    else if (ext == ".pvr")
+        result = TextureLoader_pvrtc(*textureSource, allocator);
+    else
+        result = TextureLoader_stbi(*textureSource, allocator, forceRgba);
+
+    fs.close(textureSource);
+
+    return result;
+}
+
 static uint32_t GetTextureFlags(const Json::Value &root)
 {
     uint32_t retRes = 0;
@@ -66,22 +88,7 @@ bool TextureHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &all
 
     m_flags = GetTextureFlags(root);
 
-    auto path = root["path"].asString();
-    auto &fs = svc().resourceManager().getFS();
-
-    auto textureSource = fs.open(path.c_str());
-    if (!textureSource)
-        return false;
-
-    const auto ext = FileSystemHelpers::getFileExtension(path);
-    if (ext == ".webp")
-        m_resourceData = TextureLoader_webp(*textureSource, allocator, false);
-    else if (ext == ".pvr")
-        m_resourceData = TextureLoader_pvrtc(*textureSource, allocator);
-    else
-        m_resourceData = TextureLoader_stbi(*textureSource, allocator, false);
-
-    fs.close(textureSource);
+    m_resourceData = LoadTextureDataFromFile(root["path"].asString(), allocator);
 
     return m_resourceData != nullptr;
 }
@@ -120,7 +127,14 @@ void TextureHolder::destroyResource(Allocator &allocator)
 
 TextureResourceData* LoadTexture_Workaround(ResourceDataSource &dataSource, Allocator &alloc)
 {
-    return TextureLoader_stbi(dataSource, alloc, true);
+    Json::Value root = JsonUtils::fromFile(dataSource);
+    if (root.isNull())
+        return nullptr;
+
+    if (!root.isMember("path"))
+        return nullptr;
+
+    return LoadTextureDataFromFile(root["path"].asString(), alloc, true);
 }
 
 }

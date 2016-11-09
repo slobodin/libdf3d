@@ -12,7 +12,6 @@ public:
     FileDataSource(unique_ptr<PlatformFile> file)
         : m_file(std::move(file))
     {
-
     }
 
     ~FileDataSource()
@@ -97,18 +96,18 @@ public:
     }
 };
 
-unique_ptr<ResourceDataSource> CreateFileDataSource(const char *path)
+ResourceDataSource* CreateFileDataSource(const char *path, Allocator &allocator)
 {
     auto platformFile = PlatformOpenFile(path);
     if (!platformFile)
         return nullptr;
 
-    return make_unique<FileDataSource>(std::move(platformFile));
+    return MAKE_NEW(allocator, FileDataSource)(std::move(platformFile));
 }
 
-unique_ptr<ResourceDataSource> CreateMemoryDataSource(const uint8_t *buffer, int32_t size)
+ResourceDataSource* CreateMemoryDataSource(const uint8_t *buffer, int32_t size, Allocator &allocator)
 {
-    return make_unique<MemoryDataSource>(buffer, size);
+    return MAKE_NEW(allocator, MemoryDataSource)(buffer, size);
 }
 
 }

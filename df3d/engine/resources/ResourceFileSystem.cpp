@@ -1,13 +1,15 @@
 #include "ResourceFileSystem.h"
 
 #include "ResourceDataSource.h"
+#include <df3d/engine/EngineController.h>
+#include <df3d/lib/Utils.h>
 
 namespace df3d {
 
 class DefaultFileSystem : public ResourceFileSystem
 {
     std::recursive_mutex m_lock;
-    std::list<unique_ptr<ResourceDataSource>> m_sources;
+    std::unordered_set<ResourceDataSource*> m_sources;
 
 public:
     DefaultFileSystem() = default;
@@ -20,25 +22,27 @@ public:
     {
         std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-        auto dataSource = CreateFileDataSource(path);
+        auto dataSource = CreateFileDataSource(path, MemoryManager::allocDefault());
         if (!dataSource)
             return nullptr;
 
-        m_sources.push_back(std::move(dataSource));
+        DF3D_ASSERT(!utils::contains(m_sources, dataSource));
+        m_sources.insert(dataSource);
 
-        return m_sources.back().get();
+        return dataSource;
     }
 
     void close(ResourceDataSource *dataSource)
     {
         std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-        auto found = std::find_if(m_sources.begin(), m_sources.end(), [dataSource](const unique_ptr<ResourceDataSource> &other) {
-            return dataSource == other.get();
-        });
+        auto found = m_sources.find(dataSource);
 
         if (found != m_sources.end())
+        {
+            MAKE_DELETE(MemoryManager::allocDefault(), *found);
             m_sources.erase(found);
+        }
         else
             DFLOG_WARN("Failed to close resource data source");
     }

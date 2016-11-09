@@ -24,7 +24,7 @@ public:
     }
 };
 
-unique_ptr<ResourceDataSource> CreateFileDataSource(const char *path);
-unique_ptr<ResourceDataSource> CreateMemoryDataSource(const uint8_t *buffer, int32_t size);
+ResourceDataSource* CreateFileDataSource(const char *path, Allocator &allocator);
+ResourceDataSource* CreateMemoryDataSource(const uint8_t *buffer, int32_t size, Allocator &allocator);
 
 }

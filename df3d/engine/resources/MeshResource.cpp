@@ -15,23 +15,22 @@
 
 namespace df3d {
 
-static MeshResourceData *LoadMeshDataFromFile(const ResourceID &path, Allocator &allocator)
+static MeshResourceData *LoadMeshDataFromFile(const std::string &path, Allocator &allocator)
 {
     const auto extension = FileSystemHelpers::getFileExtension(path);
-
-    auto meshSource = svc().resourceManager().getFS().open(path.c_str());
-    if (!meshSource)
+    auto meshDataSource = svc().resourceManager().getFS().open(path.c_str());
+    if (!meshDataSource)
         return nullptr;
 
     MeshResourceData *result;
     if (extension == ".obj")
-        result = MeshLoader_obj(*meshSource, allocator);
+        result = MeshLoader_obj(*meshDataSource, allocator);
     else if (extension == ".dfmesh")
-        result = MeshLoader_dfmesh(*meshSource, allocator);
+        result = MeshLoader_dfmesh(*meshDataSource, allocator);
     else
         DFLOG_WARN(false, "Unsupported mesh file format!");
 
-    svc().resourceManager().getFS().close(meshSource);
+    svc().resourceManager().getFS().close(meshDataSource);
 
     return result;
 }
