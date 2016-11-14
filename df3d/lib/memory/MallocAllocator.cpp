@@ -20,7 +20,7 @@ void* MallocAllocator::alloc(size_t size, size_t alignment)
 
     //TODO
     ++m_totalAllocated;
-    return malloc(size);
+    return _aligned_malloc(size, alignment);
 }
 
 void MallocAllocator::dealloc(void *mem)
@@ -33,7 +33,7 @@ void MallocAllocator::dealloc(void *mem)
     --m_totalAllocated;
     DF3D_ASSERT(m_totalAllocated >= 0);
 
-    free(mem);
+    _aligned_free(mem);
 }
 
 size_t MallocAllocator::bytesAllocated()
