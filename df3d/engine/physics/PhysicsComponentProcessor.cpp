@@ -104,6 +104,37 @@ public:
     }
 };
 
+ATTRIBUTE_ALIGNED16(class) PhysicsComponentMotionStateKinematic : public btMotionState
+{
+    World &m_world;
+    Entity m_holder;
+
+public:
+    BT_DECLARE_ALIGNED_ALLOCATOR();
+
+    PhysicsComponentMotionStateKinematic(Entity e, World &w)
+        : m_world(w),
+        m_holder(e)
+    {
+    }
+
+    ~PhysicsComponentMotionStateKinematic()
+    {
+    }
+
+    void getWorldTransform(btTransform &worldTrans) const
+    {
+        auto orientation = m_world.sceneGraph().getWorldOrientation(m_holder);
+        auto position = m_world.sceneGraph().getWorldPosition(m_holder);
+        worldTrans = btTransform(PhysicsHelpers::glmTobt(orientation), PhysicsHelpers::glmTobt(position));
+    }
+
+    void setWorldTransform(const btTransform &worldTrans)
+    {
+        DF3D_ASSERT(false);
+    }
+};
+
 PhysicsConfig::PhysicsConfig(const std::string &physicsConfigPath)
 {
     auto jsonVal = JsonUtils::fromFile(physicsConfigPath.c_str());
@@ -158,14 +189,19 @@ void PhysicsComponentProcessor::addRigidBodyToWorld(btRigidBody *body, const std
 {
     if (auto groupMask = m_config.getGroupMask(groupId))
     {
-        m_dynamicsWorld->addRigidBody(body, groupMask->first, groupMask->second);
+        addRigidBodyToWorld(body, groupMask->first, groupMask->second);
     }
     else
     {
-        // Fallback to bullet default collision filtering.
+        // No collision filtering.
         DF3D_ASSERT(false);
-        m_dynamicsWorld->addRigidBody(body);
+        addRigidBodyToWorld(body, 0, 0);
     }
+}
+
+void PhysicsComponentProcessor::addRigidBodyToWorld(btRigidBody *body, short group, short mask)
+{
+    m_dynamicsWorld->addRigidBody(body, group, mask);
 }
 
 btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, const ResourceID &meshResourceID, const PhysicsComponentCreationParams &params)
@@ -419,11 +455,7 @@ void PhysicsComponentProcessor::teleportOrientation(Entity e, const glm::quat &o
 
 void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, const ResourceID &meshResource)
 {
-    if (m_data.contains(e))
-    {
-        DFLOG_WARN("An entity already has an physics component");
-        return;
-    }
+    DF3D_ASSERT_MESS(!m_data.contains(e), "An entity already has a physics component");
 
     Data data;
     data.holder = e;
@@ -432,6 +464,14 @@ void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationPara
 }
 
 void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, const std::string &groupId)
+{
+    if (auto groupMask = m_config.getGroupMask(groupId))
+        add(e, body, groupMask->first, groupMask->second);
+    else
+        DF3D_ASSERT(false);
+}
+
+void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, short mask)
 {
     DF3D_ASSERT(body);
 
@@ -445,7 +485,7 @@ void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, const std::stri
     data.holder = e;
     data.body = body;
 
-    addRigidBodyToWorld(body, groupId);
+    addRigidBodyToWorld(body, group, mask);
 
     data.body->setUserIndex(*reinterpret_cast<int*>(&e));
 
@@ -470,6 +510,11 @@ btDynamicsWorld* PhysicsComponentProcessor::getPhysicsWorld()
 btMotionState* PhysicsComponentProcessor::createMotionState(Entity e)
 {
     return MAKE_NEW(m_allocator, PhysicsComponentMotionState)(e, m_df3dWorld);
+}
+
+btMotionState* PhysicsComponentProcessor::createKinematicMotionState(Entity e)
+{
+    return MAKE_NEW(m_allocator, PhysicsComponentMotionStateKinematic)(e, m_df3dWorld);
 }
 
 }
