@@ -60,6 +60,7 @@ class PhysicsComponentProcessor : public EntityComponentProcessor
     PhysicsConfig m_config;
 
     void addRigidBodyToWorld(btRigidBody *body, const std::string &groupId);
+    void addRigidBodyToWorld(btRigidBody *body, short group, short mask);
     btCollisionShape* createCollisionShape(Data &data, const ResourceID &meshResourceID, const PhysicsComponentCreationParams &params);
     void initialize(Data &data, const ResourceID &meshResourceID, const PhysicsComponentCreationParams &params);
     void update() override;
@@ -83,12 +84,14 @@ public:
     void add(Entity e, const PhysicsComponentCreationParams &params, const ResourceID &meshResource);
     // NOTE: body should not be added to the Physics World as it will be added via this processor.
     void add(Entity e, btRigidBody *body, const std::string &groupId);
+    void add(Entity e, btRigidBody *body, short group, short mask);
 
     void remove(Entity e) override;
     bool has(Entity e) override;
 
     btDynamicsWorld* getPhysicsWorld();
     btMotionState* createMotionState(Entity e);
+    btMotionState* createKinematicMotionState(Entity e);
 };
 
 }

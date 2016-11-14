@@ -165,11 +165,7 @@ void ParticleSystemComponentProcessor::addWithResource(Entity e, const ResourceI
 
 void ParticleSystemComponentProcessor::addWithSpkSystem(Entity e, SPK::Ref<SPK::System> system)
 {
-    if (m_data.contains(e))
-    {
-        DFLOG_WARN("An entity already has a particle system component");
-        return;
-    }
+    DF3D_ASSERT_MESS(!m_data.contains(e), "An entity already has a particle system component");
 
     Data data;
     data.system = system;

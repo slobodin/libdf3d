@@ -179,11 +179,7 @@ bool StaticMeshComponentProcessor::isVisible(Entity e)
 
 void StaticMeshComponentProcessor::add(Entity e, const ResourceID &meshResource)
 {
-    if (m_data.contains(e))
-    {
-        DFLOG_WARN("An entity already has a static mesh component");
-        return;
-    }
+    DF3D_ASSERT_MESS(!m_data.contains(e), "An entity already has a static mesh component");
 
     auto &rmgr = svc().resourceManager();
     if (auto mesh = rmgr.getResource<MeshResource>(meshResource))

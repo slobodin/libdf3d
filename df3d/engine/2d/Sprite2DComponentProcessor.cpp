@@ -221,11 +221,7 @@ void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diff
 
 void Sprite2DComponentProcessor::add(Entity e, const ResourceID &textureResource)
 {
-    if (m_data.contains(e))
-    {
-        DFLOG_WARN("An entity already has a sprite2d component");
-        return;
-    }
+    DF3D_ASSERT_MESS(!m_data.contains(e), "An entity already has sprite2d component");
 
     Data data;
 

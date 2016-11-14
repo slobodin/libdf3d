@@ -112,7 +112,7 @@ void SceneGraphComponentProcessor::setWorldTransform(Entity e, const btTransform
 {
     auto &compData = m_data.getData(e);
 
-    DF3D_ASSERT_MESS(!compData.parent.isValid(), "physics is not supported for entities without parent");
+    DF3D_ASSERT_MESS(!compData.parent.isValid(), "physics is not supported for entities with parent");
 
     glm::mat4 ATTRIBUTE_ALIGNED16(df3dWorldTransf);
     worldTrans.getOpenGLMatrix(glm::value_ptr(df3dWorldTransf));
@@ -362,11 +362,7 @@ const std::vector<Entity>& SceneGraphComponentProcessor::getChildren(Entity e) c
 
 void SceneGraphComponentProcessor::add(Entity e)
 {
-    if (m_data.contains(e))
-    {
-        DFLOG_WARN("An entity already has a scene graph component");
-        return;
-    }
+    DF3D_ASSERT_MESS(!m_data.contains(e), "An entity already has a scene graph component");
 
     Data data;
     data.holder = e;
