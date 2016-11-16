@@ -184,6 +184,7 @@ void MaterialLibResource::parse(const Json::Value &root)
 
         material.addTechnique(*technique);
         material.setCurrentTechnique(technique->name);
+        material.setName(id);
 
         m_materials[id] = material;
     }

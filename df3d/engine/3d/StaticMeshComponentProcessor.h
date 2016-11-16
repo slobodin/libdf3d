@@ -46,6 +46,7 @@ public:
     void setMaterial(Entity e, const Material &material);
     void setMaterial(Entity e, size_t meshPartIdx, const Material &material);
     Material* getMaterial(Entity e, size_t meshPartIdx);
+    size_t getMeshPartsCount(Entity e);
 
     AABB getAABB(Entity e);
     BoundingSphere getBoundingSphere(Entity e);

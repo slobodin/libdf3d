@@ -65,6 +65,7 @@ struct Technique
 
 class Material
 {
+    std::string m_name;
     std::vector<Technique> m_techniques;
     int m_currentTechIdx = -1;
 
@@ -77,6 +78,9 @@ public:
     Technique* getCurrentTechnique();
     const Technique* getCurrentTechnique() const;
     void setCurrentTechnique(const std::string &name);
+
+    void setName(const std::string &name) { m_name = name; }
+    const std::string& getName() const { return m_name; }
 };
 
 // FIXME: temp workaround

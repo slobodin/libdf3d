@@ -115,7 +115,11 @@ void StaticMeshComponentProcessor::setMaterial(Entity e, const Material &materia
 
 void StaticMeshComponentProcessor::setMaterial(Entity e, size_t meshPartIdx, const Material &material)
 {
-    DF3D_ASSERT_MESS(false, "not implemented");
+    auto &compData = m_data.getData(e);
+    if (meshPartIdx < compData.materials.size())
+        compData.materials[meshPartIdx] = material;
+    else
+        DF3D_ASSERT(false);
 }
 
 Material* StaticMeshComponentProcessor::getMaterial(Entity e, size_t meshPartIdx)
@@ -124,6 +128,11 @@ Material* StaticMeshComponentProcessor::getMaterial(Entity e, size_t meshPartIdx
     if (meshPartIdx >= compData.materials.size())
         return nullptr;
     return &compData.materials[meshPartIdx];
+}
+
+size_t StaticMeshComponentProcessor::getMeshPartsCount(Entity e)
+{
+    return m_data.getData(e).parts.size();
 }
 
 AABB StaticMeshComponentProcessor::getAABB(Entity e)
