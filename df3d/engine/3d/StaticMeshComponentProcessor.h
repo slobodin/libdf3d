@@ -10,7 +10,7 @@
 
 namespace df3d {
 
-class RenderQueue;
+struct RenderQueue;
 class World;
 
 class StaticMeshComponentProcessor : public EntityComponentProcessor

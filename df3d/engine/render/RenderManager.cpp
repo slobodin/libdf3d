@@ -146,23 +146,20 @@ void RenderManager::doRenderWorld(World &world)
     m_renderBackend->setBlendingMode(BlendingMode::ADD);
     m_renderBackend->enableDepthWrite(false);
 
+    for (size_t i = 0; i < LIGHTS_MAX; i++)
+        m_sharedState->setLight(m_renderQueue->lights[i], i);
+
     for (const auto &op : m_renderQueue->litOpaqueOperations)
     {
         m_sharedState->setWorldMatrix(op.worldTransform);
 
         bindPass(op.passProps);
 
-        for (const auto &light : m_renderQueue->lights)
-        {
-            m_sharedState->setLight(*light);
-            // Update only light uniforms.
-            m_sharedState->updateSharedLightUniforms(*op.passProps->program);
+        m_renderBackend->bindVertexBuffer(op.vertexBuffer);
+        if (op.indexBuffer.isValid())
+            m_renderBackend->bindIndexBuffer(op.indexBuffer);
 
-            m_renderBackend->bindVertexBuffer(op.vertexBuffer);
-            if (op.indexBuffer.isValid())
-                m_renderBackend->bindIndexBuffer(op.indexBuffer);
-            m_renderBackend->draw(op.topology, op.numberOfElements);
-        }
+        m_renderBackend->draw(op.topology, op.numberOfElements);
     }
 
     // Rendering others as usual.

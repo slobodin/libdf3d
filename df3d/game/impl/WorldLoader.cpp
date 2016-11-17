@@ -88,7 +88,7 @@ static void parseLights(const Json::Value &lightsNode, World &w)
 
     for (auto &lightJson : lightsNode)
     {
-        Light light(Light::Type::DIRECTIONAL);
+        Light light;
 
         std::string lightName;
         lightJson["id"] >> lightName;
@@ -96,9 +96,8 @@ static void parseLights(const Json::Value &lightsNode, World &w)
         light.setDirection(JsonUtils::getOrDefault(lightJson["direction"], light.getDirection()));
         light.setColor(JsonUtils::getOrDefault(lightJson["color"], light.getColor()));
         light.setIntensity(JsonUtils::getOrDefault(lightJson["intensity"], light.getIntensity()));
-        light.setName(lightName);
 
-        w.getRenderingParams().addLight(light);
+        w.getRenderingParams().addLight(light, lightName);
     }
 }
 

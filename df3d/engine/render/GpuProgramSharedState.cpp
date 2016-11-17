@@ -133,16 +133,17 @@ void GpuProgramSharedState::setAmbientColor(const glm::vec3 &color)
     m_globalAmbient = glm::vec4(color, 1.0f);
 }
 
-void GpuProgramSharedState::setLight(const Light &light)
+void GpuProgramSharedState::setLight(const Light &light, size_t idx)
 {
+    DF3D_ASSERT(idx < LIGHTS_MAX);
     // Update light params.
-    m_currentLight.color = glm::vec4(light.getColor(), 1.0f) * light.getIntensity();
+    m_lights[idx].color = glm::vec4(light.getColor(), 1.0f) * light.getIntensity();
 
     // Since we calculate lighting in the view space we should translate position and direction.
     if (light.getType() == Light::Type::DIRECTIONAL)
     {
         auto dir = light.getDirection();
-        m_currentLight.positionParam = getViewMatrix() * glm::vec4(dir, 0.0f);
+        m_lights[idx].positionParam = getViewMatrix() * glm::vec4(dir, 0.0f);
     }
     else
     {
@@ -216,30 +217,19 @@ void GpuProgramSharedState::updateSharedUniforms(const GpuProgramResource &progr
         case SharedUniformType::ELAPSED_TIME_UNIFORM:
             data = &m_engineElapsedTime;
             break;
+        case SharedUniformType::SCENE_LIGHT_0_COLOR_UNIFORM:
+            data = glm::value_ptr(m_lights[0].color);
+            break;
+        case SharedUniformType::SCENE_LIGHT_0_POSITION_UNIFORM:
+            data = glm::value_ptr(m_lights[0].positionParam);
+            break;
+        case SharedUniformType::SCENE_LIGHT_1_COLOR_UNIFORM:
+            data = glm::value_ptr(m_lights[1].color);
+            break;
+        case SharedUniformType::SCENE_LIGHT_1_POSITION_UNIFORM:
+            data = glm::value_ptr(m_lights[1].positionParam);
+            break;
         case SharedUniformType::COUNT:
-        default:
-            break;
-        }
-
-        if (data)
-            svc().renderManager().getBackend().setUniformValue(sharedUni.handle, data);
-    }
-}
-
-void GpuProgramSharedState::updateSharedLightUniforms(const GpuProgramResource &program)
-{
-    for (const auto &sharedUni : program.sharedUniforms)
-    {
-        const void *data = nullptr;
-
-        switch (sharedUni.type)
-        {
-        case SharedUniformType::SCENE_LIGHT_COLOR_UNIFORM:
-            data = glm::value_ptr(m_currentLight.color);
-            break;
-        case SharedUniformType::SCENE_LIGHT_POSITION_UNIFORM:
-            data = glm::value_ptr(m_currentLight.positionParam);
-            break;
         default:
             break;
         }

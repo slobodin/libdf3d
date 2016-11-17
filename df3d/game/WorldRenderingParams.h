@@ -1,6 +1,7 @@
 #pragma once
 
 #include <df3d/engine/3d/Light.h>
+#include <df3d/engine/render/RenderCommon.h>
 
 namespace df3d {
 
@@ -15,6 +16,7 @@ class WorldRenderingParams
     glm::vec3 m_fogColor;
 
     std::vector<Light> m_lights;
+    std::vector<std::string> m_lightNames;
 
 public:
     WorldRenderingParams();
@@ -31,7 +33,7 @@ public:
     void setPostProcessMaterial(const Material &material);
     const Material* getPostProcessMaterial() const;
 
-    void addLight(const Light &light) { m_lights.push_back(light); }
+    void addLight(const Light &light, const std::string &name);
     const std::vector<Light>& getLights() const { return m_lights; }
     std::vector<Light>& getLights() { return m_lights; }
     Light* getLightByName(const std::string &name);

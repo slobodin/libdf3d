@@ -107,6 +107,8 @@ struct FrameStats
     size_t gpuMemBytes = 0;
 };
 
+#define LIGHTS_MAX 2
+
 enum class SharedUniformType
 {
     WORLD_VIEW_PROJECTION_MATRIX_UNIFORM,
@@ -130,8 +132,12 @@ enum class SharedUniformType
 
     ELAPSED_TIME_UNIFORM,
 
-    SCENE_LIGHT_COLOR_UNIFORM,
-    SCENE_LIGHT_POSITION_UNIFORM,
+    // FIXME: forward rendering (no multi-pass) for 2 lights only.
+    // TODO: generate shaders or deferred (OpenGL ES 3.0).
+    SCENE_LIGHT_0_COLOR_UNIFORM,
+    SCENE_LIGHT_0_POSITION_UNIFORM,
+    SCENE_LIGHT_1_COLOR_UNIFORM,
+    SCENE_LIGHT_1_POSITION_UNIFORM,
 
     COUNT
 };

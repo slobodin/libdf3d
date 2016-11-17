@@ -179,6 +179,7 @@ static void PrintShaderLog(GLuint shader)
     glGetShaderInfoLog(shader, infologLen, nullptr, infoLog.get());
 
     DFLOG_MESS("Shader info log: %s", infoLog.get());
+    DF3D_ASSERT(false);
 }
 
 static void PrintGpuProgramLog(unsigned int program)
@@ -190,6 +191,7 @@ static void PrintGpuProgramLog(unsigned int program)
     glGetProgramInfoLog(program, infologLen, nullptr, infoLog.get());
 
     DFLOG_MESS("GPU program info log: %s", infoLog.get());
+    DF3D_ASSERT(false);
 }
 #endif
 
@@ -658,7 +660,7 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, uint32_t
 
 #ifdef _DEBUG
     // TODO: mipmaps if was generated!
-    // TODO: datasize may be NULL if pointer is NULL.
+    // TODO: glInternalFormat, 4 for rgba, 3 for rgb
     m_gpuMemStats.addTexture(textureHandle, dataSize);
 #endif
 

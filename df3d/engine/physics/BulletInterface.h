@@ -8,7 +8,7 @@
 namespace df3d { 
 
 class RenderPass;
-class RenderQueue;
+struct RenderQueue;
 
 class BulletDebugDraw : public btIDebugDraw
 {

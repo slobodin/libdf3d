@@ -44,7 +44,8 @@ void RenderQueue::clear()
     transparentOperations.clear();
     debugDrawOperations.clear();
     sprite2DOperations.clear();
-    lights.clear();
+    for (size_t i = 0; i < LIGHTS_MAX; i++)
+        lights[i] = {};
 }
 
 }

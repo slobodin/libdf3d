@@ -4,7 +4,7 @@
 
 namespace df3d {
 
-class RenderQueue;
+struct RenderQueue;
 
 class EntityComponentProcessor : NonCopyable
 {

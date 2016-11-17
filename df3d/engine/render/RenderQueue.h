@@ -1,23 +1,19 @@
 #pragma once
 
 #include "RenderOperation.h"
+#include "RenderCommon.h"
+#include <df3d/engine/3d/Light.h>
 
 namespace df3d {
 
-class Light;
-
-class RenderQueue
+struct RenderQueue
 {
-public:
-    // FIXME:
-    // Make not public.
-
     std::vector<RenderOperation> litOpaqueOperations;
     std::vector<RenderOperation> notLitOpaqueOperations;
     std::vector<RenderOperation> transparentOperations;
     std::vector<RenderOperation2D> sprite2DOperations;
     std::vector<RenderOperation> debugDrawOperations;
-    std::vector<const Light*> lights;
+    Light lights[LIGHTS_MAX];
 
     void sort();
     void clear();

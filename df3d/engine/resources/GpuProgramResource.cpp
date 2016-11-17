@@ -44,10 +44,14 @@ static SharedUniformType GetSharedTypeForUniform(const std::string &name)
         return SharedUniformType::PIXEL_SIZE_UNIFORM;
     else if (name == "u_elapsedTime")
         return SharedUniformType::ELAPSED_TIME_UNIFORM;
-    else if (name == "current_light.color")
-        return SharedUniformType::SCENE_LIGHT_COLOR_UNIFORM;
-    else if (name == "current_light.position")
-        return SharedUniformType::SCENE_LIGHT_POSITION_UNIFORM;
+    else if (name == "light_0.color")
+        return SharedUniformType::SCENE_LIGHT_0_COLOR_UNIFORM;
+    else if (name == "light_0.position")
+        return SharedUniformType::SCENE_LIGHT_0_POSITION_UNIFORM;
+    else if (name == "light_1.color")
+        return SharedUniformType::SCENE_LIGHT_1_COLOR_UNIFORM;
+    else if (name == "light_1.position")
+        return SharedUniformType::SCENE_LIGHT_1_POSITION_UNIFORM;
 
     return SharedUniformType::COUNT;
 }

@@ -14,7 +14,7 @@ class PhysicsComponentProcessor;
 class SceneGraphComponentProcessor;
 class Sprite2DComponentProcessor;
 class TagComponentProcessor;
-class RenderQueue;
+struct RenderQueue;
 class EntityComponentProcessor;
 class Camera;
 class TimeManager;

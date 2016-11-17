@@ -1,5 +1,7 @@
 #pragma once
 
+#include "RenderCommon.h"
+
 namespace df3d {
 
 class Light;
@@ -29,7 +31,7 @@ class GpuProgramSharedState
         glm::vec4 color;
     };
 
-    GLSLLight m_currentLight;
+    GLSLLight m_lights[LIGHTS_MAX];
     glm::vec4 m_globalAmbient = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 
     float m_fogDensity = 0.0f;
@@ -69,12 +71,11 @@ public:
 
     void setFog(float density, const glm::vec3 &color);
     void setAmbientColor(const glm::vec3 &color);
-    void setLight(const Light &light);
+    void setLight(const Light &light, size_t idx);
 
     void clear();
 
     void updateSharedUniforms(const GpuProgramResource &program);
-    void updateSharedLightUniforms(const GpuProgramResource &program);  // Forward rendering
 };
 
 }

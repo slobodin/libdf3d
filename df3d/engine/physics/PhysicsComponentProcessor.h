@@ -19,7 +19,7 @@ class btBoxShape;
 
 namespace df3d {
 
-class RenderQueue;
+struct RenderQueue;
 class World;
 struct PhysicsComponentCreationParams;
 class BulletDebugDraw;

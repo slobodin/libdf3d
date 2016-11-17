@@ -6,12 +6,12 @@
 namespace df3d {
 
 class IRenderBackend;
-class RenderQueue;
 class World;
 class RenderOperation;
 class GpuProgramSharedState;
 class RenderPass;
 struct GpuProgramResource;
+struct RenderQueue;
 class RenderManager;
 
 struct RenderManagerEmbedResources : private NonCopyable

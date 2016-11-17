@@ -39,8 +39,14 @@ void World::update()
 void World::collectRenderOperations(RenderQueue *ops)
 {
     // TODO: refactor light system.
-    for (const auto& light : m_renderingParams.getLights())
-        ops->lights.push_back(&light);
+    const auto &lights = m_renderingParams.getLights();
+    for (size_t i = 0; i < LIGHTS_MAX; i++)
+    {
+        if (i >= lights.size())
+            break;
+
+        ops->lights[i] = lights[i];
+    }
 
     // TODO: can do in parallel.
     for (auto engineProcessor : m_engineProcessors)

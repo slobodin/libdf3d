@@ -71,8 +71,6 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/ambient_vert.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/colored_frag.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/colored_vert.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/simple_lighting_frag.h
-    ${PROJECT_SOURCE_DIR}/df3d/engine/render/gl/embed_glsl/simple_lighting_vert.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/AudioResource.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/EntityResource.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/resources/GpuProgramResource.h
