@@ -60,6 +60,7 @@ const void* ResourceManager::getResourceData(const ResourceID &resourceID)
     if (found != m_cache.end())
     {
         DF3D_ASSERT(found->second.valid);
+        found->second.used = true;
         return found->second.holder->getResource();
     }
 
@@ -277,6 +278,18 @@ bool ResourceManager::isLoading() const
 void ResourceManager::flush()
 {
     while (isLoading()) { poll(); }
+}
+
+void ResourceManager::printUnused()
+{
+    DFLOG_DEBUG("Unused resources:");
+    for (const auto &entry : m_cache)
+    {
+        if (!entry.second.used)
+            DFLOG_DEBUG("%s", entry.first.c_str());
+    }
+
+    DFLOG_DEBUG("---");
 }
 
 }

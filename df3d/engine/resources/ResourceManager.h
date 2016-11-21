@@ -25,6 +25,7 @@ class ResourceManager : NonCopyable
         shared_ptr<IResourceHolder> holder;
         int refCount = 0;
         bool valid = false;
+        bool used = false;
     };
 
     std::unordered_map<ResourceID, Entry> m_cache;
@@ -49,6 +50,7 @@ public:
     void unloadPackage(const ResourcePackage &resources);
     bool isLoading() const;
     void flush();
+    void printUnused();
 
     ResourceFileSystem& getFS() { std::lock_guard<std::recursive_mutex> lock(m_lock); return *m_fs; }
 
