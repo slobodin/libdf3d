@@ -281,6 +281,7 @@ void bindProcessors(Table &df3dNamespace)
         Class<TagComponentProcessor, NoConstructor<TagComponentProcessor>> cls(vm, _SC("TagComponentProcessor"));
         cls
             .Func(_SC("add"), &TagComponentProcessor::add)
+            .Func(_SC("getCountByTag"), &TagComponentProcessor::getCountByTag)
             ;
 
         df3dNamespace.Bind(_SC("TagComponentProcessor"), cls);

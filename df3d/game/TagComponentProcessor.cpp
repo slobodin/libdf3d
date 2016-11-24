@@ -9,6 +9,11 @@ const std::unordered_set<Entity>& TagComponentProcessor::getEntities(int tag)
     return m_entities[tag];
 }
 
+int TagComponentProcessor::getCountByTag(int tag)
+{
+    return getEntities(tag).size();
+}
+
 const std::unordered_set<int>* TagComponentProcessor::getTags(Entity e)
 {
     auto found = m_tagLookup.find(e);

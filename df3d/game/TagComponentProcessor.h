@@ -19,6 +19,7 @@ public:
     ~TagComponentProcessor() = default;
 
     const std::unordered_set<Entity>& getEntities(int tag);
+    int getCountByTag(int tag);
     const std::unordered_set<int>* getTags(Entity e);
     Entity getFirst(int tag);
     bool hasTag(Entity e, int tag) const;
