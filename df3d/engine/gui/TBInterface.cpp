@@ -372,29 +372,6 @@ public:
                         tb::TBColor(255, 255, 255, m_opacity), bitmap, nullptr);
     }
 
-    void DrawRect(const tb::TBRect &dst_rect, const tb::TBColor &color) override
-    {
-        if (dst_rect.IsEmpty())
-            return;
-        // Top
-        DrawRectFill(tb::TBRect(dst_rect.x, dst_rect.y, dst_rect.w, 1), color);
-        // Bottom
-        DrawRectFill(tb::TBRect(dst_rect.x, dst_rect.y + dst_rect.h - 1, dst_rect.w, 1), color);
-        // Left
-        DrawRectFill(tb::TBRect(dst_rect.x, dst_rect.y + 1, 1, dst_rect.h - 2), color);
-        // Right
-        DrawRectFill(tb::TBRect(dst_rect.x + dst_rect.w - 1, dst_rect.y + 1, 1, dst_rect.h - 2), color);
-    }
-
-    void DrawRectFill(const tb::TBRect &dst_rect, const tb::TBColor &color) override
-    {
-        if (dst_rect.IsEmpty())
-            return;
-        tb::uint32 a = (color.a * m_opacity) / 255;
-        AddQuadInternal(dst_rect.Offset(m_translation_x, m_translation_y),
-                        tb::TBRect(), tb::TBColor(color.r, color.g, color.b, a), nullptr, nullptr);
-    }
-
     void FlushBitmap(tb::TBBitmap *bitmap)
     {
         // Flush the batch if it's using this bitmap (that is about to change or be deleted)

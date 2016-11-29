@@ -7,11 +7,6 @@
 
 namespace df3d {
 
-static bool ShouldEmulateTouchEvent()
-{
-    return true;
-}
-
 static tb::SPECIAL_KEY GetTBSpecialKey(KeyCode keyCode)
 {
     auto tbKey = tb::TB_KEY_UNDEFINED;
@@ -106,7 +101,7 @@ void InputManager::onMouseButtonPressed(MouseButton button, int x, int y)
     if (auto root = svc().guiManager().getRoot())
     {
         if (root->GetIsInteractable())
-            root->InvokePointerDown(x, y, 1, tb::TB_MODIFIER_NONE, ShouldEmulateTouchEvent());
+            root->InvokeTouchDown(x, y, 0, 1, tb::TB_MODIFIER_NONE);
     }
 
     m_mouseState.buttons[(size_t)button] = MouseState::PRESSED;
@@ -121,7 +116,7 @@ void InputManager::onMouseButtonReleased(MouseButton button, int x, int y)
     if (auto root = svc().guiManager().getRoot())
     {
         if (root->GetIsInteractable())
-            root->InvokePointerUp(x, y, tb::TB_MODIFIER_NONE, ShouldEmulateTouchEvent());
+            root->InvokeTouchUp(x, y, 0, tb::TB_MODIFIER_NONE);
     }
 
     m_mouseState.buttons[(size_t)button] = MouseState::RELEASED;
@@ -136,8 +131,8 @@ void InputManager::setMousePosition(int x, int y)
     {
         if (root->GetIsInteractable())
         {
-            if (!(ShouldEmulateTouchEvent() && !tb::TBWidget::captured_widget))
-                root->InvokePointerMove(x, y, tb::TB_MODIFIER_NONE, ShouldEmulateTouchEvent());
+            if (tb::TBWidget::captured_widget)
+                root->InvokeTouchMove(x, y, 0, tb::TB_MODIFIER_NONE);
         }
     }
 }
