@@ -190,7 +190,7 @@ void RenderManager::doRenderWorld(World &world)
 
 void RenderManager::bindPass(RenderPass *pass)
 {
-    if (UNLIKELY(!pass))
+    if (!pass)
         return;
 
     // Use pass program.
@@ -262,7 +262,7 @@ void RenderManager::reloadEmbedResources()
 
 void RenderManager::drawWorld(World &world)
 {
-    if (UNLIKELY(!m_renderBackend))
+    if (!m_renderBackend)
         return;
 
     onFrameBegin();
@@ -274,7 +274,7 @@ void RenderManager::drawWorld(World &world)
 
 void RenderManager::drawRenderOperation(const RenderOperation &op)
 {
-    if (UNLIKELY(op.numberOfElements == 0))
+    if (op.numberOfElements == 0)
     {
         DF3D_ASSERT_MESS(false, "invalid elements count to draw");
         return;
