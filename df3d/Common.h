@@ -14,6 +14,7 @@
 #include <set>
 #include <stdexcept>
 #include <memory>
+#include <array>
 #include <chrono>
 #include <ctime>
 #include <csignal>
