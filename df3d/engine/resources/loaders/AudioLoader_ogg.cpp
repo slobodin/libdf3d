@@ -15,15 +15,13 @@ namespace df3d {
 class AudioStream_Ogg : public IAudioStream
 {
     unique_ptr<OggVorbis_File> m_oggVorbisFile;
-    ResourceDataSource *m_source;
 
     size_t m_sampleRate;
     ALuint m_format;
 
 public:
-    AudioStream_Ogg(ResourceDataSource *source, unique_ptr<OggVorbis_File> oggFile)
-        : m_oggVorbisFile(std::move(oggFile)),
-        m_source(source)
+    AudioStream_Ogg(unique_ptr<OggVorbis_File> oggFile)
+        : m_oggVorbisFile(std::move(oggFile))
     {
         auto ovInfo = ov_info(m_oggVorbisFile.get(), -1);
 
@@ -159,7 +157,7 @@ unique_ptr<PCMData> AudioLoader_ogg(const char *path, Allocator &alloc)
 {
     auto source = svc().resourceManager().getFS().open(path);
     if (!source)
-        return false;
+        return nullptr;
 
     auto oggVorbisFile = CreateVorbisFile(source);
     if (!oggVorbisFile)
@@ -186,13 +184,13 @@ unique_ptr<IAudioStream> AudioLoader_ogg_streamed(const char *path, Allocator &a
 {
     auto source = svc().resourceManager().getFS().open(path);
     if (!source)
-        return false;
+        return nullptr;
 
     auto oggVorbisFile = CreateVorbisFile(source);
     if (!oggVorbisFile)
         return nullptr;
 
-    return make_unique<AudioStream_Ogg>(source, std::move(oggVorbisFile));
+    return make_unique<AudioStream_Ogg>(std::move(oggVorbisFile));
 }
 
 }

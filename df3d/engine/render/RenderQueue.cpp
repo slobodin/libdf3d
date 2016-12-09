@@ -9,11 +9,6 @@ namespace df3d {
 
 // FIXME: sorting is incorrect. Passes is now PODs.
 
-static bool sort_by_material_pred(const RenderOperation &a, const RenderOperation &b)
-{
-    return a.passProps < b.passProps;
-}
-
 static bool sort_by_z_pred(const RenderOperation2D &a, const RenderOperation2D &b)
 {
     return a.z < b.z;

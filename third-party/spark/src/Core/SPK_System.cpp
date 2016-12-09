@@ -36,9 +36,9 @@ namespace SPK
 
 	System::System(bool initialize) :
 		Transformable(SHARE_POLICY_TRUE),
-		groups(),
         worldTransformed(true),
         lifetime(-1.0f),
+        groups(),
 		deltaStep(0.0f),
 		initialized(initialize),
 		active(true),

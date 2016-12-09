@@ -7,11 +7,6 @@
 
 namespace df3d {
 
-static bool IsNear(float v1, float v2)
-{
-    return std::abs(v1 - v2) < glm::epsilon<float>();
-}
-
 struct CompareVertices
 {
     bool operator()(const Vertex_p_n_tx_tan_bitan &a, const Vertex_p_n_tx_tan_bitan &b) const

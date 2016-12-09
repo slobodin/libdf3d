@@ -113,8 +113,8 @@ public:
 
         while (!glfwWindowShouldClose(m_window))
         {
-            const double prefFPS = EngineCVars::preferredFPS;
-            const auto frameEnds = std::chrono::steady_clock::now() + std::chrono::duration<double>(1.0 / prefFPS);
+//            const double prefFPS = EngineCVars::preferredFPS;
+//            const auto frameEnds = std::chrono::steady_clock::now() + std::chrono::duration<double>(1.0 / prefFPS);
 
             glfwPollEvents();
             svc().step();

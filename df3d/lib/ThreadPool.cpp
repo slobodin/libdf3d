@@ -41,7 +41,8 @@ struct ThreadPoolWorker
 };
 
 ThreadPool::ThreadPool(size_t numWorkers)
-    : m_stop(false),
+    : m_currentJobs(0),
+    m_stop(false),
     m_numWorkers(numWorkers)
 {
     DF3D_ASSERT(m_numWorkers <= MAX_WORKERS);

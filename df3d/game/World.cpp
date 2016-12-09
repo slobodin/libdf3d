@@ -83,6 +83,8 @@ World::World()
 
 void World::destroyWorld()
 {
+    for (auto &kv : m_userProcessors)
+        kv.second.reset();
     m_userProcessors.clear();
     m_engineProcessors.clear();
 
@@ -142,7 +144,7 @@ void World::destroy(Entity e)
         }
         for (auto &userProc : m_userProcessors)
         {
-            if (userProc.second->has(e))
+            if (userProc.second && userProc.second->has(e))
                 userProc.second->remove(e);
         }
 

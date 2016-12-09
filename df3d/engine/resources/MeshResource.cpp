@@ -22,13 +22,13 @@ static MeshResourceData *LoadMeshDataFromFile(const std::string &path, Allocator
     if (!meshDataSource)
         return nullptr;
 
-    MeshResourceData *result;
+    MeshResourceData *result = nullptr;
     if (extension == ".obj")
         result = MeshLoader_obj(*meshDataSource, allocator);
     else if (extension == ".dfmesh")
         result = MeshLoader_dfmesh(*meshDataSource, allocator);
     else
-        DFLOG_WARN(false, "Unsupported mesh file format!");
+        DF3D_ASSERT_MESS(false, "Unsupported mesh file format!");
 
     svc().resourceManager().getFS().close(meshDataSource);
 
@@ -137,7 +137,7 @@ MeshResourceData *LoadMeshDataFromFile_Workaround(const ResourceID &path, Alloca
 {
     Json::Value root = JsonUtils::fromFile(path.c_str());
     if (root.isNull())
-        return false;
+        return nullptr;
 
     return LoadMeshDataFromFile(root["path"].asString(), allocator);
 }

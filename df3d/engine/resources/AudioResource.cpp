@@ -14,7 +14,6 @@ static char STREAMING_BUFFER[STREAMING_CHUNK_SIZE]; // FIXME:
 
 class AudioBuffer
 {
-    ALenum m_format = AL_INVALID_ENUM;
     ALuint m_alBuffers[BUFFERS_COUNT] = { 0 };      // FIXME: hardcoded.
     unique_ptr<IAudioStream> m_stream;
 

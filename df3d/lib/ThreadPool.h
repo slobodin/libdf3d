@@ -11,8 +11,8 @@ class ThreadPool : NonCopyable
 
     std::vector<std::thread> m_workers;
     std::deque<std::function<void ()>> m_jobs;
-    std::atomic<size_t> m_currentJobs = 0;
-    bool m_stop = false;
+    std::atomic<size_t> m_currentJobs;
+    bool m_stop;
     size_t m_numWorkers;
 
 public:
