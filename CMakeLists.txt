@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.7)
 
 project(libdf3d)
 
@@ -295,6 +295,8 @@ if (DF3D_DESKTOP)
         ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/glfwApplication.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/LocalNotification.cpp
         ${PROJECT_SOURCE_DIR}/df3d/platform/desktop_common/glfwKeyCodes.cpp
+
+        ${PROJECT_SOURCE_DIR}/df3d/platform/windows/InAppPurchase.cpp
     )
 endif()
 
@@ -430,4 +432,21 @@ endif()
 
 if (ANDROID)
     target_link_libraries(libdf3d OpenSLES ${DF3D_OPENAL_LIBNAME} GLESv2 log android)
+endif()
+
+if (IOS)
+    set(DEFAULT_IOS_DEPL_TARGET "8.0")
+    set_xcode_property(libdf3d IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    set_xcode_property(LinearMath IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    set_xcode_property(BulletCollision IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    set_xcode_property(BulletDynamics IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    set_xcode_property(ConvexDecomposition IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    set_xcode_property(ogg IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    set_xcode_property(spark IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    set_xcode_property(vorbis IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    set_xcode_property(squirrel IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    set_xcode_property(${FREETYPE_LIBRARY} IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    set_xcode_property(zlibstatic IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    set_xcode_property(TurboBadgerLib IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    set_xcode_property(webp IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
 endif()
