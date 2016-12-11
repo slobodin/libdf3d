@@ -347,6 +347,11 @@ add_library(libdf3d ${DF3D_LIBRARY_TYPE}
     ${third_party_SRC_FILES}
 )
 
+if (IOS)
+    set(DEFAULT_IOS_DEPL_TARGET "8.0")
+    set_xcode_property(libdf3d IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+endif()
+
 set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "$(PROJECT_SOURCE_DIR)/df3d/df3d_pch.h")
 set_target_properties(libdf3d PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 cotire(libdf3d)
@@ -436,7 +441,6 @@ endif()
 
 if (IOS)
     set(DEFAULT_IOS_DEPL_TARGET "8.0")
-    set_xcode_property(libdf3d IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
     set_xcode_property(LinearMath IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
     set_xcode_property(BulletCollision IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
     set_xcode_property(BulletDynamics IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
