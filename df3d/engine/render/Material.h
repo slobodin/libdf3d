@@ -26,6 +26,8 @@ public:
     void setValue(float val);
     void setValue(const glm::vec4 &val);
 
+    glm::vec4 getAsVec4() const { return glm::vec4(m_value.vec4Val[0], m_value.vec4Val[1], m_value.vec4Val[2], m_value.vec4Val[3]); }
+
     void updateToProgram(IRenderBackend &backend, const GpuProgramResource &program, const std::string &name);
 };
 
@@ -54,6 +56,8 @@ public:
     void setParam(const std::string &name, int value);
     void setParam(const std::string &name, float value);
     void setParam(const std::string &name, const glm::vec4 &value);
+
+    glm::vec4 getParamVec4(const std::string &name);
 };
 
 struct Technique

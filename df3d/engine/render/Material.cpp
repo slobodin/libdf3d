@@ -90,6 +90,11 @@ void RenderPass::setParam(const std::string &name, const glm::vec4 &value)
     m_shaderParams[name].setValue(value);
 }
 
+glm::vec4 RenderPass::getParamVec4(const std::string &name)
+{
+    return m_shaderParams[name].getAsVec4();
+}
+
 void Material::addTechnique(const Technique &technique)
 {
     auto found = std::find_if(m_techniques.begin(), m_techniques.end(), [&technique](const Technique &other) {
