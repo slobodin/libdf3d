@@ -179,7 +179,7 @@ void SceneGraphComponentProcessor::rotateAxis(Entity e, float angle, const glm::
     updateWorldTransformation(compData);
 
     if (m_world.physics().has(e))
-        m_world.physics().teleportOrientation(e, q);
+        m_world.physics().teleportOrientation(e, compData.lTransform.orientation);
 }
 
 void SceneGraphComponentProcessor::setName(Entity e, const std::string &name)

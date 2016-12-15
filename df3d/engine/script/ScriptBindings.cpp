@@ -66,6 +66,12 @@ inline glm::quat toQuat(const glm::vec3 &eulerAngles)
     return glm::quat(eulerAngles);
 }
 
+inline glm::quat toQuatRHS(const glm::vec3 &eulerAngles)
+{
+    auto tmp = glm::radians(eulerAngles);
+    return glm::quat(glm::vec3(tmp.x, tmp.y - glm::pi<float>(), tmp.z));
+}
+
 inline World* df3dWorld()
 {
     return &svc().defaultWorld();
@@ -163,6 +169,7 @@ void bindGlm(Table &df3dNamespace)
     df3dNamespace.Func(_SC("gaussian"), MathUtils::gaussian);
     df3dNamespace.Func(_SC("slerp"), slerp);
     df3dNamespace.Func(_SC("toQuat"), toQuat);
+    df3dNamespace.Func(_SC("toQuatRHS"), toQuatRHS);
 }
 
 void bindBase(Table &df3dNamespace)
