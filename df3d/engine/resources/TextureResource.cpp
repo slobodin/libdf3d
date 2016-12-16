@@ -105,8 +105,7 @@ bool TextureHolder::createResource(Allocator &allocator)
 
     auto handle = backend.createTexture2D(m_resourceData->info,
                                           m_flags,
-                                          m_resourceData->pixels.data(),
-                                          m_resourceData->pixels.size());
+                                          m_resourceData->pixels.data());
     if (!handle.isValid())
         return false;
 

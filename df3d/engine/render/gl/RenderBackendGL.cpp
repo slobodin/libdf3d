@@ -32,6 +32,22 @@ static const char* GLErrorCodeToString(GLenum errcode)
 #endif
 }
 
+static size_t GetTextureSize(GLint glFormat, size_t w, size_t h)
+{
+    // TODO: mipmaps if was generated!
+    switch (glFormat)
+    {
+    case GL_RGB:
+        return 3 * w * h;
+    case GL_RGBA:
+        return 4 * w * h;
+    default:
+        break;
+    }
+
+    return 0;
+}
+
 #if defined(_DEBUG) || defined(DEBUG)
 #define GL_CHECK(call) do { \
         call; \
@@ -549,7 +565,7 @@ void RenderBackendGL::updateIndexBuffer(IndexBufferHandle ibHandle, size_t indic
     m_currentIndexBuffer = {};
 }
 
-TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, uint32_t flags, const void *data, size_t dataSize)
+TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, uint32_t flags, const void *data)
 {
     TextureGL texture;
 
@@ -659,9 +675,7 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, uint32_t
     m_stats.textures++;
 
 #ifdef _DEBUG
-    // TODO: mipmaps if was generated!
-    // TODO: glInternalFormat, 4 for rgba, 3 for rgb
-    m_gpuMemStats.addTexture(textureHandle, dataSize);
+    m_gpuMemStats.addTexture(textureHandle, GetTextureSize(glInternalFormat, info.width, info.height));
 #endif
 
     return textureHandle;

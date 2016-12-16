@@ -126,7 +126,7 @@ class TBRendererImpl : public tb::TBRenderer
             info.format = PixelFormat::RGBA;
             uint32_t flags = TEXTURE_FILTERING_BILINEAR | TEXTURE_WRAP_MODE_REPEAT;
 
-            m_texture = svc().renderManager().getBackend().createTexture2D(info, flags, data, width * height * 4);
+            m_texture = svc().renderManager().getBackend().createTexture2D(info, flags, data);
 
             return m_texture.isValid();
         }

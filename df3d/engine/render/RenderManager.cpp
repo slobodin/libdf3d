@@ -43,8 +43,7 @@ RenderManagerEmbedResources::RenderManagerEmbedResources(RenderManager *render)
 
         whiteTexture = render->getBackend().createTexture2D(info,
                                                             TEXTURE_FILTERING_NEAREST | TEXTURE_WRAP_MODE_REPEAT,
-                                                            pixels.data(),
-                                                            pixels.size());
+                                                            pixels.data());
     }
 
     // Load GPU programs.
