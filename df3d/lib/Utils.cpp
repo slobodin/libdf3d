@@ -86,6 +86,11 @@ float TimeUtils::IntervalBetweenNowAnd(const TimePoint &timepoint)
     return duration_cast<milliseconds>(system_clock::now() - timepoint).count() / 1000.0f;
 }
 
+TimeUtils::TimePoint TimeUtils::now()
+{
+    return std::chrono::system_clock::now();
+}
+
 namespace utils {
 
 bool inflateUncompress(uint8_t *dest, size_t destLen, const uint8_t *source, size_t sourceLen)

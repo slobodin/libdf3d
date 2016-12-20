@@ -34,6 +34,7 @@ public:
     static float IntervalBetween(const TimePoint &t1, const TimePoint &t2);
     // Interval in seconds.
     static float IntervalBetweenNowAnd(const TimePoint &timepoint);
+    static TimePoint now();
 };
 
 namespace utils {
