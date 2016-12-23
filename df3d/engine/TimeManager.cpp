@@ -94,6 +94,12 @@ void TimeManager::enqueueForNextUpdate(UpdateFn &&callback)
     m_newListeners.push(std::move(callback));
 }
 
+void TimeManager::clearNextUpdateQueue()
+{
+    m_newListeners.clear();
+    m_pendingListeners.clear();
+}
+
 void TimeManager::enqueueAction(UpdateFn &&callback, float delay)
 {
     Action act;
