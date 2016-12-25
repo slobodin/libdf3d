@@ -186,7 +186,7 @@ bool StaticMeshComponentProcessor::isVisible(Entity e)
     return m_data.getData(e).visible;
 }
 
-void StaticMeshComponentProcessor::add(Entity e, const ResourceID &meshResource)
+void StaticMeshComponentProcessor::add(Entity e, Id meshResource)
 {
     DF3D_ASSERT_MESS(!m_data.contains(e), "An entity already has a static mesh component");
 
@@ -222,7 +222,7 @@ void StaticMeshComponentProcessor::add(Entity e, const ResourceID &meshResource)
         m_data.add(e, data);
     }
     else
-        DFLOG_WARN("Failed to add static mesh to an entity. Resource '%s' is not loaded", meshResource.c_str());
+        DFLOG_WARN("Failed to add static mesh to an entity. Resource '%s' is not loaded", meshResource.toString().c_str());
 }
 
 void StaticMeshComponentProcessor::remove(Entity e)

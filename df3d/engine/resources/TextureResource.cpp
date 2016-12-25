@@ -14,19 +14,18 @@
 
 namespace df3d {
 
-static df3d::TextureResourceData* LoadTextureDataFromFile(const std::string &path, Allocator &allocator, bool forceRgba = false)
+static df3d::TextureResourceData* LoadTextureDataFromFile(const char *path, Allocator &allocator, bool forceRgba = false)
 {
     auto &fs = svc().resourceManager().getFS();
 
-    auto textureSource = fs.open(path.c_str());
+    auto textureSource = fs.open(path);
     if (!textureSource)
         return nullptr;
 
     df3d::TextureResourceData *result = nullptr;
-    const auto ext = FileSystemHelpers::getFileExtension(path);
-    if (ext == ".webp")
+    if (FileSystemHelpers::compareExtension(path, ".webp"))
         result = TextureLoader_webp(*textureSource, allocator, forceRgba);
-    else if (ext == ".pvr")
+    else if (FileSystemHelpers::compareExtension(path, ".pvr"))
         result = TextureLoader_pvrtc(*textureSource, allocator);
     else
         result = TextureLoader_stbi(*textureSource, allocator, forceRgba);
@@ -88,7 +87,7 @@ bool TextureHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &all
 
     m_flags = GetTextureFlags(root);
 
-    m_resourceData = LoadTextureDataFromFile(root["path"].asString(), allocator);
+    m_resourceData = LoadTextureDataFromFile(root["path"].asCString(), allocator);
 
     return m_resourceData != nullptr;
 }
@@ -133,7 +132,7 @@ TextureResourceData* LoadTexture_Workaround(ResourceDataSource &dataSource, Allo
     if (!root.isMember("path"))
         return nullptr;
 
-    return LoadTextureDataFromFile(root["path"].asString(), alloc, true);
+    return LoadTextureDataFromFile(root["path"].asCString(), alloc, true);
 }
 
 }

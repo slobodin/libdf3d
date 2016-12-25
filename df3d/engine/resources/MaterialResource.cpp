@@ -78,12 +78,12 @@ static unique_ptr<Technique> ParseTechnique(const Json::Value &jsonTechnique)
             {
                 auto samplerId = jsonSampler["id"].asString();
                 DF3D_ASSERT(!samplerId.empty());
-                auto textureResource = jsonSampler["path"].asString();
+                auto textureResourcePath = jsonSampler["path"].asCString();
 
-                if (auto texture = rmgr.getResource<TextureResource>(textureResource))
+                if (auto texture = rmgr.getResource<TextureResource>(Id(textureResourcePath)))
                     pass.setParam(samplerId, texture->handle);
                 else
-                    DFLOG_WARN("Sampler %s doesn't have a loaded texture %s", samplerId.c_str(), textureResource.c_str());
+                    DFLOG_WARN("Sampler %s doesn't have a loaded texture %s", samplerId.c_str(), textureResourcePath);
             }
         }
         if (jsonPass.isMember("shader_params"))
@@ -107,16 +107,18 @@ static unique_ptr<Technique> ParseTechnique(const Json::Value &jsonTechnique)
         }
         if (jsonPass.isMember("shader"))
         {
-            auto shaderId = jsonPass["shader"].asString();
-            if (shaderId != "colored")
+            auto shaderPath = jsonPass["shader"].asCString();
+            if (strcmp(shaderPath, "colored") == 0)
             {
-                if (auto program = rmgr.getResource<GpuProgramResource>(shaderId))
-                    pass.program = program;
-                else
-                    DFLOG_WARN("Failed to set shader, resource %s not found", shaderId.c_str());
+                pass.program = svc().renderManager().getEmbedResources().coloredProgram;
             }
             else
-                pass.program = svc().renderManager().getEmbedResources().coloredProgram;
+            {
+                if (auto program = rmgr.getResource<GpuProgramResource>(Id(shaderPath)))
+                    pass.program = program;
+                else
+                    DFLOG_WARN("Failed to set shader, resource %s not found", shaderPath);
+            }
         }
 
         technique->passes.push_back(pass);
@@ -125,7 +127,7 @@ static unique_ptr<Technique> ParseTechnique(const Json::Value &jsonTechnique)
     return technique;
 }
 
-static void PreloadTechniqueData(const Json::Value &root, std::vector<ResourceID> &outDeps)
+static void PreloadTechniqueData(const Json::Value &root, std::vector<std::string> &outDeps)
 {
     const auto &jsonPasses = root["passes"];
     for (const auto &jsonPass : jsonPasses)
@@ -203,7 +205,7 @@ const Material* MaterialLibResource::getMaterial(const std::string &name) const
     return nullptr;
 }
 
-void MaterialLibHolder::listDependencies(ResourceDataSource &dataSource, std::vector<ResourceID> &outDeps)
+void MaterialLibHolder::listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps)
 {
     auto root = JsonUtils::fromFile(dataSource);
     if (root.isNull())

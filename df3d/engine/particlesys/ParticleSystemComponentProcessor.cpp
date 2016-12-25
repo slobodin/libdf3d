@@ -154,13 +154,13 @@ bool ParticleSystemComponentProcessor::isVisible(Entity e) const
     return !m_data.getData(e).visible;
 }
 
-void ParticleSystemComponentProcessor::addWithResource(Entity e, const ResourceID &resourceID)
+void ParticleSystemComponentProcessor::addWithResource(Entity e, Id resourceID)
 {
     auto resource = svc().resourceManager().getResource<ParticleSystemResource>(resourceID);
     if (resource)
         addWithSpkSystem(e, SPK::SPKObject::copy(resource->spkSystem));
     else
-        DFLOG_WARN("Can not add vfx, resource %s not found", resourceID.c_str());
+        DFLOG_WARN("Can not add vfx, resource %s not found", resourceID.toString().c_str());
 }
 
 void ParticleSystemComponentProcessor::addWithSpkSystem(Entity e, SPK::Ref<SPK::System> system)

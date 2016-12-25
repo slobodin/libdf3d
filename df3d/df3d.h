@@ -19,6 +19,7 @@
 #include <df3d/lib/Dict.h>
 #include <df3d/lib/Handles.h>
 #include <df3d/lib/Any.h>
+#include <df3d/lib/Id.h>
 
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/ConfigVariable.h>

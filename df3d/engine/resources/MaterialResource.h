@@ -23,7 +23,7 @@ class MaterialLibHolder : public IResourceHolder
     Json::Value *m_root = nullptr;
 
 public:
-    void listDependencies(ResourceDataSource &dataSource, std::vector<ResourceID> &outDeps);
+    void listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps);
     bool decodeStartup(ResourceDataSource &dataSource, Allocator &allocator) override;
     void decodeCleanup(Allocator &allocator) override;
     bool createResource(Allocator &allocator) override;

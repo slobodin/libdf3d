@@ -8,12 +8,17 @@
 
 namespace df3d {
 
-SPK::Ref<SPK::Renderer> ParticleSystemUtils::createQuadRenderer(const glm::vec2 &scale, const ResourceID &textureResource, bool depthTest)
+SPK::Ref<SPK::Renderer> ParticleSystemUtils::createQuadRenderer(const glm::vec2 &scale, Id textureResource, bool depthTest)
 {
     auto quadRenderer = QuadParticleSystemRenderer::create(scale.x, scale.y);
 
     auto resource = svc().resourceManager().getResource<TextureResource>(textureResource);
-    DF3D_ASSERT(resource != nullptr);
+    if (!resource)
+    {
+        DF3D_ASSERT(false);
+        return {};
+    }
+
     quadRenderer->m_pass.setParam("diffuseMap", resource->handle);
     quadRenderer->setTexturingMode(SPK::TEXTURE_MODE_2D);
     quadRenderer->m_pass.depthTest = depthTest;

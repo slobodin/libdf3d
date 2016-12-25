@@ -23,7 +23,7 @@
 #define H_SPK_OBJECT
 
 #include <string>
-#include <map>
+#include <unordered_map>
 
 namespace SPK
 {
@@ -133,7 +133,7 @@ namespace SPK
 		// * Having a static copyBuffer made the copy not thread safe (As concurrent copy of object would make concurrent read/write on the buffer)
 		// * Passing the copyBuffer to methods was too dirty and messed up the interface (Impossible to use the copy constructor anymore)
 		// Note that with this method the copy of the same object remains not thread safe but the copy of different object is
-		mutable std::map<SPKObject*,SPKObject*>* copyBuffer;
+		mutable std::unordered_map<SPKObject*,SPKObject*>* copyBuffer;
 	};
 
 	inline unsigned int SPKObject::getNbReferences() const
@@ -173,7 +173,7 @@ namespace SPK
 			return SPK_NULL_REF;
 		}
 
-		ref->copyBuffer = new std::map<SPKObject*,SPKObject*>(); // Creates the copy buffer to allow correct copy of underlying SPARK objects
+		ref->copyBuffer = new std::unordered_map<SPKObject*,SPKObject*>(); // Creates the copy buffer to allow correct copy of underlying SPARK objects
 		Ref<T> clone = dynamicCast<T>(dynamicCast<SPKObject>(ref)->clone());
 		delete ref->copyBuffer; // Deletes the copy buffer used for the copy
 		ref->copyBuffer = NULL;
@@ -195,7 +195,7 @@ namespace SPK
 			return SPK_NULL_REF;
 		}
 
-		std::map<SPKObject*,SPKObject*>::const_iterator it = copyBuffer->find(ref.get());
+		auto it = copyBuffer->find(ref.get());
 		if (it != copyBuffer->end())
 			return dynamic_cast<T*>(it->second);
 

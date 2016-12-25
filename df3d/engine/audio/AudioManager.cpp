@@ -32,20 +32,22 @@ void AudioManager::initialize()
 #endif
 #endif
 
-    std::string devices;
+    const char *devices = nullptr;
     if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT") != AL_FALSE)
         devices = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
     else
         devices = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
 
-    std::string defaultDevice;
+    const char *defaultDevice = nullptr;
     if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT") != AL_FALSE)
         defaultDevice = alcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
     else
         defaultDevice = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 
-    DFLOG_MESS("Available playback devices: %s", devices.c_str());
-    DFLOG_MESS("Default playback device: %s", defaultDevice.c_str());
+    if (devices)
+        DFLOG_MESS("Available playback devices: %s", devices);
+    if (defaultDevice)
+        DFLOG_MESS("Default playback device: %s", defaultDevice);
 
     m_pimpl->m_device = alcOpenDevice(nullptr);
     if (!m_pimpl->m_device)

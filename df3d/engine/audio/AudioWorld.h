@@ -36,12 +36,12 @@ public:
 private:
     struct AudioSource
     {
+        const AudioResource *audioResource = nullptr;
         unsigned int audioSourceId = 0;
+        Id resourceId;
         float pitch = 1.0f;
         float gain = 1.0f;
         bool looped = false;
-        const AudioResource *audioResource = nullptr;
-        ResourceID resourceId;
     };
 
     struct StreamingData
@@ -99,9 +99,9 @@ public:
     float getGain(AudioSourceHandle handle) const;
     bool isLooped(AudioSourceHandle handle) const;
     State getState(AudioSourceHandle handle) const;
-    ResourceID getResourceId(AudioSourceHandle handle) const;
+    Id getResourceId(AudioSourceHandle handle) const;
 
-    AudioSourceHandle create(const std::string &audioFilePath, bool looped);
+    AudioSourceHandle create(Id resId, bool looped);
     void destroy(AudioSourceHandle handle);
 };
 

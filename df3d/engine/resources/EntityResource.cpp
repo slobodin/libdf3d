@@ -4,7 +4,7 @@
 
 namespace df3d {
 
-static void PreloadEntityData(const Json::Value &root, std::vector<ResourceID> &outDeps)
+static void PreloadEntityData(const Json::Value &root, std::vector<std::string> &outDeps)
 {
     const auto &componentsJson = root["components"];
     for (const auto &compJson : componentsJson)
@@ -22,7 +22,7 @@ static void PreloadEntityData(const Json::Value &root, std::vector<ResourceID> &
         PreloadEntityData(child, outDeps);
 }
 
-void EntityHolder::listDependencies(ResourceDataSource &dataSource, std::vector<ResourceID> &outDeps)
+void EntityHolder::listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps)
 {
     Json::Value root = JsonUtils::fromFile(dataSource);
     if (root.isNull())

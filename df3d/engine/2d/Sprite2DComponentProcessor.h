@@ -1,9 +1,8 @@
 #pragma once
 
-#include <df3d/game/Entity.h>
+#include <df3d/lib/Id.h>
 #include <df3d/game/EntityComponentProcessor.h>
 #include <df3d/game/ComponentDataHolder.h>
-#include <df3d/engine/render/RenderCommon.h>
 #include <df3d/engine/render/Material.h>
 #include <df3d/engine/render/RenderOperation.h>
 
@@ -26,7 +25,7 @@ class Sprite2DComponentProcessor : public EntityComponentProcessor
         glm::vec2 anchor = glm::vec2(0.5f, 0.5f);
         glm::vec2 textureOriginalSize;
         glm::vec2 screenPosition;
-        ResourceID textureResourceId;
+        Id textureResourceId;
         Entity holder;
         float rotation = 0.0f;
         bool visible = true;
@@ -61,7 +60,7 @@ public:
 
     const glm::vec2& getScreenPosition(Entity e);
 
-    void useTexture(Entity e, const ResourceID &textureResource);
+    void useTexture(Entity e, Id textureResource);
     const glm::vec2& getTextureSize(Entity e) const;
 
     void setBlendMode(Entity e, BlendingMode bm);
@@ -69,7 +68,7 @@ public:
     void setBlendMode2(Entity e, int bm);
     void setDiffuseColor(Entity e, const glm::vec4 &diffuseColor);
 
-    void add(Entity e, const ResourceID &textureResource);
+    void add(Entity e, Id textureResource);
     void remove(Entity e) override;
     bool has(Entity e) override;
 };

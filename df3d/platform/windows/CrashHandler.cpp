@@ -5,7 +5,7 @@
 
 namespace df3d { namespace platform_impl {
 
-static const std::string dumpFileName = "df3d_crash.dmp";
+static const char *DumpFileName = "df3d_crash.dmp";
 
 LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* excInfo)
 {
@@ -27,7 +27,7 @@ LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* excInfo)
         auto miniDumpWriteDump = (MiniDumpWriteDumpProc)GetProcAddress(dbgHelp, "MiniDumpWriteDump");
         if (miniDumpWriteDump)
         {
-            auto dumpFile = CreateFile(dumpFileName.c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+            auto dumpFile = CreateFile(DumpFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
 
             if (dumpFile != INVALID_HANDLE_VALUE)
             {
@@ -48,7 +48,7 @@ LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* excInfo)
                 else
                 {
                     CloseHandle(dumpFile);
-                    DeleteFile(dumpFileName.c_str());
+                    DeleteFile(DumpFileName);
                     std::cerr << "Failed to write minidump\n";
                 }
             }

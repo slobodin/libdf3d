@@ -17,27 +17,26 @@
 
 namespace df3d {
 
-static shared_ptr<IResourceHolder> CreateResourceHolder(const ResourceID &resourceId)
+static shared_ptr<IResourceHolder> CreateResourceHolder(const char *resourcePath)
 {
     shared_ptr<IResourceHolder> resourceHolder;
 
-    const auto ext = FileSystemHelpers::getFileExtension(resourceId);
-    if (ext == ".texture")
+    if (FileSystemHelpers::compareExtension(resourcePath, ".texture"))
         resourceHolder = make_shared<TextureHolder>();
-    else if (ext == ".shader")
+    else if (FileSystemHelpers::compareExtension(resourcePath, ".shader"))
         resourceHolder = make_shared<GpuProgramHolder>();
-    else if (ext == ".mtl")
+    else if (FileSystemHelpers::compareExtension(resourcePath, ".mtl"))
         resourceHolder = make_shared<MaterialLibHolder>();
-    else if (ext == ".mesh")
+    else if (FileSystemHelpers::compareExtension(resourcePath, ".mesh"))
         resourceHolder = make_shared<MeshHolder>();
-    else if (ext == ".vfx")
+    else if (FileSystemHelpers::compareExtension(resourcePath, ".vfx"))
         resourceHolder = make_shared<ParticleSystemHolder>();
-    else if (ext == ".entity")
+    else if (FileSystemHelpers::compareExtension(resourcePath, ".entity"))
         resourceHolder = make_shared<EntityHolder>();
-    else if (ext == ".audio")
+    else if (FileSystemHelpers::compareExtension(resourcePath, ".audio"))
         resourceHolder = make_shared<AudioResourceHolder>();
     else
-        DF3D_ASSERT_MESS(false, "Failed to create resource decoder: unknown resource type %s", ext.c_str());
+        DF3D_ASSERT_MESS(false, "Failed to create resource decoder: unknown resource type '%s'", resourcePath);
 
     return resourceHolder;
 }
@@ -45,14 +44,14 @@ static shared_ptr<IResourceHolder> CreateResourceHolder(const ResourceID &resour
 struct LoadingState
 {
     ThreadPool pool;
-    std::unordered_map<ResourceID, shared_ptr<IResourceHolder>> decoded;
-    std::unordered_map<ResourceID, std::unordered_set<ResourceID>> dependencies;
+    std::unordered_map<Id, shared_ptr<IResourceHolder>> decoded;
+    std::unordered_map<Id, std::unordered_set<std::string>> dependencies;
 
     LoadingState() : pool(std::max(1u, std::thread::hardware_concurrency())) { }
     ~LoadingState() { DF3D_ASSERT(decoded.empty()); }
 };
 
-const void* ResourceManager::getResourceData(const ResourceID &resourceID)
+const void* ResourceManager::getResourceData(Id resourceID)
 {
     std::lock_guard<std::recursive_mutex> lock(m_lock);
 
@@ -64,26 +63,29 @@ const void* ResourceManager::getResourceData(const ResourceID &resourceID)
         return found->second.holder->getResource();
     }
 
-    DFLOG_WARN("Resource %s lookup failed", resourceID.c_str());
+    DFLOG_WARN("Resource %s lookup failed", resourceID.toString().c_str());
     return nullptr;
 }
 
 void ResourceManager::listDependencies(const ResourcePackage &input, ResourcePackage &output, LoadingState *loadingState)
 {
-    for (const auto &resourceId : input)
+    for (const auto &resourcePath : input)
     {
-        if (auto holder = CreateResourceHolder(resourceId))
+        if (auto holder = CreateResourceHolder(resourcePath.c_str()))
         {
-            if (auto dataSource = getFS().open(resourceId.c_str()))
+            if (auto dataSource = getFS().open(resourcePath.c_str()))
             {
-                output.push_back(resourceId);
+                output.push_back(resourcePath);
 
                 ResourcePackage tmp;
                 holder->listDependencies(*dataSource, tmp);
                 getFS().close(dataSource);
 
                 if (loadingState)
+                {
+                    Id resourceId(resourcePath.c_str());
                     loadingState->dependencies[resourceId].insert(tmp.begin(), tmp.end());
+                }
 
                 listDependencies(tmp, output, loadingState);
             }
@@ -91,7 +93,7 @@ void ResourceManager::listDependencies(const ResourcePackage &input, ResourcePac
     }
 }
 
-void ResourceManager::unloadResource(const ResourceID &resource)
+void ResourceManager::unloadResource(Id resource)
 {
     auto found = m_cache.find(resource);
     if (found != m_cache.end())
@@ -103,7 +105,7 @@ void ResourceManager::unloadResource(const ResourceID &resource)
         }
     }
     else
-        DF3D_ASSERT_MESS(false, "Failed to unload resoure. Resource '%s' not found", resource.c_str());
+        DF3D_ASSERT_MESS(false, "Failed to unload resoure. Resource '%s' not found", resource.toString().c_str());
 }
 
 ResourceManager::ResourceManager()
@@ -141,11 +143,11 @@ void ResourceManager::poll()
             auto holder = it->second;
             auto resourceId = it->first;
 
-            auto &deps = m_loadingState->dependencies;
+            auto &deps = m_loadingState->dependencies[resourceId];
             bool canCreate = true;
-            for (const auto &dep : deps[resourceId])
+            for (const auto &depPath : deps)
             {
-                auto found = m_cache.find(dep);
+                auto found = m_cache.find(Id(depPath.c_str()));
                 if (!(found != m_cache.end() && found->second.valid))
                 {
                     canCreate = false;
@@ -165,7 +167,7 @@ void ResourceManager::poll()
             }
             else
             {
-                DFLOG_WARN("Resource '%s' creation failed!", resourceId.c_str());
+                DFLOG_WARN("Resource '%s' creation failed!", resourceId.toString().c_str());
                 m_cache.erase(resourceId);
             }
             holder->decodeCleanup(m_allocator);
@@ -200,17 +202,19 @@ void ResourceManager::loadPackageAsync(const ResourcePackage &resources)
 
     m_loadingState = make_unique<LoadingState>();
 
-    std::vector<ResourceID> resourcesToLoad;
+    ResourcePackage resourcesToLoad;
     listDependencies(resources, resourcesToLoad, m_loadingState.get());
 
-    for (const auto &resourceId : resourcesToLoad)
+    for (const auto &resourcePath : resourcesToLoad)
     {
-        auto holder = CreateResourceHolder(resourceId);
+        auto holder = CreateResourceHolder(resourcePath.c_str());
         if (!holder)
             continue;
 
-        m_loadingState->pool.enqueue([this, resourceId, holder]()
+        m_loadingState->pool.enqueue([this, resourcePath, holder]()
         {
+            Id resourceId(resourcePath.c_str());
+
             {
                 std::lock_guard<std::recursive_mutex> lock(m_lock);
 
@@ -233,7 +237,7 @@ void ResourceManager::loadPackageAsync(const ResourcePackage &resources)
 
             auto &fs = getFS();
 
-            auto dataSource = fs.open(resourceId.c_str());
+            auto dataSource = fs.open(resourcePath.c_str());
             bool decodeResult = holder->decodeStartup(*dataSource, m_allocator);
 
             {
@@ -245,7 +249,7 @@ void ResourceManager::loadPackageAsync(const ResourcePackage &resources)
                 }
                 else
                 {
-                    DFLOG_WARN("Resource '%s' decode failed!", resourceId.c_str());
+                    DFLOG_WARN("Resource '%s' decode failed!", resourcePath.c_str());
                     DF3D_VERIFY(m_cache.erase(resourceId) == 1);
                 }
             }
@@ -261,11 +265,11 @@ void ResourceManager::unloadPackage(const ResourcePackage &resources)
         return;
     flush();
 
-    std::vector<ResourceID> resourcesToUnLoad;
+    std::vector<std::string> resourcesToUnLoad;
     listDependencies(resources, resourcesToUnLoad, nullptr);
 
-    for (const auto &resourceId : resourcesToUnLoad)
-        unloadResource(resourceId);
+    for (const auto &resourcePath : resourcesToUnLoad)
+        unloadResource(Id(resourcePath.c_str()));
 }
 
 bool ResourceManager::isLoading() const
@@ -283,11 +287,11 @@ void ResourceManager::flush()
 void ResourceManager::printUnused()
 {
     DFLOG_DEBUG("Unused resources:");
-    for (const auto &entry : m_cache)
-    {
-        if (!entry.second.used)
-            DFLOG_DEBUG("%s", entry.first.c_str());
-    }
+    //for (const auto &entry : m_cache)
+    //{
+    //    if (!entry.second.used)
+    //        DFLOG_DEBUG("%s", entry.first.c_str());
+    //}
 
     DFLOG_DEBUG("---");
 }

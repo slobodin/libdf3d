@@ -11,10 +11,15 @@ class PhysicsComponentLoader : public EntityComponentLoader
 public:
     void loadComponent(const Json::Value &root, Entity e, World &w) const override
     {
+        if (!root.isMember("mesh"))
+        {
+            DFLOG_WARN("Invalid physics component description. Empty 'mesh' field");
+            return;
+        }
+
         auto params = PhysicsComponentCreationParams(root);
 
-        DF3D_ASSERT(!root["mesh"].isNull());
-        w.physics().add(e, params, root["mesh"].asString());
+        w.physics().add(e, params, root["mesh"].asCString());
     }
 };
 

@@ -15,17 +15,16 @@
 
 namespace df3d {
 
-static MeshResourceData *LoadMeshDataFromFile(const std::string &path, Allocator &allocator)
+static MeshResourceData *LoadMeshDataFromFile(const char *path, Allocator &allocator)
 {
-    const auto extension = FileSystemHelpers::getFileExtension(path);
-    auto meshDataSource = svc().resourceManager().getFS().open(path.c_str());
+    auto meshDataSource = svc().resourceManager().getFS().open(path);
     if (!meshDataSource)
         return nullptr;
 
     MeshResourceData *result = nullptr;
-    if (extension == ".obj")
+    if (FileSystemHelpers::compareExtension(path, ".obj"))
         result = MeshLoader_obj(*meshDataSource, allocator);
-    else if (extension == ".dfmesh")
+    else if (FileSystemHelpers::compareExtension(path, ".dfmesh"))
         result = MeshLoader_dfmesh(*meshDataSource, allocator);
     else
         DF3D_ASSERT_MESS(false, "Unsupported mesh file format!");
@@ -55,7 +54,7 @@ static void BoundingVolumeFromGeometry(BoundingVolume *volume, const MeshResourc
     }
 }
 
-void MeshHolder::listDependencies(ResourceDataSource &dataSource, std::vector<ResourceID> &outDeps)
+void MeshHolder::listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps)
 {
     Json::Value root = JsonUtils::fromFile(dataSource);
     if (root.isNull())
@@ -72,9 +71,9 @@ bool MeshHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &alloca
         return false;
 
     if (root.isMember("material_lib"))
-        m_materialLib = root["material_lib"].asString();
+        m_materialLib = Id(root["material_lib"].asCString());
 
-    m_resourceData = LoadMeshDataFromFile(root["path"].asString(), allocator);
+    m_resourceData = LoadMeshDataFromFile(root["path"].asCString(), allocator);
 
     return m_resourceData != nullptr;
 }
@@ -133,13 +132,13 @@ void MeshHolder::destroyResource(Allocator &allocator)
     m_resource = nullptr;
 }
 
-MeshResourceData *LoadMeshDataFromFile_Workaround(const ResourceID &path, Allocator &allocator)
+MeshResourceData *LoadMeshDataFromFile_Workaround(const char *path, Allocator &allocator)
 {
-    Json::Value root = JsonUtils::fromFile(path.c_str());
+    Json::Value root = JsonUtils::fromFile(path);
     if (root.isNull())
         return nullptr;
 
-    return LoadMeshDataFromFile(root["path"].asString(), allocator);
+    return LoadMeshDataFromFile(root["path"].asCString(), allocator);
 }
 
 void DestroyMeshData(MeshResourceData *resource, Allocator &allocator)

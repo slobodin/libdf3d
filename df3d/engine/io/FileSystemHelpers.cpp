@@ -48,18 +48,6 @@ std::string FileSystemHelpers::pathConcatenate(const std::string &fp1, const std
     return result += fp2;
 }
 
-std::string FileSystemHelpers::getFileExtension(const std::string &rawPath)
-{
-    auto dotPos = rawPath.find_last_of('.');
-    if (dotPos == std::string::npos)
-        return "";
-
-    auto ext = std::string(rawPath.begin() + dotPos, rawPath.end());
-    utils::to_lower(ext);
-
-    return ext;
-}
-
 std::string FileSystemHelpers::getFilename(const std::string &filePath)
 {
     auto lastSlashPos = std::find_if(filePath.rbegin(), filePath.rend(), [](char ch) { return ch == '/' || ch == '\\'; });
@@ -129,6 +117,25 @@ std::string FileSystemHelpers::canonicalPath(const std::string &rawPath)
 void FileSystemHelpers::convertSeparators(std::string &str)
 {
     std::replace(str.begin(), str.end(), '\\', '/');
+}
+
+bool FileSystemHelpers::compareExtension(const char *path, const char *extension)
+{
+    if (!(path && extension))
+        return false;
+
+    auto len1 = strlen(path);
+    auto len2 = strlen(extension);
+
+    for (size_t i = 0; i < std::min(len1, len2); i++)
+    {
+        auto s1 = path + len1 - i;
+        auto s2 = extension + len2 - i;
+        if (*s1 != *s2)
+            return false;
+    }
+
+    return true;
 }
 
 }

@@ -409,7 +409,7 @@ static SPK::Ref<ParticleSystemRenderer> CreateRenderer(const Json::Value &render
         SPK::TextureMode textureMode = SPK::TEXTURE_MODE_NONE;
         if (!pathToTexture.empty())
         {
-            auto texture = svc().resourceManager().getResource<TextureResource>(pathToTexture);
+            auto texture = svc().resourceManager().getResource<TextureResource>(Id(pathToTexture.c_str()));
             if (texture)
             {
                 quadRenderer->setDiffuseMap(texture->handle);
@@ -579,7 +579,7 @@ static SPK::Ref<SPK::System> CreateSpkSystem(const Json::Value &root)
     return result;
 }
 
-void ParticleSystemHolder::listDependencies(ResourceDataSource &dataSource, std::vector<ResourceID> &outDeps)
+void ParticleSystemHolder::listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps)
 {
     Json::Value root = JsonUtils::fromFile(dataSource);
     if (root.isNull())

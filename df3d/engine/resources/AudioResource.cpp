@@ -116,31 +116,30 @@ bool AudioResourceHolder::decodeStartup(ResourceDataSource &dataSource, Allocato
         return false;
 
     DF3D_ASSERT(root.isMember("path"));
-    auto path = root["path"].asString();
 
     bool streamed = false;
     root["stream"] >> streamed;
     root["gain"] >> m_gain;
     root["rolloff"] >> m_rolloff;
 
-    const auto extension = FileSystemHelpers::getFileExtension(path);
+    const char *path = root["path"].asCString();
 
-    if (extension == ".wav")
+    if (FileSystemHelpers::compareExtension(path, ".wav"))
     {
         DF3D_ASSERT_MESS(!streamed, "streaming for wav is unsupported for now");   // TODO:
-        m_pcmData = AudioLoader_wav(path.c_str(), allocator);
+        m_pcmData = AudioLoader_wav(path, allocator);
         return m_pcmData != nullptr;
     }
-    else if (extension == ".ogg")
+    else if (FileSystemHelpers::compareExtension(path, ".ogg"))
     {
         if (streamed)
         {
-            m_stream = AudioLoader_ogg_streamed(path.c_str(), allocator);
+            m_stream = AudioLoader_ogg_streamed(path, allocator);
             return m_stream != nullptr;
         }
         else
         {
-            m_pcmData = AudioLoader_ogg(path.c_str(), allocator);
+            m_pcmData = AudioLoader_ogg(path, allocator);
             return m_pcmData != nullptr;
         }
     }

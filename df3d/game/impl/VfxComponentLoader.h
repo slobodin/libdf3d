@@ -11,7 +11,14 @@ class VfxComponentLoader : public EntityComponentLoader
 public:
     void loadComponent(const Json::Value &root, Entity e, World &w) const override
     {
-        w.vfx().addWithResource(e, root["path"].asString());
+        if (!root.isMember("path"))
+        {
+            DFLOG_WARN("Invalid vfx component description. Empty 'path' field");
+            return;
+        }
+
+        Id resourceId(root["path"].asCString());
+        w.vfx().addWithResource(e, resourceId);
     }
 };
 

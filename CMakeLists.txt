@@ -110,6 +110,7 @@ set(libdf3d_HEADER_LIST
     ${PROJECT_SOURCE_DIR}/df3d/lib/Any.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/Dict.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/Handles.h
+    ${PROJECT_SOURCE_DIR}/df3d/lib/Id.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/JsonUtils.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/Log.h
     ${PROJECT_SOURCE_DIR}/df3d/lib/NonCopyable.h
@@ -203,6 +204,7 @@ set(libdf3d_SRC_LIST
     ${PROJECT_SOURCE_DIR}/df3d/game/impl/WorldLoader.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/Dict.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/Handles.cpp
+    ${PROJECT_SOURCE_DIR}/df3d/lib/Id.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/JsonUtils.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/Log.cpp
     ${PROJECT_SOURCE_DIR}/df3d/lib/ThreadPool.cpp

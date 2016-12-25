@@ -35,7 +35,7 @@ struct MeshResource
 {
     std::vector<MeshPart> meshParts;
     std::vector<std::string> materialNames;
-    ResourceID materialLibResourceId;
+    Id materialLibResourceId;
     AABB localAABB;
     BoundingSphere localBoundingSphere;
     ConvexHull convexHull;
@@ -45,10 +45,10 @@ class MeshHolder : public IResourceHolder
 {
     MeshResourceData *m_resourceData = nullptr;
     MeshResource *m_resource = nullptr;
-    ResourceID m_materialLib;
+    Id m_materialLib;
 
 public:
-    void listDependencies(ResourceDataSource &dataSource, std::vector<ResourceID> &outDeps);
+    void listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps);
     bool decodeStartup(ResourceDataSource &dataSource, Allocator &allocator) override;
     void decodeCleanup(Allocator &allocator) override;
     bool createResource(Allocator &allocator) override;
@@ -57,7 +57,7 @@ public:
     void* getResource() override { return m_resource; }
 };
 
-MeshResourceData *LoadMeshDataFromFile_Workaround(const ResourceID &path, Allocator &allocator);
+MeshResourceData *LoadMeshDataFromFile_Workaround(const char *path, Allocator &allocator);
 void DestroyMeshData(MeshResourceData *resource, Allocator &allocator);
 
 }

@@ -56,21 +56,19 @@ static SharedUniformType GetSharedTypeForUniform(const std::string &name)
     return SharedUniformType::COUNT;
 }
 
-static ShaderHandle CreateShaderFromFile(const std::string &path)
+static ShaderHandle CreateShaderFromFile(const char *path)
 {
     ShaderHandle result;
 
-    if (auto file = svc().resourceManager().getFS().open(path.c_str()))
+    if (auto file = svc().resourceManager().getFS().open(path))
     {
-        const auto ext = FileSystemHelpers::getFileExtension(path);
-
         ShaderType shaderType = ShaderType::UNDEFINED;
-        if (ext == ".vert")
+        if (FileSystemHelpers::compareExtension(path, ".vert"))
             shaderType = ShaderType::VERTEX;
-        else if (ext == ".frag")
+        else if (FileSystemHelpers::compareExtension(path, ".frag"))
             shaderType = ShaderType::FRAGMENT;
         else
-            DFLOG_WARN("Can not decode a shader because it's type is undefined: %s", path.c_str());
+            DFLOG_WARN("Can not decode a shader because it's type is undefined: %s", path);
 
         if (shaderType != ShaderType::UNDEFINED)
         {
@@ -151,8 +149,8 @@ void GpuProgramHolder::decodeCleanup(Allocator &allocator)
 
 bool GpuProgramHolder::createResource(Allocator &allocator)
 {
-    ShaderHandle vertexShader = CreateShaderFromFile(m_vShaderPath);
-    ShaderHandle fragmentShader = CreateShaderFromFile(m_fShaderPath);
+    ShaderHandle vertexShader = CreateShaderFromFile(m_vShaderPath.c_str());
+    ShaderHandle fragmentShader = CreateShaderFromFile(m_fShaderPath.c_str());
 
     m_resource = CreateGpuProgram(vertexShader, fragmentShader, allocator);
 

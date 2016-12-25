@@ -31,7 +31,7 @@ EntityLoader::~EntityLoader()
 
 Entity EntityLoader::createEntityFromFile(const char *resourceFile, World &w)
 {
-    auto resource = svc().resourceManager().getResource<EntityResource>(resourceFile);
+    auto resource = svc().resourceManager().getResource<EntityResource>(Id(resourceFile));
     if (!resource)
         return {};
 

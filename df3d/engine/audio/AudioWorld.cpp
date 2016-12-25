@@ -269,7 +269,7 @@ AudioWorld::State AudioWorld::getState(AudioSourceHandle handle) const
     return GetAudioState(audioSource->audioSourceId);
 }
 
-ResourceID AudioWorld::getResourceId(AudioSourceHandle handle) const
+Id AudioWorld::getResourceId(AudioSourceHandle handle) const
 {
     auto audioSource = lookupSource(handle);
     if (!audioSource)
@@ -277,7 +277,7 @@ ResourceID AudioWorld::getResourceId(AudioSourceHandle handle) const
     return audioSource->resourceId;
 }
 
-AudioSourceHandle AudioWorld::create(const std::string &audioFilePath, bool looped)
+AudioSourceHandle AudioWorld::create(Id resId, bool looped)
 {
     AudioSource source;
 
@@ -292,7 +292,7 @@ AudioSourceHandle AudioWorld::create(const std::string &audioFilePath, bool loop
 
     DF3D_ASSERT(!utils::contains_key(m_lookup, handle));
 
-    auto audioResource = svc().resourceManager().getResource<AudioResource>(audioFilePath);
+    auto audioResource = svc().resourceManager().getResource<AudioResource>(resId);
     if (audioResource)
     {
         source.gain = audioResource->gain;
@@ -300,14 +300,14 @@ AudioSourceHandle AudioWorld::create(const std::string &audioFilePath, bool loop
         audioResource->attachToSource(source.audioSourceId);
     }
     else
-        DFLOG_WARN("Can not add a buffer to an audio source. Audio path: %s", audioFilePath.c_str());
+        DFLOG_WARN("Can not add a buffer to an audio source: %s", resId.toString().c_str());
 
     alSourcef(source.audioSourceId, AL_PITCH, source.pitch);
     alSourcef(source.audioSourceId, AL_GAIN, source.gain);
 
     source.audioResource = audioResource;
     source.looped = looped;
-    source.resourceId = audioFilePath;
+    source.resourceId = resId;
 
     printOpenALError();
 

@@ -61,12 +61,13 @@ enum class SeekDir
 static const int DEFAULT_WINDOW_WIDTH = 640;
 static const int DEFAULT_WINDOW_HEIGHT = 480;
 
-using ResourceID = std::string;
-
 }
 
 // Include some useful df3d stuff.
 
 #include <df3d/lib/Log.h>
+#include <df3d/lib/Id.h>
 #include <df3d/lib/NonCopyable.h>
 #include <df3d/lib/assert/Assert.h>
+#include <df3d/lib/memory/Allocator.h>
+#include <df3d/lib/containers/PodArray.h>

@@ -184,6 +184,16 @@ void bindBase(Table &df3dNamespace)
         ConstTable().Enum("BlendingMode", blendingMode);
     }
 
+    {
+        Class<Id> cls(svc().scripts().getVm(), _SC("Id"));
+        cls
+            .Ctor()
+            .Ctor<const char *>()
+            ;
+
+        df3dNamespace.Bind(_SC("Id"), cls);
+    }
+
     df3dNamespace.Func(_SC("executeFile"), &executeFile);
     df3dNamespace.Func(_SC("createEntity"), &createEntity);
 }
@@ -265,7 +275,7 @@ void bindProcessors(Table &df3dNamespace)
             .Func(_SC("getSystem"), &ParticleSystemComponentProcessor::getSystem)
             .Func(_SC("isWorldTransformed"), &ParticleSystemComponentProcessor::isWorldTransformed)
             .Func(_SC("isPlaying"), &ParticleSystemComponentProcessor::isPlaying)
-            .Func<void(ParticleSystemComponentProcessor::*)(Entity, const std::string&)>(_SC("addWithResource"), &ParticleSystemComponentProcessor::addWithResource)
+            .Func(_SC("addWithResource"), &ParticleSystemComponentProcessor::addWithResource)
             .Func(_SC("remove"), &ParticleSystemComponentProcessor::remove)
             .Func(_SC("has"), &ParticleSystemComponentProcessor::has)
             ;

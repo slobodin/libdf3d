@@ -10,11 +10,14 @@ class Sprite2DComponentLoader : public EntityComponentLoader
 public:
     void loadComponent(const Json::Value &root, Entity e, World &w) const override
     {
-        std::string path;
+        if (!root.isMember("path"))
+        {
+            DFLOG_WARN("Invalid sprite2d component description. Empty 'path' field");
+            return;
+        }
 
-        root["path"] >> path;
-
-        w.sprite2d().add(e, path);
+        Id resourceId(root["path"].asCString());
+        w.sprite2d().add(e, resourceId);
     }
 };
 

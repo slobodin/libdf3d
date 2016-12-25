@@ -178,7 +178,7 @@ const glm::vec2& Sprite2DComponentProcessor::getScreenPosition(Entity e)
     return compData.screenPosition;
 }
 
-void Sprite2DComponentProcessor::useTexture(Entity e, const ResourceID &textureResource)
+void Sprite2DComponentProcessor::useTexture(Entity e, Id textureResource)
 {
     auto &compData = m_data.getData(e);
     if (compData.textureResourceId == textureResource)
@@ -187,7 +187,7 @@ void Sprite2DComponentProcessor::useTexture(Entity e, const ResourceID &textureR
     auto texture = svc().resourceManager().getResource<TextureResource>(textureResource);
     if (!texture)
     {
-        DFLOG_WARN("Failed to init Sprite2DComponent with texture %s", textureResource.c_str());
+        DFLOG_WARN("Failed to init Sprite2DComponent with texture %s", textureResource.toString().c_str());
         return;
     }
 
@@ -219,7 +219,7 @@ void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diff
     compData.pass.setParam("material_diffuse", diffuseColor);
 }
 
-void Sprite2DComponentProcessor::add(Entity e, const ResourceID &textureResource)
+void Sprite2DComponentProcessor::add(Entity e, Id textureResource)
 {
     DF3D_ASSERT_MESS(!m_data.contains(e), "An entity already has sprite2d component");
 

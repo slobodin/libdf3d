@@ -9,7 +9,7 @@ struct LoadingState;
 
 // TODO: refactor
 
-using ResourcePackage = std::vector<ResourceID>;
+using ResourcePackage = std::vector<std::string>;
 
 class ResourceManager : NonCopyable
 {
@@ -28,11 +28,11 @@ class ResourceManager : NonCopyable
         bool used = false;
     };
 
-    std::unordered_map<ResourceID, Entry> m_cache;
+    std::unordered_map<Id, Entry> m_cache;
 
-    const void* getResourceData(const ResourceID &resourceID);
+    const void* getResourceData(Id resourceID);
     void listDependencies(const ResourcePackage &input, ResourcePackage &output, LoadingState *loadingState);
-    void unloadResource(const ResourceID &resource);
+    void unloadResource(Id resource);
 
 public:
     ResourceManager();
@@ -55,7 +55,7 @@ public:
     ResourceFileSystem& getFS() { std::lock_guard<std::recursive_mutex> lock(m_lock); return *m_fs; }
 
     template<typename T>
-    const T* getResource(const ResourceID &resourceID) { return static_cast<const T*>(getResourceData(resourceID)); }
+    const T* getResource(Id resourceID) { return static_cast<const T*>(getResourceData(resourceID)); }
 };
 
 }

@@ -58,7 +58,7 @@ public:
     bool isVisible(Entity e) const;
 
     // NOTE: duplicating particle system!
-    void addWithResource(Entity e, const ResourceID &resourceID);
+    void addWithResource(Entity e, Id resourceID);
     void addWithSpkSystem(Entity e, SPK::Ref<SPK::System> system);
     void remove(Entity e) override;
     bool has(Entity e) override;
