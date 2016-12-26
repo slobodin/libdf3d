@@ -1,21 +1,24 @@
+#pragma once
+
+#include <cstdint>
 
 #ifdef _SQ64
 
 #ifdef _MSC_VER
-typedef __int64 SQInteger;
-typedef unsigned __int64 SQUnsignedInteger;
-typedef unsigned __int64 SQHash; /*should be the same size of a pointer*/
+typedef int64_t SQInteger;
+typedef uint64_t SQUnsignedInteger;
+typedef uint64_t SQHash; /*should be the same size of a pointer*/
 #else
-typedef long long SQInteger;
-typedef unsigned long long SQUnsignedInteger;
-typedef unsigned long long SQHash; /*should be the same size of a pointer*/
+typedef int64_t SQInteger;
+typedef uint64_t SQUnsignedInteger;
+typedef uint64_t SQHash; /*should be the same size of a pointer*/
 #endif
-typedef int SQInt32;
-typedef unsigned int SQUnsignedInteger32;
+typedef int32_t SQInt32;
+typedef uint32_t SQUnsignedInteger32;
 #else
 typedef int SQInteger;
-typedef int SQInt32; /*must be 32 bits(also on 64bits processors)*/
-typedef unsigned int SQUnsignedInteger32; /*must be 32 bits(also on 64bits processors)*/
+typedef int32_t SQInt32; /*must be 32 bits(also on 64bits processors)*/
+typedef uint32_t SQUnsignedInteger32; /*must be 32 bits(also on 64bits processors)*/
 typedef unsigned int SQUnsignedInteger;
 typedef unsigned int SQHash; /*should be the same size of a pointer*/
 #endif
