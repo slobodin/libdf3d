@@ -191,7 +191,7 @@ void Sprite2DComponentProcessor::useTexture(Entity e, Id textureResource)
         return;
     }
 
-    compData.pass.setParam("diffuseMap", texture->handle);
+    compData.pass.setParam(Id("diffuseMap"), texture->handle);
     compData.textureOriginalSize = { texture->width, texture->height };
     compData.textureResourceId = textureResource;
 }
@@ -216,7 +216,7 @@ void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
 void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diffuseColor)
 {
     auto &compData = m_data.getData(e);
-    compData.pass.setParam("material_diffuse", diffuseColor);
+    compData.pass.setParam(Id("material_diffuse"), diffuseColor);
 }
 
 void Sprite2DComponentProcessor::add(Entity e, Id textureResource)
@@ -231,7 +231,7 @@ void Sprite2DComponentProcessor::add(Entity e, Id textureResource)
     data.pass.depthWrite = false;
     data.pass.blendMode = BlendingMode::ALPHA;
     data.pass.isTransparent = true;
-    data.pass.setParam("material_diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    data.pass.setParam(Id("material_diffuse"), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
     data.op.worldTransform = m_world.sceneGraph().getWorldTransformMatrix(e);
 
     m_data.add(e, data);

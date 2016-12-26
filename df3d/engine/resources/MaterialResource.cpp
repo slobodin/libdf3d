@@ -17,12 +17,9 @@ static unique_ptr<Technique> ParseTechnique(const Json::Value &jsonTechnique)
 {
     auto &rmgr = svc().resourceManager();
 
-    std::string techName;
-    jsonTechnique["id"] >> techName;
+    DF3D_ASSERT(jsonTechnique.isMember("id"));
 
-    DF3D_ASSERT_MESS(!techName.empty(), "Invalid technique name");
-
-    auto technique = make_unique<Technique>(techName);
+    auto technique = make_unique<Technique>(Id(jsonTechnique["id"].asCString()));
 
     const auto &jsonPasses = jsonTechnique["passes"];
     for (const auto &jsonPass : jsonPasses)
@@ -76,32 +73,34 @@ static unique_ptr<Technique> ParseTechnique(const Json::Value &jsonTechnique)
         {
             for (const auto &jsonSampler : jsonPass["samplers"])
             {
-                auto samplerId = jsonSampler["id"].asString();
-                DF3D_ASSERT(!samplerId.empty());
+                DF3D_ASSERT(jsonSampler.isMember("id"));
+                DF3D_ASSERT(jsonSampler.isMember("path"));
+                auto samplerId = jsonSampler["id"].asCString();
                 auto textureResourcePath = jsonSampler["path"].asCString();
 
                 if (auto texture = rmgr.getResource<TextureResource>(Id(textureResourcePath)))
-                    pass.setParam(samplerId, texture->handle);
+                    pass.setParam(Id(samplerId), texture->handle);
                 else
-                    DFLOG_WARN("Sampler %s doesn't have a loaded texture %s", samplerId.c_str(), textureResourcePath);
+                    DFLOG_WARN("Sampler %s doesn't have a loaded texture %s", samplerId, textureResourcePath);
             }
         }
         if (jsonPass.isMember("shader_params"))
         {
-            for (auto it = jsonPass["shader_params"].begin(); it != jsonPass["shader_params"].end(); ++it)
+            auto &jsonShaderParams = jsonPass["shader_params"];
+            for (auto it = jsonShaderParams.begin(); it != jsonShaderParams.end(); ++it)
             {
                 auto paramName = it.key().asString();
                 if (it->isArray())
                 {
                     glm::vec4 value;
                     (*it) >> value;
-                    pass.setParam(paramName, value);
+                    pass.setParam(Id(paramName.c_str()), value);
                 }
                 else
                 {
                     float value;
                     (*it) >> value;
-                    pass.setParam(paramName, value);
+                    pass.setParam(Id(paramName.c_str()), value);
                 }
             }
         }
@@ -159,7 +158,9 @@ void MaterialLibResource::parse(const Json::Value &root)
     const auto &jsonMaterials = root["materials"];
     for (const auto &jsonMaterial : jsonMaterials)
     {
-        auto id = jsonMaterial["id"].asString();
+        DF3D_ASSERT(jsonMaterial.isMember("id"));
+
+        auto id = Id(jsonMaterial["id"].asCString());
         DF3D_ASSERT(!utils::contains_key(m_materials, id));
 
         Material material;
@@ -170,7 +171,7 @@ void MaterialLibResource::parse(const Json::Value &root)
 
         // FIXME: this is a workaround.
         auto foundPrefTech = std::find_if(jsonTechniques.begin(), jsonTechniques.end(), [](const Json::Value &node) {
-            return node["id"].asString() == PREFERRED_TECHNIQUE;
+            return Id(node["id"].asCString()) == PREFERRED_TECHNIQUE;
         });
 
         unique_ptr<Technique> technique;
@@ -186,7 +187,7 @@ void MaterialLibResource::parse(const Json::Value &root)
 
         material.addTechnique(*technique);
         material.setCurrentTechnique(technique->name);
-        material.setName(id);
+        material.setName(jsonMaterial["id"].asString());
 
         m_materials[id] = material;
     }
@@ -197,7 +198,7 @@ MaterialLibResource::MaterialLibResource(const Json::Value &root)
     parse(root);
 }
 
-const Material* MaterialLibResource::getMaterial(const std::string &name) const
+const Material* MaterialLibResource::getMaterial(Id name) const
 {
     auto found = m_materials.find(name);
     if (found != m_materials.end())
@@ -220,7 +221,7 @@ void MaterialLibHolder::listDependencies(ResourceDataSource &dataSource, std::ve
 
         // FIXME: this is a workaround.
         auto foundPrefTech = std::find_if(jsonTechniques.begin(), jsonTechniques.end(), [](const Json::Value &node) {
-            return node["id"].asString() == PREFERRED_TECHNIQUE;
+            return Id(node["id"].asCString()) == PREFERRED_TECHNIQUE;
         });
 
         if (foundPrefTech != jsonTechniques.end())

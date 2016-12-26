@@ -18,8 +18,8 @@ static unique_ptr<RenderPass> CreateDebugDrawPass()
     pass->faceCullMode = FaceCullMode::NONE;
     pass->blendMode = BlendingMode::ALPHA;
     pass->isTransparent = true;
-    pass->setParam("material_diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 0.7f));
-    pass->setParam("diffuseMap", embedResources.whiteTexture);
+    pass->setParam(Id("material_diffuse"), glm::vec4(1.0f, 1.0f, 1.0f, 0.7f));
+    pass->setParam(Id("diffuseMap"), embedResources.whiteTexture);
     pass->program = embedResources.coloredProgram;
 
     return pass;

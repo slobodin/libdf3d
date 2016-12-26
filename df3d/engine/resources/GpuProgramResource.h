@@ -15,7 +15,7 @@ struct GpuProgramResource
 {
     GpuProgramHandle handle;
     df3d::PodArray<SharedUniform> sharedUniforms;
-    std::unordered_map<std::string, UniformHandle> customUniforms;
+    std::unordered_map<Id, UniformHandle> customUniforms;
 
     GpuProgramResource(Allocator &allocator) : sharedUniforms(allocator) { }
 };

@@ -19,7 +19,7 @@ SPK::Ref<SPK::Renderer> ParticleSystemUtils::createQuadRenderer(const glm::vec2 
         return {};
     }
 
-    quadRenderer->m_pass.setParam("diffuseMap", resource->handle);
+    quadRenderer->m_pass.setParam(Id("diffuseMap"), resource->handle);
     quadRenderer->setTexturingMode(SPK::TEXTURE_MODE_2D);
     quadRenderer->m_pass.depthTest = depthTest;
 

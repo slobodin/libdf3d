@@ -730,9 +730,9 @@ void RenderBackendGL::bindTexture(TextureHandle textureHandle, int unit)
     GL_CHECK(glBindTexture(texture.type, texture.glID));
 }
 
-ShaderHandle RenderBackendGL::createShader(ShaderType type, const std::string &data)
+ShaderHandle RenderBackendGL::createShader(ShaderType type, const char *data)
 {
-    if (data.empty())
+    if (!data)
     {
         DFLOG_WARN("Failed to create a shader: empty shader data");
         return{};
@@ -758,8 +758,7 @@ ShaderHandle RenderBackendGL::createShader(ShaderType type, const std::string &d
     }
 
     // Compile the shader.
-    const char *pdata = data.c_str();
-    GL_CHECK(glShaderSource(shader.glID, 1, &pdata, nullptr));
+    GL_CHECK(glShaderSource(shader.glID, 1, &data, nullptr));
     GL_CHECK(glCompileShader(shader.glID));
 
 #ifdef _DEBUG
@@ -768,7 +767,7 @@ ShaderHandle RenderBackendGL::createShader(ShaderType type, const std::string &d
     if (compileOk == GL_FALSE)
     {
         DFLOG_WARN("Failed to compile a shader");
-        DFLOG_MESS("\n\n%s\n\n", data.c_str());
+        DFLOG_MESS("\n\n%s\n\n", data);
         PrintShaderLog(shader.glID);
 
         GL_CHECK(glDeleteShader(shader.glID));

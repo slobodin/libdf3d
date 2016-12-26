@@ -146,7 +146,7 @@ PhysicsConfig::PhysicsConfig(const std::string &physicsConfigPath)
         short currGroup = 1;
         for (auto it = jsonCollisionGroups.begin(); it != jsonCollisionGroups.end(); ++it)
         {
-            auto groupid = it.key().asString();
+            auto groupid = Id(it.key().asCString());
             DF3D_ASSERT(!utils::contains_key(m_collisionGroups, groupid));
 
             m_collisionGroups[groupid].first = currGroup;
@@ -157,11 +157,11 @@ PhysicsConfig::PhysicsConfig(const std::string &physicsConfigPath)
 
         for (auto it = jsonCollisionGroups.begin(); it != jsonCollisionGroups.end(); ++it)
         {
-            auto groupid = it.key().asString();
+            auto groupid = Id(it.key().asCString());
             short mask = 0;
             for (const auto &collidesWith : *it)
             {
-                auto found = m_collisionGroups.find(collidesWith.asString());
+                auto found = m_collisionGroups.find(Id(collidesWith.asCString()));
                 if (found != m_collisionGroups.end())
                 {
                     mask |= found->second.first;
@@ -177,7 +177,7 @@ PhysicsConfig::PhysicsConfig(const std::string &physicsConfigPath)
         DF3D_ASSERT_MESS(false, "Failed to find physics config");
 }
 
-const std::pair<short, short>* PhysicsConfig::getGroupMask(const std::string &groupId) const
+const std::pair<short, short>* PhysicsConfig::getGroupMask(Id groupId) const
 {
     auto found = m_collisionGroups.find(groupId);
     if (found != m_collisionGroups.end())
@@ -185,7 +185,7 @@ const std::pair<short, short>* PhysicsConfig::getGroupMask(const std::string &gr
     return nullptr;
 }
 
-void PhysicsComponentProcessor::addRigidBodyToWorld(btRigidBody *body, const std::string &groupId)
+void PhysicsComponentProcessor::addRigidBodyToWorld(btRigidBody *body, Id groupId)
 {
     if (auto groupMask = m_config.getGroupMask(groupId))
     {
@@ -213,7 +213,7 @@ btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, co
     {
     case CollisionShapeType::BOX:
     {
-        auto mesh = svc().resourceManager().getResource<MeshResource>(DFID(meshPath));
+        auto mesh = svc().resourceManager().getResource<MeshResource>(Id(meshPath));
         DF3D_ASSERT(mesh);
 
         auto half = (mesh->localAABB.maxPoint() - mesh->localAABB.minPoint()) / 2.0f;
@@ -223,7 +223,7 @@ btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, co
     }
     case CollisionShapeType::SPHERE:
     {
-        auto mesh = svc().resourceManager().getResource<MeshResource>(DFID(meshPath));
+        auto mesh = svc().resourceManager().getResource<MeshResource>(Id(meshPath));
         DF3D_ASSERT(mesh);
 
         auto shape = MAKE_NEW(m_allocator, btSphereShape)(mesh->localBoundingSphere.getRadius());
@@ -233,7 +233,7 @@ btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, co
     }
     case CollisionShapeType::CONVEX_HULL:
     {
-        auto mesh = svc().resourceManager().getResource<MeshResource>(DFID(meshPath));
+        auto mesh = svc().resourceManager().getResource<MeshResource>(Id(meshPath));
         DF3D_ASSERT(mesh);
 
         auto &points = mesh->convexHull.m_vertices;
@@ -463,7 +463,7 @@ void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationPara
     m_data.add(e, data);
 }
 
-void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, const std::string &groupId)
+void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, Id groupId)
 {
     if (auto groupMask = m_config.getGroupMask(groupId))
         add(e, body, groupMask->first, groupMask->second);

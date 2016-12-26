@@ -28,7 +28,7 @@ public:
 
     glm::vec4 getAsVec4() const { return glm::vec4(m_value.vec4Val[0], m_value.vec4Val[1], m_value.vec4Val[2], m_value.vec4Val[3]); }
 
-    void updateToProgram(IRenderBackend &backend, const GpuProgramResource &program, const std::string &name);
+    void updateToProgram(IRenderBackend &backend, const GpuProgramResource &program, Id name);
 };
 
 struct SamplerPassParam
@@ -39,8 +39,8 @@ struct SamplerPassParam
 
 class RenderPass
 {
-    std::unordered_map<std::string, SamplerPassParam> m_samplers;
-    std::unordered_map<std::string, ValuePassParam> m_shaderParams;
+    std::unordered_map<Id, SamplerPassParam> m_samplers;
+    std::unordered_map<Id, ValuePassParam> m_shaderParams;
 
 public:
     const GpuProgramResource *program = nullptr;
@@ -52,19 +52,19 @@ public:
     BlendingMode blendMode = BlendingMode::NONE;
 
     void bindCustomPassParams(IRenderBackend &backend);
-    void setParam(const std::string &name, TextureHandle texture);
-    void setParam(const std::string &name, int value);
-    void setParam(const std::string &name, float value);
-    void setParam(const std::string &name, const glm::vec4 &value);
+    void setParam(Id name, TextureHandle texture);
+    void setParam(Id name, int value);
+    void setParam(Id name, float value);
+    void setParam(Id name, const glm::vec4 &value);
 
-    glm::vec4 getParamVec4(const std::string &name);
+    glm::vec4 getParamVec4(Id name);
 };
 
 struct Technique
 {
     std::vector<RenderPass> passes;
-    std::string name;
-    Technique(const std::string &name) : name(name) { }
+    Id name;
+    Technique(Id name) : name(name) { }
 };
 
 class Material
@@ -81,13 +81,14 @@ public:
 
     Technique* getCurrentTechnique();
     const Technique* getCurrentTechnique() const;
-    void setCurrentTechnique(const std::string &name);
+    void setCurrentTechnique(Id name);
 
     void setName(const std::string &name) { m_name = name; }
+    Id getId() const { return Id(m_name.c_str()); }
     const std::string& getName() const { return m_name; }
 };
 
 // FIXME: temp workaround
-extern std::string PREFERRED_TECHNIQUE;
+extern Id PREFERRED_TECHNIQUE;
 
 }

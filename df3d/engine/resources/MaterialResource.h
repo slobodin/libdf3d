@@ -7,14 +7,14 @@ namespace df3d {
 
 class MaterialLibResource
 {
-    std::unordered_map<std::string, Material> m_materials;
+    std::unordered_map<Id, Material> m_materials;
 
     void parse(const Json::Value &root);
 
 public:
     MaterialLibResource(const Json::Value &root);
 
-    const Material* getMaterial(const std::string &name) const;
+    const Material* getMaterial(Id name) const;
 };
 
 class MaterialLibHolder : public IResourceHolder

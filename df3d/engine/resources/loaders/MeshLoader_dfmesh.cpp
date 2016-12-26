@@ -56,7 +56,7 @@ MeshResourceData* MeshLoader_dfmesh(ResourceDataSource &dataSource, Allocator &a
         meshPart->indices.resize(indicesCount);
         dataSource.getObjects(meshPart->indices.data(), indicesCount);
 
-        meshPart->materialName = smHeader.materialId;
+        meshPart->materialName = Id(smHeader.materialId);
 
         result->parts.push_back(meshPart);
     }

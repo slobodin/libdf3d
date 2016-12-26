@@ -236,7 +236,7 @@ class TBRendererImpl : public tb::TBRenderer
         m_guipass.depthWrite = false;
         m_guipass.blendMode = BlendingMode::ALPHA;
         m_guipass.isTransparent = true;
-        m_guipass.setParam("material_diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        m_guipass.setParam(Id("material_diffuse"), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
         m_guipass.program = svc().renderManager().getEmbedResources().coloredProgram;
         DF3D_ASSERT(m_guipass.program != nullptr);
@@ -461,7 +461,7 @@ public:
         else
             texture = svc().renderManager().getEmbedResources().whiteTexture;
 
-        m_guipass.setParam("diffuseMap", texture);
+        m_guipass.setParam(Id("diffuseMap"), texture);
 
         RenderOperation op;
         op.vertexBuffer = vb;

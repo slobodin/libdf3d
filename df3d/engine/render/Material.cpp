@@ -33,14 +33,14 @@ void ValuePassParam::setValue(const glm::vec4 &val)
     m_value.vec4Val[3] = val.w;
 }
 
-void ValuePassParam::updateToProgram(IRenderBackend &backend, const  GpuProgramResource &program, const std::string &name)
+void ValuePassParam::updateToProgram(IRenderBackend &backend, const  GpuProgramResource &program, Id name)
 {
     if (!m_handle.isValid())
     {
         auto handleFound = program.customUniforms.find(name);
         if (handleFound == program.customUniforms.end())
         {
-            DFLOG_WARN("Failed to lookup uniform %s in a shader", name.c_str());
+            DFLOG_WARN("Failed to lookup uniform %s in a shader", name.toString().c_str());
             DF3D_ASSERT(false);
             return;
         }
@@ -70,27 +70,27 @@ void RenderPass::bindCustomPassParams(IRenderBackend &backend)
         passParam.second.updateToProgram(backend, *program, passParam.first);
 }
 
-void RenderPass::setParam(const std::string &name, TextureHandle texture)
+void RenderPass::setParam(Id name, TextureHandle texture)
 {
     m_samplers[name].texture = texture;
 }
 
-void RenderPass::setParam(const std::string &name, int value)
+void RenderPass::setParam(Id name, int value)
 {
     m_shaderParams[name].setValue(value);
 }
 
-void RenderPass::setParam(const std::string &name, float value)
+void RenderPass::setParam(Id name, float value)
 {
     m_shaderParams[name].setValue(value);
 }
 
-void RenderPass::setParam(const std::string &name, const glm::vec4 &value)
+void RenderPass::setParam(Id name, const glm::vec4 &value)
 {
     m_shaderParams[name].setValue(value);
 }
 
-glm::vec4 RenderPass::getParamVec4(const std::string &name)
+glm::vec4 RenderPass::getParamVec4(Id name)
 {
     return m_shaderParams[name].getAsVec4();
 }
@@ -121,7 +121,7 @@ const Technique* Material::getCurrentTechnique() const
     return &m_techniques[m_currentTechIdx];
 }
 
-void Material::setCurrentTechnique(const std::string &name)
+void Material::setCurrentTechnique(Id name)
 {
     auto found = std::find_if(m_techniques.begin(), m_techniques.end(), [name](const Technique &other) {
         return other.name == name;
@@ -133,6 +133,6 @@ void Material::setCurrentTechnique(const std::string &name)
         DFLOG_WARN("Failed to set technique");
 }
 
-std::string PREFERRED_TECHNIQUE;
+Id PREFERRED_TECHNIQUE;
 
 }

@@ -36,5 +36,3 @@ struct hash<df3d::Id>
 };
 
 }
-
-#define DFID(x) df3d::Id(x)

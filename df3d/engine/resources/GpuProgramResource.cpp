@@ -75,7 +75,7 @@ static ShaderHandle CreateShaderFromFile(const char *path)
             std::string buffer(file->getSize(), 0);
             file->read(&buffer[0], buffer.size());
 
-            result = svc().renderManager().getBackend().createShader(shaderType, GLSLPreprocess::preprocess(buffer, path));
+            result = svc().renderManager().getBackend().createShader(shaderType, GLSLPreprocess::preprocess(buffer, path).c_str());
         }
 
         svc().resourceManager().getFS().close(file);
@@ -88,7 +88,7 @@ static ShaderHandle CreateShaderFromString(const std::string &data, ShaderType s
 {
     DF3D_ASSERT(shaderType != ShaderType::UNDEFINED);
 
-    return svc().renderManager().getBackend().createShader(shaderType, GLSLPreprocess::preprocess(data));
+    return svc().renderManager().getBackend().createShader(shaderType, GLSLPreprocess::preprocess(data).c_str());
 }
 
 GpuProgramResource* CreateGpuProgram(ShaderHandle vShader, ShaderHandle fShader, Allocator &allocator)
@@ -123,7 +123,8 @@ GpuProgramResource* CreateGpuProgram(ShaderHandle vShader, ShaderHandle fShader,
         }
         else
         {
-            resource->customUniforms[uniformNames[i]] = uniforms[i];
+            Id customUniformStrId(uniformNames[i].c_str());
+            resource->customUniforms[customUniformStrId] = uniforms[i];
         }
     }
 

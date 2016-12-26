@@ -9,10 +9,10 @@ ParticleSystemRenderer::ParticleSystemRenderer(bool NEEDS_DATASET)
     : SPK::Renderer(NEEDS_DATASET)
 {
     m_pass.faceCullMode = FaceCullMode::BACK;
-    m_pass.setParam("material_diffuse", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    m_pass.setParam(Id("material_diffuse"), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
     auto &embedResources = svc().renderManager().getEmbedResources();
-    m_pass.setParam("diffuseMap", embedResources.whiteTexture);
+    m_pass.setParam(Id("diffuseMap"), embedResources.whiteTexture);
     m_pass.program = embedResources.coloredProgram;
 }
 
@@ -44,7 +44,7 @@ void ParticleSystemRenderer::setBlendMode(SPK::BlendMode blendMode)
 
 void ParticleSystemRenderer::setDiffuseMap(TextureHandle texture)
 {
-    m_pass.setParam("diffuseMap", texture);
+    m_pass.setParam(Id("diffuseMap"), texture);
 }
 
 void ParticleSystemRenderer::enableFaceCulling(bool enable)

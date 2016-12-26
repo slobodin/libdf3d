@@ -19,9 +19,7 @@ struct IdsTable
 
     void remove(uint32_t id)
     {
-        std::lock_guard<std::recursive_mutex> lock(m_lock);
 
-        m_ids.erase(id);
     }
 
     static IdsTable& instance()

@@ -16,7 +16,7 @@ enum class CollisionShapeType
 
 struct PhysicsComponentCreationParams
 {
-    std::string groupId;
+    Id groupId;
     CollisionShapeType shape = CollisionShapeType::UNDEFINED;
     float mass = 1.0f;
     float friction = 0.5f;

@@ -176,7 +176,7 @@ void World::pauseSimulation(bool paused)
     m_paused = paused;
 }
 
-void World::registerEntityComponentLoader(const std::string &name, unique_ptr<EntityComponentLoader> loader)
+void World::registerEntityComponentLoader(Id name, unique_ptr<EntityComponentLoader> loader)
 {
     m_entityLoader->registerEntityComponentLoader(name, std::move(loader));
 }

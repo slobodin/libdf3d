@@ -84,7 +84,7 @@ public:
         return static_cast<T&>(*found->second);
     }
 
-    void registerEntityComponentLoader(const std::string &name, unique_ptr<EntityComponentLoader> loader);
+    void registerEntityComponentLoader(Id name, unique_ptr<EntityComponentLoader> loader);
 
     void setCamera(shared_ptr<Camera> camera) { m_camera = camera; }
     void setRenderingParams(const WorldRenderingParams &params) { m_renderingParams = params; }

@@ -233,7 +233,7 @@ public:
 
     void bindTexture(TextureHandle textureHandle, int unit) override;
 
-    ShaderHandle createShader(ShaderType type, const std::string &data) override;
+    ShaderHandle createShader(ShaderType type, const char *data) override;
 
     GpuProgramHandle createGpuProgram(ShaderHandle vertexShaderHandle, ShaderHandle fragmentShaderHandle) override;
     void destroyGpuProgram(GpuProgramHandle programHandle) override;

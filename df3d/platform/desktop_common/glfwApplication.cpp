@@ -98,6 +98,7 @@ public:
 
     void shutdown()
     {
+        m_initialized = false;
         m_appDelegate->onAppEnded();
 
         EngineShutdown();

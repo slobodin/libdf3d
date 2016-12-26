@@ -46,7 +46,7 @@ PhysicsComponentCreationParams::PhysicsComponentCreationParams(const Json::Value
     root["restitution"] >> restitution;
     root["linearDamping"] >> linearDamping;
     root["angularDamping"] >> angularDamping;
-    root["collisionGroup"] >> groupId;
+    groupId = Id(root["collisionGroup"].asCString());
     root["disableDeactivation"] >> disableDeactivation;
     root["noContactResponse"] >> noContactResponse;
 }

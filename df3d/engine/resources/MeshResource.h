@@ -16,7 +16,7 @@ struct MeshResourceData
         VertexData vertexData;
         PodArray<uint32_t> indices;
         IndicesType indicesType;
-        std::string materialName;
+        Id materialName;
 
         Part(const VertexFormat &vf, Allocator &alloc) : vertexData(vf), indices(alloc) { }
     };
@@ -34,7 +34,7 @@ struct MeshPart
 struct MeshResource
 {
     std::vector<MeshPart> meshParts;
-    std::vector<std::string> materialNames;
+    std::vector<Id> materialNames;
     Id materialLibResourceId;
     AABB localAABB;
     BoundingSphere localBoundingSphere;

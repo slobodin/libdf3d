@@ -46,7 +46,7 @@ public:
 
     virtual void bindTexture(TextureHandle textureHandle, int unit) = 0;
 
-    virtual ShaderHandle createShader(ShaderType type, const std::string &data) = 0;
+    virtual ShaderHandle createShader(ShaderType type, const char *data) = 0;
 
     virtual GpuProgramHandle createGpuProgram(ShaderHandle vertexShaderHandle, ShaderHandle fragmentShaderHandle) = 0;
     virtual void destroyGpuProgram(GpuProgramHandle programHandle) = 0;

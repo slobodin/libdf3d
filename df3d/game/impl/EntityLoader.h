@@ -11,7 +11,7 @@ namespace game_impl {
 
 class EntityLoader
 {
-    std::map<std::string, unique_ptr<EntityComponentLoader>> m_loaders;
+    std::unordered_map<Id, unique_ptr<EntityComponentLoader>> m_loaders;
 
 public:
     EntityLoader();
@@ -20,7 +20,7 @@ public:
     Entity createEntityFromFile(const char *resourceFile, World &w);
     Entity createEntityFromJson(const Json::Value &root, World &w);
 
-    void registerEntityComponentLoader(const std::string &name, unique_ptr<EntityComponentLoader> loader);
+    void registerEntityComponentLoader(Id name, unique_ptr<EntityComponentLoader> loader);
 };
 
 } }

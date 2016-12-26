@@ -17,11 +17,11 @@ namespace df3d { namespace game_impl {
 
 EntityLoader::EntityLoader()
 {
-    registerEntityComponentLoader("scenegraph", make_unique<SceneGraphComponentLoader>());
-    registerEntityComponentLoader("mesh", make_unique<MeshComponentLoader>());
-    registerEntityComponentLoader("vfx", make_unique<VfxComponentLoader>());
-    registerEntityComponentLoader("physics", make_unique<PhysicsComponentLoader>());
-    registerEntityComponentLoader("sprite_2d", make_unique<Sprite2DComponentLoader>());
+    registerEntityComponentLoader(Id("scenegraph"), make_unique<SceneGraphComponentLoader>());
+    registerEntityComponentLoader(Id("mesh"), make_unique<MeshComponentLoader>());
+    registerEntityComponentLoader(Id("vfx"), make_unique<VfxComponentLoader>());
+    registerEntityComponentLoader(Id("physics"), make_unique<PhysicsComponentLoader>());
+    registerEntityComponentLoader(Id("sprite_2d"), make_unique<Sprite2DComponentLoader>());
 }
 
 EntityLoader::~EntityLoader()
@@ -59,12 +59,12 @@ Entity EntityLoader::createEntityFromJson(const Json::Value &root, World &w)
             return {};
         }
 
-        auto componentType = componentJson["type"].asString();
-        auto foundLoader = m_loaders.find(componentType);
+        auto componentType = componentJson["type"].asCString();
+        auto foundLoader = m_loaders.find(Id(componentType));
         if (foundLoader != m_loaders.end())
             foundLoader->second->loadComponent(dataJson, res, w);
         else
-            DFLOG_WARN("Failed to parse entity description, unknown component %s", componentType.c_str());
+            DFLOG_WARN("Failed to parse entity description, unknown component %s", componentType);
     }
 
     const auto &childrenJson = root["children"];
@@ -74,7 +74,7 @@ Entity EntityLoader::createEntityFromJson(const Json::Value &root, World &w)
     return res;
 }
 
-void EntityLoader::registerEntityComponentLoader(const std::string &name, unique_ptr<EntityComponentLoader> loader)
+void EntityLoader::registerEntityComponentLoader(Id name, unique_ptr<EntityComponentLoader> loader)
 {
     DF3D_ASSERT(!utils::contains_key(m_loaders, name));
     m_loaders.insert(std::make_pair(name, std::move(loader)));
