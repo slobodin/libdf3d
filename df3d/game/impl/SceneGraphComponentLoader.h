@@ -12,12 +12,14 @@ public:
     {
         glm::vec3 position, rotation;
         glm::vec3 scale(1.0f, 1.0f, 1.0f);
-        std::string name;
 
         root["position"] >> position;
         root["rotation"] >> rotation;
         root["scale"] >> scale;
-        root["name"] >> name;
+
+        Id name;
+        if (root.isMember("name"))
+            name = Id(root["name"].asCString());
 
         // NOTE: assuming it's already added.
         w.sceneGraph().setPosition(e, position);

@@ -182,17 +182,17 @@ void SceneGraphComponentProcessor::rotateAxis(Entity e, float angle, const glm::
         m_world.physics().teleportOrientation(e, compData.lTransform.orientation);
 }
 
-void SceneGraphComponentProcessor::setName(Entity e, const std::string &name)
+void SceneGraphComponentProcessor::setName(Entity e, df3d::Id name)
 {
     m_data.getData(e).name = name;
 }
 
-const std::string& SceneGraphComponentProcessor::getName(Entity e) const
+df3d::Id SceneGraphComponentProcessor::getName(Entity e) const
 {
     return m_data.getData(e).name;
 }
 
-Entity SceneGraphComponentProcessor::getByName(const std::string &name) const
+Entity SceneGraphComponentProcessor::getByName(df3d::Id name) const
 {
     if (name.empty())
         return{};
@@ -206,7 +206,7 @@ Entity SceneGraphComponentProcessor::getByName(const std::string &name) const
     return{};
 }
 
-Entity SceneGraphComponentProcessor::getByName(Entity parent, const std::string &name) const
+Entity SceneGraphComponentProcessor::getByName(Entity parent, df3d::Id name) const
 {
     if (name.empty())
         return{};

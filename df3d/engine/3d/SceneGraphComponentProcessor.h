@@ -25,7 +25,7 @@ class SceneGraphComponentProcessor : public EntityComponentProcessor
     {
         Transform wTransform;   // world transform
         Transform lTransform;   // local transform
-        std::string name;
+        df3d::Id name;
         Entity parent;
         Entity holder;
         std::vector<Entity> children;
@@ -66,10 +66,10 @@ public:
     void rotateRoll(Entity e, float roll);
     void rotateAxis(Entity e, float angle, const glm::vec3 &axis);
 
-    void setName(Entity e, const std::string &name);
-    const std::string& getName(Entity e) const;
-    Entity getByName(const std::string &name) const;
-    Entity getByName(Entity parent, const std::string &name) const;
+    void setName(Entity e, df3d::Id name);
+    df3d::Id getName(Entity e) const;
+    Entity getByName(df3d::Id name) const;
+    Entity getByName(Entity parent, df3d::Id name) const;
 
     glm::vec3 getWorldPosition(Entity e) const;
     glm::quat getWorldOrientation(Entity e) const;
