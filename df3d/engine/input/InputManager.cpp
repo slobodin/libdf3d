@@ -144,7 +144,7 @@ void InputManager::setMouseWheelDelta(float delta)
     if (auto root = svc().guiManager().getRoot())
     {
         if (root->GetIsInteractable())
-            root->InvokeWheel(m_mouseState.position.x, m_mouseState.position.y, 0, delta, tb::TB_MODIFIER_NONE);
+            root->InvokeWheel(m_mouseState.position.x, m_mouseState.position.y, 0, static_cast<int>(delta), tb::TB_MODIFIER_NONE);
     }
     m_mouseState.wheelDelta = delta;
 }

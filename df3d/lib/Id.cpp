@@ -1,5 +1,7 @@
 #include "Id.h"
 
+#include <df3d/lib/Utils.h>
+
 namespace df3d {
 
 #ifdef _DEBUG
@@ -30,6 +32,7 @@ struct IdsTable
 };
 #endif
 
+// FIXME: should be the same as in TB because looking up TBLanguage by Id.
 inline uint32_t CalcFNV(const char *str)
 {
     uint32_t hash = 2166136261u;
@@ -76,6 +79,17 @@ std::string Id::toString() const
 bool Id::empty() const
 {
     return m_id == CalcFNV("");
+}
+
+Id Id::fromString(const std::string &str)
+{
+#ifdef _DEBUG
+    return Id(str.c_str());
+#else
+    Id res;
+    res.m_id = df3d::utils::from_string<uint32_t>(str);
+    return res;
+#endif
 }
 
 }

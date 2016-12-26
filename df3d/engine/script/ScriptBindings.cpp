@@ -189,6 +189,7 @@ void bindBase(Table &df3dNamespace)
         cls
             .Ctor()
             .Ctor<const char *>()
+            .Prop(_SC("id"), &Id::getId)
             ;
 
         df3dNamespace.Bind(_SC("Id"), cls);

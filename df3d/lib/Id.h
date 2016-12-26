@@ -15,11 +15,14 @@ public:
     explicit Id(const char *str);
     ~Id();
 
+    uint32_t getId() { return m_id; }
     std::string toString() const;
     bool empty() const;
 
     bool operator== (const Id &other) const { return m_id == other.m_id; }
     bool operator!= (const Id &other) const { return m_id != other.m_id; }
+
+    static Id fromString(const std::string &str);
 };
 
 }
