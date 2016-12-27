@@ -16,6 +16,7 @@ class btStridingMeshInterface;
 class btCollisionShape;
 class btSphereShape;
 class btBoxShape;
+class btCapsuleShape;
 
 namespace df3d {
 
@@ -75,6 +76,8 @@ public:
     btRigidBody* getBody(Entity e);
     btRigidBody* createBody(const btRigidBody::btRigidBodyConstructionInfo &info);
     btSphereShape* createSphereShape(float raidus);
+    // axisX -> 0, axis y -> 1, axis z -> 2
+    btCapsuleShape* createCapsuleShape(float radius, float height, int axis);
     btBoxShape* createBoxShape(const glm::vec3 &halfSize);
     glm::vec3 getCenterOfMass(Entity e);
 

@@ -418,6 +418,17 @@ btSphereShape* PhysicsComponentProcessor::createSphereShape(float raidus)
     return MAKE_NEW(m_allocator, btSphereShape)(raidus);
 }
 
+btCapsuleShape* PhysicsComponentProcessor::createCapsuleShape(float radius, float height, int axis)
+{
+    if (axis == 0)
+        return MAKE_NEW(m_allocator, btCapsuleShapeX)(radius, height);
+    else if (axis == 1)
+        return MAKE_NEW(m_allocator, btCapsuleShape)(radius, height);
+    else if (axis == 2)
+        return MAKE_NEW(m_allocator, btCapsuleShapeZ)(radius, height);
+    return nullptr;
+}
+
 btBoxShape* PhysicsComponentProcessor::createBoxShape(const glm::vec3 &halfSize)
 {
     return MAKE_NEW(m_allocator, btBoxShape)(PhysicsHelpers::glmTobt(halfSize));
