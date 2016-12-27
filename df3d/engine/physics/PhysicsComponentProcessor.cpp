@@ -5,6 +5,7 @@
 #include <ConvexDecomposition/ConvexDecomposition.h>
 #include "BulletInterface.h"
 #include "btGImpactConvexDecompositionShape.h"
+#include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 #include "PhysicsComponentCreationParams.h"
 #include "PhysicsHelpers.h"
 #include <df3d/lib/math/AABB.h>
@@ -353,6 +354,8 @@ PhysicsComponentProcessor::PhysicsComponentProcessor(World &w)
          m_collisionConfiguration);
 
     m_dynamicsWorld->setGravity(PhysicsHelpers::glmTobt(m_config.getGravity()));
+
+    //btGImpactCollisionAlgorithm::registerAlgorithm(m_dispatcher);
 
 #ifdef _DEBUG
     m_debugDraw = MAKE_NEW(m_allocator, BulletDebugDraw)();
