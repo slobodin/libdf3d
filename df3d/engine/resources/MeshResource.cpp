@@ -93,7 +93,7 @@ bool MeshHolder::createResource(Allocator &allocator)
 
     for (auto part : m_resourceData->parts)
     {
-        m_resource->materialNames.push_back(part->materialName);
+        m_resource->materialNames.push_back(Id(part->materialName.c_str()));
         MeshPart hwPart;
 
         auto &vData = part->vertexData;

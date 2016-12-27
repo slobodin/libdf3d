@@ -17,7 +17,7 @@ class MeshLoader_obj_state
     PodArray<glm::vec2> m_txCoords;
 
     // Merged (by material) submeshes.
-    std::unordered_map<Id, MeshResourceData::Part*> m_meshParts;
+    std::unordered_map<std::string, MeshResourceData::Part*> m_meshParts;
     MeshResourceData::Part *m_currentMeshPart = nullptr;
     MeshResourceData::Part* createMeshPart()
     {
@@ -134,13 +134,12 @@ class MeshLoader_obj_state
         is >> material;
 
         // Create new vertex cache if not found, set as current.
-        Id materialId(material.c_str());
-        auto found = m_meshParts.find(materialId);
+        auto found = m_meshParts.find(material);
         if (found == m_meshParts.end())
         {
             auto meshPart = createMeshPart();
 
-            m_meshParts[materialId] = meshPart;
+            m_meshParts[material] = meshPart;
             m_currentMeshPart = meshPart;
         }
         else

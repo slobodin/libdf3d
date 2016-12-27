@@ -16,7 +16,7 @@ struct MeshResourceData
         VertexData vertexData;
         PodArray<uint32_t> indices;
         IndicesType indicesType;
-        Id materialName;
+        std::string materialName;
 
         Part(const VertexFormat &vf, Allocator &alloc) : vertexData(vf), indices(alloc) { }
     };
