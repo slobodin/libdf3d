@@ -394,8 +394,12 @@ namespace meta
 	template<typename T, bool = IsAbstract<T>::value>
 	struct Cloner
 	{
-		static T* clone(const T* source) { return new T(*source); }
-		static T* create() { return new T(); }
+		static T* clone(const T* source) { 
+            return SPK_NEW(T, *source);
+        }
+		static T* create() { 
+            return SPK_NEW(T);
+        }
 	};
 
 	/**

@@ -63,6 +63,9 @@ namespace SPK
 		std::string formatSize(unsigned int s);
 		void dumpMemory();
 
+        unsigned long getTotalMemorySize() const { return totalMemorySize; }
+        unsigned long getMaxMemorySize() const { return maxMemorySize; }
+
 	private :
 
 		struct BlockInfo
