@@ -135,7 +135,9 @@ int main(int argc, const char **argv) try
 
     ProcessMesh(*meshInput, outputFilename + ".dfmesh");
 
-    DestroyMeshData(meshInput, alloc);
+    for (auto part : meshInput->parts)
+        MAKE_DELETE(alloc, part);
+    MAKE_DELETE(alloc, meshInput);
 
     std::cout << "Done!" << std::endl;
 

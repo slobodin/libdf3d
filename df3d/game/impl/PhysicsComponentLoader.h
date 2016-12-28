@@ -19,7 +19,7 @@ public:
 
         auto params = PhysicsComponentCreationParams(root);
 
-        w.physics().add(e, params, root["mesh"].asCString());
+        w.physics().add(e, params, df3d::Id(root["mesh"].asCString()));
     }
 };
 

@@ -22,51 +22,27 @@
 
 namespace df3d {
 
-static btTriangleMesh* CreateBulletTriangleMesh(const char *meshPath, Allocator &allocator)
+static void* CustomBulletAlloc(size_t size)
 {
-    // FIXME: XXX! Reading the mesh twice! This is a workaround.
-    auto meshFileData = LoadMeshDataFromFile_Workaround(meshPath, allocator);
+    return df3d::MemoryManager::allocDefault().alloc(size, 1);
+}
 
-    auto bulletMesh = MAKE_NEW(allocator, btTriangleMesh)(true, false);
+static void CustomBulletFree(void *memblock)
+{
+    df3d::MemoryManager::allocDefault().dealloc(memblock);
+}
 
-    for (size_t smIdx = 0; smIdx < meshFileData->parts.size(); smIdx++)
+static btStridingMeshInterface* ShallowCopyBulletMeshData(btTriangleIndexVertexArray *input, Allocator &allocator)
+{
+    auto result = MAKE_NEW(allocator, btTriangleIndexVertexArray)();
+
+    for (int i = 0; i < input->getNumSubParts(); i++)
     {
-        auto &submesh = meshFileData->parts[smIdx];
-        auto &vdata = submesh->vertexData;
-
-        bulletMesh->preallocateVertices(vdata.getVerticesCount());
-
-        if (submesh->indices.size() > 0)
-        {
-            for (size_t i = 0; i < submesh->indices.size(); i += 3)
-            {
-                auto i1 = submesh->indices[i + 0];
-                auto i2 = submesh->indices[i + 1];
-                auto i3 = submesh->indices[i + 2];
-
-                auto v1 = (glm::vec3*)vdata.getVertexAttribute(i1, VertexFormat::POSITION);
-                auto v2 = (glm::vec3*)vdata.getVertexAttribute(i2, VertexFormat::POSITION);
-                auto v3 = (glm::vec3*)vdata.getVertexAttribute(i3, VertexFormat::POSITION);
-
-                bulletMesh->addTriangle(PhysicsHelpers::glmTobt(*v1), PhysicsHelpers::glmTobt(*v2), PhysicsHelpers::glmTobt(*v3));
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < vdata.getVerticesCount(); i += 3)
-            {
-                auto v1 = (glm::vec3*)vdata.getVertexAttribute(i + 0, VertexFormat::POSITION);
-                auto v2 = (glm::vec3*)vdata.getVertexAttribute(i + 1, VertexFormat::POSITION);
-                auto v3 = (glm::vec3*)vdata.getVertexAttribute(i + 2, VertexFormat::POSITION);
-
-                bulletMesh->addTriangle(PhysicsHelpers::glmTobt(*v1), PhysicsHelpers::glmTobt(*v2), PhysicsHelpers::glmTobt(*v3));
-            }
-        }
+        const auto &part = input->getIndexedMeshArray()[i];
+        result->addIndexedMesh(part, part.m_indexType);
     }
 
-    DestroyMeshData(meshFileData, allocator);
-
-    return bulletMesh;
+    return result;
 }
 
 ATTRIBUTE_ALIGNED16(class) PhysicsComponentMotionState : public btMotionState
@@ -205,18 +181,18 @@ void PhysicsComponentProcessor::addRigidBodyToWorld(btRigidBody *body, short gro
     m_dynamicsWorld->addRigidBody(body, group, mask);
 }
 
-btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, const char *meshPath, const PhysicsComponentCreationParams &params)
+btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, df3d::Id meshResourceId, const PhysicsComponentCreationParams &params)
 {
     // FIXME: what to do if scale has been changed?
     auto scale = PhysicsHelpers::glmTobt(svc().defaultWorld().sceneGraph().getLocalScale(data.holder));
+
+    auto mesh = svc().resourceManager().getResource<MeshResource>(meshResourceId);
+    DF3D_ASSERT(mesh);
 
     switch (params.shape)
     {
     case CollisionShapeType::BOX:
     {
-        auto mesh = svc().resourceManager().getResource<MeshResource>(Id(meshPath));
-        DF3D_ASSERT(mesh);
-
         auto half = (mesh->localAABB.maxPoint() - mesh->localAABB.minPoint()) / 2.0f;
         auto shape = MAKE_NEW(m_allocator, btBoxShape)(btVector3(half.x, half.y, half.z));
         shape->setLocalScaling(scale);
@@ -224,9 +200,6 @@ btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, co
     }
     case CollisionShapeType::SPHERE:
     {
-        auto mesh = svc().resourceManager().getResource<MeshResource>(Id(meshPath));
-        DF3D_ASSERT(mesh);
-
         auto shape = MAKE_NEW(m_allocator, btSphereShape)(mesh->localBoundingSphere.getRadius());
         shape->setLocalScaling(scale);
 
@@ -234,9 +207,6 @@ btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, co
     }
     case CollisionShapeType::CONVEX_HULL:
     {
-        auto mesh = svc().resourceManager().getResource<MeshResource>(Id(meshPath));
-        DF3D_ASSERT(mesh);
-
         auto &points = mesh->convexHull.m_vertices;
         auto colShape = MAKE_NEW(m_allocator, btConvexHullShape)((btScalar*)points.data(), points.size());
         colShape->setLocalScaling(scale);
@@ -247,7 +217,7 @@ btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, co
     {
         DF3D_ASSERT_MESS(params.mass == 0.0f, "body should not be dynamic");
 
-        data.meshInterface = CreateBulletTriangleMesh(meshPath, m_allocator);
+        data.meshInterface = ShallowCopyBulletMeshData(mesh->physicsMeshInterface, m_allocator);
 
         auto colShape = MAKE_NEW(m_allocator, btBvhTriangleMeshShape)(data.meshInterface, true);
         colShape->setLocalScaling(scale);
@@ -256,20 +226,23 @@ btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, co
     }
     case CollisionShapeType::CONVEX_DECOMPOSITION:
     {
-        data.meshInterface = CreateBulletTriangleMesh(meshPath, m_allocator);
+        data.meshInterface = ShallowCopyBulletMeshData(mesh->physicsMeshInterface, m_allocator);
 
         auto colShape = MAKE_NEW(m_allocator, btGImpactConvexDecompositionShape)(data.meshInterface, scale);
 
         colShape->setMargin(0.07f);
         colShape->updateBound();
+
         return colShape;
     }
     case CollisionShapeType::DYNAMIC_MESH:
     {
-        data.meshInterface = CreateBulletTriangleMesh(meshPath, m_allocator);
+        data.meshInterface = ShallowCopyBulletMeshData(mesh->physicsMeshInterface, m_allocator);
+
         auto colShape = MAKE_NEW(m_allocator, btGImpactMeshShape)(data.meshInterface);
         colShape->setLocalScaling(scale);
         colShape->updateBound();
+
         return colShape;
     }
     break;
@@ -281,9 +254,9 @@ btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, co
     return nullptr;
 }
 
-void PhysicsComponentProcessor::initialize(Data &data, const char *meshPath, const PhysicsComponentCreationParams &params)
+void PhysicsComponentProcessor::initialize(Data &data, df3d::Id meshResourceId, const PhysicsComponentCreationParams &params)
 {
-    btCollisionShape *colShape = createCollisionShape(data, meshPath, params);
+    btCollisionShape *colShape = createCollisionShape(data, meshResourceId, params);
     if (!colShape)
     {
         DF3D_ASSERT_MESS(false, "Failed to create a collision shape.");
@@ -344,6 +317,8 @@ PhysicsComponentProcessor::PhysicsComponentProcessor(World &w)
     m_allocator(MemoryManager::allocDefault()),
     m_config(svc().getInitParams().physicsConfigPath)
 {
+    //btAlignedAllocSetCustom(CustomBulletAlloc, CustomBulletFree);
+
     m_collisionConfiguration = MAKE_NEW(m_allocator, btDefaultCollisionConfiguration)();
     m_dispatcher = MAKE_NEW(m_allocator, btCollisionDispatcher)(m_collisionConfiguration);
     m_overlappingPairCache = MAKE_NEW(m_allocator, btDbvtBroadphase)();
@@ -467,13 +442,13 @@ void PhysicsComponentProcessor::teleportOrientation(Entity e, const glm::quat &o
     //m_dynamicsWorld->synchronizeSingleMotionState(body);
 }
 
-void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, const char *meshPath)
+void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, df3d::Id meshResourceId)
 {
     DF3D_ASSERT_MESS(!m_data.contains(e), "An entity already has a physics component");
 
     Data data;
     data.holder = e;
-    initialize(data, meshPath, params);
+    initialize(data, meshResourceId, params);
     m_data.add(e, data);
 }
 

@@ -7,6 +7,8 @@ namespace df3d {
 class MallocAllocator : public Allocator
 {
     int m_totalAllocated = 0;
+    size_t m_totalAllocatedSize = 0;
+
     std::mutex m_lock;
 
 public:

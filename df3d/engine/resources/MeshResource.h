@@ -7,6 +7,8 @@
 #include <df3d/lib/math/ConvexHull.h>
 #include "IResourceHolder.h"
 
+class btTriangleIndexVertexArray;
+
 namespace df3d {
 
 struct MeshResourceData
@@ -33,6 +35,8 @@ struct MeshPart
 
 struct MeshResource
 {
+    btTriangleIndexVertexArray *physicsMeshInterface = nullptr;
+
     std::vector<MeshPart> meshParts;
     std::vector<Id> materialNames;
     Id materialLibResourceId;
@@ -56,8 +60,5 @@ public:
 
     void* getResource() override { return m_resource; }
 };
-
-MeshResourceData *LoadMeshDataFromFile_Workaround(const char *path, Allocator &allocator);
-void DestroyMeshData(MeshResourceData *resource, Allocator &allocator);
 
 }

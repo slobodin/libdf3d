@@ -62,8 +62,8 @@ class PhysicsComponentProcessor : public EntityComponentProcessor
 
     void addRigidBodyToWorld(btRigidBody *body, Id groupId);
     void addRigidBodyToWorld(btRigidBody *body, short group, short mask);
-    btCollisionShape* createCollisionShape(Data &data, const char *meshPath, const PhysicsComponentCreationParams &params);
-    void initialize(Data &data, const char *meshPath, const PhysicsComponentCreationParams &params);
+    btCollisionShape* createCollisionShape(Data &data, df3d::Id meshResourceId, const PhysicsComponentCreationParams &params);
+    void initialize(Data &data, df3d::Id meshResourceId, const PhysicsComponentCreationParams &params);
     void update() override;
     void draw(RenderQueue *ops) override;
 
@@ -84,7 +84,7 @@ public:
     void teleportPosition(Entity e, const glm::vec3 &pos);
     void teleportOrientation(Entity e, const glm::quat &orient);
 
-    void add(Entity e, const PhysicsComponentCreationParams &params, const char *meshPath);
+    void add(Entity e, const PhysicsComponentCreationParams &params, df3d::Id meshResourceId);
     // NOTE: body should not be added to the Physics World as it will be added via this processor.
     void add(Entity e, btRigidBody *body, Id groupId);
     void add(Entity e, btRigidBody *body, short group, short mask);
