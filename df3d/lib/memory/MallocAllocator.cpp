@@ -53,6 +53,9 @@ void* MallocAllocator::alloc(size_t size, size_t alignment)
 {
     std::lock_guard<std::mutex> lock(m_lock);
 
+    DF3D_ASSERT(alignment != 0);
+    DF3D_ASSERT((alignment & (alignment - 1)) == 0);
+
     auto sizeToAllocate = size + alignment + sizeof(ChunkHeader);
 
     auto header = (ChunkHeader*)malloc(sizeToAllocate);
