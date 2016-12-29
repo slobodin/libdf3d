@@ -62,8 +62,8 @@ void* MallocAllocator::alloc(size_t size, size_t alignment)
     void *dataPointer = AlignForward(header + 1, alignment);
 
     // Fill.
-    size_t *tmp = (size_t *)(header + 1);
-    while (tmp < dataPointer)
+    size_t *tmp = (size_t*)(header + 1);
+    while (tmp != dataPointer)
         *tmp++ = HEADER_PAD_VALUE;
 
     ++m_totalAllocated;
@@ -84,9 +84,9 @@ void MallocAllocator::dealloc(void *mem)
     --m_totalAllocated;
     m_totalAllocatedSize -= header->size;
 
-    free(header);
-
     DF3D_ASSERT(m_totalAllocated >= 0);
+
+    free(header);
 }
 
 size_t MallocAllocator::bytesAllocated()
