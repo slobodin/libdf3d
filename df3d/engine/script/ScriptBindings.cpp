@@ -66,6 +66,11 @@ inline glm::quat toQuat(const glm::vec3 &eulerAngles)
     return glm::quat(eulerAngles);
 }
 
+inline glm::quat toQuatAngles(const glm::vec3 &eulerAngles)
+{
+    return glm::quat(glm::radians(eulerAngles));
+}
+
 inline glm::quat toQuatRHS(const glm::vec3 &eulerAngles)
 {
     auto tmp = glm::radians(eulerAngles);
@@ -170,6 +175,7 @@ void bindGlm(Table &df3dNamespace)
     df3dNamespace.Func(_SC("slerp"), slerp);
     df3dNamespace.Func(_SC("toQuat"), toQuat);
     df3dNamespace.Func(_SC("toQuatRHS"), toQuatRHS);
+    df3dNamespace.Func(_SC("toQuatAngles"), toQuatAngles);
 }
 
 void bindBase(Table &df3dNamespace)
@@ -229,6 +235,7 @@ void bindProcessors(Table &df3dNamespace)
             .Func(_SC("getWorldDirection"), &SceneGraphComponentProcessor::getWorldDirection)
             .Func(_SC("getWorldUp"), &SceneGraphComponentProcessor::getWorldUp)
             .Func(_SC("getWorldRight"), &SceneGraphComponentProcessor::getWorldRight)
+            .Func(_SC("getWorldOrientation"), &SceneGraphComponentProcessor::getWorldOrientation)
 
             .Func(_SC("attachChild"), &SceneGraphComponentProcessor::attachChild)
             .Func(_SC("detachChild"), &SceneGraphComponentProcessor::detachChild)
