@@ -83,6 +83,8 @@ public:
 
     // This should be called by the platform code only.
     // TODO: improve encapsulation!
+    void setMouseButtonPressed(MouseButton button, int x, int y);
+    void setMouseButtonReleased(MouseButton button, int x, int y);
     void setMousePosition(int x, int y);
     void setMouseWheelDelta(float delta);
     void onKeyUp(const KeyCode &keyCode, KeyModifier modifiers);

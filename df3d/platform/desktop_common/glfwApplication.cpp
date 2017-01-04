@@ -153,9 +153,9 @@ public:
             return;
 
         if (action == GLFW_PRESS)
-            svc().inputManager().onMouseButtonPressed(df3dBtn, (int)x, (int)y);
+            svc().inputManager().setMouseButtonPressed(df3dBtn, (int)x, (int)y);
         else if (action == GLFW_RELEASE)
-            svc().inputManager().onMouseButtonReleased(df3dBtn, (int)x, (int)y);
+            svc().inputManager().setMouseButtonReleased(df3dBtn, (int)x, (int)y);
 
 #ifdef DF3D_EMULATE_TOUCHES
         if (button == GLFW_MOUSE_BUTTON_LEFT)

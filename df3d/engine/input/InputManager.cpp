@@ -181,6 +181,36 @@ KeyModifier InputManager::getKeyModifiers() const
     return m_keyboardState.modifiers;
 }
 
+void InputManager::setMouseButtonPressed(MouseButton button, int x, int y)
+{
+    if (button == MouseButton::LEFT)
+    {
+        Touch touch;
+        touch.x = x;
+        touch.y = y;
+        touch.state = Touch::State::DOWN;
+        touch.id = 0;
+        processTouchDown(touch);
+    }
+
+    m_mouseState.buttons[(size_t)button] = MouseState::PRESSED;
+}
+
+void InputManager::setMouseButtonReleased(MouseButton button, int x, int y)
+{
+    if (button == MouseButton::LEFT)
+    {
+        Touch touch;
+        touch.x = x;
+        touch.y = y;
+        touch.state = Touch::State::UP;
+        touch.id = 0;
+        processTouchUp(touch);
+    }
+
+    m_mouseState.buttons[(size_t)button] = MouseState::RELEASED;
+}
+
 void InputManager::setMousePosition(int x, int y)
 {
     m_mouseState.position = glm::ivec2(x, y);
