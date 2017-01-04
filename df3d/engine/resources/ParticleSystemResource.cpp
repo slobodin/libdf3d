@@ -10,7 +10,7 @@
 
 namespace df3d {
 
-const std::map<std::string, SPK::Param> StringToSparkParam =
+const std::unordered_map<std::string, SPK::Param> StringToSparkParam =
 {
     { "angle", SPK::PARAM_ANGLE },
     { "mass", SPK::PARAM_MASS },
@@ -19,7 +19,7 @@ const std::map<std::string, SPK::Param> StringToSparkParam =
     { "texture_index", SPK::PARAM_TEXTURE_INDEX }
 };
 
-const std::map<std::string, SPK::OrientationPreset> StringToSparkDirection =
+const std::unordered_map<std::string, SPK::OrientationPreset> StringToSparkDirection =
 {
     { "direction_aligned", SPK::DIRECTION_ALIGNED },
     { "camera_plane_aligned", SPK::CAMERA_PLANE_ALIGNED },

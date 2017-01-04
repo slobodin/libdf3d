@@ -91,7 +91,7 @@ static bool IsDepthTexture(PixelFormat fmt)
     return fmt == PixelFormat::DEPTH;
 }
 
-static const std::map<CubeFace, GLenum> MapSidesToGL =
+static const std::unordered_map<CubeFace, GLenum> MapSidesToGL =
 {
     { CubeFace::POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_X },
     { CubeFace::NEGATIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X },
