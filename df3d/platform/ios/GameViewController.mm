@@ -27,7 +27,6 @@ extern bool EngineInit(EngineInitParams params);
 
 @implementation GameViewController {
     CGFloat contentScaleFactor;
-    df3d::TouchID primaryTouchId;
 }
 
 - (void)viewDidLoad
@@ -35,7 +34,6 @@ extern bool EngineInit(EngineInitParams params);
     [super viewDidLoad];
 
     contentScaleFactor = [UIScreen mainScreen].scale;
-    primaryTouchId = df3d::Touch::INVALID_ID;
 
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 
@@ -146,16 +144,9 @@ extern bool EngineInit(EngineInitParams params);
         CGPoint point = [touch locationInView:self.view];
         point.x *= self->contentScaleFactor;
         point.y *= self->contentScaleFactor;
-        df3d::TouchID pointerId = reinterpret_cast<intptr_t>(touch);
+        auto pointerId = reinterpret_cast<uintptr_t>(touch);
 
         df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, df3d::Touch::State::DOWN);
-
-        if (self->primaryTouchId == df3d::Touch::INVALID_ID)
-        {
-            df3d::svc().inputManager().onMouseButtonPressed(df3d::MouseButton::LEFT, point.x, point.y);
-
-            self->primaryTouchId = pointerId;
-        }
     }
 }
 
@@ -166,12 +157,9 @@ extern bool EngineInit(EngineInitParams params);
         CGPoint point = [touch locationInView:self.view];
         point.x *= self->contentScaleFactor;
         point.y *= self->contentScaleFactor;
-        df3d::TouchID pointerId = reinterpret_cast<intptr_t>(touch);
+        auto pointerId = reinterpret_cast<uintptr_t>(touch);
 
         df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, df3d::Touch::State::MOVING);
-
-        if (pointerId == self->primaryTouchId)
-            df3d::svc().inputManager().setMousePosition(point.x, point.y);
     }
 }
 
@@ -179,19 +167,12 @@ extern bool EngineInit(EngineInitParams params);
 {
     for (UITouch *touch in touches)
     {
-        df3d::TouchID pointerId = reinterpret_cast<intptr_t>(touch);
         CGPoint point = [touch locationInView:self.view];
         point.x *= self->contentScaleFactor;
         point.y *= self->contentScaleFactor;
+        auto pointerId = reinterpret_cast<uintptr_t>(touch);
 
         df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, df3d::Touch::State::UP);
-
-        if (pointerId == self->primaryTouchId)
-        {
-            df3d::svc().inputManager().onMouseButtonReleased(df3d::MouseButton::LEFT, point.x, point.y);
-
-            self->primaryTouchId = df3d::Touch::INVALID_ID;
-        }
     }
 }
 
@@ -199,19 +180,12 @@ extern bool EngineInit(EngineInitParams params);
 {
     for (UITouch *touch in touches)
     {
-        df3d::TouchID pointerId = reinterpret_cast<intptr_t>(touch);
         CGPoint point = [touch locationInView:self.view];
         point.x *= self->contentScaleFactor;
         point.y *= self->contentScaleFactor;
+        auto pointerId = reinterpret_cast<uintptr_t>(touch);
 
         df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, df3d::Touch::State::CANCEL);
-
-        if (pointerId == self->primaryTouchId)
-        {
-            df3d::svc().inputManager().onMouseButtonReleased(df3d::MouseButton::LEFT, point.x, point.y);
-
-            self->primaryTouchId = df3d::Touch::INVALID_ID;
-        }
     }
 }
 

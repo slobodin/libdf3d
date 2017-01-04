@@ -111,13 +111,9 @@ enum KeyModifier
     KM_SHIFT = 1 << 2
 };
 
-using TouchID = intptr_t;
-
 class Touch
 {
 public:
-    static const TouchID INVALID_ID = -1;
-
     enum class State
     {
         UP,
@@ -128,7 +124,7 @@ public:
         UNDEFINED
     };
 
-    TouchID id = 0;
+    int id = 0;
     int x = 0;
     int y = 0;
     int dx = 0;

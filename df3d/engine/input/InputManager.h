@@ -5,14 +5,6 @@
 namespace df3d 
 {
 
-class TouchListener
-{
-public:
-    virtual ~TouchListener() = default;
-
-    virtual void onTouch(const Touch &touch) = 0;
-};
-
 class InputManager : NonCopyable
 {
     friend class EngineController;
@@ -62,17 +54,19 @@ class InputManager : NonCopyable
     KeyboardState m_prevKeyboardState;
     KeyboardState m_keyboardState;
 
-    std::unordered_map<TouchID, Touch> m_touches;
-    TouchListener *m_listener = nullptr;
     bool m_enabled = true;
+    std::unordered_map<uintptr_t, Touch> m_touches;
 
     void cleanStep();
+    void processTouchDown(const Touch &touch);
+    void processTouchUp(const Touch &touch);
+    void processTouchMove(const Touch &touch);
+    void processTouchCancel(const Touch &touch);
 
 public:
     InputManager() = default;
     ~InputManager() = default;
 
-    void setTouchesListener(TouchListener *listener) { m_listener = listener; }
     void setEnabled(bool enabled);
 
     const glm::ivec2& getMousePosition() const;
@@ -89,14 +83,14 @@ public:
 
     // This should be called by the platform code only.
     // TODO: improve encapsulation!
-    void onMouseButtonPressed(MouseButton button, int x, int y);
-    void onMouseButtonReleased(MouseButton button, int x, int y);
     void setMousePosition(int x, int y);
     void setMouseWheelDelta(float delta);
     void onKeyUp(const KeyCode &keyCode, KeyModifier modifiers);
     void onKeyDown(const KeyCode &keyCode, KeyModifier modifiers);
     void onTextInput(unsigned int codepoint);
-    void onTouch(TouchID id, int x, int y, Touch::State state);
+    // TODO: make InputInterface with only get functions. Game code will use it.
+    // Instantiate input manager per platform with these methods (setmousepos, onTouch, etc).
+    void onTouch(uintptr_t id, int x, int y, Touch::State state);
 };
 
 }
