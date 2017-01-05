@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.6)
 
 project(libdf3d)
 
@@ -10,7 +10,7 @@ endif()
 
 set(DF3D_ROOT ${PROJECT_SOURCE_DIR})
 
-include(${PROJECT_SOURCE_DIR}/cmake/cotire.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/PrecompiledHeader.cmake)
 
 if (WINDOWS AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_win32" CACHE PATH "third-party")
@@ -21,10 +21,10 @@ endif()
 # endif()
 
 set(libdf3d_HEADER_LIST
+    df3d/df3d_pch.h
     ${PROJECT_SOURCE_DIR}/df3d/Common.h
     ${PROJECT_SOURCE_DIR}/df3d/df3d.h
     ${PROJECT_SOURCE_DIR}/df3d/df3d_config.h
-    ${PROJECT_SOURCE_DIR}/df3d/df3d_pch.h
     ${PROJECT_SOURCE_DIR}/df3d/libdf3d_dll.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/ConfigVariable.h
     ${PROJECT_SOURCE_DIR}/df3d/engine/EngineController.h
@@ -138,8 +138,8 @@ set(libdf3d_HEADER_LIST
 )
 
 set(libdf3d_SRC_LIST
+    df3d/df3d_pch.cpp
     ${PROJECT_SOURCE_DIR}/df3d/Common.cpp
-    ${PROJECT_SOURCE_DIR}/df3d/df3d_pch.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/EngineController.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/EngineCVars.cpp
     ${PROJECT_SOURCE_DIR}/df3d/engine/TimeManager.cpp
@@ -228,7 +228,7 @@ endif()
 
 set(third_party_SRC_FILES
     ${PROJECT_SOURCE_DIR}/third-party/json/jsoncpp.cpp
-    ${PROJECT_SOURCE_DIR}/third-party/mikktspace/mikktspace.c
+    ${PROJECT_SOURCE_DIR}/third-party/mikktspace/mikktspace.cpp
 )
 
 if (WINDOWS)
@@ -354,9 +354,10 @@ if (IOS)
     set_xcode_property(libdf3d IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
 endif()
 
-set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "$(PROJECT_SOURCE_DIR)/df3d/df3d_pch.h")
-set_target_properties(libdf3d PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-cotire(libdf3d)
+# set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "df3d/df3d_pch.h")
+# set_target_properties(libdf3d PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+# cotire(libdf3d)
+add_precompiled_header(libdf3d "df3d/df3d_pch.h" FORCEINCLUDE SOURCE_CXX "df3d/df3d_pch.cpp")
 
 if (DF3D_DESKTOP)
     add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/glfw)
