@@ -62,6 +62,7 @@ DEFINE_GUID(IID_IAudioRenderClient,   0xf294acfc, 0x3146, 0x4483, 0xa7,0xbf, 0xa
 DEFINE_GUID(IID_IAudioCaptureClient,  0xc8adbd64, 0xe71e, 0x48a0, 0xa4,0xde, 0x18,0x5c,0x39,0x5c,0xd3,0x17);
 
 #ifdef HAVE_MMDEVAPI
+#include <wtypes.h>
 #include <devpropdef.h>
 #include <propkeydef.h>
 DEFINE_DEVPROPKEY(DEVPKEY_Device_FriendlyName, 0xa45c254e, 0xdf1c, 0x4efd, 0x80,0x20, 0x67,0xd1,0x46,0xa8,0x50,0xe0, 14);
@@ -557,7 +558,7 @@ vector_al_string SearchDataFiles(const char *ext, const char *subdir)
     vector_al_string results = VECTOR_INIT_STATIC();
     size_t i;
 
-    while(ATOMIC_EXCHANGE(uint, &search_lock, 1) == 1)
+    while(ATOMIC_EXCHANGE_SEQ(uint, &search_lock, 1) == 1)
         althrd_yield();
 
     /* If the path is absolute, use it directly. */
@@ -628,7 +629,7 @@ vector_al_string SearchDataFiles(const char *ext, const char *subdir)
         al_string_deinit(&path);
     }
 
-    ATOMIC_STORE(&search_lock, 0);
+    ATOMIC_STORE_SEQ(&search_lock, 0);
 
     return results;
 }
@@ -833,7 +834,7 @@ vector_al_string SearchDataFiles(const char *ext, const char *subdir)
     static RefCount search_lock;
     vector_al_string results = VECTOR_INIT_STATIC();
 
-    while(ATOMIC_EXCHANGE(uint, &search_lock, 1) == 1)
+    while(ATOMIC_EXCHANGE_SEQ(uint, &search_lock, 1) == 1)
         althrd_yield();
 
     if(subdir[0] == '/')
@@ -902,7 +903,7 @@ vector_al_string SearchDataFiles(const char *ext, const char *subdir)
         al_string_deinit(&path);
     }
 
-    ATOMIC_STORE(&search_lock, 0);
+    ATOMIC_STORE_SEQ(&search_lock, 0);
 
     return results;
 }

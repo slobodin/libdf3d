@@ -78,7 +78,7 @@ struct ALsourceProps {
 typedef struct ALvoice {
     struct ALsourceProps Props;
 
-    struct ALsource *volatile Source;
+    struct ALsource *Source;
 
     /** Current target parameters used for mixing. */
     ALint Step;
@@ -196,6 +196,8 @@ typedef struct ALsource {
     /** Current buffer sample info. */
     ALuint NumChannels;
     ALuint SampleSize;
+
+    ALenum NeedsUpdate;
 
     ATOMIC(struct ALsourceProps*) Update;
     ATOMIC(struct ALsourceProps*) FreeList;

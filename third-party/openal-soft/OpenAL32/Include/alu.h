@@ -110,12 +110,6 @@ enum ActiveFilters {
 };
 
 
-typedef struct MixGains {
-    ALfloat Current;
-    ALfloat Step;
-    ALfloat Target;
-} MixGains;
-
 typedef struct MixHrtfParams {
     const HrtfParams *Target;
     HrtfParams *Current;
@@ -155,15 +149,16 @@ typedef struct SendParams {
 
 
 typedef const ALfloat* (*ResamplerFunc)(const BsincState *state,
-    const ALfloat *src, ALuint frac, ALuint increment, ALfloat *restrict dst, ALuint dstlen
+    const ALfloat *restrict src, ALuint frac, ALuint increment, ALfloat *restrict dst, ALuint dstlen
 );
 
 typedef void (*MixerFunc)(const ALfloat *data, ALuint OutChans,
-                          ALfloat (*restrict OutBuffer)[BUFFERSIZE], struct MixGains *Gains,
-                          ALuint Counter, ALuint OutPos, ALuint BufferSize);
+                          ALfloat (*restrict OutBuffer)[BUFFERSIZE], ALfloat *CurrentGains,
+                          const ALfloat *TargetGains, ALuint Counter, ALuint OutPos,
+                          ALuint BufferSize);
 typedef void (*RowMixerFunc)(ALfloat *OutBuffer, const ALfloat *gains,
-                             ALfloat (*restrict data)[BUFFERSIZE], ALuint InChans,
-                             ALuint BufferSize);
+                             const ALfloat (*restrict data)[BUFFERSIZE], ALuint InChans,
+                             ALuint InPos, ALuint BufferSize);
 typedef void (*HrtfMixerFunc)(ALfloat (*restrict OutBuffer)[BUFFERSIZE], ALuint lidx, ALuint ridx,
                               const ALfloat *data, ALuint Counter, ALuint Offset, ALuint OutPos,
                               const ALuint IrSize, const MixHrtfParams *hrtfparams,
@@ -265,6 +260,7 @@ enum HrtfRequestMode {
 void aluInitMixer(void);
 
 MixerFunc SelectMixer(void);
+RowMixerFunc SelectRowMixer(void);
 
 /* aluInitRenderer
  *

@@ -41,7 +41,7 @@
 static_assert((INT_MAX>>FRACTIONBITS)/MAX_PITCH > BUFFERSIZE,
               "MAX_PITCH and/or BUFFERSIZE are too large for FRACTIONBITS!");
 
-extern inline void InitiatePositionArrays(ALuint frac, ALuint increment, ALuint *frac_arr, ALuint *pos_arr, ALuint size);
+extern inline void InitiatePositionArrays(ALuint frac, ALuint increment, ALuint *restrict frac_arr, ALuint *restrict pos_arr, ALuint size);
 
 alignas(16) union ResamplerCoeffs ResampleCoeffs;
 
@@ -77,6 +77,19 @@ MixerFunc SelectMixer(void)
 #endif
 
     return Mix_C;
+}
+
+RowMixerFunc SelectRowMixer(void)
+{
+#ifdef HAVE_SSE
+    if((CPUCapFlags&CPU_CAP_SSE))
+        return MixRow_SSE;
+#endif
+#ifdef HAVE_NEON
+    if((CPUCapFlags&CPU_CAP_NEON))
+        return MixRow_Neon;
+#endif
+    return MixRow_C;
 }
 
 static inline HrtfMixerFunc SelectHrtfMixer(void)
@@ -380,12 +393,13 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
     ALuint NumChannels;
     ALuint SampleSize;
     ALint64 DataSize64;
+    ALuint Counter;
     ALuint IrSize;
     ALuint chan, send, j;
 
     /* Get source info */
     State          = AL_PLAYING; /* Only called while playing. */
-    BufferListItem = ATOMIC_LOAD(&Source->current_buffer);
+    BufferListItem = ATOMIC_LOAD(&Source->current_buffer, almemory_order_acquire);
     DataPosInt     = ATOMIC_LOAD(&Source->position, almemory_order_relaxed);
     DataPosFrac    = ATOMIC_LOAD(&Source->position_fraction, almemory_order_relaxed);
     Looping        = ATOMIC_LOAD(&Source->looping, almemory_order_relaxed);
@@ -398,22 +412,10 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
     Resample = ((increment == FRACTIONONE && DataPosFrac == 0) ?
                 Resample_copy32_C : ResampleSamples);
 
+    Counter = voice->Moving ? SamplesToDo : 0;
     OutPos = 0;
     do {
         ALuint SrcBufferSize, DstBufferSize;
-        ALuint Counter;
-        ALfloat Delta;
-
-        if(!voice->Moving)
-        {
-            Counter = 0;
-            Delta = 0.0f;
-        }
-        else
-        {
-            Counter = SamplesToDo - OutPos;
-            Delta = 1.0f / (ALfloat)Counter;
-        }
 
         /* Figure out how many buffer samples will be needed */
         DataSize64  = SamplesToDo-OutPos;
@@ -453,7 +455,6 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
                 const ALbuffer *ALBuffer = BufferListItem->buffer;
                 const ALubyte *Data = ALBuffer->data;
                 ALuint DataSize;
-                ALuint pos;
 
                 /* Offset buffer data to current channel */
                 Data += chan*SampleSize;
@@ -465,10 +466,10 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
 
                     /* Load what's left to play from the source buffer, and
                      * clear the rest of the temp buffer */
-                    pos = DataPosInt;
-                    DataSize = minu(SrcBufferSize - SrcDataSize, ALBuffer->SampleLen - pos);
+                    DataSize = minu(SrcBufferSize - SrcDataSize,
+                                    ALBuffer->SampleLen - DataPosInt);
 
-                    LoadSamples(&SrcData[SrcDataSize], &Data[pos * NumChannels*SampleSize],
+                    LoadSamples(&SrcData[SrcDataSize], &Data[DataPosInt * NumChannels*SampleSize],
                                 NumChannels, ALBuffer->FmtType, DataSize);
                     SrcDataSize += DataSize;
 
@@ -482,11 +483,10 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
 
                     /* Load what's left of this loop iteration, then load
                      * repeats of the loop section */
-                    pos = DataPosInt;
-                    DataSize = LoopEnd - pos;
+                    DataSize = LoopEnd - DataPosInt;
                     DataSize = minu(SrcBufferSize - SrcDataSize, DataSize);
 
-                    LoadSamples(&SrcData[SrcDataSize], &Data[pos * NumChannels*SampleSize],
+                    LoadSamples(&SrcData[SrcDataSize], &Data[DataPosInt * NumChannels*SampleSize],
                                 NumChannels, ALBuffer->FmtType, DataSize);
                     SrcDataSize += DataSize;
 
@@ -532,7 +532,7 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
                     }
                     tmpiter = tmpiter->next;
                     if(!tmpiter && Looping)
-                        tmpiter = ATOMIC_LOAD(&Source->queue);
+                        tmpiter = ATOMIC_LOAD(&Source->queue, almemory_order_acquire);
                     else if(!tmpiter)
                     {
                         SilenceSamples(&SrcData[SrcDataSize], SrcBufferSize - SrcDataSize);
@@ -562,42 +562,12 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
                 );
                 if(!voice->IsHrtf)
                 {
-                    ALfloat *restrict currents = parms->Gains.Current;
-                    const ALfloat *targets = parms->Gains.Target;
-                    MixGains gains[MAX_OUTPUT_CHANNELS];
-
                     if(!Counter)
-                    {
-                        for(j = 0;j < voice->DirectOut.Channels;j++)
-                        {
-                            gains[j].Target = targets[j];
-                            gains[j].Current = gains[j].Target;
-                            gains[j].Step = 0.0f;
-                        }
-                    }
-                    else
-                    {
-                        for(j = 0;j < voice->DirectOut.Channels;j++)
-                        {
-                            ALfloat diff;
-                            gains[j].Target = targets[j];
-                            gains[j].Current = currents[j];
-                            diff = gains[j].Target - gains[j].Current;
-                            if(fabsf(diff) >= GAIN_SILENCE_THRESHOLD)
-                                gains[j].Step = diff * Delta;
-                            else
-                            {
-                                gains[j].Current = gains[j].Target;
-                                gains[j].Step = 0.0f;
-                            }
-                        }
-                    }
-
+                        memcpy(parms->Gains.Current, parms->Gains.Target,
+                               sizeof(parms->Gains.Current));
                     MixSamples(samples, voice->DirectOut.Channels, voice->DirectOut.Buffer,
-                               gains, Counter, OutPos, DstBufferSize);
-
-                    for(j = 0;j < voice->DirectOut.Channels;j++)
-                        currents[j] = gains[j].Current;
+                        parms->Gains.Current, parms->Gains.Target, Counter, OutPos, DstBufferSize
+                    );
                 }
                 else
                 {
@@ -617,19 +587,20 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
                     }
                     else
                     {
+                        ALfloat delta = 1.0f / (ALfloat)Counter;
                         ALfloat coeffdiff;
                         ALint delaydiff;
                         for(j = 0;j < IrSize;j++)
                         {
                             coeffdiff = parms->Hrtf.Target.Coeffs[j][0] - parms->Hrtf.Current.Coeffs[j][0];
-                            hrtfparams.Steps.Coeffs[j][0] = coeffdiff * Delta;
+                            hrtfparams.Steps.Coeffs[j][0] = coeffdiff * delta;
                             coeffdiff = parms->Hrtf.Target.Coeffs[j][1] - parms->Hrtf.Current.Coeffs[j][1];
-                            hrtfparams.Steps.Coeffs[j][1] = coeffdiff * Delta;
+                            hrtfparams.Steps.Coeffs[j][1] = coeffdiff * delta;
                         }
                         delaydiff = (ALint)(parms->Hrtf.Target.Delay[0] - parms->Hrtf.Current.Delay[0]);
-                        hrtfparams.Steps.Delay[0] = fastf2i((ALfloat)delaydiff * Delta);
+                        hrtfparams.Steps.Delay[0] = fastf2i((ALfloat)delaydiff * delta);
                         delaydiff = (ALint)(parms->Hrtf.Target.Delay[1] - parms->Hrtf.Current.Delay[1]);
-                        hrtfparams.Steps.Delay[1] = fastf2i((ALfloat)delaydiff * Delta);
+                        hrtfparams.Steps.Delay[1] = fastf2i((ALfloat)delaydiff * delta);
                     }
                     hrtfparams.Target = &parms->Hrtf.Target;
                     hrtfparams.Current = &parms->Hrtf.Current;
@@ -647,9 +618,6 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
             for(send = 0;send < Device->NumAuxSends;send++)
             {
                 SendParams *parms = &voice->Chan[chan].Send[send];
-                ALfloat *restrict currents = parms->Gains.Current;
-                const ALfloat *targets = parms->Gains.Target;
-                MixGains gains[MAX_OUTPUT_CHANNELS];
                 const ALfloat *samples;
 
                 if(!voice->SendOut[send].Buffer)
@@ -661,39 +629,11 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
                 );
 
                 if(!Counter)
-                {
-                    for(j = 0;j < voice->SendOut[send].Channels;j++)
-                    {
-                        gains[j].Target = targets[j];
-                        gains[j].Current = gains[j].Target;
-                        gains[j].Step = 0.0f;
-                    }
-                }
-                else
-                {
-                    for(j = 0;j < voice->SendOut[send].Channels;j++)
-                    {
-                        ALfloat diff;
-                        gains[j].Target = targets[j];
-                        gains[j].Current = currents[j];
-                        diff = gains[j].Target - gains[j].Current;
-                        if(fabsf(diff) >= GAIN_SILENCE_THRESHOLD)
-                            gains[j].Step = diff * Delta;
-                        else
-                        {
-                            gains[j].Current = gains[j].Target;
-                            gains[j].Step = 0.0f;
-                        }
-                    }
-                }
-
-                MixSamples(samples,
-                    voice->SendOut[send].Channels, voice->SendOut[send].Buffer,
-                    gains, Counter, OutPos, DstBufferSize
+                    memcpy(parms->Gains.Current, parms->Gains.Target,
+                           sizeof(parms->Gains.Current));
+                MixSamples(samples, voice->SendOut[send].Channels, voice->SendOut[send].Buffer,
+                    parms->Gains.Current, parms->Gains.Target, Counter, OutPos, DstBufferSize
                 );
-
-                for(j = 0;j < voice->SendOut[send].Channels;j++)
-                    currents[j] = gains[j].Current;
             }
         }
         /* Update positions */
@@ -703,6 +643,7 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
 
         OutPos += DstBufferSize;
         voice->Offset += DstBufferSize;
+        Counter = maxu(DstBufferSize, Counter) - DstBufferSize;
 
         /* Handle looping sources */
         while(1)
@@ -734,7 +675,7 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
             if(!(BufferListItem=BufferListItem->next))
             {
                 if(Looping)
-                    BufferListItem = ATOMIC_LOAD(&Source->queue);
+                    BufferListItem = ATOMIC_LOAD(&Source->queue, almemory_order_acquire);
                 else
                 {
                     State = AL_STOPPED;
@@ -755,5 +696,5 @@ ALvoid MixSource(ALvoice *voice, ALsource *Source, ALCdevice *Device, ALuint Sam
     Source->state = State;
     ATOMIC_STORE(&Source->current_buffer,    BufferListItem, almemory_order_relaxed);
     ATOMIC_STORE(&Source->position,          DataPosInt, almemory_order_relaxed);
-    ATOMIC_STORE(&Source->position_fraction, DataPosFrac);
+    ATOMIC_STORE(&Source->position_fraction, DataPosFrac, almemory_order_release);
 }

@@ -1,6 +1,6 @@
 # CMake build file list for OpenAL
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.5)
 
 PROJECT(OpenAL)
 
@@ -10,6 +10,9 @@ IF(COMMAND CMAKE_POLICY)
     IF(POLICY CMP0042)
         CMAKE_POLICY(SET CMP0042 NEW)
     ENDIF(POLICY CMP0042)
+    IF(POLICY CMP0054)
+        CMAKE_POLICY(SET CMP0054 NEW)
+    ENDIF(POLICY CMP0054)
 ENDIF(COMMAND CMAKE_POLICY)
 
 SET(CMAKE_MODULE_PATH "${OpenAL_SOURCE_DIR}/cmake")
@@ -23,8 +26,9 @@ INCLUDE(CheckSymbolExists)
 INCLUDE(CheckCCompilerFlag)
 INCLUDE(CheckCSourceCompiles)
 INCLUDE(CheckTypeSize)
+include(CheckStructHasMember)
 include(CheckFileOffsetBits)
-
+include(GNUInstallDirs)
 
 SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 
@@ -44,8 +48,14 @@ OPTION(ALSOFT_HRTF_DEFS "Install HRTF definition files" ON)
 OPTION(ALSOFT_AMBDEC_PRESETS "Install AmbDec preset files" ON)
 OPTION(ALSOFT_INSTALL "Install headers and libraries" ON)
 
+if(DEFINED SHARE_INSTALL_DIR)
+    message(WARNING "SHARE_INSTALL_DIR is deprecated.  Use the variables provided by the GNUInstallDirs module instead")
+    set(CMAKE_INSTALL_DATADIR "${SHARE_INSTALL_DIR}")
+endif()
 
-set(SHARE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/share" CACHE STRING "The share install dir")
+if(DEFINED LIB_SUFFIX)
+    message(WARNING "LIB_SUFFIX is deprecated.  Use the variables provided by the GNUInstallDirs module instead")
+endif()
 
 
 IF(NOT WIN32)
@@ -157,6 +167,8 @@ ENDIF()
 
 # Make sure we have C99-style inline semantics with GCC (4.3 or newer).
 IF(CMAKE_COMPILER_IS_GNUCC)
+    SET(CMAKE_C_FLAGS "-fno-gnu89-inline ${CMAKE_C_FLAGS}")
+
     SET(OLD_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
     # Force no inlining for the next test.
     SET(CMAKE_REQUIRED_FLAGS "${OLD_REQUIRED_FLAGS} -fno-inline")
@@ -170,6 +182,30 @@ IF(CMAKE_COMPILER_IS_GNUCC)
 
     SET(CMAKE_REQUIRED_FLAGS "${OLD_REQUIRED_FLAGS}")
 ENDIF()
+
+# Check if we have a proper timespec declaration
+CHECK_STRUCT_HAS_MEMBER("struct timespec" tv_sec time.h HAVE_STRUCT_TIMESPEC)
+IF(HAVE_STRUCT_TIMESPEC)
+    # Define it here so we don't have to include config.h for it
+    ADD_DEFINITIONS("-DHAVE_STRUCT_TIMESPEC")
+ENDIF()
+
+# Some systems may need libatomic for C11 atomic functions to work
+SET(OLD_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
+SET(CMAKE_REQUIRED_LIBRARIES ${OLD_REQUIRED_LIBRARIES} atomic)
+CHECK_C_SOURCE_COMPILES("#include <stdatomic.h>
+int _Atomic foo = ATOMIC_VAR_INIT(0);
+int main()
+{
+    return atomic_fetch_add(&foo, 2);
+}"
+HAVE_LIBATOMIC)
+IF(NOT HAVE_LIBATOMIC)
+    SET(CMAKE_REQUIRED_LIBRARIES "${OLD_REQUIRED_LIBRARIES}")
+ELSE()
+    SET(EXTRA_LIBS atomic ${EXTRA_LIBS})
+ENDIF()
+UNSET(OLD_REQUIRED_LIBRARIES)
 
 # Check if we have C99 variable length arrays
 CHECK_C_SOURCE_COMPILES(
@@ -213,8 +249,10 @@ HAVE_C11_ALIGNAS)
 CHECK_C_SOURCE_COMPILES(
 "#include <stdatomic.h>
  const int _Atomic foo = ATOMIC_VAR_INIT(~0);
+ int _Atomic bar = ATOMIC_VAR_INIT(0);
  int main()
  {
+     atomic_fetch_add(&bar, 2);
      return atomic_load(&foo);
  }"
 HAVE_C11_ATOMIC)
@@ -364,6 +402,7 @@ SET(SSE_SWITCH "")
 SET(SSE2_SWITCH "")
 SET(SSE3_SWITCH "")
 SET(SSE4_1_SWITCH "")
+SET(FPU_NEON_SWITCH "")
 IF(NOT MSVC)
     CHECK_C_COMPILER_FLAG(-msse HAVE_MSSE_SWITCH)
     IF(HAVE_MSSE_SWITCH)
@@ -380,6 +419,10 @@ IF(NOT MSVC)
     CHECK_C_COMPILER_FLAG(-msse4.1 HAVE_MSSE4_1_SWITCH)
     IF(HAVE_MSSE4_1_SWITCH)
         SET(SSE4_1_SWITCH "-msse4.1")
+    ENDIF()
+    CHECK_C_COMPILER_FLAG(-mfpu=neon HAVE_MFPU_NEON_SWITCH)
+    IF(HAVE_MFPU_NEON_SWITCH)
+        SET(FPU_NEON_SWITCH "-mfpu=neon")
     ENDIF()
 ENDIF()
 
@@ -766,8 +809,11 @@ IF(HAVE_ARM_NEON_H)
     IF(ALSOFT_CPUEXT_NEON)
         SET(HAVE_NEON 1)
         SET(ALC_OBJS  ${ALC_OBJS} Alc/mixer_neon.c)
+        IF(FPU_NEON_SWITCH)
+            SET_SOURCE_FILES_PROPERTIES(Alc/mixer_neon.c PROPERTIES
+                                        COMPILE_FLAGS "${FPU_NEON_SWITCH}")
+        ENDIF()
         SET(CPU_EXTS "${CPU_EXTS}, Neon")
-        SET_SOURCE_FILES_PROPERTIES(Alc/mixer_neon.c PROPERTIES COMPILE_FLAGS -mfpu=neon)
     ENDIF()
 ENDIF()
 IF(ALSOFT_REQUIRE_NEON AND NOT HAVE_NEON)
@@ -1067,6 +1113,25 @@ option(ALSOFT_EMBED_HRTF_DATA "Embed the HRTF data files (increases library foot
 if(ALSOFT_EMBED_HRTF_DATA)
     if(WIN32)
         set(ALC_OBJS  ${ALC_OBJS} Alc/hrtf_res.rc)
+    elseif(APPLE)
+        macro(add_custom_binary FILENAME BIN_NAME)
+            set(outfile ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${FILENAME}${CMAKE_C_OUTPUT_EXTENSION})
+            set(stubsrcfile ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${FILENAME}.stub.c)
+            set(stubfile ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${FILENAME}.stub${CMAKE_C_OUTPUT_EXTENSION})
+            add_custom_command(OUTPUT ${outfile}
+                DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/hrtf/${FILENAME}"
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/hrtf"
+                COMMAND touch "${stubsrcfile}"
+                COMMAND "${CMAKE_C_COMPILER}" -o "${stubfile}" -c "${stubsrcfile}"
+                COMMAND "${CMAKE_LINKER}" -r -o "${outfile}" -sectcreate binary ${BIN_NAME} ${FILENAME} "${stubfile}"
+                COMMAND rm "${stubsrcfile}" "${stubfile}"
+                COMMENT "Generating ${FILENAME}${CMAKE_C_OUTPUT_EXTENSION}"
+                VERBATIM
+            )
+            set(ALC_OBJS  ${ALC_OBJS} ${outfile})
+        endmacro()
+        add_custom_binary(default-44100.mhr "default_44100")
+        add_custom_binary(default-48000.mhr "default_48000")
     else()
         set(FILENAMES default-44100.mhr default-48000.mhr)
         foreach(FILENAME ${FILENAMES})
@@ -1109,12 +1174,32 @@ IF(LIBTYPE STREQUAL "STATIC")
     SET(PKG_CONFIG_CFLAGS -DAL_LIBTYPE_STATIC ${PKG_CONFIG_CFLAGS})
 ENDIF()
 
+FIND_PACKAGE(Git)
+IF(GIT_FOUND AND EXISTS "${OpenAL_SOURCE_DIR}/.git")
+    # Get the current working branch and its latest abbreviated commit hash
+    ADD_CUSTOM_TARGET(build_version
+        ${CMAKE_COMMAND} -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
+                         -D LIB_VERSION=${LIB_VERSION}
+                         -D SRC=${OpenAL_SOURCE_DIR}/version.h.in
+                         -D DST=${OpenAL_BINARY_DIR}/version.h
+                         -P ${OpenAL_SOURCE_DIR}/version.cmake
+        WORKING_DIRECTORY "${OpenAL_SOURCE_DIR}"
+        VERBATIM
+    )
+ELSE()
+    SET(GIT_BRANCH "UNKNOWN")
+    SET(GIT_COMMIT_HASH "unknown")
+    CONFIGURE_FILE(
+        "${OpenAL_SOURCE_DIR}/version.h.in"
+        "${OpenAL_BINARY_DIR}/version.h")
+ENDIF()
+
 # Needed for openal.pc.in
 SET(prefix ${CMAKE_INSTALL_PREFIX})
 SET(exec_prefix "\${prefix}")
-SET(libdir "\${exec_prefix}/lib${LIB_SUFFIX}")
-SET(bindir "\${exec_prefix}/bin")
-SET(includedir "\${prefix}/include")
+SET(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
+SET(bindir "\${exec_prefix}/${CMAKE_INSTALL_BINDIR}")
+SET(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
 SET(PACKAGE_VERSION "${LIB_VERSION}")
 
 # End configuration
@@ -1172,6 +1257,14 @@ ENDIF()
 IF(HAVE_JACK)
     SET_PROPERTY(TARGET ${LIBNAME} APPEND PROPERTY INCLUDE_DIRECTORIES ${JACK_INCLUDE_DIRS})
 ENDIF()
+IF(WIN32)
+    IF(MSVC)
+        SET_PROPERTY(TARGET ${LIBNAME} APPEND_STRING PROPERTY LINK_FLAGS " /SUBSYSTEM:WINDOWS")
+    ELSEIF(CMAKE_COMPILER_IS_GNUCC)
+        SET_PROPERTY(TARGET ${LIBNAME} APPEND_STRING PROPERTY LINK_FLAGS " -mwindows")
+    ENDIF()
+ENDIF()
+
 SET_TARGET_PROPERTIES(${LIBNAME} PROPERTIES VERSION ${LIB_VERSION}
                                             SOVERSION ${LIB_MAJOR_VERSION})
 IF(WIN32 AND NOT LIBTYPE STREQUAL "STATIC")
@@ -1189,7 +1282,7 @@ IF(WIN32 AND NOT LIBTYPE STREQUAL "STATIC")
                 MESSAGE(STATUS "WARNING: Cannot find dlltool, disabling .def/.lib generation")
             ENDIF()
         ELSE()
-            SET_TARGET_PROPERTIES(${LIBNAME} PROPERTIES LINK_FLAGS "-Wl,--output-def,${LIBNAME}.def")
+            SET_PROPERTY(TARGET ${LIBNAME} APPEND_STRING PROPERTY LINK_FLAGS " -Wl,--output-def,${LIBNAME}.def")
             ADD_CUSTOM_COMMAND(TARGET ${LIBNAME} POST_BUILD
                 COMMAND "${SED_EXECUTABLE}" -i -e "s/ @[^ ]*//" ${LIBNAME}.def
                 COMMAND "${DLLTOOL_EXECUTABLE}" -d ${LIBNAME}.def -l ${LIBNAME}.lib -D ${LIBNAME}.dll
@@ -1201,13 +1294,16 @@ IF(WIN32 AND NOT LIBTYPE STREQUAL "STATIC")
 ENDIF()
 
 TARGET_LINK_LIBRARIES(${LIBNAME} common ${EXTRA_LIBS})
+IF(TARGET build_version)
+    ADD_DEPENDENCIES(${LIBNAME} build_version)
+ENDIF()
 
 IF(ALSOFT_INSTALL)
     # Add an install target here
     INSTALL(TARGETS ${LIBNAME}
-            RUNTIME DESTINATION bin
-            LIBRARY DESTINATION "lib${LIB_SUFFIX}"
-            ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     )
     INSTALL(FILES include/AL/al.h
                   include/AL/alc.h
@@ -1215,10 +1311,10 @@ IF(ALSOFT_INSTALL)
                   include/AL/efx.h
                   include/AL/efx-creative.h
                   include/AL/efx-presets.h
-            DESTINATION include/AL
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/AL
     )
     INSTALL(FILES "${OpenAL_BINARY_DIR}/openal.pc"
-            DESTINATION "lib${LIB_SUFFIX}/pkgconfig")
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 ENDIF()
 
 
@@ -1246,7 +1342,7 @@ endif()
 # Install alsoft.conf configuration file
 IF(ALSOFT_CONFIG)
     INSTALL(FILES alsoftrc.sample
-            DESTINATION ${SHARE_INSTALL_DIR}/openal
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/openal
     )
     MESSAGE(STATUS "Installing sample configuration")
     MESSAGE(STATUS "")
@@ -1256,7 +1352,7 @@ ENDIF()
 IF(ALSOFT_HRTF_DEFS)
     INSTALL(FILES hrtf/default-44100.mhr
                   hrtf/default-48000.mhr
-            DESTINATION ${SHARE_INSTALL_DIR}/openal/hrtf
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/openal/hrtf
     )
     MESSAGE(STATUS "Installing HRTF definitions")
     MESSAGE(STATUS "")
@@ -1270,7 +1366,7 @@ IF(ALSOFT_AMBDEC_PRESETS)
                   presets/rectangle.ambdec
                   presets/square.ambdec
                   presets/presets.txt
-            DESTINATION ${SHARE_INSTALL_DIR}/openal/presets
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/openal/presets
     )
     MESSAGE(STATUS "Installing AmbDec presets")
     MESSAGE(STATUS "")
@@ -1295,9 +1391,9 @@ IF(ALSOFT_UTILS)
 
     IF(ALSOFT_INSTALL)
         INSTALL(TARGETS openal-info makehrtf bsincgen
-                RUNTIME DESTINATION bin
-                LIBRARY DESTINATION "lib${LIB_SUFFIX}"
-                ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
+                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         )
     ENDIF()
 
@@ -1318,9 +1414,9 @@ IF(ALSOFT_TESTS)
 
     IF(ALSOFT_INSTALL)
         INSTALL(TARGETS altonegen
-                RUNTIME DESTINATION bin
-                LIBRARY DESTINATION "lib${LIB_SUFFIX}"
-                ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
+                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         )
     ENDIF()
 
@@ -1373,9 +1469,9 @@ IF(ALSOFT_EXAMPLES)
 
         IF(ALSOFT_INSTALL)
             INSTALL(TARGETS alstream alreverb allatency alloopback alhrtf
-                    RUNTIME DESTINATION bin
-                    LIBRARY DESTINATION "lib${LIB_SUFFIX}"
-                    ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
+                    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
             )
         ENDIF()
 
@@ -1412,9 +1508,9 @@ IF(ALSOFT_EXAMPLES)
 
             IF(ALSOFT_INSTALL)
                 INSTALL(TARGETS alffplay
-                        RUNTIME DESTINATION bin
-                        LIBRARY DESTINATION "lib${LIB_SUFFIX}"
-                        ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
+                        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
                 )
             ENDIF()
             MESSAGE(STATUS "Building SDL and FFmpeg example programs")

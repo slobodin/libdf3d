@@ -20,6 +20,8 @@
 
 #include "config.h"
 
+#include "version.h"
+
 #include <stdlib.h>
 #include "alMain.h"
 #include "AL/alc.h"
@@ -155,7 +157,7 @@ AL_API ALboolean AL_APIENTRY alGetBoolean(ALenum pname)
         break;
 
     case AL_GAIN_LIMIT_SOFT:
-        if(GAIN_MIX_MAX != 0.0f)
+        if(GAIN_MIX_MAX/context->GainBoost != 0.0f)
             value = AL_TRUE;
         break;
 
@@ -201,7 +203,7 @@ AL_API ALdouble AL_APIENTRY alGetDouble(ALenum pname)
         break;
 
     case AL_GAIN_LIMIT_SOFT:
-        value = (ALdouble)GAIN_MIX_MAX;
+        value = (ALdouble)GAIN_MIX_MAX/context->GainBoost;
         break;
 
     default:
@@ -246,7 +248,7 @@ AL_API ALfloat AL_APIENTRY alGetFloat(ALenum pname)
         break;
 
     case AL_GAIN_LIMIT_SOFT:
-        value = GAIN_MIX_MAX;
+        value = GAIN_MIX_MAX/context->GainBoost;
         break;
 
     default:
@@ -291,7 +293,7 @@ AL_API ALint AL_APIENTRY alGetInteger(ALenum pname)
         break;
 
     case AL_GAIN_LIMIT_SOFT:
-        value = (ALint)GAIN_MIX_MAX;
+        value = (ALint)(GAIN_MIX_MAX/context->GainBoost);
         break;
 
     default:
@@ -336,7 +338,7 @@ AL_API ALint64SOFT AL_APIENTRY alGetInteger64SOFT(ALenum pname)
         break;
 
     case AL_GAIN_LIMIT_SOFT:
-        value = (ALint64SOFT)GAIN_MIX_MAX;
+        value = (ALint64SOFT)(GAIN_MIX_MAX/context->GainBoost);
         break;
 
     default:

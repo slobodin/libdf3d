@@ -12,8 +12,9 @@
 #include "mixer_defs.h"
 
 
-const ALfloat *Resample_bsinc32_SSE(const BsincState *state, const ALfloat *src, ALuint frac,
-                                    ALuint increment, ALfloat *restrict dst, ALuint dstlen)
+const ALfloat *Resample_bsinc32_SSE(const BsincState *state, const ALfloat *restrict src,
+                                    ALuint frac, ALuint increment, ALfloat *restrict dst,
+                                    ALuint dstlen)
 {
     const __m128 sf4 = _mm_set1_ps(state->sf);
     const ALuint m = state->m;
@@ -192,18 +193,21 @@ static inline void ApplyCoeffs(ALuint Offset, ALfloat (*restrict Values)[2],
 
 
 void Mix_SSE(const ALfloat *data, ALuint OutChans, ALfloat (*restrict OutBuffer)[BUFFERSIZE],
-             MixGains *Gains, ALuint Counter, ALuint OutPos, ALuint BufferSize)
+             ALfloat *CurrentGains, const ALfloat *TargetGains, ALuint Counter, ALuint OutPos,
+             ALuint BufferSize)
 {
-    ALfloat gain, step;
+    ALfloat gain, delta, step;
     __m128 gain4;
     ALuint c;
+
+    delta = (Counter > 0) ? 1.0f/(ALfloat)Counter : 0.0f;
 
     for(c = 0;c < OutChans;c++)
     {
         ALuint pos = 0;
-        gain = Gains[c].Current;
-        step = Gains[c].Step;
-        if(step != 0.0f && Counter > 0)
+        gain = CurrentGains[c];
+        step = (TargetGains[c] - gain) * delta;
+        if(fabsf(step) > FLT_EPSILON)
         {
             ALuint minsize = minu(BufferSize, Counter);
             /* Mix with applying gain steps in aligned multiples of 4. */
@@ -238,8 +242,8 @@ void Mix_SSE(const ALfloat *data, ALuint OutChans, ALfloat (*restrict OutBuffer)
                 gain += step;
             }
             if(pos == Counter)
-                gain = Gains[c].Target;
-            Gains[c].Current = gain;
+                gain = TargetGains[c];
+            CurrentGains[c] = gain;
 
             /* Mix until pos is aligned with 4 or the mix is done. */
             minsize = minu(BufferSize, (pos+3)&~3);
@@ -262,7 +266,7 @@ void Mix_SSE(const ALfloat *data, ALuint OutChans, ALfloat (*restrict OutBuffer)
     }
 }
 
-void MixRow_SSE(ALfloat *OutBuffer, const ALfloat *Gains, ALfloat (*restrict data)[BUFFERSIZE], ALuint InChans, ALuint BufferSize)
+void MixRow_SSE(ALfloat *OutBuffer, const ALfloat *Gains, const ALfloat (*restrict data)[BUFFERSIZE], ALuint InChans, ALuint InPos, ALuint BufferSize)
 {
     __m128 gain4;
     ALuint c;
@@ -277,12 +281,12 @@ void MixRow_SSE(ALfloat *OutBuffer, const ALfloat *Gains, ALfloat (*restrict dat
         gain4 = _mm_set1_ps(gain);
         for(;BufferSize-pos > 3;pos += 4)
         {
-            const __m128 val4 = _mm_load_ps(&data[c][pos]);
+            const __m128 val4 = _mm_load_ps(&data[c][InPos+pos]);
             __m128 dry4 = _mm_load_ps(&OutBuffer[pos]);
             dry4 = _mm_add_ps(dry4, _mm_mul_ps(val4, gain4));
             _mm_store_ps(&OutBuffer[pos], dry4);
         }
         for(;pos < BufferSize;pos++)
-            OutBuffer[pos] += data[c][pos]*gain;
+            OutBuffer[pos] += data[c][InPos+pos]*gain;
     }
 }

@@ -114,11 +114,11 @@ AL_API ALvoid AL_APIENTRY alGenAuxiliaryEffectSlots(ALsizei n, ALuint *effectslo
     }
     if(last != NULL)
     {
-        ALeffectslot *root = ATOMIC_LOAD(&context->ActiveAuxSlotList);
+        ALeffectslot *root = ATOMIC_LOAD_SEQ(&context->ActiveAuxSlotList);
         do {
             ATOMIC_STORE(&last->next, root, almemory_order_relaxed);
-        } while(!ATOMIC_COMPARE_EXCHANGE_WEAK(ALeffectslot*, &context->ActiveAuxSlotList,
-                                              &root, first));
+        } while(!ATOMIC_COMPARE_EXCHANGE_WEAK_SEQ(ALeffectslot*, &context->ActiveAuxSlotList,
+                                                  &root, first));
     }
 
 done:
@@ -436,14 +436,14 @@ static void RemoveEffectSlotList(ALCcontext *context, ALeffectslot *slot)
     ALeffectslot *root, *next;
 
     root = slot;
-    next = ATOMIC_LOAD(&slot->next);
-    if(!ATOMIC_COMPARE_EXCHANGE_STRONG(ALeffectslot*, &context->ActiveAuxSlotList, &root, next))
+    next = ATOMIC_LOAD_SEQ(&slot->next);
+    if(!ATOMIC_COMPARE_EXCHANGE_STRONG_SEQ(ALeffectslot*, &context->ActiveAuxSlotList, &root, next))
     {
         ALeffectslot *cur;
         do {
             cur = root;
             root = slot;
-        } while(!ATOMIC_COMPARE_EXCHANGE_STRONG(ALeffectslot*, &cur->next, &root, next));
+        } while(!ATOMIC_COMPARE_EXCHANGE_STRONG_SEQ(ALeffectslot*, &cur->next, &root, next));
     }
     /* Wait for any mix that may be using these effect slots to finish. */
     while((ReadRef(&device->MixCount)&1) != 0)
@@ -527,7 +527,7 @@ ALenum InitializeEffect(ALCdevice *Device, ALeffectslot *EffectSlot, ALeffect *e
         EffectSlot->Effect.Props = effect->Props;
 
     /* Remove state references from old effect slot property updates. */
-    props = ATOMIC_LOAD(&EffectSlot->FreeList);
+    props = ATOMIC_LOAD_SEQ(&EffectSlot->FreeList);
     while(props)
     {
         State = ATOMIC_EXCHANGE(ALeffectState*, &props->State, NULL, almemory_order_relaxed);
@@ -605,7 +605,7 @@ void DeinitEffectSlot(ALeffectslot *slot)
     ALeffectState *state;
     size_t count = 0;
 
-    props = ATOMIC_LOAD(&slot->Update);
+    props = ATOMIC_LOAD_SEQ(&slot->Update);
     if(props)
     {
         state = ATOMIC_LOAD(&props->State, almemory_order_relaxed);
@@ -647,7 +647,7 @@ void UpdateEffectSlotProps(ALeffectslot *slot)
             next = ATOMIC_LOAD(&props->next, almemory_order_relaxed);
         } while(ATOMIC_COMPARE_EXCHANGE_WEAK(struct ALeffectslotProps*,
                 &slot->FreeList, &props, next, almemory_order_seq_cst,
-                almemory_order_consume) == 0);
+                almemory_order_acquire) == 0);
     }
 
     /* Copy in current property values. */
@@ -671,11 +671,7 @@ void UpdateEffectSlotProps(ALeffectslot *slot)
         /* If there was an unused update container, put it back in the
          * freelist.
          */
-        struct ALeffectslotProps *first = ATOMIC_LOAD(&slot->FreeList);
-        do {
-            ATOMIC_STORE(&props->next, first, almemory_order_relaxed);
-        } while(ATOMIC_COMPARE_EXCHANGE_WEAK(struct ALeffectslotProps*,
-                &slot->FreeList, &first, props) == 0);
+        ATOMIC_REPLACE_HEAD(struct ALeffectslotProps*, &slot->FreeList, props);
     }
 
     if(oldstate)
@@ -687,7 +683,7 @@ void UpdateAllEffectSlotProps(ALCcontext *context)
     ALeffectslot *slot;
 
     LockEffectSlotsRead(context);
-    slot = ATOMIC_LOAD(&context->ActiveAuxSlotList);
+    slot = ATOMIC_LOAD_SEQ(&context->ActiveAuxSlotList);
     while(slot)
     {
         if(slot->NeedsUpdate)

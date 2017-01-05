@@ -135,7 +135,7 @@ static const ALfloat Ambi2DDecoder[4][FB_Max][MAX_AMBI_COEFFS] = {
     { { 0.353553f,  0.204094f, 0.0f, -0.204094f }, { 0.25f,  0.204094f, 0.0f, -0.204094f } },
     { { 0.353553f, -0.204094f, 0.0f, -0.204094f }, { 0.25f, -0.204094f, 0.0f, -0.204094f } },
 };
-static ALfloat Ambi2DEncoder[4][MAX_AMBI_COEFFS];
+static ALfloat Ambi2DEncoderT[4][MAX_AMBI_COEFFS];
 
 /* These points are in AL coordinates! */
 static const ALfloat Ambi3DPoints[8][3] = {
@@ -158,21 +158,8 @@ static const ALfloat Ambi3DDecoder[8][FB_Max][MAX_AMBI_COEFFS] = {
     { { 0.25f,  0.1443375672f, -0.1443375672f, -0.1443375672f }, { 0.125f,  0.125f, -0.125f, -0.125f } },
     { { 0.25f, -0.1443375672f, -0.1443375672f, -0.1443375672f }, { 0.125f, -0.125f, -0.125f, -0.125f } },
 };
-static ALfloat Ambi3DEncoder[8][MAX_AMBI_COEFFS];
+static ALfloat Ambi3DEncoderT[8][MAX_AMBI_COEFFS];
 
-
-static inline RowMixerFunc SelectRowMixer(void)
-{
-#ifdef HAVE_SSE
-    if((CPUCapFlags&CPU_CAP_SSE))
-        return MixRow_SSE;
-#endif
-#ifdef HAVE_NEON
-    if((CPUCapFlags&CPU_CAP_NEON))
-        return MixRow_Neon;
-#endif
-    return MixRow_C;
-}
 
 static RowMixerFunc MixMatrixRow = MixRow_C;
 
@@ -186,20 +173,53 @@ static void init_bformatdec(void)
     MixMatrixRow = SelectRowMixer();
 
     for(i = 0;i < COUNTOF(Ambi3DPoints);i++)
-        CalcDirectionCoeffs(Ambi3DPoints[i], 0.0f, Ambi3DEncoder[i]);
+        CalcDirectionCoeffs(Ambi3DPoints[i], 0.0f, Ambi3DEncoderT[i]);
 
     for(i = 0;i < COUNTOF(Ambi2DPoints);i++)
     {
-        CalcDirectionCoeffs(Ambi2DPoints[i], 0.0f, Ambi2DEncoder[i]);
+        CalcDirectionCoeffs(Ambi2DPoints[i], 0.0f, Ambi2DEncoderT[i]);
 
         /* Remove the skipped height-related coefficients for 2D rendering. */
-        Ambi2DEncoder[i][2] = Ambi2DEncoder[i][3];
-        Ambi2DEncoder[i][3] = Ambi2DEncoder[i][4];
-        Ambi2DEncoder[i][4] = Ambi2DEncoder[i][8];
-        Ambi2DEncoder[i][5] = Ambi2DEncoder[i][9];
-        Ambi2DEncoder[i][6] = Ambi2DEncoder[i][15];
+        Ambi2DEncoderT[i][2] = Ambi2DEncoderT[i][3];
+        Ambi2DEncoderT[i][3] = Ambi2DEncoderT[i][4];
+        Ambi2DEncoderT[i][4] = Ambi2DEncoderT[i][8];
+        Ambi2DEncoderT[i][5] = Ambi2DEncoderT[i][9];
+        Ambi2DEncoderT[i][6] = Ambi2DEncoderT[i][15];
         for(j = 7;j < MAX_AMBI_COEFFS;j++)
-            Ambi2DEncoder[i][j] = 0.0f;
+            Ambi2DEncoderT[i][j] = 0.0f;
+    }
+}
+
+
+/* This typedef is needed for SAFE_CONST to work. */
+typedef ALfloat ALfloatMAX_AMBI_COEFFS[MAX_AMBI_COEFFS];
+
+static void GenUpsamplerGains(const ALfloat (*restrict EncoderT)[MAX_AMBI_COEFFS],
+                              const ALfloat (*restrict Decoder)[FB_Max][MAX_AMBI_COEFFS],
+                              ALsizei InChannels,
+                              ALfloat (*restrict OutGains)[MAX_OUTPUT_CHANNELS][FB_Max],
+                              ALsizei OutChannels)
+{
+    ALsizei i, j, k;
+
+    /* Combine the matrices that do the in->virt and virt->out conversions so
+     * we get a single in->out conversion. NOTE: the Encoder matrix and output
+     * are transposed, so the input channels line up with the rows and the
+     * output channels line up with the columns.
+     */
+    for(i = 0;i < 4;i++)
+    {
+        for(j = 0;j < OutChannels;j++)
+        {
+            ALfloat hfgain=0.0f, lfgain=0.0f;
+            for(k = 0;k < InChannels;k++)
+            {
+                hfgain += Decoder[k][FB_HighFreq][i]*EncoderT[k][j];
+                lfgain += Decoder[k][FB_LowFreq][i]*EncoderT[k][j];
+            }
+            OutGains[i][j][FB_HighFreq] = hfgain;
+            OutGains[i][j][FB_LowFreq] = lfgain;
+        }
     }
 }
 
@@ -285,7 +305,7 @@ void bformatdec_reset(BFormatDec *dec, const AmbDecConf *conf, ALuint chancount,
     const ALfloat *coeff_scale = UnitScale;
     ALfloat distgain[MAX_OUTPUT_CHANNELS];
     ALfloat maxdist, ratio;
-    ALuint i, j, k;
+    ALuint i;
 
     al_free(dec->Samples);
     dec->Samples = NULL;
@@ -313,39 +333,16 @@ void bformatdec_reset(BFormatDec *dec, const AmbDecConf *conf, ALuint chancount,
     memset(dec->UpSampler.Gains, 0, sizeof(dec->UpSampler.Gains));
     if((conf->ChanMask&AMBI_PERIPHONIC_MASK))
     {
-        /* Combine the matrices that do the in->virt and virt->out conversions
-         * so we get a single in->out conversion.
-         */
-        for(i = 0;i < 4;i++)
-        {
-            for(j = 0;j < dec->NumChannels;j++)
-            {
-                ALfloat *gains = dec->UpSampler.Gains[i][j];
-                for(k = 0;k < COUNTOF(Ambi3DDecoder);k++)
-                {
-                    gains[FB_HighFreq] += Ambi3DDecoder[k][FB_HighFreq][i]*Ambi3DEncoder[k][j];
-                    gains[FB_LowFreq] += Ambi3DDecoder[k][FB_LowFreq][i]*Ambi3DEncoder[k][j];
-                }
-            }
-        }
-
+        GenUpsamplerGains(SAFE_CONST(ALfloatMAX_AMBI_COEFFS*,Ambi3DEncoderT),
+                          Ambi3DDecoder, COUNTOF(Ambi3DDecoder),
+                          dec->UpSampler.Gains, dec->NumChannels);
         dec->Periphonic = AL_TRUE;
     }
     else
     {
-        for(i = 0;i < 4;i++)
-        {
-            for(j = 0;j < dec->NumChannels;j++)
-            {
-                ALfloat *gains = dec->UpSampler.Gains[i][j];
-                for(k = 0;k < COUNTOF(Ambi2DDecoder);k++)
-                {
-                    gains[FB_HighFreq] += Ambi2DDecoder[k][FB_HighFreq][i]*Ambi2DEncoder[k][j];
-                    gains[FB_LowFreq] += Ambi2DDecoder[k][FB_LowFreq][i]*Ambi2DEncoder[k][j];
-                }
-            }
-        }
-
+        GenUpsamplerGains(SAFE_CONST(ALfloatMAX_AMBI_COEFFS*,Ambi2DEncoderT),
+                          Ambi2DDecoder, COUNTOF(Ambi2DDecoder),
+                          dec->UpSampler.Gains, dec->NumChannels);
         dec->Periphonic = AL_FALSE;
     }
 
@@ -495,7 +492,7 @@ void bformatdec_reset(BFormatDec *dec, const AmbDecConf *conf, ALuint chancount,
 }
 
 
-void bformatdec_process(struct BFormatDec *dec, ALfloat (*restrict OutBuffer)[BUFFERSIZE], ALuint OutChannels, ALfloat (*restrict InSamples)[BUFFERSIZE], ALuint SamplesToDo)
+void bformatdec_process(struct BFormatDec *dec, ALfloat (*restrict OutBuffer)[BUFFERSIZE], ALuint OutChannels, const ALfloat (*restrict InSamples)[BUFFERSIZE], ALuint SamplesToDo)
 {
     ALuint chan, i;
 
@@ -512,10 +509,12 @@ void bformatdec_process(struct BFormatDec *dec, ALfloat (*restrict OutBuffer)[BU
 
             memset(dec->ChannelMix, 0, SamplesToDo*sizeof(ALfloat));
             MixMatrixRow(dec->ChannelMix, dec->Matrix.Dual[chan][FB_HighFreq],
-                dec->SamplesHF, dec->NumChannels, SamplesToDo
+                SAFE_CONST(ALfloatBUFFERSIZE*,dec->SamplesHF), dec->NumChannels, 0,
+                SamplesToDo
             );
             MixMatrixRow(dec->ChannelMix, dec->Matrix.Dual[chan][FB_LowFreq],
-                dec->SamplesLF, dec->NumChannels, SamplesToDo
+                SAFE_CONST(ALfloatBUFFERSIZE*,dec->SamplesLF), dec->NumChannels, 0,
+                SamplesToDo
             );
 
             if(dec->Delay[chan].Length > 0)
@@ -553,7 +552,7 @@ void bformatdec_process(struct BFormatDec *dec, ALfloat (*restrict OutBuffer)[BU
 
             memset(dec->ChannelMix, 0, SamplesToDo*sizeof(ALfloat));
             MixMatrixRow(dec->ChannelMix, dec->Matrix.Single[chan], InSamples,
-                         dec->NumChannels, SamplesToDo);
+                         dec->NumChannels, 0, SamplesToDo);
 
             if(dec->Delay[chan].Length > 0)
             {
@@ -584,7 +583,7 @@ void bformatdec_process(struct BFormatDec *dec, ALfloat (*restrict OutBuffer)[BU
 }
 
 
-void bformatdec_upSample(struct BFormatDec *dec, ALfloat (*restrict OutBuffer)[BUFFERSIZE], ALfloat (*restrict InSamples)[BUFFERSIZE], ALuint InChannels, ALuint SamplesToDo)
+void bformatdec_upSample(struct BFormatDec *dec, ALfloat (*restrict OutBuffer)[BUFFERSIZE], const ALfloat (*restrict InSamples)[BUFFERSIZE], ALuint InChannels, ALuint SamplesToDo)
 {
     ALuint i, j;
 
@@ -608,7 +607,9 @@ void bformatdec_upSample(struct BFormatDec *dec, ALfloat (*restrict OutBuffer)[B
         /* Now write each band to the output. */
         for(j = 0;j < dec->NumChannels;j++)
             MixMatrixRow(OutBuffer[j], dec->UpSampler.Gains[i][j],
-                         dec->Samples, FB_Max, SamplesToDo);
+                SAFE_CONST(ALfloatBUFFERSIZE*,dec->Samples), FB_Max, 0,
+                SamplesToDo
+            );
     }
 }
 
@@ -636,30 +637,22 @@ void ambiup_reset(struct AmbiUpsampler *ambiup, const ALCdevice *device)
 {
     ALfloat gains[8][MAX_OUTPUT_CHANNELS];
     ALfloat ratio;
-    ALuint i, j, k;
+    ALuint i;
 
     ratio = 400.0f / (ALfloat)device->Frequency;
     for(i = 0;i < 4;i++)
         bandsplit_init(&ambiup->XOver[i], ratio);
 
-    for(i = 0;i < COUNTOF(Ambi3DEncoder);i++)
-        ComputePanningGains(device->Dry, Ambi3DEncoder[i], 1.0f, gains[i]);
+    for(i = 0;i < COUNTOF(Ambi3DEncoderT);i++)
+        ComputePanningGains(device->Dry, Ambi3DEncoderT[i], 1.0f, gains[i]);
 
     memset(ambiup->Gains, 0, sizeof(ambiup->Gains));
-    for(i = 0;i < 4;i++)
-    {
-        for(j = 0;j < device->Dry.NumChannels;j++)
-        {
-            for(k = 0;k < COUNTOF(Ambi3DDecoder);k++)
-            {
-                ambiup->Gains[i][j][FB_HighFreq] += Ambi3DDecoder[k][FB_HighFreq][i]*gains[k][j];
-                ambiup->Gains[i][j][FB_LowFreq] += Ambi3DDecoder[k][FB_LowFreq][i]*gains[k][j];
-            }
-        }
-    }
+    GenUpsamplerGains(SAFE_CONST(ALfloatMAX_AMBI_COEFFS*,gains),
+                      Ambi3DDecoder, COUNTOF(Ambi3DDecoder),
+                      ambiup->Gains, device->Dry.NumChannels);
 }
 
-void ambiup_process(struct AmbiUpsampler *ambiup, ALfloat (*restrict OutBuffer)[BUFFERSIZE], ALuint OutChannels, ALfloat (*restrict InSamples)[BUFFERSIZE], ALuint SamplesToDo)
+void ambiup_process(struct AmbiUpsampler *ambiup, ALfloat (*restrict OutBuffer)[BUFFERSIZE], ALuint OutChannels, const ALfloat (*restrict InSamples)[BUFFERSIZE], ALuint SamplesToDo)
 {
     ALuint i, j;
 
@@ -672,6 +665,8 @@ void ambiup_process(struct AmbiUpsampler *ambiup, ALfloat (*restrict OutBuffer)[
 
         for(j = 0;j < OutChannels;j++)
             MixMatrixRow(OutBuffer[j], ambiup->Gains[i][j],
-                         ambiup->Samples, FB_Max, SamplesToDo);
+                SAFE_CONST(ALfloatBUFFERSIZE*,ambiup->Samples), FB_Max, 0,
+                SamplesToDo
+            );
     }
 }
