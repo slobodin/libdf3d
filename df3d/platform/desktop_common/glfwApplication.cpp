@@ -212,6 +212,9 @@ public:
     {
         if (!m_initialized)
             return;
+
+        svc().inputManager().setMousePosition((int)x, (int)y);
+
         int state = glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT);
         if (state == GLFW_PRESS)
             svc().inputManager().onTouch(0, (int)x, (int)y, Touch::State::MOVING);
