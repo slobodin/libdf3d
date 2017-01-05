@@ -22,8 +22,6 @@ static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 static void cursorPosCallback(GLFWwindow *window, double x, double y);
 static void windowFocusCallback(GLFWwindow *window, int focus);
 
-#define DF3D_EMULATE_TOUCHES
-
 class DesktopAppState
 {
     GLFWwindow *m_window = nullptr;
@@ -152,12 +150,6 @@ public:
         else
             return;
 
-        if (action == GLFW_PRESS)
-            svc().inputManager().setMouseButtonPressed(df3dBtn, (int)x, (int)y);
-        else if (action == GLFW_RELEASE)
-            svc().inputManager().setMouseButtonReleased(df3dBtn, (int)x, (int)y);
-
-#ifdef DF3D_EMULATE_TOUCHES
         if (button == GLFW_MOUSE_BUTTON_LEFT)
         {
             if (action == GLFW_PRESS)
@@ -165,7 +157,13 @@ public:
             else if (action == GLFW_RELEASE)
                 svc().inputManager().onTouch(0, (int)x, (int)y, Touch::State::UP);
         }
-#endif
+        else
+        {
+            if (action == GLFW_PRESS)
+                svc().inputManager().setMouseButtonPressed(df3dBtn, (int)x, (int)y);
+            else if (action == GLFW_RELEASE)
+                svc().inputManager().setMouseButtonReleased(df3dBtn, (int)x, (int)y);
+        }
     }
 
     void onKey(int key, int scancode, int action, int mods)
@@ -214,13 +212,9 @@ public:
     {
         if (!m_initialized)
             return;
-        svc().inputManager().setMousePosition((int)x, (int)y);
-
-#ifdef DF3D_EMULATE_TOUCHES
         int state = glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_LEFT);
         if (state == GLFW_PRESS)
             svc().inputManager().onTouch(0, (int)x, (int)y, Touch::State::MOVING);
-#endif
     }
 
     void onFocus(int focused)
