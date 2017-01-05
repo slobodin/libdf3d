@@ -47,6 +47,8 @@ int PlatformUtils::getDPI()
                               @"iPod2,1"        : @163,       // iPod Touch Second Generation
                               @"iPod3,1"        : @163,       // iPod Touch Third Generation
                               @"iPod4,1"        : @326,       // iPod Touch Fourth Generation
+                              @"iPod5,1"        : @326,       // iPod Touch 5
+                              @"iPod7,1"        : @326,       // iPod Touch 6
 
                               @"iPhone1,1"      : @163,       // iPhone
                               @"iPhone1,2"      : @163,       // iPhone 3G
@@ -69,6 +71,11 @@ int PlatformUtils::getDPI()
                               @"iPhone8,1"      : @326,       // iPhone 6S
                               @"iPhone8,2"      : @401,       // iPhone 6S+
                               @"iPhone8,4"      : @326,       // iPhone SE
+
+                              @"iPhone9,1"      : @326,       // iPhone 7
+                              @"iPhone9,3"      : @326,       // iPhone 7
+                              @"iPhone9,2"      : @401,       // iPhone 7+
+                              @"iPhone9,4"      : @401,       // iPhone 7+
 
                               @"iPad1,1"        : @132,       // iPad
                               @"iPad1,2"        : @132,       // iPad
@@ -116,7 +123,7 @@ int PlatformUtils::getDPI()
 
     NSInteger deviceDPIValue = [[deviceNamesByCode objectForKey:code] integerValue];
     if (!deviceDPIValue)
-        deviceDPIValue = 264; // default 264 for future device.
+        deviceDPIValue = 326; // default 326 for future device.
 
     return deviceDPIValue;
 }
