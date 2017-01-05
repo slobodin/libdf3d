@@ -76,9 +76,11 @@ void InputManager::processTouchDown(const Touch &touch)
         setMousePosition(touch.x, touch.y);
     }
 
+    int clickCount = IsPrimaryTouch(touch) ? 1 : 0;
+
     auto root = df3d::svc().guiManager().getRoot();
     if (root && root->GetIsInteractable())
-        root->InvokeTouchDown(touch.x, touch.y, touch.id, 0, tb::TB_MODIFIER_NONE);
+        root->InvokeTouchDown(touch.x, touch.y, touch.id, clickCount, tb::TB_MODIFIER_NONE);
 }
 
 void InputManager::processTouchUp(const Touch &touch)
