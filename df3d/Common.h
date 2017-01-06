@@ -31,7 +31,7 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_access.hpp>
 
-#include <json/json.h>
+#include <json/json/json.h>
 
 using std::shared_ptr;
 using std::make_shared;
