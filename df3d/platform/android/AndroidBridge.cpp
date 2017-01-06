@@ -21,8 +21,6 @@ struct AndroidAppState
     bool initialized = false;
     JavaVM *javaVm = nullptr;
     AppDelegate *appDelegate = nullptr;
-
-    TouchID primaryTouchId = Touch::INVALID_ID;
 };
 
 static AndroidAppState g_appState;
@@ -41,7 +39,8 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
     df3d::MemoryManager::init();
 
     df3d::g_appState.javaVm = vm;
-    df3d::g_appState.appDelegate = df3d_GetAppDelegate();
+    df3d::g_appState.appDelegate = df3d::AppDelegate::getInstance();
+    DF3D_ASSERT(df3d::g_appState.appDelegate != nullptr);
 
     df3d::AndroidServices::init(vm);
 
@@ -126,53 +125,19 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_draw(JNI
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchDown(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
     df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::DOWN);
-
-    if (df3d::g_appState.primaryTouchId == df3d::Touch::INVALID_ID)
-    {
-        // DFLOG_DEBUG("Primary touch down %d, %d", (int)x, (int)y);
-
-        df3d::svc().inputManager().onMouseButtonPressed(df3d::MouseButton::LEFT, x, y);
-
-        df3d::g_appState.primaryTouchId = pointerId;
-    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchUp(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
     df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::UP);
-
-    if (pointerId == df3d::g_appState.primaryTouchId)
-    {
-        // DFLOG_DEBUG("Primary touch up %d, %d", (int)x, (int)y);
-
-        df3d::svc().inputManager().onMouseButtonReleased(df3d::MouseButton::LEFT, x, y);
-
-        df3d::g_appState.primaryTouchId = df3d::Touch::INVALID_ID;
-    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchMove(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
     df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::MOVING);
-
-    if (pointerId == df3d::g_appState.primaryTouchId)
-    {
-        //df3d::glog << "Touch MOVE" << x << y << pointerId << df3d::logcritical;
-
-        df3d::svc().inputManager().setMousePosition(x, y);
-    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchCancel(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
     df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::CANCEL);
-
-    if (pointerId == df3d::g_appState.primaryTouchId)
-    {
-        //df3d::glog << "Touch CANCEL" << x << y << pointerId << df3d::logcritical;
-
-        df3d::svc().inputManager().onMouseButtonReleased(df3d::MouseButton::LEFT, x, y);
-
-        df3d::g_appState.primaryTouchId = df3d::Touch::INVALID_ID;
-    }
 }
