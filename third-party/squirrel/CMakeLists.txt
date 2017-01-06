@@ -62,7 +62,7 @@ set(squirrel_SRC_LIST
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions -fno-rtti -Wall -fno-strict-aliasing")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fno-strict-aliasing")
 endif()
 
 if (WINDOWS)
