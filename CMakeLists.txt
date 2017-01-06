@@ -226,9 +226,15 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
     add_definitions(-DBT_NO_PROFILE)
 endif()
 
+set(third_party_HEADER_FILES
+        third-party/json/json/json.h
+        third-party/json/json/json-forwards.h
+        third-party/mikktspace/mikktspace.h
+        )
+
 set(third_party_SRC_FILES
-    ${PROJECT_SOURCE_DIR}/third-party/json/jsoncpp.cpp
-    ${PROJECT_SOURCE_DIR}/third-party/mikktspace/mikktspace.cpp
+        third-party/json/jsoncpp.cpp
+        third-party/mikktspace/mikktspace.cpp
 )
 
 if (WINDOWS)
@@ -346,6 +352,7 @@ endif()
 add_library(libdf3d ${DF3D_LIBRARY_TYPE}
     ${libdf3d_HEADER_LIST}
     ${libdf3d_SRC_LIST}
+    ${third_party_HEADER_FILES}
     ${third_party_SRC_FILES}
 )
 
