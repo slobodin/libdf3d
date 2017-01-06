@@ -1,8 +1,8 @@
 #pragma once
 
-namespace df3d {
+#include <df3d/lib/memory/Allocator.h>
 
-class Allocator;
+namespace df3d {
 
 //! Doesn't call ctor or dtor on T. Use only for POD types.
 template<typename T>

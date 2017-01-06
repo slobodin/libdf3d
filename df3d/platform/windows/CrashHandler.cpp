@@ -2,12 +2,13 @@
 
 #include <Windows.h>
 #include <DbgHelp.h>
+#include <iostream>
 
 namespace df3d { namespace platform_impl {
 
 static const char *DumpFileName = "df3d_crash.dmp";
 
-LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* excInfo)
+static LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* excInfo)
 {
     std::cerr << "df3d unhandled exception occurred\n";
 

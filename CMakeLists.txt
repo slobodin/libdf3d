@@ -8,8 +8,6 @@ else()
     message(STATUS "DF3D_PLATFORM is " ${DF3D_PLATFORM})
 endif()
 
-set(DF3D_ROOT ${PROJECT_SOURCE_DIR})
-
 if (ANDROID)
     include(cmake/PrecompiledHeader.cmake)
 else()
@@ -25,7 +23,7 @@ endif()
 # endif()
 
 set(libdf3d_HEADER_LIST
-    df3d/df3d_pch.h
+    df3d_pch.h
     df3d/Common.h
     df3d/df3d.h
     df3d/df3d_config.h
@@ -142,7 +140,7 @@ set(libdf3d_HEADER_LIST
 )
 
 set(libdf3d_SRC_LIST
-    df3d/df3d_pch.cpp
+    df3d_pch.cpp
     df3d/Common.cpp
     df3d/engine/EngineController.cpp
     df3d/engine/EngineCVars.cpp
@@ -271,6 +269,7 @@ if (ANDROID)
 
         df3d/platform/android/AndroidBridge.cpp
         df3d/platform/android/JNIHelpers.cpp
+        df3d/platform/android/InAppPurchase.cpp
         df3d/platform/android/LocalNotification.cpp
     )
 endif()
@@ -370,12 +369,12 @@ if (ANDROID)
     target_compile_definitions(libdf3d PUBLIC ${libdf3d_APP_DEF})
     target_include_directories(libdf3d PUBLIC ${libdf3d_include})
 
-    add_precompiled_header(libdf3d ${PROJECT_SOURCE_DIR}/df3d/df3d_pch.h c++-header COMPILE_OPTIONS ${libdf3d_APP_CFLAGS}
+    add_precompiled_header(libdf3d ${PROJECT_SOURCE_DIR}/df3d_pch.h c++-header COMPILE_OPTIONS ${libdf3d_APP_CFLAGS}
                            COMPILE_DEFINITIONS ${libdf3d_APP_DEF} INCLUDE_DIRECTORIES ${libdf3d_include})
 
-    target_use_precompiled_header(libdf3d ${PROJECT_SOURCE_DIR}/df3d/df3d_pch.h FORCEINCLUDE)
+    target_use_precompiled_header(libdf3d ${PROJECT_SOURCE_DIR}/df3d_pch.h FORCEINCLUDE)
 else()
-    set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "df3d/df3d_pch.h")
+    set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "df3d_pch.h")
     set_target_properties(libdf3d PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
     cotire(libdf3d)
 endif()
@@ -432,7 +431,7 @@ endif()
 # TODO: if build tools
 if (DF3D_DESKTOP)
     add_subdirectory(${PROJECT_SOURCE_DIR}/tools/obj_to_dfmesh)
-    add_subdirectory(${PROJECT_SOURCE_DIR}/tools/glsl_preprocess)
+    # add_subdirectory(${PROJECT_SOURCE_DIR}/tools/glsl_preprocess)
 endif()
 
 target_link_libraries(libdf3d
