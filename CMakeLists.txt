@@ -10,7 +10,11 @@ endif()
 
 set(DF3D_ROOT ${PROJECT_SOURCE_DIR})
 
-include(${PROJECT_SOURCE_DIR}/cmake/cotire.cmake)
+if (ANDROID)
+    include(cmake/PrecompiledHeader.cmake)
+else()
+    include(cmake/cotire.cmake)
+endif()
 
 if (WINDOWS AND NOT CMAKE_PREFIX_PATH)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_win32" CACHE PATH "third-party")
@@ -361,10 +365,20 @@ if (IOS)
     set_xcode_property(libdf3d IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
 endif()
 
-set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "df3d/df3d_pch.h")
-set_target_properties(libdf3d PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-cotire(libdf3d)
-# add_precompiled_header(libdf3d "df3d/df3d_pch.h" FORCEINCLUDE SOURCE_CXX "df3d/df3d_pch.cpp")
+if (ANDROID)
+    target_compile_options(libdf3d PUBLIC ${libdf3d_APP_CFLAGS})
+    target_compile_definitions(libdf3d PUBLIC ${libdf3d_APP_DEF})
+    target_include_directories(libdf3d PUBLIC ${libdf3d_include})
+
+    add_precompiled_header(libdf3d ${PROJECT_SOURCE_DIR}/df3d/df3d_pch.h c++-header COMPILE_OPTIONS ${libdf3d_APP_CFLAGS}
+                           COMPILE_DEFINITIONS ${libdf3d_APP_DEF} INCLUDE_DIRECTORIES ${libdf3d_include})
+
+    target_use_precompiled_header(libdf3d ${PROJECT_SOURCE_DIR}/df3d/df3d_pch.h FORCEINCLUDE)
+else()
+    set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "df3d/df3d_pch.h")
+    set_target_properties(libdf3d PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+    cotire(libdf3d)
+endif()
 
 if (DF3D_DESKTOP)
     add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/glfw)
