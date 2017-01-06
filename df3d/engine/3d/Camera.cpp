@@ -1,6 +1,8 @@
 #include "Camera.h"
 
 #include <df3d/engine/EngineController.h>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/matrix_access.hpp>
 
 namespace df3d {
 

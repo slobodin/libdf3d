@@ -1,5 +1,8 @@
 #pragma once
 
+#include <mutex>
+#include <queue>
+
 namespace df3d {
 
 template<typename T>

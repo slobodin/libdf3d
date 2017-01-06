@@ -1,5 +1,7 @@
 #include "PlatformStorage.h"
 
+#include <fstream>
+
 namespace df3d {
 
 bool PlatformStorage::saveData(const char *id, const PodArray<uint8_t> &data)

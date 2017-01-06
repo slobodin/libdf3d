@@ -1,5 +1,7 @@
 #include "MathUtils.h"
 
+#include <glm/gtx/fast_square_root.hpp>
+
 namespace df3d {
 
 const glm::vec4 MathUtils::XAxis = { 1.0f, 0.0f, 0.0f, 0.0f };

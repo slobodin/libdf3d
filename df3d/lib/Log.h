@@ -1,7 +1,9 @@
 #pragma once
 
-#include <iostream>
+#include <mutex>
 #include <sstream>
+#include <string>
+#include <memory>
 
 namespace df3d {
 
@@ -29,7 +31,7 @@ private:
 
     std::string m_logData;
 
-    unique_ptr<LoggerImpl> m_impl;
+    std::unique_ptr<LoggerImpl> m_impl;
 
     Log();
     ~Log();

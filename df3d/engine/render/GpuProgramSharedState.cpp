@@ -7,6 +7,8 @@
 #include <df3d/engine/3d/Camera.h>
 #include <df3d/engine/resources/GpuProgramResource.h>
 #include <df3d/game/World.h>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace df3d {
 

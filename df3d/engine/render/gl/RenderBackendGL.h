@@ -37,6 +37,8 @@
 #error "Unsupported platform"
 #endif
 
+#include <map>
+
 namespace df3d {
 
 class GpuMemoryStats

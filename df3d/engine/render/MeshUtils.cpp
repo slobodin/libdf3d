@@ -4,6 +4,7 @@
 #include <df3d/engine/render/Vertex.h>
 #include <df3d/engine/EngineController.h>
 #include <mikktspace/mikktspace.h>
+#include <map>
 
 namespace df3d {
 

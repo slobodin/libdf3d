@@ -12,6 +12,7 @@
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/ParticleSystemResource.h>
 #include <df3d/lib/JsonUtils.h>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace df3d {
 

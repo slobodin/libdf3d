@@ -2,6 +2,7 @@
 
 #include <df3d/lib/math/BoundingSphere.h>
 #include <df3d/lib/math/MathUtils.h>
+#include <glm/gtc/matrix_access.hpp>
 
 namespace df3d {
 

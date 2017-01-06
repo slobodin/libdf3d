@@ -6,6 +6,8 @@
 #include <df3d/engine/physics/PhysicsHelpers.h>
 #include <df3d/engine/physics/PhysicsComponentProcessor.h>
 #include <df3d/lib/math/MathUtils.h>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace df3d {
 

@@ -1,37 +1,37 @@
 #pragma once
 
 // Common includes.
-#include <iostream>
-#include <sstream>
-#include <map>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
+#include <cstdint>
+
+#include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <algorithm>
+#include <functional>
+#include <memory>
+#include <string>
 #include <mutex>
 #include <thread>
 #include <atomic>
-#include <queue>
-#include <list>
-#include <set>
-#include <stdexcept>
-#include <memory>
-#include <array>
-#include <chrono>
-#include <ctime>
-#include <csignal>
 
 #define GLM_FORCE_RADIANS
 //#define GLM_MESSAGES
 //#define GLM_SWIZZLE
 #include <glm/glm.hpp>
-#include <glm/gtx/fast_square_root.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/epsilon.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
-#include <glm/gtc/matrix_access.hpp>
 
 #include <json/json/json.h>
+
+#include <df3d/lib/Log.h>
+#include <df3d/lib/Id.h>
+#include <df3d/lib/NonCopyable.h>
+#include <df3d/lib/assert/Assert.h>
+#include <df3d/lib/containers/PodArray.h>
+#include <df3d/lib/memory/Allocator.h>
 
 using std::shared_ptr;
 using std::make_shared;
@@ -63,11 +63,4 @@ static const int DEFAULT_WINDOW_HEIGHT = 480;
 
 }
 
-// Include some useful df3d stuff.
-
-#include <df3d/lib/Log.h>
-#include <df3d/lib/Id.h>
-#include <df3d/lib/NonCopyable.h>
-#include <df3d/lib/assert/Assert.h>
-#include <df3d/lib/memory/Allocator.h>
-#include <df3d/lib/containers/PodArray.h>
+namespace Json { class Value; }

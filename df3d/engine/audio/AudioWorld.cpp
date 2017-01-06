@@ -9,6 +9,7 @@
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/AudioResource.h>
 #include <df3d/lib/Utils.h>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace df3d {
 
