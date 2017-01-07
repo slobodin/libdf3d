@@ -21,6 +21,9 @@ public:
 
     void enqueue(const std::function<void ()> &fn);
     size_t getCurrentJobsCount() const { return m_currentJobs; }
+
+    void suspend();
+    void resume();
 };
 
 }

@@ -179,6 +179,22 @@ void ResourceManager::poll()
     }
 }
 
+void ResourceManager::suspend()
+{
+    DFLOG_DEBUG("ResourceManager start suspend");
+    if (m_loadingState)
+        m_loadingState->pool.suspend();
+
+    DFLOG_DEBUG("ResourceManager SUSPENDED");
+}
+
+void ResourceManager::resume()
+{
+    DFLOG_DEBUG("ResourceManager::resume");
+    if (m_loadingState)
+        m_loadingState->pool.resume();
+}
+
 void ResourceManager::setDefaultFileSystem()
 {
     m_fs = CreateDefaultResourceFileSystem();

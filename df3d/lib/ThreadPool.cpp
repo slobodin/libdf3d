@@ -45,7 +45,7 @@ ThreadPool::ThreadPool(size_t numWorkers)
     m_stop(false),
     m_numWorkers(numWorkers)
 {
-    DF3D_ASSERT(m_numWorkers <= MAX_WORKERS);
+    DF3D_ASSERT(m_numWorkers <= MAX_WORKERS); 
 
     for (size_t i = 0; i < m_numWorkers; i++)
         m_workers.push_back(std::thread(ThreadPoolWorker(*this)));
@@ -74,6 +74,32 @@ void ThreadPool::enqueue(const std::function<void ()> &fn)
     }
 
     m_condition.notify_one();
+}
+
+void ThreadPool::suspend()
+{
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_stop = true;
+    }
+
+    m_condition.notify_all();
+
+    for (auto &w : m_workers)
+        w.join();
+
+    m_workers.clear();
+}
+
+void ThreadPool::resume()
+{
+    DF3D_ASSERT(m_workers.empty());
+
+    m_stop = false;
+    m_workers.clear();
+
+    for (size_t i = 0; i < m_numWorkers; i++)
+        m_workers.push_back(std::thread(ThreadPoolWorker(*this)));
 }
 
 }

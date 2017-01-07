@@ -116,6 +116,7 @@ void EngineController::suspend()
     if (!m_suspended)
     {
         m_audioManager->suspend();
+        m_resourceManager->suspend();
 
         m_suspended = true;
     }
@@ -127,6 +128,8 @@ void EngineController::resume()
     if (m_suspended)
     {
         m_audioManager->resume();
+        m_resourceManager->resume();
+
         m_suspended = false;
     }
 }

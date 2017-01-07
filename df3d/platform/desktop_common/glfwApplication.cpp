@@ -97,6 +97,8 @@ public:
     void shutdown()
     {
         m_initialized = false;
+        m_appDelegate->onAppWillResignActive();
+        m_appDelegate->onAppDidEnterBackground();
         m_appDelegate->onAppEnded();
 
         EngineShutdown();
