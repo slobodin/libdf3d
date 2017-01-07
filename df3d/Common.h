@@ -16,6 +16,7 @@
 #include <mutex>
 #include <thread>
 #include <atomic>
+#include <list>
 
 #define GLM_FORCE_RADIANS
 //#define GLM_MESSAGES

@@ -6,6 +6,8 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 
+extern void df3d_JniOnLoad();
+
 namespace df3d {
 
 extern bool EngineInit(EngineInitParams params);
@@ -29,6 +31,8 @@ static AndroidAppState g_appState;
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 {
+    df3d_JniOnLoad();
+
     JNIEnv *env;
     if (vm->GetEnv((void **)(&env), JNI_VERSION_1_6) != JNI_OK)
     {
