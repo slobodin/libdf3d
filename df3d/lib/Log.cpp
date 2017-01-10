@@ -193,8 +193,8 @@ void Log::vprint(LogChannel channel, const char *fmt, va_list argList)
     m_impl->writeBuffer(buf, channel);
 }
 
-#endif
-
 Log& glog = Log::instance();
+
+#endif
 
 }

@@ -2,7 +2,7 @@
 
 // Need to compile with "-x objective-c++". This also disables PCH.
 #if defined(DF3D_IOS)
-#include <df3d/df3d_pch.h>
+#include <df3d_pch.h>
 #endif
 
 #include <df3d/engine/render/IRenderBackend.h>

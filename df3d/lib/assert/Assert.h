@@ -1,5 +1,7 @@
 #pragma once
 
+#include <csignal>
+
 namespace df3d {
 
 #if defined(DF3D_WINDOWS)
