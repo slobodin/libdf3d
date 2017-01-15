@@ -47,6 +47,7 @@ set(libdf3d_HEADER_LIST
     df3d/engine/input/InputManager.h
     df3d/engine/io/FileSystemHelpers.h
     df3d/engine/io/Storage.h
+    df3d/engine/network/HttpClient.h
     df3d/engine/particlesys/ParticleSystemComponentProcessor.h
     df3d/engine/particlesys/ParticleSystemUtils.h
     df3d/engine/particlesys/SparkCommon.h
@@ -288,6 +289,7 @@ if (IOS)
         df3d/platform/ios/GameViewController.mm
         df3d/platform/ios/LocalNotification.mm
         df3d/platform/ios/InAppPurchase.mm
+        df3d/platform/ios/HttpClient.mm
     )
 
     set_source_files_properties("df3d/engine/render/gl/RenderBackendGL.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
