@@ -1,5 +1,7 @@
 #pragma once
 
+#include <deque>
+
 namespace df3d {
 
 class ThreadPool : NonCopyable

@@ -230,13 +230,10 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
 endif()
 
 set(third_party_HEADER_FILES
-        third-party/json/json/json.h
-        third-party/json/json/json-forwards.h
         third-party/mikktspace/mikktspace.h
         )
 
 set(third_party_SRC_FILES
-        third-party/json/jsoncpp.cpp
         third-party/mikktspace/mikktspace.cpp
 )
 
@@ -246,6 +243,7 @@ if (WINDOWS)
     )
     list(APPEND libdf3d_SRC_LIST
         df3d/platform/windows/CrashHandler.cpp
+        df3d/platform/windows/HttpClient.cpp
         df3d/platform/windows/InAppPurchase.cpp
     )
 endif()
@@ -349,7 +347,7 @@ endif()
 
 if (DF3D_BUILD_SHARED_LIB)
     set(DF3D_LIBRARY_TYPE SHARED)
-    add_definitions(-DLIBDF3D_EXPORTS -DJSON_DLL_BUILD -DDF3D_SHARED_LIBRARY)
+    add_definitions(-DLIBDF3D_EXPORTS -DDF3D_SHARED_LIBRARY)
 else()
     set(DF3D_LIBRARY_TYPE STATIC)
 endif()

@@ -29,7 +29,7 @@ struct PhysicsComponentCreationParams
     PhysicsComponentCreationParams();
     ~PhysicsComponentCreationParams();
     explicit PhysicsComponentCreationParams(const char *physicsDefinitionFile);
-    explicit PhysicsComponentCreationParams(const Json::Value &root);
+    explicit PhysicsComponentCreationParams(const rapidjson::Value &root);
 };
 
 }

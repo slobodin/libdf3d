@@ -11,7 +11,7 @@ class EntityComponentLoader
 public:
     virtual ~EntityComponentLoader() = default;
 
-    virtual void loadComponent(const Json::Value &root, Entity e, World &w) const = 0;
+    virtual void loadComponent(const rapidjson::Value &root, Entity e, World &w) const = 0;
 };
 
 }

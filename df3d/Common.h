@@ -25,7 +25,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/epsilon.hpp>
 
-#include <json/json/json.h>
+#include <rapidjson/rapidjson.h>
+#include <rapidjson/document.h>
 
 #include <df3d/lib/Log.h>
 #include <df3d/lib/Id.h>
@@ -63,5 +64,3 @@ static const int DEFAULT_WINDOW_WIDTH = 640;
 static const int DEFAULT_WINDOW_HEIGHT = 480;
 
 }
-
-namespace Json { class Value; }
