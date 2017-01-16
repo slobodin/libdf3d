@@ -35,38 +35,38 @@ static df3d::TextureResourceData* LoadTextureDataFromFile(const char *path, Allo
     return result;
 }
 
-static uint32_t GetTextureFlags(const Json::Value &root)
+static uint32_t GetTextureFlags(const rapidjson::Value &root)
 {
     uint32_t retRes = 0;
 
-    if (root.isMember("filtering"))
+    if (root.HasMember("filtering"))
     {
-        auto valueStr = root["filtering"].asString();
-        if (valueStr == "NEAREST")
+        auto valueStr = Id(root["filtering"].GetString());
+        if (valueStr == Id("NEAREST"))
             retRes |= TEXTURE_FILTERING_NEAREST;
-        else if (valueStr == "BILINEAR")
+        else if (valueStr == Id("BILINEAR"))
             retRes |= TEXTURE_FILTERING_BILINEAR;
-        else if (valueStr == "TRILINEAR")
+        else if (valueStr == Id("TRILINEAR"))
             retRes |= TEXTURE_FILTERING_TRILINEAR;
-        else if (valueStr == "ANISOTROPIC")
+        else if (valueStr == Id("ANISOTROPIC"))
             retRes |= TEXTURE_FILTERING_ANISOTROPIC;
         else
-            DFLOG_WARN("Unknown filtering mode %s", valueStr.c_str());
+            DFLOG_WARN("Unknown filtering mode %s", root["filtering"].GetString());
     }
     else
     {
         retRes |= TEXTURE_FILTERING_ANISOTROPIC;
     }
 
-    if (root.isMember("wrap_mode"))
+    if (root.HasMember("wrap_mode"))
     {
-        auto valueStr = root["wrap_mode"].asString();
-        if (valueStr == "WRAP")
+        auto valueStr = Id(root["wrap_mode"].GetString());
+        if (valueStr == Id("WRAP"))
             retRes |= TEXTURE_WRAP_MODE_REPEAT;
-        else if (valueStr == "CLAMP")
+        else if (valueStr == Id("CLAMP"))
             retRes |= TEXTURE_WRAP_MODE_CLAMP;
         else
-            DFLOG_WARN("Unknown wrap_mode mode %s", valueStr.c_str());
+            DFLOG_WARN("Unknown wrap_mode mode %s", root["wrap_mode"].GetString());
     }
     else
     {
@@ -78,16 +78,16 @@ static uint32_t GetTextureFlags(const Json::Value &root)
 
 bool TextureHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
 {
-    Json::Value root = JsonUtils::fromFile(dataSource);
-    if (root.isNull())
+    auto root = JsonUtils::fromFile(dataSource);
+    if (root.IsNull())
         return false;
 
-    if (!root.isMember("path"))
+    if (!root.HasMember("path"))
         return false;
 
     m_flags = GetTextureFlags(root);
 
-    m_resourceData = LoadTextureDataFromFile(root["path"].asCString(), allocator);
+    m_resourceData = LoadTextureDataFromFile(root["path"].GetString(), allocator);
 
     return m_resourceData != nullptr;
 }
@@ -125,14 +125,14 @@ void TextureHolder::destroyResource(Allocator &allocator)
 
 TextureResourceData* LoadTexture_Workaround(ResourceDataSource &dataSource, Allocator &alloc)
 {
-    Json::Value root = JsonUtils::fromFile(dataSource);
-    if (root.isNull())
+    auto root = JsonUtils::fromFile(dataSource);
+    if (root.IsNull())
         return nullptr;
 
-    if (!root.isMember("path"))
+    if (!root.HasMember("path"))
         return nullptr;
 
-    return LoadTextureDataFromFile(root["path"].asCString(), alloc, true);
+    return LoadTextureDataFromFile(root["path"].GetString(), alloc, true);
 }
 
 }

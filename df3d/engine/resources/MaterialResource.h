@@ -9,10 +9,10 @@ class MaterialLibResource
 {
     std::unordered_map<Id, Material> m_materials;
 
-    void parse(const Json::Value &root);
+    void parse(const rapidjson::Value &root);
 
 public:
-    MaterialLibResource(const Json::Value &root);
+    MaterialLibResource(const rapidjson::Value &root);
 
     const Material* getMaterial(Id name) const;
 };
@@ -20,7 +20,7 @@ public:
 class MaterialLibHolder : public IResourceHolder
 {
     MaterialLibResource *m_resource = nullptr;
-    Json::Value *m_root = nullptr;
+    rapidjson::Document *m_root = nullptr;
 
 public:
     void listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps);
