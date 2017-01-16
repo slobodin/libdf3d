@@ -134,11 +134,13 @@ GpuProgramResource* CreateGpuProgram(ShaderHandle vShader, ShaderHandle fShader,
 bool GpuProgramHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
 {
     auto root = JsonUtils::fromFile(dataSource);
-    if (root.isNull())
+    if (root.IsNull())
         return false;
 
-    m_vShaderPath = root["vertex"].asString();
-    m_fShaderPath = root["fragment"].asString();
+    DF3D_ASSERT(root.HasMember("vertex") && root.HasMember("fragment"));
+
+    m_vShaderPath = root["vertex"].GetString();
+    m_fShaderPath = root["fragment"].GetString();
 
     return !m_vShaderPath.empty() && !m_fShaderPath.empty();
 }

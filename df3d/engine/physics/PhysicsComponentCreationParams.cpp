@@ -23,32 +23,34 @@ PhysicsComponentCreationParams::PhysicsComponentCreationParams(const char *physi
 
 }
 
-PhysicsComponentCreationParams::PhysicsComponentCreationParams(const Json::Value &root)
+PhysicsComponentCreationParams::PhysicsComponentCreationParams(const rapidjson::Value &root)
 {
-    auto shapeStr = root["shape"].asString();
-    if (shapeStr == "box")
+    DF3D_ASSERT(root.HasMember("shape"));
+
+    auto shapeStr = Id(root["shape"].GetString());
+    if (shapeStr == Id("box"))
         shape = CollisionShapeType::BOX;
-    else if (shapeStr == "sphere")
+    else if (shapeStr == Id("sphere"))
         shape = CollisionShapeType::SPHERE;
-    else if (shapeStr == "convex_hull")
+    else if (shapeStr == Id("convex_hull"))
         shape = CollisionShapeType::CONVEX_HULL;
-    else if (shapeStr == "static_mesh")
+    else if (shapeStr == Id("static_mesh"))
         shape = CollisionShapeType::STATIC_MESH;
-    else if (shapeStr == "convex_decomposition")
+    else if (shapeStr == Id("convex_decomposition"))
         shape = CollisionShapeType::CONVEX_DECOMPOSITION;
-    else if (shapeStr == "dynamic_mesh")
+    else if (shapeStr == Id("dynamic_mesh"))
         shape = CollisionShapeType::DYNAMIC_MESH;
     else
-        DFLOG_WARN("Unsupported rigid body shape %s", shapeStr.c_str());
+        DFLOG_WARN("Unsupported rigid body shape %s", root["shape"].GetString());
 
-    root["mass"] >> mass;
-    root["friction"] >> friction;
-    root["restitution"] >> restitution;
-    root["linearDamping"] >> linearDamping;
-    root["angularDamping"] >> angularDamping;
-    groupId = Id(root["collisionGroup"].asCString());
-    root["disableDeactivation"] >> disableDeactivation;
-    root["noContactResponse"] >> noContactResponse;
+    mass = JsonUtils::get(root, "mass", mass);
+    friction = JsonUtils::get(root, "friction", friction);
+    restitution = JsonUtils::get(root, "restitution", restitution);
+    linearDamping = JsonUtils::get(root, "linearDamping", linearDamping);
+    angularDamping = JsonUtils::get(root, "angularDamping", angularDamping);
+    disableDeactivation = JsonUtils::get(root, "disableDeactivation", disableDeactivation);
+    noContactResponse = JsonUtils::get(root, "noContactResponse", noContactResponse);
+    groupId = Id(root["collisionGroup"].GetString());
 }
 
 }

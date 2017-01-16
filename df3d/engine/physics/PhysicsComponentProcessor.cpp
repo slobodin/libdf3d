@@ -115,15 +115,15 @@ public:
 PhysicsConfig::PhysicsConfig(const std::string &physicsConfigPath)
 {
     auto jsonVal = JsonUtils::fromFile(physicsConfigPath.c_str());
-    if (!jsonVal.isNull())
+    if (!jsonVal.IsNull())
     {
-        jsonVal["gravity"] >> m_gravity;
+        m_gravity = JsonUtils::get(jsonVal, "gravity", m_gravity);
 
         const auto &jsonCollisionGroups = jsonVal["collisionGroups"];
         short currGroup = 1;
-        for (auto it = jsonCollisionGroups.begin(); it != jsonCollisionGroups.end(); ++it)
+        for (const auto &kv : jsonCollisionGroups.GetObject())
         {
-            auto groupid = Id(it.key().asCString());
+            auto groupid = Id(kv.name.GetString());
             DF3D_ASSERT(!utils::contains_key(m_collisionGroups, groupid));
 
             m_collisionGroups[groupid].first = currGroup;
@@ -132,13 +132,13 @@ PhysicsConfig::PhysicsConfig(const std::string &physicsConfigPath)
 
         DF3D_ASSERT(m_collisionGroups.size() < 16);
 
-        for (auto it = jsonCollisionGroups.begin(); it != jsonCollisionGroups.end(); ++it)
+        for (const auto &kv : jsonCollisionGroups.GetObject())
         {
-            auto groupid = Id(it.key().asCString());
+            auto groupid = Id(kv.name.GetString());
             short mask = 0;
-            for (const auto &collidesWith : *it)
+            for (const auto &collidesWith : kv.value.GetArray())
             {
-                auto found = m_collisionGroups.find(Id(collidesWith.asCString()));
+                auto found = m_collisionGroups.find(Id(collidesWith.GetString()));
                 if (found != m_collisionGroups.end())
                 {
                     mask |= found->second.first;

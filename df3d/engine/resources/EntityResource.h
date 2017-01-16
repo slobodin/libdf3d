@@ -6,7 +6,7 @@ namespace df3d {
 
 struct EntityResource
 {
-    Json::Value root;
+    rapidjson::Document root;
 };
 
 class EntityHolder : public IResourceHolder

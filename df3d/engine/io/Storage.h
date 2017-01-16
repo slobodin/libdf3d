@@ -16,8 +16,6 @@ public:
 private:
     unique_ptr<Encryptor> m_encryptor;
 
-protected:
-    Json::Value m_data;
     std::string m_fileName;
 
 public:
@@ -26,11 +24,8 @@ public:
 
     void setEncryptor(unique_ptr<Encryptor> e) { m_encryptor = std::move(e); }
 
-    const Json::Value& getData() const { return m_data; }
-    Json::Value& getData() { return m_data; }
-
-    bool save();
-    bool load();
+    bool save(const rapidjson::Document &root);
+    rapidjson::Document load();
 };
 
 }

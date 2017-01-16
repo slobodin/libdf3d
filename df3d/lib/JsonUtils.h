@@ -1,38 +1,76 @@
 #pragma once
 
-#include <json/json/json.h>
+#include <rapidjson/document.h>
 
 namespace df3d {
 
 class ResourceDataSource;
 
-class JsonUtils
+namespace JsonUtils
 {
-public:
-    static Json::Value fromFile(const char *path);
-    static Json::Value fromFile(ResourceDataSource &dataSource);
-    static Json::Value fromString(const std::string &data);
+    // TODO_serial: rename
+    rapidjson::Document fromFile(const char *path);
+    rapidjson::Document fromFile(ResourceDataSource &dataSource);
+    rapidjson::Document fromString(const std::string &data);
 
-    static glm::vec2 getOrDefault(const Json::Value &v, const glm::vec2 &defVal = {});
-    static glm::vec3 getOrDefault(const Json::Value &v, const glm::vec3 &defVal = {});
-    static glm::vec4 getOrDefault(const Json::Value &v, const glm::vec4 &defVal = {});
-    static float getOrDefault(const Json::Value &v, float defVal = 0.0f);
-    static bool getOrDefault(const Json::Value &v, bool defVal = false);
-    static std::string getOrDefault(const Json::Value &v, const std::string &defVal = "");
-    static int getOrDefault(const Json::Value &v, int defVal = 0);
-    static int64_t getOrDefault(const Json::Value &v, int64_t defVal = 0);
-    static size_t getOrDefault(const Json::Value &v, size_t defVal = 0);
+    template<typename T>
+    inline T get(const rapidjson::Value &v, const char *key, const T &defVal = {})
+    {
+        DF3D_ASSERT(v.IsObject());
+        auto found = v.FindMember(key);
+        if (found != v.MemberEnd())
+            return found->value.Get<T>();
+        return defVal;
+    }
 
-    static std::vector<std::string> toStringArray(const Json::Value &v);
+    template<>
+    inline std::string get(const rapidjson::Value &v, const char *key, const std::string &defVal)
+    {
+        DF3D_ASSERT(v.IsObject());
+        auto found = v.FindMember(key);
+        if (found != v.MemberEnd())
+            return std::string(found->value.GetString());
+        return defVal;
+    }
 
-    static Json::Value toJson(const glm::vec3 &v);
-    static Json::Value toJson(const glm::vec4 &v);
+    template<>
+    inline glm::vec2 get(const rapidjson::Value &v, const char *key, const glm::vec2 &defVal)
+    {
+        DF3D_ASSERT(v.IsObject());
+        auto found = v.FindMember(key);
+        if (found != v.MemberEnd())
+        {
+            auto arr = found->value.GetArray();
+            return{ arr[0].GetFloat(), arr[1].GetFloat() };
+        }
+        return defVal;
+    }
+
+    template<>
+    inline glm::vec3 get(const rapidjson::Value &v, const char *key, const glm::vec3 &defVal)
+    {
+        DF3D_ASSERT(v.IsObject());
+        auto found = v.FindMember(key);
+        if (found != v.MemberEnd())
+        {
+            auto arr = found->value.GetArray();
+            return{ arr[0].GetFloat(), arr[1].GetFloat(), arr[2].GetFloat() };
+        }
+        return defVal;
+    }
+
+    template<>
+    inline glm::vec4 get(const rapidjson::Value &v, const char *key, const glm::vec4 &defVal)
+    {
+        DF3D_ASSERT(v.IsObject());
+        auto found = v.FindMember(key);
+        if (found != v.MemberEnd())
+        {
+            auto arr = found->value.GetArray();
+            return{ arr[0].GetFloat(), arr[1].GetFloat(), arr[2].GetFloat(), arr[3].GetFloat() };
+        }
+        return defVal;
+    }
 };
 
-}
-
-template<typename T>
-void operator>> (const Json::Value &value, T &to)
-{
-    to = df3d::JsonUtils::getOrDefault(value, to);
 }

@@ -3,6 +3,9 @@
 #include <df3d/lib/JsonUtils.h>
 #include <df3d/lib/os/PlatformStorage.h>
 #include <df3d/engine/EngineController.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/prettywriter.h>
 
 namespace df3d
 {
@@ -22,51 +25,43 @@ struct NullEncryptor : Storage::Encryptor
 
 Storage::Storage(const std::string &filename)
     : m_encryptor(make_unique<NullEncryptor>()),
-    m_data(Json::ValueType::objectValue),
     m_fileName(filename)
 {
 
 }
 
-bool Storage::save()
+bool Storage::save(const rapidjson::Document &root)
 {
-    Json::StreamWriterBuilder b;
+    rapidjson::StringBuffer buffer;
 #ifdef _DEBUG
-    b["indentation"] = "  ";
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
 #else
-    b["indentation"] = "";
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 #endif
-
-    auto str = Json::writeString(b, getData());
+    root.Accept(writer);
 
     PodArray<uint8_t> input(MemoryManager::allocDefault());
-    input.assign(reinterpret_cast<const uint8_t*>(str.data()), str.size());
+    input.assign(reinterpret_cast<const uint8_t*>(buffer.GetString()), buffer.GetSize());
 
     auto output = m_encryptor->encode(input);
 
     return PlatformStorage::saveData(m_fileName.c_str(), output);
 }
 
-bool Storage::load()
+rapidjson::Document Storage::load()
 {
     PodArray<uint8_t> input(MemoryManager::allocDefault());
     PlatformStorage::getData(m_fileName.c_str(), input);
 
     if (input.size() == 0)
-        return false;
+        return {};
 
     auto output = m_encryptor->decode(input);
 
     std::string jsonSource;
     jsonSource.assign(output.begin(), output.end());
 
-    auto jsonData = JsonUtils::fromString(jsonSource);
-    if (jsonData.isNull())
-        return false;
-
-    m_data = std::move(jsonData);
-
-    return true;
+    return JsonUtils::fromString(jsonSource);
 }
 
 }

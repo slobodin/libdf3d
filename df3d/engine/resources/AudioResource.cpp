@@ -111,18 +111,19 @@ bool AudioResource::isStreamed() const
 
 bool AudioResourceHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
 {
-    Json::Value root = JsonUtils::fromFile(dataSource);
-    if (root.isNull())
+    auto root = JsonUtils::fromFile(dataSource);
+    if (root.IsNull())
         return false;
 
-    DF3D_ASSERT(root.isMember("path"));
+    DF3D_ASSERT(root.HasMember("path"));
+
+    const char *path = root["path"].GetString();
 
     bool streamed = false;
-    root["stream"] >> streamed;
-    root["gain"] >> m_gain;
-    root["rolloff"] >> m_rolloff;
 
-    const char *path = root["path"].asCString();
+    streamed = JsonUtils::get(root, "stream", streamed);
+    m_gain = JsonUtils::get(root, "gain", m_gain);
+    m_rolloff = JsonUtils::get(root, "rolloff", m_rolloff);
 
     if (FileSystemHelpers::compareExtension(path, ".wav"))
     {
