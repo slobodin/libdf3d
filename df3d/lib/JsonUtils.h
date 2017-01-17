@@ -8,7 +8,6 @@ class ResourceDataSource;
 
 namespace JsonUtils
 {
-    // TODO_serial: rename
     rapidjson::Document fromFile(const char *path);
     rapidjson::Document fromFile(ResourceDataSource &dataSource);
     rapidjson::Document fromString(const std::string &data);

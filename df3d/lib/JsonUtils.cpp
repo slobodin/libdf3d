@@ -42,7 +42,7 @@ rapidjson::Document fromString(const std::string &data)
     rapidjson::Document d;
     if (d.Parse<rapidjson::kParseCommentsFlag>(data.c_str()).HasParseError())
     {
-        DFLOG_WARN("Failed to parse json. Error: %s", "TODO_serial");
+        DFLOG_WARN("Failed to parse json. Error: %s", "TODO");
         return{};
     }
 
