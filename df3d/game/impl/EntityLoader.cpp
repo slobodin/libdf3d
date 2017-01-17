@@ -38,9 +38,9 @@ Entity EntityLoader::createEntityFromFile(const char *resourceFile, World &w)
     return createEntityFromJson(resource->root, w);
 }
 
-Entity EntityLoader::createEntityFromJson(const rapidjson::Value &root, World &w)
+Entity EntityLoader::createEntityFromJson(const Json::Value &root, World &w)
 {
-    if (root.IsNull())
+    if (root.isNull())
     {
         DFLOG_WARN("Failed to init an entity from Json node");
         return {};
@@ -48,20 +48,19 @@ Entity EntityLoader::createEntityFromJson(const rapidjson::Value &root, World &w
 
     Entity res = w.spawn();
 
-    if (root.HasMember("components"))
+    if (root.isMember("components"))
     {
-        auto componentsJson = root["components"].GetArray();
-        for (const auto &it : componentsJson)
+        for (const auto &it : root["components"])
         {
             const auto &dataJson = it["data"];
-            if (dataJson.IsNull())
+            if (dataJson.isNull())
             {
                 DFLOG_WARN("Failed to init a component. Empty \"data\" field");
                 w.destroy(res);
                 return{};
             }
 
-            auto componentType = it["type"].GetString();
+            auto componentType = it["type"].asCString();
             auto foundLoader = m_loaders.find(Id(componentType));
             if (foundLoader != m_loaders.end())
                 foundLoader->second->loadComponent(dataJson, res, w);
@@ -70,10 +69,9 @@ Entity EntityLoader::createEntityFromJson(const rapidjson::Value &root, World &w
         }
     }
 
-    if (root.HasMember("children"))
+    if (root.isMember("children"))
     {
-        auto childrenJson = root["children"].GetArray();
-        for (const auto &it : childrenJson)
+        for (const auto &it : root["children"])
             w.sceneGraph().attachChild(res, createEntityFromJson(it, w));
     }
 

@@ -4,29 +4,27 @@
 
 namespace df3d {
 
-static void PreloadEntityData(const rapidjson::Value &root, std::vector<std::string> &outDeps)
+static void PreloadEntityData(const Json::Value &root, std::vector<std::string> &outDeps)
 {
-    if (root.HasMember("components"))
+    if (root.isMember("components"))
     {
-        const auto &componentsJson = root["components"];
-        for (const auto &compJson : componentsJson.GetArray())
+        for (const auto &compJson : root["components"])
         {
-            auto type = Id(compJson["type"].GetString());
+            auto type = Id(compJson["type"].asCString());
 
-            DF3D_ASSERT(compJson.HasMember("data"));
+            DF3D_ASSERT(compJson.isMember("data"));
             const auto &data = compJson["data"];
 
             if (type == Id("mesh"))
-                outDeps.push_back(data["path"].GetString());
+                outDeps.push_back(data["path"].asString());
             else if (type == Id("vfx"))
-                outDeps.push_back(data["path"].GetString());
+                outDeps.push_back(data["path"].asString());
         }
     }
 
-    if (root.HasMember("children"))
+    if (root.isMember("children"))
     {
-        const auto &childrenJson = root["children"];
-        for (const auto &child : childrenJson.GetArray())
+        for (const auto &child : root["children"])
             PreloadEntityData(child, outDeps);
     }
 }
@@ -34,7 +32,7 @@ static void PreloadEntityData(const rapidjson::Value &root, std::vector<std::str
 void EntityHolder::listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps)
 {
     auto root = JsonUtils::fromFile(dataSource);
-    if (root.IsNull())
+    if (root.isNull())
         return;
 
     PreloadEntityData(root, outDeps);
@@ -43,7 +41,7 @@ void EntityHolder::listDependencies(ResourceDataSource &dataSource, std::vector<
 bool EntityHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
 {
     auto root = JsonUtils::fromFile(dataSource);
-    if (root.IsNull())
+    if (root.isNull())
         return false;
 
     m_resource = MAKE_NEW(allocator, EntityResource)();

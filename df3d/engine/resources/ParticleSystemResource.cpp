@@ -35,7 +35,7 @@ static SPK::Color ToSpkColor(glm::vec4 color)
     return SPK::Color((int)color.r, (int)color.g, (int)color.b, (int)color.a);
 }
 
-static SPK::Ref<SPK::ColorSimpleInterpolator> ParseSparkSimpleColorInterpolator(const rapidjson::Value &dataJson)
+static SPK::Ref<SPK::ColorSimpleInterpolator> ParseSparkSimpleColorInterpolator(const Json::Value &dataJson)
 {
     auto birthColor = JsonUtils::get(dataJson, "birth", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     auto deathColor = JsonUtils::get(dataJson, "death", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -43,11 +43,12 @@ static SPK::Ref<SPK::ColorSimpleInterpolator> ParseSparkSimpleColorInterpolator(
     return SPK::ColorSimpleInterpolator::create(ToSpkColor(birthColor), ToSpkColor(deathColor));
 }
 
-static SPK::Ref<SPK::ColorGraphInterpolator> ParseSparkGraphColorInterpolator(const rapidjson::Value &dataJson)
+static SPK::Ref<SPK::ColorGraphInterpolator> ParseSparkGraphColorInterpolator(const Json::Value &dataJson)
 {
     auto result = SPK::ColorGraphInterpolator::create();
 
-    for (const auto &entryJson : dataJson.GetArray())
+    DF3D_ASSERT(dataJson.isArray());
+    for (const auto &entryJson : dataJson)
     {
         auto x = JsonUtils::get(entryJson, "x", 0.0f);
         auto y = JsonUtils::get(entryJson, "y", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -58,35 +59,35 @@ static SPK::Ref<SPK::ColorGraphInterpolator> ParseSparkGraphColorInterpolator(co
     return result;
 }
 
-static SPK::Ref<SPK::ColorInterpolator> ParseSparkColorInterpolator(const rapidjson::Value &interpolatorJson)
+static SPK::Ref<SPK::ColorInterpolator> ParseSparkColorInterpolator(const Json::Value &interpolatorJson)
 {
-    if (interpolatorJson.IsNull())
+    if (interpolatorJson.isNull())
         return SPK_NULL_REF;
 
-    if (!interpolatorJson.HasMember("data") || !interpolatorJson.HasMember("type"))
+    if (!interpolatorJson.isMember("data") || !interpolatorJson.isMember("type"))
     {
         DFLOG_WARN("Failed to parse spark color interpolator. Invalid 'data' or 'type' field");
         return SPK_NULL_REF;
     }
 
-    auto typeStr = Id(interpolatorJson["type"].GetString());
+    auto typeStr = Id(interpolatorJson["type"].asCString());
     if (typeStr == Id("simple"))
         return ParseSparkSimpleColorInterpolator(interpolatorJson["data"]);
     else if (typeStr == Id("graph"))
         return ParseSparkGraphColorInterpolator(interpolatorJson["data"]);
 
-    DFLOG_WARN("Unknown spark color interpolator type: %s", interpolatorJson["type"].GetString());
+    DFLOG_WARN("Unknown spark color interpolator type: %s", interpolatorJson["type"].asCString());
     return SPK_NULL_REF;
 }
 
-static SPK::Ref<SPK::FloatDefaultInitializer> ParseSparkDefaultInitializer(const rapidjson::Value &dataJson)
+static SPK::Ref<SPK::FloatDefaultInitializer> ParseSparkDefaultInitializer(const Json::Value &dataJson)
 {
     auto value = JsonUtils::get(dataJson, "value", 0.0f);
 
     return SPK::FloatDefaultInitializer::create(value);
 }
 
-static SPK::Ref<SPK::FloatRandomInitializer> ParseSparkRandomInitializer(const rapidjson::Value &dataJson)
+static SPK::Ref<SPK::FloatRandomInitializer> ParseSparkRandomInitializer(const Json::Value &dataJson)
 {
     // NOTE: spk_random generates random number in interval [a, b)
     auto minValue = JsonUtils::get(dataJson, "minValue", 0.0f);
@@ -95,7 +96,7 @@ static SPK::Ref<SPK::FloatRandomInitializer> ParseSparkRandomInitializer(const r
     return SPK::FloatRandomInitializer::create(minValue, maxValue);
 }
 
-static SPK::Ref<SPK::FloatSimpleInterpolator> ParseSparkSimpleInterpolator(const rapidjson::Value &dataJson)
+static SPK::Ref<SPK::FloatSimpleInterpolator> ParseSparkSimpleInterpolator(const Json::Value &dataJson)
 {
     auto birthValue = JsonUtils::get(dataJson, "birth", 0.0f);
     auto deathValue = JsonUtils::get(dataJson, "death", 0.0f);
@@ -103,24 +104,25 @@ static SPK::Ref<SPK::FloatSimpleInterpolator> ParseSparkSimpleInterpolator(const
     return SPK::FloatSimpleInterpolator::create(birthValue, deathValue);
 }
 
-static SPK::Ref<SPK::FloatRandomInterpolator> ParseSparkRandomInterpolator(const rapidjson::Value &dataJson)
+static SPK::Ref<SPK::FloatRandomInterpolator> ParseSparkRandomInterpolator(const Json::Value &dataJson)
 {
-    auto birthRange = dataJson["birth"].GetArray();
-    auto deathRange = dataJson["death"].GetArray();
+    const auto &birthRange = dataJson["birth"];
+    const auto &deathRange = dataJson["death"];
 
-    float minBirth = birthRange[0].GetFloat();
-    float maxBirth = birthRange[1].GetFloat();
-    float minDeath = deathRange[0].GetFloat();
-    float maxDeath = deathRange[1].GetFloat();
+    float minBirth = birthRange[0].asFloat();
+    float maxBirth = birthRange[1].asFloat();
+    float minDeath = deathRange[0].asFloat();
+    float maxDeath = deathRange[1].asFloat();
 
     return SPK::FloatRandomInterpolator::create(minBirth, maxBirth, minDeath, maxDeath);
 }
 
-static SPK::Ref<SPK::FloatGraphInterpolator> ParseSparkGraphInterpolator(const rapidjson::Value &dataJson)
+static SPK::Ref<SPK::FloatGraphInterpolator> ParseSparkGraphInterpolator(const Json::Value &dataJson)
 {
     auto result = SPK::FloatGraphInterpolator::create();
 
-    for (const auto &entryJson : dataJson.GetArray())
+    DF3D_ASSERT(dataJson.isArray());
+    for (const auto &entryJson : dataJson)
     {
         auto x = JsonUtils::get(entryJson, "x", 0.0f);
         auto y = JsonUtils::get(entryJson, "y", 0.0f);
@@ -131,19 +133,19 @@ static SPK::Ref<SPK::FloatGraphInterpolator> ParseSparkGraphInterpolator(const r
     return result;
 }
 
-static SPK::Ref<SPK::FloatInterpolator> ParseSparkParamInterpolator(const rapidjson::Value &interpolatorJson)
+static SPK::Ref<SPK::FloatInterpolator> ParseSparkParamInterpolator(const Json::Value &interpolatorJson)
 {
-    if (interpolatorJson.IsNull())
+    if (interpolatorJson.isNull())
         return SPK_NULL_REF;
 
-    if (!interpolatorJson.HasMember("data") || !interpolatorJson.HasMember("type"))
+    if (!interpolatorJson.isMember("data") || !interpolatorJson.isMember("type"))
     {
         DFLOG_WARN("Failed to parse spark float interpolator. Invalid 'data' or 'type' field");
         return SPK_NULL_REF;
     }
 
     const auto &dataJson = interpolatorJson["data"];
-    auto typeStr = Id(interpolatorJson["type"].GetString());
+    auto typeStr = Id(interpolatorJson["type"].asCString());
     if (typeStr == Id("simple"))
         return ParseSparkSimpleInterpolator(dataJson);
     else if (typeStr == Id("random"))
@@ -155,13 +157,13 @@ static SPK::Ref<SPK::FloatInterpolator> ParseSparkParamInterpolator(const rapidj
     else if (typeStr == Id("randomInitializer"))
         return ParseSparkRandomInitializer(dataJson);
 
-    DFLOG_WARN("Unknown spark float interpolator type: %s", interpolatorJson["type"].GetString());
+    DFLOG_WARN("Unknown spark float interpolator type: %s", interpolatorJson["type"].asCString());
     return SPK_NULL_REF;
 }
 
-static SPK::Ref<SPK::Emitter> ParseSparkEmitter(const rapidjson::Value &emitterJson)
+static SPK::Ref<SPK::Emitter> ParseSparkEmitter(const Json::Value &emitterJson)
 {
-    if (!emitterJson.HasMember("Zone") || !emitterJson.HasMember("type"))
+    if (!emitterJson.isMember("Zone") || !emitterJson.isMember("type"))
     {
         DFLOG_WARN("Emitter has no zone");
         return SPK_NULL_REF;
@@ -172,7 +174,7 @@ static SPK::Ref<SPK::Emitter> ParseSparkEmitter(const rapidjson::Value &emitterJ
 
     {
         const auto &zoneJson = emitterJson["Zone"];
-        Id zoneType = Id(zoneJson["type"].GetString());
+        Id zoneType = Id(zoneJson["type"].asCString());
 
         // Determine zone type.
         if (zoneType == Id("Point"))
@@ -233,13 +235,13 @@ static SPK::Ref<SPK::Emitter> ParseSparkEmitter(const rapidjson::Value &emitterJ
         }
         else
         {
-            DFLOG_WARN("Unknown zone type %s", zoneJson["type"].GetString());
+            DFLOG_WARN("Unknown zone type %s", zoneJson["type"].asCString());
             return SPK_NULL_REF;
         }
     }
 
     {
-        Id emitterType = Id(emitterJson["type"].GetString());
+        Id emitterType = Id(emitterJson["type"].asCString());
 
         // Determine emitter type.
         if (emitterType == Id("Random"))
@@ -276,7 +278,7 @@ static SPK::Ref<SPK::Emitter> ParseSparkEmitter(const rapidjson::Value &emitterJ
         }
         else
         {
-            DFLOG_WARN("Unknown emitter type %s", emitterJson["type"].GetString());
+            DFLOG_WARN("Unknown emitter type %s", emitterJson["type"].asCString());
         }
     }
 
@@ -299,11 +301,12 @@ static SPK::Ref<SPK::Emitter> ParseSparkEmitter(const rapidjson::Value &emitterJ
     return emitter;
 }
 
-static void ParseSparkModifiers(SPK::Ref<SPK::Group> group, const rapidjson::Value &modifiersJson)
+static void ParseSparkModifiers(SPK::Ref<SPK::Group> group, const Json::Value &modifiersJson)
 {
-    for (const auto &modifierJson : modifiersJson.GetArray())
+    DF3D_ASSERT(modifiersJson.isArray());
+    for (const auto &modifierJson : modifiersJson)
     {
-        auto type = Id(modifierJson["type"].GetString());
+        auto type = Id(modifierJson["type"].asCString());
 
         if (type == Id("gravity"))
         {
@@ -329,22 +332,22 @@ static void ParseSparkModifiers(SPK::Ref<SPK::Group> group, const rapidjson::Val
         }
         else
         {
-            DFLOG_WARN("Unknown particle system modifier %s", modifierJson["type"].GetString());
+            DFLOG_WARN("Unknown particle system modifier %s", modifierJson["type"].asCString());
         }
     }
 }
 
-static SPK::Ref<ParticleSystemRenderer> CreateRenderer(const rapidjson::Value &rendererJson)
+static SPK::Ref<ParticleSystemRenderer> CreateRenderer(const Json::Value &rendererJson)
 {
-    if (rendererJson.IsNull())
+    if (rendererJson.isNull())
     {
         DFLOG_WARN("No renderer description in JSON particle system.");
         return SPK_NULL_REF;
     }
 
     Id rendererType("quad");
-    if (rendererJson.HasMember("type"))
-        rendererType = Id(rendererJson["type"].GetString());
+    if (rendererJson.isMember("type"))
+        rendererType = Id(rendererJson["type"].asCString());
 
     // Create particle system renderer.
     SPK::Ref<ParticleSystemRenderer> renderer;
@@ -356,14 +359,14 @@ static SPK::Ref<ParticleSystemRenderer> CreateRenderer(const rapidjson::Value &r
         auto quadRenderer = QuadParticleSystemRenderer::create(scaleX, scaleY);
 
         // Setup special renderer params.
-        if (rendererJson.HasMember("orientation"))
+        if (rendererJson.isMember("orientation"))
         {
-            auto orientationStr = Id(rendererJson["orientation"].GetString());
+            auto orientationStr = Id(rendererJson["orientation"].asCString());
             auto found = StringToSparkDirection.find(orientationStr);
             if (found != StringToSparkDirection.end())
                 quadRenderer->setOrientation(found->second);
             else
-                DFLOG_WARN("Unknown spark particle system orientation %s", rendererJson["orientation"].GetString());
+                DFLOG_WARN("Unknown spark particle system orientation %s", rendererJson["orientation"].asCString());
         }
 
         std::string pathToTexture = JsonUtils::get(rendererJson, "texture", std::string(""));
@@ -407,8 +410,8 @@ static SPK::Ref<ParticleSystemRenderer> CreateRenderer(const rapidjson::Value &r
     auto depthTest = JsonUtils::get(rendererJson, "depthTest", true);
     auto depthWrite = JsonUtils::get(rendererJson, "depthWrite", true);
 
-    if (rendererJson.HasMember("blending"))
-        blending = Id(rendererJson["blending"].GetString());
+    if (rendererJson.isMember("blending"))
+        blending = Id(rendererJson["blending"].asCString());
 
     auto spkBlending = SPK::BLEND_MODE_NONE;
     if (blending == Id("none"))
@@ -428,9 +431,9 @@ static SPK::Ref<ParticleSystemRenderer> CreateRenderer(const rapidjson::Value &r
     return renderer;
 }
 
-static SPK::Ref<SPK::System> CreateSpkSystem(const rapidjson::Value &root)
+static SPK::Ref<SPK::System> CreateSpkSystem(const Json::Value &root)
 {
-    if (!root.HasMember("groups"))
+    if (!root.isMember("groups"))
     {
         DFLOG_WARN("Failed to parse particle system configs. Groups node wasn't found");
         return SPK_NULL_REF;
@@ -439,16 +442,14 @@ static SPK::Ref<SPK::System> CreateSpkSystem(const rapidjson::Value &root)
     std::vector<SPK::Ref<SPK::Group>> systemGroups;
 
     // Parse all particle system groups.
-    const auto &groupsJson = root["groups"];
-    for (const auto &groupJson : groupsJson.GetArray())
+    for (const auto &groupJson : root["groups"])
     {
         // Parse group emitters.
         std::vector<SPK::Ref<SPK::Emitter>> emitters;
 
-        if (groupJson.HasMember("Emitters"))
+        if (groupJson.isMember("Emitters"))
         {
-            const auto &emittersJson = groupJson["Emitters"];
-            for (const auto &emitterJson : emittersJson.GetArray())
+            for (const auto &emitterJson : groupJson["Emitters"])
             {
                 auto emitter = ParseSparkEmitter(emitterJson);
                 if (emitter)
@@ -483,7 +484,7 @@ static SPK::Ref<SPK::System> CreateSpkSystem(const rapidjson::Value &root)
         particlesGroup->setStill(still);
         particlesGroup->setRadius(radius);
 
-        if (groupJson.HasMember("Renderer"))
+        if (groupJson.isMember("Renderer"))
             particlesGroup->setRenderer(CreateRenderer(groupJson["Renderer"]));
 
         // Add emitters.
@@ -491,32 +492,31 @@ static SPK::Ref<SPK::System> CreateSpkSystem(const rapidjson::Value &root)
             particlesGroup->addEmitter(emitter);
 
         // Add color interpolator if any.
-        if (groupJson.HasMember("ColorInterpolator"))
+        if (groupJson.isMember("ColorInterpolator"))
         {
             if (auto interpolator = ParseSparkColorInterpolator(groupJson["ColorInterpolator"]))
                 particlesGroup->setColorInterpolator(interpolator);
         }
 
         // Add param interpolators.
-        if (groupJson.HasMember("ParamInterpolators"))
+        if (groupJson.isMember("ParamInterpolators"))
         {
             const auto &paramInterpolatorsJson = groupJson["ParamInterpolators"];
-
-            for (const auto &kv : paramInterpolatorsJson.GetObject())
+            for (auto it = paramInterpolatorsJson.begin(); it != paramInterpolatorsJson.end(); ++it)
             {
-                auto key = Id(kv.name.GetString());
+                auto key = Id(it.key().asCString());
                 if (!utils::contains_key(StringToSparkParam, key))
                 {
-                    DFLOG_WARN("Unknown spark param interpolator %s", kv.name.GetString());
+                    DFLOG_WARN("Unknown spark param interpolator %s", it.key().asCString());
                     continue;
                 }
 
-                particlesGroup->setParamInterpolator(StringToSparkParam.find(key)->second, ParseSparkParamInterpolator(kv.value));
+                particlesGroup->setParamInterpolator(StringToSparkParam.find(key)->second, ParseSparkParamInterpolator(*it));
             }
         }
 
         // Add modifiers.
-        if (groupJson.HasMember("Modifiers"))
+        if (groupJson.isMember("Modifiers"))
             ParseSparkModifiers(particlesGroup, groupJson["Modifiers"]);
 
         // Store group.
@@ -548,21 +548,20 @@ static SPK::Ref<SPK::System> CreateSpkSystem(const rapidjson::Value &root)
 void ParticleSystemHolder::listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps)
 {
     auto root = JsonUtils::fromFile(dataSource);
-    if (root.IsNull())
+    if (root.isNull())
         return;
 
-    if (!root.HasMember("groups"))
+    if (!root.isMember("groups"))
         return;
 
-    const auto &jsonGroups = root["groups"];
-    for (const auto &jsonGroup : jsonGroups.GetArray())
+    for (const auto &jsonGroup : root["groups"])
     {
-        if (jsonGroup.HasMember("Renderer"))
+        if (jsonGroup.isMember("Renderer"))
         {
             const auto &renderJson = jsonGroup["Renderer"];
-            if (renderJson.HasMember("texture"))
+            if (renderJson.isMember("texture"))
             {
-                std::string path = renderJson["texture"].GetString();
+                std::string path = renderJson["texture"].asString();
                 outDeps.push_back(path);
             }
         }
@@ -572,10 +571,10 @@ void ParticleSystemHolder::listDependencies(ResourceDataSource &dataSource, std:
 bool ParticleSystemHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
 {
     auto root = JsonUtils::fromFile(dataSource);
-    if (root.IsNull())
+    if (root.isNull())
         return false;
 
-    m_root = MAKE_NEW(allocator, rapidjson::Document)(std::move(root));
+    m_root = MAKE_NEW(allocator, Json::Value)(std::move(root));
 
     return true;
 }

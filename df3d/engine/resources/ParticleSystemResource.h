@@ -13,7 +13,7 @@ struct ParticleSystemResource
 class ParticleSystemHolder : public IResourceHolder
 {
     ParticleSystemResource *m_resource = nullptr;
-    rapidjson::Document *m_root = nullptr;
+    Json::Value *m_root = nullptr;
 
 public:
     void listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps) override;

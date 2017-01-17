@@ -76,7 +76,6 @@ EngineController& svc();
 class MemoryManager
 {
     static Allocator *m_defaultAllocator;
-
 public:
     static void init();
     static void shutdown();

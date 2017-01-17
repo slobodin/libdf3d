@@ -9,15 +9,15 @@ namespace df3d {
 class VfxComponentLoader : public EntityComponentLoader
 {
 public:
-    void loadComponent(const rapidjson::Value &root, Entity e, World &w) const override
+    void loadComponent(const Json::Value &root, Entity e, World &w) const override
     {
-        if (!root.HasMember("path"))
+        if (!root.isMember("path"))
         {
             DFLOG_WARN("Invalid vfx component description. Empty 'path' field");
             return;
         }
 
-        Id resourceId(root["path"].GetString());
+        Id resourceId(root["path"].asCString());
         w.vfx().addWithResource(e, resourceId);
     }
 };

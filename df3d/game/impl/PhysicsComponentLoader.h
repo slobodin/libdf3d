@@ -9,9 +9,9 @@ namespace df3d {
 class PhysicsComponentLoader : public EntityComponentLoader
 {
 public:
-    void loadComponent(const rapidjson::Value &root, Entity e, World &w) const override
+    void loadComponent(const Json::Value &root, Entity e, World &w) const override
     {
-        if (!root.HasMember("mesh"))
+        if (!root.isMember("mesh"))
         {
             DFLOG_WARN("Invalid physics component description. Empty 'mesh' field");
             return;
@@ -19,7 +19,7 @@ public:
 
         auto params = PhysicsComponentCreationParams(root);
 
-        w.physics().add(e, params, df3d::Id(root["mesh"].GetString()));
+        w.physics().add(e, params, df3d::Id(root["mesh"].asCString()));
     }
 };
 

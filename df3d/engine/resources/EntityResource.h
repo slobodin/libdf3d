@@ -1,12 +1,13 @@
 #pragma once
 
 #include "IResourceHolder.h"
+#include <df3d/lib/JsonUtils.h>
 
 namespace df3d {
 
 struct EntityResource
 {
-    rapidjson::Document root;
+    Json::Value root;
 };
 
 class EntityHolder : public IResourceHolder

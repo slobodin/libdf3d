@@ -23,11 +23,11 @@ PhysicsComponentCreationParams::PhysicsComponentCreationParams(const char *physi
 
 }
 
-PhysicsComponentCreationParams::PhysicsComponentCreationParams(const rapidjson::Value &root)
+PhysicsComponentCreationParams::PhysicsComponentCreationParams(const Json::Value &root)
 {
-    DF3D_ASSERT(root.HasMember("shape"));
+    DF3D_ASSERT(root.isMember("shape"));
 
-    auto shapeStr = Id(root["shape"].GetString());
+    auto shapeStr = Id(root["shape"].asCString());
     if (shapeStr == Id("box"))
         shape = CollisionShapeType::BOX;
     else if (shapeStr == Id("sphere"))
@@ -41,7 +41,7 @@ PhysicsComponentCreationParams::PhysicsComponentCreationParams(const rapidjson::
     else if (shapeStr == Id("dynamic_mesh"))
         shape = CollisionShapeType::DYNAMIC_MESH;
     else
-        DFLOG_WARN("Unsupported rigid body shape %s", root["shape"].GetString());
+        DFLOG_WARN("Unsupported rigid body shape %s", root["shape"].asCString());
 
     mass = JsonUtils::get(root, "mass", mass);
     friction = JsonUtils::get(root, "friction", friction);
@@ -50,7 +50,7 @@ PhysicsComponentCreationParams::PhysicsComponentCreationParams(const rapidjson::
     angularDamping = JsonUtils::get(root, "angularDamping", angularDamping);
     disableDeactivation = JsonUtils::get(root, "disableDeactivation", disableDeactivation);
     noContactResponse = JsonUtils::get(root, "noContactResponse", noContactResponse);
-    groupId = Id(root["collisionGroup"].GetString());
+    groupId = Id(root["collisionGroup"].asCString());
 }
 
 }

@@ -4,18 +4,17 @@
 #include <df3d/engine/resources/ResourceFileSystem.h>
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/ResourceDataSource.h>
-#include <rapidjson/reader.h>
 
 namespace df3d {
 
 namespace JsonUtils {
 
-rapidjson::Document fromFile(const char *path)
+Json::Value fromFile(const char *path)
 {
     if (auto fileSource = svc().resourceManager().getFS().open(path))
     {
         auto retVal = fromFile(*fileSource);
-        if (retVal.IsNull())
+        if (retVal.isNull())
             DFLOG_WARN("Failed to parse json from %s", path);
 
         svc().resourceManager().getFS().close(fileSource);
@@ -29,7 +28,7 @@ rapidjson::Document fromFile(const char *path)
     }
 }
 
-rapidjson::Document fromFile(ResourceDataSource &dataSource)
+Json::Value fromFile(ResourceDataSource &dataSource)
 {
     std::string buffer;
     buffer.resize(dataSource.getSize());
@@ -37,16 +36,18 @@ rapidjson::Document fromFile(ResourceDataSource &dataSource)
     return fromString(buffer);
 }
 
-rapidjson::Document fromString(const std::string &data)
+Json::Value fromString(const std::string &data)
 {
-    rapidjson::Document d;
-    if (d.Parse<rapidjson::kParseCommentsFlag>(data.c_str()).HasParseError())
+    Json::Value root;
+    Json::Reader reader;
+
+    if (!reader.parse(data, root))
     {
-        DFLOG_WARN("Failed to parse json. Error: %s", "TODO");
+        DFLOG_WARN("Failed to parse json. Error: %s", reader.getFormattedErrorMessages().c_str());
         return{};
     }
 
-    return d;
+    return root;
 }
 
 }

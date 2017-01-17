@@ -112,12 +112,12 @@ bool AudioResource::isStreamed() const
 bool AudioResourceHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
 {
     auto root = JsonUtils::fromFile(dataSource);
-    if (root.IsNull())
+    if (root.isNull())
         return false;
 
-    DF3D_ASSERT(root.HasMember("path"));
+    DF3D_ASSERT(root.isMember("path"));
 
-    const char *path = root["path"].GetString();
+    const char *path = root["path"].asCString();
 
     bool streamed = false;
 

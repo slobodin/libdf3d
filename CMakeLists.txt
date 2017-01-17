@@ -231,11 +231,14 @@ endif()
 
 set(third_party_HEADER_FILES
         third-party/mikktspace/mikktspace.h
+        third-party/json/json/json.h
+        third-party/json/json/json-forwards.h
         )
 
 set(third_party_SRC_FILES
         third-party/mikktspace/mikktspace.cpp
-)
+        third-party/json/jsoncpp.cpp
+        )
 
 if (WINDOWS)
     list(APPEND libdf3d_HEADER_LIST

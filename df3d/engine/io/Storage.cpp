@@ -3,23 +3,22 @@
 #include <df3d/lib/JsonUtils.h>
 #include <df3d/lib/os/PlatformStorage.h>
 #include <df3d/engine/EngineController.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/prettywriter.h>
 
 namespace df3d
 {
 
 struct NullEncryptor : Storage::Encryptor
 {
-    PodArray<uint8_t> encode(const PodArray<uint8_t> &input) override
+    PodArray<uint8_t> encode(const std::string &jsonData) override
     {
-        return input;
+        PodArray<uint8_t> result(MemoryManager::allocDefault());
+        result.assign(reinterpret_cast<const uint8_t*>(jsonData.c_str()), jsonData.size());
+        return result;
     }
 
-    PodArray<uint8_t> decode(const PodArray<uint8_t> &input) override
+    std::string decode(const PodArray<uint8_t> &input) override
     {
-        return input;
+        return std::string(reinterpret_cast<const char*>(input.data(), input.size()));
     }
 };
 
@@ -30,25 +29,21 @@ Storage::Storage(const std::string &filename)
 
 }
 
-bool Storage::save(const rapidjson::Document &root)
+bool Storage::save(const Json::Value &root)
 {
-    rapidjson::StringBuffer buffer;
+    Json::StreamWriterBuilder b;
 #ifdef _DEBUG
-    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+    b["indentation"] = "  ";
 #else
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    b["indentation"] = "";
 #endif
-    root.Accept(writer);
 
-    PodArray<uint8_t> input(MemoryManager::allocDefault());
-    input.assign(reinterpret_cast<const uint8_t*>(buffer.GetString()), buffer.GetSize());
-
-    auto output = m_encryptor->encode(input);
+    auto output = m_encryptor->encode(Json::writeString(b, root));
 
     return PlatformStorage::saveData(m_fileName.c_str(), output);
 }
 
-rapidjson::Document Storage::load()
+Json::Value Storage::load()
 {
     PodArray<uint8_t> input(MemoryManager::allocDefault());
     PlatformStorage::getData(m_fileName.c_str(), input);
@@ -56,12 +51,7 @@ rapidjson::Document Storage::load()
     if (input.size() == 0)
         return {};
 
-    auto output = m_encryptor->decode(input);
-
-    std::string jsonSource;
-    jsonSource.assign(output.begin(), output.end());
-
-    return JsonUtils::fromString(jsonSource);
+    return JsonUtils::fromString(m_encryptor->decode(input));
 }
 
 }

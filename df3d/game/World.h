@@ -59,7 +59,7 @@ public:
 
     Entity spawn();
     Entity spawnFromFile(const char *entityResource);
-    Entity spawnFromJson(const rapidjson::Value &entityResource);
+    Entity spawnFromJson(const Json::Value &entityResource);
     bool alive(Entity e);
     void destroy(Entity e);
     void destroyWithChildren(Entity e);

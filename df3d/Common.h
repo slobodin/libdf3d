@@ -25,8 +25,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/epsilon.hpp>
 
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/document.h>
+#include <json/json/json.h>
 
 #include <df3d/lib/Log.h>
 #include <df3d/lib/Id.h>

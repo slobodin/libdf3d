@@ -18,7 +18,7 @@ public:
     ~EntityLoader();
 
     Entity createEntityFromFile(const char *resourceFile, World &w);
-    Entity createEntityFromJson(const rapidjson::Value &root, World &w);
+    Entity createEntityFromJson(const Json::Value &root, World &w);
 
     void registerEntityComponentLoader(Id name, unique_ptr<EntityComponentLoader> loader);
 };

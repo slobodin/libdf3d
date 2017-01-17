@@ -105,25 +105,25 @@ static void BoundingVolumeFromGeometry(BoundingVolume *volume, const MeshResourc
 void MeshHolder::listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps)
 {
     auto root = JsonUtils::fromFile(dataSource);
-    if (root.IsNull())
+    if (root.isNull())
         return;
 
-    if (root.HasMember("material_lib"))
-        outDeps.push_back(root["material_lib"].GetString());
+    if (root.isMember("material_lib"))
+        outDeps.push_back(root["material_lib"].asString());
 }
 
 bool MeshHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
 {
     auto root = JsonUtils::fromFile(dataSource);
-    if (root.IsNull())
+    if (root.isNull())
         return false;
 
-    if (root.HasMember("material_lib"))
-        m_materialLib = Id(root["material_lib"].GetString());
+    if (root.isMember("material_lib"))
+        m_materialLib = Id(root["material_lib"].asCString());
 
-    DF3D_ASSERT(root.HasMember("path"));
+    DF3D_ASSERT(root.isMember("path"));
 
-    m_resourceData = LoadMeshDataFromFile(root["path"].GetString(), allocator);
+    m_resourceData = LoadMeshDataFromFile(root["path"].asCString(), allocator);
 
     return m_resourceData != nullptr;
 }

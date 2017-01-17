@@ -121,7 +121,7 @@ Entity World::spawnFromFile(const char *entityResource)
     return m_entityLoader->createEntityFromFile(entityResource, *this);
 }
 
-Entity World::spawnFromJson(const rapidjson::Value &entityResource)
+Entity World::spawnFromJson(const Json::Value &entityResource)
 {
     return m_entityLoader->createEntityFromJson(entityResource, *this);
 }
