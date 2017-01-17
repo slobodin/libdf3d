@@ -28,6 +28,13 @@ namespace JsonUtils
     };
 
     template<>
+    struct GetHelper<size_t>
+    {
+        static size_t getValue(const Json::Value &v) { return static_cast<size_t>(v.asUInt()); }
+    };
+
+
+    template<>
     struct GetHelper<int64_t>
     {
         static int64_t getValue(const Json::Value &v) { return v.asInt64(); }
