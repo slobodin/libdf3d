@@ -13,110 +13,117 @@
 
 namespace df3d {
 
-static unique_ptr<Technique> ParseTechnique(const Json::Value &jsonTechnique)
+static unique_ptr<Technique> ParseTechnique(const rapidjson::Value &jsonTechnique)
 {
     auto &rmgr = svc().resourceManager();
 
-    DF3D_ASSERT(jsonTechnique.isMember("id"));
+    DF3D_ASSERT(jsonTechnique.HasMember("id"));
 
-    auto technique = make_unique<Technique>(Id(jsonTechnique["id"].asCString()));
+    auto technique = make_unique<Technique>(Id(jsonTechnique["id"].GetString()));
 
-    const auto &jsonPasses = jsonTechnique["passes"];
+    auto jsonPasses = jsonTechnique["passes"].GetArray();
     for (const auto &jsonPass : jsonPasses)
     {
         RenderPass pass;
 
-        if (jsonPass.isMember("cull_face"))
+        for (const auto &kv : jsonPass.GetObject())
         {
-            auto cullFaceStr = jsonPass["cull_face"].asString();
-            if (cullFaceStr == "NONE")
-                pass.faceCullMode = FaceCullMode::NONE;
-            else if (cullFaceStr == "BACK")
-                pass.faceCullMode = FaceCullMode::BACK;
-            else if (cullFaceStr == "FRONT")
-                pass.faceCullMode = FaceCullMode::FRONT;
-            else
-                DFLOG_WARN("Unknown face cull mode %s", cullFaceStr.c_str());
-        }
-        if (jsonPass.isMember("depth_test"))
-        {
-            DF3D_ASSERT(jsonPass["depth_test"].isBool());
-            pass.depthTest = jsonPass["depth_test"].asBool();
-        }
-        if (jsonPass.isMember("depth_write"))
-        {
-            DF3D_ASSERT(jsonPass["depth_write"].isBool());
-            pass.depthWrite = jsonPass["depth_write"].asBool();
-        }
-        if (jsonPass.isMember("is_lit"))
-        {
-            DF3D_ASSERT(jsonPass["is_lit"].isBool());
-            pass.lightingEnabled = jsonPass["is_lit"].asBool();
-        }
-        if (jsonPass.isMember("blend"))
-        {
-            auto blendModeStr = jsonPass["blend"].asString();
-            if (blendModeStr == "NONE")
-                pass.blendMode = BlendingMode::NONE;
-            else if (blendModeStr == "ALPHA")
-                pass.blendMode = BlendingMode::ALPHA;
-            else if (blendModeStr == "ADDALPHA")
-                pass.blendMode = BlendingMode::ADDALPHA;
-            else if (blendModeStr == "ADD")
-                pass.blendMode = BlendingMode::ADD;
-            else
-                DFLOG_WARN("Unknown blending mode %s", blendModeStr.c_str());
-
-            pass.isTransparent = pass.blendMode != BlendingMode::NONE;
-        }
-        if (jsonPass.isMember("samplers"))
-        {
-            for (const auto &jsonSampler : jsonPass["samplers"])
+            auto paramName = Id(kv.name.GetString());
+            if (paramName == Id("cull_face"))
             {
-                DF3D_ASSERT(jsonSampler.isMember("id"));
-                DF3D_ASSERT(jsonSampler.isMember("path"));
-                auto samplerId = jsonSampler["id"].asCString();
-                auto textureResourcePath = jsonSampler["path"].asCString();
-
-                if (auto texture = rmgr.getResource<TextureResource>(Id(textureResourcePath)))
-                    pass.setParam(Id(samplerId), texture->handle);
+                auto cullFaceValue = Id(kv.value.GetString());
+                if (cullFaceValue == Id("NONE"))
+                    pass.faceCullMode = FaceCullMode::NONE;
+                else if (cullFaceValue == Id("BACK"))
+                    pass.faceCullMode = FaceCullMode::BACK;
+                else if (cullFaceValue == Id("FRONT"))
+                    pass.faceCullMode = FaceCullMode::FRONT;
                 else
-                    DFLOG_WARN("Sampler %s doesn't have a loaded texture %s", samplerId, textureResourcePath);
+                    DFLOG_WARN("Unknown face cull mode %s", kv.value.GetString());
             }
-        }
-        if (jsonPass.isMember("shader_params"))
-        {
-            auto &jsonShaderParams = jsonPass["shader_params"];
-            for (auto it = jsonShaderParams.begin(); it != jsonShaderParams.end(); ++it)
+            else if (paramName == Id("depth_test"))
             {
-                auto paramName = it.key().asString();
-                if (it->isArray())
+                DF3D_ASSERT(kv.value.IsBool());
+                pass.depthTest = kv.value.GetBool();
+            }
+            else if (paramName == Id("depth_write"))
+            {
+                DF3D_ASSERT(kv.value.IsBool());
+                pass.depthWrite = kv.value.GetBool();
+            }
+            else if (paramName == Id("is_lit"))
+            {
+                DF3D_ASSERT(kv.value.IsBool());
+                pass.lightingEnabled = kv.value.GetBool();
+            }
+            else if (paramName == Id("blend"))
+            {
+                auto blendModeValue = Id(kv.value.GetString());
+                if (blendModeValue == Id("NONE"))
+                    pass.blendMode = BlendingMode::NONE;
+                else if (blendModeValue == Id("ALPHA"))
+                    pass.blendMode = BlendingMode::ALPHA;
+                else if (blendModeValue == Id("ADDALPHA"))
+                    pass.blendMode = BlendingMode::ADDALPHA;
+                else if (blendModeValue == Id("ADD"))
+                    pass.blendMode = BlendingMode::ADD;
+                else
+                    DFLOG_WARN("Unknown blending mode %s", kv.value.GetString());
+
+                pass.isTransparent = pass.blendMode != BlendingMode::NONE;
+            }
+            else if (paramName == Id("samplers"))
+            {
+                auto samplersJson = kv.value.GetArray();
+                for (const auto &jsonSampler : samplersJson)
                 {
-                    glm::vec4 value;
-                    (*it) >> value;
-                    pass.setParam(Id(paramName.c_str()), value);
+                    DF3D_ASSERT(jsonSampler.HasMember("id"));
+                    DF3D_ASSERT(jsonSampler.HasMember("path"));
+
+                    auto samplerId = jsonSampler["id"].GetString();
+                    auto textureResourcePath = jsonSampler["path"].GetString();
+
+                    if (auto texture = rmgr.getResource<TextureResource>(Id(textureResourcePath)))
+                        pass.setParam(Id(samplerId), texture->handle);
+                    else
+                        DFLOG_WARN("Sampler %s doesn't have a loaded texture %s", samplerId, textureResourcePath);
+                }
+            }
+            else if (paramName == Id("shader_params"))
+            {
+                for (const auto &it : kv.value.GetObject())
+                {
+                    auto paramName = Id(it.name.GetString());
+                    if (it.value.IsArray())
+                    {
+                        auto arr = it.value.GetArray();
+
+                        glm::vec4 value{ arr[0].GetFloat(), arr[1].GetFloat(), arr[2].GetFloat(), arr[3].GetFloat() };
+
+                        pass.setParam(paramName, value);
+                    }
+                    else
+                    {
+                        DF3D_ASSERT(it.value.IsNumber());
+
+                        pass.setParam(paramName, it.value.GetFloat());
+                    }
+                }
+            }
+            else if (paramName == Id("shader"))
+            {
+                auto shaderPath = jsonPass["shader"].GetString();
+                if (strcmp(shaderPath, "colored") == 0)
+                {
+                    pass.program = svc().renderManager().getEmbedResources().coloredProgram;
                 }
                 else
                 {
-                    float value;
-                    (*it) >> value;
-                    pass.setParam(Id(paramName.c_str()), value);
+                    if (auto program = rmgr.getResource<GpuProgramResource>(Id(shaderPath)))
+                        pass.program = program;
+                    else
+                        DFLOG_WARN("Failed to set shader, resource %s not found", shaderPath);
                 }
-            }
-        }
-        if (jsonPass.isMember("shader"))
-        {
-            auto shaderPath = jsonPass["shader"].asCString();
-            if (strcmp(shaderPath, "colored") == 0)
-            {
-                pass.program = svc().renderManager().getEmbedResources().coloredProgram;
-            }
-            else
-            {
-                if (auto program = rmgr.getResource<GpuProgramResource>(Id(shaderPath)))
-                    pass.program = program;
-                else
-                    DFLOG_WARN("Failed to set shader, resource %s not found", shaderPath);
             }
         }
 
@@ -126,26 +133,28 @@ static unique_ptr<Technique> ParseTechnique(const Json::Value &jsonTechnique)
     return technique;
 }
 
-static void PreloadTechniqueData(const Json::Value &root, std::vector<std::string> &outDeps)
+static void PreloadTechniqueData(const rapidjson::Value &root, std::vector<std::string> &outDeps)
 {
-    const auto &jsonPasses = root["passes"];
+    auto jsonPasses = root["passes"].GetArray();
+
     for (const auto &jsonPass : jsonPasses)
     {
-        if (jsonPass.isMember("samplers"))
+        auto foundSamplersJson = jsonPass.FindMember("samplers");
+        if (foundSamplersJson != jsonPass.MemberEnd())
         {
-            const auto &samplersJson = jsonPass["samplers"];
-            for (const auto &sampler : samplersJson)
+            for (const auto &sampler : foundSamplersJson->value.GetArray())
             {
-                DF3D_ASSERT(sampler.isMember("path"));
-                outDeps.push_back(sampler["path"].asString());
+                DF3D_ASSERT(sampler.HasMember("path"));
+                outDeps.push_back(std::string(sampler["path"].GetString()));
             }
         }
 
-        if (jsonPass.isMember("shader"))
+        auto foundShaderJson = jsonPass.FindMember("shader");
+        if (foundShaderJson != jsonPass.MemberEnd())
         {
-            DF3D_ASSERT(jsonPass["shader"].isString());
+            DF3D_ASSERT(foundShaderJson->value.IsString());
 
-            auto shaderId = jsonPass["shader"].asString();
+            std::string shaderId = foundShaderJson->value.GetString();
             // TODO: remove embed resources.
             if (shaderId != "colored")
                 outDeps.push_back(shaderId);
@@ -153,25 +162,25 @@ static void PreloadTechniqueData(const Json::Value &root, std::vector<std::strin
     }
 }
 
-void MaterialLibResource::parse(const Json::Value &root)
+void MaterialLibResource::parse(const rapidjson::Value &root)
 {
-    const auto &jsonMaterials = root["materials"];
+    auto jsonMaterials = root["materials"].GetArray();
     for (const auto &jsonMaterial : jsonMaterials)
     {
-        DF3D_ASSERT(jsonMaterial.isMember("id"));
+        DF3D_ASSERT(jsonMaterial.HasMember("id"));
 
-        auto id = Id(jsonMaterial["id"].asCString());
+        auto id = Id(jsonMaterial["id"].GetString());
         DF3D_ASSERT(!utils::contains_key(m_materials, id));
 
         Material material;
 
-        const auto &jsonTechniques = jsonMaterial["techniques"];
+        auto jsonTechniques = jsonMaterial["techniques"].GetArray();
 
-        DF3D_ASSERT(!jsonTechniques.empty());
+        DF3D_ASSERT(jsonTechniques.Size() > 0);
 
         // FIXME: this is a workaround.
-        auto foundPrefTech = std::find_if(jsonTechniques.begin(), jsonTechniques.end(), [](const Json::Value &node) {
-            return Id(node["id"].asCString()) == PREFERRED_TECHNIQUE;
+        auto foundPrefTech = std::find_if(jsonTechniques.begin(), jsonTechniques.end(), [](const rapidjson::Value &node) {
+            return Id(node["id"].GetString()) == PREFERRED_TECHNIQUE;
         });
 
         unique_ptr<Technique> technique;
@@ -187,13 +196,13 @@ void MaterialLibResource::parse(const Json::Value &root)
 
         material.addTechnique(*technique);
         material.setCurrentTechnique(technique->name);
-        material.setName(jsonMaterial["id"].asString());
+        material.setName(jsonMaterial["id"].GetString());
 
         m_materials[id] = material;
     }
 }
 
-MaterialLibResource::MaterialLibResource(const Json::Value &root)
+MaterialLibResource::MaterialLibResource(const rapidjson::Value &root)
 {
     parse(root);
 }
@@ -209,19 +218,19 @@ const Material* MaterialLibResource::getMaterial(Id name) const
 void MaterialLibHolder::listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps)
 {
     auto root = JsonUtils::fromFile(dataSource);
-    if (root.isNull())
+    if (root.IsNull())
         return;
 
-    const auto &jsonMaterials = root["materials"];
+    auto jsonMaterials = root["materials"].GetArray();
     for (const auto &jsonMaterial : jsonMaterials)
     {
-        const auto &jsonTechniques = jsonMaterial["techniques"];
+        auto jsonTechniques = jsonMaterial["techniques"].GetArray();
 
-        DF3D_ASSERT(!jsonTechniques.empty());
+        DF3D_ASSERT(jsonTechniques.Size() > 0);
 
         // FIXME: this is a workaround.
-        auto foundPrefTech = std::find_if(jsonTechniques.begin(), jsonTechniques.end(), [](const Json::Value &node) {
-            return Id(node["id"].asCString()) == PREFERRED_TECHNIQUE;
+        auto foundPrefTech = std::find_if(jsonTechniques.begin(), jsonTechniques.end(), [](const rapidjson::Value &node) {
+            return Id(node["id"].GetString()) == PREFERRED_TECHNIQUE;
         });
 
         if (foundPrefTech != jsonTechniques.end())
@@ -238,10 +247,10 @@ void MaterialLibHolder::listDependencies(ResourceDataSource &dataSource, std::ve
 bool MaterialLibHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
 {
     auto root = JsonUtils::fromFile(dataSource);
-    if (root.isNull())
+    if (root.IsNull())
         return false;
 
-    m_root = MAKE_NEW(allocator, Json::Value)(std::move(root));
+    m_root = MAKE_NEW(allocator, rapidjson::Document)(std::move(root));
 
     return true;
 }

@@ -38,9 +38,9 @@ Entity EntityLoader::createEntityFromFile(const char *resourceFile, World &w)
     return createEntityFromJson(resource->root, w);
 }
 
-Entity EntityLoader::createEntityFromJson(const Json::Value &root, World &w)
+Entity EntityLoader::createEntityFromJson(const rapidjson::Value &root, World &w)
 {
-    if (root.isNull())
+    if (root.IsNull())
     {
         DFLOG_WARN("Failed to init an entity from Json node");
         return {};
@@ -48,28 +48,34 @@ Entity EntityLoader::createEntityFromJson(const Json::Value &root, World &w)
 
     Entity res = w.spawn();
 
-    const auto &componentsJson = root["components"];
-    for (const auto &componentJson : componentsJson)
+    if (root.HasMember("components"))
     {
-        const auto &dataJson = componentJson["data"];
-        if (dataJson.isNull())
+        auto componentsJson = root["components"].GetArray();
+        for (const auto &it : componentsJson)
         {
-            DFLOG_WARN("Failed to init a component. Empty \"data\" field");
-            w.destroy(res);
-            return {};
-        }
+            const auto &dataJson = it["data"];
+            if (dataJson.IsNull())
+            {
+                DFLOG_WARN("Failed to init a component. Empty \"data\" field");
+                w.destroy(res);
+                return{};
+            }
 
-        auto componentType = componentJson["type"].asCString();
-        auto foundLoader = m_loaders.find(Id(componentType));
-        if (foundLoader != m_loaders.end())
-            foundLoader->second->loadComponent(dataJson, res, w);
-        else
-            DFLOG_WARN("Failed to parse entity description, unknown component %s", componentType);
+            auto componentType = it["type"].GetString();
+            auto foundLoader = m_loaders.find(Id(componentType));
+            if (foundLoader != m_loaders.end())
+                foundLoader->second->loadComponent(dataJson, res, w);
+            else
+                DFLOG_WARN("Failed to parse entity description, unknown component %s", componentType);
+        }
     }
 
-    const auto &childrenJson = root["children"];
-    for (auto &childJson : childrenJson)
-        w.sceneGraph().attachChild(res, createEntityFromJson(childJson, w));
+    if (root.HasMember("children"))
+    {
+        auto childrenJson = root["children"].GetArray();
+        for (const auto &it : childrenJson)
+            w.sceneGraph().attachChild(res, createEntityFromJson(it, w));
+    }
 
     return res;
 }

@@ -9,38 +9,24 @@
 
 namespace df3d { namespace game_impl {
 
-static void parseFog(const Json::Value &fogNode, World& w)
+static void parseFog(const rapidjson::Value &fogNode, World& w)
 {
-    if (fogNode.empty())
-        return;
-
-    auto density = fogNode["density"].asFloat();
+    auto density = fogNode["density"].GetFloat();
     auto color = w.getRenderingParams().getFogColor();
-    fogNode["color"] >> color;
+
+    color = JsonUtils::get(fogNode, "color", color);
 
     w.getRenderingParams().setFog(density, color);
 }
 
-static void parseEntities(const Json::Value &entitiesNode, World &w)
+static void parseEntities(const rapidjson::Value &entitiesNode, World &w)
 {
-    if (entitiesNode.empty())
-        return;
-
-    for (auto &entJson : entitiesNode)
+    for (const auto &entJson : entitiesNode.GetArray())
         w.spawnFromJson(entJson);
 }
 
-static void parseAmbientLight(const Json::Value &root, World &w)
+static void parsePostProcessOption(const rapidjson::Value &postFxNode, World &w)
 {
-    auto intensity = JsonUtils::getOrDefault(root, w.getRenderingParams().getAmbientLight());
-    w.getRenderingParams().setAmbientLight(intensity.x, intensity.y, intensity.z);
-}
-
-static void parsePostProcessOption(const Json::Value &postFxNode, World &w)
-{
-    if (postFxNode.empty())
-        return;
-
     DF3D_ASSERT(false);
     /*
 
@@ -61,16 +47,14 @@ static void parsePostProcessOption(const Json::Value &postFxNode, World &w)
     w.getRenderingParams().setPostProcessMaterial(make_shared<Material>(*material));*/
 }
 
-static void parseCamera(const Json::Value &cameraNode, World &w)
+static void parseCamera(const rapidjson::Value &cameraNode, World &w)
 {
-    if (cameraNode.empty())
-        return;
-
     glm::vec3 position, rotation;
     float fov = Camera::DEFAULT_FOV;
-    cameraNode["position"] >> position;
-    cameraNode["rotation"] >> rotation;
-    cameraNode["fov"] >> fov;
+
+    position = JsonUtils::get(cameraNode, "position", position);
+    rotation = JsonUtils::get(cameraNode, "rotation", rotation);
+    fov = JsonUtils::get(cameraNode, "fov", fov);
 
     auto camera = make_shared<Camera>(position, fov, Camera::DEFAULT_NEAR_Z, Camera::DEFAULT_FAR_Z);
 
@@ -81,21 +65,25 @@ static void parseCamera(const Json::Value &cameraNode, World &w)
     w.setCamera(camera);
 }
 
-static void parseLights(const Json::Value &lightsNode, World &w)
+static void parseLights(const rapidjson::Value &lightsNode, World &w)
 {
-    if (lightsNode.isNull())
-        return;
-
-    for (auto &lightJson : lightsNode)
+    for (auto &lightJson : lightsNode.GetArray())
     {
         Light light;
 
-        std::string lightName;
-        lightJson["id"] >> lightName;
+        std::string lightName = JsonUtils::get(lightJson, "id", std::string(""));
 
-        light.setDirection(JsonUtils::getOrDefault(lightJson["direction"], light.getDirection()));
-        light.setColor(JsonUtils::getOrDefault(lightJson["color"], light.getColor()));
-        light.setIntensity(JsonUtils::getOrDefault(lightJson["intensity"], light.getIntensity()));
+        auto dir = light.getDirection();
+        auto color = light.getColor();
+        auto intensity = light.getIntensity();
+
+        dir = JsonUtils::get(lightJson, "direction", dir);
+        color = JsonUtils::get(lightJson, "color", color);
+        intensity = JsonUtils::get(lightJson, "intensity", intensity);
+
+        light.setDirection(dir);
+        light.setColor(color);
+        light.setIntensity(intensity);
 
         w.getRenderingParams().addLight(light, lightName);
     }
@@ -104,13 +92,26 @@ static void parseLights(const Json::Value &lightsNode, World &w)
 void WorldLoader::initWorld(const char *resourceFile, World &w)
 {
     auto root = JsonUtils::fromFile(resourceFile);
+    if (root.IsNull())
+        return;
 
-    parseEntities(root["entities"], w);
-    parseFog(root["fog"], w);
-    parseAmbientLight(root["ambient_light"], w);
-    parsePostProcessOption(root["post_process"], w);
-    parseCamera(root["camera"], w);
-    parseLights(root["lights"], w);
+    if (root.HasMember("entities"))
+        parseEntities(root["entities"], w);
+
+    if (root.HasMember("fog"))
+        parseFog(root["fog"], w);
+
+    auto ambientLight = JsonUtils::get(root, "ambient_light", w.getRenderingParams().getAmbientLight());
+    w.getRenderingParams().setAmbientLight(ambientLight.x, ambientLight.y, ambientLight.z);
+
+    if (root.HasMember("post_process"))
+        parsePostProcessOption(root["post_process"], w);
+
+    if (root.HasMember("camera"))
+        parseCamera(root["camera"], w);
+
+    if (root.HasMember("lights"))
+        parseLights(root["lights"], w);
 }
 
 } }

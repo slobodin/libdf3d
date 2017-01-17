@@ -4,28 +4,37 @@
 
 namespace df3d {
 
-static void PreloadEntityData(const Json::Value &root, std::vector<std::string> &outDeps)
+static void PreloadEntityData(const rapidjson::Value &root, std::vector<std::string> &outDeps)
 {
-    const auto &componentsJson = root["components"];
-    for (const auto &compJson : componentsJson)
+    if (root.HasMember("components"))
     {
-        auto type = compJson["type"].asString();
-        const auto &data = compJson["data"];
-        if (type == "mesh")
-            outDeps.push_back(data["path"].asString());
-        else if (type == "vfx")
-            outDeps.push_back(data["path"].asString());
+        const auto &componentsJson = root["components"];
+        for (const auto &compJson : componentsJson.GetArray())
+        {
+            auto type = Id(compJson["type"].GetString());
+
+            DF3D_ASSERT(compJson.HasMember("data"));
+            const auto &data = compJson["data"];
+
+            if (type == Id("mesh"))
+                outDeps.push_back(data["path"].GetString());
+            else if (type == Id("vfx"))
+                outDeps.push_back(data["path"].GetString());
+        }
     }
 
-    const auto &childrenJson = root["children"];
-    for (const auto &child : childrenJson)
-        PreloadEntityData(child, outDeps);
+    if (root.HasMember("children"))
+    {
+        const auto &childrenJson = root["children"];
+        for (const auto &child : childrenJson.GetArray())
+            PreloadEntityData(child, outDeps);
+    }
 }
 
 void EntityHolder::listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps)
 {
-    Json::Value root = JsonUtils::fromFile(dataSource);
-    if (root.isNull())
+    auto root = JsonUtils::fromFile(dataSource);
+    if (root.IsNull())
         return;
 
     PreloadEntityData(root, outDeps);
@@ -33,8 +42,8 @@ void EntityHolder::listDependencies(ResourceDataSource &dataSource, std::vector<
 
 bool EntityHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
 {
-    Json::Value root = JsonUtils::fromFile(dataSource);
-    if (root.isNull())
+    auto root = JsonUtils::fromFile(dataSource);
+    if (root.IsNull())
         return false;
 
     m_resource = MAKE_NEW(allocator, EntityResource)();
