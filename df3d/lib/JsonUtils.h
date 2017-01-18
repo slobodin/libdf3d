@@ -22,17 +22,10 @@ namespace JsonUtils
     };
 
     template<>
-    struct GetHelper<unsigned int>
-    {
-        static unsigned int getValue(const Json::Value &v) { return v.asUInt(); }
-    };
-
-    template<>
     struct GetHelper<size_t>
     {
         static size_t getValue(const Json::Value &v) { return static_cast<size_t>(v.asUInt()); }
     };
-
 
     template<>
     struct GetHelper<int64_t>
