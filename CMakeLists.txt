@@ -273,6 +273,7 @@ if (ANDROID)
         df3d/platform/android/JNIHelpers.cpp
         df3d/platform/android/InAppPurchase.cpp
         df3d/platform/android/LocalNotification.cpp
+        df3d/platform/android/HttpClient.cpp
     )
 endif()
 

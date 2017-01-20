@@ -22,16 +22,6 @@
 
 namespace df3d {
 
-static void* CustomBulletAlloc(size_t size)
-{
-    return df3d::MemoryManager::allocDefault().alloc(size, 1);
-}
-
-static void CustomBulletFree(void *memblock)
-{
-    df3d::MemoryManager::allocDefault().dealloc(memblock);
-}
-
 static btStridingMeshInterface* ShallowCopyBulletMeshData(btTriangleIndexVertexArray *input, Allocator &allocator)
 {
     auto result = MAKE_NEW(allocator, btTriangleIndexVertexArray)();

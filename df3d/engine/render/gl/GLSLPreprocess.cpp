@@ -10,9 +10,10 @@
 
 namespace df3d {
 
+    /*
 static std::string ShaderIfdefsParse(const std::string &shaderData)
 {
-    /*
+
     const std::string IFDEF_DIRECTIVE = "#ifdef";
     const std::string ENDIF_DIRECTIVE = "#endif";
     std::string res = shaderData;
@@ -51,11 +52,11 @@ static std::string ShaderIfdefsParse(const std::string &shaderData)
         }
 
         lastFoundIfdef = res.find(IFDEF_DIRECTIVE, 0);
-    }*/
+    }
 
     //return res;
     return "";
-}
+}*/
 
 static std::string ShaderPreprocess(const std::string &shaderData)
 {
