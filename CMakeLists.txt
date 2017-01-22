@@ -246,7 +246,6 @@ if (WINDOWS)
     )
     list(APPEND libdf3d_SRC_LIST
         df3d/platform/windows/CrashHandler.cpp
-        df3d/platform/windows/HttpClient.cpp
         df3d/platform/windows/InAppPurchase.cpp
     )
 endif()
@@ -310,6 +309,7 @@ if (DF3D_DESKTOP)
         df3d/platform/desktop_common/glfwApplication.cpp
         df3d/platform/desktop_common/LocalNotification.cpp
         df3d/platform/desktop_common/glfwKeyCodes.cpp
+        df3d/platform/desktop_common/HttpClient.cpp
 
         df3d/platform/windows/InAppPurchase.cpp
     )
