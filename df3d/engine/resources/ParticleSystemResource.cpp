@@ -43,6 +43,13 @@ static SPK::Ref<SPK::ColorSimpleInterpolator> ParseSparkSimpleColorInterpolator(
     return SPK::ColorSimpleInterpolator::create(ToSpkColor(birthColor), ToSpkColor(deathColor));
 }
 
+static SPK::Ref<SPK::ColorDefaultInitializer> ParseSparkDefaultInitializerColorInterpolator(const Json::Value &dataJson)
+{
+    auto color = JsonUtils::get(dataJson, "value", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+    return SPK::ColorDefaultInitializer::create(ToSpkColor(color));
+}
+
 static SPK::Ref<SPK::ColorGraphInterpolator> ParseSparkGraphColorInterpolator(const Json::Value &dataJson)
 {
     auto result = SPK::ColorGraphInterpolator::create();
@@ -75,6 +82,8 @@ static SPK::Ref<SPK::ColorInterpolator> ParseSparkColorInterpolator(const Json::
         return ParseSparkSimpleColorInterpolator(interpolatorJson["data"]);
     else if (typeStr == Id("graph"))
         return ParseSparkGraphColorInterpolator(interpolatorJson["data"]);
+    else if (typeStr == Id("defaultInitializer"))
+        return ParseSparkDefaultInitializerColorInterpolator(interpolatorJson["data"]);
 
     DFLOG_WARN("Unknown spark color interpolator type: %s", interpolatorJson["type"].asCString());
     return SPK_NULL_REF;
