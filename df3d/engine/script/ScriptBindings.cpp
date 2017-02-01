@@ -196,6 +196,7 @@ void bindBase(Table &df3dNamespace)
             .Ctor()
             .Ctor<const char *>()
             .Prop(_SC("id"), &Id::getId)
+            .Prop(_SC("empty"), &Id::empty)
             ;
 
         df3dNamespace.Bind(_SC("Id"), cls);
@@ -214,7 +215,8 @@ void bindProcessors(Table &df3dNamespace)
         scGraphProcessor
             .Func(_SC("setPosition"), &SceneGraphComponentProcessor::setPosition)
             .Func<void(SceneGraphComponentProcessor::*)(Entity, const glm::vec3 &)>(_SC("setScale"), &SceneGraphComponentProcessor::setScale)
-            .Func<void(SceneGraphComponentProcessor::*)(Entity, const glm::quat &)>(_SC("setOrientation"), &SceneGraphComponentProcessor::setOrientation)
+            .Overload<void(SceneGraphComponentProcessor::*)(Entity, const glm::quat &)>(_SC("setOrientation"), &SceneGraphComponentProcessor::setOrientation)
+            .Overload<void(SceneGraphComponentProcessor::*)(Entity, const glm::vec3 &)>(_SC("setOrientation"), &SceneGraphComponentProcessor::setOrientation)
 
             .Func(_SC("translate"), &SceneGraphComponentProcessor::translate)
             .Func<void(SceneGraphComponentProcessor::*)(Entity, const glm::vec3 &)>(_SC("scale"), &SceneGraphComponentProcessor::scale)
@@ -236,6 +238,7 @@ void bindProcessors(Table &df3dNamespace)
             .Func(_SC("getWorldUp"), &SceneGraphComponentProcessor::getWorldUp)
             .Func(_SC("getWorldRight"), &SceneGraphComponentProcessor::getWorldRight)
             .Func(_SC("getWorldOrientation"), &SceneGraphComponentProcessor::getWorldOrientation)
+            .Func(_SC("getWorldRotation"), &SceneGraphComponentProcessor::getWorldRotation)
 
             .Func(_SC("attachChild"), &SceneGraphComponentProcessor::attachChild)
             .Func(_SC("detachChild"), &SceneGraphComponentProcessor::detachChild)
@@ -294,6 +297,7 @@ void bindProcessors(Table &df3dNamespace)
     {
         Class<StaticMeshComponentProcessor, NoConstructor<StaticMeshComponentProcessor>> smProcessor(vm, _SC("StaticMeshComponentProcessor"));
         smProcessor
+            .Func(_SC("add"), &StaticMeshComponentProcessor::add)
             .Func(_SC("setVisible"), &StaticMeshComponentProcessor::setVisible)
             //.Func<void(StaticMeshComponentProcessor::*)(Entity, Res)>(_SC("add"), &StaticMeshComponentProcessor::add)
             .Func(_SC("disableFrustumCulling"), &StaticMeshComponentProcessor::disableFrustumCulling)
