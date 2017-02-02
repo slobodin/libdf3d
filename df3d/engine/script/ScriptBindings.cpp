@@ -215,8 +215,8 @@ void bindProcessors(Table &df3dNamespace)
         scGraphProcessor
             .Func(_SC("setPosition"), &SceneGraphComponentProcessor::setPosition)
             .Func<void(SceneGraphComponentProcessor::*)(Entity, const glm::vec3 &)>(_SC("setScale"), &SceneGraphComponentProcessor::setScale)
-            .Overload<void(SceneGraphComponentProcessor::*)(Entity, const glm::quat &)>(_SC("setOrientation"), &SceneGraphComponentProcessor::setOrientation)
-            .Overload<void(SceneGraphComponentProcessor::*)(Entity, const glm::vec3 &)>(_SC("setOrientation"), &SceneGraphComponentProcessor::setOrientation)
+            .Func<void(SceneGraphComponentProcessor::*)(Entity, const glm::quat &)>(_SC("setOrientation"), &SceneGraphComponentProcessor::setOrientation)
+            .Func<void(SceneGraphComponentProcessor::*)(Entity, const glm::vec3 &)>(_SC("setOrientation2"), &SceneGraphComponentProcessor::setOrientation)
 
             .Func(_SC("translate"), &SceneGraphComponentProcessor::translate)
             .Func<void(SceneGraphComponentProcessor::*)(Entity, const glm::vec3 &)>(_SC("scale"), &SceneGraphComponentProcessor::scale)
