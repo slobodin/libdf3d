@@ -12,17 +12,41 @@ static int MAX_TOUCHES = 15;
 
 static tb::SPECIAL_KEY GetTBSpecialKey(KeyCode keyCode)
 {
-    auto tbKey = tb::TB_KEY_UNDEFINED;
     switch (keyCode)
     {
     case KeyCode::KEY_ESCAPE:
-        tbKey = tb::TB_KEY_ESC;
-        break;
+        return tb::TB_KEY_ESC;
+    case KeyCode::KEY_UP:
+        return tb::TB_KEY_UP;
+    case KeyCode::KEY_DOWN:
+        return tb::TB_KEY_DOWN;
+    case KeyCode::KEY_LEFT:
+        return tb::TB_KEY_LEFT;
+    case KeyCode::KEY_RIGHT:
+        return tb::TB_KEY_RIGHT;
+    case KeyCode::KEY_PAGE_UP:
+        return tb::TB_KEY_PAGE_UP;
+    case KeyCode::KEY_PAGE_DOWN:
+        return tb::TB_KEY_PAGE_DOWN;
+    case KeyCode::KEY_HOME:
+        return tb::TB_KEY_HOME;
+    case KeyCode::KEY_END:
+        return tb::TB_KEY_END;
+    case KeyCode::KEY_TAB:
+        return tb::TB_KEY_TAB;
+    case KeyCode::KEY_BACKSPACE:
+        return tb::TB_KEY_BACKSPACE;
+    case KeyCode::KEY_INSERT:
+        return tb::TB_KEY_INSERT;
+    case KeyCode::KEY_DELETE:
+        return tb::TB_KEY_DELETE;
+    case KeyCode::KEY_ENTER:
+        return tb::TB_KEY_ENTER;
     default:
         break;
     }
 
-    return tbKey;
+    return tb::TB_KEY_UNDEFINED;
 }
 
 static bool IsPrimaryTouch(Touch touch)
@@ -261,6 +285,14 @@ void InputManager::onTextInput(unsigned int codepoint)
 {
     if (!m_enabled)
         return;
+    if (auto root = svc().guiManager().getRoot())
+    {
+        if (root->GetIsInteractable())
+        {
+            root->InvokeKey(codepoint, tb::TB_KEY_UNDEFINED, tb::TB_MODIFIER_NONE, true);
+            root->InvokeKey(codepoint, tb::TB_KEY_UNDEFINED, tb::TB_MODIFIER_NONE, false);
+        }
+    }
 }
 
 void InputManager::onTouch(uintptr_t id, int x, int y, Touch::State state)

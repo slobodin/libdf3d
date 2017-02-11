@@ -89,7 +89,7 @@ inline std::string to_string(const T &v)
 template<typename T>
 inline T from_string(const std::string &s)
 {
-    T res;
+    T res{};
     std::istringstream is(s);
     is >> res;
     return res;

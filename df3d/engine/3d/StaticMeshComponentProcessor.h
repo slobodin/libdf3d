@@ -21,6 +21,7 @@ class StaticMeshComponentProcessor : public EntityComponentProcessor
     {
         Transform holderWorldTransform;
         Entity holder;
+        Id meshResourceId;
         bool visible = true;
         bool frustumCullingDisabled = false;
         std::vector<MeshPart> parts;
@@ -50,6 +51,8 @@ public:
 
     AABB getAABB(Entity e);
     BoundingSphere getBoundingSphere(Entity e);
+
+    Id getMeshId(Entity e);
 
     void enableRender(bool enable);
     void setVisible(Entity e, bool visible);

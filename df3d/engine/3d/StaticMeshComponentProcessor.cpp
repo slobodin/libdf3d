@@ -166,6 +166,11 @@ BoundingSphere StaticMeshComponentProcessor::getBoundingSphere(Entity e)
     return getBoundingSphere(m_data.getData(e));
 }
 
+Id StaticMeshComponentProcessor::getMeshId(Entity e)
+{
+    return m_data.getData(e).meshResourceId;
+}
+
 void StaticMeshComponentProcessor::enableRender(bool enable)
 {
     m_renderingEnabled = enable;
@@ -195,6 +200,7 @@ void StaticMeshComponentProcessor::add(Entity e, Id meshResource)
     {
         Data data;
 
+        data.meshResourceId = meshResource;
         data.parts = mesh->meshParts;
         data.materials.resize(data.parts.size());
         data.localAABB = mesh->localAABB;
