@@ -5,6 +5,36 @@
 namespace df3d 
 {
 
+class MFiControllerListener
+{
+public:
+    MFiControllerListener() = default;
+    virtual ~MFiControllerListener() = default;
+
+    virtual void MFiControllerConnected() { }
+    virtual void MFiControllerDisconnected() { }
+    virtual void MFiControllerPausePressed() { }
+
+    virtual void Mfi_buttonA_Changed(float value, bool pressed) { }
+    virtual void Mfi_buttonX_Changed(float value, bool pressed) { }
+    virtual void Mfi_buttonY_Changed(float value, bool pressed) { }
+    virtual void Mfi_buttonB_Changed(float value, bool pressed) { }
+
+    virtual void Mfi_DPadLeft_Changed(float value, bool pressed) { }
+    virtual void Mfi_DPadRight_Changed(float value, bool pressed) { }
+    virtual void Mfi_DPadUp_Changed(float value, bool pressed) { }
+    virtual void Mfi_DPadDown_Changed(float value, bool pressed) { }
+
+    virtual void Mfi_LeftShoulder_Changed(float value, bool pressed) { }
+    virtual void Mfi_RightShoulder_Changed(float value, bool pressed) { }
+
+    virtual void Mfi_LeftTrigger_Changed(float value, bool pressed) { }
+    virtual void Mfi_RightTrigger_Changed(float value, bool pressed) { }
+
+    virtual void Mfi_LeftThumbStick_Changed(float xValue, float yValue) { }
+    virtual void Mfi_RightThumbStick_Changed(float xValue, float yValue) { }
+};
+
 class InputManager : NonCopyable
 {
     friend class EngineController;
@@ -57,6 +87,10 @@ class InputManager : NonCopyable
     bool m_enabled = true;
     std::unordered_map<uintptr_t, Touch> m_touches;
 
+    MFiControllerListener *m_listener = nullptr;
+    bool m_anyMfiController = false;
+    bool m_extendedMfi = false;
+
     void cleanStep();
     void processTouchDown(const Touch &touch);
     void processTouchUp(const Touch &touch);
@@ -93,6 +127,13 @@ public:
     // TODO: make InputInterface with only get functions. Game code will use it.
     // Instantiate input manager per platform with these methods (setmousepos, onTouch, etc).
     void onTouch(uintptr_t id, int x, int y, Touch::State state);
+
+    MFiControllerListener* getMfiControllerListener() { return m_listener; }
+    void setMfiControllerListener(MFiControllerListener *listener) { m_listener = listener; }
+    bool anyMfiController() const { return m_anyMfiController; }
+    void setHasMfiController(bool has) { m_anyMfiController = has; }
+    bool mfiIsExtended() { return m_extendedMfi; }
+    void setMFiExtended(bool extended) { m_extendedMfi = extended; }
 };
 
 }
