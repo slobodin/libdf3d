@@ -35,7 +35,7 @@ extern bool EngineInit(EngineInitParams params);
 {
     [super viewDidLoad];
 
-    contentScaleFactor = [UIScreen mainScreen].scale;
+    contentScaleFactor = [[UIScreen mainScreen] scale];
 
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 
@@ -101,24 +101,11 @@ extern bool EngineInit(EngineInitParams params);
     self.preferredFramesPerSecond = 60.0f;
     [EAGLContext setCurrentContext:self.context];
 
-    int screenWidth, screenHeight;
-    // Get screen size.
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 8.0)
-    {
-        CGFloat screenScale = [[UIScreen mainScreen] scale];
-        CGSize size = [[UIScreen mainScreen] bounds].size;
-        screenWidth = size.width * screenScale;
-        screenHeight = size.height * screenScale;
-    }
-    else
-    {
-        CGSize size = [[UIScreen mainScreen] nativeBounds].size;
-        screenWidth = size.width;
-        screenHeight = size.height;
-    }
+    int screenWidth = [[UIScreen mainScreen] bounds].size.width;
+    int screenHeight = [[UIScreen mainScreen] bounds].size.height;
 
-    if (UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation))
-        std::swap(screenWidth, screenHeight);
+    screenWidth *= [[UIScreen mainScreen] scale];
+    screenHeight *= [[UIScreen mainScreen] scale];
 
     assert(df3d::AppDelegate::getInstance() != nullptr);
 
