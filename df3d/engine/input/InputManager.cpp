@@ -102,8 +102,7 @@ void InputManager::processTouchDown(const Touch &touch)
 
     int clickCount = IsPrimaryTouch(touch) ? 1 : 0;
 
-    auto root = df3d::svc().guiManager().getRoot();
-    if (root && root->GetIsInteractable())
+    if (auto root = df3d::svc().guiManager().getRoot())
         root->InvokeTouchDown(touch.x, touch.y, touch.id, clickCount, tb::TB_MODIFIER_NONE);
 }
 
@@ -115,8 +114,7 @@ void InputManager::processTouchUp(const Touch &touch)
         setMousePosition(touch.x, touch.y);
     }
 
-    auto root = df3d::svc().guiManager().getRoot();
-    if (root && root->GetIsInteractable())
+    if (auto root = df3d::svc().guiManager().getRoot())
         root->InvokeTouchUp(touch.x, touch.y, touch.id, tb::TB_MODIFIER_NONE);
 }
 
@@ -125,8 +123,7 @@ void InputManager::processTouchMove(const Touch &touch)
     if (IsPrimaryTouch(touch))
         setMousePosition(touch.x, touch.y);
 
-    auto root = df3d::svc().guiManager().getRoot();
-    if (root && root->GetIsInteractable())
+    if (auto root = df3d::svc().guiManager().getRoot())
         root->InvokeTouchMove(touch.x, touch.y, touch.id, tb::TB_MODIFIER_NONE);
 //
 //    found->second.dx = x - found->second.x;
@@ -141,8 +138,7 @@ void InputManager::processTouchCancel(const Touch &touch)
         setMousePosition(touch.x, touch.y);
     }
 
-    auto root = df3d::svc().guiManager().getRoot();
-    if (root && root->GetIsInteractable())
+    if (auto root = df3d::svc().guiManager().getRoot())
         root->InvokeTouchCancel(touch.id);
 }
 
@@ -247,11 +243,10 @@ void InputManager::setMouseWheelDelta(float delta)
 {
     if (!m_enabled)
         return;
-    if (auto root = svc().guiManager().getRoot())
-    {
-        if (root->GetIsInteractable())
-            root->InvokeWheel(m_mouseState.position.x, m_mouseState.position.y, 0, static_cast<int>(delta), tb::TB_MODIFIER_NONE);
-    }
+
+    if (auto root = df3d::svc().guiManager().getRoot())
+        root->InvokeWheel(m_mouseState.position.x, m_mouseState.position.y, 0, static_cast<int>(delta), tb::TB_MODIFIER_NONE);
+
     m_mouseState.wheelDelta = delta;
 }
 
@@ -259,11 +254,9 @@ void InputManager::onKeyUp(const KeyCode &keyCode, KeyModifier modifiers)
 {
     if (!m_enabled)
         return;
-    if (auto root = svc().guiManager().getRoot())
-    {
-        if (root->GetIsInteractable())
-            root->InvokeKey(0, GetTBSpecialKey(keyCode), tb::TB_MODIFIER_NONE, false);
-    }
+
+    if (auto root = df3d::svc().guiManager().getRoot())
+        root->InvokeKey(0, GetTBSpecialKey(keyCode), tb::TB_MODIFIER_NONE, false);
 
     m_keyboardState.keyboard[(size_t)keyCode] = KeyboardState::RELEASED;
 }
@@ -272,11 +265,9 @@ void InputManager::onKeyDown(const KeyCode &keyCode, KeyModifier modifiers)
 {
     if (!m_enabled)
         return;
-    if (auto root = svc().guiManager().getRoot())
-    {
-        if (root->GetIsInteractable())
-            root->InvokeKey(0, GetTBSpecialKey(keyCode), tb::TB_MODIFIER_NONE, true);
-    }
+
+    if (auto root = df3d::svc().guiManager().getRoot())
+        root->InvokeKey(0, GetTBSpecialKey(keyCode), tb::TB_MODIFIER_NONE, true);
 
     m_keyboardState.keyboard[(size_t)keyCode] = KeyboardState::PRESSED;
 }
@@ -285,21 +276,16 @@ void InputManager::onTextInput(unsigned int codepoint)
 {
     if (!m_enabled)
         return;
-    if (auto root = svc().guiManager().getRoot())
+
+    if (auto root = df3d::svc().guiManager().getRoot())
     {
-        if (root->GetIsInteractable())
-        {
-            root->InvokeKey(codepoint, tb::TB_KEY_UNDEFINED, tb::TB_MODIFIER_NONE, true);
-            root->InvokeKey(codepoint, tb::TB_KEY_UNDEFINED, tb::TB_MODIFIER_NONE, false);
-        }
+        root->InvokeKey(codepoint, tb::TB_KEY_UNDEFINED, tb::TB_MODIFIER_NONE, true);
+        root->InvokeKey(codepoint, tb::TB_KEY_UNDEFINED, tb::TB_MODIFIER_NONE, false);
     }
 }
 
 void InputManager::onTouch(uintptr_t id, int x, int y, Touch::State state)
 {
-    if (!m_enabled)
-        return;
-
     switch (state)
     {
         case Touch::State::DOWN:
@@ -320,7 +306,8 @@ void InputManager::onTouch(uintptr_t id, int x, int y, Touch::State state)
 
                     m_touches[id] = newTouch;
 
-                    processTouchDown(newTouch);
+                    if (m_enabled)
+                        processTouchDown(newTouch);
                 }
             }
             else
@@ -337,10 +324,13 @@ void InputManager::onTouch(uintptr_t id, int x, int y, Touch::State state)
                 found->second.y = y;
                 found->second.state = state;
 
-                if (state == Touch::State::UP)
-                    processTouchUp(found->second);
-                else
-                    processTouchCancel(found->second);
+                if (m_enabled)
+                {
+                    if (state == Touch::State::UP)
+                        processTouchUp(found->second);
+                    else
+                        processTouchCancel(found->second);
+                }
 
                 RemoveUsedIndexBit(found->second.id);
                 m_touches.erase(found);
@@ -357,7 +347,9 @@ void InputManager::onTouch(uintptr_t id, int x, int y, Touch::State state)
                 found->second.x = x;
                 found->second.y = y;
                 found->second.state = state;
-                processTouchMove(found->second);
+
+                if (m_enabled)
+                    processTouchMove(found->second);
             }
             else
                 DFLOG_WARN("Failed to find a touch!");

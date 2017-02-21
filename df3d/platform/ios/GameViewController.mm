@@ -28,14 +28,12 @@ extern bool EngineInit(EngineInitParams params);
 @end
 
 @implementation GameViewController {
-    CGFloat contentScaleFactor;
+
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    contentScaleFactor = [[UIScreen mainScreen] scale];
 
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 
@@ -131,11 +129,13 @@ extern bool EngineInit(EngineInitParams params);
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
+    CGFloat scale = [[UIScreen mainScreen] scale];
+
     for (UITouch *touch in touches)
     {
         CGPoint point = [touch locationInView:self.view];
-        point.x *= self->contentScaleFactor;
-        point.y *= self->contentScaleFactor;
+        point.x *= scale;
+        point.y *= scale;
         auto pointerId = reinterpret_cast<uintptr_t>(touch);
 
         df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, df3d::Touch::State::DOWN);
@@ -144,11 +144,13 @@ extern bool EngineInit(EngineInitParams params);
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
+    CGFloat scale = [[UIScreen mainScreen] scale];
+
     for (UITouch *touch in touches)
     {
         CGPoint point = [touch locationInView:self.view];
-        point.x *= self->contentScaleFactor;
-        point.y *= self->contentScaleFactor;
+        point.x *= scale;
+        point.y *= scale;
         auto pointerId = reinterpret_cast<uintptr_t>(touch);
 
         df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, df3d::Touch::State::MOVING);
@@ -157,11 +159,13 @@ extern bool EngineInit(EngineInitParams params);
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
+    CGFloat scale = [[UIScreen mainScreen] scale];
+
     for (UITouch *touch in touches)
     {
         CGPoint point = [touch locationInView:self.view];
-        point.x *= self->contentScaleFactor;
-        point.y *= self->contentScaleFactor;
+        point.x *= scale;
+        point.y *= scale;
         auto pointerId = reinterpret_cast<uintptr_t>(touch);
 
         df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, df3d::Touch::State::UP);
@@ -170,11 +174,13 @@ extern bool EngineInit(EngineInitParams params);
 
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
+    CGFloat scale = [[UIScreen mainScreen] scale];
+
     for (UITouch *touch in touches)
     {
         CGPoint point = [touch locationInView:self.view];
-        point.x *= self->contentScaleFactor;
-        point.y *= self->contentScaleFactor;
+        point.x *= scale;
+        point.y *= scale;
         auto pointerId = reinterpret_cast<uintptr_t>(touch);
 
         df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, df3d::Touch::State::CANCEL);
