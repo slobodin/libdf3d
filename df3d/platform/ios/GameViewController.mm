@@ -28,7 +28,7 @@ extern bool EngineInit(EngineInitParams params);
 @end
 
 @implementation GameViewController {
-
+    CGFloat screenScale;
 }
 
 - (void)viewDidLoad
@@ -99,11 +99,14 @@ extern bool EngineInit(EngineInitParams params);
     self.preferredFramesPerSecond = 60.0f;
     [EAGLContext setCurrentContext:self.context];
 
-    int screenWidth = [[UIScreen mainScreen] bounds].size.width;
-    int screenHeight = [[UIScreen mainScreen] bounds].size.height;
+    screenScale = [[UIScreen mainScreen] nativeScale];
+    CGSize size = [[UIScreen mainScreen] nativeBounds].size;
+    CGFloat screenWidth = size.width;
+    CGFloat screenHeight = size.height;
 
-    screenWidth *= [[UIScreen mainScreen] scale];
-    screenHeight *= [[UIScreen mainScreen] scale];
+    // Swap width and height for landscape orienation
+	if (UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation))
+        std::swap(screenWidth, screenHeight);
 
     assert(df3d::AppDelegate::getInstance() != nullptr);
 
@@ -127,64 +130,37 @@ extern bool EngineInit(EngineInitParams params);
     df3d::svc().step();
 }
 
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+- (void)processTouches:(NSSet<UITouch*>*)touches withState:(df3d::Touch::State)state
 {
-    CGFloat scale = [[UIScreen mainScreen] scale];
-
     for (UITouch *touch in touches)
     {
-        CGPoint point = [touch locationInView:self.view];
-        point.x *= scale;
-        point.y *= scale;
+        CGPoint point = [touch locationInView: self.view];
+        point.x *= screenScale;
+        point.y *= screenScale;
         auto pointerId = reinterpret_cast<uintptr_t>(touch);
 
-        df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, df3d::Touch::State::DOWN);
+        df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, state);
     }
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    [self processTouches:touches withState:df3d::Touch::State::DOWN];
 }
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    CGFloat scale = [[UIScreen mainScreen] scale];
-
-    for (UITouch *touch in touches)
-    {
-        CGPoint point = [touch locationInView:self.view];
-        point.x *= scale;
-        point.y *= scale;
-        auto pointerId = reinterpret_cast<uintptr_t>(touch);
-
-        df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, df3d::Touch::State::MOVING);
-    }
+    [self processTouches:touches withState:df3d::Touch::State::MOVING];
 }
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    CGFloat scale = [[UIScreen mainScreen] scale];
-
-    for (UITouch *touch in touches)
-    {
-        CGPoint point = [touch locationInView:self.view];
-        point.x *= scale;
-        point.y *= scale;
-        auto pointerId = reinterpret_cast<uintptr_t>(touch);
-
-        df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, df3d::Touch::State::UP);
-    }
+    [self processTouches:touches withState:df3d::Touch::State::UP];
 }
 
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    CGFloat scale = [[UIScreen mainScreen] scale];
-
-    for (UITouch *touch in touches)
-    {
-        CGPoint point = [touch locationInView:self.view];
-        point.x *= scale;
-        point.y *= scale;
-        auto pointerId = reinterpret_cast<uintptr_t>(touch);
-
-        df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, df3d::Touch::State::CANCEL);
-    }
+    [self processTouches:touches withState:df3d::Touch::State::CANCEL];
 }
 
 - (void)controllerWasConnected:(NSNotification*)notification
