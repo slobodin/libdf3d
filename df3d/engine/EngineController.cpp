@@ -8,7 +8,6 @@
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/input/InputManager.h>
 #include <df3d/engine/gui/GuiManager.h>
-#include <df3d/engine/audio/AudioManager.h>
 #include <df3d/platform/AppDelegate.h>
 #include <df3d/engine/script/ScriptManager.h>
 #include <df3d/lib/JsonUtils.h>
@@ -37,7 +36,6 @@ void EngineController::initialize(EngineInitParams params)
     m_resourceManager = make_unique<ResourceManager>();
     m_renderManager = make_unique<RenderManager>();
     m_guiManager = make_unique<GuiManager>();
-    m_audioManager = make_unique<AudioManager>();
     m_inputManager = make_unique<InputManager>();
     m_scriptManager = make_unique<ScriptManager>();
 
@@ -45,7 +43,6 @@ void EngineController::initialize(EngineInitParams params)
     m_renderManager->initialize(params.windowWidth, params.windowHeight);
     m_guiManager->initialize(params.windowWidth, params.windowHeight);
     m_scriptManager->initialize();
-    m_audioManager->initialize();
 
     if (params.createConsole)
     {
@@ -69,7 +66,6 @@ void EngineController::shutdown()
         m_world.reset();
     }
 
-    m_audioManager->shutdown();
     m_scriptManager->shutdown();
     m_guiManager->shutdown();
     m_renderManager->shutdown();
@@ -80,7 +76,6 @@ void EngineController::shutdown()
     m_guiManager.reset();
     m_renderManager.reset();
     m_resourceManager.reset();
-    m_audioManager.reset();
     m_inputManager.reset();
     m_timer.reset();
 
@@ -115,7 +110,6 @@ void EngineController::suspend()
     DF3D_ASSERT_MESS(m_initialized, "EngineController must be initialized");
     if (!m_suspended)
     {
-        m_audioManager->suspend();
         m_resourceManager->suspend();
 
         m_suspended = true;
@@ -127,7 +121,6 @@ void EngineController::resume()
     DF3D_ASSERT_MESS(m_initialized, "EngineController must be initialized");
     if (m_suspended)
     {
-        m_audioManager->resume();
         m_resourceManager->resume();
 
         m_suspended = false;

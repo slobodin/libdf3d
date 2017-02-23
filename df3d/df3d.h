@@ -55,7 +55,6 @@
 #include <df3d/engine/io/FileSystemHelpers.h>
 #include <df3d/engine/io/Storage.h>
 
-#include <df3d/engine/resources/AudioResource.h>
 #include <df3d/engine/resources/GpuProgramResource.h>
 #include <df3d/engine/resources/MaterialResource.h>
 #include <df3d/engine/resources/MeshResource.h>
@@ -72,8 +71,6 @@
 #include <df3d/engine/physics/PhysicsComponentCreationParams.h>
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
-
-#include <df3d/engine/audio/AudioWorld.h>
 
 #include <df3d/game/FPSCamera.h>
 #include <df3d/game/Entity.h>

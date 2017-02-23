@@ -7,7 +7,6 @@ namespace df3d {
 class RenderManager;
 class ResourceManager;
 class GuiManager;
-class AudioManager;
 class InputManager;
 class ScriptManager;
 class Timer;
@@ -25,7 +24,6 @@ class EngineController : NonCopyable
     unique_ptr<RenderManager> m_renderManager;
     unique_ptr<ResourceManager> m_resourceManager;
     unique_ptr<GuiManager> m_guiManager;
-    unique_ptr<AudioManager> m_audioManager;
     unique_ptr<InputManager> m_inputManager;
     unique_ptr<ScriptManager> m_scriptManager;
     unique_ptr<TimeManager> m_systemTimeManager;
@@ -57,7 +55,6 @@ public:
     RenderManager& renderManager() { return *m_renderManager; }
     ResourceManager& resourceManager() { return *m_resourceManager; }
     GuiManager& guiManager() { return *m_guiManager; }
-    AudioManager& audioManager() { return *m_audioManager; }
     InputManager& inputManager() { return *m_inputManager; }
     Timer& timer() { return *m_timer; }
     TimeManager& systemTimeManager() { return *m_systemTimeManager; }

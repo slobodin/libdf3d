@@ -38,9 +38,6 @@ set(libdf3d_HEADER_LIST
     df3d/engine/3d/Light.h
     df3d/engine/3d/SceneGraphComponentProcessor.h
     df3d/engine/3d/StaticMeshComponentProcessor.h
-    df3d/engine/audio/AudioWorld.h
-    df3d/engine/audio/AudioManager.h
-    df3d/engine/audio/OpenALCommon.h
     df3d/engine/gui/GuiManager.h
     df3d/engine/gui/TBInterface.h
     df3d/engine/input/InputEvents.h
@@ -74,7 +71,6 @@ set(libdf3d_HEADER_LIST
     df3d/engine/render/gl/embed_glsl/ambient_vert.h
     df3d/engine/render/gl/embed_glsl/colored_frag.h
     df3d/engine/render/gl/embed_glsl/colored_vert.h
-    df3d/engine/resources/AudioResource.h
     df3d/engine/resources/EntityResource.h
     df3d/engine/resources/GpuProgramResource.h
     df3d/engine/resources/IResourceHolder.h
@@ -85,8 +81,6 @@ set(libdf3d_HEADER_LIST
     df3d/engine/resources/ResourceFileSystem.h
     df3d/engine/resources/ResourceManager.h
     df3d/engine/resources/TextureResource.h
-    df3d/engine/resources/loaders/AudioLoader_ogg.h
-    df3d/engine/resources/loaders/AudioLoader_wav.h
     df3d/engine/resources/loaders/MeshLoader_dfmesh.h
     df3d/engine/resources/loaders/MeshLoader_obj.h
     df3d/engine/resources/loaders/TextureLoader_pvrtc.h
@@ -151,9 +145,6 @@ set(libdf3d_SRC_LIST
     df3d/engine/3d/Light.cpp
     df3d/engine/3d/SceneGraphComponentProcessor.cpp
     df3d/engine/3d/StaticMeshComponentProcessor.cpp
-    df3d/engine/audio/AudioWorld.cpp
-    df3d/engine/audio/AudioManager.cpp
-    df3d/engine/audio/OpenALCommon.cpp
     df3d/engine/gui/GuiManager.cpp
     df3d/engine/gui/TBInterface.cpp
     df3d/engine/input/InputEvents.cpp
@@ -180,7 +171,6 @@ set(libdf3d_SRC_LIST
     df3d/engine/render/Viewport.cpp
     df3d/engine/render/gl/GLSLPreprocess.cpp
     df3d/engine/render/gl/RenderBackendGL.cpp
-    df3d/engine/resources/AudioResource.cpp
     df3d/engine/resources/EntityResource.cpp
     df3d/engine/resources/GpuProgramResource.cpp
     df3d/engine/resources/MaterialResource.cpp
@@ -190,8 +180,6 @@ set(libdf3d_SRC_LIST
     df3d/engine/resources/ResourceFileSystem.cpp
     df3d/engine/resources/ResourceManager.cpp
     df3d/engine/resources/TextureResource.cpp
-    df3d/engine/resources/loaders/AudioLoader_ogg.cpp
-    df3d/engine/resources/loaders/AudioLoader_wav.cpp
     df3d/engine/resources/loaders/MeshLoader_dfmesh.cpp
     df3d/engine/resources/loaders/MeshLoader_obj.cpp
     df3d/engine/resources/loaders/TextureLoader_pvrtc.cpp
@@ -324,8 +312,8 @@ if (DF3D_DESKTOP)
 endif()
 
 if(IOS OR MACOSX)
-    find_package(OpenAL REQUIRED)
-    SET(DF3D_OPENAL_LIBNAME ${OPENAL_LIBRARY})
+    # find_package(OpenAL REQUIRED)
+    # SET(DF3D_OPENAL_LIBNAME ${OPENAL_LIBRARY})
 endif()
 
 include_directories(${PROJECT_SOURCE_DIR}/
@@ -339,9 +327,9 @@ include_directories(${PROJECT_SOURCE_DIR}/
                     ${PROJECT_SOURCE_DIR}/third-party/turbobadger/src/tb)
 
 if (NOT IOS AND NOT MACOSX)
-    include_directories(${PROJECT_SOURCE_DIR}/third-party/openal-soft/include)
+    # include_directories(${PROJECT_SOURCE_DIR}/third-party/openal-soft/include)
 else()
-    include_directories(${OPENAL_INCLUDE_DIR})
+    # include_directories(${OPENAL_INCLUDE_DIR})
 endif()
 
 if(MSVC)
@@ -423,12 +411,12 @@ OPTION(ALSOFT_INSTALL OFF)
 OPTION(ALSOFT_AMBDEC_PRESETS OFF)
 
 if (NOT IOS AND NOT MACOSX)
-    add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/openal-soft)
-    if(NOT WIN32)
-        SET(DF3D_OPENAL_LIBNAME openal)
-    else()
-        SET(DF3D_OPENAL_LIBNAME OpenAL32)
-    endif()
+    # add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/openal-soft)
+    # if(NOT WIN32)
+    #     SET(DF3D_OPENAL_LIBNAME openal)
+    # else()
+    #     SET(DF3D_OPENAL_LIBNAME OpenAL32)
+    # endif()
 endif()
 
 
@@ -453,7 +441,7 @@ target_link_libraries(libdf3d
     webp)
 
 if (DF3D_DESKTOP)
-    target_link_libraries(libdf3d glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${DF3D_OPENAL_LIBNAME})
+    target_link_libraries(libdf3d glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES}) #${DF3D_OPENAL_LIBNAME})
 endif()
 
 if (WINDOWS_PHONE)
@@ -463,7 +451,7 @@ if (WINDOWS_PHONE)
 endif()
 
 if (ANDROID)
-    target_link_libraries(libdf3d OpenSLES ${DF3D_OPENAL_LIBNAME} GLESv2 log android)
+    target_link_libraries(libdf3d OpenSLES GLESv2 log android) # ${DF3D_OPENAL_LIBNAME}
 endif()
 
 if (IOS)

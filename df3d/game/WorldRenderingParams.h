@@ -36,7 +36,7 @@ public:
     void addLight(const Light &light, const std::string &name);
     const std::vector<Light>& getLights() const { return m_lights; }
     std::vector<Light>& getLights() { return m_lights; }
-    Light* getLight(int idx) { if (idx < 0 || idx >= m_lights.size()) return nullptr; return &m_lights[idx]; }
+    Light* getLight(size_t idx) { if (idx >= m_lights.size()) return nullptr; return &m_lights[idx]; }
     Light* getLightByName(const std::string &name);
 };
 

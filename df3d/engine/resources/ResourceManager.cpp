@@ -12,7 +12,6 @@
 #include "ParticleSystemResource.h"
 #include "TextureResource.h"
 #include "EntityResource.h"
-#include "AudioResource.h"
 #include "IResourceHolder.h"
 
 namespace df3d {
@@ -33,8 +32,6 @@ static shared_ptr<IResourceHolder> CreateResourceHolder(const char *resourcePath
         resourceHolder = make_shared<ParticleSystemHolder>();
     else if (FileSystemHelpers::compareExtension(resourcePath, ".entity"))
         resourceHolder = make_shared<EntityHolder>();
-    else if (FileSystemHelpers::compareExtension(resourcePath, ".audio"))
-        resourceHolder = make_shared<AudioResourceHolder>();
     else
         DF3D_ASSERT_MESS(false, "Failed to create resource decoder: unknown resource type '%s'", resourcePath);
 
