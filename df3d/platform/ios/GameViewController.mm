@@ -5,6 +5,7 @@
 
 #import "GameViewController.h"
 #import <OpenGLES/ES2/glext.h>
+#import <AVFoundation/AVFoundation.h>
 #import <GameController/GameController.h>
 
 #import <df3d/df3d.h>
@@ -13,6 +14,9 @@
 namespace df3d {
 
 extern bool EngineInit(EngineInitParams params);
+// TODO: refactor this.
+extern void AudioSuspend();
+extern void AudioResume();
 
 }
 
@@ -56,6 +60,20 @@ extern bool EngineInit(EngineInitParams params);
 
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(controllerWasConnected:) name:GCControllerDidConnectNotification object:nil];
     [[NSNotificationCenter defaultCenter]addObserver: self selector:@selector(controllerWasDisconnected:) name:GCControllerDidDisconnectNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserverForName:AVAudioSessionInterruptionNotification object:nil queue:nil usingBlock:^(NSNotification *notification)
+    {
+        if ([[notification.userInfo valueForKey:AVAudioSessionInterruptionTypeKey] intValue] == AVAudioSessionInterruptionTypeBegan)
+        {
+            df3d::AudioSuspend();
+        }
+        else
+        {
+            BOOL success = [[AVAudioSession sharedInstance] setActive:TRUE error:nil];
+            assert(success);
+
+            df3d::AudioResume();
+        }
+    }];
 }
 
 - (void)dealloc
