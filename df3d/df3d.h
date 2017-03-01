@@ -63,6 +63,7 @@
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/ResourceDataSource.h>
 #include <df3d/engine/resources/ResourceFileSystem.h>
+#include <df3d/engine/resources/EntityResource.h>
 
 #include <df3d/engine/gui/GuiManager.h>
 
