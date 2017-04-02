@@ -80,6 +80,7 @@ public:
     void* getRawData() { return m_data.data(); }
     const void* getRawData() const { return m_data.data(); }
     size_t getSizeInBytes() const { return m_data.size(); }
+    void clear() { m_data.clear(); }
 };
 
 struct Vertex_p_c
