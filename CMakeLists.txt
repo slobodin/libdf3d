@@ -43,7 +43,6 @@ set(libdf3d_HEADER_LIST
     df3d/engine/input/InputEvents.h
     df3d/engine/input/InputManager.h
     df3d/engine/io/FileSystemHelpers.h
-    df3d/engine/io/Storage.h
     df3d/engine/network/HttpClient.h
     df3d/engine/particlesys/ParticleSystemComponentProcessor.h
     df3d/engine/particlesys/ParticleSystemUtils.h
@@ -150,7 +149,6 @@ set(libdf3d_SRC_LIST
     df3d/engine/input/InputEvents.cpp
     df3d/engine/input/InputManager.cpp
     df3d/engine/io/FileSystemHelpers.cpp
-    df3d/engine/io/Storage.cpp
     df3d/engine/particlesys/ParticleSystemComponentProcessor.cpp
     df3d/engine/particlesys/ParticleSystemUtils.cpp
     df3d/engine/particlesys/SparkCommon.cpp

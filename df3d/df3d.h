@@ -53,7 +53,6 @@
 #include <df3d/engine/input/InputManager.h>
 
 #include <df3d/engine/io/FileSystemHelpers.h>
-#include <df3d/engine/io/Storage.h>
 
 #include <df3d/engine/resources/GpuProgramResource.h>
 #include <df3d/engine/resources/MaterialResource.h>
