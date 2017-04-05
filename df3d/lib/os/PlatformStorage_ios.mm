@@ -8,7 +8,7 @@ bool PlatformStorage::saveData(const char *id, const PodArray<uint8_t> &data)
 {
     NSData *storageData = [NSData dataWithBytes:data.data() length:data.size()];
 
-    [[NSUserDefaults standardUserDefaults] setObject:storageData forKey:@"df3ds"];
+    [[NSUserDefaults standardUserDefaults] setObject:storageData forKey:[NSString stringWithUTF8String:id]];
     return [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
@@ -16,7 +16,7 @@ void PlatformStorage::getData(const char *id, PodArray<uint8_t> &data)
 {
     data.clear();
 
-    NSData *storageData = [[NSUserDefaults standardUserDefaults] objectForKey:@"df3ds"];
+    NSData *storageData = [[NSUserDefaults standardUserDefaults] objectForKey:[NSString stringWithUTF8String:id]];
     if (storageData == nil)
         return;
 
