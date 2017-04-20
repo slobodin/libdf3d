@@ -1,6 +1,7 @@
 #pragma once
 
 #include <df3d/lib/NonCopyable.h>
+#include <cstdlib>
 
 namespace df3d {
 

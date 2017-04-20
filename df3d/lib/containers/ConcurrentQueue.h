@@ -2,6 +2,7 @@
 
 #include <mutex>
 #include <queue>
+#include <df3d/lib/NonCopyable.h>
 
 namespace df3d {
 
