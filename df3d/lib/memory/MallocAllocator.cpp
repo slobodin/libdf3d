@@ -1,6 +1,7 @@
 #include "MallocAllocator.h"
 
 #include <df3d/lib/Utils.h>
+#include <df3d/lib/assert/Assert.h>
 
 namespace df3d {
 

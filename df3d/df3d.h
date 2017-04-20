@@ -1,7 +1,6 @@
 #pragma once
 
 #include "libdf3d_dll.h"
-#include "df3d_config.h"
 
 #include <df3d/Common.h>
 

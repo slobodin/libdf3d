@@ -9,6 +9,7 @@
 #include "TBInterface.h"
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/input/InputEvents.h>
+#include <df3d/lib/Log.h>
 
 void register_tbbf_font_renderer();
 void register_freetype_font_renderer();

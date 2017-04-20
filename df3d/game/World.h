@@ -3,6 +3,8 @@
 #include "Entity.h"
 #include "WorldRenderingParams.h"
 #include <df3d/lib/Utils.h>
+#include <df3d/lib/Id.h>
+#include <json/json/json.h>
 
 namespace df3d {
 

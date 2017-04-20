@@ -4,6 +4,10 @@
 #include <df3d/game/EntityComponentProcessor.h>
 #include <df3d/game/ComponentDataHolder.h>
 #include <third-party/bullet/src/BulletDynamics/Dynamics/btRigidBody.h>
+#include <glm/glm.hpp>
+#include <unordered_map>
+#include <df3d/lib/Id.h>
+#include <utility>
 
 class btDynamicsWorld;
 class btMotionState;

@@ -1,5 +1,7 @@
 #include "ThreadPool.h"
 
+#include <df3d/lib/assert/Assert.h>
+
 namespace df3d {
 
 static const size_t MAX_WORKERS = 4;

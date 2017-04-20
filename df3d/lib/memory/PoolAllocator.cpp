@@ -1,5 +1,9 @@
 #include "PoolAllocator.h"
 
+#include <cstdint>
+#include <df3d/lib/assert/Assert.h>
+#include <df3d/lib/Log.h>
+
 namespace df3d {
 
 PoolAllocator::PoolAllocator(Allocator &alloc, size_t maxItems, size_t itemSize, size_t align)

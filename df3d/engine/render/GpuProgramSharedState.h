@@ -1,6 +1,8 @@
 #pragma once
 
 #include "RenderCommon.h"
+#include <glm/glm.hpp>
+#include <df3d/Common.h>
 
 namespace df3d {
 

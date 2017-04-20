@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdint>
+#include <df3d/lib/containers/PodArray.h>
+
 namespace df3d {
 
 class PlatformStorage

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <df3d/lib/Id.h>
+#include <json/json/json.h>
+
 namespace df3d {
 
 enum class CollisionShapeType

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "containers/PodArray.h"
+#include <cstdint>
 
 namespace df3d {
 

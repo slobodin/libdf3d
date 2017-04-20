@@ -3,6 +3,7 @@
 #include <df3d/lib/containers/ConcurrentQueue.h>
 #include <df3d/lib/Utils.h>
 #include <df3d/lib/Handles.h>
+#include <list>
 
 namespace df3d {
 

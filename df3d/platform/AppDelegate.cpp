@@ -1,5 +1,7 @@
 #include "AppDelegate.h"
 
+#include <cassert>
+
 namespace df3d {
 
 static AppDelegate *g_appDelegate = nullptr;

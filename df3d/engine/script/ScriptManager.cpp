@@ -12,6 +12,8 @@
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/ResourceFileSystem.h>
 #include <df3d/engine/resources/ResourceDataSource.h>
+#include <df3d/lib/Log.h>
+#include <df3d/lib/assert/Assert.h>
 
 namespace df3d {
 

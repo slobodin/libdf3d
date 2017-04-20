@@ -1,6 +1,7 @@
 #pragma once
 
 #include <df3d/lib/Handles.h>
+#include <unordered_map>
 
 namespace df3d {
 

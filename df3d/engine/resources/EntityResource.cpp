@@ -1,6 +1,8 @@
 #include "EntityResource.h"
 
 #include <df3d/lib/JsonUtils.h>
+#include <df3d/lib/Id.h>
+#include <df3d/lib/memory/Allocator.h>
 
 namespace df3d {
 

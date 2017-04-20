@@ -3,6 +3,11 @@
 #include "ResourceDataSource.h"
 #include <df3d/engine/EngineController.h>
 #include <df3d/lib/Utils.h>
+#include <mutex>
+#include <unordered_set>
+#include <df3d/lib/assert/Assert.h>
+#include <df3d/lib/memory/Allocator.h>
+#include <df3d/lib/Log.h>
 
 namespace df3d {
 

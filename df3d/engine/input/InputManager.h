@@ -1,6 +1,9 @@
 #pragma once
 
 #include "InputEvents.h"
+#include <df3d/lib/NonCopyable.h>
+#include <glm/glm.hpp>
+#include <unordered_map>
 
 namespace df3d 
 {

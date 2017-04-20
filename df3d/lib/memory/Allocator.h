@@ -1,5 +1,7 @@
 #pragma once
 
+#include <df3d/lib/NonCopyable.h>
+
 namespace df3d {
 
 class Allocator : NonCopyable

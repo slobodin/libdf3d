@@ -1,6 +1,9 @@
 #pragma once
 
 #include <df3d/lib/memory/Allocator.h>
+#include <df3d/lib/assert/Assert.h>
+#include <df3d/lib/Log.h>
+#include <algorithm>
 
 namespace df3d {
 

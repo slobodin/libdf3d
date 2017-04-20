@@ -2,6 +2,8 @@
 
 #include <csignal>
 
+#include <df3d/lib/Log.h>
+
 namespace df3d {
 
 #if defined(DF3D_WINDOWS)

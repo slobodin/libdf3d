@@ -2,6 +2,8 @@
 
 #include "RenderCommon.h"
 #include "Vertex.h"
+#include <vector>
+#include <df3d/Common.h>
 
 namespace df3d {
 

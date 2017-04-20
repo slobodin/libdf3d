@@ -6,6 +6,9 @@
 #include <df3d/lib/math/BoundingSphere.h>
 #include <df3d/lib/math/ConvexHull.h>
 #include "IResourceHolder.h"
+#include <df3d/lib/Id.h>
+#include <climits>
+#include <vector>
 
 class btTriangleIndexVertexArray;
 

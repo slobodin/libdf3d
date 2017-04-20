@@ -1,6 +1,10 @@
 #pragma once
 
 #include <df3d/game/Entity.h>
+#include <df3d/lib/Id.h>
+#include <unordered_map>
+#include <json/json/json-forwards.h>
+#include <df3d/Common.h>
 
 namespace df3d { 
 

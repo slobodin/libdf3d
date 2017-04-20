@@ -4,6 +4,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <df3d/engine/render/RenderCommon.h>
 #include <df3d/engine/render/Vertex.h>
+#include <df3d/Common.h>
 
 namespace df3d { 
 

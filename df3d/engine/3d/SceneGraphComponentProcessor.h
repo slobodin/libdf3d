@@ -3,6 +3,9 @@
 #include <df3d/game/Entity.h>
 #include <df3d/game/EntityComponentProcessor.h>
 #include <df3d/game/ComponentDataHolder.h>
+#include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <df3d/lib/Id.h>
 
 class btTransform;
 

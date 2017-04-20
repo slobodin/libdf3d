@@ -1,5 +1,10 @@
 #pragma once
 
+#include <df3d/lib/NonCopyable.h>
+#include <cstdint>
+#include <df3d/Common.h>
+#include <cstdint>
+
 namespace df3d {
 
 class PlatformFile : NonCopyable

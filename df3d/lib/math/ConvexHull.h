@@ -1,12 +1,14 @@
 #pragma once
 
 #include <third-party/bullet/src/LinearMath/btVector3.h>
+#include <vector>
 
 namespace df3d {
 
 struct MeshResourceData;
+class Allocator;
 
-struct DF3D_DLL ConvexHull
+struct ConvexHull
 {
     std::vector<btVector3> m_vertices;
 

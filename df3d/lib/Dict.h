@@ -2,6 +2,8 @@
 
 #include "Any.h"
 #include "Utils.h"
+#include <unordered_map>
+#include <string>
 
 namespace df3d {
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Allocator.h"
+#include <mutex>
 
 namespace df3d {
 

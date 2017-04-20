@@ -2,6 +2,7 @@
 
 #include <SPARK.h>
 #include "IResourceHolder.h"
+#include <json/json/json.h>
 
 namespace df3d {
 

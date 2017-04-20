@@ -5,6 +5,7 @@
 #include <df3d/engine/resources/MeshResource.h>
 #include <df3d/engine/resources/ResourceDataSource.h>
 #include <df3d/lib/Utils.h>
+#include <unordered_map>
 
 namespace df3d {
 

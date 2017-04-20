@@ -5,6 +5,7 @@
 #include <df3d/engine/EngineController.h>
 #include <mikktspace/mikktspace.h>
 #include <map>
+#include <glm/gtc/epsilon.hpp>
 
 namespace df3d {
 

@@ -8,6 +8,7 @@
 #else
 #error "Please implement"
 #endif
+#include <df3d/lib/Log.h>
 
 namespace df3d {
 

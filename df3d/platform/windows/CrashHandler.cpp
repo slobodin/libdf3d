@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <DbgHelp.h>
 #include <iostream>
+#include <df3d/lib/Log.h>
 
 namespace df3d { namespace platform_impl {
 

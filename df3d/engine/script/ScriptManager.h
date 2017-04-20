@@ -1,6 +1,7 @@
 #pragma once
 
 #include <squirrel.h>
+#include <df3d/lib/NonCopyable.h>
 
 namespace df3d {
 

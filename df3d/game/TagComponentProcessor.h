@@ -2,6 +2,7 @@
 
 #include <df3d/game/Entity.h>
 #include <df3d/game/EntityComponentProcessor.h>
+#include <unordered_set>
 
 namespace df3d {
 
