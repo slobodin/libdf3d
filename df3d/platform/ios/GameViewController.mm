@@ -44,7 +44,9 @@ extern void AudioResume();
     if (self.context)
     {
         GLKView *view = (GLKView *)self.view;
+#ifndef DF3D_APPLETV
         view.multipleTouchEnabled = true;
+#endif
         view.context = self.context;
         view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
         view.drawableStencilFormat = GLKViewDrawableStencilFormat8;
@@ -122,9 +124,11 @@ extern void AudioResume();
     CGFloat screenWidth = size.width;
     CGFloat screenHeight = size.height;
 
+#ifndef DF3D_APPLETV
     // Swap width and height for landscape orienation
 	if (UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation))
         std::swap(screenWidth, screenHeight);
+#endif
 
     assert(df3d::AppDelegate::getInstance() != nullptr);
 

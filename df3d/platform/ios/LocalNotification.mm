@@ -9,7 +9,7 @@ bool LocalNotification::schedule(int notificationID, const char *msg, double sec
 {
     if (secondsFromNow <= 0.0)
         return false;
-
+#ifndef DF3D_APPLETV
     UILocalNotification *notif = [[UILocalNotification alloc] init];
     notif.fireDate = [NSDate dateWithTimeIntervalSinceNow:secondsFromNow];
     notif.timeZone = [NSTimeZone defaultTimeZone];
@@ -21,26 +21,31 @@ bool LocalNotification::schedule(int notificationID, const char *msg, double sec
 
     [[UIApplication sharedApplication] scheduleLocalNotification:notif];
     [notif release];
+#endif
 
     return true;
 }
 
 void LocalNotification::cancel(int notificationID)
 {
+#ifndef DF3D_APPLETV
     for (UILocalNotification *notif : [[UIApplication sharedApplication] scheduledLocalNotifications])
     {
         if ([[notif.userInfo objectForKey:@"df3d_id"] isEqualToNumber:[NSNumber numberWithInt:notificationID]])
             [[UIApplication sharedApplication] cancelLocalNotification:notif];
     }
+#endif
 }
 
 void LocalNotification::registerLocalNotifications()
 {
+#ifndef DF3D_APPLETV
     if ([UIDevice currentDevice].systemVersion.floatValue >= 8.0)
     {
         UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeBadge | UIUserNotificationTypeAlert | UIUserNotificationTypeSound categories:nil];
         [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
     }
+#endif
 }
 
 }

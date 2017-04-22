@@ -98,3 +98,10 @@ if (IOS)
     add_definitions(-DZ_HAVE_UNISTD_H) # Hack for zlib
     set(DF3D_PLATFORM "iOS")
 endif()
+
+if (APPLETV_OS)
+    add_definitions(-DDF3D_APPLETV)
+    add_definitions(-DZ_HAVE_UNISTD_H) # Hack for zlib
+    set(DF3D_PLATFORM "tvOS")
+endif()
+
