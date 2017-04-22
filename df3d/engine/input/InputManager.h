@@ -133,7 +133,7 @@ public:
 
     MFiControllerListener* getMfiControllerListener() { return m_listener; }
     void setMfiControllerListener(MFiControllerListener *listener) { m_listener = listener; }
-    bool anyMfiController() const { return m_anyMfiController; }
+    bool anyMfiController() const;
     void setHasMfiController(bool has) { m_anyMfiController = has; }
     bool mfiIsExtended() { return m_extendedMfi; }
     void setMFiExtended(bool extended) { m_extendedMfi = extended; }

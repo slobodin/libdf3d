@@ -361,4 +361,9 @@ void InputManager::onTouch(uintptr_t id, int x, int y, Touch::State state)
     }
 }
 
+bool InputManager::anyMfiController() const
+{
+    return m_anyMfiController;
+}
+
 }
