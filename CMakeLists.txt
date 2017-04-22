@@ -344,16 +344,19 @@ add_library(libdf3d ${DF3D_LIBRARY_TYPE}
 )
 
 if (IOS)
-    set(DEFAULT_IOS_DEPL_TARGET "8.0")
-    set_xcode_property(libdf3d IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    if (APPLETV_OS)
+        set(DEFAULT_TVOS_DEPL_TARGET "9.0")
+        set_xcode_property(libdf3d TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
+    else()
+        set(DEFAULT_IOS_DEPL_TARGET "8.0")
+        set_xcode_property(libdf3d IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    endif()
 endif()
 
 if (DF3D_DESKTOP)
     add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/glfw)
 endif()
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/bullet)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/ogg)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/vorbis)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/spark/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/squirrel)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/zlib)
@@ -408,9 +411,7 @@ target_link_libraries(libdf3d
     BulletCollision
     BulletDynamics
     ConvexDecomposition
-    ogg
     spark
-    vorbis
     squirrel
     ${FREETYPE_LIBRARY}
     zlibstatic
@@ -432,17 +433,31 @@ if (ANDROID)
 endif()
 
 if (IOS)
-    set(DEFAULT_IOS_DEPL_TARGET "8.0")
-    set_xcode_property(LinearMath IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
-    set_xcode_property(BulletCollision IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
-    set_xcode_property(BulletDynamics IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
-    set_xcode_property(ConvexDecomposition IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
-    set_xcode_property(ogg IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
-    set_xcode_property(spark IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
-    set_xcode_property(vorbis IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
-    set_xcode_property(squirrel IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
-    set_xcode_property(${FREETYPE_LIBRARY} IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
-    set_xcode_property(zlibstatic IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
-    set_xcode_property(TurboBadgerLib IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
-    set_xcode_property(webp IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    if (APPLETV_OS)
+        set(DEFAULT_TVOS_DEPL_TARGET "9.0")
+        set_xcode_property(LinearMath TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
+        set_xcode_property(BulletCollision TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
+        set_xcode_property(BulletDynamics TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
+        set_xcode_property(ConvexDecomposition TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
+        set_xcode_property(spark TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
+        set_xcode_property(squirrel TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
+        set_xcode_property(${FREETYPE_LIBRARY} TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
+        set_xcode_property(zlibstatic TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
+        set_xcode_property(TurboBadgerLib TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
+        set_xcode_property(webp TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
+    else()
+        set(DEFAULT_IOS_DEPL_TARGET "8.0")
+        set_xcode_property(LinearMath IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+        set_xcode_property(BulletCollision IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+        set_xcode_property(BulletDynamics IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+        set_xcode_property(ConvexDecomposition IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+        set_xcode_property(spark IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+        set_xcode_property(squirrel IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+        set_xcode_property(${FREETYPE_LIBRARY} IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+        set_xcode_property(zlibstatic IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+        set_xcode_property(TurboBadgerLib IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+        set_xcode_property(webp IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
+    endif()
 endif()
+
+
