@@ -70,16 +70,22 @@ public:
 
     int Width() override
     {
+        if (!m_data)
+            return 0;
         return m_data->info.width;
     }
 
     int Height() override
     {
+        if (!m_data)
+            return 0;
         return m_data->info.height;
     }
 
     tb::uint32* Data() override
     {
+        if (!m_data)
+            return nullptr;
         return (tb::uint32*)m_data->pixels.data();
     }
 };
