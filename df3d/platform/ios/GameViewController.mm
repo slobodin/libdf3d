@@ -308,4 +308,35 @@ extern void AudioResume();
     [[UIApplication sharedApplication]setIdleTimerDisabled:NO];
 }
 
+#ifdef DF3D_APPLETV
+
+static bool menuButtonPressHandled = false;
+
+- (void)pressesBegan:(NSSet<UIPress*>*)presses withEvent:(UIPressesEvent*)event
+{
+    menuButtonPressHandled = false;
+
+    for (UIPress* press in presses) {
+        if (press.type == UIPressTypeMenu) {
+            menuButtonPressHandled = false;
+
+            if (auto l = df3d::svc().inputManager().getMfiControllerListener())
+                menuButtonPressHandled = l->MFi_menuButtonPressed();
+        }
+    }
+
+    if (!menuButtonPressHandled) {
+        [super pressesBegan:presses withEvent:event];
+    }
+}
+
+- (void)pressesEnded:(NSSet<UIPress*>*)presses withEvent:(UIPressesEvent*)event
+{
+    if (!menuButtonPressHandled) {
+        [super pressesEnded:presses withEvent:event];
+    }
+}
+
+#endif
+
 @end
