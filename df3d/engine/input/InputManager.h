@@ -18,6 +18,8 @@ public:
     virtual void MFiControllerDisconnected() { }
     virtual void MFiControllerPausePressed() { }
 
+    virtual bool MFi_menuButtonPressed() { return false; }
+
     virtual void Mfi_buttonA_Changed(float value, bool pressed) { }
     virtual void Mfi_buttonX_Changed(float value, bool pressed) { }
     virtual void Mfi_buttonY_Changed(float value, bool pressed) { }
