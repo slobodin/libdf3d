@@ -23,6 +23,7 @@ private:
 public:
     void sendRequest(shared_ptr<Request> request)
     {
+    /*
         NSString *urlStr = [NSString stringWithUTF8String:request->url.c_str()];
         NSURLRequest *nsReq = [NSURLRequest requestWithURL:[NSURL URLWithString:urlStr]
                                                cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
@@ -49,15 +50,18 @@ public:
         };
 
         [NSURLConnection sendAsynchronousRequest:nsReq queue:[NSOperationQueue mainQueue] completionHandler:completitionHandler];
+        */
     }
 
     void poll()
     {
+        /*
         while (!m_processedRequests.empty())
         {
             auto req = m_processedRequests.pop();
             req->completitionHandler(req->response);
         }
+        */
     }
 };
 
@@ -74,17 +78,18 @@ HttpClient::~HttpClient()
 
 void HttpClient::sendRequest(const std::string &url, HttpResponseCompletitionHandler &&completitionHandler, int timeout)
 {
-    auto request = make_shared<HttpClientImpl::Request>();
-    request->timeout = timeout;
-    request->url = url;
-    request->completitionHandler = std::move(completitionHandler);
-
-    m_pImpl->sendRequest(request);
+    completitionHandler({});
+//    auto request = make_shared<HttpClientImpl::Request>();
+//    request->timeout = timeout;
+//    request->url = url;
+//    request->completitionHandler = std::move(completitionHandler);
+//
+//    m_pImpl->sendRequest(request);
 }
 
 void HttpClient::poll()
 {
-    m_pImpl->poll();
+//    m_pImpl->poll();
 }
 
 }
