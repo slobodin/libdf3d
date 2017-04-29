@@ -25,28 +25,6 @@ static void parseEntities(const Json::Value &entitiesNode, World &w)
         w.spawnFromJson(entJson);
 }
 
-static void parsePostProcessOption(const Json::Value &postFxNode, World &w)
-{
-    DF3D_ASSERT(false);
-    /*
-
-    auto mtlLib = postFxNode["materialLib"].asString();
-    auto mtlName = postFxNode["materialName"].asString();
-
-    if (mtlLib.empty() || mtlName.empty())
-    {
-        DFLOG_WARN("Invalid postprocess option. Either materialName or materialLib field is empty.");
-        return;
-    }
-
-    auto materialLibrary = svc().resourceManager().getFactory().createMaterialLib(mtlLib);
-    auto material = materialLibrary->getMaterial(mtlName);
-    if (!material)
-        return;
-
-    w.getRenderingParams().setPostProcessMaterial(make_shared<Material>(*material));*/
-}
-
 static void parseCamera(const Json::Value &cameraNode, World &w)
 {
     glm::vec3 position, rotation;
@@ -103,9 +81,6 @@ void WorldLoader::initWorld(const char *resourceFile, World &w)
 
     auto ambientLight = JsonUtils::get(root, "ambient_light", w.getRenderingParams().getAmbientLight());
     w.getRenderingParams().setAmbientLight(ambientLight.x, ambientLight.y, ambientLight.z);
-
-    if (root.isMember("post_process"))
-        parsePostProcessOption(root["post_process"], w);
 
     if (root.isMember("camera"))
         parseCamera(root["camera"], w);
