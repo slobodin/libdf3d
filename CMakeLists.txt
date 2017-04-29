@@ -15,8 +15,6 @@ set(libdf3d_HEADER_LIST
     df3d_pch.h
     df3d/Common.h
     df3d/df3d.h
-    df3d/df3d_config.h
-    df3d/libdf3d_dll.h
     df3d/engine/ConfigVariable.h
     df3d/engine/EngineController.h
     df3d/engine/EngineCVars.h
