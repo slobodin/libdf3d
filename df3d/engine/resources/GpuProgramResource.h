@@ -2,8 +2,6 @@
 
 #include <df3d/engine/render/RenderCommon.h>
 #include "IResourceHolder.h"
-#include <unordered_map>
-#include <df3d/lib/Id.h>
 
 namespace df3d {
 

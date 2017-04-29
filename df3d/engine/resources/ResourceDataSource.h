@@ -1,11 +1,6 @@
 #pragma once
 
-#include <cstdint>
-#include <df3d/Common.h>
-
 namespace df3d {
-
-class Allocator;
 
 class ResourceDataSource
 {

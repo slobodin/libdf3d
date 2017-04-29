@@ -1,11 +1,5 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <functional>
-#include <df3d/lib/NonCopyable.h>
-#include <df3d/Common.h>
-
 namespace df3d {
 
 struct StoreProduct

@@ -1,7 +1,5 @@
 #include "Viewport.h"
 
-#include <df3d/lib/Log.h>
-
 namespace df3d {
 
 Viewport::Viewport(int x, int y, int w, int h)

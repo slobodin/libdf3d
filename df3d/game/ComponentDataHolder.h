@@ -1,9 +1,6 @@
 #pragma once
 
 #include <df3d/game/Entity.h>
-#include <functional>
-#include <vector>
-#include <limits>
 
 namespace df3d {
 

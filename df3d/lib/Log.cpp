@@ -2,9 +2,6 @@
 
 #include <cstdarg>
 #include <iostream>
-#include <cassert>
-
-#include <unordered_map>
 
 #ifdef DF3D_ANDROID
 #include <android/log.h>

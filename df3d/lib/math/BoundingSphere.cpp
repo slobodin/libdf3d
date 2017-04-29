@@ -2,7 +2,6 @@
 
 #include <df3d/lib/math/MathUtils.h>
 #include <glm/gtx/intersect.hpp>
-#include <df3d/lib/assert/Assert.h>
 
 namespace df3d {
 

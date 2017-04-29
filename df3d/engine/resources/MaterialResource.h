@@ -2,7 +2,6 @@
 
 #include <df3d/engine/render/Material.h>
 #include "IResourceHolder.h"
-#include <json/json/json.h>
 
 namespace df3d {
 

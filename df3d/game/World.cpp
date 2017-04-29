@@ -12,7 +12,6 @@
 #include <df3d/game/EntityComponentLoader.h>
 #include <df3d/engine/physics/PhysicsComponentProcessor.h>
 #include <df3d/engine/render/RenderQueue.h>
-#include <df3d/lib/Log.h>
 
 namespace df3d {
 

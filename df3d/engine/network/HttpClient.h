@@ -1,9 +1,5 @@
 #pragma once
 
-#include <string>
-#include <df3d/Common.h>
-#include <functional>
-
 namespace df3d {
 
 struct HttpResponse

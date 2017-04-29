@@ -3,7 +3,6 @@
 #include "RenderOperation.h"
 #include "RenderCommon.h"
 #include <df3d/engine/3d/Light.h>
-#include <vector>
 
 namespace df3d {
 

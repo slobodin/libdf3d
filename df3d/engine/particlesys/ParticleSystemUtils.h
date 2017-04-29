@@ -1,8 +1,6 @@
 #pragma once
 
 #include <SPARK.h>
-#include <glm/glm.hpp>
-#include <df3d/lib/Id.h>
 
 namespace df3d {
 

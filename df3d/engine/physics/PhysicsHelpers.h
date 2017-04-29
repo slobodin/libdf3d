@@ -5,8 +5,6 @@
 #include <LinearMath/btVector3.h>
 #include <LinearMath/btQuaternion.h>
 #include <BulletCollision/CollisionDispatch/btCollisionObject.h>
-#include <glm/glm.hpp>
-#include <glm/gtx/quaternion.hpp>
 
 namespace df3d {
 

@@ -1,7 +1,6 @@
 #include "AABB.h"
 
 #include <df3d/game/WorldSize.h>
-#include <df3d/lib/assert/Assert.h>
 
 namespace df3d {
 

@@ -1,9 +1,6 @@
 #pragma once
 
 #include "EngineInitParams.h"
-#include <df3d/lib/NonCopyable.h>
-#include <df3d/Common.h>
-#include <glm/glm.hpp>
 
 namespace df3d {
 

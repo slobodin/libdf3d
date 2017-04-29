@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.6)
 project(libdf3d)
 
 include(cmake/libdf3d.cmake)
+include(cmake/cotire.cmake)
 
 message(STATUS "DF3D_PLATFORM is " ${DF3D_PLATFORM})
 

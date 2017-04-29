@@ -1,9 +1,6 @@
 #include "MathUtils.h"
 
 #include <glm/gtx/fast_square_root.hpp>
-#include <glm/gtc/epsilon.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtx/quaternion.hpp>
 
 namespace df3d {
 

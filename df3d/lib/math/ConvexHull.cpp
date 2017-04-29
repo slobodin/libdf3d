@@ -3,7 +3,6 @@
 #include <df3d/engine/resources/MeshResource.h>
 #include <BulletCollision/CollisionShapes/btConvexHullShape.h>
 #include <BulletCollision/CollisionShapes/btShapeHull.h>
-#include <glm/glm.hpp>
 
 namespace df3d {
 

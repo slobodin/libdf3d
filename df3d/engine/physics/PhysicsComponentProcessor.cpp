@@ -19,7 +19,6 @@
 #include <df3d/engine/resources/MeshResource.h>
 #include <df3d/game/ComponentDataHolder.h>
 #include <df3d/game/World.h>
-#include <glm/gtc/epsilon.hpp>
 
 namespace df3d {
 

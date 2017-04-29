@@ -1,10 +1,6 @@
 #pragma once
 
 #include <df3d/engine/render/RenderCommon.h>
-#include <glm/glm.hpp>
-#include <unordered_map>
-#include <df3d/lib/Id.h>
-#include <vector>
 
 namespace df3d {
 

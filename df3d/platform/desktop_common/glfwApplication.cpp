@@ -7,7 +7,6 @@
 #include <df3d/engine/EngineCVars.h>
 #include <df3d/lib/Utils.h>
 #include <GLFW/glfw3.h>
-#include <df3d/lib/assert/Assert.h>
 
 namespace df3d {
 

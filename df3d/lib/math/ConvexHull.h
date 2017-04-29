@@ -1,12 +1,10 @@
 #pragma once
 
 #include <third-party/bullet/src/LinearMath/btVector3.h>
-#include <vector>
 
 namespace df3d {
 
 struct MeshResourceData;
-class Allocator;
 
 struct ConvexHull
 {
