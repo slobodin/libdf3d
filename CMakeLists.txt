@@ -2,19 +2,13 @@ cmake_minimum_required(VERSION 3.6)
 
 project(libdf3d)
 
-if (NOT DEFINED DF3D_PLATFORM)
-    message(FATAL_ERROR "Please, include libdf3d.cmake")
-else()
-    message(STATUS "DF3D_PLATFORM is " ${DF3D_PLATFORM})
-endif()
+include(cmake/libdf3d.cmake)
 
-if (WINDOWS AND NOT CMAKE_PREFIX_PATH)
+message(STATUS "DF3D_PLATFORM is " ${DF3D_PLATFORM})
+
+if (DF3D_WINDOWS)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_win32" CACHE PATH "third-party")
 endif()
-
-# if (NOT ANDROID AND NOT IOS)
-    option(DF3D_BUILD_SHARED_LIB "Build shared df3d library" OFF)
-# endif()
 
 set(libdf3d_HEADER_LIST
     df3d_pch.h
@@ -204,11 +198,6 @@ set(libdf3d_SRC_LIST
     df3d/platform/AppDelegate.cpp
 )
 
-if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
-    add_definitions(-DSCRAT_NO_ERROR_CHECKING)
-    add_definitions(-DBT_NO_PROFILE)
-endif()
-
 set(third_party_HEADER_FILES
         third-party/mikktspace/mikktspace.h
         third-party/json/json/json.h
@@ -220,7 +209,7 @@ set(third_party_SRC_FILES
         third-party/json/jsoncpp.cpp
         )
 
-if (WINDOWS)
+if (DF3D_WINDOWS)
     list(APPEND libdf3d_HEADER_LIST
         df3d/platform/windows/CrashHandler.h
     )
@@ -230,19 +219,7 @@ if (WINDOWS)
     )
 endif()
 
-if (WINDOWS_PHONE)
-    include_directories(${PROJECT_SOURCE_DIR}/third-party/include/angle)
-
-    list(APPEND libdf3d_HEADER_LIST
-        df3d/platform/windows_phone/WindowsPhoneApplication.h
-    )
-    list(APPEND libdf3d_SRC_LIST
-        df3d/platform/windows_phone/Storage.cpp
-        df3d/platform/windows_phone/WindowsPhoneApplication.cpp
-    )
-endif()
-
-if (ANDROID)
+if (DF3D_ANDROID)
     list(APPEND libdf3d_SRC_LIST
         df3d/lib/os/PlatformFile_android.cpp
         df3d/lib/os/PlatformStorage_android.cpp
@@ -256,7 +233,7 @@ if (ANDROID)
     )
 endif()
 
-if (IOS)
+if (DF3D_IOS)
     list(APPEND libdf3d_HEADER_LIST
         df3d/platform/ios/AppDelegate.h
         df3d/platform/ios/GameViewController.h
@@ -303,11 +280,6 @@ if (DF3D_DESKTOP)
     include_directories(${PROJECT_SOURCE_DIR}/third-party/glfw/include)
 endif()
 
-if(IOS OR MACOSX)
-    # find_package(OpenAL REQUIRED)
-    # SET(DF3D_OPENAL_LIBNAME ${OPENAL_LIBRARY})
-endif()
-
 include_directories(${PROJECT_SOURCE_DIR}/
                     ${PROJECT_SOURCE_DIR}/third-party/
                     ${PROJECT_SOURCE_DIR}/third-party/bullet/src
@@ -318,40 +290,22 @@ include_directories(${PROJECT_SOURCE_DIR}/
                     ${PROJECT_SOURCE_DIR}/third-party/webp
                     ${PROJECT_SOURCE_DIR}/third-party/turbobadger/src/tb)
 
-if (NOT IOS AND NOT MACOSX)
-    # include_directories(${PROJECT_SOURCE_DIR}/third-party/openal-soft/include)
-else()
-    # include_directories(${OPENAL_INCLUDE_DIR})
-endif()
-
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd\"4251\" /wd\"4457\" /wd\"4458\" /wd\"4138\"")
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS)    #  -DGLEW_STATIC
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS)
 endif()
 
-if (DF3D_BUILD_SHARED_LIB)
-    set(DF3D_LIBRARY_TYPE SHARED)
-    add_definitions(-DLIBDF3D_EXPORTS -DDF3D_SHARED_LIBRARY)
-else()
-    set(DF3D_LIBRARY_TYPE STATIC)
+if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+    add_definitions(-DSCRAT_NO_ERROR_CHECKING)
+    add_definitions(-DBT_NO_PROFILE)
 endif()
 
-add_library(libdf3d ${DF3D_LIBRARY_TYPE}
+add_library(libdf3d STATIC
     ${libdf3d_HEADER_LIST}
     ${libdf3d_SRC_LIST}
     ${third_party_HEADER_FILES}
     ${third_party_SRC_FILES}
 )
-
-if (IOS)
-    if (APPLETV_OS)
-        set(DEFAULT_TVOS_DEPL_TARGET "9.0")
-        set_xcode_property(libdf3d TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
-    else()
-        set(DEFAULT_IOS_DEPL_TARGET "8.0")
-        set_xcode_property(libdf3d IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
-    endif()
-endif()
 
 if (DF3D_DESKTOP)
     add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/glfw)
@@ -379,27 +333,6 @@ SET(TB_UNIT_TESTING OFF CACHE BOOL "" FORCE)
 SET(TB_IMAGE ON CACHE BOOL "" FORCE)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/turbobadger)
 
-OPTION(ALSOFT_DLOPEN OFF)
-OPTION(ALSOFT_WERROR OFF)
-OPTION(ALSOFT_UTILS OFF)
-OPTION(ALSOFT_NO_CONFIG_UTIL OFF)
-OPTION(ALSOFT_EXAMPLES OFF)
-OPTION(ALSOFT_TESTS OFF)
-OPTION(ALSOFT_CONFIG OFF)
-OPTION(ALSOFT_HRTF_DEFS OFF)
-OPTION(ALSOFT_INSTALL OFF)
-OPTION(ALSOFT_AMBDEC_PRESETS OFF)
-
-if (NOT IOS AND NOT MACOSX)
-    # add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/openal-soft)
-    # if(NOT WIN32)
-    #     SET(DF3D_OPENAL_LIBNAME openal)
-    # else()
-    #     SET(DF3D_OPENAL_LIBNAME OpenAL32)
-    # endif()
-endif()
-
-
 # TODO: if build tools
 if (DF3D_DESKTOP)
     add_subdirectory(${PROJECT_SOURCE_DIR}/tools/obj_to_dfmesh)
@@ -419,22 +352,17 @@ target_link_libraries(libdf3d
     webp)
 
 if (DF3D_DESKTOP)
-    target_link_libraries(libdf3d glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES}) #${DF3D_OPENAL_LIBNAME})
+    target_link_libraries(libdf3d glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 endif()
 
-if (WINDOWS_PHONE)
-    target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/libEGL.lib)
-    target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/libGLESv2.lib)
-    target_link_libraries(libdf3d ${PREBUILT_LIBRARIES_PATH}/OpenAL.wp8.lib)
+if (DF3D_ANDROID)
+    target_link_libraries(libdf3d OpenSLES GLESv2 log android)
 endif()
 
-if (ANDROID)
-    target_link_libraries(libdf3d OpenSLES GLESv2 log android) # ${DF3D_OPENAL_LIBNAME}
-endif()
-
-if (IOS)
-    if (APPLETV_OS)
+if (DF3D_IOS)
+    if (DF3D_TVOS)
         set(DEFAULT_TVOS_DEPL_TARGET "9.0")
+        set_xcode_property(libdf3d TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
         set_xcode_property(LinearMath TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
         set_xcode_property(BulletCollision TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
         set_xcode_property(BulletDynamics TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
@@ -447,6 +375,7 @@ if (IOS)
         set_xcode_property(webp TVOS_DEPLOYMENT_TARGET ${DEFAULT_TVOS_DEPL_TARGET})
     else()
         set(DEFAULT_IOS_DEPL_TARGET "8.0")
+        set_xcode_property(libdf3d IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
         set_xcode_property(LinearMath IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
         set_xcode_property(BulletCollision IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
         set_xcode_property(BulletDynamics IPHONEOS_DEPLOYMENT_TARGET ${DEFAULT_IOS_DEPL_TARGET})
@@ -460,4 +389,6 @@ if (IOS)
     endif()
 endif()
 
-
+set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "df3d_pch.h")
+set_target_properties(libdf3d PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+cotire(libdf3d)
