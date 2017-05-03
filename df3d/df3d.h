@@ -1,7 +1,5 @@
 #pragma once
 
-#include "libdf3d_dll.h"
-
 #include <df3d/Common.h>
 
 #include <df3d/lib/memory/Allocator.h>

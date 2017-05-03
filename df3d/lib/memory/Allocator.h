@@ -16,7 +16,7 @@ public:
 };
 
 template<typename T, typename Alloc>
-static void DeleteHelper(Alloc &a, T *obj)
+inline void DeleteHelper(Alloc &a, T *obj)
 {
     if (!obj)
         return;
