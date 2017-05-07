@@ -59,14 +59,14 @@ bool HandleControllerBackButtonPressed()
     m_eaglLayer.opaque = YES;
 }
 
-- (void)setupContext {   
+- (void)setupContext {
     EAGLRenderingAPI api = kEAGLRenderingAPIOpenGLES2;
     m_context = [[EAGLContext alloc] initWithAPI:api];
     if (!m_context) {
         NSLog(@"Failed to initialize OpenGLES 2.0 context");
         exit(1);
     }
-    
+
     if (![EAGLContext setCurrentContext:m_context]) {
         NSLog(@"Failed to set current OpenGL context");
         exit(1);
@@ -112,7 +112,7 @@ bool HandleControllerBackButtonPressed()
 #endif
         self.contentScaleFactor = [UIScreen mainScreen].scale;
 
-        [self setupLayer];        
+        [self setupLayer];
         [self setupContext];
         [self setupDisplayLink];
         [self createRenderbuffers:[self getDisplaySize]];
@@ -305,7 +305,7 @@ bool HandleControllerBackButtonPressed()
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
                 l->Mfi_buttonY_Pressed(pressed);
         };
-        
+
         // Dpad
         controller.gamepad.dpad.left.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
         {
@@ -327,7 +327,7 @@ bool HandleControllerBackButtonPressed()
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
                 l->Mfi_DPadDown_Pressed(pressed);
         };
-        
+
         // shoulder buttons
         controller.gamepad.leftShoulder.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
         {
