@@ -26,8 +26,8 @@ public:
     virtual void Mfi_buttonA_Pressed(bool pressed) { }
     virtual void Mfi_buttonX_Pressed(bool pressed) { }
     virtual void Mfi_buttonY_Pressed(bool pressed) { }
-//    virtual void Mfi_buttonB_Pressed(bool pressed) { }
-    virtual bool Mfi_buttonBack_Pressed(bool pressed) { return false; }
+    virtual void Mfi_buttonB_Pressed(bool pressed) { }
+    virtual bool Mfi_buttonMenu_Pressed() { return false; }
 
     virtual void Mfi_DPadLeft_Pressed(bool pressed) { }
     virtual void Mfi_DPadRight_Pressed(bool pressed) { }
@@ -143,6 +143,7 @@ public:
     void removeController(uintptr_t controllerId);
     bool anyMfiController() const;
     int controllersCount(MfiControllerKind kind) const;
+    void setControllerUserInteractionEnabled(bool enabled);
 };
 
 }

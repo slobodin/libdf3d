@@ -153,8 +153,6 @@ class RenderBackendGL : public IRenderBackend
     RenderBackendCaps m_caps;
     mutable FrameStats m_stats;
 
-    int m_width, m_height;
-
     static const int MAX_SIZE = 0xFFF;      // 4k is enough for now.
 
     HandleBag m_vertexBuffersBag;

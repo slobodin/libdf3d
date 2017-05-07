@@ -63,24 +63,6 @@ static size_t GetTextureSize(GLint glFormat, size_t w, size_t h)
 #define GL_CHECK(call) call
 #endif
 
-static bool IsPot(size_t v)
-{
-    return v && !(v & (v - 1));
-}
-
-static size_t GetNextPot(size_t v)
-{
-    if (!IsPot(v))
-    {
-        int n = 0;
-        while (v >>= 1)
-            ++n;
-
-        v = 1 << (n + 1);
-    }
-    return v;
-}
-
 static bool IsCompressedTexture(PixelFormat fmt)
 {
     return fmt == PixelFormat::PVRTC_2RGB_V1 || fmt == PixelFormat::PVRTC_2RGBA_V1 ||
@@ -237,9 +219,7 @@ void RenderBackendGL::destroyShader(ShaderHandle shader, GLuint programId)
 }
 
 RenderBackendGL::RenderBackendGL(int width, int height)
-    : m_width(width),
-    m_height(height),
-    m_vertexBuffersBag(MemoryManager::allocDefault()),
+    : m_vertexBuffersBag(MemoryManager::allocDefault()),
     m_indexBuffersBag(MemoryManager::allocDefault()),
     m_texturesBag(MemoryManager::allocDefault()),
     m_shadersBag(MemoryManager::allocDefault()),
