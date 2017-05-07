@@ -8,6 +8,12 @@
 namespace df3d 
 {
 
+enum MfiControllerKind
+{
+    MFI_CONTROLLER_REMOTE,
+    MFI_CONTROLLER_GAMEPAD
+};
+
 class MFiControllerListener
 {
 public:
@@ -16,19 +22,17 @@ public:
 
     virtual void MFiControllerConnected() { }
     virtual void MFiControllerDisconnected() { }
-    virtual void MFiControllerPausePressed() { }
 
-    virtual bool MFi_menuButtonPressed() { return false; }
+    virtual void Mfi_buttonA_Pressed(bool pressed) { }
+    virtual void Mfi_buttonX_Pressed(bool pressed) { }
+    virtual void Mfi_buttonY_Pressed(bool pressed) { }
+    virtual void Mfi_buttonB_Pressed(bool pressed) { }
+    virtual bool Mfi_buttonMenu_Pressed() { return false; }
 
-    virtual void Mfi_buttonA_Changed(float value, bool pressed) { }
-    virtual void Mfi_buttonX_Changed(float value, bool pressed) { }
-    virtual void Mfi_buttonY_Changed(float value, bool pressed) { }
-    virtual void Mfi_buttonB_Changed(float value, bool pressed) { }
-
-    virtual void Mfi_DPadLeft_Changed(float value, bool pressed) { }
-    virtual void Mfi_DPadRight_Changed(float value, bool pressed) { }
-    virtual void Mfi_DPadUp_Changed(float value, bool pressed) { }
-    virtual void Mfi_DPadDown_Changed(float value, bool pressed) { }
+    virtual void Mfi_DPadLeft_Pressed(bool pressed) { }
+    virtual void Mfi_DPadRight_Pressed(bool pressed) { }
+    virtual void Mfi_DPadUp_Pressed(bool pressed) { }
+    virtual void Mfi_DPadDown_Pressed(bool pressed) { }
 
     virtual void Mfi_LeftShoulder_Changed(float value, bool pressed) { }
     virtual void Mfi_RightShoulder_Changed(float value, bool pressed) { }
@@ -93,8 +97,7 @@ class InputManager : NonCopyable
     std::unordered_map<uintptr_t, Touch> m_touches;
 
     MFiControllerListener *m_listener = nullptr;
-    bool m_anyMfiController = false;
-    bool m_extendedMfi = false;
+    std::unordered_map<uintptr_t, MfiControllerKind> m_controllers;
 
     void cleanStep();
     void processTouchDown(const Touch &touch);
@@ -135,10 +138,12 @@ public:
 
     MFiControllerListener* getMfiControllerListener() { return m_listener; }
     void setMfiControllerListener(MFiControllerListener *listener) { m_listener = listener; }
+
+    void addController(uintptr_t controllerId, MfiControllerKind kind);
+    void removeController(uintptr_t controllerId);
     bool anyMfiController() const;
-    void setHasMfiController(bool has) { m_anyMfiController = has; }
-    bool mfiIsExtended() { return m_extendedMfi; }
-    void setMFiExtended(bool extended) { m_extendedMfi = extended; }
+    int controllersCount(MfiControllerKind kind) const;
+    void setControllerUserInteractionEnabled(bool enabled);
 };
 
 }

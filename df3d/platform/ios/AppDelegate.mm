@@ -24,9 +24,12 @@ void Application::setTitle(const std::string &title)
 {
     df3d::MemoryManager::init();
 
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    UIScreen* mainScreen = [UIScreen mainScreen];
+    CGRect mainScreenSize = mainScreen.bounds;
+
+    self.window = [[UIWindow alloc] initWithFrame:mainScreenSize];
     self.window.backgroundColor = [UIColor blackColor];
-    self.window.rootViewController = [[[GameViewController alloc] initWithNibName:nil bundle:nil] autorelease];
+    self.window.rootViewController = [[GameViewController new] autorelease];
     [self.window makeKeyAndVisible];
 
     return YES;

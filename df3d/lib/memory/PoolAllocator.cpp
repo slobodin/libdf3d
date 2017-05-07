@@ -16,11 +16,11 @@ PoolAllocator::PoolAllocator(Allocator &alloc, size_t maxItems, size_t itemSize,
 
     auto blockSize = itemSize + align;
 
-    m_bytesAllocated = blockSize * (maxItems + 1);
+    m_bytesAllocated = blockSize * (m_maxItems + 1);
     m_pool = alloc.alloc(m_bytesAllocated, align);
 
     auto curr = (uint8_t*)m_pool;
-    for (size_t i = 0; i < maxItems; i++)
+    for (size_t i = 0; i < m_maxItems; i++)
     {
         *((uintptr_t*)curr) = uintptr_t(curr + blockSize);
         curr += blockSize;

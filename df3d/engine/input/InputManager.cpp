@@ -4,6 +4,8 @@
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/gui/GuiManager.h>
 #include <df3d/lib/Log.h>
+#include <df3d/lib/Utils.h>
+#include <df3d/lib/assert/Assert.h>
 #include <tb_widgets.h>
 
 namespace df3d {
@@ -361,9 +363,44 @@ void InputManager::onTouch(uintptr_t id, int x, int y, Touch::State state)
     }
 }
 
+void InputManager::addController(uintptr_t controllerId, MfiControllerKind kind)
+{
+    DF3D_ASSERT(!df3d::utils::contains_key(m_controllers, controllerId));
+    m_controllers[controllerId] = kind;
+}
+
+void InputManager::removeController(uintptr_t controllerId)
+{
+    auto found = m_controllers.find(controllerId);
+    if (found != m_controllers.end())
+        m_controllers.erase(found);
+    else
+        DF3D_ASSERT(false);
+}
+
 bool InputManager::anyMfiController() const
 {
-    return m_anyMfiController;
+    return m_controllers.size() > 0;
+}
+
+int InputManager::controllersCount(MfiControllerKind kind) const
+{
+    int res = 0;
+    for (const auto &kv : m_controllers)
+    {
+        if (kv.second == kind)
+            res++;
+    }
+
+    return res;
+}
+
+void InputManager::setControllerUserInteractionEnabled(bool enabled)
+{
+#ifdef DF3D_APPLETV
+void AppleTV_setControllerUserInteractionEnabled(bool);
+    AppleTV_setControllerUserInteractionEnabled(enabled);
+#endif
 }
 
 }
