@@ -24,7 +24,6 @@ extern void AudioResume();
 
 }
 @property (strong, nonatomic) EAGLContext *context;
-@property (strong, nonatomic) GCController *mainController;
 
 - (void)setupGL;
 - (void)tearDownGL;
@@ -154,6 +153,7 @@ extern void AudioResume();
 
 - (void)processTouches:(NSSet<UITouch*>*)touches withState:(df3d::Touch::State)state
 {
+#ifndef DF3D_APPLETV
     for (UITouch *touch in touches)
     {
         CGPoint point = [touch locationInView: self.view];
@@ -163,6 +163,7 @@ extern void AudioResume();
 
         df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, state);
     }
+#endif
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
@@ -185,107 +186,109 @@ extern void AudioResume();
     [self processTouches:touches withState:df3d::Touch::State::CANCEL];
 }
 
+- (BOOL)handleControllerBackButtonPressed:(BOOL)pressed
+{
+    if (auto l = df3d::svc().inputManager().getMfiControllerListener())
+        return l->Mfi_buttonBack_Pressed(pressed);
+
+    return false;
+}
+
 - (void)controllerWasConnected:(NSNotification*)notification
 {
-    self.mainController = [GCController controllers][GCControllerPlayerIndex1];
-    self.mainController.playerIndex = GCControllerPlayerIndex1;
+    GCController *controller = (GCController *)notification.object;
 
-    NSLog(@"%@", [NSString stringWithFormat:@"Controller connected\nName: %@\n", self.mainController.vendorName]);
+    controller.playerIndex = GCControllerPlayerIndex1;
 
-    df3d::svc().inputManager().setMFiExtended(false);
+    NSLog(@"%@", [NSString stringWithFormat:@"Controller connected\nName: %@\n", controller.vendorName]);
 
-    if (self.mainController.gamepad)
+    if (controller.gamepad)
     {
         // A, B, X, Y
-        self.mainController.gamepad.buttonA.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
-        {
+        controller.gamepad.buttonA.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed) {
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
-                l->Mfi_buttonA_Changed(value, pressed);
+                l->Mfi_buttonA_Pressed(pressed);
         };
-        self.mainController.gamepad.buttonB.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
-        {
-            if (auto l = df3d::svc().inputManager().getMfiControllerListener())
-                l->Mfi_buttonB_Changed(value, pressed);
+#ifndef DF3D_APPLETV
+        controller.gamepad.buttonB.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed) {
+            if (pressed)
+                [self handleControllerBackButtonPressed:pressed];
         };
-        self.mainController.gamepad.buttonX.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
-        {
+#endif
+        controller.gamepad.buttonX.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed) {
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
-                l->Mfi_buttonX_Changed(value, pressed);
+                l->Mfi_buttonX_Pressed(pressed);
         };
-        self.mainController.gamepad.buttonY.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
-        {
+        controller.gamepad.buttonY.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed) {
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
-                l->Mfi_buttonY_Changed(value, pressed);
+                l->Mfi_buttonY_Pressed(pressed);
         };
         
         // Dpad
-        self.mainController.gamepad.dpad.left.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+        controller.gamepad.dpad.left.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
         {
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
-                l->Mfi_DPadLeft_Changed(value, pressed);
+                l->Mfi_DPadLeft_Pressed(pressed);
         };
-        self.mainController.gamepad.dpad.right.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+        controller.gamepad.dpad.right.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
         {
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
-                l->Mfi_DPadRight_Changed(value, pressed);
+                l->Mfi_DPadRight_Pressed(pressed);
         };
-        self.mainController.gamepad.dpad.up.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+        controller.gamepad.dpad.up.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
         {
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
-                l->Mfi_DPadUp_Changed(value, pressed);
+                l->Mfi_DPadUp_Pressed(pressed);
         };
-        self.mainController.gamepad.dpad.down.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+        controller.gamepad.dpad.down.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
         {
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
-                l->Mfi_DPadDown_Changed(value, pressed);
+                l->Mfi_DPadDown_Pressed(pressed);
         };
         
         // shoulder buttons
-        self.mainController.gamepad.leftShoulder.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+        controller.gamepad.leftShoulder.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
         {
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
                 l->Mfi_LeftShoulder_Changed(value, pressed);
         };
-        self.mainController.gamepad.rightShoulder.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+        controller.gamepad.rightShoulder.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
         {
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
                 l->Mfi_RightShoulder_Changed(value, pressed);
         };
     }
-    if (self.mainController.extendedGamepad)
+    if (controller.extendedGamepad)
     {
-        df3d::svc().inputManager().setMFiExtended(true);
-
         // two thumbsticks
-        self.mainController.extendedGamepad.leftThumbstick.valueChangedHandler = ^(GCControllerDirectionPad *dpad, float xValue, float yValue)
+        controller.extendedGamepad.leftThumbstick.valueChangedHandler = ^(GCControllerDirectionPad *dpad, float xValue, float yValue)
         {
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
                 l->Mfi_LeftThumbStick_Changed(xValue, yValue);
         };
-        self.mainController.extendedGamepad.rightThumbstick.valueChangedHandler = ^(GCControllerDirectionPad *dpad, float xValue, float yValue)
+        controller.extendedGamepad.rightThumbstick.valueChangedHandler = ^(GCControllerDirectionPad *dpad, float xValue, float yValue)
         {
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
                 l->Mfi_RightThumbStick_Changed(xValue, yValue);
         };
 
-        self.mainController.extendedGamepad.leftTrigger.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+        controller.extendedGamepad.leftTrigger.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
         {
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
                 l->Mfi_LeftTrigger_Changed(value, pressed);
         };
-        self.mainController.extendedGamepad.rightTrigger.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
+        controller.extendedGamepad.rightTrigger.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
         {
             if (auto l = df3d::svc().inputManager().getMfiControllerListener())
                 l->Mfi_RightTrigger_Changed(value, pressed);
         };
     }
 
-    self.mainController.controllerPausedHandler = ^(GCController *controller) {
-        if (auto l = df3d::svc().inputManager().getMfiControllerListener())
-            l->MFiControllerPausePressed();
-    };
-
-    df3d::svc().inputManager().setHasMfiController(true);
+    int controllerId = reinterpret_cast<uintptr_t>(controller);
+    if (controller.extendedGamepad == nil && controller.gamepad == nil)
+        df3d::svc().inputManager().addController(controllerId, df3d::MFI_CONTROLLER_REMOTE);
+    else
+        df3d::svc().inputManager().addController(controllerId, df3d::MFI_CONTROLLER_GAMEPAD);
 
     [[UIApplication sharedApplication]setIdleTimerDisabled:YES];
 
@@ -296,14 +299,14 @@ extern void AudioResume();
 - (void)controllerWasDisconnected:(NSNotification*)notification
 {
     GCController *controller = (GCController *)notification.object;
+
     NSLog(@"%@", [NSString stringWithFormat:@"Controller disconnected:\n%@", controller.vendorName]);
 
-    df3d::svc().inputManager().setHasMfiController(false);
+    int controllerId = reinterpret_cast<uintptr_t>(controller);
+    df3d::svc().inputManager().removeController(controllerId);
 
     if (auto l = df3d::svc().inputManager().getMfiControllerListener())
         l->MFiControllerDisconnected();
-    
-    self.mainController = nil;
 
     [[UIApplication sharedApplication]setIdleTimerDisabled:NO];
 }
@@ -316,24 +319,17 @@ static bool menuButtonPressHandled = false;
 {
     menuButtonPressHandled = false;
 
-    for (UIPress* press in presses) {
-        if (press.type == UIPressTypeMenu) {
-            menuButtonPressHandled = false;
-
-            if (auto l = df3d::svc().inputManager().getMfiControllerListener())
-                menuButtonPressHandled = l->MFi_menuButtonPressed();
+    for (UIPress* press in presses)
+    {
+        if (press.type == UIPressTypeMenu)
+        {
+            menuButtonPressHandled = [self handleControllerBackButtonPressed:true];
         }
     }
 
-    if (!menuButtonPressHandled) {
+    if (!menuButtonPressHandled)
+    {
         [super pressesBegan:presses withEvent:event];
-    }
-}
-
-- (void)pressesEnded:(NSSet<UIPress*>*)presses withEvent:(UIPressesEvent*)event
-{
-    if (!menuButtonPressHandled) {
-        [super pressesEnded:presses withEvent:event];
     }
 }
 
