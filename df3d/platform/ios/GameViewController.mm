@@ -366,6 +366,13 @@ bool HandleControllerBackButtonPressed()
         };
     }
 
+#ifndef DF3D_APPLETV
+    controller.controllerPausedHandler = ^(GCController *controller) {
+        df3d::HandleControllerBackButtonPressed();
+    };
+#endif
+
+
     int controllerId = reinterpret_cast<uintptr_t>(controller);
     if (controller.extendedGamepad == nil && controller.gamepad == nil)
         df3d::svc().inputManager().addController(controllerId, df3d::MFI_CONTROLLER_REMOTE);
@@ -424,7 +431,7 @@ bool HandleControllerBackButtonPressed()
 
 #ifndef DF3D_APPLETV
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
-else
+#else
     self.controllerUserInteractionEnabled = false;
 #endif
 
