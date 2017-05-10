@@ -5,7 +5,6 @@
 #include <df3d/engine/render/RenderOperation.h>
 #include <df3d/engine/resources/TextureResource.h>
 #include <df3d/lib/Utils.h>
-#include <unordered_map>
 
 namespace df3d {
 

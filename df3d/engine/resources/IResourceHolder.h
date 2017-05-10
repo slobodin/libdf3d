@@ -1,8 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <string>
-
 namespace df3d {
 
 class ResourceDataSource;

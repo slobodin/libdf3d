@@ -4,8 +4,6 @@
 #include <chrono>
 #include <sstream>
 #include <cctype>
-#include <algorithm>
-#include <df3d/Common.h>
 
 namespace df3d {
 

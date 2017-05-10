@@ -1,7 +1,5 @@
 #pragma once
 
-#include <df3d/Common.h>
-
 namespace df3d {
 
 class Any

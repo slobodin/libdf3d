@@ -1,9 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <cstdint>
-#include <df3d/lib/containers/PodArray.h>
-
 namespace df3d {
 
 // Silly assert but we support only floats.

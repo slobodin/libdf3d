@@ -7,7 +7,6 @@
 #include <df3d/engine/resources/ResourceFileSystem.h>
 #include <df3d/engine/resources/ResourceDataSource.h>
 #include <df3d/lib/Utils.h>
-#include <df3d/lib/Log.h>
 
 namespace df3d {
 

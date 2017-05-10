@@ -1,12 +1,7 @@
 #pragma once
 
 #include <deque>
-#include <atomic>
-#include <vector>
-#include <thread>
-#include <functional>
 #include <condition_variable>
-#include <df3d/lib/NonCopyable.h>
 
 namespace df3d {
 

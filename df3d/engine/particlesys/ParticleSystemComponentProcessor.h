@@ -4,8 +4,6 @@
 #include <df3d/game/EntityComponentProcessor.h>
 #include <df3d/game/ComponentDataHolder.h>
 #include <SPARK.h>
-#include <df3d/lib/Id.h>
-#include <glm/glm.hpp>
 
 namespace df3d {
 

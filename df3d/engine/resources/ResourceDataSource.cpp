@@ -1,8 +1,6 @@
 #include "ResourceDataSource.h"
 
 #include <df3d/lib/os/PlatformFile.h>
-#include <df3d/Common.h>
-#include <df3d/lib/memory/Allocator.h>
 
 namespace df3d {
 

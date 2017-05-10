@@ -3,10 +3,6 @@
 #include <df3d/lib/math/Frustum.h>
 #include <df3d/lib/math/MathUtils.h>
 #include <df3d/engine/render/Viewport.h>
-#include <glm/glm.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <df3d/Common.h>
-#include <df3d/lib/NonCopyable.h>
 
 namespace df3d {
 

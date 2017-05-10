@@ -1,8 +1,5 @@
 #pragma once
 
-#include <df3d/lib/NonCopyable.h>
-#include <cstdlib>
-
 namespace df3d {
 
 class Allocator : NonCopyable
@@ -19,7 +16,7 @@ public:
 };
 
 template<typename T, typename Alloc>
-static void DeleteHelper(Alloc &a, T *obj)
+inline void DeleteHelper(Alloc &a, T *obj)
 {
     if (!obj)
         return;

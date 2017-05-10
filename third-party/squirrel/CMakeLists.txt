@@ -65,12 +65,8 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fno-strict-aliasing")
 endif()
 
-if (WINDOWS)
+if (DF3D_WINDOWS)
     add_definitions(-DWIN32 -DDF3D_WINDOWS)
-endif()
-
-if (WINDOWS_PHONE)
-    add_definitions(-DDF3D_WINDOWS_PHONE -D_CRT_NON_CONFORMING_SWPRINTFS -D_CRT_SECURE_NO_WARNINGS)
 endif()
 
 add_library(squirrel STATIC ${squirrel_SRC_LIST} ${squirrel_HEADER_LIST})

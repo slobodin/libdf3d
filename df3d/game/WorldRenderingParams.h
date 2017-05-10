@@ -2,8 +2,6 @@
 
 #include <df3d/engine/3d/Light.h>
 #include <df3d/engine/render/RenderCommon.h>
-#include <vector>
-#include <string>
 
 namespace df3d {
 

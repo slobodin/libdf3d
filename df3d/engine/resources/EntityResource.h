@@ -2,8 +2,6 @@
 
 #include "IResourceHolder.h"
 #include <df3d/lib/JsonUtils.h>
-#include <vector>
-#include <string>
 
 namespace df3d {
 

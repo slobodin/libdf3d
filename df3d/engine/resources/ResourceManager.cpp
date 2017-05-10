@@ -13,8 +13,6 @@
 #include "TextureResource.h"
 #include "EntityResource.h"
 #include "IResourceHolder.h"
-#include <unordered_set>
-#include <string>
 
 namespace df3d {
 

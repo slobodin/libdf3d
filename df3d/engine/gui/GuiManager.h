@@ -1,8 +1,5 @@
 #pragma once
 
-#include <df3d/lib/NonCopyable.h>
-#include <df3d/Common.h>
-
 namespace tb {
 class TBRenderer;
 class TBSkin;

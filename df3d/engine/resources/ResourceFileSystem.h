@@ -1,8 +1,5 @@
 #pragma once
 
-#include <df3d/Common.h>
-#include <df3d/lib/NonCopyable.h>
-
 namespace df3d {
 
 class ResourceDataSource;

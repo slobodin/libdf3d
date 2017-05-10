@@ -1,12 +1,5 @@
 #pragma once
 
-#include <json/json/json.h>
-#include <cstdint>
-#include <algorithm>
-#include <glm/glm.hpp>
-#include <df3d/lib/assert/Assert.h>
-#include <df3d/lib/Log.h>
-
 namespace df3d {
 
 class ResourceDataSource;

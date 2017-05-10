@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <df3d/Common.h>
-
 namespace df3d {
 
 struct EngineInitParams

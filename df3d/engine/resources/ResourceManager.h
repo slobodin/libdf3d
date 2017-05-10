@@ -1,20 +1,11 @@
 #pragma once
 
-#include <unordered_map>
-#include <df3d/lib/Id.h>
-#include <df3d/Common.h>
-#include <mutex>
-#include <df3d/lib/NonCopyable.h>
-#include <vector>
-#include <string>
-
 namespace df3d {
 
 class ThreadPool;
 class ResourceFileSystem;
 class IResourceHolder;
 struct LoadingState;
-class Allocator;
 
 // TODO: refactor
 

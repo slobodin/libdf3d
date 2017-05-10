@@ -1,10 +1,6 @@
 #include "Id.h"
 
 #include <df3d/lib/Utils.h>
-#include <mutex>
-#include <unordered_map>
-#include <df3d/lib/assert/Assert.h>
-#include <df3d/lib/Log.h>
 
 namespace df3d {
 
