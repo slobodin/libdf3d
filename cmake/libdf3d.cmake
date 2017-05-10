@@ -42,29 +42,14 @@ elseif (${DF3D_PLATFORM} STREQUAL "IOS")
 
     set(CMAKE_OSX_SYSROOT "iphoneos")
 
-    add_definitions(-DDF3D_IOS)
-    add_definitions(-DZ_HAVE_UNISTD_H) # Hack for zlib
-
-    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++14")
-    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -stdlib=libc++ -Wno-inconsistent-missing-override -Wno-conversion -Wall")
-
     message(STATUS "Platform - iOS")
 elseif (${DF3D_PLATFORM} STREQUAL "TVOS")
     set(DF3D_IOS true)
     set(DF3D_TVOS true)
 
-    set(CMAKE_OSX_SYSROOT "appletvos")
-
-    add_definitions(-DDF3D_IOS)
     add_definitions(-DDF3D_APPLETV)
-    add_definitions(-DZ_HAVE_UNISTD_H) # Hack for zlib
 
-    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++14")
-    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -stdlib=libc++ -Wno-inconsistent-missing-override -Wno-conversion -Wall")
+    set(CMAKE_OSX_SYSROOT "appletvos")
 
     message(STATUS "Platform - tvOS")
 else()
@@ -77,4 +62,27 @@ endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     add_definitions(-DNDEBUG)
+endif()
+
+if (DF3D_IOS)
+    add_definitions(-DDF3D_IOS)
+    add_definitions(-DZ_HAVE_UNISTD_H) # Hack for zlib
+
+    set(CMAKE_XCODE_ATTRIBUTE_OTHER_CFLAGS "-fembed-bitcode")
+
+    set(CMAKE_C_FLAGS_INIT "-fembed-bitcode")
+    set(CMAKE_CXX_FLAGS_INIT "-fvisibility=hidden -fvisibility-inlines-hidden")
+
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++14")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -stdlib=libc++ -Wno-inconsistent-missing-override -Wno-conversion -Wall")
+
+    set(CMAKE_OSX_ARCHITECTURES "arm64")
+
+    macro(set_xcode_property TARGET XCODE_PROPERTY XCODE_VALUE)
+      set_property (TARGET ${TARGET} PROPERTY XCODE_ATTRIBUTE_${XCODE_PROPERTY} ${XCODE_VALUE})
+    endmacro (set_xcode_property)
+
+    message (STATUS "iOS sysroot=${CMAKE_OSX_SYSROOT}")
 endif()
