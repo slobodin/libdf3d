@@ -3,9 +3,6 @@
 #include "InputEvents.h"
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/gui/GuiManager.h>
-#include <df3d/lib/Log.h>
-#include <df3d/lib/Utils.h>
-#include <df3d/lib/assert/Assert.h>
 #include <tb_widgets.h>
 
 namespace df3d {
