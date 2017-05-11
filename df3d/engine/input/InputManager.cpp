@@ -393,12 +393,4 @@ int InputManager::controllersCount(MfiControllerKind kind) const
     return res;
 }
 
-void InputManager::setControllerUserInteractionEnabled(bool enabled)
-{
-#ifdef DF3D_APPLETV
-void AppleTV_setControllerUserInteractionEnabled(bool);
-    AppleTV_setControllerUserInteractionEnabled(enabled);
-#endif
-}
-
 }

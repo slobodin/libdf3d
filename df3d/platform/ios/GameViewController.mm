@@ -17,13 +17,6 @@
 
 static GameViewController* g_viewController;
 
-#ifdef DF3D_APPLETV
-void AppleTV_setControllerUserInteractionEnabled(bool enabled)
-{
-    g_viewController.controllerUserInteractionEnabled = enabled;
-}
-#endif
-
 namespace df3d {
 
 extern bool EngineInit(EngineInitParams params);

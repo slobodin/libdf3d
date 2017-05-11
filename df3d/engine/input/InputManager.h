@@ -140,7 +140,6 @@ public:
     void removeController(uintptr_t controllerId);
     bool anyMfiController() const;
     int controllersCount(MfiControllerKind kind) const;
-    void setControllerUserInteractionEnabled(bool enabled);
 };
 
 }
