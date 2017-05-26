@@ -105,6 +105,11 @@ bool HandleControllerBackButtonPressed()
 #endif
         self.contentScaleFactor = [UIScreen mainScreen].scale;
 
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+        BOOL success = FALSE;
+        success = [session setCategory:AVAudioSessionCategoryAmbient error:nil];
+        success = [session setActive:TRUE error:nil];
+
         [self setupLayer];
         [self setupContext];
         [self setupDisplayLink];
