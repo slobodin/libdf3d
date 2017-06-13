@@ -177,7 +177,11 @@ btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, df
     auto scale = PhysicsHelpers::glmTobt(svc().defaultWorld().sceneGraph().getLocalScale(data.holder));
 
     auto mesh = svc().resourceManager().getResource<MeshResource>(meshResourceId);
-    DF3D_ASSERT(mesh);
+    if (!mesh)
+    {
+        DF3D_ASSERT(false);
+        return nullptr;
+    }
 
     switch (params.shape)
     {
