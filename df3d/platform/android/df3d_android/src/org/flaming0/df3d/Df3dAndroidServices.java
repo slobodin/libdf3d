@@ -6,7 +6,6 @@ import android.os.Debug;
 import android.util.Log;
 
 public class Df3dAndroidServices {
-    private Df3dPreferences prefs = null;
     private Df3dLocalStorage storage = null;
 
     private long stringToInt(String s)
@@ -17,12 +16,7 @@ public class Df3dAndroidServices {
     }
 
     public Df3dAndroidServices(Activity activity) {
-        prefs = new Df3dPreferences(activity);
         storage = new Df3dLocalStorage(activity);
-    }
-
-    public Df3dPreferences getPreferences() {
-        return prefs;
     }
 
     public Object getLocalStorage() { return storage; }

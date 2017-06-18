@@ -13,7 +13,8 @@ public class Df3dRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         // TODO: research setPreserveEGLContextOnPause.
 
-        NativeBindings.init(m_width, m_height);
+        if (!NativeBindings.init(m_width, m_height))
+            throw new RuntimeException("Failed to NativeBindings.init");
     }
 
     @Override

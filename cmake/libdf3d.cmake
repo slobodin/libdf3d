@@ -30,7 +30,7 @@ if (${DF3D_PLATFORM} STREQUAL "WINDOWS")
     add_definitions(-DWIN32 -D_WINDOWS -DDF3D_WINDOWS)
 
     message(STATUS "Platform - Windows")
-elseif (${DF3D_PLATFORM} STREQUAL "ANDROID")
+elseif (${DF3D_PLATFORM} STREQUAL ANDROID)
     set(DF3D_ANDROID true)
 
     add_definitions(-DDF3D_ANDROID)

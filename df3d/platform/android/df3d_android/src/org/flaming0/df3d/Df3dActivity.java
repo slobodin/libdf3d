@@ -11,16 +11,13 @@ import android.view.WindowManager;
 
 public class Df3dActivity extends Activity {
     private Df3dSurfaceView m_glSurfaceView = null;
-    private AssetManager m_assetManager = null;
-    private Df3dAndroidServices services = null;
     private Runnable setUiVisibilityRunnable = null;
 
-    static
-    {
-        System.loadLibrary("openal");
-
+    private void loadNativeLibraries() {
         // TODO: load client library from meta-data.
         System.loadLibrary("ships3d");
+        System.loadLibrary("fmod");
+        System.loadLibrary("fmodstudio");
 
         Log.i("df3d_android", "df3d native libraries loaded");
     }
@@ -29,11 +26,12 @@ public class Df3dActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        loadNativeLibraries();
+
         enableFullscreen();
 
-        services = new Df3dAndroidServices(this);
-        NativeBindings.servicesInitialized(services);
-        NativeBindings.setAssetManager(m_assetManager = getAssets());
+        NativeBindings.servicesInitialized(new Df3dAndroidServices(this));
+        NativeBindings.setAssetManager(getAssets());
 
         setContentView(m_glSurfaceView = new Df3dSurfaceView(this));
 
@@ -45,6 +43,7 @@ public class Df3dActivity extends Activity {
     @Override
     protected void onPause() {
         m_glSurfaceView.onPause();
+
         super.onPause();
     }
 

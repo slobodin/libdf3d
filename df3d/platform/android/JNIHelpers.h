@@ -11,7 +11,6 @@ class AndroidServices
     static JavaVM *m_vm;
     static pthread_key_t m_envKey;
 
-    static jobject m_prefs;
     static jobject m_localStorage;
     static jobject m_services;
 
@@ -23,7 +22,6 @@ public:
     static void setServicesObj(jobject jservices);
     static void setAAssetManager(AAssetManager *mgr);
 
-    static jobject getPreferences() { return m_prefs; }
     static jobject getLocalStorage() { return m_localStorage; }
 
     static JNIEnv* getEnv();

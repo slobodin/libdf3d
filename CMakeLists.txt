@@ -3,7 +3,12 @@ cmake_minimum_required(VERSION 3.6)
 project(libdf3d)
 
 include(cmake/libdf3d.cmake)
-include(cmake/cotire.cmake)
+
+if (DF3D_ANDROID)
+    include(cmake/PrecompiledHeader.cmake)
+else()
+    include(cmake/cotire.cmake)
+endif()
 
 if (DF3D_WINDOWS)
     set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_win32" CACHE PATH "third-party")
@@ -386,6 +391,17 @@ if (DF3D_IOS)
     endif()
 endif()
 
-set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "df3d_pch.h")
-set_target_properties(libdf3d PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-cotire(libdf3d)
+if (DF3D_ANDROID)
+    target_compile_options(libdf3d PUBLIC ${libdf3d_APP_CFLAGS})
+    target_compile_definitions(libdf3d PUBLIC ${libdf3d_APP_DEF})
+    target_include_directories(libdf3d PUBLIC ${libdf3d_include})
+
+    add_precompiled_header(libdf3d ${PROJECT_SOURCE_DIR}/df3d_pch.h c++-header COMPILE_OPTIONS ${libdf3d_APP_CFLAGS}
+                           COMPILE_DEFINITIONS ${libdf3d_APP_DEF} INCLUDE_DIRECTORIES ${libdf3d_include})
+
+    target_use_precompiled_header(libdf3d ${PROJECT_SOURCE_DIR}/df3d_pch.h FORCEINCLUDE)
+else()
+    set_target_properties(libdf3d PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "df3d_pch.h")
+    set_target_properties(libdf3d PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+    cotire(libdf3d)
+endif()

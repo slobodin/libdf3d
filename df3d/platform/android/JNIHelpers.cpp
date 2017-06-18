@@ -9,7 +9,6 @@ static void detachCurrentThread(void *a)
 
 JavaVM *AndroidServices::m_vm = nullptr;
 pthread_key_t AndroidServices::m_envKey;
-jobject AndroidServices::m_prefs;
 jobject AndroidServices::m_localStorage;
 jobject AndroidServices::m_services;
 AAssetManager *AndroidServices::m_assetMgr = nullptr;

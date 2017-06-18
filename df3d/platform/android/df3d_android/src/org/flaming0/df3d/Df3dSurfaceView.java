@@ -1,6 +1,7 @@
 package org.flaming0.df3d;
 
 import android.content.Context;
+import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -12,146 +13,88 @@ import java.util.Comparator;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
 
 public class Df3dSurfaceView extends GLSurfaceView {
+    class ContextFactory implements GLSurfaceView.EGLContextFactory {
+        private int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
+
+        public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig) {
+            int[] attributes = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
+            EGLContext context = egl.eglCreateContext(
+                    display, eglConfig, EGL10.EGL_NO_CONTEXT, attributes);
+
+            return context;
+        }
+
+        public void destroyContext(EGL10 egl, EGLDisplay display, EGLContext context) {
+            NativeBindings.onRenderDestroyed();
+            egl.eglDestroyContext(display, context);
+        }
+    }
+
     class Df3dConfigChooser implements EGLConfigChooser {
         final private static int EGL_OPENGL_ES2_BIT = 4;
 
-        private int[] mValue = new int[1];
-        protected int redSize;
-        protected int greenSize;
-        protected int blueSize;
-        protected int alphaSize;
-        protected int depthSize;
-        protected int stencilSize;
+        private int[] m_value;
 
         public Df3dConfigChooser(int r, int g, int b, int a, int depth, int stencil) {
-            redSize = r;
-            greenSize = g;
-            blueSize = b;
-            alphaSize = a;
-            depthSize = depth;
-            stencilSize = stencil;
+            m_value = new int[] {r, g, b, a, depth, stencil};
+        }
+
+        private EGLConfig doChooseConfig(EGL10 egl, EGLDisplay display, int[] attributes) {
+            EGLConfig[] configs = new EGLConfig[1];
+            int[] matchedConfigNum = new int[1];
+            boolean result = egl.eglChooseConfig(display, attributes, configs, 1, matchedConfigNum);
+            if (result && matchedConfigNum[0] > 0) {
+                return configs[0];
+            }
+            return null;
         }
 
         @Override
         public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
-            // Our minimum requirements for the graphics context
-            int[] minimumSpec = {
-                // We want OpenGL ES 2
-                EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-                // We want to render to a window
-                EGL10.EGL_SURFACE_TYPE, EGL10.EGL_WINDOW_BIT,
-                // We do not want a translucent window, otherwise the
-                // home screen or activity in the background may shine through
-                EGL10.EGL_TRANSPARENT_TYPE, EGL10.EGL_NONE,
-                // indicate that this list ends:
-                EGL10.EGL_NONE
+            int[][] EGLAttributes = {
+                    {
+                            // GL ES 2 with user set
+                            EGL10.EGL_RED_SIZE, m_value[0],
+                            EGL10.EGL_GREEN_SIZE, m_value[1],
+                            EGL10.EGL_BLUE_SIZE, m_value[2],
+                            EGL10.EGL_ALPHA_SIZE, m_value[3],
+                            EGL10.EGL_DEPTH_SIZE, m_value[4],
+                            EGL10.EGL_STENCIL_SIZE, m_value[5],
+                            EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+                            EGL10.EGL_NONE
+                    },
+                    {
+                            // GL ES 2 by default
+                            EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+                            EGL10.EGL_NONE
+                    }
             };
 
-            int[] arg = new int[1];
-            egl.eglChooseConfig(display, minimumSpec, null, 0, arg);
-            int numConfigs = arg[0];
-
-            if (numConfigs <= 0) {
-                // The minimum spec is not available here
-                return null;
+            EGLConfig result;
+            for (int[] eglAtribute : EGLAttributes) {
+                result = this.doChooseConfig(egl, display, eglAtribute);
+                if (result != null)
+                    return result;
             }
 
-            EGLConfig[] configs = new EGLConfig[numConfigs];
-            egl.eglChooseConfig(display, minimumSpec, configs, numConfigs, arg);
-
-            EGLConfig chosen = chooseConfig(egl, display, configs);
-            if (chosen == null) {
-                throw new RuntimeException("Failed to choose EGL config");
-            }
-
-            return chosen;
-        }
-
-        public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display, EGLConfig[] configs) {
-            class InnerConfig
-            {
-                public EGLConfig eglConfig;
-                public int depthSize;
-                public int r;
-                public int g;
-                public int b;
-                public int a;
-                public int stencilSize;
-            };
-
-            ArrayList<InnerConfig> bestMatches = new ArrayList<InnerConfig>();
-
-            for (EGLConfig config : configs) {
-                int d = findConfigAttrib(egl, display, config, EGL10.EGL_DEPTH_SIZE, 0);
-                int s = findConfigAttrib(egl, display, config, EGL10.EGL_STENCIL_SIZE, 0);
-
-                // We need at least depthSize and stencilSize bits
-                if (d < depthSize || s < stencilSize)
-                    continue;
-
-                // We want an exact match for red/green/blue/alpha
-                int r = findConfigAttrib(egl, display, config, EGL10.EGL_RED_SIZE, 0);
-                int g = findConfigAttrib(egl, display, config, EGL10.EGL_GREEN_SIZE, 0);
-                int b = findConfigAttrib(egl, display, config, EGL10.EGL_BLUE_SIZE, 0);
-                int a = findConfigAttrib(egl, display, config, EGL10.EGL_ALPHA_SIZE, 0);
-
-                if (r == redSize && g == greenSize && b == blueSize && a == alphaSize) {
-                    InnerConfig cfg = new InnerConfig();
-                    cfg.depthSize = d;
-                    cfg.stencilSize = s;
-                    cfg.r = r;
-                    cfg.g = g;
-                    cfg.b = b;
-                    cfg.a = a;
-                    cfg.eglConfig = config;
-                    bestMatches.add(cfg);
-                }
-            }
-
-            if (bestMatches.isEmpty()) {
-                Log.e("df3d_android", "chooseConfig didn't find a EGLConfig with given parameters");
-                return null;
-            }
-
-            // Now find the one with maximum depth size
-            Collections.sort(bestMatches, new Comparator<InnerConfig>() {
-                @Override
-                public int compare(InnerConfig innerConfig, InnerConfig t1) {
-                    if (innerConfig.depthSize < t1.depthSize)
-                        return -1;
-                    else if (innerConfig.depthSize > t1.depthSize)
-                        return 1;
-                    else
-                        return 0;
-                }
-            });
-
-            InnerConfig best = bestMatches.get(bestMatches.size() - 1);
-
-            Log.i("df3d_android", String.format("EGLConfig: Red %d Green %d Blue %d Alpha %d Depth %d Stencil %d", best.r, best.g, best.b, best.a, best.depthSize, best.stencilSize));
-
-            return best.eglConfig;
-        }
-
-        private int findConfigAttrib(EGL10 egl, EGLDisplay display, EGLConfig config, int attribute, int defaultValue) {
-            if(egl.eglGetConfigAttrib(display, config, attribute, mValue)) {
-                return mValue[0];
-            }
-
-            return defaultValue;
+            Log.e("df3d_android", "Can not select an EGLConfig for rendering.");
+            return null;
         }
     }
-
 
     private Df3dRenderer m_df3dRenderer = null;
 
     public Df3dSurfaceView(Context context) {
         super(context);
 
+        getHolder().setFormat(PixelFormat.TRANSLUCENT);
+
         setEGLConfigChooser(new Df3dConfigChooser(8, 8, 8, 8, 16, 8));
+        setEGLContextFactory(new ContextFactory());
 
         try {
             setPreserveEGLContextOnPause(true);
@@ -169,7 +112,7 @@ public class Df3dSurfaceView extends GLSurfaceView {
     @Override
     public void onResume() {
         super.onResume();
-//        setRenderMode(RENDERMODE_CONTINUOUSLY);
+//        this.setRenderMode(RENDERMODE_CONTINUOUSLY);
 
         Log.i("df3d_android", "onResume");
 
@@ -194,19 +137,7 @@ public class Df3dSurfaceView extends GLSurfaceView {
             }
         });
 
-//        setRenderMode(RENDERMODE_WHEN_DIRTY);
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                NativeBindings.onSurfaceDestroyed();
-            }
-        });
-
-        super.surfaceDestroyed(holder);
+//        this.setRenderMode(RENDERMODE_WHEN_DIRTY);
     }
 
     @Override

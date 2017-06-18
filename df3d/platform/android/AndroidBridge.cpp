@@ -63,7 +63,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_services
     df3d::AndroidServices::setServicesObj(services);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_init(JNIEnv* env, jclass cls, jint jscreenWidth, jint jscreenHeight)
+extern "C" JNIEXPORT jboolean JNICALL Java_org_flaming0_df3d_NativeBindings_init(JNIEnv* env, jclass cls, jint jscreenWidth, jint jscreenHeight)
 {
     DFLOG_MESS("Doing native init...");
 
@@ -77,19 +77,27 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_init(JNI
         if (!df3d::EngineInit(params))
         {
             DFLOG_CRITICAL("Failed to init df3d");
-            return;
+            return false;
         }
+
+        DFLOG_MESS("Engine initialized.");
 
         // Init game code.
         if (!df3d::g_appState.appDelegate->onAppStarted())
         {
             DFLOG_CRITICAL("Game code initialization failed");
-            return;
+            return false;
         }
+
+        DFLOG_MESS("Game code initialized.");
+
+        return true;
     }
     else
     {
         df3d::g_appState.appDelegate->onRenderRecreated();
+
+        return true;
     }
 }
 
@@ -115,7 +123,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onDestro
     df3d::MemoryManager::shutdown();
 }
 
-extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onSurfaceDestroyed(JNIEnv* env, jclass cls)
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onRenderDestroyed(JNIEnv* env, jclass cls)
 {
     if (df3d::g_appState.appDelegate)
         df3d::g_appState.appDelegate->onRenderDestroyed();

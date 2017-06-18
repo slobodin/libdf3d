@@ -1,3 +1,4 @@
+#include <df3d/df3d.h>
 #include "PlatformFile.h"
 
 // FIXME: move somewhere AAssetMgr
@@ -5,7 +6,7 @@
 
 namespace df3d {
 
-class DF3D_DLL PlatformFileAndroid : public PlatformFile
+class PlatformFileAndroid : public PlatformFile
 {
     AAsset *m_file;
 
