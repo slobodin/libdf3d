@@ -240,23 +240,21 @@ RenderManager::~RenderManager()
 
 void RenderManager::initialize(int width, int height)
 {
+    m_width = width;
+    m_height = height;
+
     m_renderQueue = make_unique<RenderQueue>();
     m_viewport = Viewport(0, 0, width, height);
     m_renderBackend = IRenderBackend::create(width, height);
     m_sharedState = make_unique<GpuProgramSharedState>();
 
-    reloadEmbedResources();
+    loadEmbedResources();
 }
 
 void RenderManager::shutdown()
 {
     m_embedResources.reset();
     m_renderBackend.reset();
-}
-
-void RenderManager::reloadEmbedResources()
-{
-    m_embedResources = make_unique<RenderManagerEmbedResources>(this);
 }
 
 void RenderManager::drawWorld(World &world)
@@ -304,6 +302,26 @@ FrameStats RenderManager::getFrameStats() const
 IRenderBackend& RenderManager::getBackend()
 {
     return *m_renderBackend;
+}
+
+void RenderManager::destroyEmbedResources()
+{
+    m_embedResources.reset();
+}
+
+void RenderManager::loadEmbedResources()
+{
+    m_embedResources = make_unique<RenderManagerEmbedResources>(this);
+}
+
+void RenderManager::destroyBackend()
+{
+    m_renderBackend.reset();
+}
+
+void RenderManager::createBackend()
+{
+    m_renderBackend = IRenderBackend::create(m_width, m_height);
 }
 
 }

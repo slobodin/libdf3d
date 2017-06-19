@@ -23,8 +23,6 @@ public:
     virtual const RenderBackendCaps& getCaps() const = 0;
     virtual const FrameStats& getFrameStats() const = 0;
 
-    virtual void initialize() = 0;
-
     virtual void frameBegin() = 0;
     virtual void frameEnd() = 0;
 

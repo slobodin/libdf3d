@@ -15,26 +15,10 @@ import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
+import javax.microedition.khronos.egl.EGLSurface;
 
 public class Df3dSurfaceView extends GLSurfaceView {
-    class ContextFactory implements GLSurfaceView.EGLContextFactory {
-        private int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
-
-        public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig) {
-            int[] attributes = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
-            EGLContext context = egl.eglCreateContext(
-                    display, eglConfig, EGL10.EGL_NO_CONTEXT, attributes);
-
-            return context;
-        }
-
-        public void destroyContext(EGL10 egl, EGLDisplay display, EGLContext context) {
-            NativeBindings.onRenderDestroyed();
-            egl.eglDestroyContext(display, context);
-        }
-    }
-
-    class Df3dConfigChooser implements EGLConfigChooser {
+     class Df3dConfigChooser implements EGLConfigChooser {
         final private static int EGL_OPENGL_ES2_BIT = 4;
 
         private int[] m_value;
@@ -94,7 +78,6 @@ public class Df3dSurfaceView extends GLSurfaceView {
         getHolder().setFormat(PixelFormat.TRANSLUCENT);
 
         setEGLConfigChooser(new Df3dConfigChooser(8, 8, 8, 8, 16, 8));
-        setEGLContextFactory(new ContextFactory());
 
         try {
             setPreserveEGLContextOnPause(true);
@@ -107,6 +90,29 @@ public class Df3dSurfaceView extends GLSurfaceView {
         setFocusableInTouchMode(true);
 
         setRenderer(m_df3dRenderer = new Df3dRenderer());
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        Log.i("df3d_android", "surfaceDestroyed");
+
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                NativeBindings.onRenderDestroyed();
+                synchronized (this) {
+                    this.notify();
+                }
+            }
+        });
+
+        synchronized (this)
+        {
+            try { this.wait(1000); }
+            catch (InterruptedException e) { }
+        }
+
+        super.surfaceDestroyed(holder);
     }
 
     @Override

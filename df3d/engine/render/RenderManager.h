@@ -40,6 +40,8 @@ class RenderManager : NonCopyable
     bool m_depthTestOverriden = false;
     bool m_depthWriteOverriden = false;
     bool m_initialized = false;
+    int m_width = 0;
+    int m_height = 0;
     unique_ptr<RenderManagerEmbedResources> m_embedResources;
 
     void onFrameBegin();
@@ -56,7 +58,6 @@ public:
 
     void initialize(int width, int height);
     void shutdown();
-    void reloadEmbedResources();
 
     void drawWorld(World &world);
     void drawRenderOperation(const RenderOperation &op);
@@ -65,6 +66,11 @@ public:
     FrameStats getFrameStats() const;
     IRenderBackend& getBackend();
     const RenderManagerEmbedResources& getEmbedResources() const { return *m_embedResources; }
+
+    void destroyEmbedResources();
+    void loadEmbedResources();
+    void destroyBackend();
+    void createBackend();
 };
 
 }

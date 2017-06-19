@@ -242,49 +242,6 @@ RenderBackendGL::RenderBackendGL(int width, int height)
         throw std::runtime_error("GL 2.1 unsupported");
 #endif
 
-    initialize();
-}
-
-RenderBackendGL::~RenderBackendGL()
-{
-    DF3D_ASSERT(m_vertexBuffersBag.empty());
-    DF3D_ASSERT(m_indexBuffersBag.empty());
-    DF3D_ASSERT(m_texturesBag.empty());
-    DF3D_ASSERT(m_shadersBag.empty());
-    DF3D_ASSERT(m_gpuProgramsBag.empty());
-    DF3D_ASSERT(m_uniformsBag.empty());
-    DF3D_ASSERT(m_framebuffersBag.empty());
-}
-
-const RenderBackendCaps& RenderBackendGL::getCaps() const
-{
-    return m_caps;
-}
-
-const FrameStats& RenderBackendGL::getFrameStats() const
-{
-#ifdef _DEBUG
-    m_stats.gpuMemBytes = m_gpuMemStats.getGpuMemBytes();
-#endif
-    return m_stats;
-}
-
-void RenderBackendGL::initialize()
-{
-    m_vertexBuffersBag.reset();
-    m_indexBuffersBag.reset();
-    m_texturesBag.reset();
-    m_shadersBag.reset();
-    m_gpuProgramsBag.reset();
-    m_uniformsBag.reset();
-    m_framebuffersBag.reset();
-
-    m_programUniforms.clear();
-
-    m_drawState = {};
-    m_indexedDrawCall = false;
-    m_currentIndexType = GL_INVALID_ENUM;
-
     initExtensions();
 
     std::fill(std::begin(m_vertexBuffers), std::end(m_vertexBuffers), VertexBufferGL());
@@ -340,6 +297,30 @@ void RenderBackendGL::initialize()
 #if defined(DF3D_DESKTOP)
     glEnable(GL_MULTISAMPLE);
 #endif
+}
+
+RenderBackendGL::~RenderBackendGL()
+{
+    DF3D_ASSERT(m_vertexBuffersBag.empty());
+    DF3D_ASSERT(m_indexBuffersBag.empty());
+    DF3D_ASSERT(m_texturesBag.empty());
+    DF3D_ASSERT(m_shadersBag.empty());
+    DF3D_ASSERT(m_gpuProgramsBag.empty());
+    DF3D_ASSERT(m_uniformsBag.empty());
+    DF3D_ASSERT(m_framebuffersBag.empty());
+}
+
+const RenderBackendCaps& RenderBackendGL::getCaps() const
+{
+    return m_caps;
+}
+
+const FrameStats& RenderBackendGL::getFrameStats() const
+{
+#ifdef _DEBUG
+    m_stats.gpuMemBytes = m_gpuMemStats.getGpuMemBytes();
+#endif
+    return m_stats;
 }
 
 void RenderBackendGL::frameBegin()

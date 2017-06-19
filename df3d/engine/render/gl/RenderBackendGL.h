@@ -210,8 +210,6 @@ public:
     const RenderBackendCaps& getCaps() const override;
     const FrameStats& getFrameStats() const override;
 
-    void initialize() override;
-
     void frameBegin() override;
     void frameEnd() override;
 

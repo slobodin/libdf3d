@@ -225,6 +225,7 @@ class TBRendererImpl : public tb::TBRenderer
     {
         m_guipass = {};
         m_batch.reset();
+        destroyIndexBuffer();
         tb::TBRenderer::InvokeContextLost();
     }
 
@@ -232,6 +233,7 @@ class TBRendererImpl : public tb::TBRenderer
     {
         m_batch = make_unique<Batch>();
         createGuiPass();
+        createIndexBuffer();
         tb::TBRenderer::InvokeContextRestored();
     }
 
@@ -250,11 +252,9 @@ class TBRendererImpl : public tb::TBRenderer
 
     IndexBufferHandle m_indexBuffer;
 
-public:
-    TBRendererImpl()
+    void createIndexBuffer()
     {
-        m_batch = make_unique<Batch>();
-        createGuiPass();
+        DF3D_ASSERT(!m_indexBuffer.isValid());
 
         // Initialize the index array.
         PodArray<uint16_t> indexData(MemoryManager::allocDefault());
@@ -271,12 +271,28 @@ public:
             indexData[currentIndex++] = 4 * i + 3;
             indexData[currentIndex++] = 4 * i + 2;
         }
+
         m_indexBuffer = svc().renderManager().getBackend().createIndexBuffer(indexData.size(), indexData.data(), GpuBufferUsageType::STATIC, INDICES_16_BIT);
+    }
+
+    void destroyIndexBuffer()
+    {
+        if (m_indexBuffer.isValid())
+            svc().renderManager().getBackend().destroyIndexBuffer(m_indexBuffer);
+        m_indexBuffer = {};
+    }
+
+public:
+    TBRendererImpl()
+    {
+        m_batch = make_unique<Batch>();
+        createGuiPass();
+        createIndexBuffer();
     }
 
     ~TBRendererImpl()
     {
-        svc().renderManager().getBackend().destroyIndexBuffer(m_indexBuffer);
+        destroyIndexBuffer();
     }
 
     void BeginPaint(int render_target_w, int render_target_h) override

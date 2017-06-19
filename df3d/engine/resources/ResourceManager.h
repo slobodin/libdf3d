@@ -59,6 +59,8 @@ public:
 
     template<typename T>
     const T* getResource(Id resourceID) { return static_cast<const T*>(getResourceData(resourceID)); }
+
+    size_t getLoadedResourcesCount() const { return m_cache.size(); }
 };
 
 }

@@ -91,6 +91,8 @@ extern "C" JNIEXPORT jboolean JNICALL Java_org_flaming0_df3d_NativeBindings_init
 
         DFLOG_MESS("Game code initialized.");
 
+        df3d::g_appState.initialized = true;
+
         return true;
     }
     else

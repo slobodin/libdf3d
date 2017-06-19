@@ -72,6 +72,8 @@ void Sprite2DComponentProcessor::updateTransform(Data &compData, SceneGraphCompo
 
 void Sprite2DComponentProcessor::draw(RenderQueue *ops)
 {
+    if (!m_vertexBuffer.isValid())
+        m_vertexBuffer = CreateQuad(0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
     // TODO:
     // Camera transform.
     auto &sceneGr = m_world.sceneGraph();
@@ -93,7 +95,7 @@ void Sprite2DComponentProcessor::draw(RenderQueue *ops)
 Sprite2DComponentProcessor::Sprite2DComponentProcessor(World &world)
     : m_world(world)
 {
-    m_vertexBuffer = CreateQuad(0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
+
 }
 
 Sprite2DComponentProcessor::~Sprite2DComponentProcessor()
