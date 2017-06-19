@@ -1,12 +1,17 @@
 package org.flaming0.df3d;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Debug;
 import android.util.Log;
 
+import java.util.Locale;
+
 public class Df3dAndroidServices {
-    private Df3dLocalStorage storage = null;
+    private Df3dLocalStorage m_storage = null;
+    private Activity m_activity = null;
 
     private long stringToInt(String s)
     {
@@ -16,10 +21,26 @@ public class Df3dAndroidServices {
     }
 
     public Df3dAndroidServices(Activity activity) {
-        storage = new Df3dLocalStorage(activity);
+        m_storage = new Df3dLocalStorage(activity);
+        m_activity = activity;
     }
 
-    public Object getLocalStorage() { return storage; }
+    public String getSystemLanguage() {
+        return Locale.getDefault().getLanguage().toLowerCase();
+    }
+
+    public void openURL(String url) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            m_activity.startActivity(intent);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            Log.e("df3d_android", "Failed to open URL!");
+        }
+    }
+
+    public Object getLocalStorage() { return m_storage; }
 
     public void exitApp(/*int exitCode*/) {
         System.exit(0);

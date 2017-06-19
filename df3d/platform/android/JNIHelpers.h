@@ -23,6 +23,7 @@ public:
     static void setAAssetManager(AAssetManager *mgr);
 
     static jobject getLocalStorage() { return m_localStorage; }
+    static jobject getServices() { return m_services; }
 
     static JNIEnv* getEnv();
     static JavaVM* getJavaVM() { return m_vm; }

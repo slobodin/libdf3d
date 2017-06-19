@@ -25,15 +25,14 @@ void AndroidServices::setServicesObj(jobject jservices)
 {
     auto env = getEnv();
 
+    m_services = env->NewGlobalRef(jservices);
+
     jclass cls = env->GetObjectClass(jservices);
     jmethodID methId = env->GetMethodID(cls, "getLocalStorage", "()Ljava/lang/Object;");
 
-    m_localStorage = env->CallObjectMethod(jservices, methId);
-    m_localStorage = env->NewGlobalRef(m_localStorage);
+    m_localStorage = env->NewGlobalRef(env->CallObjectMethod(jservices, methId));
 
     env->DeleteLocalRef(cls);
-
-    m_services = env->NewGlobalRef(jservices);
 }
 
 void AndroidServices::setAAssetManager(AAssetManager *mgr)
@@ -94,6 +93,9 @@ void AndroidServices::exitApp()
 
 std::string AndroidServices::jstringToStd(jstring jstr)
 {
+    if (!jstr)
+        return "";
+
     auto env = getEnv();
 
     auto length = env->GetStringUTFLength(jstr);
