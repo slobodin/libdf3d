@@ -1,12 +1,19 @@
 package org.flaming0.df3d;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Debug;
 import android.util.Log;
 
+import java.util.Calendar;
 import java.util.Locale;
 
 public class Df3dAndroidServices {
@@ -81,5 +88,36 @@ public class Df3dAndroidServices {
         }
 
         return 0;
+    }
+
+    private PendingIntent makePendingIntent(int id, String message) {
+        Intent intent = new Intent(m_activity.getApplicationContext(), Df3dLocalNotificationReceiver.class);
+
+        if (message != null)
+            intent.putExtra("message", message);
+        intent.putExtra("id", id);
+
+        return PendingIntent.getBroadcast(m_activity, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    public void scheduleLocalNotification(String message, int secondsFromNow, int id) {
+        PendingIntent intent = makePendingIntent(id, message);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.add(Calendar.SECOND, secondsFromNow);
+
+        AlarmManager alarmManager = (AlarmManager)m_activity.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), intent);
+    }
+
+    public void cancelLocalNotification(int id) {
+        PendingIntent pendingIntent = makePendingIntent(id, null);
+
+        AlarmManager am = (AlarmManager) m_activity.getSystemService(Context.ALARM_SERVICE);
+        am.cancel(pendingIntent);
+
+        NotificationManager manager = (NotificationManager)m_activity.getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancel(id);
     }
 }
