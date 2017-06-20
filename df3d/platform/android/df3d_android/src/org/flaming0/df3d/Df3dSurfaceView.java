@@ -93,29 +93,6 @@ public class Df3dSurfaceView extends GLSurfaceView {
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.i("df3d_android", "surfaceDestroyed");
-
-        queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                NativeBindings.onRenderDestroyed();
-                synchronized (this) {
-                    this.notify();
-                }
-            }
-        });
-
-        synchronized (this)
-        {
-            try { this.wait(1000); }
-            catch (InterruptedException e) { }
-        }
-
-        super.surfaceDestroyed(holder);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
 //        this.setRenderMode(RENDERMODE_CONTINUOUSLY);

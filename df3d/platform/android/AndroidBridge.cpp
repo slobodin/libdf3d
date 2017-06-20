@@ -127,8 +127,8 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onDestro
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onRenderDestroyed(JNIEnv* env, jclass cls)
 {
-    if (df3d::g_appState.appDelegate)
-        df3d::g_appState.appDelegate->onRenderDestroyed();
+//    if (df3d::g_appState.appDelegate)
+//        df3d::g_appState.appDelegate->onRenderDestroyed();
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_draw(JNIEnv* env, jclass cls)

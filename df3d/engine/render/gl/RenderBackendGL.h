@@ -203,6 +203,8 @@ class RenderBackendGL : public IRenderBackend
 
     void destroyShader(ShaderHandle shader, GLuint programId);
 
+    bool m_destroyAndroidWorkaround = false;
+
 public:
     RenderBackendGL(int width, int height);
     ~RenderBackendGL();
@@ -259,6 +261,8 @@ public:
     void setCullFaceMode(FaceCullMode mode) override;
 
     void draw(Topology type, size_t numberOfElements) override;
+
+    void setDestroyAndroidWorkaround() { m_destroyAndroidWorkaround = true; }
 };
 
 }

@@ -209,8 +209,10 @@ void RenderBackendGL::destroyShader(ShaderHandle shader, GLuint programId)
     const auto &shaderGL = m_shaders[shader.getIndex()];
     DF3D_ASSERT(shaderGL.glID != 0);
 
-    GL_CHECK(glDetachShader(programId, shaderGL.glID));
-    GL_CHECK(glDeleteShader(shaderGL.glID));
+    if (!m_destroyAndroidWorkaround) {
+        GL_CHECK(glDetachShader(programId, shaderGL.glID));
+        GL_CHECK(glDeleteShader(shaderGL.glID));
+    }
 
     m_shaders[shader.getIndex()] = {};
 
@@ -384,8 +386,10 @@ void RenderBackendGL::destroyVertexBuffer(VertexBufferHandle vbHandle)
 
     const auto &vertexBuffer = m_vertexBuffers[vbHandle.getIndex()];
 
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    GL_CHECK(glDeleteBuffers(1, &vertexBuffer.glID));
+    if (!m_destroyAndroidWorkaround) {
+        GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        GL_CHECK(glDeleteBuffers(1, &vertexBuffer.glID));
+    }
 
     m_vertexBuffers[vbHandle.getIndex()] = {};
     m_vertexBuffersBag.release(vbHandle.getID());
@@ -483,8 +487,10 @@ void RenderBackendGL::destroyIndexBuffer(IndexBufferHandle ibHandle)
 
     const auto &indexBuffer = m_indexBuffers[ibHandle.getIndex()];
 
-    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-    GL_CHECK(glDeleteBuffers(1, &indexBuffer.glID));
+    if (!m_destroyAndroidWorkaround) {
+        GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+        GL_CHECK(glDeleteBuffers(1, &indexBuffer.glID));
+    }
 
     m_indexBuffers[ibHandle.getIndex()] = {};
     m_indexBuffersBag.release(ibHandle.getID());
@@ -666,9 +672,14 @@ void RenderBackendGL::destroyTexture(TextureHandle textureHandle)
         return;
     }
 
-    GL_CHECK(glBindTexture(texture.type, 0));
-    if (texture.glID)
-        GL_CHECK(glDeleteTextures(1, &texture.glID));
+    if (!m_destroyAndroidWorkaround) {
+        GL_CHECK(glBindTexture(texture.type, 0));
+    }
+    if (texture.glID) {
+        if (!m_destroyAndroidWorkaround) {
+            GL_CHECK(glDeleteTextures(1, &texture.glID));
+        }
+    }
 
     m_textures[textureHandle.getIndex()] = {};
     m_texturesBag.release(textureHandle.getID());
@@ -803,10 +814,14 @@ void RenderBackendGL::destroyGpuProgram(GpuProgramHandle programHandle)
 
     const auto &programGL = m_programs[programHandle.getIndex()];
 
-    GL_CHECK(glUseProgram(0));
+    if (!m_destroyAndroidWorkaround) {
+        GL_CHECK(glUseProgram(0));
+    }
     destroyShader(programGL.vshader, programGL.glID);
     destroyShader(programGL.fshader, programGL.glID);
-    GL_CHECK(glDeleteProgram(programGL.glID));
+    if (!m_destroyAndroidWorkaround) {
+        GL_CHECK(glDeleteProgram(programGL.glID));
+    }
 
     m_programs[programHandle.getIndex()] = {};
     m_gpuProgramsBag.release(programHandle.getID());
@@ -855,7 +870,9 @@ void RenderBackendGL::destroyFrameBuffer(FrameBufferHandle framebufferHandle)
     DF3D_ASSERT(m_framebuffersBag.isValid(framebufferHandle.getID()));
 
     const auto &framebufferGL = m_frameBuffers[framebufferHandle.getIndex()];
-    GL_CHECK(glDeleteFramebuffers(1, &framebufferGL.fbo));
+    if (!m_destroyAndroidWorkaround) {
+        GL_CHECK(glDeleteFramebuffers(1, &framebufferGL.fbo));
+    }
 
     m_frameBuffers[framebufferHandle.getIndex()] = {};
     m_framebuffersBag.release(framebufferHandle.getID());
