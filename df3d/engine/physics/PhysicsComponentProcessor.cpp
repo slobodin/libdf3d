@@ -293,6 +293,7 @@ void PhysicsComponentProcessor::update()
 
 void PhysicsComponentProcessor::draw(RenderQueue *ops)
 {
+#ifdef DF3D_DESKTOP
 #ifdef _DEBUG
     if (!EngineCVars::bulletDebugDraw)
         return;
@@ -303,6 +304,7 @@ void PhysicsComponentProcessor::draw(RenderQueue *ops)
     m_dynamicsWorld->debugDrawWorld();
     // Append to render queue.
     m_debugDraw->flushRenderOperations(ops);
+#endif
 #endif
 }
 
@@ -326,9 +328,11 @@ PhysicsComponentProcessor::PhysicsComponentProcessor(World &w)
 
     //btGImpactCollisionAlgorithm::registerAlgorithm(m_dispatcher);
 
+#ifdef DF3D_DESKTOP
 #ifdef _DEBUG
     m_debugDraw = MAKE_NEW(m_allocator, BulletDebugDraw)();
     m_dynamicsWorld->setDebugDrawer(m_debugDraw);
+#endif
 #endif
 
     m_data.setDestructionCallback([this](const Data &data) {
@@ -369,8 +373,10 @@ PhysicsComponentProcessor::~PhysicsComponentProcessor()
     MAKE_DELETE(m_allocator, m_overlappingPairCache);
     MAKE_DELETE(m_allocator, m_dispatcher);
     MAKE_DELETE(m_allocator, m_collisionConfiguration);
+#ifdef DF3D_DESKTOP
 #ifdef _DEBUG
     MAKE_DELETE(m_allocator, m_debugDraw);
+#endif
 #endif
 }
 
