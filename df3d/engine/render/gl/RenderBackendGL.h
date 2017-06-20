@@ -262,7 +262,7 @@ public:
 
     void draw(Topology type, size_t numberOfElements) override;
 
-    void setDestroyAndroidWorkaround() { m_destroyAndroidWorkaround = true; }
+    void setDestroyAndroidWorkaround() override { m_destroyAndroidWorkaround = true; }
 };
 
 }

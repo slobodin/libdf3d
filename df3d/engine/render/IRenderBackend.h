@@ -81,6 +81,8 @@ public:
     {
         return createVertexBuffer(data.getFormat(), data.getVerticesCount(), data.getRawData(), usage);
     }
+
+    virtual void setDestroyAndroidWorkaround() = 0;
 };
 
 }
