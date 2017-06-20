@@ -8,13 +8,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
 public class Df3dLocalNotificationReceiver extends BroadcastReceiver {
     boolean isAppRunning() {
-        return false;
+        return Df3dActivity.getSharedActivity() != null &&
+                Df3dActivity.getSharedActivity().isAppRunning();
     }
 
     @Override
@@ -59,16 +58,19 @@ public class Df3dLocalNotificationReceiver extends BroadcastReceiver {
         Intent intent = createNotificationIntent(context);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        int appIconId = appInfo.icon;
-        Bitmap largeIcon = BitmapFactory.decodeResource(context.getResources(), appIconId);
+//        Bitmap largeIcon = BitmapFactory.decodeResource(context.getResources(), appIconId);
+
+        int smallIcon = context.getResources().getIdentifier("ic_notification", "mipmap", context.getPackageName());
+        if(smallIcon == 0)
+            smallIcon = appInfo.icon;
 
         Notification.Builder builder = new Notification.Builder(context.getApplicationContext());
 
         builder.setContentTitle(getAppName(context));
         builder.setContentText(message);
         builder.setTicker(message);
-        builder.setSmallIcon(appIconId);
-        builder.setLargeIcon(largeIcon);
+        builder.setSmallIcon(smallIcon);
+//        builder.setLargeIcon(largeIcon);
         builder.setAutoCancel(true);
         builder.setDefaults(Notification.DEFAULT_ALL);
         builder.setContentIntent(pendingIntent);

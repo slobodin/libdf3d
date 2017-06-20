@@ -12,6 +12,9 @@ import android.view.WindowManager;
 public class Df3dActivity extends Activity {
     private Df3dSurfaceView m_glSurfaceView = null;
     private Runnable setUiVisibilityRunnable = null;
+    private boolean m_appRunning = false;
+
+    private static Df3dActivity m_sharedActivity = null;
 
     private void loadNativeLibraries() {
         // TODO: load client library from meta-data.
@@ -22,9 +25,19 @@ public class Df3dActivity extends Activity {
         Log.i("df3d_android", "df3d native libraries loaded");
     }
 
+    public static Df3dActivity getSharedActivity() {
+        return m_sharedActivity;
+    }
+
+    public boolean isAppRunning() {
+        return m_appRunning;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        m_sharedActivity = this;
 
         loadNativeLibraries();
 
@@ -42,6 +55,8 @@ public class Df3dActivity extends Activity {
 
     @Override
     protected void onPause() {
+        m_appRunning = false;
+
         m_glSurfaceView.onPause();
 
         super.onPause();
@@ -52,6 +67,8 @@ public class Df3dActivity extends Activity {
         super.onResume();
 
         m_glSurfaceView.onResume();
+
+        m_appRunning = true;
     }
 
     @Override
