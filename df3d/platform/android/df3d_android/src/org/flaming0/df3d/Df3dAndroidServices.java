@@ -109,6 +109,8 @@ public class Df3dAndroidServices {
 
         AlarmManager alarmManager = (AlarmManager)m_activity.getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), intent);
+
+        Log.i("df3d_android", "Local notification scheduled");
     }
 
     public void cancelLocalNotification(int id) {
