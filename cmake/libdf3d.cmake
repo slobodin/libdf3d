@@ -37,6 +37,7 @@ elseif (${DF3D_PLATFORM} STREQUAL ANDROID)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wno-inconsistent-missing-override -Wall")
 
     message(STATUS "Platform - Android")
+    message(STATUS "Android ABI is " ${ANDROID_ABI})
 elseif (${DF3D_PLATFORM} STREQUAL "IOS")
     set(DF3D_IOS true)
 
