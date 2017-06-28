@@ -16,15 +16,6 @@ public class Df3dActivity extends Activity {
 
     private static Df3dActivity m_sharedActivity = null;
 
-    private void loadNativeLibraries() {
-        // TODO: load client library from meta-data.
-        System.loadLibrary("ships3d");
-        System.loadLibrary("fmod");
-        System.loadLibrary("fmodstudio");
-
-        Log.i("df3d_android", "df3d native libraries loaded");
-    }
-
     public static Df3dActivity getSharedActivity() {
         return m_sharedActivity;
     }
@@ -38,8 +29,6 @@ public class Df3dActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         m_sharedActivity = this;
-
-        loadNativeLibraries();
 
         enableFullscreen();
 
