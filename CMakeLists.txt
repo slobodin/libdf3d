@@ -120,7 +120,6 @@ set(libdf3d_HEADER_LIST
     df3d/lib/os/PlatformUtils.h
     df3d/platform/AppDelegate.h
     df3d/platform/LocalNotification.h
-    df3d/platform/InAppPurchase.h
 )
 
 set(libdf3d_SRC_LIST
@@ -217,7 +216,6 @@ if (DF3D_WINDOWS)
     )
     list(APPEND libdf3d_SRC_LIST
         df3d/platform/windows/CrashHandler.cpp
-        df3d/platform/windows/InAppPurchase.cpp
     )
 endif()
 
@@ -229,7 +227,6 @@ if (DF3D_ANDROID)
 
         df3d/platform/android/AndroidBridge.cpp
         df3d/platform/android/JNIHelpers.cpp
-        df3d/platform/android/InAppPurchase.cpp
         df3d/platform/android/LocalNotification.cpp
         df3d/platform/android/HttpClient.cpp
     )
@@ -248,7 +245,6 @@ if (DF3D_IOS)
         df3d/platform/ios/AppDelegate.mm
         df3d/platform/ios/GameViewController.mm
         df3d/platform/ios/LocalNotification.mm
-        df3d/platform/ios/InAppPurchase.mm
         df3d/platform/ios/HttpClient.mm
     )
 
@@ -269,8 +265,6 @@ if (DF3D_DESKTOP)
         df3d/platform/desktop_common/LocalNotification.cpp
         df3d/platform/desktop_common/glfwKeyCodes.cpp
         df3d/platform/desktop_common/HttpClient.cpp
-
-        df3d/platform/windows/InAppPurchase.cpp
     )
 endif()
 
