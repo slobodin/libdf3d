@@ -18,6 +18,8 @@ import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.egl.EGLSurface;
 
 public class Df3dSurfaceView extends GLSurfaceView {
+    private static String TAG = "Df3dSurfaceView";
+
      class Df3dConfigChooser implements EGLConfigChooser {
         final private static int EGL_OPENGL_ES2_BIT = 4;
 
@@ -65,7 +67,7 @@ public class Df3dSurfaceView extends GLSurfaceView {
                     return result;
             }
 
-            Log.e("df3d_android", "Can not select an EGLConfig for rendering.");
+            Log.e(TAG, "Can not select an EGLConfig for rendering.");
             return null;
         }
     }
@@ -83,7 +85,8 @@ public class Df3dSurfaceView extends GLSurfaceView {
             setPreserveEGLContextOnPause(true);
         }
         catch(Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed to setPreserveEGLContextOnPause(true)");
+            Log.e(TAG, e.getMessage());
         }
 
         setEGLContextClientVersion(2);
@@ -97,7 +100,7 @@ public class Df3dSurfaceView extends GLSurfaceView {
         super.onResume();
 //        this.setRenderMode(RENDERMODE_CONTINUOUSLY);
 
-        Log.i("df3d_android", "onResume");
+        Log.i(TAG, "onResume");
 
         queueEvent(new Runnable() {
             @Override
@@ -111,7 +114,7 @@ public class Df3dSurfaceView extends GLSurfaceView {
     public void onPause() {
         super.onPause();
 
-        Log.i("df3d_android", "onPause");
+        Log.i(TAG, "onPause");
 
         queueEvent(new Runnable() {
             @Override

@@ -2,6 +2,7 @@ package org.flaming0.df3d;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,6 +10,8 @@ import java.io.FileOutputStream;
 import java.nio.charset.Charset;
 
 public class Df3dLocalStorage {
+    private static String TAG = "Df3dLocalStorage";
+
     private Activity activity;
 
     Df3dLocalStorage(Activity activity) {
@@ -25,7 +28,8 @@ public class Df3dLocalStorage {
 
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "writeToInternalFile failed!");
+            Log.e(TAG, e.getMessage());
             return false;
         }
     }
@@ -42,7 +46,8 @@ public class Df3dLocalStorage {
         } catch (FileNotFoundException e) {
             return null;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "readInternalFile failed!");
+            Log.e(TAG, e.getMessage());
             return null;
         }
     }

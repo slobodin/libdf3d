@@ -17,6 +17,8 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class Df3dAndroidServices {
+    private static String TAG = "Df3dAndroidServices";
+
     private Df3dLocalStorage m_storage = null;
     private Activity m_activity = null;
 
@@ -37,13 +39,15 @@ public class Df3dAndroidServices {
     }
 
     public void openURL(String url) {
+        Log.i(TAG, "openURL()");
+
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             m_activity.startActivity(intent);
         }
         catch (Exception e) {
-            e.printStackTrace();
-            Log.e("df3d_android", "Failed to open URL!");
+            Log.e(TAG, "Failed to open URL!");
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -110,10 +114,12 @@ public class Df3dAndroidServices {
         AlarmManager alarmManager = (AlarmManager)m_activity.getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), intent);
 
-        Log.i("df3d_android", "Local notification scheduled");
+        Log.i(TAG, "Local notification scheduled");
     }
 
     public void cancelLocalNotification(int id) {
+        Log.i(TAG, "cancelLocalNotification()");
+
         PendingIntent pendingIntent = makePendingIntent(id, null);
 
         AlarmManager am = (AlarmManager) m_activity.getSystemService(Context.ALARM_SERVICE);

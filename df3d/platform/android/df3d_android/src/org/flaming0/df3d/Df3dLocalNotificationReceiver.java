@@ -11,6 +11,8 @@ import android.content.pm.PackageManager;
 import android.util.Log;
 
 public class Df3dLocalNotificationReceiver extends BroadcastReceiver {
+    private static String TAG = "Df3dLocalNotifRecv";
+
     boolean isAppRunning() {
         return Df3dActivity.getSharedActivity() != null &&
                 Df3dActivity.getSharedActivity().isAppRunning();
@@ -18,7 +20,7 @@ public class Df3dLocalNotificationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i("df3d_android", "Df3dLocalNotificationReceiver::onReceive");
+        Log.i(TAG, "onReceive()");
 
         if(isAppRunning())
             return; // Suppress notifications when activity in foreground
@@ -31,8 +33,8 @@ public class Df3dLocalNotificationReceiver extends BroadcastReceiver {
             NotificationManager manager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
             manager.notify(id, notification);
         } catch (Exception e) {
-            e.printStackTrace();
-            Log.e("df3d_android", "Failed to make local notification!");
+            Log.e(TAG, "Failed to make local notification!");
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -47,7 +49,7 @@ public class Df3dLocalNotificationReceiver extends BroadcastReceiver {
             ApplicationInfo appInfo = context.getApplicationInfo();
             return (String)context.getPackageManager().getApplicationLabel(appInfo);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
             return "empty";
         }
     }
