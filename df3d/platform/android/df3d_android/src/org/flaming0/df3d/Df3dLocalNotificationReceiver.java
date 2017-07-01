@@ -77,6 +77,6 @@ public class Df3dLocalNotificationReceiver extends BroadcastReceiver {
         builder.setDefaults(Notification.DEFAULT_ALL);
         builder.setContentIntent(pendingIntent);
 
-        return builder.build();
+        return builder.getNotification();
     }
 }
