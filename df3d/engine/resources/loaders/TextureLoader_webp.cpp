@@ -20,28 +20,31 @@ TextureResourceData* TextureLoader_webp(ResourceDataSource &dataSource, Allocato
     }
 
     bool result = false;
-    auto resource = MAKE_NEW(alloc, TextureResourceData)(alloc);
+    auto resource = MAKE_NEW(alloc, TextureResourceData);
+    resource->mipLevels.resize(1);
+    resource->info.numMips = 0;
+    resource->info.width = features.width;
+    resource->info.height = features.height;
+    resource->mipLevels[0].width = features.width;
+    resource->mipLevels[0].height = features.height;
+
+    auto &pixels = resource->mipLevels[0].pixels;
+
     if (features.has_alpha || forceRGBA)
     {
         resource->info.format = PixelFormat::RGBA;
-        resource->info.numMips = 0;
-        resource->info.width = features.width;
-        resource->info.height = features.height;
 
-        resource->pixels.resize(features.width * features.height * 4);
+        pixels.resize(features.width * features.height * 4);
 
-        result = WebPDecodeRGBAInto(webpData.data(), webpData.size(), &resource->pixels[0], resource->pixels.size(), features.width * 4) != nullptr;
+        result = WebPDecodeRGBAInto(webpData.data(), webpData.size(), &pixels[0], pixels.size(), features.width * 4) != nullptr;
     }
     else
     {
         resource->info.format = PixelFormat::RGB;
-        resource->info.numMips = 0;
-        resource->info.width = features.width;
-        resource->info.height = features.height;
 
-        resource->pixels.resize(features.width * features.height * 3);
+        pixels.resize(features.width * features.height * 3);
 
-        result = WebPDecodeRGBInto(webpData.data(), webpData.size(), &resource->pixels[0], resource->pixels.size(), features.width * 3) != nullptr;
+        result = WebPDecodeRGBInto(webpData.data(), webpData.size(), &pixels[0], pixels.size(), features.width * 3) != nullptr;
     }
 
     if (!result)

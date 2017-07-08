@@ -22,10 +22,7 @@ enum class PixelFormat
     RGBA,
     DEPTH,
 
-    PVRTC_2RGB_V1,
-    PVRTC_2RGBA_V1,
-    PVRTC_4RGB_V1,
-    PVRTC_4RGBA_V1
+    KTX
 };
 
 //! Hint to graphics backend as to how a buffer's data will be accessed.

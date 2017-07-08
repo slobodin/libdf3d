@@ -60,6 +60,7 @@ public:
     {
         m_data = LoadTexture_Workaround(dataSource, MemoryManager::allocDefault());
         DF3D_ASSERT(m_data);
+        DF3D_ASSERT(m_data->mipLevels.size() == 1);
         DF3D_ASSERT(m_data->info.format == PixelFormat::RGBA);
     }
 
@@ -86,7 +87,7 @@ public:
     {
         if (!m_data)
             return nullptr;
-        return (tb::uint32*)m_data->pixels.data();
+        return (tb::uint32*)m_data->mipLevels[0].pixels.data();
     }
 };
 

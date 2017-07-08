@@ -80,15 +80,20 @@ TextureResourceData* TextureLoader_stbi(ResourceDataSource &dataSource, Allocato
     if (forceRGBA)
         DF3D_ASSERT(fmt == PixelFormat::RGBA);
 
-    auto resource = MAKE_NEW(alloc, TextureResourceData)(alloc);
+    auto resource = MAKE_NEW(alloc, TextureResourceData);
     resource->info.format = fmt;
     resource->info.numMips = 0;
     resource->info.width = x;
     resource->info.height = y;
 
+    resource->mipLevels.resize(1);
+    resource->mipLevels[0].width = x;
+    resource->mipLevels[0].height = y;
+
     int compCount = forceRGBA ? 4 : bpp;
 
-    resource->pixels.assign(pixels, compCount * x * y);
+    resource->mipLevels[0].pixels.resize(compCount * x * y);
+    memcpy(resource->mipLevels[0].pixels.data(), pixels, compCount * x * y);
 
     stbi_image_free(pixels);
 

@@ -2,7 +2,7 @@
 
 #include "loaders/TextureLoader_stbi.h"
 #include "loaders/TextureLoader_webp.h"
-#include "loaders/TextureLoader_pvrtc.h"
+#include "loaders/TextureLoader_ktx.h"
 #include "ResourceFileSystem.h"
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/io/FileSystemHelpers.h>
@@ -25,8 +25,8 @@ static df3d::TextureResourceData* LoadTextureDataFromFile(const char *path, Allo
     df3d::TextureResourceData *result = nullptr;
     if (FileSystemHelpers::compareExtension(path, ".webp"))
         result = TextureLoader_webp(*textureSource, allocator, forceRgba);
-    else if (FileSystemHelpers::compareExtension(path, ".pvr"))
-        result = TextureLoader_pvrtc(*textureSource, allocator);
+    else if (FileSystemHelpers::compareExtension(path, ".ktx"))
+        result = TextureLoader_ktx(*textureSource, allocator);
     else
         result = TextureLoader_stbi(*textureSource, allocator, forceRgba);
 
@@ -102,9 +102,19 @@ bool TextureHolder::createResource(Allocator &allocator)
 {
     auto &backend = svc().renderManager().getBackend();
 
-    auto handle = backend.createTexture2D(m_resourceData->info,
-                                          m_flags,
-                                          m_resourceData->pixels.data());
+    TextureHandle handle;
+
+    if (m_resourceData->info.format == PixelFormat::KTX)
+    {
+        handle = backend.createCompressedTexture(*m_resourceData, m_flags);
+    }
+    else
+    {
+        handle = backend.createTexture2D(m_resourceData->info,
+            m_flags,
+            m_resourceData->mipLevels[0].pixels.data());
+    }
+
     if (!handle.isValid())
         return false;
 

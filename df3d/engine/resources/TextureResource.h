@@ -11,14 +11,22 @@ struct TextureInfo
     size_t width = 0;
     size_t height = 0;
     size_t numMips = 0;
+
+    uint32_t glInternalFormat = 0;
+    uint32_t glBaseInternalFormat = 0;
 };
 
 struct TextureResourceData : private NonCopyable
 {
-    PodArray<uint8_t> pixels;
-    TextureInfo info;
+    struct MipLevel
+    {
+        std::vector<uint8_t> pixels;
+        size_t width = 0;
+        size_t height = 0;
+    };
 
-    TextureResourceData(Allocator &alloc) : pixels(alloc) { }
+    std::vector<MipLevel> mipLevels;
+    TextureInfo info;
 };
 
 struct TextureResource

@@ -228,6 +228,7 @@ public:
     void updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data) override;
 
     TextureHandle createTexture2D(const TextureInfo &info, uint32_t flags, const void *data) override;
+    TextureHandle createCompressedTexture(const TextureResourceData &data, uint32_t flags) override;
     void updateTexture(TextureHandle textureHandle, int w, int h, const void *data) override;
     void destroyTexture(TextureHandle textureHandle) override;
 
