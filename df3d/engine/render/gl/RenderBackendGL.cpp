@@ -29,20 +29,23 @@ static const char* GLErrorCodeToString(GLenum errcode)
 #endif
 }
 
-static size_t GetTextureSize(GLint glFormat, size_t w, size_t h)
+static size_t GetTextureSize(GLint glFormat, size_t w, size_t h, bool mipmaps)
 {
-    // TODO: mipmaps if was generated!
+    float result = 0.0f;
     switch (glFormat)
     {
     case GL_RGB:
-        return 3 * w * h;
+        result = 3.0f * w * h;
     case GL_RGBA:
-        return 4 * w * h;
+        result = 4.0f * w * h;
     default:
         break;
     }
 
-    return 0;
+    if (mipmaps)
+        result *= 1.33333f;
+
+    return static_cast<size_t>(result);
 }
 
 #if defined(_DEBUG) || defined(DEBUG)
@@ -527,15 +530,15 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, uint32_t
 {
     TextureGL texture;
 
-    auto maxSize = m_caps.maxTextureSize;
+    size_t maxSize = m_caps.maxTextureSize;
     if (info.width > maxSize || info.height > maxSize)
     {
         DFLOG_WARN("Failed to create a 2D texture: size is too big. Max size: %d", maxSize);
         return{};
     }
 
-    GLenum pixelDataFormat = GL_INVALID_ENUM;
-    GLint glInternalFormat = 0;
+    GLenum pixelDataFormat;
+    GLint glInternalFormat;
     switch (info.format)
     {
     case PixelFormat::RGB:
@@ -567,12 +570,16 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, uint32_t
 
     GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat, info.width, info.height, 0, pixelDataFormat, GL_UNSIGNED_BYTE, data));
 
+    bool mipmapped = false;
     if (((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_TRILINEAR) ||
         ((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_ANISOTROPIC))
     {
         // Generate mip maps if not provided with texture.
         if (info.numMips == 0)
+        {
             GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
+            mipmapped = true;
+        }
     }
 
     if (m_anisotropicFilteringSupported && m_caps.maxAnisotropy > 0.0f)
@@ -592,7 +599,7 @@ TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, uint32_t
     m_stats.textures++;
 
 #ifdef _DEBUG
-    m_gpuMemStats.addTexture(textureHandle, GetTextureSize(glInternalFormat, info.width, info.height));
+    m_gpuMemStats.addTexture(textureHandle, GetTextureSize(glInternalFormat, info.width, info.height, mipmapped));
 #endif
 
     return textureHandle;
@@ -602,7 +609,7 @@ TextureHandle RenderBackendGL::createCompressedTexture(const TextureResourceData
 {
     TextureGL texture;
 
-    auto maxSize = m_caps.maxTextureSize;
+    size_t maxSize = m_caps.maxTextureSize;
     if (data.info.width > maxSize || data.info.height > maxSize)
     {
         DFLOG_WARN("Failed to create a 2D texture: size is too big. Max size: %d", maxSize);
@@ -615,19 +622,18 @@ TextureHandle RenderBackendGL::createCompressedTexture(const TextureResourceData
         return {};
     }
 
-    GLint previousUnpackAlignment;
-    /* KTX files require an unpack alignment of 4 */
-    glGetIntegerv(GL_UNPACK_ALIGNMENT, &previousUnpackAlignment);
-    if (previousUnpackAlignment != 4) {
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-    }
-
     GL_CHECK(glGenTextures(1, &texture.glID));
     if (texture.glID == 0)
     {
         DFLOG_WARN("glGenTextures failed for RenderBackendGL::createTexture2D");
         return {};
     }
+
+    GLint previousUnpackAlignment;
+    // KTX files require an unpack alignment of 4
+    glGetIntegerv(GL_UNPACK_ALIGNMENT, &previousUnpackAlignment);
+    if (previousUnpackAlignment != 4)
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
     auto textureHandle = TextureHandle(m_texturesBag.getNew());
 
@@ -636,11 +642,15 @@ TextureHandle RenderBackendGL::createCompressedTexture(const TextureResourceData
     SetupGLWrapMode(GL_TEXTURE_2D, flags);
     SetupGLTextureFiltering(GL_TEXTURE_2D, flags);
 
+    size_t debugTotalSize = 0;
+
     for (size_t mip = 0; mip < data.info.numMips; mip++)
     {
         const auto &mipLevel = data.mipLevels[mip];
 
         GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_2D, mip, data.info.glInternalFormat, mipLevel.width, mipLevel.height, 0, mipLevel.pixels.size(), mipLevel.pixels.data()));
+
+        debugTotalSize += mipLevel.pixels.size();
     }
 
     if (m_anisotropicFilteringSupported && m_caps.maxAnisotropy > 0.0f)
@@ -660,12 +670,11 @@ TextureHandle RenderBackendGL::createCompressedTexture(const TextureResourceData
     m_stats.textures++;
 
 #ifdef _DEBUG
-    m_gpuMemStats.addTexture(textureHandle, GetTextureSize(data.info.glInternalFormat, data.info.width, data.info.height));
+    m_gpuMemStats.addTexture(textureHandle, debugTotalSize);
 #endif
 
-    if (previousUnpackAlignment != 4) {
+    if (previousUnpackAlignment != 4)
         glPixelStorei(GL_UNPACK_ALIGNMENT, previousUnpackAlignment);
-    }
 
     return textureHandle;
 }

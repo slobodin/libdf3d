@@ -74,6 +74,7 @@ set(libdf3d_HEADER_LIST
     df3d/engine/resources/loaders/MeshLoader_obj.h
     df3d/engine/resources/loaders/TextureLoader_stbi.h
     df3d/engine/resources/loaders/TextureLoader_webp.h
+    df3d/engine/resources/loaders/TextureLoader_ktx.h
     df3d/engine/script/ScriptBindings.h
     df3d/engine/script/ScriptManager.h
     df3d/game/ComponentDataHolder.h
@@ -170,6 +171,7 @@ set(libdf3d_SRC_LIST
     df3d/engine/resources/loaders/MeshLoader_obj.cpp
     df3d/engine/resources/loaders/TextureLoader_stbi.cpp
     df3d/engine/resources/loaders/TextureLoader_webp.cpp
+    df3d/engine/resources/loaders/TextureLoader_ktx.cpp
     df3d/engine/script/ScriptBindings.cpp
     df3d/engine/script/ScriptManager.cpp
     df3d/game/FPSCamera.cpp
