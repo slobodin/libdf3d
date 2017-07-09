@@ -72,7 +72,6 @@ set(libdf3d_HEADER_LIST
     df3d/engine/resources/TextureResource.h
     df3d/engine/resources/loaders/MeshLoader_dfmesh.h
     df3d/engine/resources/loaders/MeshLoader_obj.h
-    df3d/engine/resources/loaders/TextureLoader_pvrtc.h
     df3d/engine/resources/loaders/TextureLoader_stbi.h
     df3d/engine/resources/loaders/TextureLoader_webp.h
     df3d/engine/script/ScriptBindings.h
@@ -169,7 +168,6 @@ set(libdf3d_SRC_LIST
     df3d/engine/resources/TextureResource.cpp
     df3d/engine/resources/loaders/MeshLoader_dfmesh.cpp
     df3d/engine/resources/loaders/MeshLoader_obj.cpp
-    df3d/engine/resources/loaders/TextureLoader_pvrtc.cpp
     df3d/engine/resources/loaders/TextureLoader_stbi.cpp
     df3d/engine/resources/loaders/TextureLoader_webp.cpp
     df3d/engine/script/ScriptBindings.cpp
