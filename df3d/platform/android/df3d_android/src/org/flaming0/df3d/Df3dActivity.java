@@ -20,6 +20,13 @@ public class Df3dActivity extends Activity {
         return m_sharedActivity;
     }
 
+    public void runOnMainThread(Runnable runnable)
+    {
+        if (m_glSurfaceView != null) {
+            m_glSurfaceView.queueEvent(runnable);
+        }
+    }
+
     public boolean isAppRunning() {
         return m_appRunning;
     }
