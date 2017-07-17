@@ -2,20 +2,19 @@ package org.flaming0.df3d;
 
 import android.app.Activity;
 import android.app.AlarmManager;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Debug;
+import android.support.annotation.Keep;
 import android.util.Log;
-
 import java.util.Calendar;
 import java.util.Locale;
 
+@Keep
 public class Df3dAndroidServices {
     private static String TAG = "Df3dAndroidServices";
 

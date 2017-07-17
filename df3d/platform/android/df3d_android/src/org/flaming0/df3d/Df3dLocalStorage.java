@@ -2,6 +2,7 @@ package org.flaming0.df3d;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.Keep;
 import android.util.Log;
 
 import java.io.FileInputStream;
@@ -9,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.charset.Charset;
 
+@Keep
 public class Df3dLocalStorage {
     private static String TAG = "Df3dLocalStorage";
 
