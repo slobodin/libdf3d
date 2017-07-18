@@ -69,8 +69,6 @@ public class Df3dActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        // Won't call on destroy in native code.
-        // NativeBindings.onDestroy();
         super.onDestroy();
     }
 
