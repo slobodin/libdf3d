@@ -16,27 +16,27 @@ namespace JsonUtils
     };
 
     template<>
-    struct GetHelper<int>
+    struct GetHelper<int32_t>
     {
-        static int getValue(const Json::Value &v) { return v.asInt(); }
+        static int getValue(const Json::Value &v) { return static_cast<int32_t>(v.asInt()); }
     };
 
     template<>
-    struct GetHelper<size_t>
+    struct GetHelper<uint32_t>
     {
-        static size_t getValue(const Json::Value &v) { return static_cast<size_t>(v.asUInt()); }
+        static int getValue(const Json::Value &v) { return static_cast<uint32_t>(v.asUInt()); }
     };
 
     template<>
     struct GetHelper<int64_t>
     {
-        static int64_t getValue(const Json::Value &v) { return v.asInt64(); }
+        static int64_t getValue(const Json::Value &v) { return static_cast<int64_t>(v.asInt64()); }
     };
 
     template<>
     struct GetHelper<uint64_t>
     {
-        static uint64_t getValue(const Json::Value &v) { return v.asUInt64(); }
+        static uint64_t getValue(const Json::Value &v) { return static_cast<uint64_t>(v.asUInt64()); }
     };
 
     template<>
