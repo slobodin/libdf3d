@@ -263,6 +263,10 @@ RenderBackendGL::RenderBackendGL(int width, int height)
     if (m_anisotropicFilteringSupported)
         GL_CHECK(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &m_caps.maxAnisotropy));
 
+    // WORKAROUND
+    if (m_caps.maxTextureSize < 2048)
+        throw std::runtime_error("Hardware not supported");
+
     // Print GPU info.
     {
         const char *ver = (const char *)glGetString(GL_VERSION);

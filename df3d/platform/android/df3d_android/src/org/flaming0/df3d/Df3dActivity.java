@@ -111,4 +111,9 @@ public class Df3dActivity extends Activity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
     }
+
+    protected void onGameInitializationFailed()
+    {
+        Log.e("df3d_activity", "Game init failed!");
+    }
 }

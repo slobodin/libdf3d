@@ -5,27 +5,19 @@ import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
-import javax.microedition.khronos.egl.EGLSurface;
 
 public class Df3dSurfaceView extends GLSurfaceView {
     private static String TAG = "Df3dSurfaceView";
 
-     class Df3dConfigChooser implements EGLConfigChooser {
+     private class Df3dConfigChooser implements EGLConfigChooser {
         final private static int EGL_OPENGL_ES2_BIT = 4;
 
         private int[] m_value;
 
-        public Df3dConfigChooser(int r, int g, int b, int a, int depth, int stencil) {
+        Df3dConfigChooser(int r, int g, int b, int a, int depth, int stencil) {
             m_value = new int[] {r, g, b, a, depth, stencil};
         }
 
@@ -92,13 +84,12 @@ public class Df3dSurfaceView extends GLSurfaceView {
         setEGLContextClientVersion(2);
         setFocusableInTouchMode(true);
 
-        setRenderer(m_df3dRenderer = new Df3dRenderer());
+        setRenderer(m_df3dRenderer = new Df3dRenderer((Df3dActivity)context));
     }
 
     @Override
     public void onResume() {
         super.onResume();
-//        this.setRenderMode(RENDERMODE_CONTINUOUSLY);
 
         Log.i(TAG, "onResume");
 
@@ -122,8 +113,6 @@ public class Df3dSurfaceView extends GLSurfaceView {
                 NativeBindings.onPause();
             }
         });
-
-//        this.setRenderMode(RENDERMODE_WHEN_DIRTY);
     }
 
     @Override

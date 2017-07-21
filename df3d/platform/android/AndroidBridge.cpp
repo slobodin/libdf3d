@@ -2,8 +2,6 @@
 #include <df3d/platform/AppDelegate.h>
 #include <df3d/engine/EngineController.h>
 #include <df3d/engine/input/InputManager.h>
-#include <jni.h>
-#include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 
 extern void df3d_JniOnLoad();
@@ -105,24 +103,32 @@ extern "C" JNIEXPORT jboolean JNICALL Java_org_flaming0_df3d_NativeBindings_init
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onResume(JNIEnv* env, jclass cls)
 {
-    df3d::g_appState.appDelegate->onAppWillEnterForeground();
-    df3d::g_appState.appDelegate->onAppDidBecomeActive();
+    if (df3d::g_appState.initialized)
+    {
+        df3d::g_appState.appDelegate->onAppWillEnterForeground();
+        df3d::g_appState.appDelegate->onAppDidBecomeActive();
+    }
+
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onPause(JNIEnv* env, jclass cls)
 {
-    df3d::g_appState.appDelegate->onAppWillResignActive();
-    df3d::g_appState.appDelegate->onAppDidEnterBackground();
+    if (df3d::g_appState.initialized) {
+        df3d::g_appState.appDelegate->onAppWillResignActive();
+        df3d::g_appState.appDelegate->onAppDidEnterBackground();
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onDestroy(JNIEnv* env, jclass cls)
 {
-    DFLOG_MESS("Activity is being destroyed");
+    if (df3d::g_appState.initialized) {
+        DFLOG_MESS("Activity is being destroyed");
 
-    df3d::g_appState.appDelegate->onAppEnded();
+        df3d::g_appState.appDelegate->onAppEnded();
 
-    df3d::EngineShutdown();
-    df3d::MemoryManager::shutdown();
+        df3d::EngineShutdown();
+        df3d::MemoryManager::shutdown();
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onRenderDestroyed(JNIEnv* env, jclass cls)
@@ -133,25 +139,34 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onRender
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_draw(JNIEnv* env, jclass cls)
 {
-    df3d::svc().step();
+    if (df3d::g_appState.initialized) {
+        df3d::svc().step();
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchDown(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
-    df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::DOWN);
+    if (df3d::g_appState.initialized) {
+        df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::DOWN);
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchUp(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
-{
-    df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::UP);
+{    if (df3d::g_appState.initialized) {
+        df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::UP);
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchMove(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
-    df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::MOVING);
+    if (df3d::g_appState.initialized) {
+        df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::MOVING);
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchCancel(JNIEnv* env, jclass cls, jint pointerId, jfloat x, jfloat y)
 {
-    df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::CANCEL);
+    if (df3d::g_appState.initialized) {
+        df3d::svc().inputManager().onTouch(pointerId, x, y, df3d::Touch::State::CANCEL);
+    }
 }

@@ -11,13 +11,19 @@ public class Df3dRenderer implements GLSurfaceView.Renderer {
 
     private int m_width = 0;
     private int m_height = 0;
+    private Df3dActivity mActivity;
+
+    Df3dRenderer(Df3dActivity activity) {
+        mActivity = activity;
+    }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Log.i(TAG, "onSurfaceCreated()");
 
-        if (!NativeBindings.init(m_width, m_height))
-            throw new RuntimeException("Failed to NativeBindings.init");
+        if (!NativeBindings.init(m_width, m_height)) {
+            mActivity.onGameInitializationFailed();
+        }
     }
 
     @Override
