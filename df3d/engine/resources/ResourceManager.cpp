@@ -44,7 +44,7 @@ struct LoadingState
     std::unordered_map<Id, shared_ptr<IResourceHolder>> decoded;
     std::unordered_map<Id, std::unordered_set<std::string>> dependencies;
 
-    LoadingState() : pool(std::max(1u, std::thread::hardware_concurrency())) { }
+    LoadingState(size_t workers) : pool(workers) { }
     ~LoadingState() { DF3D_ASSERT(decoded.empty()); }
 };
 
@@ -108,7 +108,8 @@ void ResourceManager::unloadResource(Id resource)
 ResourceManager::ResourceManager()
     : m_allocator(MemoryManager::allocDefault())
 {
-
+    int thr = std::thread::hardware_concurrency();
+    m_maxThreadPoolWorkers = df3d::utils::clamp(thr, 1, 2);
 }
 
 ResourceManager::~ResourceManager()
@@ -213,7 +214,7 @@ void ResourceManager::loadPackageAsync(const ResourcePackage &resources)
         return;
     }
 
-    m_loadingState = make_unique<LoadingState>();
+    m_loadingState = make_unique<LoadingState>(m_maxThreadPoolWorkers);
 
     ResourcePackage resourcesToLoad;
     listDependencies(resources, resourcesToLoad, m_loadingState.get());
