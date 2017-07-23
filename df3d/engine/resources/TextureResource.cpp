@@ -11,10 +11,13 @@
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/ResourceFileSystem.h>
 #include <df3d/lib/JsonUtils.h>
+#include <df3d/lib/os/PlatformFile.h>
 
 namespace df3d {
 
-static df3d::TextureResourceData* LoadTextureDataFromFile(const char *path, Allocator &allocator, bool forceRgba = false)
+namespace {
+
+df3d::TextureResourceData* LoadTextureDataFromFile(const char *path, Allocator &allocator, bool forceRgba = false)
 {
     auto &fs = svc().resourceManager().getFS();
 
@@ -35,7 +38,7 @@ static df3d::TextureResourceData* LoadTextureDataFromFile(const char *path, Allo
     return result;
 }
 
-static uint32_t GetTextureFlags(const Json::Value &root)
+uint32_t GetTextureFlags(const Json::Value &root)
 {
     uint32_t retRes = 0;
 
@@ -76,6 +79,8 @@ static uint32_t GetTextureFlags(const Json::Value &root)
     return retRes;
 }
 
+}
+
 bool TextureHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
 {
     auto root = JsonUtils::fromFile(dataSource);
@@ -87,7 +92,18 @@ bool TextureHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &all
 
     m_flags = GetTextureFlags(root);
 
-    m_resourceData = LoadTextureDataFromFile(root["path"].asCString(), allocator);
+    std::string path = root["path"].asString();
+    if (df3d::svc().resourceManager().getIsLowEndDevice())
+    {
+        auto extension = path.substr(path.find_last_of('.'));
+        auto lqPath = path.substr(0, path.find_last_of('.'));
+        lqPath += "_lq" + extension;
+
+        if (PlatformFileExists(lqPath.c_str()))
+            path = lqPath;
+    }
+
+    m_resourceData = LoadTextureDataFromFile(path.c_str(), allocator);
 
     return m_resourceData != nullptr;
 }

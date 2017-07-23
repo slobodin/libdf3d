@@ -31,6 +31,7 @@ class ResourceManager : NonCopyable
     std::unordered_map<Id, Entry> m_cache;
 
     size_t m_maxThreadPoolWorkers;
+    bool m_lowEndDevice = false;
 
     const void* getResourceData(Id resourceID);
     void listDependencies(const ResourcePackage &input, ResourcePackage &output, LoadingState *loadingState);
@@ -51,6 +52,8 @@ public:
     void setFileSystem(unique_ptr<ResourceFileSystem> fs);
 
     void setMaxThreadPoolWorkers(size_t num) { m_maxThreadPoolWorkers = num; }
+    void setIsLowEndDevice(bool lowend) { m_lowEndDevice = lowend; }
+    bool getIsLowEndDevice() const { return m_lowEndDevice; }
 
     // Can load only 1 package at a time.
     void loadPackageAsync(const ResourcePackage &resources);
