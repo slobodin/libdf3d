@@ -54,8 +54,6 @@ df3d::DFMeshSubmeshHeader CreateMeshPartHeader(const df3d::MeshResourceData::Par
 
 void ProcessMesh(const df3d::MeshResourceData &meshInput, const std::string &outputFilename)
 {
-    std::cout << "creating dfmesh..." << std::endl;
-
     if (meshInput.parts.size() > 0xFFFF)
         throw std::runtime_error("too many mesh parts");
 
@@ -103,8 +101,6 @@ void ProcessMesh(const df3d::MeshResourceData &meshInput, const std::string &out
 
 int main(int argc, const char **argv) try
 {
-    std::cout << "obj_to_dfmesh starting" << std::endl;
-
     if (argc != 2)
         throw std::runtime_error("Invalid input. Usage: obj_to_dfmesh.exe mesh.obj");
 
@@ -120,13 +116,9 @@ int main(int argc, const char **argv) try
     if (!file)
         throw std::runtime_error("Failed to open input file");
 
-    std::cout << "decoding obj file..." << std::endl;
-
     auto meshInput = MeshLoader_obj(*file, alloc);
     if (!meshInput)
         throw std::runtime_error("Failed to load input obj mesh");
-
-    std::cout << "obj successfully decoded" << std::endl;
 
     fs->close(file);
 
@@ -138,8 +130,6 @@ int main(int argc, const char **argv) try
     for (auto part : meshInput->parts)
         MAKE_DELETE(alloc, part);
     MAKE_DELETE(alloc, meshInput);
-
-    std::cout << "Done!" << std::endl;
 
     fs.reset();
     df3d::MemoryManager::shutdown();
