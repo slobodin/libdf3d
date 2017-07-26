@@ -20,7 +20,7 @@ public class Df3dLocalNotificationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i(TAG, "onReceive()");
+        MyLog.i(TAG, "onReceive()");
 
         if(isAppRunning())
             return; // Suppress notifications when activity in foreground
@@ -33,8 +33,8 @@ public class Df3dLocalNotificationReceiver extends BroadcastReceiver {
             NotificationManager manager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
             manager.notify(id, notification);
         } catch (Exception e) {
-            Log.e(TAG, "Failed to make local notification!");
-            Log.e(TAG, e.getMessage());
+            MyLog.e(TAG, "Failed to make local notification!");
+            MyLog.e(TAG, e.getMessage());
         }
     }
 
@@ -49,7 +49,7 @@ public class Df3dLocalNotificationReceiver extends BroadcastReceiver {
             ApplicationInfo appInfo = context.getApplicationInfo();
             return (String)context.getPackageManager().getApplicationLabel(appInfo);
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
+            MyLog.e(TAG, e.getMessage());
             return "empty";
         }
     }

@@ -19,7 +19,7 @@ public class Df3dRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        Log.i(TAG, "onSurfaceCreated()");
+        MyLog.i(TAG, "onSurfaceCreated()");
 
         if (!NativeBindings.init(m_width, m_height)) {
             mActivity.onGameInitializationFailed();
@@ -28,7 +28,7 @@ public class Df3dRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        Log.i(TAG, "onSurfaceChanged()");
+        MyLog.i(TAG, "onSurfaceChanged()");
         // TODO Auto-generated method stub
         //
     }

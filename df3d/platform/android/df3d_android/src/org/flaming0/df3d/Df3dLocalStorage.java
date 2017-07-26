@@ -30,8 +30,8 @@ public class Df3dLocalStorage {
 
             return true;
         } catch (Exception e) {
-            Log.e(TAG, "writeToInternalFile failed!");
-            Log.e(TAG, e.getMessage());
+            MyLog.e(TAG, "writeToInternalFile failed!");
+            MyLog.e(TAG, e.getMessage());
             return false;
         }
     }
@@ -48,8 +48,8 @@ public class Df3dLocalStorage {
         } catch (FileNotFoundException e) {
             return null;
         } catch (Exception e) {
-            Log.e(TAG, "readInternalFile failed!");
-            Log.e(TAG, e.getMessage());
+            MyLog.e(TAG, "readInternalFile failed!");
+            MyLog.e(TAG, e.getMessage());
             return null;
         }
     }

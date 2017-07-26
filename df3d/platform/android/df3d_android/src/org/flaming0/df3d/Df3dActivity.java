@@ -114,6 +114,6 @@ public class Df3dActivity extends Activity {
 
     protected void onGameInitializationFailed()
     {
-        Log.e("df3d_activity", "Game init failed!");
+        MyLog.e("df3d_activity", "Game init failed!");
     }
 }

@@ -59,7 +59,7 @@ public class Df3dSurfaceView extends GLSurfaceView {
                     return result;
             }
 
-            Log.e(TAG, "Can not select an EGLConfig for rendering.");
+            MyLog.e(TAG, "Can not select an EGLConfig for rendering.");
             return null;
         }
     }
@@ -77,8 +77,8 @@ public class Df3dSurfaceView extends GLSurfaceView {
             setPreserveEGLContextOnPause(true);
         }
         catch(Exception e) {
-            Log.e(TAG, "Failed to setPreserveEGLContextOnPause(true)");
-            Log.e(TAG, e.getMessage());
+            MyLog.e(TAG, "Failed to setPreserveEGLContextOnPause(true)");
+            MyLog.e(TAG, e.getMessage());
         }
 
         setEGLContextClientVersion(2);
@@ -91,7 +91,7 @@ public class Df3dSurfaceView extends GLSurfaceView {
     public void onResume() {
         super.onResume();
 
-        Log.i(TAG, "onResume");
+        MyLog.i(TAG, "onResume");
 
         queueEvent(new Runnable() {
             @Override
@@ -105,7 +105,7 @@ public class Df3dSurfaceView extends GLSurfaceView {
     public void onPause() {
         super.onPause();
 
-        Log.i(TAG, "onPause");
+        MyLog.i(TAG, "onPause");
 
         queueEvent(new Runnable() {
             @Override

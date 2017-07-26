@@ -38,15 +38,15 @@ public class Df3dAndroidServices {
     }
 
     public void openURL(String url) {
-        Log.i(TAG, "openURL()");
+        MyLog.i(TAG, "openURL()");
 
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             m_activity.startActivity(intent);
         }
         catch (Exception e) {
-            Log.e(TAG, "Failed to open URL!");
-            Log.e(TAG, e.getMessage());
+            MyLog.e(TAG, "Failed to open URL!");
+            MyLog.e(TAG, e.getMessage());
         }
     }
 
@@ -113,11 +113,11 @@ public class Df3dAndroidServices {
         AlarmManager alarmManager = (AlarmManager)m_activity.getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), intent);
 
-        Log.i(TAG, "Local notification scheduled");
+        MyLog.i(TAG, "Local notification scheduled");
     }
 
     public void cancelLocalNotification(int id) {
-        Log.i(TAG, "cancelLocalNotification()");
+        MyLog.i(TAG, "cancelLocalNotification()");
 
         PendingIntent pendingIntent = makePendingIntent(id, null);
 
