@@ -1,8 +1,6 @@
 package org.flaming0.df3d;
 
 import android.app.Activity;
-import android.content.Context;
-import android.hardware.input.InputManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;

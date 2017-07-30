@@ -2,9 +2,7 @@ package org.flaming0.df3d;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
-
 import android.opengl.GLSurfaceView;
-import android.util.Log;
 
 public class Df3dRenderer implements GLSurfaceView.Renderer {
     private static String TAG = "Df3dRenderer";

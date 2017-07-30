@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.util.Log;
 
 public class Df3dLocalNotificationReceiver extends BroadcastReceiver {
     private static String TAG = "Df3dLocalNotifRecv";

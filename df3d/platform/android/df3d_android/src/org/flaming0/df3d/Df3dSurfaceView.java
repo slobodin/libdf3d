@@ -3,7 +3,6 @@ package org.flaming0.df3d;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import javax.microedition.khronos.egl.EGL10;
