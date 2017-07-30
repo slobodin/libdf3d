@@ -1,10 +1,10 @@
 package org.flaming0.df3d;
 
 import android.app.Activity;
+import android.content.Context;
+import android.hardware.input.InputManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-import android.content.res.AssetManager;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -13,6 +13,7 @@ public class Df3dActivity extends Activity {
     private Df3dSurfaceView m_glSurfaceView = null;
     private Runnable setUiVisibilityRunnable = null;
     private boolean m_appRunning = false;
+    private GamePadHelper mGamePadHelper = null;
 
     private static Df3dActivity m_sharedActivity = null;
 
@@ -31,11 +32,17 @@ public class Df3dActivity extends Activity {
         return m_appRunning;
     }
 
+    public GamePadHelper getGamePadHelper() {
+        return mGamePadHelper;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         m_sharedActivity = this;
+
+        mGamePadHelper = new GamePadHelper(this);
 
         enableFullscreen();
 
@@ -56,12 +63,15 @@ public class Df3dActivity extends Activity {
         m_glSurfaceView.onPause();
 
         super.onPause();
+
+        mGamePadHelper.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
+        mGamePadHelper.onResume();
         m_glSurfaceView.onResume();
 
         m_appRunning = true;

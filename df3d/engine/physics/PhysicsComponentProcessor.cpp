@@ -421,25 +421,31 @@ glm::vec3 PhysicsComponentProcessor::getCenterOfMass(Entity e)
 void PhysicsComponentProcessor::teleportPosition(Entity e, const glm::vec3 &pos)
 {
     auto body = getBody(e);
-    auto tr = body->getWorldTransform();
-    tr.setOrigin(PhysicsHelpers::glmTobt(pos));
+    if (body)
+    {
+        auto tr = body->getWorldTransform();
+        tr.setOrigin(PhysicsHelpers::glmTobt(pos));
 
-    body->setWorldTransform(tr);
-    body->setInterpolationWorldTransform(tr);
+        body->setWorldTransform(tr);
+        body->setInterpolationWorldTransform(tr);
 
-    //m_dynamicsWorld->synchronizeSingleMotionState(body);
+        //m_dynamicsWorld->synchronizeSingleMotionState(body);
+    }
 }
 
 void PhysicsComponentProcessor::teleportOrientation(Entity e, const glm::quat &orient)
 {
     auto body = getBody(e);
-    auto tr = body->getWorldTransform();
-    tr.setRotation(btQuaternion(orient.x, orient.y, orient.z, orient.w));
+    if (body)
+    {
+        auto tr = body->getWorldTransform();
+        tr.setRotation(btQuaternion(orient.x, orient.y, orient.z, orient.w));
 
-    body->setWorldTransform(tr);
-    body->setInterpolationWorldTransform(tr);
+        body->setWorldTransform(tr);
+        body->setInterpolationWorldTransform(tr);
 
-    //m_dynamicsWorld->synchronizeSingleMotionState(body);
+        //m_dynamicsWorld->synchronizeSingleMotionState(body);
+    }
 }
 
 void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, df3d::Id meshResourceId)

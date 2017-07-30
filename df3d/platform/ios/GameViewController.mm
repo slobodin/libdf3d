@@ -370,7 +370,6 @@ bool HandleControllerBackButtonPressed()
     };
 #endif
 
-
     int controllerId = reinterpret_cast<uintptr_t>(controller);
     if (controller.extendedGamepad == nil && controller.gamepad == nil)
         df3d::svc().inputManager().addController(controllerId, df3d::MFI_CONTROLLER_REMOTE);

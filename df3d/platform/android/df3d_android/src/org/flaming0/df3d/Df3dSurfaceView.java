@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -64,10 +65,15 @@ public class Df3dSurfaceView extends GLSurfaceView {
         }
     }
 
-    private Df3dRenderer m_df3dRenderer = null;
+    private Df3dRenderer mRenderer = null;
+    private GamePadHelper mGamePadHelper = null;
 
     public Df3dSurfaceView(Context context) {
         super(context);
+
+        Df3dActivity df3dActivity = (Df3dActivity)context;
+
+        mGamePadHelper = df3dActivity.getGamePadHelper();
 
         getHolder().setFormat(PixelFormat.TRANSLUCENT);
 
@@ -84,7 +90,7 @@ public class Df3dSurfaceView extends GLSurfaceView {
         setEGLContextClientVersion(2);
         setFocusableInTouchMode(true);
 
-        setRenderer(m_df3dRenderer = new Df3dRenderer((Df3dActivity)context));
+        setRenderer(mRenderer = new Df3dRenderer(df3dActivity));
     }
 
     @Override
@@ -183,6 +189,23 @@ public class Df3dSurfaceView extends GLSurfaceView {
     public void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
 
-        m_df3dRenderer.setWidthAndHeight(w, h);
+        mRenderer.setWidthAndHeight(w, h);
+    }
+
+    @Override
+    public boolean onGenericMotionEvent(MotionEvent event) {
+        mGamePadHelper.dispatchGenericMotionEvent(event);
+
+        return super.onGenericMotionEvent(event);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return mGamePadHelper.onKeyDown(event) || super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        return mGamePadHelper.onKeyUp(event) || super.onKeyUp(keyCode, event);
     }
 }
