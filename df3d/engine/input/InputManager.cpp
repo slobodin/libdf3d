@@ -58,15 +58,15 @@ static bool IsPrimaryTouch(Touch touch)
 static int GetUnUsedIndex()
 {
     int temp = g_indexBitsUsed;
-    
+
     for (int i = 0; i < MAX_TOUCHES; i++)
     {
-        if (!(temp & 0x00000001)) 
+        if (!(temp & 0x00000001))
         {
             g_indexBitsUsed |= (1 << i);
             return i;
         }
-        
+
         temp >>= 1;
     }
 
@@ -78,7 +78,7 @@ static void RemoveUsedIndexBit(int index)
 {
     if (index < 0 || index >= MAX_TOUCHES)
         return;
-    
+
     uint32_t temp = 1 << index;
     temp = ~temp;
     g_indexBitsUsed &= temp;
@@ -363,7 +363,6 @@ void InputManager::onTouch(uintptr_t id, int x, int y, Touch::State state)
 
 void InputManager::addController(uintptr_t controllerId, MfiControllerKind kind)
 {
-    DF3D_ASSERT(!df3d::utils::contains_key(m_controllers, controllerId));
     m_controllers[controllerId] = kind;
 }
 
@@ -372,8 +371,6 @@ void InputManager::removeController(uintptr_t controllerId)
     auto found = m_controllers.find(controllerId);
     if (found != m_controllers.end())
         m_controllers.erase(found);
-    else
-        DF3D_ASSERT(false);
 }
 
 bool InputManager::anyMfiController() const

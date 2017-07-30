@@ -17,8 +17,8 @@ class GamePadHelper implements InputManager.InputDeviceListener {
     private SparseArray<InputDeviceState> mInputDeviceStates;
     private Df3dActivity mActivity;
 
-    private native void nativeControllerConnected();
-    private native void nativeControllerDisconnected();
+    private native void nativeControllerConnected(int deviceId);
+    private native void nativeControllerDisconnected(int deviceId);
 
     private native void nativeControllerButtonPressedA(boolean pressed);
     private native void nativeControllerButtonPressedX(boolean pressed);
@@ -31,10 +31,69 @@ class GamePadHelper implements InputManager.InputDeviceListener {
     private native void nativeControllerButtonPressedDPadUp(boolean pressed);
     private native void nativeControllerButtonPressedDPadDown(boolean pressed);
 
-    private boolean notifyEngineKeyEvent(InputDeviceState state, KeyEvent event, final boolean pressed) {
+    private native void nativeControllerButtonPressedR1(boolean pressed);
+    private native void nativeControllerButtonPressedR2(boolean pressed);
+    private native void nativeControllerButtonPressedL1(boolean pressed);
+    private native void nativeControllerButtonPressedL2(boolean pressed);
+
+    private boolean deviceIsJoystick(InputDevice device) {
+        return (device.getSources() & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK;
+    }
+
+    private void addJoystick(final int deviceId) {
+        mActivity.runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                nativeControllerConnected(deviceId);
+            }
+        });
+    }
+
+    private void removeJoystick(final int deviceId) {
+        mActivity.runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                nativeControllerDisconnected(deviceId);
+            }
+        });
+    }
+
+    private boolean notifyEngineKeyEvent(KeyEvent event, final boolean pressed) {
         final int keyCode = event.getKeyCode();
         boolean handled = true;
         switch (keyCode) {
+            case KeyEvent.KEYCODE_BUTTON_R1:
+                mActivity.runOnMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        nativeControllerButtonPressedR1(pressed);
+                    }
+                });
+                break;
+            case KeyEvent.KEYCODE_BUTTON_R2:
+                mActivity.runOnMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        nativeControllerButtonPressedR2(pressed);
+                    }
+                });
+                break;
+            case KeyEvent.KEYCODE_BUTTON_L1:
+                mActivity.runOnMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        nativeControllerButtonPressedL1(pressed);
+                    }
+                });
+                break;
+            case KeyEvent.KEYCODE_BUTTON_L2:
+                mActivity.runOnMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        nativeControllerButtonPressedL2(pressed);
+                    }
+                });
+                break;
             case KeyEvent.KEYCODE_DPAD_LEFT:
                 mActivity.runOnMainThread(new Runnable() {
                     @Override
@@ -154,19 +213,30 @@ class GamePadHelper implements InputManager.InputDeviceListener {
         // We do this so that we can see them in the log as they are enumerated.
         int[] ids = mInputManager.getInputDeviceIds();
         for (int id : ids) {
-            getInputDeviceState(id);
+            InputDeviceState state = getInputDeviceState(id);
+            if (state != null && deviceIsJoystick(state.getDevice()))
+                addJoystick(0);
         }
     }
 
     @Override
     public void onInputDeviceAdded(int deviceId) {
-        getInputDeviceState(deviceId);
+        InputDeviceState state = getInputDeviceState(deviceId);
+        if (state != null) {
+            if (deviceIsJoystick(state.getDevice())) {
+                addJoystick(0);
+            }
+        }
     }
 
     @Override
     public void onInputDeviceRemoved(int deviceId) {
         InputDeviceState state = mInputDeviceStates.get(deviceId);
         if (state != null) {
+            if (deviceIsJoystick(state.getDevice())) {
+                removeJoystick(0);
+            }
+
             mInputDeviceStates.remove(deviceId);
         }
     }
@@ -183,7 +253,7 @@ class GamePadHelper implements InputManager.InputDeviceListener {
     boolean onKeyDown(KeyEvent event) {
         InputDeviceState state = getInputDeviceState(event.getDeviceId());
         if (state != null && state.onKeyDown(event)) {
-            return notifyEngineKeyEvent(state, event, true);
+            return notifyEngineKeyEvent(event, true);
         }
 
         return false;
@@ -192,7 +262,7 @@ class GamePadHelper implements InputManager.InputDeviceListener {
     boolean onKeyUp(KeyEvent event) {
         InputDeviceState state = getInputDeviceState(event.getDeviceId());
         if (state != null && state.onKeyUp(event)) {
-            return notifyEngineKeyEvent(state, event, false);
+            return notifyEngineKeyEvent(event, false);
         }
 
         return false;

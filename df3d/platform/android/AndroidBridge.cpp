@@ -11,6 +11,8 @@ namespace df3d {
 extern bool EngineInit(EngineInitParams params);
 extern void EngineShutdown();
 
+static bool g_haveJoystickAtStart = false;  // A hack
+
 void Application::setTitle(const std::string &title)
 {
 
@@ -79,6 +81,9 @@ extern "C" JNIEXPORT jboolean JNICALL Java_org_flaming0_df3d_NativeBindings_init
         }
 
         DFLOG_MESS("Engine initialized.");
+
+        if (df3d::g_haveJoystickAtStart)
+            df3d::svc().inputManager().addController(0, df3d::MFI_CONTROLLER_GAMEPAD);
 
         // Init game code.
         if (!df3d::g_appState.appDelegate->onAppStarted())
@@ -173,6 +178,22 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchC
 
 // CONTROLLER SUPPORT
 
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeControllerConnected(
+        JNIEnv *env, jobject obj, jint deviceId)
+{
+    if (df3d::g_appState.initialized)
+        df3d::svc().inputManager().addController(deviceId, df3d::MFI_CONTROLLER_GAMEPAD);
+    else
+        df3d::g_haveJoystickAtStart = true;
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeControllerDisconnected(
+        JNIEnv *env, jobject obj, jint deviceId)
+{
+    if (df3d::g_appState.initialized)
+        df3d::svc().inputManager().removeController(deviceId);
+}
+
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeControllerButtonPressedA(
         JNIEnv *env, jobject obj, jboolean pressed)
 {
@@ -256,6 +277,46 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeCon
     if (df3d::g_appState.initialized) {
         if (auto l = df3d::svc().inputManager().getMfiControllerListener()) {
             l->Mfi_DPadDown_Pressed(pressed);
+        }
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeControllerButtonPressedR1(
+        JNIEnv *env, jobject obj, jboolean pressed)
+{
+    if (df3d::g_appState.initialized) {
+        if (auto l = df3d::svc().inputManager().getMfiControllerListener()) {
+            l->Mfi_RightShoulder_Changed(0.0f, pressed);
+        }
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeControllerButtonPressedR2(
+        JNIEnv *env, jobject obj, jboolean pressed)
+{
+    if (df3d::g_appState.initialized) {
+        if (auto l = df3d::svc().inputManager().getMfiControllerListener()) {
+            l->Mfi_RightTrigger_Changed(0.0f, pressed);
+        }
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeControllerButtonPressedL1(
+        JNIEnv *env, jobject obj, jboolean pressed)
+{
+    if (df3d::g_appState.initialized) {
+        if (auto l = df3d::svc().inputManager().getMfiControllerListener()) {
+            l->Mfi_LeftShoulder_Changed(0.0f, pressed);
+        }
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeControllerButtonPressedL2(
+        JNIEnv *env, jobject obj, jboolean pressed)
+{
+    if (df3d::g_appState.initialized) {
+        if (auto l = df3d::svc().inputManager().getMfiControllerListener()) {
+            l->Mfi_LeftTrigger_Changed(0.0f, pressed);
         }
     }
 }
