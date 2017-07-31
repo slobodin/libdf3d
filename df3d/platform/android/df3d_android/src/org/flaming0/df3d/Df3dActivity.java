@@ -13,7 +13,14 @@ public class Df3dActivity extends Activity {
     private boolean m_appRunning = false;
     private GamePadHelper mGamePadHelper = null;
 
+    private boolean mQuittingApp = false;
+
     private static Df3dActivity m_sharedActivity = null;
+
+    public static void quitApp() {
+        m_sharedActivity.mQuittingApp = true;
+        m_sharedActivity.finish();
+    }
 
     public static Df3dActivity getSharedActivity() {
         return m_sharedActivity;
@@ -78,6 +85,11 @@ public class Df3dActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        if (mQuittingApp) {
+            System.runFinalization();
+            System.exit(0);
+        }
     }
 
     @Override

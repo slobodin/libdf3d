@@ -133,6 +133,11 @@ public:
         glfwSetWindowTitle(m_window, title.c_str());
     }
 
+    void setShouldQuit()
+    {
+        glfwSetWindowShouldClose(m_window, 1);
+    }
+
     void onMouseButton(int button, int action, int mods)
     {
         if (!m_initialized)
@@ -302,6 +307,11 @@ namespace df3d {
 void Application::setTitle(const std::string &title)
 {
     platform_impl::g_application.setTitle(title);
+}
+
+void Application::quit()
+{
+    platform_impl::g_application.setShouldQuit();
 }
 
 }
