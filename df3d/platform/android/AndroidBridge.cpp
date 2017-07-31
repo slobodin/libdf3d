@@ -330,3 +330,17 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeCon
         }
     }
 }
+
+extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeControllerThumbStickEvent(
+        JNIEnv *env, jobject obj, jboolean isLeft, jfloat x, jfloat y)
+{
+    if (df3d::g_appState.initialized) {
+        if (auto l = df3d::svc().inputManager().getMfiControllerListener()) {
+            if (isLeft)
+                l->Mfi_LeftThumbStick_Changed(x, y);
+            else
+                l->Mfi_RightThumbStick_Changed(x, y);
+        }
+    }
+}
+
