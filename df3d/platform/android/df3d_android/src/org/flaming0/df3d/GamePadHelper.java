@@ -17,6 +17,11 @@ class GamePadHelper implements InputManager.InputDeviceListener {
     private SparseArray<InputDeviceState> mInputDeviceStates;
     private Df3dActivity mActivity;
 
+    private float mOldLeftThumbstickX = 0.0f;
+    private float mOldLeftThumbstickY = 0.0f;
+    private float mOldRightThumbstickX = 0.0f;
+    private float mOldRightThumbstickY = 0.0f;
+
     private native void nativeControllerConnected(int deviceId);
     private native void nativeControllerDisconnected(int deviceId);
 
@@ -36,6 +41,8 @@ class GamePadHelper implements InputManager.InputDeviceListener {
     private native void nativeControllerButtonPressedL1(boolean pressed);
     private native void nativeControllerButtonPressedL2(boolean pressed);
 
+    private native void nativeControllerThumbStickEvent(boolean isLeft, float x, float y);
+
     private boolean deviceIsJoystick(InputDevice device) {
         return (device.getSources() & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK;
     }
@@ -54,6 +61,15 @@ class GamePadHelper implements InputManager.InputDeviceListener {
             @Override
             public void run() {
                 nativeControllerDisconnected(deviceId);
+            }
+        });
+    }
+
+    private void notifyEngineJoystickEvent(final boolean isLeft, final float x, final float y) {
+        mActivity.runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                nativeControllerThumbStickEvent(isLeft, x, y);
             }
         });
     }
@@ -268,14 +284,75 @@ class GamePadHelper implements InputManager.InputDeviceListener {
         return false;
     }
 
+    private static class AxisChangeResult
+    {
+        float value;
+        boolean changed;
+    }
+
+    AxisChangeResult testFn(int axis, MotionEvent event, float oldValue) {
+        AxisChangeResult result = new AxisChangeResult();
+        result.changed = false;
+
+        float newValue = event.getAxisValue(axis);
+        if (Float.compare(newValue, oldValue) != 0) {
+            final InputDevice.MotionRange range =
+                    event.getDevice().getMotionRange(axis, event.getSource());
+
+            result.changed = true;
+            result.value = 0;
+
+            if (range != null) {
+                final float flat = range.getFlat();
+                if (Math.abs(newValue) > flat) {
+                    result.value = newValue;
+                }
+            }
+        }
+        return result;
+    }
+
     void dispatchGenericMotionEvent(MotionEvent event) {
         // Check that the event came from a joystick since a generic motion event
         // could be almost anything.
-        if (isFromSource(event, InputDevice.SOURCE_CLASS_JOYSTICK) && event.getAction() == MotionEvent.ACTION_MOVE) {
-            // Update device state for visualization and logging.
+        if (isFromSource(event, InputDevice.SOURCE_JOYSTICK) && event.getAction() == MotionEvent.ACTION_MOVE) {
             InputDeviceState state = getInputDeviceState(event.getDeviceId());
-            if (state != null && state.onJoystickMotion(event)) {
-//                notifyEngine(state);
+            if (state != null) {
+                boolean leftChanged = false;
+                boolean rightChanged = false;
+
+                AxisChangeResult tmp;
+
+                tmp = testFn(MotionEvent.AXIS_X, event, mOldLeftThumbstickX);
+                if (tmp.changed) {
+                    leftChanged = true;
+                    mOldLeftThumbstickX = tmp.value;
+                }
+
+                tmp = testFn(MotionEvent.AXIS_Y, event, mOldLeftThumbstickY);
+                if (tmp.changed) {
+                    leftChanged = true;
+                    mOldLeftThumbstickY = tmp.value;
+                }
+
+                tmp = testFn(MotionEvent.AXIS_Z, event, mOldRightThumbstickX);
+                if (tmp.changed) {
+                    rightChanged = true;
+                    mOldRightThumbstickX = tmp.value;
+                }
+
+                tmp = testFn(MotionEvent.AXIS_RZ, event, mOldRightThumbstickY);
+                if (tmp.changed) {
+                    rightChanged = true;
+                    mOldRightThumbstickY = tmp.value;
+                }
+
+                if (leftChanged) {
+                    notifyEngineJoystickEvent(true, mOldLeftThumbstickX, -mOldLeftThumbstickY);
+                }
+                if (rightChanged) {
+                    notifyEngineJoystickEvent(false, mOldRightThumbstickX, -mOldRightThumbstickY);
+                }
             }
         }
     }
