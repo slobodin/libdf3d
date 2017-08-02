@@ -5,7 +5,7 @@
 
 namespace df3d {
 
-bool PlatformStorage::saveData(const char *id, const PodArray<uint8_t> &data)
+bool PlatformStorage::saveData(const char *id, const std::vector<uint8_t> &data)
 {
     auto env = AndroidServices::getEnv();
     auto prefsObj = AndroidServices::getLocalStorage();
@@ -29,7 +29,7 @@ bool PlatformStorage::saveData(const char *id, const PodArray<uint8_t> &data)
     return saveResult;
 }
 
-void PlatformStorage::getData(const char *id, PodArray<uint8_t> &data)
+void PlatformStorage::getData(const char *id, std::vector<uint8_t> &data)
 {
     data.clear();
 

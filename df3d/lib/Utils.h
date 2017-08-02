@@ -159,6 +159,9 @@ inline void to_lower(std::string &str)
 
 bool inflateUncompress(uint8_t *dest, size_t destLen, const uint8_t *source, size_t sourceLen);
 
+std::vector<uint8_t> zlibCompress(const std::vector<uint8_t> &input);
+std::vector<uint8_t> zlibDecompress(const std::vector<uint8_t> &input);
+
 inline size_t sizeKB(size_t val)
 {
     return (val + 1023) / 1024;

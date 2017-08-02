@@ -4,7 +4,7 @@
 
 namespace df3d {
 
-bool PlatformStorage::saveData(const char *id, const PodArray<uint8_t> &data)
+bool PlatformStorage::saveData(const char *id, const std::vector<uint8_t> &data)
 {
     std::ofstream of(id, std::ios::out | std::ios::binary);
 
@@ -12,7 +12,7 @@ bool PlatformStorage::saveData(const char *id, const PodArray<uint8_t> &data)
     return !of.fail();
 }
 
-void PlatformStorage::getData(const char *id, PodArray<uint8_t> &data)
+void PlatformStorage::getData(const char *id, std::vector<uint8_t> &data)
 {
     data.clear();
 

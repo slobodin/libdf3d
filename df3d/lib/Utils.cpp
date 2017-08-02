@@ -103,4 +103,95 @@ bool inflateUncompress(uint8_t *dest, size_t destLen, const uint8_t *source, siz
     return tmp == destLen;
 }
 
+std::vector<uint8_t> zlibCompress(const std::vector<uint8_t> &input)
+{
+    std::vector<uint8_t> result;
+
+    z_stream zs;
+    memset(&zs, 0, sizeof(zs));
+
+    if (deflateInit(&zs, Z_BEST_COMPRESSION) != Z_OK)
+    {
+        DFLOG_WARN("Failed to zlibCompress");
+        return result;
+    }
+
+    zs.next_in = (Bytef*)input.data();
+    zs.avail_in = input.size();
+
+    int ret;
+    char outbuffer[32768];
+
+    // retrieve the compressed bytes blockwise
+    do {
+        zs.next_out = reinterpret_cast<Bytef*>(outbuffer);
+        zs.avail_out = sizeof(outbuffer);
+
+        ret = deflate(&zs, Z_FINISH);
+
+        if (result.size() < zs.total_out)
+        {
+            // append the block to the output string
+            result.insert(result.end(), outbuffer, outbuffer + (zs.total_out - result.size()));
+        }
+    } while (ret == Z_OK);
+
+    deflateEnd(&zs);
+
+    if (ret != Z_STREAM_END) 
+    {
+        DFLOG_WARN("zlibCompress error: %s", zs.msg);
+        result.clear();
+        return result;
+    }
+
+    return result;
+}
+
+std::vector<uint8_t> zlibDecompress(const std::vector<uint8_t> &input)
+{
+    std::vector<uint8_t> result;
+
+    z_stream zs;
+    memset(&zs, 0, sizeof(zs));
+
+    if (inflateInit(&zs) != Z_OK)
+    {
+        DFLOG_WARN("Failed to init z_stream");
+        return result;
+    }
+
+    zs.next_in = (Bytef*)input.data();
+    zs.avail_in = input.size();
+
+    int ret;
+    char outbuffer[32768];
+
+    // get the decompressed bytes blockwise using repeated calls to inflate
+    do
+    {
+        zs.next_out = reinterpret_cast<Bytef*>(outbuffer);
+        zs.avail_out = sizeof(outbuffer);
+
+        ret = inflate(&zs, 0);
+
+        if (result.size() < zs.total_out)
+        {
+            result.insert(result.end(), outbuffer, outbuffer + (zs.total_out - result.size()));
+        }
+
+    } while (ret == Z_OK);
+
+    inflateEnd(&zs);
+
+    if (ret != Z_STREAM_END)
+    {
+        DFLOG_WARN("zlibDecompress error: %s", zs.msg);
+        result.clear();
+        return result;
+    }
+
+    return result;
+}
+
 } }
