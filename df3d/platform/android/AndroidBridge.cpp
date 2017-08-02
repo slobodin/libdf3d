@@ -191,8 +191,12 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_NativeBindings_onTouchC
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeControllerConnected(
         JNIEnv *env, jobject obj, jint deviceId)
 {
-    if (df3d::g_appState.initialized)
+    if (df3d::g_appState.initialized) {
         df3d::svc().inputManager().addController(deviceId, df3d::MFI_CONTROLLER_GAMEPAD);
+
+        if (auto l = df3d::svc().inputManager().getMfiControllerListener())
+            l->MFiControllerConnected();
+    }
     else
         df3d::g_haveJoystickAtStart = true;
 }
@@ -200,8 +204,12 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeCon
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeControllerDisconnected(
         JNIEnv *env, jobject obj, jint deviceId)
 {
-    if (df3d::g_appState.initialized)
+    if (df3d::g_appState.initialized) {
         df3d::svc().inputManager().removeController(deviceId);
+
+        if (auto l = df3d::svc().inputManager().getMfiControllerListener())
+            l->MFiControllerDisconnected();
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeControllerButtonPressedA(
