@@ -180,8 +180,8 @@ static void CalcTangentSpaceTriangle(Vertex_p_n_tx_tan_bitan &v0, Vertex_p_n_tx_
 }
 
 static bool FindSimilarVertexIndex(const Vertex_p_n_tx_tan_bitan &vertex, 
-                                   const std::map<Vertex_p_n_tx_tan_bitan, uint32_t, CompareVertices> &lookup,
-                                   uint32_t &result)
+                                   const std::map<Vertex_p_n_tx_tan_bitan, uint16_t, CompareVertices> &lookup,
+                                   uint16_t &result)
 {
     auto found = lookup.find(vertex);
     if (found != lookup.end())
@@ -193,13 +193,13 @@ static bool FindSimilarVertexIndex(const Vertex_p_n_tx_tan_bitan &vertex,
 }
 
 void MeshUtils::indexize(const Vertex_p_n_tx_tan_bitan *vdata, size_t count,
-                         PodArray<Vertex_p_n_tx_tan_bitan> &outVertices, PodArray<uint32_t> &outIndices)
+                         PodArray<Vertex_p_n_tx_tan_bitan> &outVertices, PodArray<uint16_t> &outIndices)
 {
-    std::map<Vertex_p_n_tx_tan_bitan, uint32_t, CompareVertices> lookup;
+    std::map<Vertex_p_n_tx_tan_bitan, uint16_t, CompareVertices> lookup;
 
     for (size_t i = 0; i < count; i++)
     {
-        uint32_t index;
+        uint16_t index;
 
         if (FindSimilarVertexIndex(vdata[i], lookup, index))
         {
@@ -209,7 +209,9 @@ void MeshUtils::indexize(const Vertex_p_n_tx_tan_bitan *vdata, size_t count,
         {
             outVertices.push_back(vdata[i]);
 
-            auto newIdx = (uint32_t)outVertices.size() - 1;
+            DF3D_ASSERT(outVertices.size() < 0xFFFF);
+
+            auto newIdx = (uint16_t)outVertices.size() - 1;
             outIndices.push_back(newIdx);
             lookup[vdata[i]] = newIdx;
         }
@@ -240,7 +242,7 @@ void MeshUtils::computeTangentBasis(Vertex_p_n_tx_tan_bitan *vdata, size_t count
 }
 
 void MeshUtils::computeTangentBasis(Vertex_p_n_tx_tan_bitan *vdata, size_t verticesCount,
-                                    const uint32_t *indices, size_t indicesCount)
+                                    const uint16_t *indices, size_t indicesCount)
 {
     for (size_t i = 0; i < indicesCount; i += 3)
     {

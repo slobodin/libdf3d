@@ -10,7 +10,7 @@
 
 static_assert(sizeof(typename std::string::value_type) == 1, "Invalid string size");
 
-static const int INDICES_SIZE = 4;
+static const int INDICES_SIZE = sizeof(uint16_t);
 
 template<typename T>
 void Serialize(const T &data, std::ofstream &fs)
@@ -42,7 +42,7 @@ df3d::DFMeshSubmeshHeader CreateMeshPartHeader(const df3d::MeshResourceData::Par
     memcpy(submeshChunk.materialId, sm.materialName.c_str(), sm.materialName.size());
 
     submeshChunk.vertexDataSizeInBytes = sm.vertexData.getSizeInBytes();
-    submeshChunk.indexDataSizeInBytes = sm.indices.size() * INDICES_SIZE;
+    submeshChunk.indexDataSizeInBytes = sm.indexData.size() * INDICES_SIZE;
 
     submeshChunk.chunkSize =
         sizeof(df3d::DFMeshSubmeshHeader) +
@@ -90,7 +90,7 @@ void ProcessMesh(const df3d::MeshResourceData &meshInput, const std::string &out
     {
         Serialize(submeshHeaders[i], output);
         Serialize(meshInput.parts[i]->vertexData.getRawData(), submeshHeaders[i].vertexDataSizeInBytes, output);
-        Serialize(meshInput.parts[i]->indices.data(), submeshHeaders[i].indexDataSizeInBytes, output);
+        Serialize(meshInput.parts[i]->indexData.data(), submeshHeaders[i].indexDataSizeInBytes, output);
     }
 
     if (output.fail() || output.bad())
@@ -103,6 +103,8 @@ int main(int argc, const char **argv) try
 {
     if (argc != 2)
         throw std::runtime_error("Invalid input. Usage: obj_to_dfmesh.exe mesh.obj");
+
+    std::cout << argv[1] << "\n";
 
     df3d::MemoryManager::init();
     df3d::EngineCVars::objIndexize = true;
@@ -121,6 +123,20 @@ int main(int argc, const char **argv) try
         throw std::runtime_error("Failed to load input obj mesh");
 
     fs->close(file);
+
+    // Support only 16-bit vertices for now. Some hardware doesn't work with 32 bit (Mali 400)
+
+    for (auto part : meshInput->parts)
+    {
+        if (part->vertexData.getVerticesCount() >= 0xFFFF)
+        {
+            std::ostringstream errMsg;
+            errMsg << "To much vertices: " << part->vertexData.getVerticesCount()
+                << ". File: " << inputFileName;
+
+            throw std::runtime_error(errMsg.str());
+        }
+    }
 
     auto dotPos = inputFileName.find_last_of('.');
     std::string outputFilename(inputFileName.begin(), inputFileName.begin() + dotPos);

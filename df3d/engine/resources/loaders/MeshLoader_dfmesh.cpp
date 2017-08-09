@@ -32,7 +32,9 @@ MeshResourceData* MeshLoader_dfmesh(ResourceDataSource &dataSource, Allocator &a
         return nullptr;
     }
 
-    DF3D_ASSERT(header.indexSize == sizeof(uint32_t));
+    // FIXME: quad.mesh HACK
+    if (header.vertexFormat == 0)
+        DF3D_ASSERT(header.indexSize == sizeof(uint16_t));
 
     // TODO: vertex format is hardcoded.
     auto vf = VertexFormat_dfmesh(header.vertexFormat);
@@ -53,8 +55,8 @@ MeshResourceData* MeshLoader_dfmesh(ResourceDataSource &dataSource, Allocator &a
         meshPart->vertexData.addVertices(verticesCount);
         dataSource.getObjects((uint8_t*)meshPart->vertexData.getRawData(), meshPart->vertexData.getSizeInBytes());
 
-        meshPart->indices.resize(indicesCount);
-        dataSource.getObjects(meshPart->indices.data(), indicesCount);
+        meshPart->indexData.resize(indicesCount);
+        dataSource.getObjects(meshPart->indexData.data(), indicesCount);
 
         meshPart->materialName = smHeader.materialId;
 

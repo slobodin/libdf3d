@@ -449,6 +449,8 @@ void RenderBackendGL::updateVertexBuffer(VertexBufferHandle vbHandle, size_t ver
 
 IndexBufferHandle RenderBackendGL::createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage, IndicesType indicesType)
 {
+    // NOTE: some GPUs do not support 32-bit indices (Mali 400)
+
     DF3D_ASSERT(indicesCount > 0);
 
     IndexBufferGL indexBuffer;

@@ -30,15 +30,15 @@ static btTriangleMesh* CreateBulletTriangleMesh(MeshResourceData *resource, Allo
 
         bulletMesh->preallocateVertices(vdata.getVerticesCount());
 
-        if (submesh->indices.size() > 0)
+        if (submesh->indexData.size() > 0)
         {
-            bulletMesh->preallocateIndices(submesh->indices.size());
+            bulletMesh->preallocateIndices(submesh->indexData.size());
 
-            for (size_t i = 0; i < submesh->indices.size(); i += 3)
+            for (size_t i = 0; i < submesh->indexData.size(); i += 3)
             {
-                auto i1 = submesh->indices[i + 0];
-                auto i2 = submesh->indices[i + 1];
-                auto i3 = submesh->indices[i + 2];
+                auto i1 = submesh->indexData[i + 0];
+                auto i2 = submesh->indexData[i + 1];
+                auto i3 = submesh->indexData[i + 2];
 
                 auto v1 = (glm::vec3*)vdata.getVertexAttribute(i1, VertexFormat::POSITION);
                 auto v2 = (glm::vec3*)vdata.getVertexAttribute(i2, VertexFormat::POSITION);
@@ -154,10 +154,14 @@ bool MeshHolder::createResource(Allocator &allocator)
         auto &vData = part->vertexData;
         hwPart.vertexBuffer = backend.createVertexBuffer(vData, GpuBufferUsageType::STATIC);
 
-        if (part->indices.size() > 0)
+        if (part->indexData.size() > 0)
         {
-            hwPart.indexBuffer = backend.createIndexBuffer(part->indices.size(), part->indices.data(), GpuBufferUsageType::STATIC, INDICES_32_BIT);
-            hwPart.numberOfElements = part->indices.size();
+            hwPart.indexBuffer = backend.createIndexBuffer(part->indexData.size(),
+                part->indexData.data(),
+                GpuBufferUsageType::STATIC,
+                INDICES_16_BIT);
+
+            hwPart.numberOfElements = part->indexData.size();
         }
         else
         {

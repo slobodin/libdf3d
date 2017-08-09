@@ -239,7 +239,7 @@ public:
             if (EngineCVars::objIndexize)
             {
                 PodArray<Vertex_p_n_tx_tan_bitan> indexedVertices(m_alloc);
-                PodArray<uint32_t> indices(m_alloc);
+                PodArray<uint16_t> indices(m_alloc);
 
                 MeshUtils::indexize(vData, vCount, indexedVertices, indices);
 
@@ -254,7 +254,7 @@ public:
                 memcpy(newData.getRawData(), indexedVertices.data(), newData.getSizeInBytes());
 
                 meshPart->vertexData = std::move(newData);
-                meshPart->indices = std::move(indices);
+                meshPart->indexData = std::move(indices);
             }
 
             meshPart->materialName = kv.first;

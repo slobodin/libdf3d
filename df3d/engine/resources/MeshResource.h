@@ -16,11 +16,11 @@ struct MeshResourceData
     struct Part
     {
         VertexData vertexData;
-        PodArray<uint32_t> indices;
+        PodArray<uint16_t> indexData;
         IndicesType indicesType;
         std::string materialName;
 
-        Part(const VertexFormat &vf, Allocator &alloc) : vertexData(vf), indices(alloc) { }
+        Part(const VertexFormat &vf, Allocator &alloc) : vertexData(vf), indexData(alloc) { }
     };
 
     std::vector<Part*> parts;
