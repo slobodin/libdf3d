@@ -2,7 +2,13 @@
 
 #include <df3d/engine/resources/ResourceDataSource.h>
 #include <df3d/engine/resources/TextureResource.h>
+
+#if defined(DF3D_IOS)
+#include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/glext.h>
+#else
 #include <df3d/engine/render/gl/RenderBackendGL.h>
+#endif
 
 namespace df3d {
 

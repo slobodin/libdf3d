@@ -16,6 +16,11 @@ void Application::setTitle(const std::string &title)
 
 }
 
+void Application::quit()
+{
+    DF3D_ASSERT(false);
+}
+
 }
 
 @implementation AppDelegate

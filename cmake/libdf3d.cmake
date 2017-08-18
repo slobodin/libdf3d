@@ -8,6 +8,7 @@ set(LIBDF3D_CMAKE_LOADED true)
 # ANDROID
 # IOS
 # TVOS
+# OSX
 
 if (NOT DEFINED DF3D_PLATFORM)
     message(FATAL_ERROR "Please, specify target platform")
@@ -25,11 +26,19 @@ message(STATUS "CMAKE_BUILD_TYPE is " ${CMAKE_BUILD_TYPE})
 if (${DF3D_PLATFORM} STREQUAL "WINDOWS")
     set(DF3D_WINDOWS true)
     set(DF3D_DESKTOP true)
-    add_definitions(-DDF3D_DESKTOP)
 
+    add_definitions(-DDF3D_DESKTOP)
     add_definitions(-DWIN32 -D_WINDOWS -DDF3D_WINDOWS)
 
     message(STATUS "Platform - Windows")
+elseif (${DF3D_PLATFORM} STREQUAL "OSX")
+    set(DF3D_OSX true)
+    set(DF3D_DESKTOP true)
+
+    add_definitions(-DDF3D_DESKTOP)
+    add_definitions(-DDF3D_MACOSX)
+
+    message(STATUS "Platform - OSX")
 elseif (${DF3D_PLATFORM} STREQUAL ANDROID)
     set(DF3D_ANDROID true)
 
@@ -86,4 +95,14 @@ if (DF3D_IOS)
     endmacro (set_xcode_property)
 
     message (STATUS "iOS sysroot=${CMAKE_OSX_SYSROOT}")
+endif()
+
+
+if (DF3D_OSX)
+    add_definitions(-DZ_HAVE_UNISTD_H) # Hack for zlib
+
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++14")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -stdlib=libc++ -Wno-inconsistent-missing-override -Wno-conversion -Wall")
 endif()

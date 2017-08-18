@@ -4,7 +4,7 @@
 
 namespace df3d {
 
-bool PlatformStorage::saveData(const char *id, const PodArray<uint8_t> &data)
+bool PlatformStorage::saveData(const char *id, const std::vector<uint8_t> &data)
 {
     NSData *storageData = [NSData dataWithBytes:data.data() length:data.size()];
 
@@ -12,7 +12,7 @@ bool PlatformStorage::saveData(const char *id, const PodArray<uint8_t> &data)
     return [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-void PlatformStorage::getData(const char *id, PodArray<uint8_t> &data)
+void PlatformStorage::getData(const char *id, std::vector<uint8_t> &data)
 {
     data.clear();
 
@@ -21,7 +21,8 @@ void PlatformStorage::getData(const char *id, PodArray<uint8_t> &data)
         return;
 
     const uint8_t *bytes = reinterpret_cast<const uint8_t*>([storageData bytes]);
-    data.assign(bytes, [storageData length]);
+    data.resize([storageData length]);
+    memcpy(data.data(), bytes, data.size());
 }
 
 }
