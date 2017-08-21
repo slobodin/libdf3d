@@ -24,6 +24,9 @@ extern bool EngineInit(EngineInitParams params);
 extern void AudioSuspend();
 extern void AudioResume();
 
+extern void SetAccelerationValuesIOS(float x, float y, float z);
+extern void SetAccelerometerSupportedIOS(bool);
+
 bool HandleControllerBackButtonPressed()
 {
     if (auto l = df3d::svc().inputManager().getMfiControllerListener())
@@ -31,6 +34,18 @@ bool HandleControllerBackButtonPressed()
 
     return false;
 }
+
+#ifndef DF3D_APPLETV
+void StartAccelerometerListenerIOS()
+{
+    [g_viewController startAccelerometerListener];
+}
+
+void StopAccelerometerListenerIOS()
+{
+    [g_viewController stopAccelerometerListener];
+}
+#endif
 
 }
 
@@ -405,6 +420,17 @@ bool HandleControllerBackButtonPressed()
 {
     self = [super init];
     g_viewController = self;
+
+#ifndef DF3D_APPLETV
+    self.motionManager = [[CMMotionManager alloc] init];
+    self.motionQueue = [[NSOperationQueue alloc] init];
+
+    self.motionManager.accelerometerUpdateInterval = 1.0f / 60.0f;
+    df3d::SetAccelerometerSupportedIOS([self.motionManager isAccelerometerAvailable]);
+
+    self.listeningAccelerometer = false;
+#endif
+
     return self;
 }
 
@@ -412,12 +438,51 @@ bool HandleControllerBackButtonPressed()
 {
     [_openglView release];
     g_viewController = nil;
+
+#ifndef DF3D_APPLETV
+    [self.motionQueue release];
+    [self.motionManager release];
+#endif
+
     [super dealloc];
 }
 
 - (BOOL)prefersStatusBarHidden {
     return YES;
 }
+
+#ifndef DF3D_APPLETV
+
+- (void) startAccelerometerListener
+{
+    if (self.listeningAccelerometer)
+        return;
+
+    self.listeningAccelerometer = true;
+
+    [self.motionManager startAccelerometerUpdatesToQueue:self.motionQueue withHandler:
+     ^(CMAccelerometerData *accelerometerData, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            float x = accelerometerData.acceleration.x;
+            float y = accelerometerData.acceleration.y;
+            float z = accelerometerData.acceleration.z;
+
+            df3d::SetAccelerationValuesIOS(x, y, z);
+        });
+     }];
+}
+
+- (void) stopAccelerometerListener
+{
+    if (!self.listeningAccelerometer)
+        return;
+
+    [self.motionManager stopAccelerometerUpdates];
+
+    self.listeningAccelerometer = false;
+}
+
+#endif
 
 - (void)viewDidLoad
 {
@@ -448,7 +513,6 @@ bool HandleControllerBackButtonPressed()
     [super viewDidLayoutSubviews];
     _openglView.frame = self.view.bounds;
 }
-
 
 #ifdef DF3D_APPLETV
 
