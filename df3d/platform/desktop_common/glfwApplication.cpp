@@ -242,6 +242,11 @@ public:
             m_appDelegate->onAppDidEnterBackground();
         }
     }
+
+    void showCursor(bool show)
+    {
+        glfwSetInputMode(m_window, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+    }
 };
 
 static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
@@ -312,6 +317,11 @@ void Application::setTitle(const std::string &title)
 void Application::quit()
 {
     platform_impl::g_application.setShouldQuit();
+}
+
+void Application::showCursor(bool show)
+{
+    platform_impl::g_application.showCursor(show);
 }
 
 }

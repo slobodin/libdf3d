@@ -35,6 +35,7 @@ class Application final
 public:
     static void setTitle(const std::string &title);
     static void quit();
+    static void showCursor(bool show);
 };
 
 }
