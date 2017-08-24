@@ -21,6 +21,11 @@ void Application::quit()
     DF3D_ASSERT(false);
 }
 
+void Application::showCursor(bool)
+{
+
+}
+
 }
 
 @implementation AppDelegate
