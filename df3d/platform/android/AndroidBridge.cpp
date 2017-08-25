@@ -28,6 +28,11 @@ void Application::quit()
     env->CallStaticVoidMethod(cls, methId);
 }
 
+void Application::showCursor(bool show)
+{
+
+}
+
 struct AndroidAppState
 {
     bool initialized = false;
