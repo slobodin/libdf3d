@@ -18,8 +18,13 @@ public class Df3dActivity extends Activity {
     private static Df3dActivity m_sharedActivity = null;
 
     public static void quitApp() {
-        m_sharedActivity.mQuittingApp = true;
-        m_sharedActivity.finish();
+        m_sharedActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                m_sharedActivity.mQuittingApp = true;
+                m_sharedActivity.finish();
+            }
+        });
     }
 
     public static Df3dActivity getSharedActivity() {
