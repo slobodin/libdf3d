@@ -19,6 +19,11 @@ static GameViewController* g_viewController;
 
 namespace df3d {
 
+bool IOSDeviceOrientationIsLandscapeLeft()
+{
+    return [[UIDevice currentDevice] orientation] == UIDeviceOrientationLandscapeLeft;
+}
+
 extern bool EngineInit(EngineInitParams params);
 // TODO: refactor this.
 extern void AudioSuspend();
@@ -498,6 +503,8 @@ void StopAccelerometerListenerIOS()
 #endif
 
     [super viewDidLoad];
+
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 }
 
 - (void)viewWillAppear:(BOOL)animated
