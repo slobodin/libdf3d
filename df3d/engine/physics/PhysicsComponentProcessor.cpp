@@ -4,7 +4,6 @@
 #include <btBulletDynamicsCommon.h>
 #include <ConvexDecomposition/ConvexDecomposition.h>
 #include "BulletInterface.h"
-#include "btGImpactConvexDecompositionShape.h"
 #include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 #include "PhysicsComponentCreationParams.h"
 #include "PhysicsHelpers.h"
@@ -215,17 +214,6 @@ btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, df
 
         auto colShape = MAKE_NEW(m_allocator, btBvhTriangleMeshShape)(data.meshInterface, true);
         colShape->setLocalScaling(scale);
-
-        return colShape;
-    }
-    case CollisionShapeType::CONVEX_DECOMPOSITION:
-    {
-        data.meshInterface = ShallowCopyBulletMeshData(mesh->physicsMeshInterface, m_allocator);
-
-        auto colShape = MAKE_NEW(m_allocator, btGImpactConvexDecompositionShape)(data.meshInterface, scale);
-
-        colShape->setMargin(0.07f);
-        colShape->updateBound();
 
         return colShape;
     }

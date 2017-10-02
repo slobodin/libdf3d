@@ -33,13 +33,11 @@ set(libdf3d_HEADER_LIST
     df3d/engine/input/InputEvents.h
     df3d/engine/input/InputManager.h
     df3d/engine/io/FileSystemHelpers.h
-    df3d/engine/network/HttpClient.h
     df3d/engine/particlesys/ParticleSystemComponentProcessor.h
     df3d/engine/particlesys/ParticleSystemUtils.h
     df3d/engine/particlesys/SparkCommon.h
     df3d/engine/particlesys/SparkLineTrailRenderer.h
     df3d/engine/particlesys/SparkQuadRenderer.h
-    df3d/engine/physics/btGImpactConvexDecompositionShape.h
     df3d/engine/physics/BulletInterface.h
     df3d/engine/physics/PhysicsComponentCreationParams.h
     df3d/engine/physics/PhysicsComponentProcessor.h
@@ -93,8 +91,6 @@ set(libdf3d_HEADER_LIST
     df3d/game/impl/Sprite2DComponentLoader.h
     df3d/game/impl/VfxComponentLoader.h
     df3d/game/impl/WorldLoader.h
-    df3d/lib/Any.h
-    df3d/lib/Dict.h
     df3d/lib/Handles.h
     df3d/lib/Id.h
     df3d/lib/JsonUtils.h
@@ -111,7 +107,6 @@ set(libdf3d_HEADER_LIST
     df3d/lib/math/ConvexHull.h
     df3d/lib/math/Frustum.h
     df3d/lib/math/MathUtils.h
-    df3d/lib/math/OBB.h
     df3d/lib/memory/Allocator.h
     df3d/lib/memory/MallocAllocator.h
     df3d/lib/memory/PoolAllocator.h
@@ -143,7 +138,6 @@ set(libdf3d_SRC_LIST
     df3d/engine/particlesys/SparkCommon.cpp
     df3d/engine/particlesys/SparkLineTrailRenderer.cpp
     df3d/engine/particlesys/SparkQuadRenderer.cpp
-    df3d/engine/physics/btGImpactConvexDecompositionShape.cpp
     df3d/engine/physics/BulletInterface.cpp
     df3d/engine/physics/PhysicsComponentCreationParams.cpp
     df3d/engine/physics/PhysicsComponentProcessor.cpp
@@ -180,7 +174,6 @@ set(libdf3d_SRC_LIST
     df3d/game/WorldRenderingParams.cpp
     df3d/game/impl/EntityLoader.cpp
     df3d/game/impl/WorldLoader.cpp
-    df3d/lib/Dict.cpp
     df3d/lib/Handles.cpp
     df3d/lib/Id.cpp
     df3d/lib/JsonUtils.cpp
@@ -195,7 +188,6 @@ set(libdf3d_SRC_LIST
     df3d/lib/math/ConvexHull.cpp
     df3d/lib/math/Frustum.cpp
     df3d/lib/math/MathUtils.cpp
-    df3d/lib/math/OBB.cpp
     df3d/platform/AppDelegate.cpp
 )
 
@@ -228,7 +220,6 @@ if (DF3D_ANDROID)
         df3d/platform/android/AndroidBridge.cpp
         df3d/platform/android/JNIHelpers.cpp
         df3d/platform/android/LocalNotification.cpp
-        df3d/platform/android/HttpClient.cpp
     )
 endif()
 
@@ -245,7 +236,6 @@ if (DF3D_IOS)
         df3d/platform/ios/AppDelegate.mm
         df3d/platform/ios/GameViewController.mm
         df3d/platform/ios/LocalNotification.mm
-        df3d/platform/ios/HttpClient.mm
     )
 
     set_source_files_properties("df3d/engine/render/gl/RenderBackendGL.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
@@ -264,7 +254,6 @@ if (DF3D_DESKTOP)
         df3d/platform/desktop_common/glfwApplication.cpp
         df3d/platform/desktop_common/LocalNotification.cpp
         df3d/platform/desktop_common/glfwKeyCodes.cpp
-        df3d/platform/desktop_common/HttpClient.cpp
     )
 endif()
 

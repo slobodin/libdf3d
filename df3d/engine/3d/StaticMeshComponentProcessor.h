@@ -26,7 +26,6 @@ class StaticMeshComponentProcessor : public EntityComponentProcessor
         bool frustumCullingDisabled = false;
         std::vector<MeshPart> parts;
         std::vector<Material> materials;
-        AABB localAABB;
         BoundingSphere localBoundingSphere;
     };
 
@@ -49,7 +48,6 @@ public:
     Material* getMaterial(Entity e, size_t meshPartIdx);
     size_t getMeshPartsCount(Entity e);
 
-    AABB getAABB(Entity e);
     BoundingSphere getBoundingSphere(Entity e);
 
     Id getMeshId(Entity e);

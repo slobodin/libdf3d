@@ -13,9 +13,7 @@
 #include <df3d/lib/JsonUtils.h>
 #include <df3d/lib/math/MathUtils.h>
 #include <df3d/lib/math/Frustum.h>
-#include <df3d/lib/Dict.h>
 #include <df3d/lib/Handles.h>
-#include <df3d/lib/Any.h>
 #include <df3d/lib/Id.h>
 
 #include <df3d/engine/EngineController.h>
@@ -35,7 +33,6 @@
 #include <df3d/lib/math/BoundingVolume.h>
 #include <df3d/lib/math/AABB.h>
 #include <df3d/lib/math/BoundingSphere.h>
-#include <df3d/lib/math/OBB.h>
 
 #include <df3d/engine/render/RenderCommon.h>
 #include <df3d/engine/render/Material.h>

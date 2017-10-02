@@ -36,8 +36,6 @@ PhysicsComponentCreationParams::PhysicsComponentCreationParams(const Json::Value
         shape = CollisionShapeType::CONVEX_HULL;
     else if (shapeStr == Id("static_mesh"))
         shape = CollisionShapeType::STATIC_MESH;
-    else if (shapeStr == Id("convex_decomposition"))
-        shape = CollisionShapeType::CONVEX_DECOMPOSITION;
     else if (shapeStr == Id("dynamic_mesh"))
         shape = CollisionShapeType::DYNAMIC_MESH;
     else

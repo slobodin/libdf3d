@@ -135,31 +135,6 @@ size_t StaticMeshComponentProcessor::getMeshPartsCount(Entity e)
     return m_data.getData(e).parts.size();
 }
 
-AABB StaticMeshComponentProcessor::getAABB(Entity e)
-{
-    // FIXME: mb cache if transformation hasn't been changed?
-    auto &compData = m_data.getData(e);
-    // Update transformation.
-    compData.holderWorldTransform = m_world.sceneGraph().getWorldTransform(e);
-
-    AABB transformedAABB;
-
-    auto modelSpaceAABB = compData.localAABB;
-
-    // Get the corners of original AABB (model-space).
-    glm::vec4 aabbCorners[8];
-    modelSpaceAABB.getCorners(aabbCorners);
-
-    // Create new AABB from the corners of the original also applying world transformation.
-    for (const auto &p : aabbCorners)
-    {
-        auto trp = compData.holderWorldTransform.combined * p;
-        transformedAABB.updateBounds(glm::vec3(trp));
-    }
-
-    return transformedAABB;
-}
-
 BoundingSphere StaticMeshComponentProcessor::getBoundingSphere(Entity e)
 {
     // FIXME: mb cache if transformation hasn't been changed?
@@ -203,7 +178,6 @@ void StaticMeshComponentProcessor::add(Entity e, Id meshResource)
         data.meshResourceId = meshResource;
         data.parts = mesh->meshParts;
         data.materials.resize(data.parts.size());
-        data.localAABB = mesh->localAABB;
         data.localBoundingSphere = mesh->localBoundingSphere;
 
         if (!mesh->materialLibResourceId.empty())
