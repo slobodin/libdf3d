@@ -159,7 +159,7 @@ void World::destroy(Entity e)
 void World::destroyWithChildren(Entity e)
 {
     // Must copy children array.
-    auto children = sceneGraph().getChildren(e);
+    std::vector<df3d::Entity> children = sceneGraph().getChildren(e);
     for (auto &child : children)
         destroyWithChildren(child);
 
