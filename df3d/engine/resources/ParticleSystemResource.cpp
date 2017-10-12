@@ -327,6 +327,18 @@ static void ParseSparkModifiers(SPK::Ref<SPK::Group> group, const Json::Value &m
             auto val = JsonUtils::get(modifierJson, "value", 0.0f);
             group->addModifier(SPK::Friction::create(val));
         }
+        else if (type == Id("point_mass"))
+        {
+            auto pos = JsonUtils::get(modifierJson, "position", glm::vec3());
+            auto mass = JsonUtils::get(modifierJson, "mass", 1.0f);
+            auto offset = JsonUtils::get(modifierJson, "offset", 0.01f);
+
+            group->addModifier(SPK::PointMass::create({ pos.x, pos.y, pos.z }, mass, offset));
+        }
+        else if (type == Id("rotator"))
+        {
+            group->addModifier(SPK::Rotator::create());
+        }
         else if (type == Id("random_force"))
         {
             auto minForce = JsonUtils::get(modifierJson, "minForce", glm::vec3());
