@@ -20,6 +20,8 @@ public:
     static int rand();
     // Random value in [a, b)
     static float randRange(float a, float b);
+    // Random value in [a.x, b.x)
+    static float randRange(const glm::vec2 &a);
     // Random value in [a, b]
     static int randRange(int a, int b);
 };
