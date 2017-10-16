@@ -66,7 +66,10 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
         {
             auto tech = compData.materials[i].getCurrentTechnique();
             if (!tech)
+            {
+                DF3D_ASSERT(false);
                 continue;
+            }
 
             const auto &meshPart = compData.parts[i];
 
