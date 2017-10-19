@@ -147,7 +147,9 @@ bool ParticleSystemComponentProcessor::isWorldTransformed(Entity e) const
 
 bool ParticleSystemComponentProcessor::isPlaying(Entity e) const
 {
-    return !m_data.getData(e).paused;
+    if (m_data.contains(e))
+        return !m_data.getData(e).paused;
+    return false;
 }
 
 bool ParticleSystemComponentProcessor::isVisible(Entity e) const
