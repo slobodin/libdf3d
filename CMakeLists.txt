@@ -321,6 +321,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/turbobadger)
 # TODO: if build tools
 if (DF3D_DESKTOP)
     add_subdirectory(${PROJECT_SOURCE_DIR}/tools/obj_to_dfmesh)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/tools/atlas_packer)
     # add_subdirectory(${PROJECT_SOURCE_DIR}/tools/glsl_preprocess)
 endif()
 
