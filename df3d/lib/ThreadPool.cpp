@@ -2,7 +2,7 @@
 
 namespace df3d {
 
-static const size_t MAX_WORKERS = 4;
+enum { MAX_WORKERS = 4 };
 
 struct ThreadPoolWorker
 {

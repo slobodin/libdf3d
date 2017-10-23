@@ -8,6 +8,8 @@ namespace df3d {
 template<typename T>
 class PodArray final
 {
+    //static_assert(std::is_pod<T>::value, "PodArray should be used with POD's");
+
     T *m_data;
     //! Actual elements count.
     size_t m_size;

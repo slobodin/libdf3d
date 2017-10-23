@@ -19,9 +19,12 @@ struct IdsTable
             DF3D_ASSERT_MESS(insertRes.first->second == str, "Id collision!");
     }
 
-    void remove(uint32_t id)
+    const std::string* lookup(uint32_t id)
     {
-
+        auto found = m_ids.find(id);
+        if (found != m_ids.end())
+            return &found->second;
+        return nullptr;
     }
 
     static IdsTable& instance()
@@ -55,22 +58,22 @@ Id::Id(const char *str)
     : m_id(CalcFNV(str))
 {
 #ifdef _DEBUG
-    m_debugStr = str;
-    IdsTable::instance().add(m_id, m_debugStr);
+    IdsTable::instance().add(m_id, str);
 #endif
 }
 
 Id::~Id()
 {
-#ifdef _DEBUG
-    IdsTable::instance().remove(m_id);
-#endif
+
 }
 
 std::string Id::toString() const
 {
 #ifdef _DEBUG
-    return m_debugStr;
+    if (auto found = IdsTable::instance().lookup(m_id))
+        return *found;
+    DF3D_ASSERT(false);
+    return {};
 #else
     return std::to_string(m_id);
 #endif

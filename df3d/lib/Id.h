@@ -1,14 +1,11 @@
 #pragma once
 
+#include <type_traits>
+
 namespace df3d {
 
-class Id
+struct Id
 {
-#ifdef _DEBUG
-    std::string m_debugStr;
-#endif
-
-public:
     uint32_t m_id;
 
     Id();
