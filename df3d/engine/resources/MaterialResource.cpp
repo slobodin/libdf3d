@@ -25,6 +25,8 @@ static unique_ptr<Technique> ParseTechnique(const Json::Value &jsonTechnique)
     {
         RenderPass pass;
 
+        bool notTransparent = false;
+
         for (auto it = jsonPass.begin(); it != jsonPass.end(); ++it)
         {
             auto paramName = Id(it.key().asCString());
@@ -49,6 +51,11 @@ static unique_ptr<Technique> ParseTechnique(const Json::Value &jsonTechnique)
             {
                 DF3D_ASSERT(it->isBool());
                 pass.depthWrite = it->asBool();
+            }
+            else if (paramName == Id("not_transparent"))
+            {
+                DF3D_ASSERT(it->isBool());
+                notTransparent = it->asBool();
             }
             else if (paramName == Id("is_lit"))
             {
@@ -123,6 +130,11 @@ static unique_ptr<Technique> ParseTechnique(const Json::Value &jsonTechnique)
                         DFLOG_WARN("Failed to set shader, resource %s not found", shaderPath);
                 }
             }
+        }
+
+        if (notTransparent)
+        {
+            pass.isTransparent = false;
         }
 
         technique->passes.push_back(pass);
