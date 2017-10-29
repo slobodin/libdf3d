@@ -6,6 +6,7 @@
 namespace df3d {
 
 struct TextureResourceData;
+struct EngineInitParams;
 
 struct RenderBackendCaps
 {
@@ -77,7 +78,7 @@ public:
     virtual void draw(Topology type, size_t numberOfElements) = 0;
 
     // NOTE: do not support other backends for now. So it's static.
-    static unique_ptr<IRenderBackend> create(int width, int height);
+    static unique_ptr<IRenderBackend> create(const EngineInitParams &params);
 
     // Some helpers as template methods.
     VertexBufferHandle createVertexBuffer(const VertexData &data, GpuBufferUsageType usage)

@@ -40,7 +40,7 @@ void EngineController::initialize(EngineInitParams params)
     m_scriptManager = make_unique<ScriptManager>();
 
     m_resourceManager->initialize();
-    m_renderManager->initialize(params.windowWidth, params.windowHeight);
+    m_renderManager->initialize(params);
     m_guiManager->initialize(params.windowWidth, params.windowHeight);
     m_scriptManager->initialize();
 

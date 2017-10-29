@@ -2,6 +2,7 @@
 
 #include "RenderCommon.h"
 #include "Viewport.h"
+#include <df3d/engine/EngineInitParams.h>
 
 namespace df3d {
 
@@ -13,6 +14,7 @@ class RenderPass;
 struct GpuProgramResource;
 struct RenderQueue;
 class RenderManager;
+struct EngineInitParams;
 
 struct RenderManagerEmbedResources : private NonCopyable
 {
@@ -28,6 +30,8 @@ struct RenderManagerEmbedResources : private NonCopyable
 class RenderManager : NonCopyable
 {
     friend class EngineController;
+    
+    EngineInitParams m_initParams;
 
     unique_ptr<RenderQueue> m_renderQueue;
     unique_ptr<IRenderBackend> m_renderBackend;
@@ -56,7 +60,7 @@ public:
     RenderManager();
     ~RenderManager();
 
-    void initialize(int width, int height);
+    void initialize(const EngineInitParams &params);
     void shutdown();
 
     void drawWorld(World &world);
