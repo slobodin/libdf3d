@@ -139,4 +139,10 @@ enum class SharedUniformType
     COUNT
 };
 
+enum class RenderBackendID
+{
+    GL,
+    METAL
+};
+
 }

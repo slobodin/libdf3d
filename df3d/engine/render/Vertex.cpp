@@ -111,12 +111,6 @@ size_t VertexData::getVerticesCount() const
     return m_data.size() / m_format.getVertexSize();
 }
 
-const VertexFormat& Vertex_p_c::getFormat()
-{
-    static VertexFormat format = { VertexFormat::POSITION, VertexFormat::COLOR };
-    return format;
-}
-
 const VertexFormat& Vertex_p_tx_c::getFormat()
 {
     static VertexFormat format = { VertexFormat::POSITION, VertexFormat::TX, VertexFormat::COLOR };

@@ -30,7 +30,7 @@ struct RenderManagerEmbedResources : private NonCopyable
 class RenderManager : NonCopyable
 {
     friend class EngineController;
-    
+
     EngineInitParams m_initParams;
 
     unique_ptr<RenderQueue> m_renderQueue;
@@ -75,6 +75,8 @@ public:
     void loadEmbedResources();
     void destroyBackend();
     void createBackend();
+
+    RenderBackendID getBackendID();
 };
 
 }

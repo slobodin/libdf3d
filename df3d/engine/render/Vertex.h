@@ -83,14 +83,6 @@ public:
     void clear() { m_data.clear(); }
 };
 
-struct Vertex_p_c
-{
-    glm::vec3 pos;
-    glm::vec4 color;
-
-    static const VertexFormat& getFormat();
-};
-
 struct Vertex_p_tx_c
 {
     glm::vec3 pos;

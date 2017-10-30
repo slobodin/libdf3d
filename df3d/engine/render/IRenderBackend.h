@@ -50,6 +50,7 @@ public:
 
     virtual ShaderHandle createShader(ShaderType type, const char *data) = 0;
 
+    virtual GpuProgramHandle createGpuProgramMetal(const char *vertexFunctionName, const char *fragmentFunctionName) = 0;
     virtual GpuProgramHandle createGpuProgram(ShaderHandle vertexShaderHandle, ShaderHandle fragmentShaderHandle) = 0;
     virtual void destroyGpuProgram(GpuProgramHandle programHandle) = 0;
 
@@ -87,6 +88,7 @@ public:
     }
 
     virtual void setDestroyAndroidWorkaround() = 0;
+    virtual RenderBackendID getID() const = 0;
 };
 
 }

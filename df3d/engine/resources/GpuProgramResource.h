@@ -24,6 +24,7 @@ class GpuProgramHolder : public IResourceHolder
 {
     GpuProgramResource *m_resource = nullptr;
     std::string m_vShaderPath, m_fShaderPath;
+    std::vector<std::string> m_uniformNames;
 
 public:
     void listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps) override { }
