@@ -18,7 +18,7 @@
 
 @interface DF3DView : MTKView<MTKViewDelegate>
 
-- (void) startupEngine;
+- (bool) startupEngine;
 
 @end
 

@@ -9,19 +9,128 @@
 
 namespace df3d {
 
+struct MetalBufferWrapper
+{
+    size_t m_sizeInBytes = 0;
+    id <MTLBuffer> m_buffer = nil;
+
+    bool init(id<MTLDevice> device, const void *data, size_t size);
+    void destroy();
+};
+    
+struct MetalShaderWrapper
+{
+    ShaderType m_type = ShaderType::UNDEFINED;
+    id<MTLFunction> m_function = nil;
+    
+    bool init(id<MTLDevice> device, const char *source, ShaderType shaderType);
+    void destroy();
+};
+    
+struct MetalGpuProgramWrapper
+{
+    MetalShaderWrapper *m_vertexShader = nullptr;
+    MetalShaderWrapper *m_fragmentShader = nullptr;
+    
+    ShaderHandle m_vShaderHandle;
+    ShaderHandle m_fShaderHandle;
+    
+    bool init(id<MTLDevice> device, MetalShaderWrapper *vShader, MetalShaderWrapper *fShader);
+    void destroy();
+};
+
 class RenderBackendMetal : public IRenderBackend
 {
+    struct RenderPassState
+    {
+        MTLViewport viewport;
+        MTLScissorRect scissorRect;
+        MTLCullMode cullMode;
+        MTLWinding winding;
+        
+        bool depthTestEnabled = true;
+        bool depthWriteEnabled = true;
+        
+        RenderPassState(int w, int h)
+        {
+            setViewport(0, 0, w, h);
+            resetScissorRect();
+            cullMode = MTLCullModeNone;
+            winding = MTLWindingClockwise;
+        }
+        
+        void setCullMode(FaceCullMode mode)
+        {
+            switch (mode)
+            {
+            case FaceCullMode::NONE:
+                cullMode = MTLCullModeNone;
+                break;
+            case FaceCullMode::FRONT:
+                cullMode = MTLCullModeFront;
+                break;
+            case FaceCullMode::BACK:
+                cullMode = MTLCullModeBack;
+                break;
+            default:
+                DF3D_ASSERT(false);
+                break;
+            }
+        }
+        
+        void setViewport(int x, int y, int w, int h)
+        {
+            viewport = (MTLViewport){ (double)x, (double)y, (double)w, (double)h, -1.0, 1.0 };
+        }
+        
+        void setScissorRect(int x, int y, int w, int h)
+        {
+            scissorRect = (MTLScissorRect){
+                static_cast<NSUInteger>(x),
+                static_cast<NSUInteger>(y),
+                static_cast<NSUInteger>(w),
+                static_cast<NSUInteger>(h) };
+        }
+        
+        void resetScissorRect()
+        {
+            setScissorRect(0, 0, (int)viewport.width, (int)viewport.height);
+        }
+        
+        id <MTLRenderCommandEncoder> createEncoder(id<MTLCommandBuffer> commandBuffer, MTLRenderPassDescriptor *renderPassDescriptor);
+    };
+    
+    static const int MAX_SIZE = 0xFFF;      // 4k is enough for now.
+
+    HandleBag m_vertexBuffersBag;
+    HandleBag m_indexBuffersBag;
+    HandleBag m_shadersBag;
+    HandleBag m_gpuProgramsBag;
+
+    MetalBufferWrapper m_vertexBuffers[MAX_SIZE];
+    MetalBufferWrapper m_indexBuffers[MAX_SIZE];
+    MetalShaderWrapper m_shaders[MAX_SIZE];
+    MetalGpuProgramWrapper m_programs[MAX_SIZE];
+
     RenderBackendCaps m_caps;
     FrameStats m_stats;
     
+    RenderPassState m_currentPassState;
+    id <MTLBuffer> m_currentVertexBuffer = nil;
+    id <MTLBuffer> m_currentIndexBuffer = nil;
+
     MTKView *m_mtkView = nullptr;
-    
     id<MTLDevice> m_mtlDevice = nullptr;
-    id<MTLRenderPipelineState> m_pipelineState = nullptr;
-    id<MTLCommandQueue> m_commandQueue;
+    id<MTLCommandQueue> m_commandQueue = nullptr;
     
+    id<MTLCommandBuffer> m_currentCommandBuffer = nullptr;
+
     int m_width;
     int m_height;
+
+    void initMetal(const EngineInitParams &params);
+    
+    void destroyShader(ShaderHandle shaderHandle);
 
 public:
     RenderBackendMetal(const EngineInitParams &params);

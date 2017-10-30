@@ -48,6 +48,8 @@ RenderManagerEmbedResources::RenderManagerEmbedResources(RenderManager *render)
 
     // Load GPU programs.
     {
+#ifndef DF3D_IOS
+        
         const std::string colored_vert =
 #include "gl/embed_glsl/colored_vert.h"
             ;
@@ -60,6 +62,21 @@ RenderManagerEmbedResources::RenderManagerEmbedResources(RenderManager *render)
         const std::string ambient_frag =
 #include "gl/embed_glsl/ambient_frag.h"
             ;
+        
+#else
+        const std::string colored_vert =
+#include "metal/embed_metal/colored_vert.h"
+        ;
+        const std::string colored_frag =
+#include "metal/embed_metal/colored_frag.h"
+        ;
+        const std::string ambient_vert =
+#include "metal/embed_metal/ambient_vert.h"
+        ;
+        const std::string ambient_frag =
+#include "metal/embed_metal/ambient_frag.h"
+        ;
+#endif
 
         coloredProgram = GpuProgramFromData(colored_vert, colored_frag, allocator);
         ambientPassProgram = GpuProgramFromData(ambient_vert, ambient_frag, allocator);
@@ -73,8 +90,10 @@ RenderManagerEmbedResources::~RenderManagerEmbedResources()
 {
     auto &allocator = MemoryManager::allocDefault();
     svc().renderManager().getBackend().destroyTexture(whiteTexture);
-    svc().renderManager().getBackend().destroyGpuProgram(coloredProgram->handle);
-    svc().renderManager().getBackend().destroyGpuProgram(ambientPassProgram->handle);
+    if (coloredProgram)
+        svc().renderManager().getBackend().destroyGpuProgram(coloredProgram->handle);
+    if (ambientPassProgram)
+        svc().renderManager().getBackend().destroyGpuProgram(ambientPassProgram->handle);
     MAKE_DELETE(allocator, coloredProgram);
     MAKE_DELETE(allocator, ambientPassProgram);
     MAKE_DELETE(allocator, ambientPass);
@@ -238,14 +257,16 @@ RenderManager::~RenderManager()
 
 }
 
-void RenderManager::initialize(int width, int height)
+void RenderManager::initialize(const EngineInitParams &params)
 {
-    m_width = width;
-    m_height = height;
+    m_initParams = params;
+    
+    m_width = params.windowWidth;
+    m_height = params.windowHeight;
 
     m_renderQueue = make_unique<RenderQueue>();
-    m_viewport = Viewport(0, 0, width, height);
-    m_renderBackend = IRenderBackend::create(width, height);
+    m_viewport = Viewport(0, 0, m_width, m_height);
+    m_renderBackend = IRenderBackend::create(params);
     m_sharedState = make_unique<GpuProgramSharedState>();
 
     loadEmbedResources();
@@ -321,7 +342,7 @@ void RenderManager::destroyBackend()
 
 void RenderManager::createBackend()
 {
-    m_renderBackend = IRenderBackend::create(m_width, m_height);
+    m_renderBackend = IRenderBackend::create(m_initParams);
 }
 
 }
