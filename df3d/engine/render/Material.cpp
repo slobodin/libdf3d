@@ -33,7 +33,7 @@ void ValuePassParam::setValue(const glm::vec4 &val)
     m_value.vec4Val[3] = val.w;
 }
 
-void ValuePassParam::updateToProgram(IRenderBackend &backend, const  GpuProgramResource &program, Id name)
+void ValuePassParam::updateToProgram(IRenderBackend &backend, const GpuProgramResource &program, Id name)
 {
     if (!m_handle.isValid())
     {
@@ -48,7 +48,7 @@ void ValuePassParam::updateToProgram(IRenderBackend &backend, const  GpuProgramR
         m_handle = handleFound->second;
     }
 
-    backend.setUniformValue(m_handle, &m_value);
+    backend.setUniformValue(program.handle, m_handle, &m_value);
 }
 
 void RenderPass::bindCustomPassParams(IRenderBackend &backend)

@@ -33,13 +33,13 @@ public:
     virtual void destroyVertexBuffer(VertexBufferHandle vbHandle) = 0;
 
     virtual void bindVertexBuffer(VertexBufferHandle vbHandle) = 0;
-    virtual void updateVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) = 0;
+    // virtual void updateVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) = 0;
 
     virtual IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage, IndicesType indicesType) = 0;
     virtual void destroyIndexBuffer(IndexBufferHandle ibHandle) = 0;
 
     virtual void bindIndexBuffer(IndexBufferHandle ibHandle) = 0;
-    virtual void updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data) = 0;
+    // virtual void updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data) = 0;
 
     virtual TextureHandle createTexture2D(const TextureInfo &info, uint32_t flags, const void *data) = 0;
     virtual TextureHandle createCompressedTexture(const TextureResourceData &data, uint32_t flags) = 0;
@@ -59,7 +59,7 @@ public:
 
     virtual void bindGpuProgram(GpuProgramHandle programHandle) = 0;
     virtual void requestUniforms(GpuProgramHandle programHandle, std::vector<UniformHandle> &outHandles, std::vector<std::string> &outNames) = 0;
-    virtual void setUniformValue(UniformHandle uniformHandle, const void *data) = 0;
+    virtual void setUniformValue(GpuProgramHandle programHandle, UniformHandle uniformHandle, const void *data) = 0;
 
     virtual void bindFrameBuffer(FrameBufferHandle frameBufferHandle) = 0;
 

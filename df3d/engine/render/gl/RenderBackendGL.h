@@ -75,7 +75,7 @@ public:
 
     void removeTexture(TextureHandle td)
     {
-        removeHelper(m_textures, td); 
+        removeHelper(m_textures, td);
     }
 
     void addVertexBuffer(VertexBufferHandle vb, size_t sizeInBytes)
@@ -219,13 +219,13 @@ public:
     void destroyVertexBuffer(VertexBufferHandle vbHandle) override;
 
     void bindVertexBuffer(VertexBufferHandle vbHandle) override;
-    void updateVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) override;
+    // void updateVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) override;
 
     IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage, IndicesType indicesType) override;
     void destroyIndexBuffer(IndexBufferHandle ibHandle) override;
 
     void bindIndexBuffer(IndexBufferHandle ibHandle) override;
-    void updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data) override;
+    // void updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data) override;
 
     TextureHandle createTexture2D(const TextureInfo &info, uint32_t flags, const void *data) override;
     TextureHandle createCompressedTexture(const TextureResourceData &data, uint32_t flags) override;

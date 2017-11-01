@@ -1,5 +1,6 @@
 #pragma once
 
+#include <df3d_pch.h>
 #include "RenderCommon.h"
 
 namespace df3d {
@@ -7,6 +8,7 @@ namespace df3d {
 class Light;
 class Viewport;
 struct GpuProgramResource;
+class IRenderBackend;
 
 class GpuProgramSharedState
 {
@@ -50,6 +52,8 @@ class GpuProgramSharedState
 
     void resetFlags();
 
+    IRenderBackend *m_backend = nullptr;
+
 public:
     GpuProgramSharedState() = default;
     ~GpuProgramSharedState() = default;
@@ -73,7 +77,7 @@ public:
     void setAmbientColor(const glm::vec3 &color);
     void setLight(const Light &light, size_t idx);
 
-    void clear();
+    void initialize(IRenderBackend *backend);
 
     void updateSharedUniforms(const GpuProgramResource &program);
 };

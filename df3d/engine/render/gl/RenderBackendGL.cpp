@@ -431,21 +431,21 @@ void RenderBackendGL::bindVertexBuffer(VertexBufferHandle vbHandle)
     m_currentVertexBuffer = vbHandle;
 }
 
-void RenderBackendGL::updateVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data)
-{
-    DF3D_ASSERT(m_vertexBuffersBag.isValid(vbHandle.getID()));
+// void RenderBackendGL::updateVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data)
+// {
+//     DF3D_ASSERT(m_vertexBuffersBag.isValid(vbHandle.getID()));
 
-    const auto &vertexBuffer = m_vertexBuffers[vbHandle.getIndex()];
+//     const auto &vertexBuffer = m_vertexBuffers[vbHandle.getIndex()];
 
-    auto bytesUpdating = verticesCount * vertexBuffer.format.getVertexSize();
-    DF3D_ASSERT(bytesUpdating <= vertexBuffer.sizeInBytes);
+//     auto bytesUpdating = verticesCount * vertexBuffer.format.getVertexSize();
+//     DF3D_ASSERT(bytesUpdating <= vertexBuffer.sizeInBytes);
 
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.glID));
-    GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, 0, bytesUpdating, data));
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+//     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.glID));
+//     GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, 0, bytesUpdating, data));
+//     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-    m_currentVertexBuffer = {};
-}
+//     m_currentVertexBuffer = {};
+// }
 
 IndexBufferHandle RenderBackendGL::createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage, IndicesType indicesType)
 {
@@ -516,21 +516,21 @@ void RenderBackendGL::bindIndexBuffer(IndexBufferHandle ibHandle)
     m_currentIndexBuffer = ibHandle;
 }
 
-void RenderBackendGL::updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data)
-{
-    DF3D_ASSERT(m_indexBuffersBag.isValid(ibHandle.getID()));
+// void RenderBackendGL::updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data)
+// {
+//     DF3D_ASSERT(m_indexBuffersBag.isValid(ibHandle.getID()));
 
-    const auto &indexBuffer = m_indexBuffers[ibHandle.getIndex()];
+//     const auto &indexBuffer = m_indexBuffers[ibHandle.getIndex()];
 
-    auto bytesUpdating = indicesCount * (indexBuffer.indices16bit ? sizeof(uint16_t) : sizeof(uint32_t));
-    DF3D_ASSERT(bytesUpdating <= indexBuffer.sizeInBytes);
+//     auto bytesUpdating = indicesCount * (indexBuffer.indices16bit ? sizeof(uint16_t) : sizeof(uint32_t));
+//     DF3D_ASSERT(bytesUpdating <= indexBuffer.sizeInBytes);
 
-    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.glID));
-    GL_CHECK(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, bytesUpdating, data));
-    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+//     GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.glID));
+//     GL_CHECK(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, bytesUpdating, data));
+//     GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-    m_currentIndexBuffer = {};
-}
+//     m_currentIndexBuffer = {};
+// }
 
 TextureHandle RenderBackendGL::createTexture2D(const TextureInfo &info, uint32_t flags, const void *data)
 {
