@@ -78,7 +78,7 @@ TextureResourceData* TextureLoader_stbi(ResourceDataSource &dataSource, Allocato
     }
 
     if (forceRGBA)
-        DF3D_ASSERT(fmt == PixelFormat::RGBA);
+        fmt = PixelFormat::RGBA;
 
     auto resource = MAKE_NEW(alloc, TextureResourceData);
     resource->info.format = fmt;

@@ -26,6 +26,12 @@ typedef struct
 
 typedef struct
 {
+    simd::float4 position;
+    simd::float4 color;
+} MetalLight;
+
+typedef struct
+{
     simd::float4x4 u_worldViewProjectionMatrix;
     simd::float4x4 u_worldViewMatrix;
     simd::float4x4 u_viewMatrixInverse;
@@ -36,10 +42,8 @@ typedef struct
     simd::float3x3 u_normalMatrix;
     simd::float3x3 u_worldViewMatrix3x3;
 
-    simd::float4 light0_position;
-    simd::float4 light0_color;
-    simd::float4 light1_position;
-    simd::float4 light1_color;
+    MetalLight light0;
+    MetalLight light1;
 
     simd::float4 u_globalAmbient;
     simd::float4 u_fogColor;
