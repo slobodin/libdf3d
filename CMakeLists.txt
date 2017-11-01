@@ -236,6 +236,7 @@ if (DF3D_IOS)
         df3d/platform/ios/AppDelegate.h
         df3d/platform/ios/GameViewController.h
         df3d/engine/render/metal/RenderBackendMetal.h
+        df3d/engine/render/metal/MetalGlobalUniforms.h
     )
     list(APPEND libdf3d_SRC_LIST
         df3d/lib/os/PlatformFile_ios.mm
@@ -247,6 +248,8 @@ if (DF3D_IOS)
         df3d/platform/ios/GameViewController.mm
         df3d/platform/ios/LocalNotification.mm
     )
+
+    set_source_files_properties("df3d/engine/render/GpuProgramSharedState.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
 
 if (DF3D_DESKTOP)
