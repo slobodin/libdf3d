@@ -100,7 +100,7 @@ void ParticleSystemBuffers_Quad::draw(size_t nbOfParticles, RenderPass *passProp
     auto vb = svc().renderManager().getBackend().createVertexBuffer(Vertex_p_tx_c::getFormat(),
                                                                     nbOfParticles * QUAD_VERTICES_PER_PARTICLE,
                                                                     m_vertexData,
-                                                                    GpuBufferUsageType::STREAM);
+                                                                    GpuBufferUsageType::DYNAMIC);
 
     RenderOperation op;
     op.topology = Topology::TRIANGLES;

@@ -192,7 +192,7 @@ class TBRendererImpl : public tb::TBRenderer
             }
 
             auto &backend = svc().renderManager().getBackend();
-            auto vb = backend.createVertexBuffer(Vertex_p_tx_c::getFormat(), vertex_count, vertexData, GpuBufferUsageType::STREAM);
+            auto vb = backend.createVertexBuffer(Vertex_p_tx_c::getFormat(), vertex_count, vertexData, GpuBufferUsageType::DYNAMIC);
 
             batch_renderer->RenderBatch(this, vb);
 
@@ -341,8 +341,17 @@ public:
             m_clip_rect = m_clip_rect.Clip(old_clip_rect);
 
         FlushAllInternal();
-
-        svc().renderManager().getBackend().setScissorRegion(m_clip_rect.x, m_screen_rect.h - (m_clip_rect.y + m_clip_rect.h), m_clip_rect.w, m_clip_rect.h);
+        
+        auto &backend = svc().renderManager().getBackend();
+        auto backendID = backend.getID();
+        if (backendID == RenderBackendID::METAL)
+        {
+            backend.setScissorRegion(m_clip_rect.x, m_clip_rect.y, m_clip_rect.w, m_clip_rect.h);
+        }
+        else
+        {
+            backend.setScissorRegion(m_clip_rect.x, m_screen_rect.h - (m_clip_rect.y + m_clip_rect.h), m_clip_rect.w, m_clip_rect.h);
+        }
 
         old_clip_rect.x -= m_translation_x;
         old_clip_rect.y -= m_translation_y;
