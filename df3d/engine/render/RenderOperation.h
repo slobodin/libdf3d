@@ -10,6 +10,9 @@ class RenderPass;
 class RenderOperation
 {
 public:
+#ifdef _DEBUG
+    std::string debugID;
+#endif
     Topology topology = Topology::TRIANGLES;
     glm::mat4 worldTransform;
 

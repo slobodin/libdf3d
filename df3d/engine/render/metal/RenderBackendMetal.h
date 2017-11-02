@@ -10,7 +10,7 @@
 #include "MetalGlobalUniforms.h"
 
 namespace df3d {
-    
+
 class RenderBackendMetal;
 
 struct MetalBufferWrapper
@@ -33,7 +33,7 @@ struct MetalIndexBufferWrapper : MetalBufferWrapper
 };
 
 class MetalTextureWrapper
-{    
+{
 public:
     TextureInfo m_info;
     id<MTLTexture> m_texture = nil;
@@ -73,7 +73,9 @@ class RenderBackendMetal : public IRenderBackend
 {
     friend class MetalTextureWrapper;
     friend class MetalGpuProgramWrapper;
-    
+
+    dispatch_semaphore_t m_framesSemaphore;
+
     RenderBackendCaps m_caps;
     FrameStats m_stats;
 
@@ -86,7 +88,7 @@ class RenderBackendMetal : public IRenderBackend
 
         bool depthTestEnabled = true;
         bool depthWriteEnabled = true;
-        
+
         BlendingMode blendingMode = BlendingMode::NONE;
 
         RenderPassState(int w, int h)
@@ -184,20 +186,34 @@ class RenderBackendMetal : public IRenderBackend
 
     void initMetal(const EngineInitParams &params);
 
-    id<MTLRenderPipelineState> createPipeline(VertexFormat vf,
-                                              id<MTLFunction> vertexFunction,
-                                              id<MTLFunction> fragmentFunction,
-                                              BlendingMode blendingMode);
-    
     MTLTextureDescriptor *m_textureDescriptor = nullptr;
     MTLSamplerDescriptor *m_samplerDescriptor = nullptr;
-    MTLVertexDescriptor *m_vertexDescriptor = nullptr;
-    MTLRenderPipelineDescriptor *m_renderPipelineDescriptor = nullptr;
     MTLDepthStencilDescriptor *m_depthStencilDescriptor = nullptr;
-    
+
     std::unordered_map<uint32_t, id<MTLSamplerState>> m_samplerStateCache;
     std::array<id<MTLDepthStencilState>, 4> m_depthStencilStateCache;
-    
+
+    class RenderPipelinesCache
+    {
+        RenderBackendMetal *m_backend;
+
+        MTLVertexDescriptor *m_vertexDescriptor = nullptr;
+        MTLRenderPipelineDescriptor *m_renderPipelineDescriptor = nullptr;
+        std::unordered_map<uint64_t, id <MTLRenderPipelineState>> m_cache;
+
+        uint64_t getHash(GpuProgramHandle program, VertexFormat vf, BlendingMode blending) const;
+
+    public:
+        RenderPipelinesCache(RenderBackendMetal *backend);
+        ~RenderPipelinesCache();
+
+        id <MTLRenderPipelineState> getOrCreate(GpuProgramHandle program, VertexFormat vf, BlendingMode blending);
+
+        void invalidate();
+    };
+
+    unique_ptr<RenderPipelinesCache> m_renderPipelinesCache;
+
     id<MTLSamplerState> getSamplerState(uint32_t flags);
     id<MTLDepthStencilState> getDepthStencilState(bool depthTestEnabled, bool depthWriteEnabled);
 

@@ -73,6 +73,9 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
             for (auto &pass : tech->passes)
             {
                 RenderOperation op;
+#ifdef _DEBUG
+                op.debugID = compData.meshResourceId.toString();
+#endif
                 op.vertexBuffer = meshPart.vertexBuffer;
                 op.indexBuffer = meshPart.indexBuffer;
                 op.numberOfElements = meshPart.numberOfElements;

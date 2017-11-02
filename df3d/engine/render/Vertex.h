@@ -29,7 +29,6 @@ private:
 public:
     VertexFormat();
     VertexFormat(std::initializer_list<VertexAttribute> attribs);
-
     //! Whether or not this format has a given attribute.
     bool hasAttribute(VertexAttribute attrib) const { return m_attribs[attrib] != 0xFFFF; }
 
@@ -60,6 +59,8 @@ public:
     {
         return !(*this == other);
     }
+
+    uint16_t getHash() const;
 };
 
 class VertexData

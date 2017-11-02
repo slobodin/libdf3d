@@ -37,5 +37,6 @@ public:
 };
 
 GpuProgramResource* GpuProgramFromData(const std::string &vShaderData, const std::string &fShaderData, Allocator &alloc);
+GpuProgramResource* CreateGpuProgramMetal(const std::string &vShaderFunction, const std::string &fShaderFunction, std::vector<std::string> uniformNames, Allocator &alloc);
 
 }

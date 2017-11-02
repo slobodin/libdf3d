@@ -48,6 +48,19 @@ static uint16_t GetAttributeCompCount(VertexFormat::VertexAttribute attrib)
     return 0;
 }
 
+uint16_t VertexFormat::getHash() const
+{
+    uint16_t res = 0;
+
+    for (uint16_t i = 0; i < COUNT; i++)
+    {
+        if (hasAttribute((VertexAttribute)i))
+            res |= (uint16_t)1 << i;
+    }
+
+    return res;
+}
+
 VertexFormat::VertexFormat()
     : m_size(0)
 {
