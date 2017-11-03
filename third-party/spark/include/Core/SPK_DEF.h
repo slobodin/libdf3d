@@ -238,7 +238,7 @@ using uint32 = uint32_t;
 		if ((tmp0 & 0x80000000L) != 0)
 			tmp0 = (tmp0 + 1) & 0x7FFFFFFFL;
 
-		randomSeed = tmp0;
+		randomSeed = static_cast<unsigned int>(tmp0);
 
 		// find a random number in the interval
 		return static_cast<T>(min + ((randomSeed - 1) / 2147483646.0) * (max - min));
