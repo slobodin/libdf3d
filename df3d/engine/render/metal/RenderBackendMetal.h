@@ -13,23 +13,74 @@ namespace df3d {
 
 class RenderBackendMetal;
 
-struct MetalBufferWrapper
+const size_t MAX_TRANSIENT_BUFFER_SIZE = 0x1000;    // 4k is allowed by Metal
+const int MAX_IN_FLIGHT_FRAMES = 3;
+
+class IMetalVertexBuffer
 {
+    VertexFormat m_format;
+
+public:
+    IMetalVertexBuffer(const VertexFormat &format) : m_format(format) { }
+    virtual ~IMetalVertexBuffer() = default;
+
+    const VertexFormat& getFormat() const { return m_format; }
+
+    virtual bool initialize(RenderBackendMetal *backend, const void *data, size_t verticesCount) = 0;
+    virtual void update(RenderBackendMetal *backend, const void *data, size_t verticesCount) = 0;
+    virtual void bind(id <MTLRenderCommandEncoder> encoder, size_t verticesOffset) = 0;
+};
+
+class MetalTransientVertexBuffer : public IMetalVertexBuffer
+{
+    std::array<uint8_t, MAX_TRANSIENT_BUFFER_SIZE> m_transientStorage;
+    size_t m_currentSize = 0;
+
+public:
+    MetalTransientVertexBuffer(const VertexFormat &format);
+    ~MetalTransientVertexBuffer();
+
+    bool initialize(RenderBackendMetal *backend, const void *data, size_t verticesCount) override;
+    void update(RenderBackendMetal *backend, const void *data, size_t verticesCount) override;
+    void bind(id <MTLRenderCommandEncoder> encoder, size_t verticesOffset) override;
+};
+
+class MetalStaticVertexBuffer : public IMetalVertexBuffer
+{
+    id <MTLBuffer> m_buffer = nil;
+
+public:
+    MetalStaticVertexBuffer(const VertexFormat &format);
+    ~MetalStaticVertexBuffer();
+
+    bool initialize(RenderBackendMetal *backend, const void *data, size_t verticesCount) override;
+    void update(RenderBackendMetal *backend, const void *data, size_t verticesCount) override;
+    void bind(id <MTLRenderCommandEncoder> encoder, size_t verticesOffset) override;
+};
+
+class MetalDynamicVertexBuffer : public IMetalVertexBuffer
+{
+    std::array<id<MTLBuffer>, MAX_IN_FLIGHT_FRAMES> m_buffers;
     size_t m_sizeInBytes = 0;
+    int m_bufferIdx = 0;
+
+public:
+    MetalDynamicVertexBuffer(const VertexFormat &format);
+    ~MetalDynamicVertexBuffer();
+
+    bool initialize(RenderBackendMetal *backend, const void *data, size_t verticesCount) override;
+    void update(RenderBackendMetal *backend, const void *data, size_t verticesCount) override;
+    void bind(id <MTLRenderCommandEncoder> encoder, size_t verticesOffset) override;
+    void advanceToTheNextFrame();
+};
+
+struct MetalIndexBufferWrapper
+{
+    MTLIndexType m_indexType;
     id <MTLBuffer> m_buffer = nil;
 
     bool init(id<MTLDevice> device, const void *data, size_t size);
     void destroy();
-};
-
-struct MetalVertexBufferWrapper : MetalBufferWrapper
-{
-    VertexFormat m_vertexFormat;
-};
-
-struct MetalIndexBufferWrapper : MetalBufferWrapper
-{
-    MTLIndexType m_indexType;
 };
 
 class MetalTextureWrapper
@@ -73,8 +124,9 @@ class RenderBackendMetal : public IRenderBackend
 {
     friend class MetalTextureWrapper;
     friend class MetalGpuProgramWrapper;
+    friend struct MetalVertexBufferWrapper;
 
-    dispatch_semaphore_t m_framesSemaphore;
+    dispatch_semaphore_t m_frameBoundarySemaphore;
 
     RenderBackendCaps m_caps;
     FrameStats m_stats;
@@ -150,10 +202,12 @@ class RenderBackendMetal : public IRenderBackend
     HandleBag m_texturesBag;
     HandleBag m_gpuProgramsBag;
 
-    MetalVertexBufferWrapper m_vertexBuffers[MAX_SIZE];
+    unique_ptr<IMetalVertexBuffer> m_vertexBuffers[MAX_SIZE];
     MetalIndexBufferWrapper m_indexBuffers[MAX_SIZE];
     MetalTextureWrapper m_textures[MAX_SIZE];
     MetalGpuProgramWrapper m_programs[MAX_SIZE];
+
+    std::vector<MetalDynamicVertexBuffer*> m_dynamicBuffers;
 
     RenderPassState m_currentPassState;
     VertexBufferHandle m_currentVB;
@@ -227,12 +281,14 @@ public:
     void frameBegin() override;
     void frameEnd() override;
 
-    VertexBufferHandle createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage) override;
+    VertexBufferHandle createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data) override;
+    VertexBufferHandle createDynamicVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data) override;
+    void updateDynamicVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) override;
     void destroyVertexBuffer(VertexBufferHandle vbHandle) override;
 
     void bindVertexBuffer(VertexBufferHandle vbHandle) override;
 
-    IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage, IndicesType indicesType) override;
+    IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, IndicesType indicesType) override;
     void destroyIndexBuffer(IndexBufferHandle ibHandle) override;
 
     void bindIndexBuffer(IndexBufferHandle ibHandle) override;
@@ -277,7 +333,7 @@ public:
     void setBlendingMode(BlendingMode mode) override;
     void setCullFaceMode(FaceCullMode mode) override;
 
-    void draw(Topology type, size_t numberOfElements) override;
+    void draw(Topology type, size_t numberOfElements, size_t vertexBufferOffset) override;
 
     void setDestroyAndroidWorkaround() override { }
     RenderBackendID getID() const { return RenderBackendID::METAL; }
@@ -299,6 +355,7 @@ public:
     }
 
     MetalGlobalUniforms* getGlobalUniforms() { return m_uniformBuffer.get(); }
+    id<MTLDevice> getMetalDevice() { return m_mtlDevice; }
 };
 
 }
