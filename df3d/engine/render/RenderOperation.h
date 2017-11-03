@@ -20,6 +20,7 @@ public:
     IndexBufferHandle indexBuffer;
     RenderPass *passProps = nullptr;
     size_t numberOfElements = 0;
+    size_t vertexBufferOffset = 0;
 
     RenderOperation() = default;
     ~RenderOperation() = default;
