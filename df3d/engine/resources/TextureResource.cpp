@@ -17,7 +17,7 @@ namespace df3d {
 
 namespace {
 
-df3d::TextureResourceData* LoadTextureDataFromFile(const char *path, Allocator &allocator, bool forceRgba = false)
+df3d::TextureResourceData* LoadTextureDataFromFile(const char *path, Allocator &allocator, bool forceRgba)
 {
     auto &fs = svc().resourceManager().getFS();
 
@@ -103,7 +103,9 @@ bool TextureHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &all
             path = lqPath;
     }
 
-    m_resourceData = LoadTextureDataFromFile(path.c_str(), allocator);
+    bool forceRGBA = svc().renderManager().getBackendID() == RenderBackendID::METAL;
+
+    m_resourceData = LoadTextureDataFromFile(path.c_str(), allocator, forceRGBA);
 
     return m_resourceData != nullptr;
 }

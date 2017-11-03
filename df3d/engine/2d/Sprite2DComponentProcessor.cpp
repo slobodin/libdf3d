@@ -15,7 +15,7 @@
 
 namespace df3d {
 
-static VertexBufferHandle CreateQuad(float x, float y, float w, float h, GpuBufferUsageType usage)
+static VertexBufferHandle CreateQuad(float x, float y, float w, float h)
 {
     const float w2 = w / 2.0f;
     const float h2 = h / 2.0f;
@@ -30,7 +30,7 @@ static VertexBufferHandle CreateQuad(float x, float y, float w, float h, GpuBuff
         { { x - w2, y - h2, 0.0f }, { 0.0, 0.0 }, color },
     };
 
-    return svc().renderManager().getBackend().createVertexBuffer(Vertex_p_tx_c::getFormat(), 6, quadData, usage);
+    return svc().renderManager().getBackend().createVertexBuffer(Vertex_p_tx_c::getFormat(), 6, quadData);
 }
 
 void Sprite2DComponentProcessor::updateTransform(Data &compData, SceneGraphComponentProcessor &sceneGr)
@@ -73,7 +73,7 @@ void Sprite2DComponentProcessor::updateTransform(Data &compData, SceneGraphCompo
 void Sprite2DComponentProcessor::draw(RenderQueue *ops)
 {
     if (!m_vertexBuffer.isValid())
-        m_vertexBuffer = CreateQuad(0.0f, 0.0f, 1.0, 1.0f, GpuBufferUsageType::STATIC);
+        m_vertexBuffer = CreateQuad(0.0f, 0.0f, 1.0, 1.0f);
     // TODO:
     // Camera transform.
     auto &sceneGr = m_world.sceneGraph();

@@ -7,8 +7,7 @@ namespace df3d {
 
 struct TextureResource;
 class RenderPass;
-
-class ParticleSystemBuffers_Quad;
+class ParticleSystemIndexBuffer;
 
 class ParticleSystemRenderer : public SPK::Renderer
 {
@@ -17,10 +16,8 @@ class ParticleSystemRenderer : public SPK::Renderer
 public:
     mutable RenderPass m_pass;
 
-    // This is a workaround.
-    // We need to pass RenderQueue in order to populate it when renderParticles called.
     glm::mat4 *m_currentTransformation;
-    ParticleSystemBuffers_Quad *m_quadBuffers;
+    ParticleSystemIndexBuffer *m_indexBuffer;
 
     ParticleSystemRenderer(bool NEEDS_DATASET);
     ~ParticleSystemRenderer();

@@ -132,8 +132,6 @@ static GLenum GetGLBufferUsageType(GpuBufferUsageType usageType)
     case GpuBufferUsageType::STATIC:
         return GL_STATIC_DRAW;
     case GpuBufferUsageType::DYNAMIC:
-        return GL_DYNAMIC_DRAW;
-    case GpuBufferUsageType::STREAM:
         return GL_STREAM_DRAW;
     default:
         break;

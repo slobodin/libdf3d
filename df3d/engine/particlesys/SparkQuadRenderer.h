@@ -9,67 +9,19 @@ namespace df3d {
 
 class MyRenderBuffer;
 
-// A cache for all systems vertex & index data.
-class ParticleSystemBuffers_Quad
+// A cache for index data used by all particle systems.
+class ParticleSystemIndexBuffer
 {
-    const size_t INITIAL_CAPACITY = 64;
-
-    size_t m_particlesAllocated = 0;
     IndexBufferHandle m_indexBuffer;
-
-    // CPU side storage, TODO: use glMapBuffer
-    Vertex_p_tx_c *m_vertexData = nullptr;
-
-    size_t m_currentVertexIndex = 0;
-    size_t m_currentColorIndex = 0;
-    size_t m_currentTexCoordIndex = 0;
+    size_t m_particlesAllocated = 0;
 
     void cleanup();
-
 public:
-    ParticleSystemBuffers_Quad();
-    ~ParticleSystemBuffers_Quad();
+    ParticleSystemIndexBuffer();
+    ~ParticleSystemIndexBuffer();
 
-    void realloc(size_t nbParticles);
-
-    inline void positionAtStart()
-    {
-        // Repositions all the buffer pointers at the start.
-        m_currentVertexIndex = 0;
-        m_currentColorIndex = 0;
-        m_currentTexCoordIndex = 0;
-    }
-
-    inline void setNextVertex(const SPK::Vector3D &vertex)
-    {
-        auto &v = m_vertexData[m_currentVertexIndex].pos;
-        v.x = vertex.x;
-        v.y = vertex.y;
-        v.z = vertex.z;
-        ++m_currentVertexIndex;
-    }
-
-    void setNextColor(const SPK::Color &color)
-    {
-        auto &c = m_vertexData[m_currentColorIndex].color;
-        c.r = color.r / 255.0f;
-        c.g = color.g / 255.0f;
-        c.b = color.b / 255.0f;
-        c.a = color.a / 255.0f;
-        ++m_currentColorIndex;
-    }
-
-    void setNextTexCoords(float u, float v)
-    {
-        auto &uv = m_vertexData[m_currentTexCoordIndex].uv;
-        uv.x = u;
-        uv.y = v;
-        ++m_currentTexCoordIndex;
-    }
-
-    size_t getParticlesAllocated() const { return m_particlesAllocated; }
-
-    void draw(size_t nbOfParticles, RenderPass *passProps, const glm::mat4 &m);
+    void reallocIfNeeded(size_t nbParticles);
+    IndexBufferHandle getHandle() const { return m_indexBuffer; }
 };
 
 //! A Renderer drawing particles as quads.
