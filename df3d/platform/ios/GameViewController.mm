@@ -67,27 +67,32 @@ void StopAccelerometerListenerIOS()
     df3d::svc().step();
 }
 
-- (void) startupEngine
+- (bool) startupEngine
 {
     CGSize size = [self getDisplaySize];
-    
+
     assert(df3d::AppDelegate::getInstance() != nullptr);
-    
+
     auto engineInitParams = df3d::AppDelegate::getInstance()->getInitParams();
     engineInitParams.windowWidth = size.width;
     engineInitParams.windowHeight = size.height;
     engineInitParams.hardwareData = self;
-    
-    df3d::EngineInit(engineInitParams);
-    
-    if (!df3d::AppDelegate::getInstance()->onAppStarted())
+
+    if (!df3d::EngineInit(engineInitParams)) {
+        DFLOG_CRITICAL("Failed to startup engine!");
+        return false;
+    }
+
+    if (!df3d::AppDelegate::getInstance()->onAppStarted()) {
         DFLOG_CRITICAL("Game code initialization failed");
-    
+        return false;
+    }
+
     AVAudioSession *session = [AVAudioSession sharedInstance];
     BOOL success = FALSE;
     success = [session setCategory:AVAudioSessionCategoryAmbient error:nil];
     success = [session setActive:TRUE error:nil];
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controllerWasConnected:) name:GCControllerDidConnectNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controllerWasDisconnected:) name:GCControllerDidDisconnectNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserverForName:AVAudioSessionInterruptionNotification object:nil queue:nil usingBlock:^(NSNotification *notification)
@@ -99,14 +104,16 @@ void StopAccelerometerListenerIOS()
          else
          {
              DF3D_VERIFY([[AVAudioSession sharedInstance] setActive:TRUE error:nil]);
-             
+
              df3d::AudioResume();
          }
      }];
-    
+
     self.delegate = self;
-    
+
     [self mtkView:self drawableSizeWillChange:self.drawableSize];
+
+    return true;
 }
 
 - (CGSize)getDisplaySize
@@ -124,17 +131,21 @@ void StopAccelerometerListenerIOS()
         NSLog(@"Failed to init View. Metal device is not available");
         return nil;
     }
-    
+
     self = [super initWithFrame:frame device:device];
-    
+
     if (self) {
         m_viewportX = 0;
         m_viewportY = 0;
-        
+
 #ifndef DF3D_APPLETV
         self.multipleTouchEnabled = true;
 #endif
         self.contentScaleFactor = [UIScreen mainScreen].scale;
+        [self setPreferredFramesPerSecond:60.0];
+        [self setColorPixelFormat:MTLPixelFormatBGRA8Unorm];
+        [self setDepthStencilPixelFormat:MTLPixelFormatDepth32Float_Stencil8];
+        [self setUserInteractionEnabled:YES];
     }
     return self;
 }
@@ -312,7 +323,7 @@ void StopAccelerometerListenerIOS()
 - (id)init
 {
     self = [super init];
-    
+
     m_metalView = nil;
     g_viewController = self;
 
@@ -332,7 +343,7 @@ void StopAccelerometerListenerIOS()
 - (void)dealloc
 {
     [m_metalView release];
-    
+
     g_viewController = nil;
 
 #ifndef DF3D_APPLETV
@@ -382,8 +393,10 @@ void StopAccelerometerListenerIOS()
 
 - (void)viewDidLoad
 {
+    [super viewDidLoad];
+
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    
+
     m_metalView = [[DF3DView alloc] initWithFrame:self.view.bounds device:MTLCreateSystemDefaultDevice()];
     [self.view addSubview:m_metalView];
 
@@ -392,9 +405,7 @@ void StopAccelerometerListenerIOS()
 #else
     self.controllerUserInteractionEnabled = false;
 #endif
-    
-    [super viewDidLoad];
-    
+
     [m_metalView startupEngine];
 
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
