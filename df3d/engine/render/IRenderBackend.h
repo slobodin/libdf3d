@@ -29,17 +29,16 @@ public:
     virtual void frameBegin() = 0;
     virtual void frameEnd() = 0;
 
-    virtual VertexBufferHandle createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage) = 0;
+    virtual VertexBufferHandle createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data) = 0;
+    virtual VertexBufferHandle createDynamicVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data) = 0;
     virtual void destroyVertexBuffer(VertexBufferHandle vbHandle) = 0;
 
     virtual void bindVertexBuffer(VertexBufferHandle vbHandle) = 0;
-    // virtual void updateVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) = 0;
+    virtual void updateDynamicVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) = 0;
 
-    virtual IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage, IndicesType indicesType) = 0;
+    virtual IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, IndicesType indicesType) = 0;
     virtual void destroyIndexBuffer(IndexBufferHandle ibHandle) = 0;
-
     virtual void bindIndexBuffer(IndexBufferHandle ibHandle) = 0;
-    // virtual void updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data) = 0;
 
     virtual TextureHandle createTexture2D(const TextureInfo &info, uint32_t flags, const void *data) = 0;
     virtual TextureHandle createCompressedTexture(const TextureResourceData &data, uint32_t flags) = 0;
@@ -76,16 +75,10 @@ public:
     virtual void setBlendingMode(BlendingMode mode) = 0;
     virtual void setCullFaceMode(FaceCullMode mode) = 0;
 
-    virtual void draw(Topology type, size_t numberOfElements) = 0;
+    virtual void draw(Topology type, size_t numberOfElements, size_t vertexBufferOffset) = 0;
 
     // NOTE: do not support other backends for now. So it's static.
     static unique_ptr<IRenderBackend> create(const EngineInitParams &params);
-
-    // Some helpers as template methods.
-    VertexBufferHandle createVertexBuffer(const VertexData &data, GpuBufferUsageType usage)
-    {
-        return createVertexBuffer(data.getFormat(), data.getVerticesCount(), data.getRawData(), usage);
-    }
 
     virtual void setDestroyAndroidWorkaround() = 0;
     virtual RenderBackendID getID() const = 0;

@@ -76,7 +76,7 @@ ParticleSystemComponentProcessor::ParticleSystemComponentProcessor(World &world)
     : m_world(world),
     m_allocator(MemoryManager::allocDefault())
 {
-    m_quadBuffers = MAKE_NEW(MemoryManager::allocDefault(), ParticleSystemBuffers_Quad);
+    m_globalIndexBuffer = MAKE_NEW(MemoryManager::allocDefault(), ParticleSystemIndexBuffer);
 
     // Clamp the step to 100 ms.
     SPK::System::setClampStep(true, 0.1f);
@@ -86,7 +86,7 @@ ParticleSystemComponentProcessor::ParticleSystemComponentProcessor(World &world)
 ParticleSystemComponentProcessor::~ParticleSystemComponentProcessor()
 {
     m_data.clear();
-    MAKE_DELETE(m_allocator, m_quadBuffers);
+    MAKE_DELETE(m_allocator, m_globalIndexBuffer);
 }
 
 void ParticleSystemComponentProcessor::useRealStep()
@@ -210,7 +210,7 @@ void ParticleSystemComponentProcessor::render()
         {
             auto renderer = static_cast<ParticleSystemRenderer*>(spkSystem->getGroup(i)->getRenderer().get());
             renderer->m_currentTransformation = &transf;
-            renderer->m_quadBuffers = m_quadBuffers;
+            renderer->m_indexBuffer = m_globalIndexBuffer;
         }
 
         spkSystem->renderParticles();

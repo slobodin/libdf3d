@@ -1,3 +1,5 @@
+#include <df3d_pch.h>
+#include <df3d/df3d.h>
 #include "GpuProgramSharedState.h"
 
 #include "IRenderBackend.h"
@@ -8,7 +10,31 @@
 #include <df3d/engine/resources/GpuProgramResource.h>
 #include <df3d/game/World.h>
 #include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#ifdef DF3D_IOS
+
+#include <df3d/engine/render/metal/RenderBackendMetal.h>
+#include <simd/simd.h>
+
+namespace
+{
+    simd::float3 bridge(const glm::vec3& v) {
+        return simd::float3{v.x, v.y, v.z};
+    }
+    simd::float4 bridge(const glm::vec4& v) {
+        return simd::float4{v.x, v.y, v.z, v.w};
+    }
+    simd::float3x3 bridge(const glm::mat3& m) {
+        return simd::float3x3(bridge(m[0]), bridge(m[1]), bridge(m[2]));
+    }
+    simd::float4x4 bridge(const glm::mat4& m) {
+        return simd::float4x4(bridge(m[0]), bridge(m[1]), bridge(m[2]), bridge(m[3]));
+    }
+}
+
+#endif
 
 namespace df3d {
 
@@ -114,6 +140,16 @@ void GpuProgramSharedState::setViewMatrix(const glm::mat4 &viewm)
 void GpuProgramSharedState::setProjectionMatrix(const glm::mat4 &projm)
 {
     m_projMatrix = projm;
+    if (m_backend->getID() == RenderBackendID::METAL)
+    {
+        auto tmp = glm::mat4(1.0f);
+        tmp[0] = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+        tmp[1] = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+        tmp[2] = glm::vec4(0.0f, 0.0f, 0.5f, 0.0f);
+        tmp[3] = glm::vec4(0.0f, 0.0f, 0.5f, 1.0f);
+
+        m_projMatrix = tmp * m_projMatrix;
+    }
     // FIXME:
     // Not all flags have to be set. Whatever.
     resetFlags();
@@ -153,8 +189,10 @@ void GpuProgramSharedState::setLight(const Light &light, size_t idx)
     }
 }
 
-void GpuProgramSharedState::clear()
+void GpuProgramSharedState::initialize(IRenderBackend *backend)
 {
+    m_backend = backend;
+
     resetFlags();
 
     m_worldMatrix = glm::mat4(1.0f);
@@ -168,76 +206,151 @@ void GpuProgramSharedState::clear()
 
 void GpuProgramSharedState::updateSharedUniforms(const GpuProgramResource &program)
 {
-    for (const auto &sharedUni : program.sharedUniforms)
+    if (m_backend->getID() == RenderBackendID::GL)
     {
-        const void *data = nullptr;
-
-        switch (sharedUni.type)
+        for (const auto &sharedUni : program.sharedUniforms)
         {
-        case SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM:
-            data = glm::value_ptr(getWorldViewProjectionMatrix());
-            break;
-        case SharedUniformType::WORLD_VIEW_MATRIX_UNIFORM:
-            data = glm::value_ptr(getWorldViewMatrix());
-            break;
-        case SharedUniformType::WORLD_VIEW_3X3_MATRIX_UNIFORM:
-            data = glm::value_ptr(getWorldView3x3Matrix());
-            break;
-        case SharedUniformType::VIEW_INVERSE_MATRIX_UNIFORM:
-            data = glm::value_ptr(getViewMatrixInverse());
-            break;
-        case SharedUniformType::VIEW_MATRIX_UNIFORM:
-            data = glm::value_ptr(getViewMatrix());
-            break;
-        case SharedUniformType::WORLD_INVERSE_MATRIX_UNIFORM:
-            data = glm::value_ptr(getWorldMatrixInverse());
-            break;
-        case SharedUniformType::WORLD_MATRIX_UNIFORM:
-            data = glm::value_ptr(getWorldMatrix());
-            break;
-        case SharedUniformType::PROJECTION_MATRIX_UNIFORM:
-            data = glm::value_ptr(getProjectionMatrix());
-            break;
-        case SharedUniformType::NORMAL_MATRIX_UNIFORM:
-            data = glm::value_ptr(getNormalMatrix());
-            break;
-        case SharedUniformType::CAMERA_POSITION_UNIFORM:
-            data = glm::value_ptr(m_cameraPosition);
-            break;
-        case SharedUniformType::GLOBAL_AMBIENT_UNIFORM:
-            data = glm::value_ptr(m_globalAmbient);
-            break;
-        case SharedUniformType::FOG_DENSITY_UNIFORM:
-            data = &m_fogDensity;
-            break;
-        case SharedUniformType::FOG_COLOR_UNIFORM:
-            data = glm::value_ptr(m_fogColor);
-            break;
-        case SharedUniformType::PIXEL_SIZE_UNIFORM:
-            data = glm::value_ptr(m_pixelSize);
-            break;
-        case SharedUniformType::ELAPSED_TIME_UNIFORM:
-            data = &m_engineElapsedTime;
-            break;
-        case SharedUniformType::SCENE_LIGHT_0_COLOR_UNIFORM:
-            data = glm::value_ptr(m_lights[0].color);
-            break;
-        case SharedUniformType::SCENE_LIGHT_0_POSITION_UNIFORM:
-            data = glm::value_ptr(m_lights[0].positionParam);
-            break;
-        case SharedUniformType::SCENE_LIGHT_1_COLOR_UNIFORM:
-            data = glm::value_ptr(m_lights[1].color);
-            break;
-        case SharedUniformType::SCENE_LIGHT_1_POSITION_UNIFORM:
-            data = glm::value_ptr(m_lights[1].positionParam);
-            break;
-        case SharedUniformType::COUNT:
-        default:
-            break;
-        }
+            const void *data = nullptr;
 
-        if (data)
-            svc().renderManager().getBackend().setUniformValue(sharedUni.handle, data);
+            switch (sharedUni.type)
+            {
+                case SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM:
+                    data = glm::value_ptr(getWorldViewProjectionMatrix());
+                    break;
+                case SharedUniformType::WORLD_VIEW_MATRIX_UNIFORM:
+                    data = glm::value_ptr(getWorldViewMatrix());
+                    break;
+                case SharedUniformType::WORLD_VIEW_3X3_MATRIX_UNIFORM:
+                    data = glm::value_ptr(getWorldView3x3Matrix());
+                    break;
+                case SharedUniformType::VIEW_INVERSE_MATRIX_UNIFORM:
+                    data = glm::value_ptr(getViewMatrixInverse());
+                    break;
+                case SharedUniformType::VIEW_MATRIX_UNIFORM:
+                    data = glm::value_ptr(getViewMatrix());
+                    break;
+                case SharedUniformType::WORLD_INVERSE_MATRIX_UNIFORM:
+                    data = glm::value_ptr(getWorldMatrixInverse());
+                    break;
+                case SharedUniformType::WORLD_MATRIX_UNIFORM:
+                    data = glm::value_ptr(getWorldMatrix());
+                    break;
+                case SharedUniformType::PROJECTION_MATRIX_UNIFORM:
+                    data = glm::value_ptr(getProjectionMatrix());
+                    break;
+                case SharedUniformType::NORMAL_MATRIX_UNIFORM:
+                    data = glm::value_ptr(getNormalMatrix());
+                    break;
+                case SharedUniformType::CAMERA_POSITION_UNIFORM:
+                    data = glm::value_ptr(m_cameraPosition);
+                    break;
+                case SharedUniformType::GLOBAL_AMBIENT_UNIFORM:
+                    data = glm::value_ptr(m_globalAmbient);
+                    break;
+                case SharedUniformType::FOG_DENSITY_UNIFORM:
+                    data = &m_fogDensity;
+                    break;
+                case SharedUniformType::FOG_COLOR_UNIFORM:
+                    data = glm::value_ptr(m_fogColor);
+                    break;
+                case SharedUniformType::PIXEL_SIZE_UNIFORM:
+                    data = glm::value_ptr(m_pixelSize);
+                    break;
+                case SharedUniformType::ELAPSED_TIME_UNIFORM:
+                    data = &m_engineElapsedTime;
+                    break;
+                case SharedUniformType::SCENE_LIGHT_0_COLOR_UNIFORM:
+                    data = glm::value_ptr(m_lights[0].color);
+                    break;
+                case SharedUniformType::SCENE_LIGHT_0_POSITION_UNIFORM:
+                    data = glm::value_ptr(m_lights[0].positionParam);
+                    break;
+                case SharedUniformType::SCENE_LIGHT_1_COLOR_UNIFORM:
+                    data = glm::value_ptr(m_lights[1].color);
+                    break;
+                case SharedUniformType::SCENE_LIGHT_1_POSITION_UNIFORM:
+                    data = glm::value_ptr(m_lights[1].positionParam);
+                    break;
+                case SharedUniformType::COUNT:
+                default:
+                    break;
+            }
+
+            if (data)
+                m_backend->setUniformValue(program.handle, sharedUni.handle, data);
+        }
+    }
+#ifdef DF3D_IOS
+    else if (m_backend->getID() == RenderBackendID::METAL)
+    {
+        auto gUniforms = static_cast<RenderBackendMetal*>(m_backend)->getGlobalUniforms();
+
+        for (const auto &sharedUni : program.sharedUniforms)
+        {
+            switch (sharedUni.type)
+            {
+                case SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM:
+                    gUniforms->u_worldViewProjectionMatrix = bridge( getWorldViewProjectionMatrix() );
+                    break;
+                case SharedUniformType::WORLD_VIEW_MATRIX_UNIFORM:
+                    gUniforms->u_worldViewMatrix = bridge( getWorldViewMatrix() );
+                    break;
+                case SharedUniformType::WORLD_VIEW_3X3_MATRIX_UNIFORM:
+                    gUniforms->u_worldViewMatrix3x3 = bridge( getWorldView3x3Matrix() );
+                    break;
+                case SharedUniformType::VIEW_INVERSE_MATRIX_UNIFORM:
+                    gUniforms->u_viewMatrixInverse = bridge( getViewMatrixInverse() );
+                    break;
+                case SharedUniformType::VIEW_MATRIX_UNIFORM:
+                    gUniforms->u_viewMatrix = bridge( getViewMatrix() );
+                    break;
+                case SharedUniformType::WORLD_INVERSE_MATRIX_UNIFORM:
+                    gUniforms->u_worldMatrixInverse = bridge( getWorldMatrixInverse() );
+                    break;
+                case SharedUniformType::WORLD_MATRIX_UNIFORM:
+                    gUniforms->u_worldMatrix = bridge( getWorldMatrix() );
+                    break;
+                case SharedUniformType::PROJECTION_MATRIX_UNIFORM:
+                    gUniforms->u_projectionMatrix = bridge( getProjectionMatrix() );
+                    break;
+                case SharedUniformType::NORMAL_MATRIX_UNIFORM:
+                    gUniforms->u_normalMatrix = bridge( getNormalMatrix() );
+                    break;
+                case SharedUniformType::CAMERA_POSITION_UNIFORM:
+                    gUniforms->u_cameraPosition = bridge( m_cameraPosition );
+                    break;
+                case SharedUniformType::GLOBAL_AMBIENT_UNIFORM:
+                    gUniforms->u_globalAmbient = bridge( m_globalAmbient );
+                    break;
+                case SharedUniformType::FOG_DENSITY_UNIFORM:
+                    gUniforms->u_fogDensity = m_fogDensity;
+                    break;
+                case SharedUniformType::FOG_COLOR_UNIFORM:
+                    gUniforms->u_fogColor = bridge( m_fogColor );
+                    break;
+                case SharedUniformType::ELAPSED_TIME_UNIFORM:
+                    gUniforms->u_elapsedTime = m_engineElapsedTime;
+                    break;
+                case SharedUniformType::SCENE_LIGHT_0_COLOR_UNIFORM:
+                    gUniforms->light0.position = bridge( m_lights[0].positionParam );
+                    gUniforms->light0.color = bridge( m_lights[0].color );
+                    break;
+                case SharedUniformType::SCENE_LIGHT_1_COLOR_UNIFORM:
+                    gUniforms->light1.position = bridge( m_lights[1].positionParam );
+                    gUniforms->light1.color = bridge( m_lights[1].color );
+                    break;
+
+                case SharedUniformType::COUNT:
+                default:
+                    DF3D_ASSERT(false);
+                    break;
+            }
+        }
+    }
+#endif
+    else
+    {
+        DF3D_ASSERT(false);
     }
 }
 

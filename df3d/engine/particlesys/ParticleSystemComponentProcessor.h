@@ -9,7 +9,7 @@ namespace df3d {
 
 struct RenderQueue;
 class World;
-class ParticleSystemBuffers_Quad;
+class ParticleSystemIndexBuffer;
 
 class ParticleSystemComponentProcessor : public EntityComponentProcessor
 {
@@ -28,7 +28,7 @@ class ParticleSystemComponentProcessor : public EntityComponentProcessor
     };
 
     ComponentDataHolder<Data> m_data;
-    ParticleSystemBuffers_Quad *m_quadBuffers = nullptr;
+    ParticleSystemIndexBuffer *m_globalIndexBuffer = nullptr;
 
     World &m_world;
     Allocator &m_allocator;
