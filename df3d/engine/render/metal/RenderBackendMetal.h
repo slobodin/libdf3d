@@ -355,6 +355,8 @@ public:
         DF3D_ASSERT_MESS(false, "RenderBackendMetal::bindFrameBuffer is not implemented");
     }
 
+    unique_ptr<IGPUProgramSharedState> createSharedState() override;
+
     MetalGlobalUniforms* getGlobalUniforms() { return m_uniformBuffer.get(); }
     id<MTLDevice> getMetalDevice() { return m_mtlDevice; }
 };

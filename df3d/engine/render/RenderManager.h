@@ -9,7 +9,7 @@ namespace df3d {
 class IRenderBackend;
 class World;
 class RenderOperation;
-class GpuProgramSharedState;
+class IGPUProgramSharedState;
 class RenderPass;
 struct GpuProgramResource;
 struct RenderQueue;
@@ -35,7 +35,7 @@ class RenderManager : NonCopyable
 
     unique_ptr<RenderQueue> m_renderQueue;
     unique_ptr<IRenderBackend> m_renderBackend;
-    unique_ptr<GpuProgramSharedState> m_sharedState;
+    unique_ptr<IGPUProgramSharedState> m_sharedState;
 
     Viewport m_viewport;
 

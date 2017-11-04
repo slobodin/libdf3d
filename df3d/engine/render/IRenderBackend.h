@@ -5,6 +5,7 @@
 
 namespace df3d {
 
+class IGPUProgramSharedState;
 struct TextureResourceData;
 struct EngineInitParams;
 
@@ -77,8 +78,7 @@ public:
 
     virtual void draw(Topology type, size_t numberOfElements, size_t vertexBufferOffset) = 0;
 
-    // NOTE: do not support other backends for now. So it's static.
-    static unique_ptr<IRenderBackend> create(const EngineInitParams &params);
+    virtual unique_ptr<IGPUProgramSharedState> createSharedState() = 0;
 
     virtual void setDestroyAndroidWorkaround() = 0;
     virtual RenderBackendID getID() const = 0;
