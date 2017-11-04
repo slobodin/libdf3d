@@ -220,6 +220,7 @@ class RenderBackendMetal : public IRenderBackend
     id<MTLLibrary> m_defaultLibrary = nullptr;
 
     id<MTLCommandBuffer> m_commandBuffer = nullptr;
+    bool m_firstDrawCall = false;
 
     unique_ptr<MetalGlobalUniforms> m_uniformBuffer;
 

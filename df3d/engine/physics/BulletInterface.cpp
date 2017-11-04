@@ -92,21 +92,21 @@ void BulletDebugDraw::clean()
 
 void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
 {
-    if (m_currentVertex == 0)
-        return;
-
-    DF3D_ASSERT_MESS(!m_vertexBuffer.isValid(), "bullet debug draw: invalid vertex buffer");
-
-    m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(
-        m_vertexData.getFormat(), m_currentVertex, m_vertexData.getRawData(), GpuBufferUsageType::DYNAMIC);
-
-    RenderOperation op;
-    op.passProps = m_pass.get();
-    op.vertexBuffer = m_vertexBuffer;
-    op.numberOfElements = m_currentVertex;
-    op.topology = Topology::LINES;
-
-    ops->debugDrawOperations.push_back(op);
+//    if (m_currentVertex == 0)
+//        return;
+//
+//    DF3D_ASSERT_MESS(!m_vertexBuffer.isValid(), "bullet debug draw: invalid vertex buffer");
+//
+//    m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(
+//        m_vertexData.getFormat(), m_currentVertex, m_vertexData.getRawData(), GpuBufferUsageType::DYNAMIC);
+//
+//    RenderOperation op;
+//    op.passProps = m_pass.get();
+//    op.vertexBuffer = m_vertexBuffer;
+//    op.numberOfElements = m_currentVertex;
+//    op.topology = Topology::LINES;
+//
+//    ops->debugDrawOperations.push_back(op);
 }
 
 }
