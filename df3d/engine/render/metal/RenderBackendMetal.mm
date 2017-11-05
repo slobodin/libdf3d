@@ -2,12 +2,11 @@
 #include "RenderBackendMetal.h"
 
 #include <df3d/engine/render/gl/GLSLPreprocess.h>
+#include <df3d/engine/render/GpuProgramSharedState.h>
 
 namespace df3d {
 
     namespace {
-        const int MAX_IN_FLIGHT_FRAMES = 3;
-
 
         int GetMipMapLevelCount(int width, int height)
         {
@@ -73,9 +72,6 @@ namespace df3d {
             switch (format) {
                 case PixelFormat::RGBA:
                     return 4;
-                case PixelFormat::RGB:
-                    // Not supported!
-                    break;
                 default:
                     break;
             }
@@ -88,6 +84,8 @@ namespace df3d {
             switch (pixelFormat) {
                 case PixelFormat::RGBA:
                     return MTLPixelFormatRGBA8Unorm;
+                case PixelFormat::KTX:
+                    return MTLPixelFormatPVRTC_RGB_4BPP;
                 case PixelFormat::RGB:
                     // Not supported!
                     break;
@@ -137,71 +135,207 @@ namespace df3d {
         }
     }
 
-bool MetalBufferWrapper::init(id<MTLDevice> device, const void *data, size_t size)
+#pragma mark - Transient Buffer
+
+MetalTransientVertexBuffer::MetalTransientVertexBuffer(const VertexFormat &format)
+    : IMetalVertexBuffer(format)
 {
-    DF3D_ASSERT(m_buffer == nil);
 
-    if (data == nullptr)
-        m_buffer = [device newBufferWithLength:size options:0];
-    else
-        m_buffer = [device newBufferWithBytes:data length:size options:0];
+}
 
-    m_sizeInBytes = size;
+MetalTransientVertexBuffer::~MetalTransientVertexBuffer()
+{
 
-    if (m_buffer == nil)
-    {
-        DFLOG_WARN("Failed to create Metal buffer.");
-    }
+}
+
+bool MetalTransientVertexBuffer::initialize(RenderBackendMetal *backend, const void *data, size_t verticesCount)
+{
+    update(backend, data, verticesCount);
+    return true;
+}
+
+void MetalTransientVertexBuffer::update(RenderBackendMetal *backend, const void *data, size_t verticesCount)
+{
+    auto sz = verticesCount * getFormat().getVertexSize();
+    DF3D_ASSERT(sz <= m_transientStorage.size());
+
+    m_currentSize = std::min(sz, m_transientStorage.size());
+
+    if (data != nullptr)
+        memcpy(m_transientStorage.data(), data, m_currentSize);
+}
+
+void MetalTransientVertexBuffer::bind(id <MTLRenderCommandEncoder> encoder, size_t verticesOffset)
+{
+    auto bytesOffset = verticesOffset * getFormat().getVertexSize();
+    DF3D_ASSERT(bytesOffset < m_transientStorage.size());
+    [encoder setVertexBytes:m_transientStorage.data() + bytesOffset length:m_currentSize atIndex:0];
+}
+
+#pragma mark - Static Buffer
+
+MetalStaticVertexBuffer::MetalStaticVertexBuffer(const VertexFormat &format)
+    : IMetalVertexBuffer(format)
+{
+
+}
+
+MetalStaticVertexBuffer::~MetalStaticVertexBuffer()
+{
+    [m_buffer release];
+}
+
+bool MetalStaticVertexBuffer::initialize(RenderBackendMetal *backend, const void *data, size_t verticesCount)
+{
+    DF3D_ASSERT(data != nullptr);
+    m_buffer = [backend->getMetalDevice() newBufferWithBytes:data
+                                                      length:verticesCount * getFormat().getVertexSize()
+                                                     options:MTLResourceStorageModeShared];
 
     return m_buffer != nil;
 }
 
-void MetalBufferWrapper::destroy()
+void MetalStaticVertexBuffer::update(RenderBackendMetal *backend, const void *data, size_t verticesCount)
+{
+    DF3D_ASSERT_MESS(false, "Not implemented");
+}
+
+void MetalStaticVertexBuffer::bind(id <MTLRenderCommandEncoder> encoder, size_t verticesOffset)
+{
+    DF3D_ASSERT_MESS(verticesOffset == 0, "Unsupported");
+    [encoder setVertexBuffer:m_buffer offset:0 atIndex:0];
+}
+
+#pragma mark - Dynamic Buffer
+
+MetalDynamicVertexBuffer::MetalDynamicVertexBuffer(const VertexFormat &format)
+    : IMetalVertexBuffer(format)
+{
+
+}
+
+MetalDynamicVertexBuffer::~MetalDynamicVertexBuffer()
+{
+    for (int i = 0; i < MAX_IN_FLIGHT_FRAMES; i++)
+        [m_buffers[i] release];
+}
+
+bool MetalDynamicVertexBuffer::initialize(RenderBackendMetal *backend, const void *data, size_t verticesCount)
+{
+    m_sizeInBytes = verticesCount * getFormat().getVertexSize();
+
+    for (int i = 0; i < MAX_IN_FLIGHT_FRAMES; i++)
+    {
+        id<MTLBuffer> buffer;
+        if (data == nullptr)
+        {
+            buffer = [backend->getMetalDevice() newBufferWithLength:m_sizeInBytes
+                                                              options:MTLResourceCPUCacheModeWriteCombined];
+        }
+        else
+        {
+            buffer = [backend->getMetalDevice() newBufferWithBytes:data
+                                                              length:m_sizeInBytes
+                                                             options:MTLResourceCPUCacheModeWriteCombined];
+        }
+
+        m_buffers[i] = buffer;
+    }
+
+    return true;
+}
+
+void MetalDynamicVertexBuffer::update(RenderBackendMetal *backend, const void *data, size_t verticesCount)
+{
+    auto newSz = verticesCount * getFormat().getVertexSize();
+
+    if (newSz <= m_sizeInBytes)
+    {
+        void* dstPtr = [m_buffers[m_bufferIdx] contents];
+        memcpy(dstPtr, data, newSz);
+    }
+    else
+        DF3D_ASSERT(false);
+}
+
+void MetalDynamicVertexBuffer::bind(id <MTLRenderCommandEncoder> encoder, size_t verticesOffset)
+{
+    [encoder setVertexBuffer:m_buffers[m_bufferIdx]
+                      offset:verticesOffset * getFormat().getVertexSize()
+                     atIndex:0];
+}
+
+void MetalDynamicVertexBuffer::advanceToTheNextFrame()
+{
+	m_bufferIdx = (m_bufferIdx + 1) % MAX_IN_FLIGHT_FRAMES;
+}
+
+#pragma mark - Index Buffer
+
+bool MetalIndexBufferWrapper::init(id<MTLDevice> device, const void *data, size_t size)
+{
+    DF3D_ASSERT(data != nullptr);
+
+	m_buffer = [device newBufferWithBytes:data length:size options:0];
+    return m_buffer != nil;
+}
+
+void MetalIndexBufferWrapper::destroy()
 {
     [m_buffer release];
     m_buffer = nil;
 }
 
-
-bool MetalTextureWrapper::init(RenderBackendMetal *backend, const TextureInfo &info, uint32_t flags, const void *data)
+bool MetalTextureWrapper::init(RenderBackendMetal *backend, const TextureResourceData &data, uint32_t flags)
 {
     DF3D_ASSERT(m_texture == nil && m_samplerState == nil);
 
-    // THIS IS USED FOR NOT COMPRESSED TEXTURES.
-    DF3D_ASSERT(info.numMips == 0);
+    DF3D_ASSERT(data.mipLevels.size() > 0);
 
-    m_info = info;
+    m_format = data.format;
+
+    int width = data.mipLevels[0].width;
+    int height = data.mipLevels[0].height;
 
     [backend->m_textureDescriptor setTextureType: MTLTextureType2D];
-    [backend->m_textureDescriptor setPixelFormat: GetTextureFormat(info.format)];
-    [backend->m_textureDescriptor setWidth: info.width];
-    [backend->m_textureDescriptor setHeight: info.height];
+    [backend->m_textureDescriptor setPixelFormat: GetTextureFormat(data.format)];
+    [backend->m_textureDescriptor setWidth: width];
+    [backend->m_textureDescriptor setHeight: height];
 
-    bool genMipMaps = false;
-    int mipMapLevels = 1;
+    bool generateMipMaps = false;
+    int mipMapLevels = data.mipLevels.size();
     if (((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_TRILINEAR) ||
         ((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_ANISOTROPIC))
     {
-        mipMapLevels = GetMipMapLevelCount(info.width, info.height);
-        // Generate mip maps if not provided with texture.
-        if (info.numMips == 0)
-            genMipMaps = true;
+        if (mipMapLevels == 1)
+        {
+            mipMapLevels = GetMipMapLevelCount(width, height);
+            generateMipMaps = true;
+        }
     }
 
     [backend->m_textureDescriptor setMipmapLevelCount: mipMapLevels];
 
     m_texture = [backend->m_mtlDevice newTextureWithDescriptor:backend->m_textureDescriptor];
-
-    if (data != nullptr)
+    for (size_t i = 0; i < data.mipLevels.size(); i++)
     {
-        auto region = MTLRegionMake2D(0, 0, info.width, info.height);
-        [m_texture replaceRegion:region
-                     mipmapLevel:0
-                       withBytes:data
-                     bytesPerRow:GetBPPForFormat(info.format) * info.width];
+        const auto &mipLevel = data.mipLevels[i];
+        if (mipLevel.pixels.size() > 0)
+        {
+            int levelBytesPerRow = 0;
+
+            if (data.format != PixelFormat::KTX)
+                levelBytesPerRow = GetBPPForFormat(data.format) * mipLevel.width;
+
+            auto region = MTLRegionMake2D(0, 0, mipLevel.width, mipLevel.height);
+            [m_texture replaceRegion:region
+                         mipmapLevel:i
+                           withBytes:mipLevel.pixels.data()
+                         bytesPerRow:levelBytesPerRow];
+        }
     }
 
-    if (genMipMaps)
+    if (generateMipMaps)
     {
         id<MTLCommandBuffer> cmdBuf = [backend->m_commandQueue commandBuffer];
         id<MTLBlitCommandEncoder> commandEncoder = [cmdBuf blitCommandEncoder];
@@ -213,18 +347,21 @@ bool MetalTextureWrapper::init(RenderBackendMetal *backend, const TextureInfo &i
 
     m_samplerState = backend->getSamplerState(flags);
 
+    m_mipLevel0Width = width;
+    m_mipLevel0Height = height;
+
     return true;
 }
 
 void MetalTextureWrapper::update(int w, int h, const void *data)
 {
     // This method is only for TB!
-    DF3D_ASSERT(w == m_info.width && h == m_info.height);
+    DF3D_ASSERT(w == m_mipLevel0Width && h == m_mipLevel0Height);
     auto region = MTLRegionMake2D(0, 0, w, h);
     [m_texture replaceRegion:region
                  mipmapLevel:0
                    withBytes:data
-                 bytesPerRow:GetBPPForFormat(m_info.format) * w];
+                 bytesPerRow:GetBPPForFormat(m_format) * w];
 }
 
 void MetalTextureWrapper::destroy()
@@ -235,7 +372,6 @@ void MetalTextureWrapper::destroy()
 
     m_texture = nil;
     m_samplerState = nil;   // Sampler state is in the cache. Do not release.
-    m_info = {};
 }
 
 bool MetalGpuProgramWrapper::init(RenderBackendMetal *backend, const char *vertexFunctionName, const char *fragmentFunctionName)
@@ -464,7 +600,7 @@ RenderBackendMetal::RenderBackendMetal(const EngineInitParams &params)
 
     m_renderPipelinesCache = make_unique<RenderPipelinesCache>(this);
 
-    std::fill(std::begin(m_vertexBuffers), std::end(m_vertexBuffers), MetalVertexBufferWrapper());
+    std::fill(std::begin(m_vertexBuffers), std::end(m_vertexBuffers), nullptr);
     std::fill(std::begin(m_indexBuffers), std::end(m_indexBuffers), MetalIndexBufferWrapper());
     std::fill(std::begin(m_textures), std::end(m_textures), MetalTextureWrapper());
     std::fill(std::begin(m_programs), std::end(m_programs), MetalGpuProgramWrapper());
@@ -472,16 +608,23 @@ RenderBackendMetal::RenderBackendMetal(const EngineInitParams &params)
     m_caps.maxTextureSize = 4096;
     m_caps.maxAnisotropy = 16.0f;
 
-    m_framesSemaphore = dispatch_semaphore_create(MAX_IN_FLIGHT_FRAMES);
+    m_frameBoundarySemaphore = dispatch_semaphore_create(MAX_IN_FLIGHT_FRAMES);
+
+#ifdef _DEBUG
+    size_t totalStorage = sizeof(RenderBackendMetal);
+
+    DFLOG_DEBUG("METAL STORAGE %d KB", utils::sizeKB(totalStorage));
+#endif
 }
 
 RenderBackendMetal::~RenderBackendMetal()
 {
     for (int i = 0; i < MAX_IN_FLIGHT_FRAMES; i++)
-        dispatch_semaphore_wait(m_framesSemaphore, DISPATCH_TIME_FOREVER);
+        dispatch_semaphore_wait(m_frameBoundarySemaphore, DISPATCH_TIME_FOREVER);
 
     DF3D_ASSERT(m_commandBuffer == nil);
 
+    DF3D_ASSERT(m_dynamicBuffers.empty());
     DF3D_ASSERT(m_vertexBuffersBag.empty());
     DF3D_ASSERT(m_indexBuffersBag.empty());
     DF3D_ASSERT(m_texturesBag.empty());
@@ -519,7 +662,14 @@ const FrameStats& RenderBackendMetal::getFrameStats() const
 
 void RenderBackendMetal::frameBegin()
 {
-    DF3D_ASSERT(m_commandBuffer == nil);
+    dispatch_semaphore_wait(m_frameBoundarySemaphore, DISPATCH_TIME_FOREVER);
+
+    m_commandBuffer = [m_commandQueue commandBuffer];
+    [m_commandBuffer retain];
+    m_firstDrawCall = true;
+
+    for (auto buffer : m_dynamicBuffers)
+        buffer->advanceToTheNextFrame();
 
     m_currentPassState = RenderPassState(m_width, m_height);
     m_currentVB = {};
@@ -530,40 +680,80 @@ void RenderBackendMetal::frameBegin()
 
 void RenderBackendMetal::frameEnd()
 {
-    if (m_commandBuffer != nil)
-    {
-        // Finalize rendering here & push the command buffer to the GPU
-        [m_commandBuffer presentDrawable:m_mtkView.currentDrawable];
+    // Finalize rendering here & push the command buffer to the GPU
+    [m_commandBuffer presentDrawable:m_mtkView.currentDrawable];
 
-        __block dispatch_semaphore_t blockSema = m_framesSemaphore;
-        [m_commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
-            dispatch_semaphore_signal(blockSema);
-        }];
-        [m_commandBuffer commit];
+    __block dispatch_semaphore_t blockSema = m_frameBoundarySemaphore;
+    [m_commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
+        dispatch_semaphore_signal(blockSema);
+    }];
+    [m_commandBuffer commit];
 
-        [m_commandBuffer release];
-    }
-
+    [m_commandBuffer release];
     m_commandBuffer = nil;
 }
 
-VertexBufferHandle RenderBackendMetal::createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage)
+VertexBufferHandle RenderBackendMetal::createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data)
 {
     DF3D_ASSERT(verticesCount > 0);
 
-    MetalVertexBufferWrapper bufferWrapper;
+    unique_ptr<IMetalVertexBuffer> vertexBuffer;
+    size_t bytesSize = verticesCount * format.getVertexSize();
+    if (bytesSize < MAX_TRANSIENT_BUFFER_SIZE)
+        vertexBuffer = make_unique<MetalTransientVertexBuffer>(format);
+    else
+        vertexBuffer = make_unique<MetalStaticVertexBuffer>(format);
+
     VertexBufferHandle vbHandle;
-
-    if (bufferWrapper.init(m_mtlDevice, data, verticesCount * format.getVertexSize()))
+    if (vertexBuffer->initialize(this, data, verticesCount))
     {
-        bufferWrapper.m_vertexFormat = format;
-
         vbHandle = VertexBufferHandle(m_vertexBuffersBag.getNew());
 
-        m_vertexBuffers[vbHandle.getIndex()] = bufferWrapper;
+        m_vertexBuffers[vbHandle.getIndex()] = std::move(vertexBuffer);
     }
 
     return vbHandle;
+}
+
+VertexBufferHandle RenderBackendMetal::createDynamicVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data)
+{
+    DF3D_ASSERT(verticesCount > 0);
+
+    unique_ptr<IMetalVertexBuffer> vertexBuffer;
+    size_t bytesSize = verticesCount * format.getVertexSize();
+    MetalDynamicVertexBuffer *dynamicBuffer = nullptr;
+    if (bytesSize < MAX_TRANSIENT_BUFFER_SIZE)
+    {
+        vertexBuffer = make_unique<MetalTransientVertexBuffer>(format);
+    }
+    else
+    {
+        auto tmp = make_unique<MetalDynamicVertexBuffer>(format);
+        dynamicBuffer = tmp.get();
+        vertexBuffer = std::move(tmp);
+    }
+
+    VertexBufferHandle vbHandle;
+    if (vertexBuffer->initialize(this, data, verticesCount))
+    {
+        vbHandle = VertexBufferHandle(m_vertexBuffersBag.getNew());
+
+        m_vertexBuffers[vbHandle.getIndex()] = std::move(vertexBuffer);
+
+        if (dynamicBuffer)
+            m_dynamicBuffers.push_back(dynamicBuffer);
+    }
+
+    return vbHandle;
+}
+
+void RenderBackendMetal::updateDynamicVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data)
+{
+    DF3D_ASSERT(m_vertexBuffersBag.isValid(vbHandle.getID()));
+
+    auto &vertexBuffer = m_vertexBuffers[vbHandle.getIndex()];
+
+    vertexBuffer->update(this, data, verticesCount);
 }
 
 void RenderBackendMetal::destroyVertexBuffer(VertexBufferHandle vbHandle)
@@ -572,8 +762,11 @@ void RenderBackendMetal::destroyVertexBuffer(VertexBufferHandle vbHandle)
 
     auto &vertexBuffer = m_vertexBuffers[vbHandle.getIndex()];
 
-    vertexBuffer.destroy();
-    vertexBuffer = {};
+    auto foundDynamic = std::find(m_dynamicBuffers.begin(), m_dynamicBuffers.end(), vertexBuffer.get());
+    if (foundDynamic != m_dynamicBuffers.end())
+        m_dynamicBuffers.erase(foundDynamic);
+
+    vertexBuffer.reset();
 
     m_vertexBuffersBag.release(vbHandle.getID());
 }
@@ -581,13 +774,12 @@ void RenderBackendMetal::destroyVertexBuffer(VertexBufferHandle vbHandle)
 void RenderBackendMetal::bindVertexBuffer(VertexBufferHandle vbHandle)
 {
     DF3D_ASSERT(m_vertexBuffersBag.isValid(vbHandle.getID()));
-    DF3D_ASSERT(m_vertexBuffers[vbHandle.getIndex()].m_buffer != nil);
 
     m_currentVB = vbHandle;
     m_indexedDrawCall = false;
 }
 
-IndexBufferHandle RenderBackendMetal::createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage, IndicesType indicesType)
+IndexBufferHandle RenderBackendMetal::createIndexBuffer(size_t indicesCount, const void *data, IndicesType indicesType)
 {
     DF3D_ASSERT(indicesCount > 0);
     DF3D_ASSERT(indicesType == INDICES_16_BIT);
@@ -625,24 +817,16 @@ void RenderBackendMetal::destroyIndexBuffer(IndexBufferHandle ibHandle)
 void RenderBackendMetal::bindIndexBuffer(IndexBufferHandle ibHandle)
 {
     DF3D_ASSERT(m_indexBuffersBag.isValid(ibHandle.getID()));
-    DF3D_ASSERT(m_indexBuffers[ibHandle.getIndex()].m_buffer != nil);
 
     m_currentIB = ibHandle;
     m_indexedDrawCall = true;
 }
 
-TextureHandle RenderBackendMetal::createTexture2D(const TextureInfo &info, uint32_t flags, const void *data)
+TextureHandle RenderBackendMetal::createTexture(const TextureResourceData &data, uint32_t flags)
 {
-    size_t maxSize = m_caps.maxTextureSize;
-    if (info.width > maxSize || info.height > maxSize)
-    {
-        DFLOG_WARN("Failed to create a 2D texture: size is too big. Max size: %d", maxSize);
-        return{};
-    }
-
     MetalTextureWrapper texture;
     TextureHandle textureHandle;
-    if (texture.init(this, info, flags, data))
+    if (texture.init(this, data, flags))
     {
         textureHandle = TextureHandle(m_texturesBag.getNew());
 
@@ -652,20 +836,6 @@ TextureHandle RenderBackendMetal::createTexture2D(const TextureInfo &info, uint3
     }
 
     return textureHandle;
-}
-
-TextureHandle RenderBackendMetal::createCompressedTexture(const TextureResourceData &data, uint32_t flags)
-{
-    //////
-    //////
-    //////
-    //////
-    //////
-    //////
-    //////
-    DF3D_ASSERT_MESS(false, "Not implemented");
-
-    return {};
 }
 
 void RenderBackendMetal::updateTexture(TextureHandle textureHandle, int w, int h, const void *data)
@@ -886,7 +1056,7 @@ void RenderBackendMetal::setCullFaceMode(FaceCullMode mode)
     m_currentPassState.setCullMode(mode);
 }
 
-void RenderBackendMetal::draw(Topology type, size_t numberOfElements)
+void RenderBackendMetal::draw(Topology type, size_t numberOfElements, size_t vertexBufferOffset)
 {
     DF3D_ASSERT(m_gpuProgramsBag.isValid(m_currentProgram.getID()) &&
                 m_vertexBuffersBag.isValid(m_currentVB.getID()));
@@ -895,16 +1065,8 @@ void RenderBackendMetal::draw(Topology type, size_t numberOfElements)
     if (rpd == nil)
         return;
 
-    // Init command buffer.
-    if (m_commandBuffer == nil)
+    if (m_firstDrawCall)
     {
-        // Wait for the oldest frame.
-        dispatch_semaphore_wait(m_framesSemaphore, DISPATCH_TIME_FOREVER);
-
-        // This is the first frame.
-        m_commandBuffer = [m_commandQueue commandBuffer];
-        [m_commandBuffer retain];
-
         // Make sure to clear the buffers.
         rpd.colorAttachments[0].loadAction = MTLLoadActionClear;
         rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
@@ -936,9 +1098,7 @@ void RenderBackendMetal::draw(Topology type, size_t numberOfElements)
     auto &program = m_programs[m_currentProgram.getIndex()];
 
     // Create pipeline.
-    id <MTLRenderPipelineState> pipeline = m_renderPipelinesCache->getOrCreate(m_currentProgram,
-                                                                               vb.m_vertexFormat,
-                                                                               m_currentPassState.blendingMode);
+    id <MTLRenderPipelineState> pipeline = m_renderPipelinesCache->getOrCreate(m_currentProgram, vb->getFormat(), m_currentPassState.blendingMode);
 
     [encoder setRenderPipelineState:pipeline];
 
@@ -962,7 +1122,7 @@ void RenderBackendMetal::draw(Topology type, size_t numberOfElements)
     }
 
     // Pass vertex data.
-    [encoder setVertexBuffer:vb.m_buffer offset:0 atIndex:0];
+    vb->bind(encoder, vertexBufferOffset);
 
     // Pass uniforms.
     [encoder setFragmentBytes:m_uniformBuffer.get() length:sizeof(MetalGlobalUniforms) atIndex:1];
@@ -989,11 +1149,13 @@ void RenderBackendMetal::draw(Topology type, size_t numberOfElements)
     }
 
     [encoder endEncoding];
+
+    m_firstDrawCall = false;
 }
 
-std::unique_ptr<IRenderBackend> IRenderBackend::create(const EngineInitParams &params)
+unique_ptr<IGPUProgramSharedState> RenderBackendMetal::createSharedState()
 {
-    return make_unique<RenderBackendMetal>(params);
+    return IGPUProgramSharedState::create(getID());
 }
 
 }
