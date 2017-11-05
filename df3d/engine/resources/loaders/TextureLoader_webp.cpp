@@ -22,9 +22,6 @@ TextureResourceData* TextureLoader_webp(ResourceDataSource &dataSource, Allocato
     bool result = false;
     auto resource = MAKE_NEW(alloc, TextureResourceData);
     resource->mipLevels.resize(1);
-    resource->info.numMips = 0;
-    resource->info.width = features.width;
-    resource->info.height = features.height;
     resource->mipLevels[0].width = features.width;
     resource->mipLevels[0].height = features.height;
 
@@ -32,7 +29,7 @@ TextureResourceData* TextureLoader_webp(ResourceDataSource &dataSource, Allocato
 
     if (features.has_alpha || forceRGBA)
     {
-        resource->info.format = PixelFormat::RGBA;
+        resource->format = PixelFormat::RGBA;
 
         pixels.resize(features.width * features.height * 4);
 
@@ -40,7 +37,7 @@ TextureResourceData* TextureLoader_webp(ResourceDataSource &dataSource, Allocato
     }
     else
     {
-        resource->info.format = PixelFormat::RGB;
+        resource->format = PixelFormat::RGB;
 
         pixels.resize(features.width * features.height * 3);
 

@@ -81,10 +81,7 @@ TextureResourceData* TextureLoader_stbi(ResourceDataSource &dataSource, Allocato
         fmt = PixelFormat::RGBA;
 
     auto resource = MAKE_NEW(alloc, TextureResourceData);
-    resource->info.format = fmt;
-    resource->info.numMips = 0;
-    resource->info.width = x;
-    resource->info.height = y;
+    resource->format = fmt;
 
     resource->mipLevels.resize(1);
     resource->mipLevels[0].width = x;

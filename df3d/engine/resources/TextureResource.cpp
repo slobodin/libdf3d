@@ -118,28 +118,14 @@ void TextureHolder::decodeCleanup(Allocator &allocator)
 
 bool TextureHolder::createResource(Allocator &allocator)
 {
-    auto &backend = svc().renderManager().getBackend();
-
-    TextureHandle handle;
-
-    if (m_resourceData->info.format == PixelFormat::KTX)
-    {
-        handle = backend.createCompressedTexture(*m_resourceData, m_flags);
-    }
-    else
-    {
-        handle = backend.createTexture2D(m_resourceData->info,
-            m_flags,
-            m_resourceData->mipLevels[0].pixels.data());
-    }
-
+    TextureHandle handle = svc().renderManager().getBackend().createTexture(*m_resourceData, m_flags);
     if (!handle.isValid())
         return false;
 
     m_resource = MAKE_NEW(allocator, TextureResource)();
     m_resource->handle = handle;
-    m_resource->width = m_resourceData->info.width;
-    m_resource->height = m_resourceData->info.height;
+    m_resource->width = m_resourceData->mipLevels[0].width;
+    m_resource->height = m_resourceData->mipLevels[0].height;
     return true;
 }
 

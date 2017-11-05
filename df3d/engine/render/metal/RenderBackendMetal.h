@@ -85,12 +85,15 @@ struct MetalIndexBufferWrapper
 
 class MetalTextureWrapper
 {
+    int m_mipLevel0Width = 0;
+    int m_mipLevel0Height = 0;
+    PixelFormat m_format;
+
 public:
-    TextureInfo m_info;
     id<MTLTexture> m_texture = nil;
     id<MTLSamplerState> m_samplerState = nil;
 
-    bool init(RenderBackendMetal *backend, const TextureInfo &info, uint32_t flags, const void *data);
+    bool init(RenderBackendMetal *backend, const TextureResourceData &data, uint32_t flags);
     void update(int w, int h, const void *data);
     void destroy();
 };
@@ -294,8 +297,7 @@ public:
 
     void bindIndexBuffer(IndexBufferHandle ibHandle) override;
 
-    TextureHandle createTexture2D(const TextureInfo &info, uint32_t flags, const void *data) override;
-    TextureHandle createCompressedTexture(const TextureResourceData &data, uint32_t flags) override;
+    TextureHandle createTexture(const TextureResourceData &data, uint32_t flags) override;
     void updateTexture(TextureHandle textureHandle, int w, int h, const void *data) override;
     void destroyTexture(TextureHandle textureHandle) override;
 

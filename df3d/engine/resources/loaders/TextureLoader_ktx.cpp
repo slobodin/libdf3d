@@ -98,20 +98,18 @@ TextureResourceData* TextureLoader_ktx(ResourceDataSource &dataSource, Allocator
     dataSource.seek(header.bytesOfKeyValueData, SeekDir::CURRENT);
 
     auto resource = MAKE_NEW(alloc, TextureResourceData);
-    resource->info.format = PixelFormat::KTX;
-    resource->info.width = header.pixelWidth;
-    resource->info.height = header.pixelHeight;
-    resource->info.numMips = header.numberOfMipmapLevels;
+    resource->format = PixelFormat::KTX;
+
     if (header.glBaseInternalFormat == GL_RGB)
     {
-        resource->info.glBaseInternalFormat = header.glBaseInternalFormat;
+        resource->glBaseInternalFormat = header.glBaseInternalFormat;
     }
     else
     {
         DF3D_ASSERT(false);
         return nullptr;
     }
-    resource->info.glInternalFormat = header.glInternalFormat;
+    resource->glInternalFormat = header.glInternalFormat;
 
     void *buffer = nullptr;
     uint32_t bufferSize = 0;
