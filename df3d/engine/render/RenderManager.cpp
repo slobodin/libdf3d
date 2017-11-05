@@ -1,3 +1,4 @@
+#include <df3d_pch.h>
 #include "RenderManager.h"
 
 #include <df3d/engine/EngineController.h>
@@ -20,7 +21,30 @@
 #include <tb_widgets.h>
 #include <animation/tb_widget_animation.h>
 
+#ifdef DF3D_IOS
+
+#include <df3d/engine/render/metal/RenderBackendMetal.h>
+
+#endif
+
 namespace df3d {
+
+namespace {
+
+bool g_usingAmbientPass = true;
+
+static unique_ptr<IRenderBackend> CreateRenderBackend(const EngineInitParams &params)
+{
+#ifdef DF3D_IOS
+    g_usingAmbientPass = false;
+    return make_unique<RenderBackendMetal>(params);
+#else
+    g_usingAmbientPass = true;
+    fds;
+#endif
+}
+
+}
 
 RenderManagerEmbedResources::RenderManagerEmbedResources(RenderManager *render)
 {
@@ -30,56 +54,53 @@ RenderManagerEmbedResources::RenderManagerEmbedResources(RenderManager *render)
     {
         const auto w = 8;
         const auto h = 8;
-        const auto pf = PixelFormat::RGBA;
 
-        PodArray<uint8_t> pixels(allocator);
-        pixels.resize(w * h * 4, 255);
+        TextureResourceData resource;
+        resource.format = PixelFormat::RGBA;
+        TextureResourceData::MipLevel mipLevel;
+        mipLevel.width = w;
+        mipLevel.height = h;
+        mipLevel.pixels.resize(w * h * 4, 255);
+        resource.mipLevels.push_back(std::move(mipLevel));
 
-        TextureInfo info;
-        info.width = w;
-        info.height = h;
-        info.numMips = 0;
-        info.format = pf;
-
-        whiteTexture = render->getBackend().createTexture2D(info,
-                                                            TEXTURE_FILTERING_NEAREST | TEXTURE_WRAP_MODE_REPEAT,
-                                                            pixels.data());
+        whiteTexture = render->getBackend().createTexture(resource, TEXTURE_FILTERING_NEAREST | TEXTURE_WRAP_MODE_REPEAT);
     }
 
     // Load GPU programs.
     {
-#ifndef DF3D_IOS
-        
-        const std::string colored_vert =
+        if (render->getBackendID() == RenderBackendID::GL)
+        {
+            const std::string colored_vert =
 #include "gl/embed_glsl/colored_vert.h"
             ;
-        const std::string colored_frag =
+            const std::string colored_frag =
 #include "gl/embed_glsl/colored_frag.h"
             ;
-        const std::string ambient_vert =
+            const std::string ambient_vert =
 #include "gl/embed_glsl/ambient_vert.h"
             ;
-        const std::string ambient_frag =
+            const std::string ambient_frag =
 #include "gl/embed_glsl/ambient_frag.h"
             ;
-        
-#else
-        const std::string colored_vert =
-#include "metal/embed_metal/colored_vert.h"
-        ;
-        const std::string colored_frag =
-#include "metal/embed_metal/colored_frag.h"
-        ;
-        const std::string ambient_vert =
-#include "metal/embed_metal/ambient_vert.h"
-        ;
-        const std::string ambient_frag =
-#include "metal/embed_metal/ambient_frag.h"
-        ;
-#endif
 
-        coloredProgram = GpuProgramFromData(colored_vert, colored_frag, allocator);
-        ambientPassProgram = GpuProgramFromData(ambient_vert, ambient_frag, allocator);
+            coloredProgram = GpuProgramFromData(colored_vert, colored_frag, allocator);
+            ambientPassProgram = GpuProgramFromData(ambient_vert, ambient_frag, allocator);
+        }
+        else
+        {
+            coloredProgram = CreateGpuProgramMetal("ColoredPass_VertexMain", "ColoredPass_FragmentMain",
+                                                   {
+                                                       "material_diffuse",
+                                                       "u_worldViewProjectionMatrix",
+                                                       "diffuseMap"
+                                                   }, allocator);
+
+            ambientPassProgram = CreateGpuProgramMetal("AmbientPass_VertexMain", "AmbientPass_FragmentMain",
+                                                       {
+                                                           "u_worldViewProjectionMatrix",
+                                                           "u_globalAmbient"
+                                                       }, allocator);
+        }
     }
 
     ambientPass = MAKE_NEW(allocator, RenderPass)();
@@ -90,10 +111,8 @@ RenderManagerEmbedResources::~RenderManagerEmbedResources()
 {
     auto &allocator = MemoryManager::allocDefault();
     svc().renderManager().getBackend().destroyTexture(whiteTexture);
-    if (coloredProgram)
-        svc().renderManager().getBackend().destroyGpuProgram(coloredProgram->handle);
-    if (ambientPassProgram)
-        svc().renderManager().getBackend().destroyGpuProgram(ambientPassProgram->handle);
+    svc().renderManager().getBackend().destroyGpuProgram(coloredProgram->handle);
+    svc().renderManager().getBackend().destroyGpuProgram(ambientPassProgram->handle);
     MAKE_DELETE(allocator, coloredProgram);
     MAKE_DELETE(allocator, ambientPassProgram);
     MAKE_DELETE(allocator, ambientPass);
@@ -105,7 +124,7 @@ void RenderManager::onFrameBegin()
     m_depthTestOverriden = false;
     m_depthWriteOverriden = false;
 
-    m_sharedState->clear();
+    m_sharedState->initialize(m_renderBackend.get());
     m_renderBackend->frameBegin();
 
     m_renderBackend->enableDepthTest(true);
@@ -140,29 +159,32 @@ void RenderManager::doRenderWorld(World &world)
     m_renderQueue->sort();
 
     // Ambient pass + Early Z.
-    m_blendModeOverriden = true;
-    m_depthTestOverriden = true;
-    m_depthWriteOverriden = true;
-    m_renderBackend->setBlendingMode(BlendingMode::NONE);
-    m_renderBackend->enableDepthTest(true);
-    m_renderBackend->enableDepthWrite(true);
-
-    for (const auto &op : m_renderQueue->litOpaqueOperations)
+    if (g_usingAmbientPass)
     {
-        m_sharedState->setWorldMatrix(op.worldTransform);
+        m_blendModeOverriden = true;
+        m_depthTestOverriden = true;
+        m_depthWriteOverriden = true;
+        m_renderBackend->setBlendingMode(BlendingMode::NONE);
+        m_renderBackend->enableDepthTest(true);
+        m_renderBackend->enableDepthWrite(true);
 
-        bindPass(m_embedResources->ambientPass);
+        for (const auto &op : m_renderQueue->litOpaqueOperations)
+        {
+            m_sharedState->setWorldMatrix(op.worldTransform);
 
-        m_renderBackend->bindVertexBuffer(op.vertexBuffer);
-        if (op.indexBuffer.isValid())
-            m_renderBackend->bindIndexBuffer(op.indexBuffer);
+            bindPass(m_embedResources->ambientPass);
 
-        m_renderBackend->draw(op.topology, op.numberOfElements);
+            m_renderBackend->bindVertexBuffer(op.vertexBuffer);
+            if (op.indexBuffer.isValid())
+                m_renderBackend->bindIndexBuffer(op.indexBuffer);
+
+            m_renderBackend->draw(op.topology, op.numberOfElements, op.vertexBufferOffset);
+        }
+
+        // Opaque pass with lights on.
+        m_renderBackend->setBlendingMode(BlendingMode::ADD);
+        m_renderBackend->enableDepthWrite(false);
     }
-
-    // Opaque pass with lights on.
-    m_renderBackend->setBlendingMode(BlendingMode::ADD);
-    m_renderBackend->enableDepthWrite(false);
 
     for (size_t i = 0; i < LIGHTS_MAX; i++)
         m_sharedState->setLight(m_renderQueue->lights[i], i);
@@ -177,7 +199,7 @@ void RenderManager::doRenderWorld(World &world)
         if (op.indexBuffer.isValid())
             m_renderBackend->bindIndexBuffer(op.indexBuffer);
 
-        m_renderBackend->draw(op.topology, op.numberOfElements);
+        m_renderBackend->draw(op.topology, op.numberOfElements, op.vertexBufferOffset);
     }
 
     // Rendering others as usual.
@@ -260,14 +282,14 @@ RenderManager::~RenderManager()
 void RenderManager::initialize(const EngineInitParams &params)
 {
     m_initParams = params;
-    
+
     m_width = params.windowWidth;
     m_height = params.windowHeight;
 
     m_renderQueue = make_unique<RenderQueue>();
     m_viewport = Viewport(0, 0, m_width, m_height);
-    m_renderBackend = IRenderBackend::create(params);
-    m_sharedState = make_unique<GpuProgramSharedState>();
+    m_renderBackend = CreateRenderBackend(params);
+    m_sharedState = m_renderBackend->createSharedState();
 
     loadEmbedResources();
 }
@@ -305,7 +327,7 @@ void RenderManager::drawRenderOperation(const RenderOperation &op)
     if (op.indexBuffer.isValid())
         m_renderBackend->bindIndexBuffer(op.indexBuffer);
 
-    m_renderBackend->draw(op.topology, op.numberOfElements);
+    m_renderBackend->draw(op.topology, op.numberOfElements, op.vertexBufferOffset);
 }
 
 const Viewport& RenderManager::getViewport() const
@@ -342,7 +364,12 @@ void RenderManager::destroyBackend()
 
 void RenderManager::createBackend()
 {
-    m_renderBackend = IRenderBackend::create(m_initParams);
+    m_renderBackend = CreateRenderBackend(m_initParams);
+}
+
+RenderBackendID RenderManager::getBackendID()
+{
+    return m_renderBackend->getID();
 }
 
 }
