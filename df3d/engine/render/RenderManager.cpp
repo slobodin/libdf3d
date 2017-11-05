@@ -24,6 +24,7 @@
 #ifdef DF3D_IOS
 
 #include <df3d/engine/render/metal/RenderBackendMetal.h>
+#define DF3D_USE_METAL_BACKEND 1
 
 #endif
 
@@ -35,7 +36,7 @@ bool g_usingAmbientPass = true;
 
 static unique_ptr<IRenderBackend> CreateRenderBackend(const EngineInitParams &params)
 {
-#ifdef DF3D_IOS
+#if DF3D_USE_METAL_BACKEND
     g_usingAmbientPass = false;
     return make_unique<RenderBackendMetal>(params);
 #else

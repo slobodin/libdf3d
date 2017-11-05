@@ -120,7 +120,9 @@ struct TextureGL
     GLuint glID = 0;
     GLenum type = GL_INVALID_ENUM;
     GLenum pixelFormat = GL_INVALID_ENUM;
-    TextureInfo info;
+    PixelFormat df3dPixelFormat;
+    int mipLevel0Width = 0;
+    int mipLevel0Height = 0;
 };
 
 struct ShaderGL
@@ -215,20 +217,19 @@ public:
     void frameBegin() override;
     void frameEnd() override;
 
-    VertexBufferHandle createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data, GpuBufferUsageType usage) override;
+    VertexBufferHandle createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data) override;
+    VertexBufferHandle createDynamicVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data) override;
     void destroyVertexBuffer(VertexBufferHandle vbHandle) override;
 
     void bindVertexBuffer(VertexBufferHandle vbHandle) override;
+    void updateDynamicVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) override;
     // void updateVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) override;
 
-    IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, GpuBufferUsageType usage, IndicesType indicesType) override;
+    IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, IndicesType indicesType) override;
     void destroyIndexBuffer(IndexBufferHandle ibHandle) override;
-
     void bindIndexBuffer(IndexBufferHandle ibHandle) override;
-    // void updateIndexBuffer(IndexBufferHandle ibHandle, size_t indicesCount, const void *data) override;
 
-    TextureHandle createTexture2D(const TextureInfo &info, uint32_t flags, const void *data) override;
-    TextureHandle createCompressedTexture(const TextureResourceData &data, uint32_t flags) override;
+    TextureHandle createTexture(const TextureResourceData &data, uint32_t flags) override;
     void updateTexture(TextureHandle textureHandle, int w, int h, const void *data) override;
     void destroyTexture(TextureHandle textureHandle) override;
 
@@ -244,7 +245,7 @@ public:
 
     void bindGpuProgram(GpuProgramHandle programHandle) override;
     void requestUniforms(GpuProgramHandle programHandle, std::vector<UniformHandle> &outHandles, std::vector<std::string> &outNames) override;
-    void setUniformValue(UniformHandle uniformHandle, const void *data) override;
+    void setUniformValue(GpuProgramHandle programHandle, UniformHandle uniformHandle, const void *data) override;
 
     void bindFrameBuffer(FrameBufferHandle frameBufferHandle) override;
 
@@ -261,7 +262,7 @@ public:
     void setBlendingMode(BlendingMode mode) override;
     void setCullFaceMode(FaceCullMode mode) override;
 
-    void draw(Topology type, size_t numberOfElements) override;
+    void draw(Topology type, size_t numberOfElements, size_t vertexBufferOffset) override;
 
     void setDestroyAndroidWorkaround() override { m_destroyAndroidWorkaround = true; }
 };

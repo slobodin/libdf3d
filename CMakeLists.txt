@@ -52,6 +52,12 @@ set(libdf3d_HEADER_LIST
     df3d/engine/render/RenderQueue.h
     df3d/engine/render/Vertex.h
     df3d/engine/render/Viewport.h
+    df3d/engine/render/gl/GLSLPreprocess.h
+    df3d/engine/render/gl/RenderBackendGL.h
+    df3d/engine/render/gl/embed_glsl/ambient_frag.h
+    df3d/engine/render/gl/embed_glsl/ambient_vert.h
+    df3d/engine/render/gl/embed_glsl/colored_frag.h
+    df3d/engine/render/gl/embed_glsl/colored_vert.h
     df3d/engine/resources/EntityResource.h
     df3d/engine/resources/GpuProgramResource.h
     df3d/engine/resources/IResourceHolder.h
@@ -144,6 +150,8 @@ set(libdf3d_SRC_LIST
     df3d/engine/render/RenderQueue.cpp
     df3d/engine/render/Vertex.cpp
     df3d/engine/render/Viewport.cpp
+    df3d/engine/render/gl/GLSLPreprocess.cpp
+    # df3d/engine/render/gl/RenderBackendGL.cpp
     df3d/engine/resources/EntityResource.cpp
     df3d/engine/resources/GpuProgramResource.cpp
     df3d/engine/resources/MaterialResource.cpp
@@ -182,22 +190,6 @@ set(libdf3d_SRC_LIST
     df3d/lib/math/MathUtils.cpp
     df3d/platform/AppDelegate.cpp
 )
-
-if (NOT DF3D_IOS)
-    list(APPEND libdf3d_HEADER_LIST
-        df3d/engine/render/gl/GLSLPreprocess.h
-        df3d/engine/render/gl/RenderBackendGL.h
-        df3d/engine/render/gl/embed_glsl/ambient_frag.h
-        df3d/engine/render/gl/embed_glsl/ambient_vert.h
-        df3d/engine/render/gl/embed_glsl/colored_frag.h
-        df3d/engine/render/gl/embed_glsl/colored_vert.h
-    )
-
-    list(APPEND libdf3d_SRC_LIST
-        df3d/engine/render/gl/GLSLPreprocess.cpp
-        df3d/engine/render/gl/RenderBackendGL.cpp
-    )
-endif()
 
 set(third_party_HEADER_FILES
         third-party/mikktspace/mikktspace.h
@@ -251,6 +243,7 @@ if (DF3D_IOS)
 
     set_source_files_properties("df3d/engine/render/GpuProgramSharedState.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
     set_source_files_properties("df3d/engine/render/RenderManager.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
+    # set_source_files_properties("df3d/engine/render/gl/RenderBackendGL.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
 
 if (DF3D_DESKTOP)
