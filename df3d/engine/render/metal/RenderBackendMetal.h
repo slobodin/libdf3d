@@ -131,70 +131,6 @@ class RenderBackendMetal : public IRenderBackend
     friend class MetalTextureWrapper;
     friend class MetalGpuProgramWrapper;
 
-    struct RenderPassState
-    {
-        MTLViewport viewport;
-        MTLScissorRect scissorRect;
-        MTLCullMode cullMode;
-        MTLWinding winding;
-
-        bool depthTestEnabled = true;
-        bool depthWriteEnabled = true;
-
-        BlendingMode blendingMode = BlendingMode::NONE;
-
-        RenderPassState(int w, int h)
-        {
-            setViewport(0, 0, w, h);
-            resetScissorRect();
-            cullMode = MTLCullModeNone;
-            winding = MTLWindingCounterClockwise;
-        }
-
-        void setCullMode(FaceCullMode mode)
-        {
-            switch (mode)
-            {
-            case FaceCullMode::NONE:
-                cullMode = MTLCullModeNone;
-                break;
-            case FaceCullMode::FRONT:
-                cullMode = MTLCullModeFront;
-                break;
-            case FaceCullMode::BACK:
-                cullMode = MTLCullModeBack;
-                break;
-            default:
-                DF3D_ASSERT(false);
-                break;
-            }
-        }
-
-        void setViewport(int x, int y, int w, int h)
-        {
-            viewport.originX = x;
-            viewport.originY = y;
-            viewport.width = w;
-            viewport.height = h;
-            viewport.znear = 0.0;
-            viewport.zfar = 1.0;
-        }
-
-        void setScissorRect(int x, int y, int w, int h)
-        {
-            scissorRect = (MTLScissorRect){
-                static_cast<NSUInteger>(x),
-                static_cast<NSUInteger>(y),
-                static_cast<NSUInteger>(w),
-                static_cast<NSUInteger>(h) };
-        }
-
-        void resetScissorRect()
-        {
-            setScissorRect(0, 0, (int)viewport.width, (int)viewport.height);
-        }
-    };
-
     static const int MAX_SIZE = 0xFFF;      // 4k is enough for now.
 
     HandleBag m_vertexBuffersBag;
@@ -209,7 +145,6 @@ class RenderBackendMetal : public IRenderBackend
 
     std::vector<MetalDynamicVertexBuffer*> m_dynamicBuffers;
 
-    RenderPassState m_currentPassState;
     VertexBufferHandle m_currentVB;
     IndexBufferHandle m_currentIB;
     GpuProgramHandle m_currentProgram;
@@ -244,6 +179,9 @@ class RenderBackendMetal : public IRenderBackend
     int m_width = 0;
     int m_height = 0;
     bool m_indexedDrawCall = false;
+    bool m_depthTestEnabled = true;
+    bool m_depthWriteEnabled = true;
+    BlendingMode m_blending = BlendingMode::NONE;
 
     MTLTextureDescriptor *m_textureDescriptor = nullptr;
     MTLSamplerDescriptor *m_samplerDescriptor = nullptr;

@@ -588,7 +588,6 @@ RenderBackendMetal::RenderBackendMetal(const EngineInitParams &params)
     m_indexBuffersBag(MemoryManager::allocDefault()),
     m_texturesBag(MemoryManager::allocDefault()),
     m_gpuProgramsBag(MemoryManager::allocDefault()),
-    m_currentPassState(params.windowWidth, params.windowHeight),
     m_uniformBuffer(new MetalGlobalUniforms()),
     m_width(params.windowWidth),
     m_height(params.windowHeight)
@@ -670,7 +669,6 @@ void RenderBackendMetal::frameBegin()
     for (auto buffer : m_dynamicBuffers)
         buffer->advanceToTheNextFrame();
 
-    m_currentPassState = RenderPassState(m_width, m_height);
     m_currentVB = {};
     m_currentIB = {};
     m_currentProgram = {};
@@ -690,6 +688,14 @@ void RenderBackendMetal::frameBegin()
         // Setup render pass.
         m_encoder = [m_commandBuffer renderCommandEncoderWithDescriptor:rpd];
         [m_encoder retain];
+
+        [m_encoder setFrontFacingWinding:MTLWindingCounterClockwise];
+        [m_encoder setCullMode: MTLCullModeNone];
+        setViewport(0, 0, m_width, m_height);
+        enableScissorTest(false);
+        m_blending = BlendingMode::NONE;
+        m_depthTestEnabled = true;
+        m_depthWriteEnabled = true;
     }
 }
 
@@ -1026,7 +1032,21 @@ void RenderBackendMetal::setUniformValue(GpuProgramHandle programHandle, Uniform
 
 void RenderBackendMetal::setViewport(int x, int y, int width, int height)
 {
-    m_currentPassState.setViewport(x, y, width, height);
+    if (m_encoder == nil)
+    {
+        DF3D_ASSERT(false);
+        return;
+    }
+
+    MTLViewport viewport;
+    viewport.originX = x;
+    viewport.originY = y;
+    viewport.width = width;
+    viewport.height = height;
+    viewport.znear = 0.0;
+    viewport.zfar = 1.0;
+
+    [m_encoder setViewport:viewport];
 }
 
 void RenderBackendMetal::clearColorBuffer(const glm::vec4 &color)
@@ -1046,33 +1066,82 @@ void RenderBackendMetal::clearStencilBuffer()
 
 void RenderBackendMetal::enableDepthTest(bool enable)
 {
-    m_currentPassState.depthTestEnabled = enable;
+    m_depthTestEnabled = enable;
 }
 
 void RenderBackendMetal::enableDepthWrite(bool enable)
 {
-    m_currentPassState.depthWriteEnabled = enable;
+    m_depthWriteEnabled = enable;
 }
 
 void RenderBackendMetal::enableScissorTest(bool enable)
 {
+    if (m_encoder == nil)
+    {
+        DF3D_ASSERT(false);
+        return;
+    }
+
     if (!enable)
-        m_currentPassState.resetScissorRect();
+    {
+        auto scissorRect = (MTLScissorRect){
+            0,
+            0,
+            static_cast<NSUInteger>(m_width),
+            static_cast<NSUInteger>(m_height) };
+
+        [m_encoder setScissorRect:scissorRect];
+    }
 }
 
 void RenderBackendMetal::setScissorRegion(int x, int y, int width, int height)
 {
-    m_currentPassState.setScissorRect(x, y, width, height);
+    if (m_encoder == nil)
+    {
+        DF3D_ASSERT(false);
+        return;
+    }
+
+    auto scissorRect = (MTLScissorRect){
+        static_cast<NSUInteger>(x),
+        static_cast<NSUInteger>(y),
+        static_cast<NSUInteger>(width),
+        static_cast<NSUInteger>(height) };
+
+    [m_encoder setScissorRect:scissorRect];
 }
 
 void RenderBackendMetal::setBlendingMode(BlendingMode mode)
 {
-    m_currentPassState.blendingMode = mode;
+    m_blending = mode;
 }
 
 void RenderBackendMetal::setCullFaceMode(FaceCullMode mode)
 {
-    m_currentPassState.setCullMode(mode);
+    if (m_encoder == nil)
+    {
+        DF3D_ASSERT(false);
+        return;
+    }
+
+    MTLCullMode cullMode;
+    switch (mode)
+    {
+        case FaceCullMode::NONE:
+            cullMode = MTLCullModeNone;
+            break;
+        case FaceCullMode::FRONT:
+            cullMode = MTLCullModeFront;
+            break;
+        case FaceCullMode::BACK:
+            cullMode = MTLCullModeBack;
+            break;
+        default:
+            DF3D_ASSERT(false);
+            return;
+    }
+
+    [m_encoder setCullMode:cullMode];
 }
 
 void RenderBackendMetal::draw(Topology type, size_t numberOfElements)
@@ -1083,18 +1152,13 @@ void RenderBackendMetal::draw(Topology type, size_t numberOfElements)
     DF3D_ASSERT(m_gpuProgramsBag.isValid(m_currentProgram.getID()) &&
                 m_vertexBuffersBag.isValid(m_currentVB.getID()));
 
-    [m_encoder setViewport:m_currentPassState.viewport];
-    [m_encoder setCullMode:m_currentPassState.cullMode];
-    [m_encoder setFrontFacingWinding:m_currentPassState.winding];
-    [m_encoder setScissorRect:m_currentPassState.scissorRect];
-    [m_encoder setDepthStencilState:getDepthStencilState(m_currentPassState.depthTestEnabled, m_currentPassState.depthWriteEnabled)];
+    [m_encoder setDepthStencilState:getDepthStencilState(m_depthTestEnabled, m_depthWriteEnabled)];
 
     auto &vb = m_vertexBuffers[m_currentVB.getIndex()];
     auto &program = m_programs[m_currentProgram.getIndex()];
 
     // Create pipeline.
-    id <MTLRenderPipelineState> pipeline = m_renderPipelinesCache->getOrCreate(m_currentProgram, vb->getFormat(),
-                                                                               m_currentPassState.blendingMode);
+    id <MTLRenderPipelineState> pipeline = m_renderPipelinesCache->getOrCreate(m_currentProgram, vb->getFormat(), m_blending);
 
     [m_encoder setRenderPipelineState:pipeline];
 
