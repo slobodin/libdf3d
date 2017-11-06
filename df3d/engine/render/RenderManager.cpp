@@ -20,6 +20,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <tb_widgets.h>
 #include <animation/tb_widget_animation.h>
+#include <df3d/engine/render/gl/RenderBackendGL.h>
 
 #ifdef DF3D_IOS
 
@@ -40,8 +41,8 @@ static unique_ptr<IRenderBackend> CreateRenderBackend(const EngineInitParams &pa
     g_usingAmbientPass = false;
     return make_unique<RenderBackendMetal>(params);
 #else
-    g_usingAmbientPass = true;
-    fds;
+    g_usingAmbientPass = false;
+    return make_unique<RenderBackendGL>(params.windowWidth, params.windowHeight);
 #endif
 }
 
@@ -175,11 +176,11 @@ void RenderManager::doRenderWorld(World &world)
 
             bindPass(m_embedResources->ambientPass);
 
-            m_renderBackend->bindVertexBuffer(op.vertexBuffer);
+            m_renderBackend->bindVertexBuffer(op.vertexBuffer, op.vertexBufferOffset);
             if (op.indexBuffer.isValid())
                 m_renderBackend->bindIndexBuffer(op.indexBuffer);
 
-            m_renderBackend->draw(op.topology, op.numberOfElements, op.vertexBufferOffset);
+            m_renderBackend->draw(op.topology, op.numberOfElements);
         }
 
         // Opaque pass with lights on.
@@ -196,11 +197,11 @@ void RenderManager::doRenderWorld(World &world)
 
         bindPass(op.passProps);
 
-        m_renderBackend->bindVertexBuffer(op.vertexBuffer);
+        m_renderBackend->bindVertexBuffer(op.vertexBuffer, op.vertexBufferOffset);
         if (op.indexBuffer.isValid())
             m_renderBackend->bindIndexBuffer(op.indexBuffer);
 
-        m_renderBackend->draw(op.topology, op.numberOfElements, op.vertexBufferOffset);
+        m_renderBackend->draw(op.topology, op.numberOfElements);
     }
 
     // Rendering others as usual.
@@ -324,11 +325,11 @@ void RenderManager::drawRenderOperation(const RenderOperation &op)
     m_sharedState->setWorldMatrix(op.worldTransform);
     bindPass(op.passProps);
 
-    m_renderBackend->bindVertexBuffer(op.vertexBuffer);
+    m_renderBackend->bindVertexBuffer(op.vertexBuffer, op.vertexBufferOffset);
     if (op.indexBuffer.isValid())
         m_renderBackend->bindIndexBuffer(op.indexBuffer);
 
-    m_renderBackend->draw(op.topology, op.numberOfElements, op.vertexBufferOffset);
+    m_renderBackend->draw(op.topology, op.numberOfElements);
 }
 
 const Viewport& RenderManager::getViewport() const

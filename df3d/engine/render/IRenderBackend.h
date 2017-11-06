@@ -2,6 +2,7 @@
 
 #include "RenderCommon.h"
 #include "Vertex.h"
+#include "GpuProgramSharedState.h"
 
 namespace df3d {
 
@@ -32,7 +33,7 @@ public:
     virtual VertexBufferHandle createDynamicVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data) = 0;
     virtual void destroyVertexBuffer(VertexBufferHandle vbHandle) = 0;
 
-    virtual void bindVertexBuffer(VertexBufferHandle vbHandle) = 0;
+    virtual void bindVertexBuffer(VertexBufferHandle vbHandle, size_t vertexBufferOffset) = 0;
     virtual void updateDynamicVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) = 0;
 
     virtual IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, IndicesType indicesType) = 0;
@@ -73,9 +74,12 @@ public:
     virtual void setBlendingMode(BlendingMode mode) = 0;
     virtual void setCullFaceMode(FaceCullMode mode) = 0;
 
-    virtual void draw(Topology type, size_t numberOfElements, size_t vertexBufferOffset) = 0;
+    virtual void draw(Topology type, size_t numberOfElements) = 0;
 
-    virtual unique_ptr<IGPUProgramSharedState> createSharedState() = 0;
+    virtual unique_ptr<IGPUProgramSharedState> createSharedState()
+    {
+        return IGPUProgramSharedState::create(getID());
+    }
 
     virtual void setDestroyAndroidWorkaround() = 0;
     virtual RenderBackendID getID() const = 0;

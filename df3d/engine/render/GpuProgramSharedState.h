@@ -1,6 +1,5 @@
 #pragma once
 
-#include <df3d_pch.h>
 #include "RenderCommon.h"
 
 namespace df3d {

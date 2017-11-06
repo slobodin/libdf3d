@@ -144,7 +144,6 @@ void StopAccelerometerListenerIOS()
         self.contentScaleFactor = [UIScreen mainScreen].scale;
         [self setPreferredFramesPerSecond:60.0];
         [self setColorPixelFormat:MTLPixelFormatBGRA8Unorm];
-        [self setFramebufferOnly:NO];
         [self setDepthStencilPixelFormat:MTLPixelFormatDepth32Float];
         [self setUserInteractionEnabled:YES];
     }

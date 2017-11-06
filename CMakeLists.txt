@@ -151,7 +151,7 @@ set(libdf3d_SRC_LIST
     df3d/engine/render/Vertex.cpp
     df3d/engine/render/Viewport.cpp
     df3d/engine/render/gl/GLSLPreprocess.cpp
-    # df3d/engine/render/gl/RenderBackendGL.cpp
+    df3d/engine/render/gl/RenderBackendGL.cpp
     df3d/engine/resources/EntityResource.cpp
     df3d/engine/resources/GpuProgramResource.cpp
     df3d/engine/resources/MaterialResource.cpp
@@ -243,7 +243,7 @@ if (DF3D_IOS)
 
     set_source_files_properties("df3d/engine/render/GpuProgramSharedState.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
     set_source_files_properties("df3d/engine/render/RenderManager.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
-    # set_source_files_properties("df3d/engine/render/gl/RenderBackendGL.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
+    set_source_files_properties("df3d/engine/render/gl/RenderBackendGL.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
 
 if (DF3D_DESKTOP)

@@ -69,7 +69,6 @@ SharedUniformType GetSharedTypeForUniform(const std::string &name, bool metalBac
 
 ShaderHandle CreateShaderFromFile(const char *path)
 {
-#ifndef DF3D_IOS
     ShaderHandle result;
 
     if (auto file = svc().resourceManager().getFS().open(path))
@@ -94,22 +93,11 @@ ShaderHandle CreateShaderFromFile(const char *path)
     }
 
     return result;
-#else
-    DF3D_ASSERT(false);
-    return {};
-#endif
 }
 
 ShaderHandle CreateShaderFromString(const std::string &data, ShaderType shaderType)
 {
-#ifndef DF3D_IOS
-    DF3D_ASSERT(shaderType != ShaderType::UNDEFINED);
-
     return svc().renderManager().getBackend().createShader(shaderType, GLSLPreprocess::preprocess(data).c_str());
-#else
-    DF3D_ASSERT(false);
-    return {};
-#endif
 }
 
 void InitProgramUniforms(GpuProgramResource *gpuProgram)
@@ -175,10 +163,6 @@ void InitProgramUniformsMetal(GpuProgramResource *gpuProgram, std::vector<std::s
 
 GpuProgramResource* CreateGpuProgram(ShaderHandle vShader, ShaderHandle fShader, Allocator &allocator)
 {
-#ifdef DF3D_IOS
-    DF3D_ASSERT(false);
-#endif
-
     if (!(vShader.isValid() && fShader.isValid()))
         return nullptr;       // FIXME: destroy valid shader.
 
@@ -265,9 +249,6 @@ void GpuProgramHolder::destroyResource(Allocator &allocator)
 
 GpuProgramResource* GpuProgramFromData(const std::string &vShaderData, const std::string &fShaderData, Allocator &alloc)
 {
-#ifdef DF3D_IOS
-    DF3D_ASSERT(false);
-#endif
     ShaderHandle vertexShader = CreateShaderFromString(vShaderData, ShaderType::VERTEX);
     ShaderHandle fragmentShader = CreateShaderFromString(fShaderData, ShaderType::FRAGMENT);
 

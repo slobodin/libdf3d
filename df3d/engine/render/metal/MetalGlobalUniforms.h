@@ -42,6 +42,8 @@ typedef struct
     simd::float3x3 u_normalMatrix;
     simd::float3x3 u_worldViewMatrix3x3;
 
+    MetalUserUniforms userUniforms;
+
     MetalLight light0;
     MetalLight light1;
 
@@ -51,6 +53,4 @@ typedef struct
     simd::float3 u_cameraPosition;
     float u_fogDensity;
     float u_elapsedTime;
-
-    MetalUserUniforms userUniforms;
 } MetalGlobalUniforms;

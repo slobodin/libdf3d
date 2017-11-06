@@ -221,7 +221,7 @@ public:
     VertexBufferHandle createDynamicVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data) override;
     void destroyVertexBuffer(VertexBufferHandle vbHandle) override;
 
-    void bindVertexBuffer(VertexBufferHandle vbHandle) override;
+    void bindVertexBuffer(VertexBufferHandle vbHandle, size_t vertexBufferOffset) override;
     void updateDynamicVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) override;
     // void updateVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) override;
 
@@ -238,6 +238,11 @@ public:
     ShaderHandle createShader(ShaderType type, const char *data) override;
 
     GpuProgramHandle createGpuProgram(ShaderHandle vertexShaderHandle, ShaderHandle fragmentShaderHandle) override;
+    GpuProgramHandle createGpuProgramMetal(const char *vertexFunctionName, const char *fragmentFunctionName) override
+    {
+        DF3D_ASSERT(false);
+        return {};
+    }
     void destroyGpuProgram(GpuProgramHandle programHandle) override;
 
     FrameBufferHandle createFrameBuffer(TextureHandle *attachments, size_t attachmentCount) override;
@@ -262,9 +267,10 @@ public:
     void setBlendingMode(BlendingMode mode) override;
     void setCullFaceMode(FaceCullMode mode) override;
 
-    void draw(Topology type, size_t numberOfElements, size_t vertexBufferOffset) override;
+    void draw(Topology type, size_t numberOfElements) override;
 
     void setDestroyAndroidWorkaround() override { m_destroyAndroidWorkaround = true; }
+    RenderBackendID getID() const { return RenderBackendID::GL; }
 };
 
 }
