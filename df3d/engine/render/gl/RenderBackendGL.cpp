@@ -8,10 +8,48 @@
 
 #ifndef DF3D_IOS
 #error "implement"
+
+optimize metal
+
+fshader is slow (explosions and stuff on fullscreen)
+
 // OPENGL ES
 {
 
 
+        - linear filters for textures susk
+
+
+
+
+
+
+
+        - CHECK DELETING RENDER BACKEND AT THE END OF THE APP!!!!!
+        - GPU memory check leaks
+
+
+// Best practises
+
+{
+    https://developer.apple.com/library/content/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/index.html#//apple_ref/doc/uid/TP40016642-CH27-SW1
+}
+
+
+{
+    resource manager should check:
+    - having the .metal shader for each data/glsl
+    - uniforms stated in the GLSL file should be the same as in .shader in metal
+    - delete GLSL data from iOS bundle
+}
+
+
+
+
+
+
+
+. И можно сделать бесплатное получение валюты игровой за просмотр видеороликов, но это так, придирки.
 65k vertices enough????
 
     dynamic buffers on open gl ES
