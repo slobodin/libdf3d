@@ -10,6 +10,10 @@
 #error "implement"
 // OPENGL ES
 {
+
+
+65k vertices enough????
+
     dynamic buffers on open gl ES
 
     different render on OpenGL ES for trails, projectiles and GUI
