@@ -8,6 +8,18 @@
 
 #ifndef DF3D_IOS
 #error "implement"
+// OPENGL ES
+{
+    dynamic buffers on open gl ES
+
+    different render on OpenGL ES for trails, projectiles and GUI
+
+    android rebinding + android rebinding Turbobadger (context lost)
+
+    opengl vertexBufferOffset
+}
+
+implement stats: size of buffers
 #endif
 
 namespace df3d {
