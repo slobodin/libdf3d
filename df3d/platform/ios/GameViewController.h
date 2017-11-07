@@ -4,6 +4,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <MetalKit/MetalKit.h>
 #ifndef DF3D_APPLETV
 #import <CoreMotion/CoreMotion.h>
 #endif
@@ -15,11 +16,13 @@
 #define GameViewControllerBase UIViewController
 #endif
 
-@interface OpenGLView : UIView
+@interface DF3DView : MTKView<MTKViewDelegate>
+
+- (bool) startupEngine;
+
 @end
 
 @interface GameViewController : GameViewControllerBase
-@property (nonatomic, retain) OpenGLView* openglView;
 
 #ifndef DF3D_APPLETV
 

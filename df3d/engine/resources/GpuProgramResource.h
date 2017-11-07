@@ -24,6 +24,7 @@ class GpuProgramHolder : public IResourceHolder
 {
     GpuProgramResource *m_resource = nullptr;
     std::string m_vShaderPath, m_fShaderPath;
+    std::vector<std::string> m_uniformNames;
 
 public:
     void listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps) override { }
@@ -36,5 +37,6 @@ public:
 };
 
 GpuProgramResource* GpuProgramFromData(const std::string &vShaderData, const std::string &fShaderData, Allocator &alloc);
+GpuProgramResource* CreateGpuProgramMetal(const std::string &vShaderFunction, const std::string &fShaderFunction, std::vector<std::string> uniformNames, Allocator &alloc);
 
 }

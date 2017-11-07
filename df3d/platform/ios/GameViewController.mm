@@ -4,13 +4,10 @@
 //
 
 #import "GameViewController.h"
-#import <OpenGLES/ES2/glext.h>
 #import <AVFoundation/AVFoundation.h>
 #import <GameController/GameController.h>
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
 
 #import <df3d/df3d.h>
 #import "AppDelegate.h"
@@ -54,39 +51,23 @@ void StopAccelerometerListenerIOS()
 
 }
 
-@implementation OpenGLView {
-    CADisplayLink* m_displayLink;
-    CAEAGLLayer* m_eaglLayer;
-    EAGLContext* m_context;
-    GLuint m_framebuffer;
-    GLuint m_colorBuffer;
-    GLuint m_depthBuffer;
+@implementation DF3DView {
+    int m_viewportX;
+    int m_viewportY;
 }
 
-+ (Class)layerClass {
-    return [CAEAGLLayer class];
+- (void)mtkView:(MTKView *)view drawableSizeWillChange:(CGSize)size
+{
+    m_viewportX = size.width;
+    m_viewportY = size.height;
 }
 
-- (void)setupLayer {
-    m_eaglLayer = (CAEAGLLayer*) self.layer;
-    m_eaglLayer.opaque = YES;
+- (void)drawInMTKView:(MTKView *)view
+{
+    df3d::svc().step();
 }
 
-- (void)setupContext {
-    EAGLRenderingAPI api = kEAGLRenderingAPIOpenGLES2;
-    m_context = [[EAGLContext alloc] initWithAPI:api];
-    if (!m_context) {
-        NSLog(@"Failed to initialize OpenGLES 2.0 context");
-        exit(1);
-    }
-
-    if (![EAGLContext setCurrentContext:m_context]) {
-        NSLog(@"Failed to set current OpenGL context");
-        exit(1);
-    }
-}
-
-- (void)setupEngine
+- (bool) startupEngine
 {
     CGSize size = [self getDisplaySize];
 
@@ -95,16 +76,44 @@ void StopAccelerometerListenerIOS()
     auto engineInitParams = df3d::AppDelegate::getInstance()->getInitParams();
     engineInitParams.windowWidth = size.width;
     engineInitParams.windowHeight = size.height;
+    engineInitParams.hardwareData = self;
 
-    df3d::EngineInit(engineInitParams);
+    if (!df3d::EngineInit(engineInitParams)) {
+        DFLOG_CRITICAL("Failed to startup engine!");
+        return false;
+    }
 
-    if (!df3d::AppDelegate::getInstance()->onAppStarted())
+    if (!df3d::AppDelegate::getInstance()->onAppStarted()) {
         DFLOG_CRITICAL("Game code initialization failed");
-}
+        return false;
+    }
 
-- (void)setupDisplayLink {
-    m_displayLink = [[CADisplayLink displayLinkWithTarget:self selector:@selector(renderFrame:)] retain];
-    [m_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    BOOL success = FALSE;
+    success = [session setCategory:AVAudioSessionCategoryAmbient error:nil];
+    success = [session setActive:TRUE error:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controllerWasConnected:) name:GCControllerDidConnectNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controllerWasDisconnected:) name:GCControllerDidDisconnectNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserverForName:AVAudioSessionInterruptionNotification object:nil queue:nil usingBlock:^(NSNotification *notification)
+     {
+         if ([[notification.userInfo valueForKey:AVAudioSessionInterruptionTypeKey] intValue] == AVAudioSessionInterruptionTypeBegan)
+         {
+             df3d::AudioSuspend();
+         }
+         else
+         {
+             DF3D_VERIFY([[AVAudioSession sharedInstance] setActive:TRUE error:nil]);
+
+             df3d::AudioResume();
+         }
+     }];
+
+    self.delegate = self;
+
+    [self mtkView:self drawableSizeWillChange:self.drawableSize];
+
+    return true;
 }
 
 - (CGSize)getDisplaySize
@@ -116,52 +125,27 @@ void StopAccelerometerListenerIOS()
     return size;
 }
 
-- (id)initWithFrame:(CGRect)frame
+- (instancetype) initWithFrame:(CGRect)frame device:(id<MTLDevice>)device
 {
-    self = [super initWithFrame:frame];
+    if (!device) {
+        NSLog(@"Failed to init View. Metal device is not available");
+        return nil;
+    }
+
+    self = [super initWithFrame:frame device:device];
+
     if (self) {
+        m_viewportX = 0;
+        m_viewportY = 0;
+
 #ifndef DF3D_APPLETV
         self.multipleTouchEnabled = true;
 #endif
         self.contentScaleFactor = [UIScreen mainScreen].scale;
-
-        AVAudioSession *session = [AVAudioSession sharedInstance];
-        BOOL success = FALSE;
-        success = [session setCategory:AVAudioSessionCategoryAmbient error:nil];
-        success = [session setActive:TRUE error:nil];
-
-        [self setupLayer];
-        [self setupContext];
-        [self setupDisplayLink];
-        [self createRenderbuffers:[self getDisplaySize]];
-        [self setupEngine];
-
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(applicationWillResignActive)
-                                                     name:UIApplicationWillResignActiveNotification
-                                                   object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(applicationDidBecomeActive)
-                                                     name:UIApplicationDidBecomeActiveNotification
-                                                   object:nil];
-
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controllerWasConnected:) name:GCControllerDidConnectNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controllerWasDisconnected:) name:GCControllerDidDisconnectNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserverForName:AVAudioSessionInterruptionNotification object:nil queue:nil usingBlock:^(NSNotification *notification)
-        {
-            if ([[notification.userInfo valueForKey:AVAudioSessionInterruptionTypeKey] intValue] == AVAudioSessionInterruptionTypeBegan)
-            {
-                df3d::AudioSuspend();
-            }
-            else
-            {
-                DF3D_VERIFY([[AVAudioSession sharedInstance] setActive:TRUE error:nil]);
-
-                df3d::AudioResume();
-            }
-        }];
-
-        [self renderFrame:m_displayLink];
+        [self setPreferredFramesPerSecond:60.0];
+        [self setColorPixelFormat:MTLPixelFormatBGRA8Unorm];
+        [self setDepthStencilPixelFormat:MTLPixelFormatDepth32Float];
+        [self setUserInteractionEnabled:YES];
     }
     return self;
 }
@@ -169,96 +153,8 @@ void StopAccelerometerListenerIOS()
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [EAGLContext setCurrentContext:m_context];
-    [self destroyRenderbuffers];
-
-    [m_displayLink invalidate];
-    [m_displayLink release];
-
-    [EAGLContext setCurrentContext:nil];
-    [m_context release];
 
     [super dealloc];
-}
-
-- (void)applicationWillResignActive
-{
-    [EAGLContext setCurrentContext:m_context];
-    [self destroyRenderbuffers];
-
-    [m_displayLink invalidate];
-    [m_displayLink release];
-    m_displayLink = nil;
-
-    [EAGLContext setCurrentContext:nil];
-}
-
-- (void)applicationDidBecomeActive
-{
-    if (!m_displayLink) {
-        m_displayLink = [[CADisplayLink displayLinkWithTarget:self selector:@selector(renderFrame:)] retain];
-        [m_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-    }
-
-    [EAGLContext setCurrentContext:m_context];
-    [self destroyRenderbuffers];
-    [self createRenderbuffers:[self getDisplaySize]];
-}
-
-- (void)renderFrame:(CADisplayLink*)displayLink
-{
-    [EAGLContext setCurrentContext:m_context];
-
-    glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
-
-    df3d::svc().step();
-
-    glBindRenderbuffer(GL_RENDERBUFFER, m_colorBuffer);
-    [m_context presentRenderbuffer:GL_RENDERBUFFER];
-}
-
-- (void)createRenderbuffers:(CGSize)size
-{
-    int width = int(size.width);
-    int height = int(size.height);
-
-    NSLog(@"Creating renderbuffers for resolution %dx%d.", width, height);
-
-    glGenFramebuffers(1, &m_framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
-
-    glGenRenderbuffers(1, &m_colorBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, m_colorBuffer);
-    [m_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:m_eaglLayer];
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_colorBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-    glGenRenderbuffers(1, &m_depthBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, width, height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-}
-
-- (void)destroyRenderbuffers
-{
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-    if (m_colorBuffer) {
-        glDeleteRenderbuffers(1, &m_colorBuffer);
-        m_colorBuffer = 0;
-    }
-
-    if (m_depthBuffer) {
-        glDeleteRenderbuffers(1, &m_depthBuffer);
-        m_depthBuffer = 0;
-    }
-
-    if (m_framebuffer) {
-        glDeleteFramebuffers(1, &m_framebuffer);
-        m_framebuffer = 0;
-    }
 }
 
 - (void)processTouches:(NSSet<UITouch*>*)touches withState:(df3d::Touch::State)state
@@ -420,10 +316,15 @@ void StopAccelerometerListenerIOS()
 @end
 
 @implementation GameViewController
+{
+    DF3DView *m_metalView;
+}
 
 - (id)init
 {
     self = [super init];
+
+    m_metalView = nil;
     g_viewController = self;
 
 #ifndef DF3D_APPLETV
@@ -441,7 +342,8 @@ void StopAccelerometerListenerIOS()
 
 - (void)dealloc
 {
-    [_openglView release];
+    [m_metalView release];
+
     g_viewController = nil;
 
 #ifndef DF3D_APPLETV
@@ -491,10 +393,12 @@ void StopAccelerometerListenerIOS()
 
 - (void)viewDidLoad
 {
+    [super viewDidLoad];
+
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
-    _openglView = [[[OpenGLView alloc] initWithFrame:self.view.bounds] autorelease];
-    [self.view addSubview:_openglView];
+    m_metalView = [[DF3DView alloc] initWithFrame:self.view.bounds device:MTLCreateSystemDefaultDevice()];
+    [self.view addSubview:m_metalView];
 
 #ifndef DF3D_APPLETV
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
@@ -502,7 +406,7 @@ void StopAccelerometerListenerIOS()
     self.controllerUserInteractionEnabled = false;
 #endif
 
-    [super viewDidLoad];
+    [m_metalView startupEngine];
 
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 }
@@ -518,7 +422,7 @@ void StopAccelerometerListenerIOS()
 - (void)viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
-    _openglView.frame = self.view.bounds;
+    m_metalView.frame = self.view.bounds;
 }
 
 #ifdef DF3D_APPLETV

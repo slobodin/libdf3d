@@ -52,35 +52,6 @@ namespace {
         bottom_out = -displacement.cross(top_out) + rotation_matrix * bottom_in;
     }
 
-    void InverseSpatialTransform(const btMatrix3x3 &rotation_matrix,
-                                 const btVector3 &displacement,
-                                 const btVector3 &top_in,
-                                 const btVector3 &bottom_in,
-                                 btVector3 &top_out,
-                                 btVector3 &bottom_out)
-    {
-        top_out = rotation_matrix.transpose() * top_in;
-        bottom_out = rotation_matrix.transpose() * (bottom_in + displacement.cross(top_in));		
-    }
-
-    btScalar SpatialDotProduct(const btVector3 &a_top,
-                            const btVector3 &a_bottom,
-                            const btVector3 &b_top,
-                            const btVector3 &b_bottom)
-    {
-        return a_bottom.dot(b_top) + a_top.dot(b_bottom);
-    }
-
-	void SpatialCrossProduct(const btVector3 &a_top,
-                            const btVector3 &a_bottom,
-                            const btVector3 &b_top,
-                            const btVector3 &b_bottom,
-							btVector3 &top_out,
-							btVector3 &bottom_out)
-	{
-		top_out = a_top.cross(b_top);
-		bottom_out = a_bottom.cross(b_top) + a_top.cross(b_bottom);
-	}
 }
 
 
@@ -1732,7 +1703,6 @@ void btMultiBody::goToSleep()
 
 void btMultiBody::checkMotionAndSleepIfRequired(btScalar timestep)
 {
-	int num_links = getNumLinks();
 	extern bool gDisableDeactivation;
     if (!m_canSleep || gDisableDeactivation) 
 	{

@@ -152,14 +152,13 @@ bool MeshHolder::createResource(Allocator &allocator)
         MeshPart hwPart;
 
         auto &vData = part->vertexData;
-        hwPart.vertexBuffer = backend.createVertexBuffer(vData, GpuBufferUsageType::STATIC);
+        hwPart.vertexBuffer = backend.createVertexBuffer(vData.getFormat(), vData.getVerticesCount(), vData.getRawData());
 
         if (part->indexData.size() > 0)
         {
             hwPart.indexBuffer = backend.createIndexBuffer(part->indexData.size(),
-                part->indexData.data(),
-                GpuBufferUsageType::STATIC,
-                INDICES_16_BIT);
+                                                           part->indexData.data(),
+                                                           INDICES_16_BIT);
 
             hwPart.numberOfElements = part->indexData.size();
         }

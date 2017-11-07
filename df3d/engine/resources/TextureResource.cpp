@@ -17,7 +17,7 @@ namespace df3d {
 
 namespace {
 
-df3d::TextureResourceData* LoadTextureDataFromFile(const char *path, Allocator &allocator, bool forceRgba = false)
+df3d::TextureResourceData* LoadTextureDataFromFile(const char *path, Allocator &allocator, bool forceRgba)
 {
     auto &fs = svc().resourceManager().getFS();
 
@@ -103,7 +103,9 @@ bool TextureHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &all
             path = lqPath;
     }
 
-    m_resourceData = LoadTextureDataFromFile(path.c_str(), allocator);
+    bool forceRGBA = svc().renderManager().getBackendID() == RenderBackendID::METAL;
+
+    m_resourceData = LoadTextureDataFromFile(path.c_str(), allocator, forceRGBA);
 
     return m_resourceData != nullptr;
 }
@@ -116,28 +118,14 @@ void TextureHolder::decodeCleanup(Allocator &allocator)
 
 bool TextureHolder::createResource(Allocator &allocator)
 {
-    auto &backend = svc().renderManager().getBackend();
-
-    TextureHandle handle;
-
-    if (m_resourceData->info.format == PixelFormat::KTX)
-    {
-        handle = backend.createCompressedTexture(*m_resourceData, m_flags);
-    }
-    else
-    {
-        handle = backend.createTexture2D(m_resourceData->info,
-            m_flags,
-            m_resourceData->mipLevels[0].pixels.data());
-    }
-
+    TextureHandle handle = svc().renderManager().getBackend().createTexture(*m_resourceData, m_flags);
     if (!handle.isValid())
         return false;
 
     m_resource = MAKE_NEW(allocator, TextureResource)();
     m_resource->handle = handle;
-    m_resource->width = m_resourceData->info.width;
-    m_resource->height = m_resourceData->info.height;
+    m_resource->width = m_resourceData->mipLevels[0].width;
+    m_resource->height = m_resourceData->mipLevels[0].height;
     return true;
 }
 

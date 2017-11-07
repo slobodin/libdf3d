@@ -227,17 +227,22 @@ if (DF3D_IOS)
     list(APPEND libdf3d_HEADER_LIST
         df3d/platform/ios/AppDelegate.h
         df3d/platform/ios/GameViewController.h
+        df3d/engine/render/metal/RenderBackendMetal.h
+        df3d/engine/render/metal/MetalGlobalUniforms.h
     )
     list(APPEND libdf3d_SRC_LIST
         df3d/lib/os/PlatformFile_ios.mm
         df3d/lib/os/PlatformStorage_ios.mm
         df3d/lib/os/PlatformUtils_ios.mm
+        df3d/engine/render/metal/RenderBackendMetal.mm
 
         df3d/platform/ios/AppDelegate.mm
         df3d/platform/ios/GameViewController.mm
         df3d/platform/ios/LocalNotification.mm
     )
 
+    set_source_files_properties("df3d/engine/render/GpuProgramSharedState.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
+    set_source_files_properties("df3d/engine/render/RenderManager.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
     set_source_files_properties("df3d/engine/render/gl/RenderBackendGL.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
 

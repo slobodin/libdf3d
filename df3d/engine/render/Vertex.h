@@ -29,7 +29,6 @@ private:
 public:
     VertexFormat();
     VertexFormat(std::initializer_list<VertexAttribute> attribs);
-
     //! Whether or not this format has a given attribute.
     bool hasAttribute(VertexAttribute attrib) const { return m_attribs[attrib] != 0xFFFF; }
 
@@ -60,6 +59,8 @@ public:
     {
         return !(*this == other);
     }
+
+    uint16_t getHash() const;
 };
 
 class VertexData
@@ -81,14 +82,6 @@ public:
     const void* getRawData() const { return m_data.data(); }
     size_t getSizeInBytes() const { return m_data.size(); }
     void clear() { m_data.clear(); }
-};
-
-struct Vertex_p_c
-{
-    glm::vec3 pos;
-    glm::vec4 color;
-
-    static const VertexFormat& getFormat();
 };
 
 struct Vertex_p_tx_c

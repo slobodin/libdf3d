@@ -65,6 +65,8 @@ static void parseLights(const Json::Value &lightsNode, World &w)
 
         w.getRenderingParams().addLight(light, lightName);
     }
+    
+    DF3D_ASSERT_MESS(w.getRenderingParams().getLights().size() == 2, "FIXME: metal workaround");
 }
 
 void WorldLoader::initWorld(const char *resourceFile, World &w)

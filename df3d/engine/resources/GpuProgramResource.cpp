@@ -9,10 +9,13 @@
 #include <df3d/engine/resources/ResourceDataSource.h>
 #include <df3d/engine/io/FileSystemHelpers.h>
 #include <df3d/lib/JsonUtils.h>
+#include <df3d/lib/Utils.h>
 
 namespace df3d {
 
-static SharedUniformType GetSharedTypeForUniform(const std::string &name)
+namespace {
+
+SharedUniformType GetSharedTypeForUniform(const std::string &name, bool metalBackend = false)
 {
     if (name == "u_worldViewProjectionMatrix")
         return SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM;
@@ -53,10 +56,18 @@ static SharedUniformType GetSharedTypeForUniform(const std::string &name)
     else if (name == "light_1.position")
         return SharedUniformType::SCENE_LIGHT_1_POSITION_UNIFORM;
 
+    if (metalBackend)
+    {
+        if (name == "light_0")
+            return SharedUniformType::SCENE_LIGHT_0_COLOR_UNIFORM;
+        if (name == "light_1")
+            return SharedUniformType::SCENE_LIGHT_1_COLOR_UNIFORM;
+    }
+
     return SharedUniformType::COUNT;
 }
 
-static ShaderHandle CreateShaderFromFile(const char *path)
+ShaderHandle CreateShaderFromFile(const char *path)
 {
     ShaderHandle result;
 
@@ -84,11 +95,70 @@ static ShaderHandle CreateShaderFromFile(const char *path)
     return result;
 }
 
-static ShaderHandle CreateShaderFromString(const std::string &data, ShaderType shaderType)
+ShaderHandle CreateShaderFromString(const std::string &data, ShaderType shaderType)
 {
-    DF3D_ASSERT(shaderType != ShaderType::UNDEFINED);
-
     return svc().renderManager().getBackend().createShader(shaderType, GLSLPreprocess::preprocess(data).c_str());
+}
+
+void InitProgramUniforms(GpuProgramResource *gpuProgram)
+{
+    std::vector<UniformHandle> uniforms;
+    std::vector<std::string> uniformNames;
+
+    svc().renderManager().getBackend().requestUniforms(gpuProgram->handle, uniforms, uniformNames);
+
+    DF3D_ASSERT(uniforms.size() == uniformNames.size());
+
+    for (size_t i = 0; i < uniforms.size(); i++)
+    {
+        auto sharedType = GetSharedTypeForUniform(uniformNames[i]);
+        if (sharedType != SharedUniformType::COUNT)
+        {
+            SharedUniform suni;
+            suni.handle = uniforms[i];
+            suni.type = sharedType;
+
+            gpuProgram->sharedUniforms.push_back(suni);
+        }
+        else
+        {
+            Id customUniformStrId(uniformNames[i].c_str());
+            gpuProgram->customUniforms[customUniformStrId] = uniforms[i];
+        }
+    }
+}
+
+void InitProgramUniformsMetal(GpuProgramResource *gpuProgram, std::vector<std::string> allUniformNames)
+{
+    std::vector<std::string> customUniformNames;
+
+    for (const auto &name : allUniformNames)
+    {
+        auto sharedType = GetSharedTypeForUniform(name, true);
+        if (sharedType != SharedUniformType::COUNT)
+        {
+            SharedUniform suni;
+            suni.handle = {};
+            suni.type = sharedType;
+
+            gpuProgram->sharedUniforms.push_back(suni);
+        }
+        else
+        {
+            customUniformNames.push_back(name);
+        }
+    }
+
+    std::vector<UniformHandle> uniforms;
+    svc().renderManager().getBackend().requestUniforms(gpuProgram->handle, uniforms, customUniformNames);
+
+    DF3D_ASSERT(uniforms.size() == customUniformNames.size());
+
+    for (size_t i = 0; i < uniforms.size(); i++)
+    {
+        Id customUniformStrId(customUniformNames[i].c_str());
+        gpuProgram->customUniforms[customUniformStrId] = uniforms[i];
+    }
 }
 
 GpuProgramResource* CreateGpuProgram(ShaderHandle vShader, ShaderHandle fShader, Allocator &allocator)
@@ -103,32 +173,11 @@ GpuProgramResource* CreateGpuProgram(ShaderHandle vShader, ShaderHandle fShader,
     auto resource = MAKE_NEW(allocator, GpuProgramResource)(allocator);
     resource->handle = gpuProgramHandle;
 
-    std::vector<UniformHandle> uniforms;
-    std::vector<std::string> uniformNames;
-
-    svc().renderManager().getBackend().requestUniforms(resource->handle, uniforms, uniformNames);
-
-    DF3D_ASSERT(uniforms.size() == uniformNames.size());
-
-    for (size_t i = 0; i < uniforms.size(); i++)
-    {
-        auto sharedType = GetSharedTypeForUniform(uniformNames[i]);
-        if (sharedType != SharedUniformType::COUNT)
-        {
-            SharedUniform suni;
-            suni.handle = uniforms[i];
-            suni.type = sharedType;
-
-            resource->sharedUniforms.push_back(suni);
-        }
-        else
-        {
-            Id customUniformStrId(uniformNames[i].c_str());
-            resource->customUniforms[customUniformStrId] = uniforms[i];
-        }
-    }
+    InitProgramUniforms(resource);
 
     return resource;
+}
+
 }
 
 bool GpuProgramHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
@@ -137,10 +186,33 @@ bool GpuProgramHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &
     if (root.isNull())
         return false;
 
-    DF3D_ASSERT(root.isMember("vertex") && root.isMember("fragment"));
+    auto backendID = svc().renderManager().getBackendID();
+    if (backendID == RenderBackendID::GL)
+    {
+        DF3D_ASSERT(root.isMember("vertex") && root.isMember("fragment"));
 
-    m_vShaderPath = root["vertex"].asString();
-    m_fShaderPath = root["fragment"].asString();
+        m_vShaderPath = root["vertex"].asString();
+        m_fShaderPath = root["fragment"].asString();
+    }
+    else
+    {
+        if (!root.isMember("metal_backend_data"))
+        {
+            DF3D_ASSERT(false);
+            return false;
+        }
+
+        const auto &jsonMetalData = root["metal_backend_data"];
+
+        m_vShaderPath = jsonMetalData["vertexFunctionName"].asString();
+        m_fShaderPath = jsonMetalData["fragmentFunctionName"].asString();
+
+        const auto &jsonUniformNames = jsonMetalData["uniformNames"];
+        for (const auto &jsonUniformName : jsonUniformNames)
+        {
+            m_uniformNames.push_back(jsonUniformName.asString());
+        }
+    }
 
     return !m_vShaderPath.empty() && !m_fShaderPath.empty();
 }
@@ -152,10 +224,18 @@ void GpuProgramHolder::decodeCleanup(Allocator &allocator)
 
 bool GpuProgramHolder::createResource(Allocator &allocator)
 {
-    ShaderHandle vertexShader = CreateShaderFromFile(m_vShaderPath.c_str());
-    ShaderHandle fragmentShader = CreateShaderFromFile(m_fShaderPath.c_str());
+    auto backendID = svc().renderManager().getBackendID();
+    if (backendID == RenderBackendID::GL)
+    {
+        ShaderHandle vertexShader = CreateShaderFromFile(m_vShaderPath.c_str());
+        ShaderHandle fragmentShader = CreateShaderFromFile(m_fShaderPath.c_str());
 
-    m_resource = CreateGpuProgram(vertexShader, fragmentShader, allocator);
+        m_resource = CreateGpuProgram(vertexShader, fragmentShader, allocator);
+    }
+    else if (backendID == RenderBackendID::METAL)
+    {
+        m_resource = CreateGpuProgramMetal(m_vShaderPath, m_fShaderPath, m_uniformNames, allocator);
+    }
 
     return m_resource != nullptr;
 }
@@ -173,6 +253,21 @@ GpuProgramResource* GpuProgramFromData(const std::string &vShaderData, const std
     ShaderHandle fragmentShader = CreateShaderFromString(fShaderData, ShaderType::FRAGMENT);
 
     return CreateGpuProgram(vertexShader, fragmentShader, alloc);
+}
+
+GpuProgramResource* CreateGpuProgramMetal(const std::string &vShaderFunction, const std::string &fShaderFunction, std::vector<std::string> uniformNames, Allocator &alloc)
+{
+    auto &backend = svc().renderManager().getBackend();
+    auto gpuProgramHandle = backend.createGpuProgramMetal(vShaderFunction.c_str(), fShaderFunction.c_str());
+    if (!gpuProgramHandle.isValid())
+        return nullptr;
+
+    auto resource = MAKE_NEW(alloc, GpuProgramResource)(alloc);
+    resource->handle = gpuProgramHandle;
+
+    InitProgramUniformsMetal(resource, uniformNames);
+
+    return resource;
 }
 
 }

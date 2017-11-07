@@ -5,17 +5,6 @@
 
 namespace df3d {
 
-struct TextureInfo
-{
-    PixelFormat format = PixelFormat::INVALID;
-    size_t width = 0;
-    size_t height = 0;
-    size_t numMips = 0;
-
-    uint32_t glInternalFormat = 0;
-    uint32_t glBaseInternalFormat = 0;
-};
-
 struct TextureResourceData : private NonCopyable
 {
     struct MipLevel
@@ -26,7 +15,11 @@ struct TextureResourceData : private NonCopyable
     };
 
     std::vector<MipLevel> mipLevels;
-    TextureInfo info;
+    PixelFormat format = PixelFormat::INVALID;
+
+    // KTX data.
+    uint32_t glInternalFormat = 0;
+    uint32_t glBaseInternalFormat = 0;
 };
 
 struct TextureResource

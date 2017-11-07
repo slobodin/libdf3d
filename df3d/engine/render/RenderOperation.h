@@ -10,6 +10,9 @@ class RenderPass;
 class RenderOperation
 {
 public:
+#ifdef _DEBUG
+    std::string debugID;
+#endif
     Topology topology = Topology::TRIANGLES;
     glm::mat4 worldTransform;
 
@@ -17,6 +20,7 @@ public:
     IndexBufferHandle indexBuffer;
     RenderPass *passProps = nullptr;
     size_t numberOfElements = 0;
+    size_t vertexBufferOffset = 0;
 
     RenderOperation() = default;
     ~RenderOperation() = default;

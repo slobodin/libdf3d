@@ -28,12 +28,8 @@ enum class PixelFormat
 //! Hint to graphics backend as to how a buffer's data will be accessed.
 enum class GpuBufferUsageType
 {
-    //! The data store contents will be modified once and used many times.
     STATIC,
-    //! The data store contents will be modified repeatedly and used many times.
-    DYNAMIC,
-    //! The data store contents will be modified once and used at most a few times.
-    STREAM
+    DYNAMIC
 };
 
 enum class CubeFace
@@ -137,6 +133,12 @@ enum class SharedUniformType
     SCENE_LIGHT_1_POSITION_UNIFORM,
 
     COUNT
+};
+
+enum class RenderBackendID
+{
+    GL,
+    METAL
 };
 
 }
