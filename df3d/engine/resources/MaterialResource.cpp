@@ -32,25 +32,20 @@ static unique_ptr<Technique> ParseTechnique(const Json::Value &jsonTechnique)
             auto paramName = Id(it.key().asCString());
             if (paramName == Id("cull_face"))
             {
+                pass.state &= ~RENDER_STATE_FACE_CULL_MASK;
                 auto cullFaceValue = Id(it->asCString());
-                if (cullFaceValue == Id("NONE"))
-                    pass.faceCullMode = FaceCullMode::NONE;
-                else if (cullFaceValue == Id("BACK"))
-                    pass.faceCullMode = FaceCullMode::BACK;
-                else if (cullFaceValue == Id("FRONT"))
-                    pass.faceCullMode = FaceCullMode::FRONT;
-                else
-                    DFLOG_WARN("Unknown face cull mode %s", it->asCString());
+                if (cullFaceValue == Id("BACK"))
+                    pass.state |= RENDER_STATE_FRONT_FACE_CCW;
             }
             else if (paramName == Id("depth_test"))
             {
                 DF3D_ASSERT(it->isBool());
-                pass.depthTest = it->asBool();
+                pass.setDepthTest(it->asBool());
             }
             else if (paramName == Id("depth_write"))
             {
                 DF3D_ASSERT(it->isBool());
-                pass.depthWrite = it->asBool();
+                pass.setDepthWrite(it->asBool());
             }
             else if (paramName == Id("not_transparent"))
             {
@@ -60,23 +55,29 @@ static unique_ptr<Technique> ParseTechnique(const Json::Value &jsonTechnique)
             else if (paramName == Id("is_lit"))
             {
                 DF3D_ASSERT(it->isBool());
-                pass.lightingEnabled = it->asBool();
+                if (it->asBool())
+                    pass.preferredBucket = RQ_BUCKET_LIT;
             }
             else if (paramName == Id("blend"))
             {
                 auto blendModeValue = Id(it->asCString());
-                if (blendModeValue == Id("NONE"))
-                    pass.blendMode = BlendingMode::NONE;
-                else if (blendModeValue == Id("ALPHA"))
-                    pass.blendMode = BlendingMode::ALPHA;
+                if (blendModeValue == Id("ALPHA"))
+                {
+                    pass.setBlending(Blending::ALPHA);
+                    pass.preferredBucket = RQ_BUCKET_TRANSPARENT;
+                }
                 else if (blendModeValue == Id("ADDALPHA"))
-                    pass.blendMode = BlendingMode::ADDALPHA;
+                {
+                    pass.setBlending(Blending::ADDALPHA);
+                    pass.preferredBucket = RQ_BUCKET_TRANSPARENT;
+                }
                 else if (blendModeValue == Id("ADD"))
-                    pass.blendMode = BlendingMode::ADD;
+                {
+                    pass.setBlending(Blending::ADD);
+                    pass.preferredBucket = RQ_BUCKET_TRANSPARENT;
+                }
                 else
                     DFLOG_WARN("Unknown blending mode %s", it->asCString());
-
-                pass.isTransparent = pass.blendMode != BlendingMode::NONE;
             }
             else if (paramName == Id("samplers"))
             {
@@ -134,7 +135,7 @@ static unique_ptr<Technique> ParseTechnique(const Json::Value &jsonTechnique)
 
         if (notTransparent)
         {
-            pass.isTransparent = false;
+            pass.preferredBucket = RQ_BUCKET_NOT_LIT;
         }
 
         technique->passes.push_back(pass);
@@ -181,21 +182,7 @@ void MaterialLibResource::parse(const Json::Value &root)
 
         DF3D_ASSERT(!jsonTechniques.empty());
 
-        // FIXME: this is a workaround.
-        auto foundPrefTech = std::find_if(jsonTechniques.begin(), jsonTechniques.end(), [](const Json::Value &node) {
-            return Id(node["id"].asCString()) == PREFERRED_TECHNIQUE;
-        });
-
-        unique_ptr<Technique> technique;
-
-        if (foundPrefTech != jsonTechniques.end())
-        {
-            technique = ParseTechnique(*foundPrefTech);
-        }
-        else
-        {
-            technique = ParseTechnique(*jsonTechniques.begin());
-        }
+        auto technique = ParseTechnique(*jsonTechniques.begin());
 
         material.addTechnique(*technique);
         material.setCurrentTechnique(technique->name);
@@ -230,19 +217,7 @@ void MaterialLibHolder::listDependencies(ResourceDataSource &dataSource, std::ve
 
         DF3D_ASSERT(!jsonTechniques.empty());
 
-        // FIXME: this is a workaround.
-        auto foundPrefTech = std::find_if(jsonTechniques.begin(), jsonTechniques.end(), [](const Json::Value &node) {
-            return Id(node["id"].asCString()) == PREFERRED_TECHNIQUE;
-        });
-
-        if (foundPrefTech != jsonTechniques.end())
-        {
-            PreloadTechniqueData(*foundPrefTech, outDeps);
-        }
-        else
-        {
-            PreloadTechniqueData(*jsonTechniques.begin(), outDeps);
-        }
+        PreloadTechniqueData(*jsonTechniques.begin(), outDeps);
     }
 }
 

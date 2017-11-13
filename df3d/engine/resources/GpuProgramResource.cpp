@@ -15,7 +15,7 @@ namespace df3d {
 
 namespace {
 
-SharedUniformType GetSharedTypeForUniform(const std::string &name, bool metalBackend = false)
+SharedUniformType GetSharedTypeForUniform(const std::string &name)
 {
     if (name == "u_worldViewProjectionMatrix")
         return SharedUniformType::WORLD_VIEW_PROJECTION_MATRIX_UNIFORM;
@@ -56,80 +56,48 @@ SharedUniformType GetSharedTypeForUniform(const std::string &name, bool metalBac
     else if (name == "light_1.position")
         return SharedUniformType::SCENE_LIGHT_1_POSITION_UNIFORM;
 
-    if (metalBackend)
-    {
-        if (name == "light_0")
-            return SharedUniformType::SCENE_LIGHT_0_COLOR_UNIFORM;
-        if (name == "light_1")
-            return SharedUniformType::SCENE_LIGHT_1_COLOR_UNIFORM;
-    }
+#ifdef DF3D_IOS
+#error "implement"
+#endif
 
     return SharedUniformType::COUNT;
 }
 
-ShaderHandle CreateShaderFromFile(const char *path)
+void InitProgramUniforms(GpuProgramResource *gpuProgram, std::vector<std::string> uniformNames)
 {
-    ShaderHandle result;
+    auto &backend = svc().renderManager().getBackend();
+    bool glBackend = backend.getID() == RenderBackendID::GL;
 
-    if (auto file = svc().resourceManager().getFS().open(path))
+    for (const auto &uniName : uniformNames)
     {
-        ShaderType shaderType = ShaderType::UNDEFINED;
-        if (FileSystemHelpers::compareExtension(path, ".vert"))
-            shaderType = ShaderType::VERTEX;
-        else if (FileSystemHelpers::compareExtension(path, ".frag"))
-            shaderType = ShaderType::FRAGMENT;
-        else
-            DFLOG_WARN("Can not decode a shader because it's type is undefined: %s", path);
-
-        if (shaderType != ShaderType::UNDEFINED)
+        auto uniformHandle = backend.getUniform(gpuProgram->handle, uniName.c_str());
+        if (!uniformHandle.isValid())
         {
-            std::string buffer(file->getSize(), 0);
-            file->read(&buffer[0], buffer.size());
-
-            result = svc().renderManager().getBackend().createShader(shaderType, GLSLPreprocess::preprocess(buffer, path).c_str());
+            DF3D_ASSERT(false);
+            continue;
         }
 
-        svc().resourceManager().getFS().close(file);
-    }
-
-    return result;
-}
-
-ShaderHandle CreateShaderFromString(const std::string &data, ShaderType shaderType)
-{
-    return svc().renderManager().getBackend().createShader(shaderType, GLSLPreprocess::preprocess(data).c_str());
-}
-
-void InitProgramUniforms(GpuProgramResource *gpuProgram)
-{
-    std::vector<UniformHandle> uniforms;
-    std::vector<std::string> uniformNames;
-
-    svc().renderManager().getBackend().requestUniforms(gpuProgram->handle, uniforms, uniformNames);
-
-    DF3D_ASSERT(uniforms.size() == uniformNames.size());
-
-    for (size_t i = 0; i < uniforms.size(); i++)
-    {
-        auto sharedType = GetSharedTypeForUniform(uniformNames[i]);
+        auto sharedType = GetSharedTypeForUniform(uniName);
         if (sharedType != SharedUniformType::COUNT)
         {
             SharedUniform suni;
-            suni.handle = uniforms[i];
+            suni.handle = uniformHandle;
             suni.type = sharedType;
 
             gpuProgram->sharedUniforms.push_back(suni);
         }
         else
         {
-            Id customUniformStrId(uniformNames[i].c_str());
-            gpuProgram->customUniforms[customUniformStrId] = uniforms[i];
+            Id customUniformStrId(uniName.c_str());
+            gpuProgram->customUniforms[customUniformStrId] = uniformHandle;
         }
     }
 }
 
 void InitProgramUniformsMetal(GpuProgramResource *gpuProgram, std::vector<std::string> allUniformNames)
 {
+#ifdef DF3D_IOS
+#error "IMPLEMENT"
     std::vector<std::string> customUniformNames;
 
     for (const auto &name : allUniformNames)
@@ -159,23 +127,7 @@ void InitProgramUniformsMetal(GpuProgramResource *gpuProgram, std::vector<std::s
         Id customUniformStrId(customUniformNames[i].c_str());
         gpuProgram->customUniforms[customUniformStrId] = uniforms[i];
     }
-}
-
-GpuProgramResource* CreateGpuProgram(ShaderHandle vShader, ShaderHandle fShader, Allocator &allocator)
-{
-    if (!(vShader.isValid() && fShader.isValid()))
-        return nullptr;       // FIXME: destroy valid shader.
-
-    auto gpuProgramHandle = svc().renderManager().getBackend().createGpuProgram(vShader, fShader);
-    if (!gpuProgramHandle.isValid())
-        return nullptr;
-
-    auto resource = MAKE_NEW(allocator, GpuProgramResource)(allocator);
-    resource->handle = gpuProgramHandle;
-
-    InitProgramUniforms(resource);
-
-    return resource;
+#endif
 }
 
 }
@@ -185,6 +137,14 @@ bool GpuProgramHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &
     auto root = JsonUtils::fromFile(dataSource);
     if (root.isNull())
         return false;
+
+    DF3D_ASSERT(root.isMember("uniformNames"));
+
+    const auto &jsonUniformNames = root["uniformNames"];
+    for (const auto &jsonUniformName : jsonUniformNames)
+    {
+        m_uniformNames.push_back(jsonUniformName.asString());
+    }
 
     auto backendID = svc().renderManager().getBackendID();
     if (backendID == RenderBackendID::GL)
@@ -196,22 +156,12 @@ bool GpuProgramHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &
     }
     else
     {
-        if (!root.isMember("metal_backend_data"))
-        {
-            DF3D_ASSERT(false);
-            return false;
-        }
+        DF3D_ASSERT(root.isMember("metal_backend_data"));
 
         const auto &jsonMetalData = root["metal_backend_data"];
 
         m_vShaderPath = jsonMetalData["vertexFunctionName"].asString();
         m_fShaderPath = jsonMetalData["fragmentFunctionName"].asString();
-
-        const auto &jsonUniformNames = jsonMetalData["uniformNames"];
-        for (const auto &jsonUniformName : jsonUniformNames)
-        {
-            m_uniformNames.push_back(jsonUniformName.asString());
-        }
     }
 
     return !m_vShaderPath.empty() && !m_fShaderPath.empty();
@@ -227,14 +177,27 @@ bool GpuProgramHolder::createResource(Allocator &allocator)
     auto backendID = svc().renderManager().getBackendID();
     if (backendID == RenderBackendID::GL)
     {
-        ShaderHandle vertexShader = CreateShaderFromFile(m_vShaderPath.c_str());
-        ShaderHandle fragmentShader = CreateShaderFromFile(m_fShaderPath.c_str());
+        auto getShaderData = [](const std::string &filePath) {
+            std::string result;
 
-        m_resource = CreateGpuProgram(vertexShader, fragmentShader, allocator);
+            if (auto file = svc().resourceManager().getFS().open(filePath.c_str()))
+            {
+                result.resize(file->getSize(), 0);
+                file->read(&result[0], result.size());
+
+                svc().resourceManager().getFS().close(file);
+            }
+
+            return result;
+        };
+
+        m_resource = CreateGPUProgramFromData(getShaderData(m_vShaderPath), getShaderData(m_fShaderPath),
+                                              m_uniformNames, allocator,
+                                              m_vShaderPath, m_fShaderPath);
     }
     else if (backendID == RenderBackendID::METAL)
     {
-        m_resource = CreateGpuProgramMetal(m_vShaderPath, m_fShaderPath, m_uniformNames, allocator);
+        m_resource = CreateGPUProgramMetal(m_vShaderPath, m_fShaderPath, m_uniformNames, allocator);
     }
 
     return m_resource != nullptr;
@@ -242,23 +205,36 @@ bool GpuProgramHolder::createResource(Allocator &allocator)
 
 void GpuProgramHolder::destroyResource(Allocator &allocator)
 {
-    svc().renderManager().getBackend().destroyGpuProgram(m_resource->handle);
+    svc().renderManager().getBackend().destroyGPUProgram(m_resource->handle);
     MAKE_DELETE(allocator, m_resource);
     m_resource = nullptr;
 }
 
-GpuProgramResource* GpuProgramFromData(const std::string &vShaderData, const std::string &fShaderData, Allocator &alloc)
+GpuProgramResource* CreateGPUProgramFromData(const std::string &vShaderData, const std::string &fShaderData,
+                                             std::vector<std::string> uniformNames, Allocator &alloc,
+                                             std::string vShaderPath, std::string fShaderPath)
 {
-    ShaderHandle vertexShader = CreateShaderFromString(vShaderData, ShaderType::VERTEX);
-    ShaderHandle fragmentShader = CreateShaderFromString(fShaderData, ShaderType::FRAGMENT);
+    auto vShaderDataProcessed = GLSLPreprocess::preprocess(vShaderData, vShaderPath);
+    auto fShaderDataProcessed = GLSLPreprocess::preprocess(fShaderData, fShaderPath);
 
-    return CreateGpuProgram(vertexShader, fragmentShader, alloc);
+    auto gpuProgramHandle = svc().renderManager().getBackend().createGPUProgram(vShaderDataProcessed.c_str(), fShaderDataProcessed.c_str());
+    if (!gpuProgramHandle.isValid())
+        return nullptr;
+
+    auto resource = MAKE_NEW(alloc, GpuProgramResource)(alloc);
+    resource->handle = gpuProgramHandle;
+
+    InitProgramUniforms(resource, uniformNames);
+
+    return resource;
 }
 
-GpuProgramResource* CreateGpuProgramMetal(const std::string &vShaderFunction, const std::string &fShaderFunction, std::vector<std::string> uniformNames, Allocator &alloc)
+GpuProgramResource* CreateGPUProgramMetal(const std::string &vShaderFunction, const std::string &fShaderFunction, std::vector<std::string> uniformNames, Allocator &alloc)
 {
+#ifdef DF3D_IOS
+#error "implement"
     auto &backend = svc().renderManager().getBackend();
-    auto gpuProgramHandle = backend.createGpuProgramMetal(vShaderFunction.c_str(), fShaderFunction.c_str());
+    auto gpuProgramHandle = backend.createGPProgramMetal(vShaderFunction.c_str(), fShaderFunction.c_str());
     if (!gpuProgramHandle.isValid())
         return nullptr;
 
@@ -268,6 +244,8 @@ GpuProgramResource* CreateGpuProgramMetal(const std::string &vShaderFunction, co
     InitProgramUniformsMetal(resource, uniformNames);
 
     return resource;
+#endif
+    return nullptr;
 }
 
 }

@@ -30,7 +30,7 @@ static VertexBufferHandle CreateQuad(float x, float y, float w, float h)
         { { x - w2, y - h2, 0.0f }, { 0.0, 0.0 }, color },
     };
 
-    return svc().renderManager().getBackend().createVertexBuffer(Vertex_p_tx_c::getFormat(), 6, quadData);
+    return svc().renderManager().getBackend().createStaticVertexBuffer(Vertex_p_tx_c::getFormat(), 6, quadData);
 }
 
 void Sprite2DComponentProcessor::updateTransform(Data &compData, SceneGraphComponentProcessor &sceneGr)
@@ -88,7 +88,7 @@ void Sprite2DComponentProcessor::draw(RenderQueue *ops)
         compData.op.passProps = &compData.pass;
         compData.op.numberOfElements = 6;       // This is a quad! Two triangles.
 
-        ops->sprite2DOperations.push_back(compData.op);
+        ops->rops[RQ_BUCKET_2D].push_back(compData.op);
     }
 }
 
@@ -203,16 +203,9 @@ const glm::vec2& Sprite2DComponentProcessor::getTextureSize(Entity e) const
     return m_data.getData(e).textureOriginalSize;
 }
 
-void Sprite2DComponentProcessor::setBlendMode(Entity e, BlendingMode bm)
+void Sprite2DComponentProcessor::setBlending(Entity e, Blending blending)
 {
-    m_data.getData(e).pass.blendMode = bm;
-    if (bm != BlendingMode::NONE)
-        m_data.getData(e).pass.isTransparent = true;
-}
-
-void Sprite2DComponentProcessor::setBlendMode2(Entity e, int bm)
-{
-    setBlendMode(e, static_cast<BlendingMode>(bm));
+    m_data.getData(e).pass.setBlending(blending);
 }
 
 void Sprite2DComponentProcessor::setDiffuseColor(Entity e, const glm::vec4 &diffuseColor)
@@ -228,12 +221,13 @@ void Sprite2DComponentProcessor::add(Entity e, Id textureResource)
     Data data;
 
     data.holder = e;
-    data.pass.faceCullMode = FaceCullMode::NONE;
-    data.pass.depthTest = false;
-    data.pass.depthWrite = false;
-    data.pass.blendMode = BlendingMode::ALPHA;
-    data.pass.isTransparent = true;
+
+    data.pass.setDepthTest(false);
+    data.pass.setDepthWrite(false);
+    data.pass.setBlending(Blending::ALPHA);
+    data.pass.setBackFaceCullingEnabled(false);
     data.pass.setParam(Id("material_diffuse"), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
     data.op.worldTransform = m_world.sceneGraph().getWorldTransformMatrix(e);
 
     m_data.add(e, data);
