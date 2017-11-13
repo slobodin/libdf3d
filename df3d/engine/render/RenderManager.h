@@ -60,7 +60,7 @@ public:
     void shutdown();
 
     void drawWorld(World &world);
-    void drawRenderOperation(const RenderOperation &op);
+    void drawRenderOperation(const RenderOperation &op, RenderPass *passPropsOverride = nullptr);
 
     const Viewport& getViewport() const { return m_viewport; }
     FrameStats getFrameStats() const;

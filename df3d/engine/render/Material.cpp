@@ -30,7 +30,7 @@ void RenderPass::setDepthTest(bool value)
 {
     state &= ~RENDER_STATE_DEPTH_MASK;
     if (value)
-        state |= RENDER_STATE_DEPTH_LESS;
+        state |= RENDER_STATE_DEPTH_LEQUAL;
 }
 
 void RenderPass::setBlending(Blending value)

@@ -15,6 +15,7 @@
 #include <df3d/engine/resources/ResourceFileSystem.h>
 #include <df3d/engine/resources/TextureResource.h>
 #include <df3d/lib/os/PlatformUtils.h>
+#include <df3d/lib/Utils.h>
 
 namespace df3d {
 
@@ -160,7 +161,7 @@ class TBRendererImpl : public tb::TBRenderer
     {
         enum {
             // NOTE: using 16-bit indices.
-            MAX_VERTICES = (1 << 14) - 512
+            MAX_VERTICES = 1 << 14
         };
 
         struct Batch
@@ -261,11 +262,14 @@ class TBRendererImpl : public tb::TBRenderer
             DF3D_ASSERT(m_guipass.program != nullptr);
 
             // Setup index buffer.
+            const int quadsCount = MAX_VERTICES / 4;
             PodArray<uint16_t> indexData(MemoryManager::allocDefault());
-            indexData.resize(MAX_VERTICES * 6);
+            indexData.resize(quadsCount * 6);   // 6 indices per quad.
+
+            DF3D_ASSERT(indexData.size() < 0xFFFF);
 
             int currentIndex = 0;
-            for (uint16_t i = 0; i < MAX_VERTICES; ++i)
+            for (uint16_t i = 0; i < quadsCount; ++i)
             {
                 // 4 vertices per quad
                 indexData[currentIndex++] = 4 * i + 0;
@@ -277,6 +281,9 @@ class TBRendererImpl : public tb::TBRenderer
             }
 
             m_ibHandle = backend.createIndexBuffer(indexData.size(), indexData.data(), INDICES_16_BIT);
+
+            DFLOG_DEBUG("GUI rendering vertices allocated: %d KB", utils::sizeKB(sizeof(m_vertexData)));
+            DFLOG_DEBUG("GUI rendering MAX QUADS: %d", quadsCount);
         }
 
         ~TBBatchRendering()

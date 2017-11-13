@@ -40,7 +40,7 @@ static unique_ptr<IRenderBackend> CreateRenderBackend(const EngineInitParams &pa
     g_usingAmbientPass = false;
     return make_unique<RenderBackendMetal>(params);
 #else
-    g_usingAmbientPass = false;
+    g_usingAmbientPass = true;
     return make_unique<RenderBackendGL>(params.windowWidth, params.windowHeight);
 #endif
 }
@@ -168,37 +168,17 @@ void RenderManager::doRenderWorld(World &world)
     {
         m_passStateOverriden = true;
 
-        m_overridenState = RENDER_STATE_DEPTH_LESS | RENDER_STATE_DEPTH_WRITE;
+        m_overridenState = RENDER_STATE_DEPTH_LEQUAL | RENDER_STATE_DEPTH_WRITE;
 
         for (const auto &op : m_renderQueue->rops[RQ_BUCKET_LIT])
-        {
-            m_sharedState->setWorldMatrix(op.worldTransform);
-
-            bindPass(m_embedResources->ambientPass);
-
-            m_renderBackend->bindVertexBuffer(op.vertexBuffer, op.startVertex);
-            if (op.indexBuffer.isValid())
-                m_renderBackend->bindIndexBuffer(op.indexBuffer);
-
-            m_renderBackend->draw(op.topology, op.numberOfElements);
-        }
+            drawRenderOperation(op, m_embedResources->ambientPass);
 
         // Opaque pass with lights on.
-        m_overridenState = RENDER_STATE_DEPTH_LESS | BLENDING_ADD;
+        m_overridenState = RENDER_STATE_DEPTH_LEQUAL | BLENDING_ADD;
     }
 
     for (const auto &op : m_renderQueue->rops[RQ_BUCKET_LIT])
-    {
-        m_sharedState->setWorldMatrix(op.worldTransform);
-
-        bindPass(op.passProps);
-
-        m_renderBackend->bindVertexBuffer(op.vertexBuffer, op.startVertex);
-        if (op.indexBuffer.isValid())
-            m_renderBackend->bindIndexBuffer(op.indexBuffer);
-
-        m_renderBackend->draw(op.topology, op.numberOfElements);
-    }
+        drawRenderOperation(op);
 
     // Rendering others as usual.
     m_passStateOverriden = false;
@@ -311,7 +291,7 @@ void RenderManager::drawWorld(World &world)
     onFrameEnd();
 }
 
-void RenderManager::drawRenderOperation(const RenderOperation &op)
+void RenderManager::drawRenderOperation(const RenderOperation &op, RenderPass *passPropsOverride)
 {
     if (op.numberOfElements == 0)
     {
@@ -320,7 +300,7 @@ void RenderManager::drawRenderOperation(const RenderOperation &op)
     }
 
     m_sharedState->setWorldMatrix(op.worldTransform);
-    bindPass(op.passProps);
+    bindPass(passPropsOverride ? passPropsOverride : op.passProps);
 
     m_renderBackend->bindVertexBuffer(op.vertexBuffer, op.startVertex);
     if (op.indexBuffer.isValid())

@@ -44,7 +44,7 @@ class RenderPass
 
 public:
     const GpuProgramResource *program = nullptr;
-    uint64_t state = RENDER_STATE_DEPTH_LESS | RENDER_STATE_DEPTH_WRITE | RENDER_STATE_FRONT_FACE_CCW;
+    uint64_t state = RENDER_STATE_DEPTH_LEQUAL | RENDER_STATE_DEPTH_WRITE | RENDER_STATE_FRONT_FACE_CCW;
 
     // FIXME:
     RenderQueueBucket preferredBucket = RQ_BUCKET_COUNT;

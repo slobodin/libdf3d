@@ -39,7 +39,7 @@
 namespace df3d {
 
 class GPUMemoryStats;
-struct VertexBufferGL;
+class VertexBufferGL;
 struct IndexBufferGL;
 struct TextureGL;
 
