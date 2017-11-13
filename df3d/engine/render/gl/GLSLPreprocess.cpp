@@ -125,11 +125,8 @@ static std::string ShaderPreprocessInclude(std::string shaderData, const std::st
 
 std::string GLSLPreprocess::preprocess(const std::string &input, const std::string &shaderPath)
 {
-    return ShaderPreprocess(ShaderPreprocessInclude(input, shaderPath));
-}
-
-std::string GLSLPreprocess::preprocess(const std::string &input)
-{
+    if (!shaderPath.empty())
+        return ShaderPreprocess(ShaderPreprocessInclude(input, shaderPath));
     return ShaderPreprocess(input);
 }
 

@@ -1,6 +1,19 @@
 #include <df3d/df3d.h>
 #include "RenderBackendMetal.h"
 
+
+
+
+
+
+check RenderBackendGL::frameBegin()
+
+
+
+
+
+
+
 #include <df3d/engine/render/gl/GLSLPreprocess.h>
 #include <df3d/engine/render/GpuProgramSharedState.h>
 
@@ -998,6 +1011,8 @@ void RenderBackendMetal::requestUniforms(GpuProgramHandle programHandle,
 void RenderBackendMetal::setUniformValue(GpuProgramHandle programHandle, UniformHandle uniformHandle, const void *data)
 {
     DF3D_ASSERT(m_gpuProgramsBag.isValid(programHandle.getID()));
+
+    check updating
 
     auto &program = m_programs[programHandle.getIndex()];
 

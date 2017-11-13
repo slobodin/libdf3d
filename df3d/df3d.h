@@ -36,7 +36,6 @@
 
 #include <df3d/engine/render/RenderCommon.h>
 #include <df3d/engine/render/Material.h>
-#include <df3d/engine/render/Viewport.h>
 #include <df3d/engine/render/Vertex.h>
 #include <df3d/engine/render/RenderQueue.h>
 #include <df3d/engine/render/IRenderBackend.h>

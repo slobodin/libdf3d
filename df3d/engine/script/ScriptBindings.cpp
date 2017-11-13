@@ -181,16 +181,6 @@ void bindGlm(Table &df3dNamespace)
 void bindBase(Table &df3dNamespace)
 {
     {
-        Enumeration blendingMode;
-        blendingMode.Const("NONE", static_cast<int>(BlendingMode::NONE));
-        blendingMode.Const("ADDALPHA", static_cast<int>(BlendingMode::ADDALPHA));
-        blendingMode.Const("ALPHA", static_cast<int>(BlendingMode::ALPHA));
-        blendingMode.Const("ADD", static_cast<int>(BlendingMode::ADD));
-
-        ConstTable().Enum("BlendingMode", blendingMode);
-    }
-
-    {
         Class<Id> cls(svc().scripts().getVm(), _SC("Id"));
         cls
             .Ctor()

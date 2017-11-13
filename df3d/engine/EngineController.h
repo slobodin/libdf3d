@@ -11,7 +11,6 @@ class InputManager;
 class ScriptManager;
 class Timer;
 class TimeManager;
-class Viewport;
 class World;
 class Allocator;
 

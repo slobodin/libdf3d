@@ -42,7 +42,7 @@ set(libdf3d_HEADER_LIST
     df3d/engine/physics/PhysicsComponentCreationParams.h
     df3d/engine/physics/PhysicsComponentProcessor.h
     df3d/engine/physics/PhysicsHelpers.h
-    df3d/engine/render/GpuProgramSharedState.h
+    df3d/engine/render/IGpuProgramSharedState.h
     df3d/engine/render/IRenderBackend.h
     df3d/engine/render/Material.h
     df3d/engine/render/MeshUtils.h
@@ -51,7 +51,6 @@ set(libdf3d_HEADER_LIST
     df3d/engine/render/RenderOperation.h
     df3d/engine/render/RenderQueue.h
     df3d/engine/render/Vertex.h
-    df3d/engine/render/Viewport.h
     df3d/engine/render/gl/GLSLPreprocess.h
     df3d/engine/render/gl/RenderBackendGL.h
     df3d/engine/render/gl/embed_glsl/ambient_frag.h
@@ -141,16 +140,14 @@ set(libdf3d_SRC_LIST
     df3d/engine/physics/BulletInterface.cpp
     df3d/engine/physics/PhysicsComponentCreationParams.cpp
     df3d/engine/physics/PhysicsComponentProcessor.cpp
-    df3d/engine/render/GpuProgramSharedState.cpp
     df3d/engine/render/Material.cpp
     df3d/engine/render/MeshUtils.cpp
-    df3d/engine/render/RenderCommon.cpp
     df3d/engine/render/RenderManager.cpp
     df3d/engine/render/RenderOperation.cpp
     df3d/engine/render/RenderQueue.cpp
     df3d/engine/render/Vertex.cpp
-    df3d/engine/render/Viewport.cpp
     df3d/engine/render/gl/GLSLPreprocess.cpp
+	df3d/engine/render/gl/GpuProgramSharedState.cpp
     df3d/engine/render/gl/RenderBackendGL.cpp
     df3d/engine/resources/EntityResource.cpp
     df3d/engine/resources/GpuProgramResource.cpp
@@ -235,14 +232,13 @@ if (DF3D_IOS)
         df3d/lib/os/PlatformStorage_ios.mm
         df3d/lib/os/PlatformUtils_ios.mm
         df3d/engine/render/metal/RenderBackendMetal.mm
+		df3d/engine/render/metal/GpuProgramSharedState.mm
 
         df3d/platform/ios/AppDelegate.mm
         df3d/platform/ios/GameViewController.mm
         df3d/platform/ios/LocalNotification.mm
     )
 
-    set_source_files_properties("df3d/engine/render/GpuProgramSharedState.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
-    set_source_files_properties("df3d/engine/render/RenderManager.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
     set_source_files_properties("df3d/engine/render/gl/RenderBackendGL.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
 

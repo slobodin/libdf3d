@@ -2,7 +2,6 @@
 
 #include <df3d/lib/math/Frustum.h>
 #include <df3d/lib/math/MathUtils.h>
-#include <df3d/engine/render/Viewport.h>
 
 namespace df3d {
 

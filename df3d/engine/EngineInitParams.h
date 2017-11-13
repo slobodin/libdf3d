@@ -8,7 +8,7 @@ struct EngineInitParams
     int windowHeight = DEFAULT_WINDOW_HEIGHT;
     bool fullscreen = false;
     bool vsync = false;
-    
+
     void *hardwareData = nullptr;
 
     bool createConsole = false;

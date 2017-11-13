@@ -5,7 +5,6 @@
 namespace df3d {
 
 class Light;
-class Viewport;
 struct GpuProgramResource;
 class IRenderBackend;
 
