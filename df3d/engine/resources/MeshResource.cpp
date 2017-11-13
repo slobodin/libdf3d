@@ -152,7 +152,7 @@ bool MeshHolder::createResource(Allocator &allocator)
         MeshPart hwPart;
 
         auto &vData = part->vertexData;
-        hwPart.vertexBuffer = backend.createVertexBuffer(vData.getFormat(), vData.getVerticesCount(), vData.getRawData());
+        hwPart.vertexBuffer = backend.createStaticVertexBuffer(vData.getFormat(), vData.getVerticesCount(), vData.getRawData());
 
         if (part->indexData.size() > 0)
         {

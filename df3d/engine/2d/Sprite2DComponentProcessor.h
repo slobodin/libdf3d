@@ -21,7 +21,7 @@ class Sprite2DComponentProcessor : public EntityComponentProcessor
     struct Data
     {
         RenderPass pass;
-        RenderOperation2D op;
+        RenderOperation op;
         glm::vec2 anchor = glm::vec2(0.5f, 0.5f);
         glm::vec2 textureOriginalSize;
         glm::vec2 screenPosition;
@@ -63,9 +63,7 @@ public:
     void useTexture(Entity e, Id textureResource);
     const glm::vec2& getTextureSize(Entity e) const;
 
-    void setBlendMode(Entity e, BlendingMode bm);
-    // FIXME:
-    void setBlendMode2(Entity e, int bm);
+    void setBlending(Entity e, Blending blending);
     void setDiffuseColor(Entity e, const glm::vec4 &diffuseColor);
 
     void add(Entity e, Id textureResource);

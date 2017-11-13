@@ -92,7 +92,7 @@ public:
         DF3D_ASSERT(nbOfParticles <= m_particlesAllocated);
 
         auto verticesCount = nbOfParticles * QUAD_VERTICES_PER_PARTICLE;
-        svc().renderManager().getBackend().updateDynamicVertexBuffer(m_vertexBuffer, verticesCount, m_vertexData);
+        svc().renderManager().getBackend().updateVertexBuffer(m_vertexBuffer, 0, verticesCount, m_vertexData);
 
         RenderOperation op;
         op.topology = Topology::TRIANGLES;
@@ -237,7 +237,7 @@ void QuadParticleSystemRenderer::render(const SPK::Group &group, const SPK::Data
     auto &buffer = static_cast<MyRenderBuffer&>(*renderBuffer);
     buffer.positionAtStart(); // Repositions all the buffers at the start.
 
-    m_pass.depthWrite = isRenderingOptionEnabled(SPK::RENDERING_OPTION_DEPTH_WRITE);
+    m_pass.setDepthWrite(isRenderingOptionEnabled(SPK::RENDERING_OPTION_DEPTH_WRITE));
 
     switch (texturingMode)
     {

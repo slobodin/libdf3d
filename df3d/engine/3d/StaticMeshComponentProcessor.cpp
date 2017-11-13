@@ -73,26 +73,18 @@ void StaticMeshComponentProcessor::draw(RenderQueue *ops)
             for (auto &pass : tech->passes)
             {
                 RenderOperation op;
-#ifdef _DEBUG
-                op.debugID = compData.meshResourceId.toString();
-#endif
+
                 op.vertexBuffer = meshPart.vertexBuffer;
                 op.indexBuffer = meshPart.indexBuffer;
                 op.numberOfElements = meshPart.numberOfElements;
                 op.worldTransform = compData.holderWorldTransform.combined;
                 op.passProps = &pass;
 
-                if (op.passProps->isTransparent)
-                {
-                    ops->transparentOperations.push_back(op);
-                }
-                else
-                {
-                    if (op.passProps->lightingEnabled)
-                        ops->litOpaqueOperations.push_back(op);
-                    else
-                        ops->notLitOpaqueOperations.push_back(op);
-                }
+                auto bucketID = op.passProps->preferredBucket;
+                if (bucketID == RQ_BUCKET_COUNT)
+                    bucketID = RQ_BUCKET_NOT_LIT;
+
+                ops->rops[bucketID].push_back(op);
             }
         }
     }

@@ -6,7 +6,6 @@
 #endif
 
 #include <df3d/engine/render/IRenderBackend.h>
-#include <df3d/engine/resources/TextureResource.h>
 #include <df3d/lib/Handles.h>
 #include <df3d/lib/Utils.h>
 
@@ -37,107 +36,12 @@
 #error "Unsupported platform"
 #endif
 
-#include <map>
-
 namespace df3d {
 
-class GpuMemoryStats
-{
-    std::map<TextureHandle, size_t> m_textures;
-    std::map<VertexBufferHandle, size_t> m_vertexBuffers;
-    std::map<IndexBufferHandle, size_t> m_indexBuffers;
-
-    int32_t m_total = 0;
-
-    template<typename T, typename V>
-    void addHelper(T &container, V value, size_t sizeInBytes)
-    {
-        DF3D_ASSERT(!utils::contains_key(container, value));
-        container[value] = sizeInBytes;
-        m_total += sizeInBytes;
-    }
-
-    template<typename T, typename V>
-    void removeHelper(T &container, V value)
-    {
-        auto found = container.find(value);
-        DF3D_ASSERT(found != container.end());
-        m_total -= found->second;
-        container.erase(found);
-        DF3D_ASSERT(m_total >= 0);
-    }
-
-public:
-    void addTexture(TextureHandle td, size_t sizeInBytes)
-    {
-        addHelper(m_textures, td, sizeInBytes);
-    }
-
-    void removeTexture(TextureHandle td)
-    {
-        removeHelper(m_textures, td);
-    }
-
-    void addVertexBuffer(VertexBufferHandle vb, size_t sizeInBytes)
-    {
-        addHelper(m_vertexBuffers, vb, sizeInBytes);
-    }
-
-    void removeVertexBuffer(VertexBufferHandle vb)
-    {
-        removeHelper(m_vertexBuffers, vb);
-    }
-
-    void addIndexBuffer(IndexBufferHandle ib, size_t sizeInBytes)
-    {
-        addHelper(m_indexBuffers, ib, sizeInBytes);
-    }
-
-    void removeIndexBuffer(IndexBufferHandle ib)
-    {
-        removeHelper(m_indexBuffers, ib);
-    }
-
-    size_t getGpuMemBytes() const { return m_total; }
-};
-
-struct VertexBufferGL
-{
-    GLuint glID = 0;
-    VertexFormat format;
-    size_t sizeInBytes = 0;
-};
-
-struct IndexBufferGL
-{
-    GLuint glID = 0;
-    size_t sizeInBytes = 0;
-    bool indices16bit = false;
-};
-
-struct TextureGL
-{
-    GLuint glID = 0;
-    GLenum type = GL_INVALID_ENUM;
-    GLenum pixelFormat = GL_INVALID_ENUM;
-    PixelFormat df3dPixelFormat;
-    int mipLevel0Width = 0;
-    int mipLevel0Height = 0;
-};
-
-struct ShaderGL
-{
-    // glCreateShader returns 0 if an error occurs creating the shader object.
-    GLuint glID = 0;
-    GLenum type = GL_INVALID_ENUM;
-};
-
-struct ProgramGL
-{
-    ShaderHandle vshader;
-    ShaderHandle fshader;
-    GLuint glID = 0;
-};
+class GPUMemoryStats;
+struct VertexBufferGL;
+struct IndexBufferGL;
+struct TextureGL;
 
 struct UniformGL
 {
@@ -145,9 +49,10 @@ struct UniformGL
     GLint location = -1;
 };
 
-struct FrameBufferGL
+struct ProgramGL
 {
-    GLuint fbo;
+    GLuint glID = 0;
+    std::unordered_map<std::string, UniformHandle> uniforms;
 };
 
 class RenderBackendGL : public IRenderBackend
@@ -155,122 +60,97 @@ class RenderBackendGL : public IRenderBackend
     RenderBackendCaps m_caps;
     mutable FrameStats m_stats;
 
-    static const int MAX_SIZE = 0xFFF;      // 4k is enough for now.
+#ifdef _DEBUG
+    unique_ptr<GPUMemoryStats> m_gpuMemStats;
+#endif
+
+    std::string m_extensionsString;
+    bool m_anisotropicFilteringSupported = false;
 
     HandleBag m_vertexBuffersBag;
     HandleBag m_indexBuffersBag;
     HandleBag m_texturesBag;
-    HandleBag m_shadersBag;
     HandleBag m_gpuProgramsBag;
     HandleBag m_uniformsBag;
-    HandleBag m_framebuffersBag;
 
-    VertexBufferGL m_vertexBuffers[MAX_SIZE];
-    IndexBufferGL m_indexBuffers[MAX_SIZE];
-    TextureGL m_textures[MAX_SIZE];
-    ShaderGL m_shaders[MAX_SIZE];
-    ProgramGL m_programs[MAX_SIZE];
-    UniformGL m_uniforms[MAX_SIZE];
-    FrameBufferGL m_frameBuffers[MAX_SIZE];
-
-    std::map<GpuProgramHandle, std::vector<UniformHandle>> m_programUniforms;
-
-    // Some cached state.
-    GpuProgramHandle m_currentProgram;
-    VertexBufferHandle m_currentVertexBuffer;
-    IndexBufferHandle m_currentIndexBuffer;
-    bool m_indexedDrawCall = false;
-    GLenum m_currentIndexType = GL_INVALID_ENUM;
-
-    struct DrawState
-    {
-        BlendingMode blendingMode = BlendingMode::NONE;
-        FaceCullMode faceCullMode = FaceCullMode::NONE;
-        bool depthTest = false;
-        bool depthWrite = false;
-        bool scissorTest = false;
-        bool blendingEnabled = false;
+    enum {
+        MAX_SIZE = 0xFFF    // 4k is enough for now.
     };
 
-    DrawState m_drawState;
-    std::string m_extensionsString;
+    unique_ptr<VertexBufferGL> m_vertexBuffers[MAX_SIZE];
+    unique_ptr<IndexBufferGL> m_indexBuffers[MAX_SIZE];
+    unique_ptr<TextureGL> m_textures[MAX_SIZE];
+    ProgramGL m_gpuPrograms[MAX_SIZE];
+    UniformGL m_uniforms[MAX_SIZE];
 
-    bool m_anisotropicFilteringSupported = false;
+    struct PipelineState
+    {
+        uint64_t state = 0;
+        GPUProgramHandle program;
+        GLenum currIndicesType = GL_INVALID_ENUM;
+        bool indexedDrawCall = false;
+    };
 
-#ifdef _DEBUG
-    GpuMemoryStats m_gpuMemStats;
-#endif
+    PipelineState m_pipeLineState;
 
-    void initExtensions();
-
-    void destroyShader(ShaderHandle shader, GLuint programId);
+    glm::vec4 m_clearColor{ 1.0f, 1.0f, 1.0f, 1.0f };
+    float m_clearDepth = 1.0f;
 
     bool m_destroyAndroidWorkaround = false;
+
+    VertexBufferHandle createVBHelper(const VertexFormat &format, uint32_t numVertices, const void *data, bool dynamic);
+    GLuint createShader(const char *data, GLenum type);
+    void destroyShader(GLuint programID, GLuint shaderID);
+    void requestUniforms(ProgramGL &programGL);
+
+    void setupDepthTest(uint64_t depthState);
+    void setupDepthWrite(uint64_t dwState);
+    void setupFaceCulling(uint64_t faceState);
+    void setupBlending(uint64_t srcFactor, uint64_t dstFactor);
 
 public:
     RenderBackendGL(int width, int height);
     ~RenderBackendGL();
 
     const RenderBackendCaps& getCaps() const override;
-    const FrameStats& getFrameStats() const override;
+    const FrameStats& getLastFrameStats() const override;
 
     void frameBegin() override;
     void frameEnd() override;
 
-    VertexBufferHandle createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data) override;
-    VertexBufferHandle createDynamicVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data) override;
-    void destroyVertexBuffer(VertexBufferHandle vbHandle) override;
+    VertexBufferHandle createStaticVertexBuffer(const VertexFormat &format, uint32_t numVertices, const void *data) override;
+    VertexBufferHandle createDynamicVertexBuffer(const VertexFormat &format, uint32_t numVertices, const void *data) override;
+    void destroyVertexBuffer(VertexBufferHandle handle) override;
+    void bindVertexBuffer(VertexBufferHandle handle, uint32_t vertexStart) override;
+    void updateVertexBuffer(VertexBufferHandle handle, uint32_t vertexStart, uint32_t numVertices, const void *data) override;
 
-    void bindVertexBuffer(VertexBufferHandle vbHandle, size_t vertexBufferOffset) override;
-    void updateDynamicVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) override;
-    // void updateVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data) override;
-
-    IndexBufferHandle createIndexBuffer(size_t indicesCount, const void *data, IndicesType indicesType) override;
-    void destroyIndexBuffer(IndexBufferHandle ibHandle) override;
-    void bindIndexBuffer(IndexBufferHandle ibHandle) override;
+    IndexBufferHandle createIndexBuffer(uint32_t numIndices, const void *data, IndicesType indicesType) override;
+    void destroyIndexBuffer(IndexBufferHandle handle) override;
+    void bindIndexBuffer(IndexBufferHandle handle) override;
 
     TextureHandle createTexture(const TextureResourceData &data, uint32_t flags) override;
-    void updateTexture(TextureHandle textureHandle, int w, int h, const void *data) override;
-    void destroyTexture(TextureHandle textureHandle) override;
+    void updateTexture(TextureHandle handle, int originX, int originY, int width, int height, const void *data) override;
+    void destroyTexture(TextureHandle handle) override;
 
-    void bindTexture(TextureHandle textureHandle, int unit) override;
+    void bindTexture(TextureHandle handle, UniformHandle textureUniform, int unit) override;
 
-    ShaderHandle createShader(ShaderType type, const char *data) override;
+    GPUProgramHandle createGPUProgram(const char *vertexShaderData, const char *fragmentShaderData) override;
+    void destroyGPUProgram(GPUProgramHandle handle) override;
+    void bindGPUProgram(GPUProgramHandle handle) override;
 
-    GpuProgramHandle createGpuProgram(ShaderHandle vertexShaderHandle, ShaderHandle fragmentShaderHandle) override;
-    GpuProgramHandle createGpuProgramMetal(const char *vertexFunctionName, const char *fragmentFunctionName) override
-    {
-        DF3D_ASSERT(false);
-        return {};
-    }
-    void destroyGpuProgram(GpuProgramHandle programHandle) override;
+    UniformHandle getUniform(GPUProgramHandle program, const char *name) override;
+    void setUniformValue(UniformHandle uniformHandle, const void *data) override;
 
-    FrameBufferHandle createFrameBuffer(TextureHandle *attachments, size_t attachmentCount) override;
-    void destroyFrameBuffer(FrameBufferHandle framebufferHandle) override;
+    void setViewport(const Viewport &viewport) override;
+    void setScissorTest(bool enabled, const Viewport &rect) override;
 
-    void bindGpuProgram(GpuProgramHandle programHandle) override;
-    void requestUniforms(GpuProgramHandle programHandle, std::vector<UniformHandle> &outHandles, std::vector<std::string> &outNames) override;
-    void setUniformValue(GpuProgramHandle programHandle, UniformHandle uniformHandle, const void *data) override;
+    void setClearData(const glm::vec3 &color, float depth) override;
 
-    void bindFrameBuffer(FrameBufferHandle frameBufferHandle) override;
-
-    void setViewport(int x, int y, int width, int height) override;
-
-    void clearColorBuffer(const glm::vec4 &color) override;
-    void clearDepthBuffer() override;
-    void clearStencilBuffer() override;
-    void enableDepthTest(bool enable) override;
-    void enableDepthWrite(bool enable) override;
-    void enableScissorTest(bool enable) override;
-    void setScissorRegion(int x, int y, int width, int height) override;
-
-    void setBlendingMode(BlendingMode mode) override;
-    void setCullFaceMode(FaceCullMode mode) override;
-
-    void draw(Topology type, size_t numberOfElements) override;
+    void setState(uint64_t state) override;
+    void draw(Topology type, uint32_t numberOfElements) override;
 
     void setDestroyAndroidWorkaround() override { m_destroyAndroidWorkaround = true; }
-    RenderBackendID getID() const { return RenderBackendID::GL; }
+    RenderBackendID getID() const override { return RenderBackendID::GL; }
 };
 
 }

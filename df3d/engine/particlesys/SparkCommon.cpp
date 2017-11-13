@@ -8,7 +8,6 @@ namespace df3d {
 ParticleSystemRenderer::ParticleSystemRenderer(bool NEEDS_DATASET)
     : SPK::Renderer(NEEDS_DATASET)
 {
-    m_pass.faceCullMode = FaceCullMode::BACK;
     m_pass.setParam(Id("material_diffuse"), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
     auto &embedResources = svc().renderManager().getEmbedResources();
@@ -26,16 +25,13 @@ void ParticleSystemRenderer::setBlendMode(SPK::BlendMode blendMode)
     switch (blendMode)
     {
     case SPK::BLEND_MODE_NONE:
-        m_pass.blendMode = BlendingMode::NONE;
-        m_pass.isTransparent = false;
+        m_pass.setBlending(Blending::NONE);
         break;
     case SPK::BLEND_MODE_ADD:
-        m_pass.blendMode = BlendingMode::ADDALPHA;
-        m_pass.isTransparent = true;
+        m_pass.setBlending(Blending::ADDALPHA);
         break;
     case SPK::BLEND_MODE_ALPHA:
-        m_pass.blendMode = BlendingMode::ALPHA;
-        m_pass.isTransparent = true;
+        m_pass.setBlending(Blending::ALPHA);
         break;
     default:
         break;
@@ -49,10 +45,7 @@ void ParticleSystemRenderer::setDiffuseMap(TextureHandle texture)
 
 void ParticleSystemRenderer::enableFaceCulling(bool enable)
 {
-    if (enable)
-        m_pass.faceCullMode = FaceCullMode::BACK;
-    else
-        m_pass.faceCullMode = FaceCullMode::NONE;
+    m_pass.setBackFaceCullingEnabled(enable);
 }
 
 }

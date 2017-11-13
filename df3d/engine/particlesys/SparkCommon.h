@@ -5,8 +5,6 @@
 
 namespace df3d {
 
-struct TextureResource;
-class RenderPass;
 class ParticleSystemIndexBuffer;
 
 class ParticleSystemRenderer : public SPK::Renderer

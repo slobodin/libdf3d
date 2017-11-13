@@ -5,94 +5,130 @@
 
 namespace df3d {
 
-ValuePassParam::ValuePassParam()
+ValuePassParam& RenderPass::getOrCreate(Id name)
 {
-    memset(&m_value, 0, sizeof(m_value));
-}
-
-ValuePassParam::~ValuePassParam()
-{
-
-}
-
-void ValuePassParam::setValue(int val)
-{
-    m_value.intVal = val;
-}
-
-void ValuePassParam::setValue(float val)
-{
-    m_value.floatVal = val;
-}
-
-void ValuePassParam::setValue(const glm::vec4 &val)
-{
-    m_value.vec4Val[0] = val.x;
-    m_value.vec4Val[1] = val.y;
-    m_value.vec4Val[2] = val.z;
-    m_value.vec4Val[3] = val.w;
-}
-
-void ValuePassParam::updateToProgram(IRenderBackend &backend, const GpuProgramResource &program, Id name)
-{
-    if (!m_handle.isValid())
+    for (size_t i = 0; i < m_paramNames.size(); i++)
     {
-        auto handleFound = program.customUniforms.find(name);
-        if (handleFound == program.customUniforms.end())
-        {
-            DFLOG_WARN("Failed to lookup uniform %s in a shader", name.toString().c_str());
-            DF3D_ASSERT(false);
-            return;
-        }
-
-        m_handle = handleFound->second;
+        if (m_paramNames[i] == name)
+            return m_params[i];
     }
 
-    backend.setUniformValue(program.handle, m_handle, &m_value);
+    m_paramNames.push_back(name);
+    m_params.push_back({});
+
+    return m_params.back();
+}
+
+void RenderPass::setDepthWrite(bool value)
+{
+    state &= ~RENDER_STATE_DEPTH_WRITE_MASK;
+    if (value)
+        state |= RENDER_STATE_DEPTH_WRITE;
+}
+
+void RenderPass::setDepthTest(bool value)
+{
+    state &= ~RENDER_STATE_DEPTH_MASK;
+    if (value)
+        state |= RENDER_STATE_DEPTH_LESS;
+}
+
+void RenderPass::setBlending(Blending value)
+{
+    state &= ~RENDER_STATE_BLENDING_MASK;
+    switch (value)
+    {
+    case Blending::ADD:
+        state |= BLENDING_ADD;
+        break;
+    case Blending::ALPHA:
+        state |= BLENDING_ALPHA;
+        break;
+    case Blending::ADDALPHA:
+        state |= BLENDING_ADDALPHA;
+        break;
+    default:
+        break;
+    }
+}
+
+void RenderPass::setBackFaceCullingEnabled(bool enabled)
+{
+    state &= ~RENDER_STATE_FACE_CULL_MASK;
+    if (enabled)
+        state |= RENDER_STATE_FRONT_FACE_CCW;
 }
 
 void RenderPass::bindCustomPassParams(IRenderBackend &backend)
 {
-    // Samplers.
-    int textureUnit = 0;
-    for (auto &kv : m_samplers)
+    int textureUnitCounter = 0;
+    for (size_t i = 0; i < m_paramNames.size(); i++)
     {
-        auto &sampler = kv.second;
-        backend.bindTexture(sampler.texture, textureUnit);
-        sampler.uniform.setValue(textureUnit);
-        sampler.uniform.updateToProgram(backend, *program, kv.first);
+        auto &param = m_params[i];
+        Id paramName = m_paramNames[i];
 
-        textureUnit++;
+        // Acquire uniform handle from the shader.
+        if (!param.uniformHandle.isValid())
+        {
+            auto handleFound = program->customUniforms.find(paramName);
+            if (handleFound == program->customUniforms.end())
+            {
+                DFLOG_WARN("Failed to lookup uniform %s in a shader", paramName.toString().c_str());
+                DF3D_ASSERT(false);
+                continue;
+            }
+
+            param.uniformHandle = handleFound->second;
+        }
+
+        if (param.type == ValuePassParam::TEXTURE)
+        {
+            backend.bindTexture(TextureHandle(param.value.textureHandle), param.uniformHandle, textureUnitCounter++);
+        }
+        else
+        {
+            DF3D_ASSERT(param.type != ValuePassParam::COUNT);
+            backend.setUniformValue(param.uniformHandle, &param.value);
+        }
     }
-
-    // Custom uniforms.
-    for (auto &passParam : m_shaderParams)
-        passParam.second.updateToProgram(backend, *program, passParam.first);
 }
 
 void RenderPass::setParam(Id name, TextureHandle texture)
 {
-    m_samplers[name].texture = texture;
-}
-
-void RenderPass::setParam(Id name, int value)
-{
-    m_shaderParams[name].setValue(value);
+    auto &param = getOrCreate(name);
+    param.type = ValuePassParam::TEXTURE;
+    param.value.textureHandle = texture.getID();
 }
 
 void RenderPass::setParam(Id name, float value)
 {
-    m_shaderParams[name].setValue(value);
+    auto &param = getOrCreate(name);
+    param.type = ValuePassParam::FLOAT;
+    param.value.floatVal = value;
 }
 
 void RenderPass::setParam(Id name, const glm::vec4 &value)
 {
-    m_shaderParams[name].setValue(value);
+    auto &param = getOrCreate(name);
+    param.type = ValuePassParam::VEC4;
+    param.value.vec4Val[0] = value.x;
+    param.value.vec4Val[1] = value.y;
+    param.value.vec4Val[2] = value.z;
+    param.value.vec4Val[3] = value.w;
 }
 
-glm::vec4 RenderPass::getParamVec4(Id name)
+glm::vec4 RenderPass::paramAsVec4(Id name)
 {
-    return m_shaderParams[name].getAsVec4();
+    auto &param = getOrCreate(name);
+    DF3D_ASSERT(param.type == ValuePassParam::VEC4);
+    return { param.value.vec4Val[0], param.value.vec4Val[1], param.value.vec4Val[2], param.value.vec4Val[3] };
+}
+
+float RenderPass::paramAsFloat(Id name)
+{
+    auto &param = getOrCreate(name);
+    DF3D_ASSERT(param.type == ValuePassParam::FLOAT);
+    return param.value.floatVal;
 }
 
 void Material::addTechnique(const Technique &technique)
@@ -132,7 +168,5 @@ void Material::setCurrentTechnique(Id name)
     else
         DFLOG_WARN("Failed to set technique");
 }
-
-Id PREFERRED_TECHNIQUE;
 
 }

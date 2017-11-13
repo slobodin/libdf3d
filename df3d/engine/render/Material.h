@@ -1,5 +1,6 @@
 #pragma once
 
+#include <df3d/lib/Id.h>
 #include <df3d/engine/render/RenderCommon.h>
 
 namespace df3d {
@@ -7,57 +8,59 @@ namespace df3d {
 class IRenderBackend;
 struct GpuProgramResource;
 
-class ValuePassParam
+struct ValuePassParam
 {
-    UniformHandle m_handle;
+    enum Type
+    {
+        FLOAT,
+        VEC4,
+        TEXTURE,
+
+        COUNT
+    };
 
     union
     {
-        int intVal;
+        HandleType textureHandle;
         float floatVal;
         float vec4Val[4];
-    } m_value;
+    } value;
 
-public:
-    ValuePassParam();
-    ~ValuePassParam();
+    UniformHandle uniformHandle;
+    Type type = COUNT;
 
-    void setValue(int val);
-    void setValue(float val);
-    void setValue(const glm::vec4 &val);
-
-    glm::vec4 getAsVec4() const { return glm::vec4(m_value.vec4Val[0], m_value.vec4Val[1], m_value.vec4Val[2], m_value.vec4Val[3]); }
-
-    void updateToProgram(IRenderBackend &backend, const GpuProgramResource &program, Id name);
-};
-
-struct SamplerPassParam
-{
-    ValuePassParam uniform;
-    TextureHandle texture;
+    ValuePassParam()
+    {
+        memset(&value, 0, sizeof(value));
+    }
 };
 
 class RenderPass
 {
-    std::unordered_map<Id, SamplerPassParam> m_samplers;
-    std::unordered_map<Id, ValuePassParam> m_shaderParams;
+    std::vector<Id> m_paramNames;
+    std::vector<ValuePassParam> m_params;
+
+    ValuePassParam& getOrCreate(Id name);
 
 public:
     const GpuProgramResource *program = nullptr;
-    bool depthTest = true;
-    bool depthWrite = true;
-    bool isTransparent = false;
-    bool lightingEnabled = false;
-    FaceCullMode faceCullMode = FaceCullMode::BACK;
-    BlendingMode blendMode = BlendingMode::NONE;
+    uint64_t state = RENDER_STATE_DEPTH_LESS | RENDER_STATE_DEPTH_WRITE | RENDER_STATE_FRONT_FACE_CCW;
+
+    // FIXME:
+    RenderQueueBucket preferredBucket = RQ_BUCKET_COUNT;
+
+    void setDepthWrite(bool value);
+    void setDepthTest(bool value);
+    void setBlending(Blending value);
+    void setBackFaceCullingEnabled(bool enabled);
 
     void bindCustomPassParams(IRenderBackend &backend);
     void setParam(Id name, TextureHandle texture);
-    void setParam(Id name, int value);
     void setParam(Id name, float value);
     void setParam(Id name, const glm::vec4 &value);
 
-    glm::vec4 getParamVec4(Id name);
+    glm::vec4 paramAsVec4(Id name);
+    float paramAsFloat(Id name);
 };
 
 struct Technique
@@ -87,8 +90,5 @@ public:
     Id getId() const { return Id(m_name.c_str()); }
     const std::string& getName() const { return m_name; }
 };
-
-// FIXME: temp workaround
-extern Id PREFERRED_TECHNIQUE;
 
 }

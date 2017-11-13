@@ -147,7 +147,7 @@ class TBRendererImpl : public tb::TBRenderer
 
         void SetData(tb::uint32 *data) override
         {
-            svc().renderManager().getBackend().updateTexture(m_texture, m_w, m_h, data);
+            svc().renderManager().getBackend().updateTexture(m_texture, 0, 0, m_w, m_h, data);
         }
 
     public:
@@ -252,11 +252,9 @@ class TBRendererImpl : public tb::TBRenderer
                                                            m_vertexData);
 
             // Setup GUI pass.
-            m_guipass.faceCullMode = FaceCullMode::BACK;
-            m_guipass.depthTest = false;
-            m_guipass.depthWrite = false;
-            m_guipass.blendMode = BlendingMode::ALPHA;
-            m_guipass.isTransparent = true;
+            m_guipass.setDepthTest(false);
+            m_guipass.setDepthWrite(false);
+            m_guipass.setBlending(Blending::ALPHA);
             m_guipass.setParam(Id("material_diffuse"), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
             m_guipass.program = svc().renderManager().getEmbedResources().coloredProgram;
@@ -292,10 +290,10 @@ class TBRendererImpl : public tb::TBRenderer
         {
             flush();
 
+            auto &backend = svc().renderManager().getBackend();
+
             if (m_currentVerticesCount > 0)
-            {
-                svc().renderManager().getBackend().updateDynamicVertexBuffer(m_vbHandle, m_currentVerticesCount, m_vertexData);
-            }
+                backend.updateVertexBuffer(m_vbHandle, 0, m_currentVerticesCount, m_vertexData);
 
             for (const auto &batch : m_batches)
             {
@@ -307,21 +305,30 @@ class TBRendererImpl : public tb::TBRenderer
                 op.indexBuffer = m_ibHandle;
                 op.passProps = &m_guipass;
                 op.numberOfElements = batch.quadsCount * 6;  // 6 indices per quad
-                op.vertexBufferOffset = batch.startVertex;
+                op.startVertex = batch.startVertex;
 
-                auto &backend = svc().renderManager().getBackend();
                 auto backendID = backend.getID();
+                Viewport scissorRect;
+
                 if (backendID == RenderBackendID::METAL)
                 {
                     const auto &r = batch.clipRect;
-                    backend.setScissorRegion(r.x, r.y, r.w, r.h);
+                    scissorRect.originX = r.x;
+                    scissorRect.originY = r.y;
+                    scissorRect.width = r.w;
+                    scissorRect.height = r.h;
                 }
                 else
                 {
                     const auto &r = batch.clipRect;
                     int h = svc().getScreenSize().y;
-                    backend.setScissorRegion(r.x, h - (r.y + r.h), r.w, r.h);
+                    scissorRect.originX = r.x;
+                    scissorRect.originY = h - (r.y + r.h);
+                    scissorRect.width = r.w;
+                    scissorRect.height = r.h;
                 }
+
+                backend.setScissorTest(true, scissorRect);
 
                 svc().renderManager().drawRenderOperation(op);
             }
@@ -440,8 +447,7 @@ public:
         if (m_batchRendering)
             m_batchRendering->setClipRect(m_clip_rect);
 
-        svc().renderManager().getBackend().enableScissorTest(true);
-        svc().renderManager().getBackend().setScissorRegion(0, 0, render_target_w, render_target_h);
+        svc().renderManager().getBackend().setScissorTest(true, { 0, 0, render_target_w, render_target_h });
     }
 
     virtual void EndPaint() override
@@ -449,7 +455,7 @@ public:
         if (m_batchRendering)
             m_batchRendering->renderBatches();
 
-        svc().renderManager().getBackend().enableScissorTest(false);
+        svc().renderManager().getBackend().setScissorTest(false, {});
     }
 
     void Translate(int dx, int dy) override
