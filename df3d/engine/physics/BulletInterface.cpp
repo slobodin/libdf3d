@@ -15,9 +15,7 @@ static unique_ptr<RenderPass> CreateDebugDrawPass()
 {
     auto &embedResources = svc().renderManager().getEmbedResources();
     auto pass = make_unique<RenderPass>();
-    pass->faceCullMode = FaceCullMode::NONE;
-    pass->blendMode = BlendingMode::ALPHA;
-    pass->isTransparent = true;
+    pass->setBlending(Blending::ALPHA);
     pass->setParam(Id("material_diffuse"), glm::vec4(1.0f, 1.0f, 1.0f, 0.7f));
     pass->setParam(Id("diffuseMap"), embedResources.whiteTexture);
     pass->program = embedResources.coloredProgram;
@@ -92,21 +90,21 @@ void BulletDebugDraw::clean()
 
 void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
 {
-//    if (m_currentVertex == 0)
-//        return;
-//
-//    DF3D_ASSERT_MESS(!m_vertexBuffer.isValid(), "bullet debug draw: invalid vertex buffer");
-//
-//    m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(
-//        m_vertexData.getFormat(), m_currentVertex, m_vertexData.getRawData(), GpuBufferUsageType::DYNAMIC);
-//
-//    RenderOperation op;
-//    op.passProps = m_pass.get();
-//    op.vertexBuffer = m_vertexBuffer;
-//    op.numberOfElements = m_currentVertex;
-//    op.topology = Topology::LINES;
-//
-//    ops->debugDrawOperations.push_back(op);
+   //if (m_currentVertex == 0)
+   //    return;
+
+   //DF3D_ASSERT_MESS(!m_vertexBuffer.isValid(), "bullet debug draw: invalid vertex buffer");
+
+   //m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(
+   //    m_vertexData.getFormat(), m_currentVertex, m_vertexData.getRawData(), GpuBufferUsageType::DYNAMIC);
+
+   //RenderOperation op;
+   //op.passProps = m_pass.get();
+   //op.vertexBuffer = m_vertexBuffer;
+   //op.numberOfElements = m_currentVertex;
+   //op.topology = Topology::LINES;
+
+   //ops->debugDrawOperations.push_back(op);
 }
 
 }
