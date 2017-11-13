@@ -7,39 +7,33 @@
 
 namespace df3d {
 
-// FIXME: sorting is incorrect. Passes is now PODs.
-
-static bool sort_by_z_pred(const RenderOperation2D &a, const RenderOperation2D &b)
-{
-    return a.z < b.z;
-}
-
 void RenderQueue::sort()
 {
     auto cameraDir = svc().defaultWorld().getCamera()->getDir();
     auto cameraPos = svc().defaultWorld().getCamera()->getPosition();
 
-    std::sort(transparentOperations.begin(), transparentOperations.end(), [&cameraDir, &cameraPos](const RenderOperation &a, const RenderOperation &b) {
+    auto &transparentOps = rops[RQ_BUCKET_TRANSPARENT];
+
+    std::sort(transparentOps.begin(), transparentOps.end(), [&cameraDir, &cameraPos](const RenderOperation &a, const RenderOperation &b) {
         auto d1 = glm::dot(cameraDir, glm::vec3(a.worldTransform[3]) - cameraPos);
         auto d2 = glm::dot(cameraDir, glm::vec3(b.worldTransform[3]) - cameraPos);
         return d1 > d2;
     });
 
-    /*std::sort(litOpaqueOperations.begin(), litOpaqueOperations.end(), sort_by_material_pred);
-    std::sort(notLitOpaqueOperations.begin(), notLitOpaqueOperations.end(), sort_by_material_pred);
-    std::sort(debugDrawOperations.begin(), debugDrawOperations.end(), sort_by_material_pred);*/
-    std::sort(sprite2DOperations.begin(), sprite2DOperations.end(), sort_by_z_pred);
+    auto &ops2D = rops[RQ_BUCKET_2D];
+
+    std::sort(ops2D.begin(), ops2D.end(), [](const RenderOperation &a, const RenderOperation &b) {
+        return a.z < b.z;
+    });
 }
 
 void RenderQueue::clear()
 {
-    notLitOpaqueOperations.clear();
-    litOpaqueOperations.clear();
-    transparentOperations.clear();
-    debugDrawOperations.clear();
-    sprite2DOperations.clear();
-    for (size_t i = 0; i < LIGHTS_MAX; i++)
-        lights[i] = {};
+    for (auto &op : rops)
+        op.clear();
+
+    for (auto &l : lights)
+        l = {};
 }
 
 }

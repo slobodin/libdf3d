@@ -3,8 +3,17 @@
 
 
 
+depth pre pass?/
 
 
+optimize metal
+
+fshader is slow (explosions and stuff on fullscreen)
+
+resource manager should check:
+    - having the .metal shader for each data/glsl
+    - uniforms stated in the GLSL file should be the same as in .shader in metal
+    - delete GLSL data from iOS bundle
 
 check RenderBackendGL::frameBegin()
 

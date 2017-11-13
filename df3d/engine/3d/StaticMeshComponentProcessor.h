@@ -20,13 +20,13 @@ class StaticMeshComponentProcessor : public EntityComponentProcessor
     struct Data
     {
         Transform holderWorldTransform;
+        BoundingSphere localBoundingSphere;
+        std::vector<MeshPart> parts;
+        std::vector<Material> materials;
         Entity holder;
         Id meshResourceId;
         bool visible = true;
         bool frustumCullingDisabled = false;
-        std::vector<MeshPart> parts;
-        std::vector<Material> materials;
-        BoundingSphere localBoundingSphere;
     };
 
     ComponentDataHolder<Data> m_data;

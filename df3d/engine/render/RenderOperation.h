@@ -10,25 +10,19 @@ class RenderPass;
 class RenderOperation
 {
 public:
-#ifdef _DEBUG
-    std::string debugID;
-#endif
-    Topology topology = Topology::TRIANGLES;
     glm::mat4 worldTransform;
+
+    RenderPass *passProps = nullptr;
+    Topology topology = Topology::TRIANGLES;
 
     VertexBufferHandle vertexBuffer;
     IndexBufferHandle indexBuffer;
-    RenderPass *passProps = nullptr;
-    size_t numberOfElements = 0;
-    size_t vertexBufferOffset = 0;
 
-    RenderOperation() = default;
-    ~RenderOperation() = default;
-};
+    //! Starting vertex when binding vertex buffer.
+    uint32_t startVertex = 0;
+    //! Number of elements to draw (i.e., number of vertices or number of indices if using index buffer)
+    uint32_t numberOfElements = 0;
 
-class RenderOperation2D : public RenderOperation
-{
-public:
     float z = 0.0f;
 };
 
