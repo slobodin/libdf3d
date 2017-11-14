@@ -239,13 +239,14 @@ public:
     size_t getGPUMemBytes() const { return m_total; }
 };
 
-struct VertexBufferGL
+class VertexBufferGL
 {
     VertexFormat m_format;
     size_t m_sizeInBytes = 0;
     GLuint m_glID = 0;
     bool m_dynamic = false;
 
+public:
     bool init(const VertexFormat &format, size_t verticesCount, const void *data, bool dynamic)
     {
         DF3D_ASSERT(verticesCount > 0);
@@ -309,6 +310,8 @@ struct VertexBufferGL
         GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, offset, bytesUpdating, data));
         GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
     }
+
+    size_t getSizeInBytes() const { return m_sizeInBytes; }
 };
 
 struct IndexBufferGL
@@ -498,7 +501,7 @@ VertexBufferHandle RenderBackendGL::createVBHelper(const VertexFormat &format, u
         vbHandle = VertexBufferHandle(m_vertexBuffersBag.getNew());
 
 #ifdef _DEBUG
-        m_gpuMemStats->addVertexBuffer(vbHandle, vbuffer->m_sizeInBytes);
+        m_gpuMemStats->addVertexBuffer(vbHandle, vbuffer->getSizeInBytes());
 #endif
 
         m_vertexBuffers[vbHandle.getIndex()] = std::move(vbuffer);
