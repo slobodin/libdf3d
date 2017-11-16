@@ -328,7 +328,7 @@ class TBRendererImpl : public tb::TBRenderer
                 else
                 {
                     const auto &r = batch.clipRect;
-                    int h = svc().getScreenSize().y;
+                    int h = (int)svc().getScreenSize().y;
                     scissorRect.originX = r.x;
                     scissorRect.originY = h - (r.y + r.h);
                     scissorRect.width = r.w;

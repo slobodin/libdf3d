@@ -116,7 +116,7 @@ TextureResourceData* TextureLoader_ktx(ResourceDataSource &dataSource, Allocator
 
     resource->mipLevels.resize(header.numberOfMipmapLevels);
 
-    for (int level = 0; level < header.numberOfMipmapLevels; ++level)
+    for (uint32_t level = 0; level < header.numberOfMipmapLevels; ++level)
     {
         uint32_t pixelWidth = std::max(1u, header.pixelWidth >> level);
         uint32_t pixelHeight = std::max(1u, header.pixelHeight >> level);
