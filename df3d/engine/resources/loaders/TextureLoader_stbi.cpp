@@ -1,16 +1,18 @@
 #include "TextureLoader_stbi.h"
 
+#include <df3d/engine/resources/ResourceDataSource.h>
+#include <df3d/engine/resources/TextureResource.h>
+
 #ifdef _DEBUG
 #define STB_DO_ERROR_PRINT
 #endif
+#define STBI_ONLY_JPEG
+#define STBI_ONLY_PNG
 #define STB_IMAGE_IMPLEMENTATION
 #ifndef STB_DO_ERROR_PRINT
 #define STBI_NO_FAILURE_STRINGS     // NOTE: is not thread-safe.
 #endif
 #include <stb/stb_image.h>
-
-#include <df3d/engine/resources/ResourceDataSource.h>
-#include <df3d/engine/resources/TextureResource.h>
 
 namespace df3d {
 
