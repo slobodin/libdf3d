@@ -64,6 +64,8 @@ int RandomUtils::rand()
 
 float RandomUtils::randRange(float a, float b)
 {
+    if (a == b)
+        return a;
     UniformRealDistribution dis(a, b);
     return dis(gen);
 }
@@ -75,6 +77,8 @@ float RandomUtils::randRange(const glm::vec2 &a)
 
 int RandomUtils::randRange(int a, int b)
 {
+    if (a == b)
+        return a;
     UniformIntDistribution dis(a, b);
     return dis(gen);
 }
