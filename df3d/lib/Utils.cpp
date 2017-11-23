@@ -70,11 +70,6 @@ float RandomUtils::randRange(float a, float b)
     return dis(gen);
 }
 
-float RandomUtils::randRange(const glm::vec2 &a)
-{
-    return randRange(a.x, a.y);
-}
-
 int RandomUtils::randRange(int a, int b)
 {
     if (a == b)

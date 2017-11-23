@@ -17,7 +17,7 @@ void FPSCamera::onUpdate()
     if (!m_freeMove)
         return;
 
-    if (svc().inputManager().getMouseButton(MouseButton::LEFT))
+    if (svc().inputManager().getMouseButton(MouseButton::RIGHT))
     {
         static float yaw, pitch;
         yaw += int(svc().inputManager().getMouseDelta().x) * m_damping;
