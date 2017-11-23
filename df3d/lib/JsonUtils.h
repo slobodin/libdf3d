@@ -81,6 +81,16 @@ namespace JsonUtils
         }
     };
 
+    template<>
+    struct GetHelper<Id>
+    {
+        static Id getValue(const Json::Value &v)
+        {
+            DF3D_ASSERT(v.isString());
+            return Id(v.asCString());
+        }
+    };
+
     Json::Value fromFile(const char *path);
     Json::Value fromFile(ResourceDataSource &dataSource);
     Json::Value fromString(const std::string &data);
