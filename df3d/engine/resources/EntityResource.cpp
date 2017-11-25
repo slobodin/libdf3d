@@ -46,6 +46,7 @@ bool EntityHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allo
 
     m_resource = MAKE_NEW(allocator, EntityResource)();
     m_resource->root = std::move(root);
+    m_resource->isWorld = m_isWorldResource;
 
     return true;
 }

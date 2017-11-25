@@ -6,6 +6,7 @@
 #include <df3d/engine/3d/Light.h>
 #include <df3d/lib/JsonUtils.h>
 #include <df3d/engine/resources/ResourceManager.h>
+#include <df3d/engine/resources/EntityResource.h>
 
 namespace df3d { namespace game_impl {
 
@@ -71,12 +72,21 @@ static void parseLights(const Json::Value &lightsNode, World &w)
 
 void WorldLoader::initWorld(const char *resourceFile, World &w)
 {
-    auto root = JsonUtils::fromFile(resourceFile);
+    auto resource = svc().resourceManager().getResource<EntityResource>(Id(resourceFile));
+    if (!resource)
+    {
+        DF3D_ASSERT(false);
+        return;
+    }
+
+    DF3D_ASSERT(resource->isWorld);
+
+    auto root = resource->root;
     if (root.isNull())
         return;
 
-    if (root.isMember("entities"))
-        parseEntities(root["entities"], w);
+    if (root.isMember("children"))
+        parseEntities(root["children"], w);
 
     if (root.isMember("fog"))
         parseFog(root["fog"], w);

@@ -31,7 +31,9 @@ static shared_ptr<IResourceHolder> CreateResourceHolder(const char *resourcePath
     else if (FileSystemHelpers::compareExtension(resourcePath, ".vfx"))
         resourceHolder = make_shared<ParticleSystemHolder>();
     else if (FileSystemHelpers::compareExtension(resourcePath, ".entity"))
-        resourceHolder = make_shared<EntityHolder>();
+        resourceHolder = make_shared<EntityHolder>(false);
+    else if (FileSystemHelpers::compareExtension(resourcePath, ".world"))
+        resourceHolder = make_shared<EntityHolder>(true);
     else
         DF3D_ASSERT_MESS(false, "Failed to create resource decoder: unknown resource type '%s'", resourcePath);
 

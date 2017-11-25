@@ -35,16 +35,20 @@ void FPSCamera::onUpdate()
         setOrientation(glm::vec3(-pitch, -yaw, 0.0f));
     }
 
-    float dt = svc().timer().getFrameDelta(TIME_CHANNEL_GAME);
-    float dv = dt * m_velocity;
+    auto velocity = m_velocity;
+    if (svc().inputManager().getKey(KeyCode::KEY_LEFT_SHIFT))
+        velocity *= 2.0f;
 
-    if (svc().inputManager().getKey(KeyCode::KEY_UP))
+    float dt = svc().timer().getFrameDelta(TIME_CHANNEL_GAME);
+    float dv = dt * velocity;
+
+    if (svc().inputManager().getKey(KeyCode::KEY_UP) || svc().inputManager().getKey(KeyCode::KEY_W))
         move(getDir() * dv);
-    if (svc().inputManager().getKey(KeyCode::KEY_DOWN))
+    if (svc().inputManager().getKey(KeyCode::KEY_DOWN) || svc().inputManager().getKey(KeyCode::KEY_S))
         move(-getDir() * dv);
-    if (svc().inputManager().getKey(KeyCode::KEY_LEFT))
+    if (svc().inputManager().getKey(KeyCode::KEY_LEFT) || svc().inputManager().getKey(KeyCode::KEY_A))
         move(-getRight() * dv);
-    if (svc().inputManager().getKey(KeyCode::KEY_RIGHT))
+    if (svc().inputManager().getKey(KeyCode::KEY_RIGHT) || svc().inputManager().getKey(KeyCode::KEY_D))
         move(getRight() * dv);
 }
 

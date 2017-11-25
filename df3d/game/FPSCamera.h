@@ -20,6 +20,8 @@ public:
 
     void setFreeMove(bool freeMove) { m_freeMove = freeMove; }
     bool getFreeMove() const { return m_freeMove; }
+    float getVelocity() const { return m_velocity; }
+    void setVelocity(float velocity) { m_velocity = velocity; }
 
     static shared_ptr<FPSCamera> createDefault(float velocity)
     {
