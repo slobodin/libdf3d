@@ -94,6 +94,8 @@ public:
     Entity getParent(Entity e);
     const std::vector<Entity>& getChildren(Entity e) const;
 
+    std::vector<Entity> getAll() const;
+
     void add(Entity e);
     void remove(Entity e) override;
     bool has(Entity e) override;

@@ -362,6 +362,14 @@ const std::vector<Entity>& SceneGraphComponentProcessor::getChildren(Entity e) c
     return m_data.getData(e).children;
 }
 
+std::vector<Entity> SceneGraphComponentProcessor::getAll() const
+{
+    std::vector<Entity> result;
+    for (const auto &compData : m_data.rawData())
+        result.push_back(compData.holder);
+    return result;
+}
+
 void SceneGraphComponentProcessor::add(Entity e)
 {
     DF3D_ASSERT_MESS(!m_data.contains(e), "An entity already has a scene graph component");
