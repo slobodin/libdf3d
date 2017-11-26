@@ -88,6 +88,7 @@ set(libdf3d_HEADER_LIST
     df3d/game/impl/PhysicsComponentLoader.h
     df3d/game/impl/SceneGraphComponentLoader.h
     df3d/game/impl/Sprite2DComponentLoader.h
+    df3d/game/impl/TagComponentLoader.h
     df3d/game/impl/VfxComponentLoader.h
     df3d/game/impl/WorldLoader.h
     df3d/lib/Handles.h

@@ -51,4 +51,42 @@ PhysicsComponentCreationParams::PhysicsComponentCreationParams(const Json::Value
     groupId = Id(root["collisionGroup"].asCString());
 }
 
+Json::Value PhysicsComponentCreationParams::toJson() const
+{
+    Json::Value result;
+
+    result["mass"] = mass;
+    result["friction"] = friction;
+    result["restitution"] = restitution;
+    result["linearDamping"] = linearDamping;
+    result["angularDamping"] = angularDamping;
+    result["disableDeactivation"] = disableDeactivation;
+    result["noContactResponse"] = noContactResponse;
+    result["collisionGroup"] = groupId.toString();
+
+    switch (shape)
+    {
+    case CollisionShapeType::BOX:
+        result["shape"] = "box";
+        break;
+    case CollisionShapeType::SPHERE:
+        result["shape"] = "sphere";
+        break;
+    case CollisionShapeType::CONVEX_HULL:
+        result["shape"] = "convex_hull";
+        break;
+    case CollisionShapeType::STATIC_MESH:
+        result["shape"] = "static_mesh";
+        break;
+    case CollisionShapeType::DYNAMIC_MESH:
+        result["shape"] = "dynamic_mesh";
+        break;
+    default:
+        DF3D_ASSERT(false);
+        break;
+    }
+
+    return result;
+}
+
 }

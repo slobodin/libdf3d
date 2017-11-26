@@ -55,6 +55,9 @@ class PhysicsComponentProcessor : public EntityComponentProcessor
         Entity holder;
         btRigidBody *body = nullptr;
         btStridingMeshInterface *meshInterface = nullptr;
+
+        shared_ptr<PhysicsComponentCreationParams> creationParams;
+        Id meshResourceId;
     };
 
     ComponentDataHolder<Data> m_data;
@@ -81,10 +84,13 @@ public:
     btBoxShape* createBoxShape(const glm::vec3 &halfSize);
     glm::vec3 getCenterOfMass(Entity e);
 
+    const PhysicsComponentCreationParams* getCreationParams(Entity e) const;
+    Id getMeshResourceID(Entity e);
+
     void teleportPosition(Entity e, const glm::vec3 &pos);
     void teleportOrientation(Entity e, const glm::quat &orient);
 
-    void add(Entity e, const PhysicsComponentCreationParams &params, df3d::Id meshResourceId);
+    void add(Entity e, const PhysicsComponentCreationParams &params, Id meshResourceId);
     // NOTE: body should not be added to the Physics World as it will be added via this processor.
     void add(Entity e, btRigidBody *body, Id groupId);
     void add(Entity e, btRigidBody *body, short group, short mask);

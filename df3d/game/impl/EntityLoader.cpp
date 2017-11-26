@@ -12,6 +12,7 @@
 #include "Sprite2DComponentLoader.h"
 #include "SceneGraphComponentLoader.h"
 #include "VfxComponentLoader.h"
+#include "TagComponentLoader.h"
 
 namespace df3d { namespace game_impl {
 
@@ -22,6 +23,7 @@ EntityLoader::EntityLoader()
     registerEntityComponentLoader(Id("vfx"), make_unique<VfxComponentLoader>());
     registerEntityComponentLoader(Id("physics"), make_unique<PhysicsComponentLoader>());
     registerEntityComponentLoader(Id("sprite_2d"), make_unique<Sprite2DComponentLoader>());
+    registerEntityComponentLoader(Id("tags"), make_unique<TagComponentLoader>());
 }
 
 EntityLoader::~EntityLoader()

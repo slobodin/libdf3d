@@ -29,6 +29,8 @@ struct PhysicsComponentCreationParams
     ~PhysicsComponentCreationParams();
     explicit PhysicsComponentCreationParams(const char *physicsDefinitionFile);
     explicit PhysicsComponentCreationParams(const Json::Value &root);
+
+    Json::Value toJson() const;
 };
 
 }

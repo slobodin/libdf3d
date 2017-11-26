@@ -4,17 +4,17 @@
 
 namespace df3d {
 
-const std::unordered_set<Entity>& TagComponentProcessor::getEntities(int tag)
+const std::unordered_set<Entity>& TagComponentProcessor::getEntities(Id tag)
 {
     return m_entities[tag];
 }
 
-int TagComponentProcessor::getCountByTag(int tag)
+int TagComponentProcessor::getCountByTag(Id tag)
 {
-    return getEntities(tag).size();
+    return (int)getEntities(tag).size();
 }
 
-const std::unordered_set<int>* TagComponentProcessor::getTags(Entity e)
+const std::unordered_set<Id>* TagComponentProcessor::getTags(Entity e)
 {
     auto found = m_tagLookup.find(e);
     if (found != m_tagLookup.end())
@@ -22,7 +22,7 @@ const std::unordered_set<int>* TagComponentProcessor::getTags(Entity e)
     return nullptr;
 }
 
-Entity TagComponentProcessor::getFirst(int tag)
+Entity TagComponentProcessor::getFirst(Id tag)
 {
     const auto &wTag = getEntities(tag);
     if (wTag.empty())
@@ -30,13 +30,13 @@ Entity TagComponentProcessor::getFirst(int tag)
     return *wTag.begin();
 }
 
-bool TagComponentProcessor::hasTag(Entity e, int tag) const
+bool TagComponentProcessor::hasTag(Entity e, Id tag) const
 {
     auto found = m_tagLookup.find(e);
     return found != m_tagLookup.end() && utils::contains_key(found->second, tag);
 }
 
-void TagComponentProcessor::add(Entity e, int tag)
+void TagComponentProcessor::add(Entity e, Id tag)
 {
     m_tagLookup[e].insert(tag);
     m_entities[tag].insert(e);
