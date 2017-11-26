@@ -22,6 +22,9 @@ class ResourceManager : NonCopyable
 
     struct Entry
     {
+#ifdef _DEBUG
+        std::string resourcePath;
+#endif
         shared_ptr<IResourceHolder> holder;
         int refCount = 0;
         bool valid = false;
@@ -70,6 +73,7 @@ public:
     bool isLoaded(Id resourceID) { return getResourceData(resourceID); }
 
     size_t getLoadedResourcesCount() const { return m_cache.size(); }
+    std::vector<std::string> getLoadedResourcesIds() const;
 };
 
 }

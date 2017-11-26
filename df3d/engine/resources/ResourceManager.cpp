@@ -242,6 +242,10 @@ void ResourceManager::loadPackageAsync(const ResourcePackage &resources)
                     entry.valid = false;
                     entry.holder = holder;
 
+#ifdef _DEBUG
+                    entry.resourcePath = resourcePath;
+#endif
+
                     m_cache[resourceId] = entry;
                 }
                 else
@@ -310,6 +314,25 @@ void ResourceManager::printUnused()
     //}
 
     DFLOG_DEBUG("---");
+}
+
+std::vector<std::string> ResourceManager::getLoadedResourcesIds() const
+{
+#ifdef _DEBUG
+    if (isLoading())
+    {
+        DF3D_ASSERT(false);
+        return {};
+    }
+
+    std::vector<std::string> result;
+    for (const auto &kv : m_cache)
+        result.push_back(kv.second.resourcePath);
+    return result;
+#else
+    DF3D_ASSERT(false);
+    return {};
+#endif
 }
 
 }
