@@ -75,7 +75,7 @@ void BulletDebugDraw::setDebugMode(int debugMode)
 
 int BulletDebugDraw::getDebugMode() const
 {
-    return btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawWireframe;// | btIDebugDraw::DBG_DrawNormals | btIDebugDraw::DBG_DrawConstraints;
+    return btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawConstraints;// | btIDebugDraw::DBG_DrawNormals ;
 }
 
 void BulletDebugDraw::clean()
@@ -90,21 +90,20 @@ void BulletDebugDraw::clean()
 
 void BulletDebugDraw::flushRenderOperations(RenderQueue *ops)
 {
-   //if (m_currentVertex == 0)
-   //    return;
+    if (m_currentVertex == 0)
+        return;
 
-   //DF3D_ASSERT_MESS(!m_vertexBuffer.isValid(), "bullet debug draw: invalid vertex buffer");
+    DF3D_ASSERT_MESS(!m_vertexBuffer.isValid(), "bullet debug draw: invalid vertex buffer");
 
-   //m_vertexBuffer = svc().renderManager().getBackend().createVertexBuffer(
-   //    m_vertexData.getFormat(), m_currentVertex, m_vertexData.getRawData(), GpuBufferUsageType::DYNAMIC);
+    m_vertexBuffer = svc().renderManager().getBackend().createDynamicVertexBuffer(m_vertexData.getFormat(), m_currentVertex, m_vertexData.getRawData());
 
-   //RenderOperation op;
-   //op.passProps = m_pass.get();
-   //op.vertexBuffer = m_vertexBuffer;
-   //op.numberOfElements = m_currentVertex;
-   //op.topology = Topology::LINES;
+    RenderOperation op;
+    op.passProps = m_pass.get();
+    op.vertexBuffer = m_vertexBuffer;
+    op.numberOfElements = m_currentVertex;
+    op.topology = Topology::LINES;
 
-   //ops->debugDrawOperations.push_back(op);
+    ops->rops[RQ_BUCKET_DEBUG].push_back(op);
 }
 
 }
