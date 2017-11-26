@@ -20,9 +20,10 @@ private:
     glm::vec3 m_direction;     // Only for directional light.
     glm::vec3 m_color = glm::vec3(1.0f, 1.0f, 1.0f);
     float m_intensity = 0.0f;
+    df3d::Id m_name;
 
 public:
-    Light();
+    Light(df3d::Id name = {});
     ~Light() = default;
 
     Type getType() const { return m_type; }
@@ -31,6 +32,7 @@ public:
     void setColor(const glm::vec3 &color) { m_color = color; }
     void setIntensity(float intensity) { m_intensity = intensity; }
 
+    df3d::Id getName() const { return m_name; }
     const glm::vec3& getDirection() const { return m_direction; }
     const glm::vec3& getColor() const { return m_color; }
     float getIntensity() const { return m_intensity; }

@@ -48,9 +48,9 @@ static void parseLights(const Json::Value &lightsNode, World &w)
 {
     for (const auto &lightJson : lightsNode)
     {
-        Light light;
-
         std::string lightName = JsonUtils::get(lightJson, "id", std::string(""));
+
+        Light light(df3d::Id(lightName.c_str()));
 
         auto dir = light.getDirection();
         auto color = light.getColor();
@@ -64,7 +64,7 @@ static void parseLights(const Json::Value &lightsNode, World &w)
         light.setColor(color);
         light.setIntensity(intensity);
 
-        w.getRenderingParams().addLight(light, lightName);
+        w.getRenderingParams().addLight(light);
     }
     
     DF3D_ASSERT_MESS(w.getRenderingParams().getLights().size() == 2, "FIXME: metal workaround");

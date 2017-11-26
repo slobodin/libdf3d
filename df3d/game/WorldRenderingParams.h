@@ -16,7 +16,6 @@ class WorldRenderingParams
     glm::vec3 m_fogColor;
 
     std::vector<Light> m_lights;
-    std::vector<std::string> m_lightNames;
 
 public:
     WorldRenderingParams();
@@ -33,11 +32,10 @@ public:
     void setPostProcessMaterial(const Material &material);
     const Material* getPostProcessMaterial() const;
 
-    void addLight(const Light &light, const std::string &name);
+    void addLight(const Light &light);
     const std::vector<Light>& getLights() const { return m_lights; }
-    std::vector<Light>& getLights() { return m_lights; }
     Light* getLight(size_t idx) { if (idx >= m_lights.size()) return nullptr; return &m_lights[idx]; }
-    Light* getLightByName(const std::string &name);
+    Light* getLightByName(df3d::Id name);
 };
 
 }

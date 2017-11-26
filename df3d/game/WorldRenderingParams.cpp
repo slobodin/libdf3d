@@ -61,18 +61,15 @@ const Material* WorldRenderingParams::getPostProcessMaterial() const
     return m_postProcessMaterial;
 }
 
-void WorldRenderingParams::addLight(const Light &light, const std::string &name)
+void WorldRenderingParams::addLight(const Light &light)
 {
     if (m_lights.size() < LIGHTS_MAX)
-    {
         m_lights.push_back(light);
-        m_lightNames.push_back(name);
-    }
     else
         DF3D_ASSERT(false);
 }
 
-Light* WorldRenderingParams::getLightByName(const std::string &name)
+Light* WorldRenderingParams::getLightByName(df3d::Id name)
 {
     if (name.empty())
     {
@@ -80,11 +77,9 @@ Light* WorldRenderingParams::getLightByName(const std::string &name)
         return nullptr;
     }
 
-    DF3D_ASSERT(m_lights.size() == m_lightNames.size());
-
     for (size_t i = 0; i < m_lights.size(); i++)
     {
-        if (m_lightNames[i] == name)
+        if (m_lights[i].getName() == name)
             return &m_lights[i];
     }
 
