@@ -24,6 +24,8 @@ public:
     Entity getFirst(Id tag);
     bool hasTag(Entity e, Id tag) const;
 
+    void removeTag(Entity e, Id tag);
+
     void add(Entity e, Id tag);
     void remove(Entity e) override;
     bool has(Entity e) override;

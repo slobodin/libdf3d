@@ -84,6 +84,18 @@ static void RemoveUsedIndexBit(int index)
     g_indexBitsUsed &= temp;
 }
 
+static tb::MODIFIER_KEYS GetTBModifier(KeyModifier modifier)
+{
+    tb::MODIFIER_KEYS result = tb::TB_MODIFIER_NONE;
+    if (modifier & KM_CTRL)
+        result |= tb::TB_CTRL;
+    if (modifier & KM_SHIFT)
+        result |= tb::TB_SHIFT;
+    if (modifier & KM_ALT)
+        result |= tb::TB_ALT;
+    return result;
+}
+
 void InputManager::cleanStep()
 {
     m_prevMouseState = m_mouseState;

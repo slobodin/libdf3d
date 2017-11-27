@@ -36,6 +36,12 @@ bool TagComponentProcessor::hasTag(Entity e, Id tag) const
     return found != m_tagLookup.end() && utils::contains_key(found->second, tag);
 }
 
+void TagComponentProcessor::removeTag(Entity e, Id tag)
+{
+    m_tagLookup[e].erase(tag);
+    m_entities[tag].erase(e);
+}
+
 void TagComponentProcessor::add(Entity e, Id tag)
 {
     m_tagLookup[e].insert(tag);
