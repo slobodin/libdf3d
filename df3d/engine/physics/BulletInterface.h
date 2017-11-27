@@ -14,7 +14,7 @@ class BulletDebugDraw : public btIDebugDraw
 {
     unique_ptr<RenderPass> m_pass;
 
-    enum { MAX_VERTICES = (2 << 19) };
+    enum { MAX_VERTICES = (2 << 21) };
 
     VertexBufferHandle m_vertexBuffer;
     VertexData m_vertexData;
