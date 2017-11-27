@@ -84,6 +84,15 @@ public:
         return static_cast<T&>(*found->second);
     }
 
+    template<typename T>
+    T* getProcessorPtr()
+    {
+        auto found = m_userProcessors.find(utils::getTypeId<T>());
+        if (found == m_userProcessors.end())
+            return nullptr;
+        return static_cast<T*>(found->second.get());
+    }
+
     void registerEntityComponentLoader(Id name, unique_ptr<EntityComponentLoader> loader);
 
     void setCamera(shared_ptr<Camera> camera) { m_camera = camera; }
