@@ -48,7 +48,11 @@ class PhysicsComponentProcessor : public EntityComponentProcessor
     btSequentialImpulseConstraintSolver *m_solver = nullptr;
     btDiscreteDynamicsWorld *m_dynamicsWorld = nullptr;
 
+#ifdef DF3D_DESKTOP
+#ifdef _DEBUG
     BulletDebugDraw *m_debugDraw = nullptr;
+#endif
+#endif
 
     struct Data
     {
