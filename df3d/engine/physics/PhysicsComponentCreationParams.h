@@ -25,6 +25,8 @@ struct PhysicsComponentCreationParams
     bool disableDeactivation = false;
     bool noContactResponse = false;
 
+    void setShape(const std::string &shapeStr);
+
     PhysicsComponentCreationParams();
     ~PhysicsComponentCreationParams();
     explicit PhysicsComponentCreationParams(const char *physicsDefinitionFile);

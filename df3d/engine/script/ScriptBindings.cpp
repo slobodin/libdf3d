@@ -24,6 +24,8 @@
 #include <df3d/engine/resources/ResourceManager.h>
 #include <df3d/engine/resources/ResourceFileSystem.h>
 #include <df3d/engine/resources/ResourceDataSource.h>
+#include <df3d/engine/physics/PhysicsComponentProcessor.h>
+#include <df3d/engine/physics/PhysicsComponentCreationParams.h>
 
 using namespace Sqrat;
 
@@ -180,6 +182,8 @@ void bindGlm(Table &df3dNamespace)
 
 void bindBase(Table &df3dNamespace)
 {
+    auto vm = svc().scripts().getVm();
+
     {
         Class<Id> cls(svc().scripts().getVm(), _SC("Id"));
         cls
@@ -194,6 +198,25 @@ void bindBase(Table &df3dNamespace)
 
     df3dNamespace.Func(_SC("executeFile"), &executeFile);
     df3dNamespace.Func(_SC("createEntity"), &createEntity);
+
+    {
+        Class<PhysicsComponentCreationParams> cls(vm, _SC("PhysicsComponentCreationParams"));
+        cls
+            .Ctor()
+
+            .Var(_SC("mass"), &PhysicsComponentCreationParams::mass)
+            .Var(_SC("friction"), &PhysicsComponentCreationParams::friction)
+            .Var(_SC("restitution"), &PhysicsComponentCreationParams::restitution)
+            .Var(_SC("linearDamping"), &PhysicsComponentCreationParams::linearDamping)
+            .Var(_SC("angularDamping"), &PhysicsComponentCreationParams::angularDamping)
+            .Var(_SC("disableDeactivation"), &PhysicsComponentCreationParams::disableDeactivation)
+            .Var(_SC("noContactResponse"), &PhysicsComponentCreationParams::noContactResponse)
+            .Var(_SC("groupId"), &PhysicsComponentCreationParams::groupId)
+            .Func(_SC("setShape"), &PhysicsComponentCreationParams::setShape)
+            ;
+
+        df3dNamespace.Bind(_SC("PhysicsComponentCreationParams"), cls);
+    }
 }
 
 void bindProcessors(Table &df3dNamespace)
@@ -304,6 +327,15 @@ void bindProcessors(Table &df3dNamespace)
 
         df3dNamespace.Bind(_SC("TagComponentProcessor"), cls);
     }
+
+    {
+        Class<PhysicsComponentProcessor, NoConstructor<PhysicsComponentProcessor>> cls(vm, _SC("PhysicsComponentProcessor"));
+        cls
+            .Func<void(PhysicsComponentProcessor::*)(Entity, const PhysicsComponentCreationParams &, Id)>(_SC("add"), &PhysicsComponentProcessor::add)
+            ;
+
+        df3dNamespace.Bind(_SC("PhysicsComponentProcessor"), cls);
+    }
 }
 
 void bindGame(Table &df3dNamespace)
@@ -332,6 +364,7 @@ void bindGame(Table &df3dNamespace)
 
             .Prop(_SC("sceneGraph"), &World::sceneGraph)
             .Prop(_SC("tags"), &World::tags)
+            .Prop(_SC("physics"), &World::physics)
             .Prop(_SC("sprite2d"), &World::sprite2d)
             .Prop(_SC("vfx"), &World::vfx)
             .Prop(_SC("staticMesh"), &World::staticMesh)

@@ -23,23 +23,26 @@ PhysicsComponentCreationParams::PhysicsComponentCreationParams(const char *physi
 
 }
 
+void PhysicsComponentCreationParams::setShape(const std::string &shapeStr)
+{
+    if (shapeStr == "box")
+        shape = CollisionShapeType::BOX;
+    else if (shapeStr == "sphere")
+        shape = CollisionShapeType::SPHERE;
+    else if (shapeStr == "convex_hull")
+        shape = CollisionShapeType::CONVEX_HULL;
+    else if (shapeStr == "static_mesh")
+        shape = CollisionShapeType::STATIC_MESH;
+    else if (shapeStr == "dynamic_mesh")
+        shape = CollisionShapeType::DYNAMIC_MESH;
+    else
+        DFLOG_WARN("Unsupported rigid body shape %s", shapeStr.c_str());
+}
+
 PhysicsComponentCreationParams::PhysicsComponentCreationParams(const Json::Value &root)
 {
     DF3D_ASSERT(root.isMember("shape"));
-
-    auto shapeStr = Id(root["shape"].asCString());
-    if (shapeStr == Id("box"))
-        shape = CollisionShapeType::BOX;
-    else if (shapeStr == Id("sphere"))
-        shape = CollisionShapeType::SPHERE;
-    else if (shapeStr == Id("convex_hull"))
-        shape = CollisionShapeType::CONVEX_HULL;
-    else if (shapeStr == Id("static_mesh"))
-        shape = CollisionShapeType::STATIC_MESH;
-    else if (shapeStr == Id("dynamic_mesh"))
-        shape = CollisionShapeType::DYNAMIC_MESH;
-    else
-        DFLOG_WARN("Unsupported rigid body shape %s", root["shape"].asCString());
+    setShape(root["shape"].asString());
 
     mass = JsonUtils::get(root, "mass", mass);
     friction = JsonUtils::get(root, "friction", friction);
