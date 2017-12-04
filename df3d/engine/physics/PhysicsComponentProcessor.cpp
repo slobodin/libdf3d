@@ -58,14 +58,17 @@ public:
 
     }
 
-    void getWorldTransform(btTransform &worldTrans) const
+    void getWorldTransform(btTransform &worldTrans) const override
     {
-        worldTrans = m_transform;
+        auto orientation = m_world.sceneGraph().getWorldOrientation(m_holder);
+        auto position = m_world.sceneGraph().getWorldPosition(m_holder);
+
+        worldTrans.setOrigin(PhysicsHelpers::glmTobt(position));
+        worldTrans.setRotation(PhysicsHelpers::glmTobt(orientation));
     }
 
-    void setWorldTransform(const btTransform &worldTrans)
+    void setWorldTransform(const btTransform &worldTrans) override
     {
-        m_transform = worldTrans;
         m_world.sceneGraph().setWorldTransform(m_holder, worldTrans);
     }
 };
@@ -173,7 +176,8 @@ void PhysicsComponentProcessor::addRigidBodyToWorld(btRigidBody *body, short gro
 btCollisionShape* PhysicsComponentProcessor::createCollisionShape(Data &data, df3d::Id meshResourceId, const PhysicsComponentCreationParams &params)
 {
     // FIXME: what to do if scale has been changed?
-    auto scale = PhysicsHelpers::glmTobt(svc().defaultWorld().sceneGraph().getLocalScale(data.holder));
+    auto wTransf = m_df3dWorld.sceneGraph().getWorldTransform(data.holder);
+    auto scale = PhysicsHelpers::glmTobt(wTransf.scaling);
 
     auto mesh = svc().resourceManager().getResource<MeshResource>(meshResourceId);
     if (!mesh)
@@ -406,6 +410,18 @@ glm::vec3 PhysicsComponentProcessor::getCenterOfMass(Entity e)
     return PhysicsHelpers::btToGlm(body->getCenterOfMassPosition());
 }
 
+const PhysicsComponentCreationParams* PhysicsComponentProcessor::getCreationParams(Entity e) const
+{
+    const auto &compData = m_data.getData(e);
+    return compData.creationParams.get();
+}
+
+Id PhysicsComponentProcessor::getMeshResourceID(Entity e)
+{
+    const auto &compData = m_data.getData(e);
+    return compData.meshResourceId;
+}
+
 void PhysicsComponentProcessor::teleportPosition(Entity e, const glm::vec3 &pos)
 {
     auto body = getBody(e);
@@ -436,13 +452,18 @@ void PhysicsComponentProcessor::teleportOrientation(Entity e, const glm::quat &o
     }
 }
 
-void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, df3d::Id meshResourceId)
+void PhysicsComponentProcessor::add(Entity e, const PhysicsComponentCreationParams &params, Id meshResourceId)
 {
     DF3D_ASSERT_MESS(!m_data.contains(e), "An entity already has a physics component");
 
     Data data;
     data.holder = e;
+
     initialize(data, meshResourceId, params);
+
+    data.creationParams = make_shared<PhysicsComponentCreationParams>(params);
+    data.meshResourceId = meshResourceId;
+
     m_data.add(e, data);
 }
 
