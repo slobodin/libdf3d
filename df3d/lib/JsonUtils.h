@@ -62,6 +62,16 @@ namespace JsonUtils
     };
 
     template<>
+    struct GetHelper<glm::ivec2>
+    {
+        static glm::ivec2 getValue(const Json::Value &v)
+        {
+            DF3D_ASSERT(v.isArray());
+            return{ v[0u].asInt(), v[1u].asInt() };
+        }
+    };
+
+    template<>
     struct GetHelper<glm::vec3>
     {
         static glm::vec3 getValue(const Json::Value &v)
