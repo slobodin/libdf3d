@@ -137,6 +137,8 @@ void SceneGraphComponentProcessor::translate(Entity e, const glm::vec3 &v)
     compData.localTransformDirty = true;
 
     updateWorldTransformation(compData);
+    if (m_world.physics().has(e))
+        m_world.physics().teleportPosition(e, compData.wTransform.position);
 }
 
 void SceneGraphComponentProcessor::scale(Entity e, const glm::vec3 &v)

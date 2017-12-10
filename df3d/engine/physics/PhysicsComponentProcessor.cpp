@@ -374,6 +374,8 @@ PhysicsComponentProcessor::~PhysicsComponentProcessor()
 
 btRigidBody* PhysicsComponentProcessor::getBody(Entity e)
 {
+    if (!has(e))
+        return nullptr;
     return m_data.getData(e).body;
 }
 
