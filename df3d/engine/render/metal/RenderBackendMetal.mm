@@ -2,6 +2,7 @@
 #include "RenderBackendMetal.h"
 
 
+check all models because of new shaders
 
 sphere_boss5.mesh shader
 
