@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.6)
 
 project(libdf3d)
 
-include(cmake/libdf3d.cmake)
+include(cmake/df3d.cmake)
 
 if (DF3D_ANDROID)
     include(cmake/PrecompiledHeader.cmake)

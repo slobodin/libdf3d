@@ -1,7 +1,7 @@
-if(LIBDF3D_CMAKE_LOADED)
+if(DF3D_CMAKE_LOADED)
     return()
 endif()
-set(LIBDF3D_CMAKE_LOADED true)
+set(DF3D_CMAKE_LOADED true)
 
 # Possible platforms
 # WINDOWS

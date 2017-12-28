@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(squirrel)
 
 if (NOT DEFINED DF3D_PLATFORM)
-    message(FATAL_ERROR "Please, include libdf3d.cmake")
+    message(FATAL_ERROR "Please, include df3d.cmake")
 endif()
 
 set(squirrel_HEADER_LIST
