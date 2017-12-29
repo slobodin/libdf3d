@@ -119,7 +119,6 @@ ResourceManager::~ResourceManager()
 
 }
 
-
 void ResourceManager::initialize()
 {
     setDefaultFileSystem();
