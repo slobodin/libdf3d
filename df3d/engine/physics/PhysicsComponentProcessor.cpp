@@ -5,6 +5,7 @@
 #include <ConvexDecomposition/ConvexDecomposition.h>
 #include "BulletInterface.h"
 #include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include "PhysicsComponentCreationParams.h"
 #include "PhysicsHelpers.h"
 #include <df3d/lib/math/AABB.h>
@@ -316,6 +317,9 @@ PhysicsComponentProcessor::PhysicsComponentProcessor(World &w)
          m_solver,
          m_collisionConfiguration);
 
+    m_ghostCallback = MAKE_NEW(m_allocator, btGhostPairCallback)();
+    m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(m_ghostCallback);
+
     m_dynamicsWorld->setGravity(PhysicsHelpers::glmTobt(m_config.getGravity()));
 
     //btGImpactCollisionAlgorithm::registerAlgorithm(m_dispatcher);
@@ -361,6 +365,7 @@ PhysicsComponentProcessor::~PhysicsComponentProcessor()
     }
 
     MAKE_DELETE(m_allocator, m_dynamicsWorld);
+    MAKE_DELETE(m_allocator, m_ghostCallback);
     MAKE_DELETE(m_allocator, m_solver);
     MAKE_DELETE(m_allocator, m_overlappingPairCache);
     MAKE_DELETE(m_allocator, m_dispatcher);

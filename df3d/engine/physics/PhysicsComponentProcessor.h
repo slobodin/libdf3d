@@ -13,6 +13,7 @@ class btBroadphaseInterface;
 class btSequentialImpulseConstraintSolver;
 class btDiscreteDynamicsWorld;
 class btStridingMeshInterface;
+class btOverlappingPairCallback;
 class btCollisionShape;
 class btSphereShape;
 class btBoxShape;
@@ -47,6 +48,7 @@ class PhysicsComponentProcessor : public EntityComponentProcessor
     btBroadphaseInterface *m_overlappingPairCache = nullptr;
     btSequentialImpulseConstraintSolver *m_solver = nullptr;
     btDiscreteDynamicsWorld *m_dynamicsWorld = nullptr;
+    btOverlappingPairCallback *m_ghostCallback = nullptr;
 
 #ifdef DF3D_DESKTOP
 #ifdef _DEBUG
