@@ -274,6 +274,7 @@ void PhysicsComponentProcessor::initialize(Data &data, df3d::Id meshResourceId, 
     static_assert(sizeof(int) >= sizeof(Entity), "Can't store user data in bullet user data");
 
     data.body->setUserIndex(*reinterpret_cast<int*>(&data.holder));
+    data.body->setUserPointer(nullptr);
 
     if (params.noContactResponse)
         data.body->setCollisionFlags(data.body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
@@ -499,6 +500,7 @@ void PhysicsComponentProcessor::add(Entity e, btRigidBody *body, short group, sh
     addRigidBodyToWorld(body, group, mask);
 
     data.body->setUserIndex(*reinterpret_cast<int*>(&e));
+    data.body->setUserPointer(nullptr);
 
     m_data.add(e, data);
 }
