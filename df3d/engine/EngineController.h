@@ -63,6 +63,7 @@ public:
     World& world() { return *m_world; }
     void replaceWorld();
     void replaceWorld(const char *resourceFile);
+    void initWorld(const char *resourceFile);
     void deleteWorld();
 };
 

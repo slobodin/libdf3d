@@ -146,6 +146,11 @@ void EngineController::replaceWorld(const char *resourceFile)
     game_impl::WorldLoader::initWorld(resourceFile, *m_world);
 }
 
+void EngineController::initWorld(const char *resourceFile)
+{
+    game_impl::WorldLoader::initWorld(resourceFile, *m_world);
+}
+
 void EngineController::deleteWorld()
 {
     if (m_world)
