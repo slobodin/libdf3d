@@ -57,5 +57,5 @@ static const int DEFAULT_WINDOW_HEIGHT = 480;
 #ifdef _MSC_VER
 #define DF3D_FINLINE __forceinline
 #else
-#error "implement"
+#define DF3D_FINLINE inline
 #endif

@@ -33,7 +33,10 @@ public:
 
     static void exitApp();
 
+    static std::string jstringToStd(JNIEnv *env, jstring jstr);
     static std::string jstringToStd(jstring jstr);
+
+    static jobject constructTreeMap(const std::unordered_map<std::string, std::string> &stdMap);
 
     static size_t getProcessMemUsage();
     static size_t getGraphicsMemUsage();

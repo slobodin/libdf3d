@@ -91,12 +91,10 @@ void AndroidServices::exitApp()
     env->CallVoidMethod(m_services, methId);
 }
 
-std::string AndroidServices::jstringToStd(jstring jstr)
+std::string AndroidServices::jstringToStd(JNIEnv *env, jstring jstr)
 {
     if (!jstr)
         return "";
-
-    auto env = getEnv();
 
     auto length = env->GetStringUTFLength(jstr);
     auto data = env->GetStringUTFChars(jstr, nullptr);
@@ -106,6 +104,32 @@ std::string AndroidServices::jstringToStd(jstring jstr)
     env->ReleaseStringUTFChars(jstr, data);
 
     return result;
+}
+
+std::string AndroidServices::jstringToStd(jstring jstr)
+{
+    return jstringToStd(getEnv(), jstr);
+}
+
+jobject AndroidServices::constructTreeMap(const std::unordered_map<std::string, std::string> &stdMap)
+{
+    auto env = getEnv();
+
+    jclass mapClass = env->FindClass("java/util/TreeMap");
+
+    jmethodID init = env->GetMethodID(mapClass, "<init>", "()V");
+    jobject treeMap = env->NewObject(mapClass, init);
+
+    jmethodID put = env->GetMethodID(mapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+
+    for (const auto &kv : stdMap) {
+        jobject jkey = env->NewStringUTF(kv.first.c_str());
+        jobject jval = env->NewStringUTF(kv.second.c_str());;
+
+        env->CallObjectMethod(treeMap, put, jkey, jval);
+    }
+
+    return treeMap;
 }
 
 size_t AndroidServices::getProcessMemUsage()

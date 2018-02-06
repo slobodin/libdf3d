@@ -66,7 +66,6 @@ SharedUniformType GetSharedTypeForUniform(const std::string &name)
 void InitProgramUniforms(GpuProgramResource *gpuProgram, std::vector<std::string> uniformNames)
 {
     auto &backend = svc().renderManager().getBackend();
-    bool glBackend = backend.getID() == RenderBackendID::GL;
 
     for (const auto &uniName : uniformNames)
     {
