@@ -691,6 +691,7 @@ RenderBackendGL::RenderBackendGL(int width, int height)
     if (m_caps.maxTextureSize < 2048)
         throw std::runtime_error("Hardware not supported");
 
+#ifdef _DEBUG
     // Print GPU info.
     const char *ver = (const char *)glGetString(GL_VERSION);
     DFLOG_MESS("OpenGL version %s", ver);
@@ -704,7 +705,6 @@ RenderBackendGL::RenderBackendGL(int width, int height)
 
     DFLOG_MESS("Max texture size %d", m_caps.maxTextureSize);
 
-#ifdef _DEBUG
     size_t totalStorage = sizeof(m_vertexBuffers) +
         sizeof(m_indexBuffers) +
         sizeof(m_textures) +
