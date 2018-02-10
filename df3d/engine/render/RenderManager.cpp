@@ -40,7 +40,7 @@ static unique_ptr<IRenderBackend> CreateRenderBackend(const EngineInitParams &pa
     g_usingAmbientPass = false;
     return make_unique<RenderBackendMetal>(params);
 #else
-    g_usingAmbientPass = true;
+    g_usingAmbientPass = false;
     return make_unique<RenderBackendGL>(params.windowWidth, params.windowHeight);
 #endif
 }

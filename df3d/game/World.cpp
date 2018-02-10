@@ -24,7 +24,7 @@ void World::update()
         // Update client code.
         m_timeMgr->update(svc().timer().getFrameDelta(TIME_CHANNEL_GAME));
         for (auto &userProcessor : m_userProcessors)
-            userProcessor.second->update();
+            userProcessor->update();
 
         m_sceneGraph->update();
         m_vfx->update();
@@ -52,7 +52,7 @@ void World::collectRenderOperations(RenderQueue *ops)
     for (auto engineProcessor : m_engineProcessors)
         engineProcessor->draw(ops);
     for (auto &userProcessor : m_userProcessors)
-        userProcessor.second->draw(ops);
+        userProcessor->draw(ops);
 }
 
 void World::cleanStep()
@@ -83,9 +83,10 @@ World::World()
 
 void World::destroyWorld()
 {
-    for (auto &kv : m_userProcessors)
-        kv.second.reset();
+    for (auto &proc : m_userProcessors)
+        proc.reset();
     m_userProcessors.clear();
+    m_userProcessorsLookup.clear();
     m_engineProcessors.clear();
 
     m_tags.reset();
@@ -144,8 +145,8 @@ void World::destroy(Entity e)
         }
         for (auto &userProc : m_userProcessors)
         {
-            if (userProc.second && userProc.second->has(e))
-                userProc.second->remove(e);
+            if (userProc&& userProc->has(e))
+                userProc->remove(e);
         }
 
         m_entitiesMgr.release(e.getID());
