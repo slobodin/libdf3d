@@ -3,6 +3,7 @@ package org.flaming0.df3d;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -16,6 +17,8 @@ public class Df3dActivity extends Activity {
     private boolean mQuittingApp = false;
 
     private static Df3dActivity m_sharedActivity = null;
+
+    private native void nativeHardwareBackPressed(boolean pressed);
 
     public static void quitApp() {
         m_sharedActivity.runOnUiThread(new Runnable() {
@@ -105,6 +108,40 @@ public class Df3dActivity extends Activity {
         if (hasFocus && setUiVisibilityRunnable != null) {
             setUiVisibilityRunnable.run();
         }
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event)
+    {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_BACK:
+                runOnMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        nativeHardwareBackPressed(false);
+                    }
+                });
+                return true;
+        }
+
+        return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_BACK:
+                runOnMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        nativeHardwareBackPressed(true);
+                    }
+                });
+                return true;
+        }
+
+        return super.onKeyDown(keyCode, event);
     }
 
     private void enableFullscreen()
