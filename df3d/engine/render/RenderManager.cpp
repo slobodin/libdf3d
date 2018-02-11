@@ -19,12 +19,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <tb_widgets.h>
 #include <animation/tb_widget_animation.h>
-#include <df3d/engine/render/gl/RenderBackendGL.h>
 
 #ifdef DF3D_IOS
 
 #include <df3d/engine/render/metal/RenderBackendMetal.h>
 #define DF3D_USE_METAL_BACKEND 1
+
+#else
+
+#include <df3d/engine/render/gl/RenderBackendGL.h>
 
 #endif
 

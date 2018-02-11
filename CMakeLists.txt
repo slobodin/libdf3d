@@ -241,6 +241,7 @@ if (DF3D_IOS)
     )
 
     set_source_files_properties("df3d/engine/render/gl/RenderBackendGL.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
+    set_source_files_properties("df3d/engine/render/RenderManager.cpp" PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
 
 if (DF3D_DESKTOP)
