@@ -61,6 +61,7 @@ public:
 
     World& defaultWorld() { return world(); }
     World& world() { return *m_world; }
+    World* worldPtr() { return m_world.get(); }
     void replaceWorld();
     void replaceWorld(const char *resourceFile);
     void initWorld(const char *resourceFile);

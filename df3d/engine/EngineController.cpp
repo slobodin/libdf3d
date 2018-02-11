@@ -95,10 +95,12 @@ void EngineController::step()
 
     // Update client code.
     m_systemTimeManager->update(m_timer->getFrameDelta(TIME_CHANNEL_SYSTEM));
-    m_world->update();
+    if (m_world)
+        m_world->update();
 
     // Run frame.
-    m_renderManager->drawWorld(*m_world);
+    if (m_world)
+        m_renderManager->drawWorld(*m_world);
 
     // Clean step for engine subsystems.
     m_inputManager->cleanStep();
