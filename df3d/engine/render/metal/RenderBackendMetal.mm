@@ -1,38 +1,20 @@
 #include <df3d/df3d.h>
 #include "RenderBackendMetal.h"
 
-
-check all models because of new shaders
-
-sphere_boss5.mesh shader
-
-
-depth pre pass?/
-
-
-optimize metal
-
-fshader is slow (explosions and stuff on fullscreen)
-
-resource manager should check:
-    - having the .metal shader for each data/glsl
-    - uniforms stated in the GLSL file should be the same as in .shader in metal
-    - delete GLSL data from iOS bundle
-
-check RenderBackendGL::frameBegin()
-
-
-
-
-
-
-
-#include <df3d/engine/render/gl/GLSLPreprocess.h>
-#include <df3d/engine/render/GpuProgramSharedState.h>
-
 namespace df3d {
 
     namespace {
+
+        const int MAX_TRANSIENT_BUFFER_SIZE = 0x1000;    // 4k is allowed by Metal
+        const int MAX_IN_FLIGHT_FRAMES = 3;
+
+        MTLBlendFactor g_blendFuncLookup[] = {
+            MTLBlendFactorZero, // INVALID FACTOR
+
+            MTLBlendFactorOne,                  // RENDER_STATE_BLEND_ONE
+            MTLBlendFactorSourceAlpha,          // RENDER_STATE_BLEND_SRC_ALPHA
+            MTLBlendFactorOneMinusSourceAlpha   // RENDER_STATE_BLEND_ONE_MINUS_SRC_ALPHA
+        };
 
         int GetMipMapLevelCount(int width, int height)
         {
@@ -156,490 +138,597 @@ namespace df3d {
         }
     }
 
-#pragma mark - Transient Buffer
-
-MetalTransientVertexBuffer::MetalTransientVertexBuffer(const VertexFormat &format)
-    : IMetalVertexBuffer(format)
+class SamplerStateCache
 {
+    std::unordered_map<uint32_t, id<MTLSamplerState>> m_data;
+    MTLSamplerDescriptor *m_samplerDescriptor = nullptr;
+    id<MTLDevice> m_device;
 
-}
-
-MetalTransientVertexBuffer::~MetalTransientVertexBuffer()
-{
-
-}
-
-bool MetalTransientVertexBuffer::initialize(id<MTLDevice> device, const void *data, size_t verticesCount)
-{
-    update(data, verticesCount);
-    return true;
-}
-
-void MetalTransientVertexBuffer::update(const void *data, size_t verticesCount)
-{
-    auto sz = verticesCount * getFormat().getVertexSize();
-    DF3D_ASSERT(sz <= m_transientStorage.size());
-
-    m_currentSize = std::min(sz, m_transientStorage.size());
-
-    if (data != nullptr)
-        memcpy(m_transientStorage.data(), data, m_currentSize);
-}
-
-void MetalTransientVertexBuffer::bind(id<MTLRenderCommandEncoder> encoder, size_t verticesOffset)
-{
-    auto bytesOffset = verticesOffset * getFormat().getVertexSize();
-    DF3D_ASSERT(bytesOffset < m_transientStorage.size());
-    [encoder setVertexBytes:m_transientStorage.data() + bytesOffset length:m_currentSize atIndex:0];
-}
-
-#pragma mark - Static Buffer
-
-MetalStaticVertexBuffer::MetalStaticVertexBuffer(const VertexFormat &format)
-    : IMetalVertexBuffer(format)
-{
-
-}
-
-MetalStaticVertexBuffer::~MetalStaticVertexBuffer()
-{
-    [m_buffer release];
-}
-
-bool MetalStaticVertexBuffer::initialize(id<MTLDevice> device, const void *data, size_t verticesCount)
-{
-    DF3D_ASSERT(data != nullptr);
-    m_buffer = [device newBufferWithBytes:data
-                                   length:verticesCount * getFormat().getVertexSize()
-                                  options:MTLResourceStorageModeShared];
-
-    return m_buffer != nil;
-}
-
-void MetalStaticVertexBuffer::update(const void *data, size_t verticesCount)
-{
-    DF3D_ASSERT_MESS(false, "Not implemented");
-}
-
-void MetalStaticVertexBuffer::bind(id<MTLRenderCommandEncoder> encoder, size_t verticesOffset)
-{
-    DF3D_ASSERT_MESS(verticesOffset == 0, "Unsupported");
-    [encoder setVertexBuffer:m_buffer offset:0 atIndex:0];
-}
-
-#pragma mark - Dynamic Buffer
-
-MetalDynamicVertexBuffer::MetalDynamicVertexBuffer(const VertexFormat &format)
-    : IMetalVertexBuffer(format)
-{
-
-}
-
-MetalDynamicVertexBuffer::~MetalDynamicVertexBuffer()
-{
-    for (int i = 0; i < MAX_IN_FLIGHT_FRAMES; i++)
-        [m_buffers[i] release];
-}
-
-bool MetalDynamicVertexBuffer::initialize(id<MTLDevice> device, const void *data, size_t verticesCount)
-{
-    m_sizeInBytes = verticesCount * getFormat().getVertexSize();
-
-    for (int i = 0; i < MAX_IN_FLIGHT_FRAMES; i++)
+public:
+    SamplerStateCache(id<MTLDevice> device)
     {
-        id<MTLBuffer> buffer;
-        if (data == nullptr)
+        m_samplerDescriptor = [MTLSamplerDescriptor new];
+        m_device = device;
+    }
+
+    ~SamplerStateCache()
+    {
+        for (const auto &kv : m_data)
+            [kv.second release];
+
+        [m_samplerDescriptor release];
+    }
+
+    id<MTLSamplerState> getOrCreate(uint32_t flags)
+    {
+        auto found = m_data.find(flags);
+        if (found == m_data.end())
         {
-            buffer = [device newBufferWithLength:m_sizeInBytes
-                                         options:MTLResourceCPUCacheModeWriteCombined];
+            SetupWrapMode(m_samplerDescriptor, flags);
+            SetupTextureFiltering(m_samplerDescriptor, flags);
+
+            m_samplerDescriptor.lodMinClamp = 0;
+            m_samplerDescriptor.lodMaxClamp = FLT_MAX;
+            m_samplerDescriptor.normalizedCoordinates = TRUE;
+
+            if ((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_ANISOTROPIC)
+                m_samplerDescriptor.maxAnisotropy = 16;
+            else
+                m_samplerDescriptor.maxAnisotropy = 1;
+
+            auto newState = [m_device newSamplerStateWithDescriptor: m_samplerDescriptor];
+
+            m_data[flags] = newState;
+
+            return newState;
+        }
+
+        return found->second;
+    }
+};
+
+class DepthStencilStateCache
+{
+    std::array<id<MTLDepthStencilState>, 4> m_data;
+    MTLDepthStencilDescriptor *m_depthStencilDescriptor = nullptr;
+    id<MTLDevice> m_device;
+
+public:
+    DepthStencilStateCache(id<MTLDevice> device)
+    {
+        m_depthStencilDescriptor = [MTLDepthStencilDescriptor new];
+        for (auto &item : m_data)
+            item = nil;
+        m_device = device;
+    }
+
+    ~DepthStencilStateCache()
+    {
+        for (auto item : m_data)
+            [item release];
+
+        [m_depthStencilDescriptor release];
+    }
+
+    id<MTLDepthStencilState> getOrCreate(uint64_t state)
+    {
+        bool depthTestEnabled = false;
+        if (state & RENDER_STATE_DEPTH_MASK)
+            depthTestEnabled = true;
+
+        bool depthWriteEnabled = false;
+        if ((state & RENDER_STATE_DEPTH_WRITE_MASK) == RENDER_STATE_DEPTH_WRITE)
+            depthWriteEnabled = true;
+
+        // FIXME: implement RENDER_STATE_DEPTH_MASK.
+        int hash = ((int)depthTestEnabled << 1) | (int)depthWriteEnabled;
+        DF3D_ASSERT(hash >= 0 && hash < m_data.size());
+
+        auto item = m_data[hash];
+        if (item == nil)
+        {
+            m_depthStencilDescriptor.depthCompareFunction = depthTestEnabled ? MTLCompareFunctionLessEqual : MTLCompareFunctionAlways;
+            m_depthStencilDescriptor.depthWriteEnabled = depthWriteEnabled;
+
+            item = [m_device newDepthStencilStateWithDescriptor:m_depthStencilDescriptor];
+
+            m_data[hash] = item;
+        }
+
+        return item;
+    }
+};
+
+class RenderPipelinesCache
+{
+    std::unordered_map<uint64_t, id <MTLRenderPipelineState>> m_data;
+
+    MTLRenderPipelineDescriptor *m_renderPipelineDescriptor = nullptr;
+    MTLVertexDescriptor *m_vertexDescriptor = nullptr;
+
+    uint64_t getHash(GPUProgramHandle program, VertexFormat vf, uint64_t renderState) const
+    {
+        uint64_t blending = renderState & RENDER_STATE_BLENDING_MASK;
+
+        uint64_t res = (uint64_t)program.getID() << 32;
+        uint32_t h1 = (uint32_t)vf.getHash() << 16;
+        uint32_t h2 = (uint32_t)blending;
+
+        return res | h1 | h2;
+    }
+
+public:
+    RenderPipelinesCache()
+    {
+        m_renderPipelineDescriptor = [MTLRenderPipelineDescriptor new];
+        m_vertexDescriptor = [MTLVertexDescriptor new];
+    }
+
+    ~RenderPipelinesCache()
+    {
+        invalidate();
+
+        [m_renderPipelineDescriptor release];
+        [m_vertexDescriptor release];
+    }
+
+    id <MTLRenderPipelineState> getOrCreate(id<MTLDevice> device, id<MTLFunction> vertexFn, id<MTLFunction> fragmentFn,
+                                            MTLPixelFormat colorFormat, MTLPixelFormat depthFormat,
+                                            VertexFormat vf, uint64_t renderState,
+                                            GPUProgramHandle programHandle)
+    {
+        auto hash = getHash(programHandle, vf, renderState);
+        auto found = m_data.find(hash);
+        if (found == m_data.end())
+        {
+            [m_vertexDescriptor reset];
+
+            for (uint16_t i = VertexFormat::POSITION; i != VertexFormat::COUNT; i++)
+            {
+                auto attrib = (VertexFormat::VertexAttribute)i;
+
+                if (!vf.hasAttribute(attrib))
+                    continue;
+
+                size_t offset = vf.getOffsetTo(attrib);
+                size_t count = vf.getCompCount(attrib);
+
+                m_vertexDescriptor.attributes[i].format = GetVertexFormatForComponentsCount(count);
+                m_vertexDescriptor.attributes[i].bufferIndex = 0;
+                m_vertexDescriptor.attributes[i].offset = offset;
+            }
+
+            m_vertexDescriptor.layouts[0].stride = vf.getVertexSize();
+            m_vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
+
+            [m_renderPipelineDescriptor reset];
+
+            m_renderPipelineDescriptor.vertexFunction = vertexFn;
+            m_renderPipelineDescriptor.fragmentFunction = fragmentFn;
+            m_renderPipelineDescriptor.vertexDescriptor = m_vertexDescriptor;
+            m_renderPipelineDescriptor.colorAttachments[0].pixelFormat = colorFormat;
+            m_renderPipelineDescriptor.depthAttachmentPixelFormat = depthFormat;
+
+            auto colorAttachment = m_renderPipelineDescriptor.colorAttachments[0];
+
+            auto srcFactor = GetBlendingSrcFactor(renderState);
+            auto dstFactor = GetBlendingDstFactor(renderState);
+
+            if (srcFactor == 0 && dstFactor == 0)
+            {
+                colorAttachment.blendingEnabled = false;
+            }
+            else
+            {
+                colorAttachment.blendingEnabled = true;
+
+                DF3D_ASSERT(srcFactor >= RENDER_STATE_BLEND_ONE && srcFactor <= RENDER_STATE_BLEND_ONE_MINUS_SRC_ALPHA);
+                DF3D_ASSERT(dstFactor >= RENDER_STATE_BLEND_ONE && dstFactor <= RENDER_STATE_BLEND_ONE_MINUS_SRC_ALPHA);
+
+                colorAttachment.sourceRGBBlendFactor = g_blendFuncLookup[srcFactor];
+                colorAttachment.sourceAlphaBlendFactor = g_blendFuncLookup[srcFactor];
+                colorAttachment.destinationRGBBlendFactor = g_blendFuncLookup[dstFactor];
+                colorAttachment.destinationAlphaBlendFactor = g_blendFuncLookup[dstFactor];
+            }
+
+            NSError *error = nil;
+            auto pipeline = [device newRenderPipelineStateWithDescriptor:m_renderPipelineDescriptor error:&error];
+            if (pipeline == nil)
+            {
+                DFLOG_WARN("Failed to create pipeline: %s", error.localizedDescription.UTF8String);
+                return nil;
+            }
+
+            m_data[hash] = pipeline;
+            return pipeline;
+        }
+
+        return found->second;
+    }
+
+    void invalidate()
+    {
+        for (const auto &item : m_data)
+            [item.second release];
+        m_data.clear();
+    }
+};
+
+class MetalVertexBuffer
+{
+    VertexFormat m_format;
+
+public:
+    MetalVertexBuffer(const VertexFormat &format) : m_format(format) { }
+    virtual ~MetalVertexBuffer() = default;
+
+    const VertexFormat& getFormat() const { return m_format; }
+
+    virtual bool initialize(id<MTLDevice> device, const void *data, uint32_t bufferSize) = 0;
+    virtual void updateWithData(const void *data, uint32_t offset, uint32_t length) = 0;
+    virtual void bindBuffer(id<MTLRenderCommandEncoder> encoder, uint32_t offset) = 0;
+    virtual void advanceToTheNextFrame() { }
+};
+
+class MetalTransientVertexBuffer : public MetalVertexBuffer
+{
+    std::array<uint8_t, MAX_TRANSIENT_BUFFER_SIZE> m_transientStorage;
+    uint32_t m_bufferSize = 0;
+
+public:
+    MetalTransientVertexBuffer(const VertexFormat &format)
+        : MetalVertexBuffer(format)
+    {
+
+    }
+    ~MetalTransientVertexBuffer() { }
+
+    bool initialize(id<MTLDevice> device, const void *data, uint32_t bufferSize) override
+    {
+        DF3D_ASSERT(bufferSize <= m_transientStorage.size());
+
+        m_bufferSize = bufferSize;
+
+        if (data != nullptr)
+            updateWithData(data, 0, m_bufferSize);
+
+        return true;
+    }
+
+    void updateWithData(const void *data, uint32_t offset, uint32_t length) override
+    {
+        DF3D_ASSERT(offset + length <= m_bufferSize);
+        DF3D_ASSERT(data != nullptr);
+
+        memcpy(m_transientStorage.data() + offset, data, length);
+    }
+
+    void bindBuffer(id<MTLRenderCommandEncoder> encoder, uint32_t offset) override
+    {
+        DF3D_ASSERT(offset < m_bufferSize);
+        auto lenUpdate = m_bufferSize - offset;
+
+        [encoder setVertexBytes:m_transientStorage.data() + offset length:lenUpdate atIndex:0];
+    }
+};
+
+class MetalStaticVertexBuffer : public MetalVertexBuffer
+{
+    id <MTLBuffer> m_buffer = nil;
+
+public:
+    MetalStaticVertexBuffer(const VertexFormat &format)
+        : MetalVertexBuffer(format)
+    {
+
+    }
+
+    ~MetalStaticVertexBuffer()
+    {
+        [m_buffer release];
+    }
+
+    bool initialize(id<MTLDevice> device, const void *data, uint32_t bufferSize) override
+    {
+        DF3D_ASSERT(data != nullptr);
+        m_buffer = [device newBufferWithBytes:data
+                                       length:bufferSize
+                                      options:MTLResourceStorageModeShared];
+
+        return m_buffer != nil;
+    }
+
+    void updateWithData(const void *data, uint32_t offset, uint32_t length) override
+    {
+        DF3D_ASSERT_MESS(false, "Not supported!");
+    }
+
+    void bindBuffer(id<MTLRenderCommandEncoder> encoder, uint32_t offset) override
+    {
+        [encoder setVertexBuffer:m_buffer offset:offset atIndex:0];
+    }
+};
+
+class MetalDynamicVertexBuffer : public MetalVertexBuffer
+{
+    std::array<id<MTLBuffer>, MAX_IN_FLIGHT_FRAMES> m_buffers;
+    uint32_t m_bufferSize = 0;
+    int m_bufferIdx = 0;
+
+public:
+    MetalDynamicVertexBuffer(const VertexFormat &format)
+        : MetalVertexBuffer(format)
+    {
+
+    }
+    ~MetalDynamicVertexBuffer()
+    {
+        for (int i = 0; i < MAX_IN_FLIGHT_FRAMES; i++)
+            [m_buffers[i] release];
+    }
+
+    bool initialize(id<MTLDevice> device, const void *data, uint32_t bufferSize) override
+    {
+        for (int i = 0; i < MAX_IN_FLIGHT_FRAMES; i++)
+        {
+            id<MTLBuffer> buffer;
+            if (data == nullptr)
+            {
+                buffer = [device newBufferWithLength:bufferSize
+                                             options:MTLResourceCPUCacheModeWriteCombined];
+            }
+            else
+            {
+                buffer = [device newBufferWithBytes:data
+                                             length:bufferSize
+                                            options:MTLResourceCPUCacheModeWriteCombined];
+            }
+
+            if (buffer == nil)
+                return false;
+
+            m_buffers[i] = buffer;
+        }
+
+        m_bufferSize = bufferSize;
+
+        return true;
+    }
+
+    void updateWithData(const void *data, uint32_t offset, uint32_t length) override
+    {
+        if ((length + offset) <= m_bufferSize)
+        {
+            uint8_t* dstPtr = (uint8_t*)[m_buffers[m_bufferIdx] contents];
+            memcpy(dstPtr + offset, data, length);
         }
         else
+            DF3D_ASSERT(false);
+    }
+
+    void bindBuffer(id<MTLRenderCommandEncoder> encoder, uint32_t offset) override
+    {
+        [encoder setVertexBuffer:m_buffers[m_bufferIdx]
+                          offset:offset
+                         atIndex:0];
+    }
+
+    void advanceToTheNextFrame() override
+    {
+        m_bufferIdx = (m_bufferIdx + 1) % MAX_IN_FLIGHT_FRAMES;
+    }
+};
+
+class MetalIndexBuffer
+{
+public:
+    MTLIndexType m_indexType;
+    id<MTLBuffer> m_buffer = nil;
+
+    ~MetalIndexBuffer()
+    {
+        [m_buffer release];
+    }
+
+    bool init(id<MTLDevice> device, uint32_t numIndices, const void *data, bool indices16)
+    {
+        DF3D_ASSERT(data != nullptr && indices16);
+
+        if (indices16)
+            m_indexType = MTLIndexTypeUInt16;
+        else
+            m_indexType = MTLIndexTypeUInt32;
+
+        size_t bufferSize = numIndices * (indices16 ? sizeof(uint16_t) : sizeof(uint32_t));
+
+        m_buffer = [device newBufferWithBytes:data length:bufferSize options:0];
+
+        return m_buffer != nil;
+    }
+};
+
+class MetalTexture
+{
+    int m_mipLevel0Width = 0;
+    int m_mipLevel0Height = 0;
+    PixelFormat m_format;
+
+    id<MTLTexture> m_texture = nil;
+    id<MTLSamplerState> m_samplerState = nil;
+
+public:
+    MetalTexture()
+    {
+
+    }
+
+    ~MetalTexture()
+    {
+        [m_texture release];
+    }
+
+    bool init(RenderBackendMetal *backend, const TextureResourceData &data, uint32_t flags)
+    {
+        DF3D_ASSERT(data.mipLevels.size() > 0);
+
+        int width = data.mipLevels[0].width;
+        int height = data.mipLevels[0].height;
+
+        [backend->m_textureDescriptor setTextureType: MTLTextureType2D];
+        [backend->m_textureDescriptor setPixelFormat: GetTextureFormat(data.format)];
+        [backend->m_textureDescriptor setWidth: width];
+        [backend->m_textureDescriptor setHeight: height];
+
+        bool generateMipMaps = false;
+        int mipMapLevels = data.mipLevels.size();
+        if (((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_TRILINEAR) ||
+            ((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_ANISOTROPIC))
         {
-            buffer = [device newBufferWithBytes:data
-                                         length:m_sizeInBytes
-                                        options:MTLResourceCPUCacheModeWriteCombined];
+            if (mipMapLevels == 1)
+            {
+                mipMapLevels = GetMipMapLevelCount(width, height);
+                generateMipMaps = true;
+            }
         }
 
-        m_buffers[i] = buffer;
-    }
+        [backend->m_textureDescriptor setMipmapLevelCount: mipMapLevels];
 
-    return true;
-}
+        m_texture = [backend->m_mtlDevice newTextureWithDescriptor:backend->m_textureDescriptor];
+        if (m_texture == nil)
+            return false;
 
-void MetalDynamicVertexBuffer::update(const void *data, size_t verticesCount)
-{
-    auto newSz = verticesCount * getFormat().getVertexSize();
-
-    if (newSz <= m_sizeInBytes)
-    {
-        void* dstPtr = [m_buffers[m_bufferIdx] contents];
-        memcpy(dstPtr, data, newSz);
-    }
-    else
-        DF3D_ASSERT(false);
-}
-
-void MetalDynamicVertexBuffer::bind(id<MTLRenderCommandEncoder> encoder, size_t verticesOffset)
-{
-    [encoder setVertexBuffer:m_buffers[m_bufferIdx]
-                      offset:verticesOffset * getFormat().getVertexSize()
-                     atIndex:0];
-}
-
-void MetalDynamicVertexBuffer::advanceToTheNextFrame()
-{
-	m_bufferIdx = (m_bufferIdx + 1) % MAX_IN_FLIGHT_FRAMES;
-}
-
-#pragma mark - Index Buffer
-
-bool MetalIndexBufferWrapper::init(id<MTLDevice> device, const void *data, size_t size)
-{
-    DF3D_ASSERT(data != nullptr);
-
-	m_buffer = [device newBufferWithBytes:data length:size options:0];
-    return m_buffer != nil;
-}
-
-void MetalIndexBufferWrapper::destroy()
-{
-    [m_buffer release];
-    m_buffer = nil;
-}
-
-MetalTextureWrapper::MetalTextureWrapper()
-{
-
-}
-
-MetalTextureWrapper::~MetalTextureWrapper()
-{
-    [m_texture release];
-}
-
-bool MetalTextureWrapper::init(RenderBackendMetal *backend, const TextureResourceData &data, uint32_t flags)
-{
-    DF3D_ASSERT(data.mipLevels.size() > 0);
-
-    int width = data.mipLevels[0].width;
-    int height = data.mipLevels[0].height;
-
-    [backend->m_textureDescriptor setTextureType: MTLTextureType2D];
-    [backend->m_textureDescriptor setPixelFormat: GetTextureFormat(data.format)];
-    [backend->m_textureDescriptor setWidth: width];
-    [backend->m_textureDescriptor setHeight: height];
-
-    bool generateMipMaps = false;
-    int mipMapLevels = data.mipLevels.size();
-    if (((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_TRILINEAR) ||
-        ((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_ANISOTROPIC))
-    {
-        if (mipMapLevels == 1)
+        for (size_t i = 0; i < data.mipLevels.size(); i++)
         {
-            mipMapLevels = GetMipMapLevelCount(width, height);
-            generateMipMaps = true;
+            const auto &mipLevel = data.mipLevels[i];
+            if (mipLevel.pixels.size() > 0)
+            {
+                int levelBytesPerRow = 0;
+
+                if (data.format != PixelFormat::KTX)
+                    levelBytesPerRow = GetBPPForFormat(data.format) * mipLevel.width;
+
+                auto region = MTLRegionMake2D(0, 0, mipLevel.width, mipLevel.height);
+                [m_texture replaceRegion:region
+                             mipmapLevel:i
+                               withBytes:mipLevel.pixels.data()
+                             bytesPerRow:levelBytesPerRow];
+            }
         }
-    }
 
-    [backend->m_textureDescriptor setMipmapLevelCount: mipMapLevels];
-
-    m_texture = [backend->m_mtlDevice newTextureWithDescriptor:backend->m_textureDescriptor];
-    if (m_texture == nil)
-        return false;
-
-    for (size_t i = 0; i < data.mipLevels.size(); i++)
-    {
-        const auto &mipLevel = data.mipLevels[i];
-        if (mipLevel.pixels.size() > 0)
+        if (generateMipMaps)
         {
-            int levelBytesPerRow = 0;
-
-            if (data.format != PixelFormat::KTX)
-                levelBytesPerRow = GetBPPForFormat(data.format) * mipLevel.width;
-
-            auto region = MTLRegionMake2D(0, 0, mipLevel.width, mipLevel.height);
-            [m_texture replaceRegion:region
-                         mipmapLevel:i
-                           withBytes:mipLevel.pixels.data()
-                         bytesPerRow:levelBytesPerRow];
+            id<MTLCommandBuffer> cmdBuf = [backend->m_commandQueue commandBuffer];
+            id<MTLBlitCommandEncoder> commandEncoder = [cmdBuf blitCommandEncoder];
+            [commandEncoder generateMipmapsForTexture:m_texture];
+            [commandEncoder endEncoding];
+            [cmdBuf commit];
+            [cmdBuf waitUntilCompleted];
         }
+
+        m_samplerState = backend->m_samplerStateCache->getOrCreate(flags);
+
+        m_mipLevel0Width = width;
+        m_mipLevel0Height = height;
+        m_format = data.format;
+
+        return true;
     }
 
-    if (generateMipMaps)
+    void update(int originX, int originY, int w, int h, const void *data)
     {
-        id<MTLCommandBuffer> cmdBuf = [backend->m_commandQueue commandBuffer];
-        id<MTLBlitCommandEncoder> commandEncoder = [cmdBuf blitCommandEncoder];
-        [commandEncoder generateMipmapsForTexture:m_texture];
-        [commandEncoder endEncoding];
-        [cmdBuf commit];
-        [cmdBuf waitUntilCompleted];
+        // This method is only for TB!
+        DF3D_ASSERT(w == m_mipLevel0Width && h == m_mipLevel0Height);
+        auto region = MTLRegionMake2D(originX, originY, w, h);
+        [m_texture replaceRegion:region
+                     mipmapLevel:0
+                       withBytes:data
+                     bytesPerRow:GetBPPForFormat(m_format) * w];
     }
 
-    m_samplerState = backend->getSamplerState(flags);
-
-    m_mipLevel0Width = width;
-    m_mipLevel0Height = height;
-    m_format = data.format;
-
-    return true;
-}
-
-void MetalTextureWrapper::update(int w, int h, const void *data)
-{
-    // This method is only for TB!
-    DF3D_ASSERT(w == m_mipLevel0Width && h == m_mipLevel0Height);
-    auto region = MTLRegionMake2D(0, 0, w, h);
-    [m_texture replaceRegion:region
-                 mipmapLevel:0
-                   withBytes:data
-                 bytesPerRow:GetBPPForFormat(m_format) * w];
-}
-
-void MetalTextureWrapper::bind(id<MTLRenderCommandEncoder> encoder, int unit)
-{
-    [encoder setFragmentTexture:m_texture atIndex:unit];
-    [encoder setFragmentSamplerState:m_samplerState atIndex:unit];
-}
-
-bool MetalGpuProgramWrapper::init(RenderBackendMetal *backend, const char *vertexFunctionName, const char *fragmentFunctionName)
-{
-    DF3D_ASSERT(m_vertexShaderFunction == nil && m_fragmentShaderFunction == nil);
-
-    auto library = backend->m_defaultLibrary;
-
-    m_vertexShaderFunction = [library newFunctionWithName:@(vertexFunctionName)];
-    if (m_vertexShaderFunction == nil)
+    void bind(id<MTLRenderCommandEncoder> encoder, int unit)
     {
-        DF3D_ASSERT_MESS(false, "Failed to lookup main VERTEX shader function!");
-        return false;
+        [encoder setFragmentTexture:m_texture atIndex:unit];
+        [encoder setFragmentSamplerState:m_samplerState atIndex:unit];
     }
+};
 
-    m_fragmentShaderFunction = [library newFunctionWithName:@(fragmentFunctionName)];
-    if (m_fragmentShaderFunction == nil)
-    {
-        DF3D_ASSERT_MESS(false, "Failed to lookup main FRAGMENT shader function!");
-        return false;
-    }
-
-    return m_vertexShaderFunction && m_fragmentShaderFunction;
-}
-
-void MetalGpuProgramWrapper::destroy()
+class MetalGPUProgram
 {
-    DF3D_ASSERT(m_vertexShaderFunction != nil && m_fragmentShaderFunction != nil);
+public:
+    enum UniformType
+    {
+        FLOAT,
+        SAMPLER_IDX,
+        VEC4,
+        TYPE_UNDEFINED
+    };
 
-    [m_vertexShaderFunction release];
-    [m_fragmentShaderFunction release];
-    m_vertexShaderFunction = nil;
-    m_fragmentShaderFunction = nil;
-    m_customUniforms.clear();
-}
+    struct Uniform
+    {
+        df3d::Id name;
+        void *dataPointer = nullptr;
+        UniformType type = TYPE_UNDEFINED;
+        MetalTextureInputIndex textureKind;
+    };
 
-void RenderBackendMetal::initMetal(const EngineInitParams &params)
+    id<MTLFunction> m_vertexShaderFunction = nil;
+    id<MTLFunction> m_fragmentShaderFunction = nil;
+    std::vector<Uniform> m_uniforms;
+
+    MetalGPUProgram() = default;
+
+    ~MetalGPUProgram()
+    {
+        DF3D_ASSERT(m_vertexShaderFunction != nil && m_fragmentShaderFunction != nil);
+
+        [m_vertexShaderFunction release];
+        [m_fragmentShaderFunction release];
+    }
+
+    bool init(id<MTLLibrary> library, const char *vertexFunctionName, const char *fragmentFunctionName)
+    {
+        DF3D_ASSERT(m_vertexShaderFunction == nil && m_fragmentShaderFunction == nil);
+
+        m_vertexShaderFunction = [library newFunctionWithName:@(vertexFunctionName)];
+        if (m_vertexShaderFunction == nil)
+        {
+            DF3D_ASSERT_MESS(false, "Failed to lookup main VERTEX shader function!");
+            return false;
+        }
+
+        m_fragmentShaderFunction = [library newFunctionWithName:@(fragmentFunctionName)];
+        if (m_fragmentShaderFunction == nil)
+        {
+            DF3D_ASSERT_MESS(false, "Failed to lookup main FRAGMENT shader function!");
+            return false;
+        }
+
+        return m_vertexShaderFunction && m_fragmentShaderFunction;
+    }
+};
+
+RenderBackendMetal::RenderBackendMetal(const EngineInitParams &params)
+    : m_width(params.windowWidth),
+    m_height(params.windowHeight),
+    m_vertexBuffersBag(MemoryManager::allocDefault()),
+    m_indexBuffersBag(MemoryManager::allocDefault()),
+    m_texturesBag(MemoryManager::allocDefault()),
+    m_gpuProgramsBag(MemoryManager::allocDefault())
 {
     m_mtkView = (MTKView *)params.hardwareData;
     m_mtlDevice = m_mtkView.device;
-
     m_commandQueue = [m_mtlDevice newCommandQueue];
     m_defaultLibrary = [m_mtlDevice newDefaultLibrary];
     m_textureDescriptor = [MTLTextureDescriptor new];
-    m_samplerDescriptor = [MTLSamplerDescriptor new];
-    m_depthStencilDescriptor = [MTLDepthStencilDescriptor new];
-}
 
-RenderBackendMetal::RenderPipelinesCache::RenderPipelinesCache(RenderBackendMetal *backend)
-    : m_backend(backend)
-{
-	m_renderPipelineDescriptor = [MTLRenderPipelineDescriptor new];
-    m_vertexDescriptor = [MTLVertexDescriptor new];
-}
-
-RenderBackendMetal::RenderPipelinesCache::~RenderPipelinesCache()
-{
-    invalidate();
-
-    [m_renderPipelineDescriptor release];
-    [m_vertexDescriptor release];
-}
-
-uint64_t RenderBackendMetal::RenderPipelinesCache::getHash(GpuProgramHandle program, VertexFormat vf, BlendingMode blending) const
-{
-    uint64_t res = (uint64_t)program.getID() << 32;
-    uint32_t h1 = (uint32_t)vf.getHash() << 16;
-    uint32_t h2 = (uint32_t)blending;
-
-    return res | h1 | h2;
-}
-
-id <MTLRenderPipelineState> RenderBackendMetal::RenderPipelinesCache::getOrCreate(GpuProgramHandle program, VertexFormat vf, BlendingMode blending)
-{
-    auto hash = getHash(program, vf, blending);
-    auto found = m_cache.find(hash);
-    if (found == m_cache.end())
-    {
-        [m_vertexDescriptor reset];
-
-        for (uint16_t i = VertexFormat::POSITION; i != VertexFormat::COUNT; i++)
-        {
-            auto attrib = (VertexFormat::VertexAttribute)i;
-
-            if (!vf.hasAttribute(attrib))
-                continue;
-
-            size_t offset = vf.getOffsetTo(attrib);
-            size_t count = vf.getCompCount(attrib);
-
-            m_vertexDescriptor.attributes[i].format = GetVertexFormatForComponentsCount(count);
-            m_vertexDescriptor.attributes[i].bufferIndex = 0;
-            m_vertexDescriptor.attributes[i].offset = offset;
-        }
-
-        m_vertexDescriptor.layouts[0].stride = vf.getVertexSize();
-        m_vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
-
-        auto &pr = m_backend->m_programs[program.getIndex()];
-
-        [m_renderPipelineDescriptor reset];
-
-        m_renderPipelineDescriptor.vertexFunction = pr.m_vertexShaderFunction;
-        m_renderPipelineDescriptor.fragmentFunction = pr.m_fragmentShaderFunction;
-        m_renderPipelineDescriptor.vertexDescriptor = m_vertexDescriptor;
-
-        auto view = m_backend->m_mtkView;
-        m_renderPipelineDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat;
-        m_renderPipelineDescriptor.depthAttachmentPixelFormat = view.depthStencilPixelFormat;
-
-        auto colorAttachment = m_renderPipelineDescriptor.colorAttachments[0];
-        switch (blending)
-        {
-            case BlendingMode::NONE:
-                colorAttachment.blendingEnabled = false;
-                break;
-            case BlendingMode::ADDALPHA:
-                colorAttachment.blendingEnabled = true;
-                colorAttachment.sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-                colorAttachment.sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
-                colorAttachment.destinationRGBBlendFactor = MTLBlendFactorOne;
-                colorAttachment.destinationAlphaBlendFactor = MTLBlendFactorOne;
-                break;
-            case BlendingMode::ALPHA:
-                colorAttachment.blendingEnabled = true;
-                colorAttachment.sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-                colorAttachment.sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
-                colorAttachment.destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-                colorAttachment.destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-                break;
-            case BlendingMode::ADD:
-                colorAttachment.blendingEnabled = true;
-                colorAttachment.sourceRGBBlendFactor = MTLBlendFactorOne;
-                colorAttachment.sourceAlphaBlendFactor = MTLBlendFactorOne;
-                colorAttachment.destinationRGBBlendFactor = MTLBlendFactorOne;
-                colorAttachment.destinationAlphaBlendFactor = MTLBlendFactorOne;
-                break;
-            default:
-                DF3D_ASSERT(false);
-                break;
-        }
-
-        NSError *error = nil;
-        auto pipeline = [m_backend->m_mtlDevice newRenderPipelineStateWithDescriptor:m_renderPipelineDescriptor error:&error];
-        if (pipeline == nil)
-        {
-            DFLOG_WARN("Failed to create pipeline: %s", error.localizedDescription.UTF8String);
-            return nil;
-        }
-
-        m_cache[hash] = pipeline;
-        return pipeline;
-    }
-
-    return found->second;
-}
-
-void RenderBackendMetal::RenderPipelinesCache::invalidate()
-{
-    for (const auto &item : m_cache)
-        [item.second release];
-    m_cache.clear();
-}
-
-id<MTLSamplerState> RenderBackendMetal::getSamplerState(uint32_t flags)
-{
-    auto found = m_samplerStateCache.find(flags);
-    if (found == m_samplerStateCache.end())
-    {
-        SetupWrapMode(m_samplerDescriptor, flags);
-        SetupTextureFiltering(m_samplerDescriptor, flags);
-
-        m_samplerDescriptor.lodMinClamp = 0;
-        m_samplerDescriptor.lodMaxClamp = FLT_MAX;
-        m_samplerDescriptor.normalizedCoordinates = TRUE;
-
-        if ((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_ANISOTROPIC)
-            m_samplerDescriptor.maxAnisotropy = std::min((int)m_caps.maxAnisotropy, 16);
-        else
-            m_samplerDescriptor.maxAnisotropy = 1;
-
-        auto newState = [m_mtlDevice newSamplerStateWithDescriptor: m_samplerDescriptor];
-
-        m_samplerStateCache[flags] = newState;
-
-        return newState;
-    }
-
-    return found->second;
-}
-
-id<MTLDepthStencilState> RenderBackendMetal::getDepthStencilState(bool depthTestEnabled, bool depthWriteEnabled)
-{
-    int hash = ((int)depthTestEnabled << 1) | (int)depthWriteEnabled;
-    DF3D_ASSERT(hash >= 0 && hash < m_depthStencilStateCache.size());
-
-    auto item = m_depthStencilStateCache[hash];
-    if (item == nil)
-    {
-        m_depthStencilDescriptor.depthCompareFunction = depthTestEnabled ? MTLCompareFunctionLessEqual : MTLCompareFunctionAlways;
-        m_depthStencilDescriptor.depthWriteEnabled = depthWriteEnabled;
-
-        item = [m_mtlDevice newDepthStencilStateWithDescriptor:m_depthStencilDescriptor];
-
-        m_depthStencilStateCache[hash] = item;
-    }
-
-    return item;
-}
-
-RenderBackendMetal::RenderBackendMetal(const EngineInitParams &params)
-    : m_vertexBuffersBag(MemoryManager::allocDefault()),
-    m_indexBuffersBag(MemoryManager::allocDefault()),
-    m_texturesBag(MemoryManager::allocDefault()),
-    m_gpuProgramsBag(MemoryManager::allocDefault()),
-    m_uniformBuffer(new MetalGlobalUniforms()),
-    m_width(params.windowWidth),
-    m_height(params.windowHeight)
-{
-    initMetal(params);
-
-    for (auto &item : m_depthStencilStateCache)
-        item = nil;
-
-    m_renderPipelinesCache = make_unique<RenderPipelinesCache>(this);
-
-    std::fill(std::begin(m_vertexBuffers), std::end(m_vertexBuffers), nullptr);
-    std::fill(std::begin(m_indexBuffers), std::end(m_indexBuffers), MetalIndexBufferWrapper());
-    std::fill(std::begin(m_textures), std::end(m_textures), nullptr);
-    std::fill(std::begin(m_programs), std::end(m_programs), MetalGpuProgramWrapper());
+    m_samplerStateCache = make_unique<SamplerStateCache>(m_mtlDevice);
+    m_depthStencilStateCache = make_unique<DepthStencilStateCache>(m_mtlDevice);
+    m_renderPipelinesCache = make_unique<RenderPipelinesCache>();
 
     m_caps.maxTextureSize = 4096;
     m_caps.maxAnisotropy = 16.0f;
 
     m_frameBoundarySemaphore = dispatch_semaphore_create(MAX_IN_FLIGHT_FRAMES);
-
-#ifdef _DEBUG
-    size_t totalStorage = sizeof(RenderBackendMetal);
-
-    DFLOG_DEBUG("METAL STORAGE %d KB", utils::sizeKB(totalStorage));
-#endif
 }
 
 RenderBackendMetal::~RenderBackendMetal()
@@ -656,33 +745,14 @@ RenderBackendMetal::~RenderBackendMetal()
     DF3D_ASSERT(m_gpuProgramsBag.empty());
 
     m_renderPipelinesCache.reset();
+    m_depthStencilStateCache.reset();
+    m_samplerStateCache.reset();
 
     [m_textureDescriptor release];
-    [m_samplerDescriptor release];
-    [m_depthStencilDescriptor release];
-
-    for (const auto &kv : m_samplerStateCache)
-    {
-        [kv.second release];
-    }
-
-    for (auto item : m_depthStencilStateCache)
-    {
-        [item release];
-    }
-
     [m_defaultLibrary release];
     [m_commandQueue release];
-}
 
-const RenderBackendCaps& RenderBackendMetal::getCaps() const
-{
-    return m_caps;
-}
-
-const FrameStats& RenderBackendMetal::getFrameStats() const
-{
-    return m_stats;
+    dispatch_release(m_frameBoundarySemaphore);
 }
 
 void RenderBackendMetal::frameBegin()
@@ -695,10 +765,8 @@ void RenderBackendMetal::frameBegin()
     for (auto buffer : m_dynamicBuffers)
         buffer->advanceToTheNextFrame();
 
-    m_currentVB = {};
-    m_currentIB = {};
-    m_currentProgram = {};
-    m_indexedDrawCall = false;
+    m_pipelineState = {};
+    m_stats.drawCalls = m_stats.totalLines = m_stats.totalTriangles = 0;
 
     if (MTLRenderPassDescriptor *rpd = m_mtkView.currentRenderPassDescriptor)
     {
@@ -717,11 +785,6 @@ void RenderBackendMetal::frameBegin()
 
         [m_encoder setFrontFacingWinding:MTLWindingCounterClockwise];
         [m_encoder setCullMode: MTLCullModeNone];
-        setViewport(0, 0, m_width, m_height);
-        enableScissorTest(false);
-        m_blending = BlendingMode::NONE;
-        m_depthTestEnabled = true;
-        m_depthWriteEnabled = true;
     }
 }
 
@@ -745,19 +808,19 @@ void RenderBackendMetal::frameEnd()
     m_encoder = nil;
 }
 
-VertexBufferHandle RenderBackendMetal::createVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data)
+VertexBufferHandle RenderBackendMetal::createStaticVertexBuffer(const VertexFormat &format, uint32_t numVertices, const void *data)
 {
-    DF3D_ASSERT(verticesCount > 0);
+    DF3D_ASSERT(numVertices > 0);
 
-    unique_ptr<IMetalVertexBuffer> vertexBuffer;
-    size_t bytesSize = verticesCount * format.getVertexSize();
-    if (bytesSize < MAX_TRANSIENT_BUFFER_SIZE)
+    unique_ptr<MetalVertexBuffer> vertexBuffer;
+    uint32_t sizeInBytes = numVertices * format.getVertexSize();
+    if (sizeInBytes < MAX_TRANSIENT_BUFFER_SIZE)
         vertexBuffer = make_unique<MetalTransientVertexBuffer>(format);
     else
         vertexBuffer = make_unique<MetalStaticVertexBuffer>(format);
 
     VertexBufferHandle vbHandle;
-    if (vertexBuffer->initialize(m_mtlDevice, data, verticesCount))
+    if (vertexBuffer->initialize(m_mtlDevice, data, sizeInBytes))
     {
         vbHandle = VertexBufferHandle(m_vertexBuffersBag.getNew());
 
@@ -767,14 +830,15 @@ VertexBufferHandle RenderBackendMetal::createVertexBuffer(const VertexFormat &fo
     return vbHandle;
 }
 
-VertexBufferHandle RenderBackendMetal::createDynamicVertexBuffer(const VertexFormat &format, size_t verticesCount, const void *data)
+VertexBufferHandle RenderBackendMetal::createDynamicVertexBuffer(const VertexFormat &format, uint32_t numVertices, const void *data)
 {
-    DF3D_ASSERT(verticesCount > 0);
+    DF3D_ASSERT(numVertices > 0);
 
-    unique_ptr<IMetalVertexBuffer> vertexBuffer;
-    size_t bytesSize = verticesCount * format.getVertexSize();
+    unique_ptr<MetalVertexBuffer> vertexBuffer;
+    uint32_t sizeInBytes = numVertices * format.getVertexSize();
     MetalDynamicVertexBuffer *dynamicBuffer = nullptr;
-    if (bytesSize < MAX_TRANSIENT_BUFFER_SIZE)
+
+    if (sizeInBytes < MAX_TRANSIENT_BUFFER_SIZE)
     {
         vertexBuffer = make_unique<MetalTransientVertexBuffer>(format);
     }
@@ -786,7 +850,7 @@ VertexBufferHandle RenderBackendMetal::createDynamicVertexBuffer(const VertexFor
     }
 
     VertexBufferHandle vbHandle;
-    if (vertexBuffer->initialize(m_mtlDevice, data, verticesCount))
+    if (vertexBuffer->initialize(m_mtlDevice, data, sizeInBytes))
     {
         vbHandle = VertexBufferHandle(m_vertexBuffersBag.getNew());
 
@@ -799,12 +863,18 @@ VertexBufferHandle RenderBackendMetal::createDynamicVertexBuffer(const VertexFor
     return vbHandle;
 }
 
-void RenderBackendMetal::updateDynamicVertexBuffer(VertexBufferHandle vbHandle, size_t verticesCount, const void *data)
+void RenderBackendMetal::updateVertexBuffer(VertexBufferHandle handle, uint32_t vertexStart, uint32_t numVertices, const void *data)
 {
-    DF3D_ASSERT(m_vertexBuffersBag.isValid(vbHandle.getID()));
+    DF3D_ASSERT(m_vertexBuffersBag.isValid(handle.getID()));
 
-    if (auto vb = m_vertexBuffers[vbHandle.getIndex()].get())
-        vb->update(data, verticesCount);
+    if (auto vb = m_vertexBuffers[handle.getIndex()].get())
+    {
+        auto vertexSize = vb->getFormat().getVertexSize();
+
+        vb->updateWithData(data, vertexSize * vertexStart, vertexSize * numVertices);
+    }
+    else
+        DF3D_ASSERT(false);
 }
 
 void RenderBackendMetal::destroyVertexBuffer(VertexBufferHandle vbHandle)
@@ -822,33 +892,27 @@ void RenderBackendMetal::destroyVertexBuffer(VertexBufferHandle vbHandle)
     m_vertexBuffersBag.release(vbHandle.getID());
 }
 
-void RenderBackendMetal::bindVertexBuffer(VertexBufferHandle vbHandle, size_t vertexBufferOffset)
+void RenderBackendMetal::bindVertexBuffer(VertexBufferHandle handle, uint32_t vertexStart)
 {
-    DF3D_ASSERT(m_vertexBuffersBag.isValid(vbHandle.getID()));
+    DF3D_ASSERT(m_vertexBuffersBag.isValid(handle.getID()));
 
-    m_currentVB = vbHandle;
-    m_indexedDrawCall = false;
-    m_currentVBOffset = vertexBufferOffset;
+    m_pipelineState.currentVB = handle;
+    m_pipelineState.vbVertexStart = vertexStart;
+    m_pipelineState.indexedDrawCall = false;
 }
 
-IndexBufferHandle RenderBackendMetal::createIndexBuffer(size_t indicesCount, const void *data, IndicesType indicesType)
+IndexBufferHandle RenderBackendMetal::createIndexBuffer(uint32_t numIndices, const void *data, IndicesType indicesType)
 {
-    DF3D_ASSERT(indicesCount > 0);
+    DF3D_ASSERT(numIndices > 0);
     DF3D_ASSERT(indicesType == INDICES_16_BIT);
 
-    MetalIndexBufferWrapper bufferWrapper;
+    unique_ptr<MetalIndexBuffer> ibuffer = make_unique<MetalIndexBuffer>();
     IndexBufferHandle ibHandle;
 
-    size_t bufferSize = indicesCount * (indicesType == INDICES_16_BIT ? sizeof(uint16_t) : sizeof(uint32_t));
-    if (bufferWrapper.init(m_mtlDevice, data, bufferSize))
+    if (ibuffer->init(m_mtlDevice, numIndices, data, indicesType == INDICES_16_BIT))
     {
-        if (indicesType == INDICES_16_BIT)
-            bufferWrapper.m_indexType = MTLIndexTypeUInt16;
-        else
-            bufferWrapper.m_indexType = MTLIndexTypeUInt32;
-
         ibHandle = IndexBufferHandle(m_indexBuffersBag.getNew());
-        m_indexBuffers[ibHandle.getIndex()] = bufferWrapper;
+        m_indexBuffers[ibHandle.getIndex()] = std::move(ibuffer);
     }
 
     return ibHandle;
@@ -858,10 +922,7 @@ void RenderBackendMetal::destroyIndexBuffer(IndexBufferHandle ibHandle)
 {
     DF3D_ASSERT(m_indexBuffersBag.isValid(ibHandle.getID()));
 
-    auto &indexBuffer = m_indexBuffers[ibHandle.getIndex()];
-
-    indexBuffer.destroy();
-    indexBuffer = {};
+    m_indexBuffers[ibHandle.getIndex()].reset();
 
     m_indexBuffersBag.release(ibHandle.getID());
 }
@@ -870,13 +931,13 @@ void RenderBackendMetal::bindIndexBuffer(IndexBufferHandle ibHandle)
 {
     DF3D_ASSERT(m_indexBuffersBag.isValid(ibHandle.getID()));
 
-    m_currentIB = ibHandle;
-    m_indexedDrawCall = true;
+    m_pipelineState.currentIB = ibHandle;
+    m_pipelineState.indexedDrawCall = true;
 }
 
 TextureHandle RenderBackendMetal::createTexture(const TextureResourceData &data, uint32_t flags)
 {
-    auto texture = make_unique<MetalTextureWrapper>();
+    auto texture = make_unique<MetalTexture>();
     TextureHandle textureHandle;
     if (texture->init(this, data, flags))
     {
@@ -890,20 +951,19 @@ TextureHandle RenderBackendMetal::createTexture(const TextureResourceData &data,
     return textureHandle;
 }
 
-void RenderBackendMetal::updateTexture(TextureHandle textureHandle, int w, int h, const void *data)
+void RenderBackendMetal::updateTexture(TextureHandle handle, int originX, int originY, int width, int height, const void *data)
 {
-    DF3D_ASSERT(m_texturesBag.isValid(textureHandle.getID()));
+    DF3D_ASSERT(m_texturesBag.isValid(handle.getID()));
 
-    if (auto t = m_textures[textureHandle.getIndex()].get())
-        t->update(w, h, data);
+    if (auto t = m_textures[handle.getIndex()].get())
+        t->update(originX, originY, width, height, data);
 }
 
 void RenderBackendMetal::destroyTexture(TextureHandle textureHandle)
 {
     DF3D_ASSERT(m_texturesBag.isValid(textureHandle.getID()));
 
-    auto &texture = m_textures[textureHandle.getIndex()];
-    texture.reset();
+    m_textures[textureHandle.getIndex()].reset();
 
     m_texturesBag.release(textureHandle.getID());
 
@@ -911,26 +971,28 @@ void RenderBackendMetal::destroyTexture(TextureHandle textureHandle)
     m_stats.textures--;
 }
 
-void RenderBackendMetal::bindTexture(TextureHandle textureHandle, int unitIdx)
+void RenderBackendMetal::bindTexture(GPUProgramHandle program, TextureHandle handle, UniformHandle textureUniform, int unit)
 {
-    DF3D_ASSERT(m_texturesBag.isValid(textureHandle.getID()));
+    DF3D_ASSERT(m_texturesBag.isValid(handle.getID()));
 
-    DF3D_ASSERT(unitIdx >= 0 && unitIdx < MAX_TEXTURE_UNITS);
+    DF3D_ASSERT(unit >= 0 && unit < MAX_TEXTURE_UNITS);
 
     TextureUnit textureUnit;
-    textureUnit.textureHandle = textureHandle;
-    m_textureUnits[unitIdx] = textureUnit;
+    textureUnit.textureHandle = handle;
+    m_textureUnits[unit] = textureUnit;
+
+    setUniformValue(program, textureUniform, &unit);
 }
 
-GpuProgramHandle RenderBackendMetal::createGpuProgramMetal(const char *vertexFunctionName, const char *fragmentFunctionName)
+GPUProgramHandle RenderBackendMetal::createGPUProgram(const char *vertexShaderData, const char *fragmentShaderData)
 {
-    MetalGpuProgramWrapper program;
-    GpuProgramHandle programHandle;
+    auto program = make_unique<MetalGPUProgram>();
+    GPUProgramHandle programHandle;
 
-    if (program.init(this, vertexFunctionName, fragmentFunctionName))
+    if (program->init(m_defaultLibrary, vertexShaderData, fragmentShaderData))
     {
-        programHandle = GpuProgramHandle(m_gpuProgramsBag.getNew());
-        m_programs[programHandle.getIndex()] = program;
+        programHandle = GPUProgramHandle(m_gpuProgramsBag.getNew());
+        m_programs[programHandle.getIndex()] = std::move(program);
     }
 
     m_renderPipelinesCache->invalidate();
@@ -938,262 +1000,262 @@ GpuProgramHandle RenderBackendMetal::createGpuProgramMetal(const char *vertexFun
     return programHandle;
 }
 
-void RenderBackendMetal::destroyGpuProgram(GpuProgramHandle programHandle)
+void RenderBackendMetal::destroyGPUProgram(GPUProgramHandle programHandle)
 {
     DF3D_ASSERT(m_gpuProgramsBag.isValid(programHandle.getID()));
 
-    auto &program = m_programs[programHandle.getIndex()];
-
-    program.destroy();
-    program = {};
+    m_programs[programHandle.getIndex()].reset();
 
     m_gpuProgramsBag.release(programHandle.getID());
 }
 
-void RenderBackendMetal::bindGpuProgram(GpuProgramHandle programHandle)
+void RenderBackendMetal::bindGPUProgram(GPUProgramHandle programHandle)
 {
     DF3D_ASSERT(m_gpuProgramsBag.isValid(programHandle.getID()));
-    DF3D_ASSERT(m_programs[programHandle.getIndex()].m_vertexShaderFunction != nil);
 
-    m_currentProgram = programHandle;
+    m_pipelineState.currentProgram = programHandle;
 }
 
-void RenderBackendMetal::requestUniforms(GpuProgramHandle programHandle,
-                                         std::vector<UniformHandle> &outHandles,
-                                         std::vector<std::string> &outNames)
+UniformHandle RenderBackendMetal::getUniform(GPUProgramHandle programHandle, const char *name)
 {
     DF3D_ASSERT(m_gpuProgramsBag.isValid(programHandle.getID()));
 
-    auto &programMtl = m_programs[programHandle.getIndex()];
-    programMtl.m_customUniforms.clear();
-
-    HandleType currHandleIdx = 0;
-    for (const auto &name : outNames)
+    if (auto program = m_programs[programHandle.getIndex()].get())
     {
-        MetalGpuProgramWrapper::CustomUniform uniform;
+        // Find first.
+        df3d::Id nameID(name);
+        for (size_t i = 0; i < program->m_uniforms.size(); i++)
+        {
+            if (program->m_uniforms[i].name == nameID)
+            {
+                // Found!
+                return UniformHandle(i + 1);
+            }
+        }
 
-        if (name == "material_diffuse") {
-            uniform.type = MetalGpuProgramWrapper::VEC4;
-            uniform.dataPointer = &m_uniformBuffer->userUniforms.material_diffuse;
-        } else if (name == "material_specular") {
-            uniform.type = MetalGpuProgramWrapper::VEC4;
-            uniform.dataPointer = &m_uniformBuffer->userUniforms.material_specular;
-        } else if (name == "material_shininess") {
-            uniform.type = MetalGpuProgramWrapper::VEC4;
-            uniform.dataPointer = &m_uniformBuffer->userUniforms.material_shininess;
-        } else if (name == "u_speed") {
-            uniform.type = MetalGpuProgramWrapper::FLOAT;
-            uniform.dataPointer = &m_uniformBuffer->userUniforms.u_speed;
-        } else if (name == "u_force") {
-            uniform.type = MetalGpuProgramWrapper::FLOAT;
-            uniform.dataPointer = &m_uniformBuffer->userUniforms.u_force;
-        } else if (name == "u_xTextureScale") {
-            uniform.type = MetalGpuProgramWrapper::FLOAT;
-            uniform.dataPointer = &m_uniformBuffer->userUniforms.u_xTextureScale;
-        } else if (name == "u_time") {
-            uniform.type = MetalGpuProgramWrapper::FLOAT;
-            uniform.dataPointer = &m_uniformBuffer->userUniforms.u_time;
-        } else if (name == "diffuseMap") {
-            uniform.type = MetalGpuProgramWrapper::SAMPLER_IDX;
+        MetalGPUProgram::Uniform uniform;
+        uniform.name = nameID;
+        std::string sName = name;
+
+        if (sName == "material_diffuse") {
+            uniform.type = MetalGPUProgram::VEC4;
+            uniform.dataPointer = &m_uniformBuffer.userUniforms.material_diffuse;
+        } else if (sName == "material_specular") {
+            uniform.type = MetalGPUProgram::VEC4;
+            uniform.dataPointer = &m_uniformBuffer.userUniforms.material_specular;
+        } else if (sName == "material_shininess") {
+            uniform.type = MetalGPUProgram::VEC4;
+            uniform.dataPointer = &m_uniformBuffer.userUniforms.material_shininess;
+        } else if (sName == "u_speed") {
+            uniform.type = MetalGPUProgram::FLOAT;
+            uniform.dataPointer = &m_uniformBuffer.userUniforms.u_speed;
+        } else if (sName == "u_force") {
+            uniform.type = MetalGPUProgram::FLOAT;
+            uniform.dataPointer = &m_uniformBuffer.userUniforms.u_force;
+        } else if (sName == "u_xTextureScale") {
+            uniform.type = MetalGPUProgram::FLOAT;
+            uniform.dataPointer = &m_uniformBuffer.userUniforms.u_xTextureScale;
+        } else if (sName == "u_time") {
+            uniform.type = MetalGPUProgram::FLOAT;
+            uniform.dataPointer = &m_uniformBuffer.userUniforms.u_time;
+        } else if (sName == "u_rimMinValue") {
+            uniform.type = MetalGPUProgram::FLOAT;
+            uniform.dataPointer = &m_uniformBuffer.userUniforms.u_rimMinValue;
+        } else if (sName == "diffuseMap") {
+            uniform.type = MetalGPUProgram::SAMPLER_IDX;
             uniform.textureKind = TEXTURE_IDX_DIFFUSE_MAP;
-            uniform.dataPointer = &m_uniformBuffer->userUniforms.samplerIdx[TEXTURE_IDX_DIFFUSE_MAP];
-        } else if (name == "normalMap") {
-            uniform.type = MetalGpuProgramWrapper::SAMPLER_IDX;
+            uniform.dataPointer = &m_uniformBuffer.userUniforms.samplerIdx[TEXTURE_IDX_DIFFUSE_MAP];
+        } else if (sName == "normalMap") {
+            uniform.type = MetalGPUProgram::SAMPLER_IDX;
             uniform.textureKind = TEXTURE_IDX_NORMAL_MAP;
-            uniform.dataPointer = &m_uniformBuffer->userUniforms.samplerIdx[TEXTURE_IDX_NORMAL_MAP];
-        } else if (name == "emissiveMap") {
-            uniform.type = MetalGpuProgramWrapper::SAMPLER_IDX;
+            uniform.dataPointer = &m_uniformBuffer.userUniforms.samplerIdx[TEXTURE_IDX_NORMAL_MAP];
+        } else if (sName == "emissiveMap") {
+            uniform.type = MetalGPUProgram::SAMPLER_IDX;
             uniform.textureKind = TEXTURE_IDX_EMISSIVE_MAP;
-            uniform.dataPointer = &m_uniformBuffer->userUniforms.samplerIdx[TEXTURE_IDX_EMISSIVE_MAP];
-        } else if (name == "noiseMap") {
-            uniform.type = MetalGpuProgramWrapper::SAMPLER_IDX;
+            uniform.dataPointer = &m_uniformBuffer.userUniforms.samplerIdx[TEXTURE_IDX_EMISSIVE_MAP];
+        } else if (sName == "noiseMap") {
+            uniform.type = MetalGPUProgram::SAMPLER_IDX;
             uniform.textureKind = TEXTURE_IDX_NOISE_MAP;
-            uniform.dataPointer = &m_uniformBuffer->userUniforms.samplerIdx[TEXTURE_IDX_NOISE_MAP];
+            uniform.dataPointer = &m_uniformBuffer.userUniforms.samplerIdx[TEXTURE_IDX_NOISE_MAP];
+        } else if (sName == "u_worldViewProjectionMatrix" ||
+                   sName == "u_worldViewMatrix" ||
+                   sName == "u_worldViewMatrix3x3" ||
+                   sName == "u_viewMatrixInverse" ||
+                   sName == "u_viewMatrix" ||
+                   sName == "u_projectionMatrix" ||
+                   sName == "u_worldMatrix" ||
+                   sName == "u_worldMatrixInverse" ||
+                   sName == "u_normalMatrix" ||
+                   sName == "u_globalAmbient" ||
+                   sName == "u_cameraPosition" ||
+                   sName == "u_fogDensity" ||
+                   sName == "u_fogColor" ||
+                   sName == "u_pixelSize" ||
+                   sName == "u_elapsedTime" ||
+                   sName == "light_0.color" ||
+                   sName == "light_0.position" ||
+                   sName == "light_1.color" ||
+                   sName == "light_1.position")
+        {
+            // Pass. This is shared uniform.
         } else {
             DF3D_ASSERT_MESS(false, "Unknown user uniform! FIX THIS!");
-            continue;
+
+            return {};
         }
 
-        programMtl.m_customUniforms.push_back(uniform);
-        outHandles.push_back(UniformHandle(currHandleIdx));
+        program->m_uniforms.push_back(uniform);
 
-        ++currHandleIdx;
+        return UniformHandle(program->m_uniforms.size());
     }
+
+    return {};
 }
 
-void RenderBackendMetal::setUniformValue(GpuProgramHandle programHandle, UniformHandle uniformHandle, const void *data)
+void RenderBackendMetal::setUniformValue(GPUProgramHandle programHandle, UniformHandle uniformHandle, const void *data)
 {
     DF3D_ASSERT(m_gpuProgramsBag.isValid(programHandle.getID()));
 
-    check updating
-
-    auto &program = m_programs[programHandle.getIndex()];
-
-    auto idx = uniformHandle.getID();
-    if (idx < program.m_customUniforms.size())
+    if (auto program = m_programs[programHandle.getIndex()].get())
     {
-        auto &uni = program.m_customUniforms[idx];
+        auto idx = uniformHandle.getID() - 1;
 
-        if (uni.type == MetalGpuProgramWrapper::FLOAT)
+        if (idx < program->m_uniforms.size())
         {
-            *((float*)uni.dataPointer) = *((float*)data);
-        }
-        else if (uni.type == MetalGpuProgramWrapper::VEC4)
-        {
-            auto input = *(glm::vec4*)data;
-            auto output = (simd::float4*)uni.dataPointer;
-            output->x = input.x;
-            output->y = input.y;
-            output->z = input.z;
-            output->w = input.w;
-        }
-        else if (uni.type == MetalGpuProgramWrapper::SAMPLER_IDX)
-        {
-            *((int*)uni.dataPointer) = *((int*)data);
+            auto &uni = program->m_uniforms[idx];
+
+            if (uni.type == MetalGPUProgram::FLOAT)
+            {
+                *((float*)uni.dataPointer) = *((float*)data);
+            }
+            else if (uni.type == MetalGPUProgram::VEC4)
+            {
+                auto input = *(glm::vec4*)data;
+                auto output = (simd::float4*)uni.dataPointer;
+                output->x = input.x;
+                output->y = input.y;
+                output->z = input.z;
+                output->w = input.w;
+            }
+            else if (uni.type == MetalGPUProgram::SAMPLER_IDX)
+            {
+                *((int*)uni.dataPointer) = *((int*)data);
+            }
+            else
+                DF3D_ASSERT(false);
         }
         else
             DF3D_ASSERT(false);
     }
+}
+
+void RenderBackendMetal::setViewport(const Viewport &viewport)
+{
+    if (m_encoder == nil)
+    {
+        DF3D_ASSERT(false);
+        return;
+    }
+
+    MTLViewport vp;
+    vp.originX = viewport.originX;
+    vp.originY = viewport.originY;
+    vp.width = viewport.width;
+    vp.height = viewport.height;
+    vp.znear = 0.0;
+    vp.zfar = 1.0;
+
+    [m_encoder setViewport:vp];
+}
+
+void RenderBackendMetal::setScissorTest(bool enabled, const Viewport &rect)
+{
+    if (m_encoder == nil)
+    {
+        DF3D_ASSERT(false);
+        return;
+    }
+
+    MTLScissorRect scissorRect;
+    if (enabled)
+    {
+        scissorRect = (MTLScissorRect){
+            static_cast<NSUInteger>(rect.originX),
+            static_cast<NSUInteger>(rect.originY),
+            static_cast<NSUInteger>(rect.width),
+            static_cast<NSUInteger>(rect.height) };
+    }
     else
-        DF3D_ASSERT(false);
-}
-
-void RenderBackendMetal::setViewport(int x, int y, int width, int height)
-{
-    if (m_encoder == nil)
     {
-        DF3D_ASSERT(false);
-        return;
-    }
-
-    MTLViewport viewport;
-    viewport.originX = x;
-    viewport.originY = y;
-    viewport.width = width;
-    viewport.height = height;
-    viewport.znear = 0.0;
-    viewport.zfar = 1.0;
-
-    [m_encoder setViewport:viewport];
-}
-
-void RenderBackendMetal::clearColorBuffer(const glm::vec4 &color)
-{
-
-}
-
-void RenderBackendMetal::clearDepthBuffer()
-{
-
-}
-
-void RenderBackendMetal::clearStencilBuffer()
-{
-
-}
-
-void RenderBackendMetal::enableDepthTest(bool enable)
-{
-    m_depthTestEnabled = enable;
-}
-
-void RenderBackendMetal::enableDepthWrite(bool enable)
-{
-    m_depthWriteEnabled = enable;
-}
-
-void RenderBackendMetal::enableScissorTest(bool enable)
-{
-    if (m_encoder == nil)
-    {
-        DF3D_ASSERT(false);
-        return;
-    }
-
-    if (!enable)
-    {
-        auto scissorRect = (MTLScissorRect){
+        scissorRect = (MTLScissorRect){
             0,
             0,
             static_cast<NSUInteger>(m_width),
             static_cast<NSUInteger>(m_height) };
-
-        [m_encoder setScissorRect:scissorRect];
     }
-}
-
-void RenderBackendMetal::setScissorRegion(int x, int y, int width, int height)
-{
-    if (m_encoder == nil)
-    {
-        DF3D_ASSERT(false);
-        return;
-    }
-
-    auto scissorRect = (MTLScissorRect){
-        static_cast<NSUInteger>(x),
-        static_cast<NSUInteger>(y),
-        static_cast<NSUInteger>(width),
-        static_cast<NSUInteger>(height) };
 
     [m_encoder setScissorRect:scissorRect];
 }
 
-void RenderBackendMetal::setBlendingMode(BlendingMode mode)
+void RenderBackendMetal::setClearData(const glm::vec3 &color, float depth)
 {
-    m_blending = mode;
+    // TODO: implement.
 }
 
-void RenderBackendMetal::setCullFaceMode(FaceCullMode mode)
+void RenderBackendMetal::setState(uint64_t state)
 {
-    if (m_encoder == nil)
-    {
-        DF3D_ASSERT(false);
-        return;
-    }
-
-    MTLCullMode cullMode;
-    switch (mode)
-    {
-        case FaceCullMode::NONE:
-            cullMode = MTLCullModeNone;
-            break;
-        case FaceCullMode::FRONT:
-            cullMode = MTLCullModeFront;
-            break;
-        case FaceCullMode::BACK:
-            cullMode = MTLCullModeBack;
-            break;
-        default:
-            DF3D_ASSERT(false);
-            return;
-    }
-
-    [m_encoder setCullMode:cullMode];
+    m_pipelineState.state = state;
 }
 
-void RenderBackendMetal::draw(Topology type, size_t numberOfElements)
+void RenderBackendMetal::draw(Topology type, uint32_t numberOfElements)
 {
     if (m_encoder == nil)
         return;
 
-    DF3D_ASSERT(m_gpuProgramsBag.isValid(m_currentProgram.getID()) &&
-                m_vertexBuffersBag.isValid(m_currentVB.getID()));
+    auto programHandle = m_pipelineState.currentProgram;
+    auto vbHandle = m_pipelineState.currentVB;
 
-    [m_encoder setDepthStencilState:getDepthStencilState(m_depthTestEnabled, m_depthWriteEnabled)];
+    DF3D_ASSERT(m_gpuProgramsBag.isValid(programHandle.getID()) &&
+                m_vertexBuffersBag.isValid(vbHandle.getID()));
 
-    auto &vb = m_vertexBuffers[m_currentVB.getIndex()];
-    auto &program = m_programs[m_currentProgram.getIndex()];
+    [m_encoder setDepthStencilState:m_depthStencilStateCache->getOrCreate(m_pipelineState.state)];
+
+    auto faceCullState = m_pipelineState.state & RENDER_STATE_FACE_CULL_MASK;
+    if (faceCullState == RENDER_STATE_FRONT_FACE_CW)
+    {
+        [m_encoder setFrontFacingWinding:MTLWindingClockwise];
+        [m_encoder setCullMode: MTLCullModeBack];
+    }
+    else if (faceCullState == RENDER_STATE_FRONT_FACE_CCW)
+    {
+        [m_encoder setFrontFacingWinding:MTLWindingCounterClockwise];
+        [m_encoder setCullMode: MTLCullModeBack];
+    }
+    else
+    {
+        [m_encoder setFrontFacingWinding:MTLWindingCounterClockwise];
+        [m_encoder setCullMode: MTLCullModeNone];
+    }
 
     // Create pipeline.
-    id <MTLRenderPipelineState> pipeline = m_renderPipelinesCache->getOrCreate(m_currentProgram, vb->getFormat(), m_blending);
+    auto &vb = m_vertexBuffers[vbHandle.getIndex()];
+    auto &program = m_programs[programHandle.getIndex()];
+
+    id <MTLRenderPipelineState> pipeline = m_renderPipelinesCache->getOrCreate(m_mtlDevice,
+                                                                               program->m_vertexShaderFunction,
+                                                                               program->m_fragmentShaderFunction,
+                                                                               m_mtkView.colorPixelFormat,
+                                                                               m_mtkView.depthStencilPixelFormat,
+                                                                               vb->getFormat(),
+                                                                               m_pipelineState.state,
+                                                                               programHandle);
 
     [m_encoder setRenderPipelineState:pipeline];
 
     // Bind texures.
-    for (const auto &uniform : program.m_customUniforms)
+    for (const auto &uniform : program->m_uniforms)
     {
-        if (uniform.type == MetalGpuProgramWrapper::SAMPLER_IDX)
+        if (uniform.type == MetalGPUProgram::SAMPLER_IDX)
         {
             int samplerIdx = *(int*)uniform.dataPointer;
             const auto &textureUnit = m_textureUnits[samplerIdx];
@@ -1207,24 +1269,25 @@ void RenderBackendMetal::draw(Topology type, size_t numberOfElements)
     }
 
     // Pass vertex data.
-    vb->bind(m_encoder, m_currentVBOffset);
+    vb->bindBuffer(m_encoder, vb->getFormat().getVertexSize() * m_pipelineState.vbVertexStart);
 
     // Pass uniforms.
-    [m_encoder setFragmentBytes:m_uniformBuffer.get() length:sizeof(MetalGlobalUniforms) atIndex:1];
-    [m_encoder setVertexBytes:m_uniformBuffer.get() length:sizeof(MetalGlobalUniforms) atIndex:1];
+    [m_encoder setFragmentBytes:&m_uniformBuffer length:sizeof(MetalGlobalUniforms) atIndex:1];
+    [m_encoder setVertexBytes:&m_uniformBuffer length:sizeof(MetalGlobalUniforms) atIndex:1];
 
     // Draw the stuff.
     auto primType = GetPrimitiveType(type);
-    if (m_indexedDrawCall)
+    if (m_pipelineState.indexedDrawCall)
     {
-        DF3D_ASSERT(m_currentIB.isValid());
-        auto &ib = m_indexBuffers[m_currentIB.getIndex()];
-
-        [m_encoder drawIndexedPrimitives:primType
-                              indexCount:numberOfElements
-                               indexType:ib.m_indexType
-                             indexBuffer:ib.m_buffer
-                       indexBufferOffset:0];
+        DF3D_ASSERT(m_pipelineState.currentIB.isValid());
+        if (auto ib = m_indexBuffers[m_pipelineState.currentIB.getIndex()].get())
+        {
+            [m_encoder drawIndexedPrimitives:primType
+                                  indexCount:numberOfElements
+                                   indexType:ib->m_indexType
+                                 indexBuffer:ib->m_buffer
+                           indexBufferOffset:0];
+        }
     }
     else
     {
@@ -1233,7 +1296,7 @@ void RenderBackendMetal::draw(Topology type, size_t numberOfElements)
                       vertexCount:numberOfElements];
     }
 
-    m_currentVBOffset = 0;
+    m_pipelineState.vbVertexStart = 0;
 }
 
 }

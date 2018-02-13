@@ -21,6 +21,7 @@ typedef struct
     float u_force;
     float u_xTextureScale;
     float u_time;
+    float u_rimMinValue;
     int samplerIdx[TEXTURE_IDX_COUNT];
 } MetalUserUniforms;
 

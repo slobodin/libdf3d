@@ -929,7 +929,7 @@ void RenderBackendGL::bindTexture(TextureHandle handle, UniformHandle textureUni
     DF3D_ASSERT(m_texturesBag.isValid(handle.getID()));
 
     m_textures[handle.getIndex()]->bind(unit);
-    setUniformValue(textureUniform, &unit);
+    setUniformValue({}, textureUniform, &unit);
 }
 
 GPUProgramHandle RenderBackendGL::createGPUProgram(const char *vertexShaderData, const char *fragmentShaderData)
@@ -1036,7 +1036,7 @@ UniformHandle RenderBackendGL::getUniform(GPUProgramHandle program, const char *
     return {};
 }
 
-void RenderBackendGL::setUniformValue(UniformHandle uniformHandle, const void *data)
+void RenderBackendGL::setUniformValue(GPUProgramHandle program, UniformHandle uniformHandle, const void *data)
 {
     DF3D_ASSERT(m_uniformsBag.isValid(uniformHandle.getID()));
 

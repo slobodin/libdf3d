@@ -1,9 +1,18 @@
 #include <df3d_pch.h>
 
-#include <simd/simd.h>
+#include <df3d/engine/render/IGpuProgramSharedState.h>
+#include <df3d/engine/render/metal/RenderBackendMetal.h>
+
+#include <df3d/engine/EngineController.h>
+#include <df3d/engine/TimeManager.h>
+#include <df3d/engine/3d/Camera.h>
+#include <df3d/engine/resources/GpuProgramResource.h>
+#include <df3d/engine/render/IRenderBackend.h>
+#include <df3d/game/World.h>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <simd/simd.h>
 
 namespace df3d {
 
@@ -294,10 +303,12 @@ public:
                     gUniforms->u_elapsedTime = m_engineElapsedTime;
                     break;
                 case SharedUniformType::SCENE_LIGHT_0_COLOR_UNIFORM:
+                case SharedUniformType::SCENE_LIGHT_0_POSITION_UNIFORM:
                     gUniforms->light0.position = m_lights[0].positionParam;
                     gUniforms->light0.color = m_lights[0].color;
                     break;
                 case SharedUniformType::SCENE_LIGHT_1_COLOR_UNIFORM:
+                case SharedUniformType::SCENE_LIGHT_1_POSITION_UNIFORM:
                     gUniforms->light1.position = m_lights[1].positionParam;
                     gUniforms->light1.color = m_lights[1].color;
                     break;

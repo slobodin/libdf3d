@@ -42,14 +42,14 @@ public:
     virtual void updateTexture(TextureHandle handle, int originX, int originY, int width, int height, const void *data) = 0;
     virtual void destroyTexture(TextureHandle handle) = 0;
 
-    virtual void bindTexture(TextureHandle handle, UniformHandle textureUniform, int unit) = 0;
+    virtual void bindTexture(GPUProgramHandle program, TextureHandle handle, UniformHandle textureUniform, int unit) = 0;
 
     virtual GPUProgramHandle createGPUProgram(const char *vertexShaderData, const char *fragmentShaderData) = 0;
     virtual void destroyGPUProgram(GPUProgramHandle handle) = 0;
     virtual void bindGPUProgram(GPUProgramHandle handle) = 0;
 
     virtual UniformHandle getUniform(GPUProgramHandle program, const char *name) = 0;
-    virtual void setUniformValue(UniformHandle uniformHandle, const void *data) = 0;
+    virtual void setUniformValue(GPUProgramHandle program, UniformHandle uniformHandle, const void *data) = 0;
 
     virtual void setViewport(const Viewport &viewport) = 0;
     virtual void setScissorTest(bool enabled, const Viewport &rect) = 0;

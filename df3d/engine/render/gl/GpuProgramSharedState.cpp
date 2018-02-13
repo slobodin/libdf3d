@@ -281,7 +281,7 @@ public:
             }
 
             if (data)
-                m_backend->setUniformValue(sharedUni.handle, data);
+                m_backend->setUniformValue(program.handle, sharedUni.handle, data);
         }
     }
 };

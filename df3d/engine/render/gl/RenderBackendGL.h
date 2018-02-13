@@ -132,14 +132,14 @@ public:
     void updateTexture(TextureHandle handle, int originX, int originY, int width, int height, const void *data) override;
     void destroyTexture(TextureHandle handle) override;
 
-    void bindTexture(TextureHandle handle, UniformHandle textureUniform, int unit) override;
+    void bindTexture(GPUProgramHandle program, TextureHandle handle, UniformHandle textureUniform, int unit) override;
 
     GPUProgramHandle createGPUProgram(const char *vertexShaderData, const char *fragmentShaderData) override;
     void destroyGPUProgram(GPUProgramHandle handle) override;
     void bindGPUProgram(GPUProgramHandle handle) override;
 
     UniformHandle getUniform(GPUProgramHandle program, const char *name) override;
-    void setUniformValue(UniformHandle uniformHandle, const void *data) override;
+    void setUniformValue(GPUProgramHandle program, UniformHandle uniformHandle, const void *data) override;
 
     void setViewport(const Viewport &viewport) override;
     void setScissorTest(bool enabled, const Viewport &rect) override;

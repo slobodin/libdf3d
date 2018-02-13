@@ -56,10 +56,6 @@ SharedUniformType GetSharedTypeForUniform(const std::string &name)
     else if (name == "light_1.position")
         return SharedUniformType::SCENE_LIGHT_1_POSITION_UNIFORM;
 
-#ifdef DF3D_IOS
-#error "implement"
-#endif
-
     return SharedUniformType::COUNT;
 }
 
@@ -91,42 +87,6 @@ void InitProgramUniforms(GpuProgramResource *gpuProgram, std::vector<std::string
             gpuProgram->customUniforms[customUniformStrId] = uniformHandle;
         }
     }
-}
-
-void InitProgramUniformsMetal(GpuProgramResource *gpuProgram, std::vector<std::string> allUniformNames)
-{
-#ifdef DF3D_IOS
-#error "IMPLEMENT"
-    std::vector<std::string> customUniformNames;
-
-    for (const auto &name : allUniformNames)
-    {
-        auto sharedType = GetSharedTypeForUniform(name, true);
-        if (sharedType != SharedUniformType::COUNT)
-        {
-            SharedUniform suni;
-            suni.handle = {};
-            suni.type = sharedType;
-
-            gpuProgram->sharedUniforms.push_back(suni);
-        }
-        else
-        {
-            customUniformNames.push_back(name);
-        }
-    }
-
-    std::vector<UniformHandle> uniforms;
-    svc().renderManager().getBackend().requestUniforms(gpuProgram->handle, uniforms, customUniformNames);
-
-    DF3D_ASSERT(uniforms.size() == customUniformNames.size());
-
-    for (size_t i = 0; i < uniforms.size(); i++)
-    {
-        Id customUniformStrId(customUniformNames[i].c_str());
-        gpuProgram->customUniforms[customUniformStrId] = uniforms[i];
-    }
-#endif
 }
 
 }
@@ -230,21 +190,17 @@ GpuProgramResource* CreateGPUProgramFromData(const std::string &vShaderData, con
 
 GpuProgramResource* CreateGPUProgramMetal(const std::string &vShaderFunction, const std::string &fShaderFunction, std::vector<std::string> uniformNames, Allocator &alloc)
 {
-#ifdef DF3D_IOS
-#error "implement"
     auto &backend = svc().renderManager().getBackend();
-    auto gpuProgramHandle = backend.createGPProgramMetal(vShaderFunction.c_str(), fShaderFunction.c_str());
-    if (!gpuProgramHandle.isValid())
+    auto programHandle = backend.createGPUProgram(vShaderFunction.c_str(), fShaderFunction.c_str());
+    if (!programHandle.isValid())
         return nullptr;
 
     auto resource = MAKE_NEW(alloc, GpuProgramResource)(alloc);
-    resource->handle = gpuProgramHandle;
+    resource->handle = programHandle;
 
-    InitProgramUniformsMetal(resource, uniformNames);
+    InitProgramUniforms(resource, uniformNames);
 
     return resource;
-#endif
-    return nullptr;
 }
 
 }

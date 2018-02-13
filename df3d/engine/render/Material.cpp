@@ -83,12 +83,12 @@ void RenderPass::bindCustomPassParams(IRenderBackend &backend)
 
         if (param.type == ValuePassParam::TEXTURE)
         {
-            backend.bindTexture(TextureHandle(param.value.textureHandle), param.uniformHandle, textureUnitCounter++);
+            backend.bindTexture(program->handle, TextureHandle(param.value.textureHandle), param.uniformHandle, textureUnitCounter++);
         }
         else
         {
             DF3D_ASSERT(param.type != ValuePassParam::COUNT);
-            backend.setUniformValue(param.uniformHandle, &param.value);
+            backend.setUniformValue(program->handle, param.uniformHandle, &param.value);
         }
     }
 }
