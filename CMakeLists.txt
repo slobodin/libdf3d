@@ -148,8 +148,6 @@ set(libdf3d_SRC_LIST
     df3d/engine/render/RenderQueue.cpp
     df3d/engine/render/Vertex.cpp
     df3d/engine/render/gl/GLSLPreprocess.cpp
-	df3d/engine/render/gl/GpuProgramSharedState.cpp
-    df3d/engine/render/gl/RenderBackendGL.cpp
     df3d/engine/resources/EntityResource.cpp
     df3d/engine/resources/GpuProgramResource.cpp
     df3d/engine/resources/MaterialResource.cpp
@@ -214,6 +212,8 @@ if (DF3D_ANDROID)
         df3d/lib/os/PlatformFile_android.cpp
         df3d/lib/os/PlatformStorage_android.cpp
         df3d/lib/os/PlatformUtils_android.cpp
+        df3d/engine/render/gl/GpuProgramSharedState.cpp
+        df3d/engine/render/gl/RenderBackendGL.cpp
 
         df3d/platform/android/AndroidBridge.cpp
         df3d/platform/android/JNIHelpers.cpp
@@ -257,6 +257,8 @@ if (DF3D_DESKTOP)
         df3d/platform/desktop_common/glfwApplication.cpp
         df3d/platform/desktop_common/LocalNotification.cpp
         df3d/platform/desktop_common/glfwKeyCodes.cpp
+        df3d/engine/render/gl/GpuProgramSharedState.cpp
+        df3d/engine/render/gl/RenderBackendGL.cpp
     )
 endif()
 
