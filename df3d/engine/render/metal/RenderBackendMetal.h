@@ -27,7 +27,7 @@ class RenderBackendMetal : public IRenderBackend
     static const int MAX_SIZE = 0xFFF;      // 4k is enough for now.
 
     RenderBackendCaps m_caps;
-    FrameStats m_stats;
+    mutable FrameStats m_stats;
     int m_width = 0;
     int m_height = 0;
 
@@ -69,6 +69,8 @@ class RenderBackendMetal : public IRenderBackend
     };
 
     TextureUnit m_textureUnits[MAX_TEXTURE_UNITS];
+    glm::vec3 m_clearColor;
+    float m_clearDepth = 1.0f;
 
     // Metal data.
     MTKView *m_mtkView = nullptr;
@@ -92,7 +94,7 @@ public:
     ~RenderBackendMetal();
 
     const RenderBackendCaps& getCaps() const override { return m_caps; }
-    const FrameStats& getLastFrameStats() const override { return m_stats; }
+    const FrameStats& getLastFrameStats() const override;
 
     void frameBegin() override;
     void frameEnd() override;

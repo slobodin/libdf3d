@@ -4,6 +4,30 @@
 namespace df3d {
 
     namespace {
+        
+        struct GPUMemStats
+        {
+            int totalMem = 0;
+        
+            void addAllocation(uint32_t bytes)
+            {
+                totalMem += bytes;
+            }
+            
+            void removeAllocation(uint32_t bytes)
+            {
+                totalMem -= bytes;
+                if (totalMem < 0)
+                {
+                    DF3D_ASSERT(false);
+                    totalMem = 0;
+                }
+            }
+        };
+        
+#ifdef _DEBUG
+        GPUMemStats g_stats;
+#endif
 
         const int MAX_TRANSIENT_BUFFER_SIZE = 0x1000;    // 4k is allowed by Metal
         const int MAX_IN_FLIGHT_FRAMES = 3;
@@ -325,10 +349,8 @@ public:
                 DF3D_ASSERT(srcFactor >= RENDER_STATE_BLEND_ONE && srcFactor <= RENDER_STATE_BLEND_ONE_MINUS_SRC_ALPHA);
                 DF3D_ASSERT(dstFactor >= RENDER_STATE_BLEND_ONE && dstFactor <= RENDER_STATE_BLEND_ONE_MINUS_SRC_ALPHA);
 
-                colorAttachment.sourceRGBBlendFactor = g_blendFuncLookup[srcFactor];
-                colorAttachment.sourceAlphaBlendFactor = g_blendFuncLookup[srcFactor];
-                colorAttachment.destinationRGBBlendFactor = g_blendFuncLookup[dstFactor];
-                colorAttachment.destinationAlphaBlendFactor = g_blendFuncLookup[dstFactor];
+                colorAttachment.sourceRGBBlendFactor = colorAttachment.sourceAlphaBlendFactor = g_blendFuncLookup[srcFactor];
+                colorAttachment.destinationRGBBlendFactor = colorAttachment.destinationAlphaBlendFactor = g_blendFuncLookup[dstFactor];
             }
 
             NSError *error = nil;
@@ -368,6 +390,7 @@ public:
     virtual void updateWithData(const void *data, uint32_t offset, uint32_t length) = 0;
     virtual void bindBuffer(id<MTLRenderCommandEncoder> encoder, uint32_t offset) = 0;
     virtual void advanceToTheNextFrame() { }
+    virtual uint32_t getSize() const = 0;
 };
 
 class MetalTransientVertexBuffer : public MetalVertexBuffer
@@ -381,7 +404,6 @@ public:
     {
 
     }
-    ~MetalTransientVertexBuffer() { }
 
     bool initialize(id<MTLDevice> device, const void *data, uint32_t bufferSize) override
     {
@@ -410,6 +432,8 @@ public:
 
         [encoder setVertexBytes:m_transientStorage.data() + offset length:lenUpdate atIndex:0];
     }
+    
+    uint32_t getSize() const override { return m_transientStorage.size(); }
 };
 
 class MetalStaticVertexBuffer : public MetalVertexBuffer
@@ -446,6 +470,11 @@ public:
     void bindBuffer(id<MTLRenderCommandEncoder> encoder, uint32_t offset) override
     {
         [encoder setVertexBuffer:m_buffer offset:offset atIndex:0];
+    }
+    
+    uint32_t getSize() const override
+    {
+        return m_buffer.length;
     }
 };
 
@@ -517,6 +546,14 @@ public:
     {
         m_bufferIdx = (m_bufferIdx + 1) % MAX_IN_FLIGHT_FRAMES;
     }
+    
+    uint32_t getSize() const override
+    {
+        uint32_t result = 0;
+        for (int i = 0; i < MAX_IN_FLIGHT_FRAMES; i++)
+            result += m_buffers[i].length;
+        return result;
+    }
 };
 
 class MetalIndexBuffer
@@ -524,6 +561,7 @@ class MetalIndexBuffer
 public:
     MTLIndexType m_indexType;
     id<MTLBuffer> m_buffer = nil;
+    uint32_t m_bufferSize = 0;
 
     ~MetalIndexBuffer()
     {
@@ -539,9 +577,9 @@ public:
         else
             m_indexType = MTLIndexTypeUInt32;
 
-        size_t bufferSize = numIndices * (indices16 ? sizeof(uint16_t) : sizeof(uint32_t));
+        m_bufferSize = numIndices * (indices16 ? sizeof(uint16_t) : sizeof(uint32_t));
 
-        m_buffer = [device newBufferWithBytes:data length:bufferSize options:0];
+        m_buffer = [device newBufferWithBytes:data length:m_bufferSize options:0];
 
         return m_buffer != nil;
     }
@@ -754,6 +792,14 @@ RenderBackendMetal::~RenderBackendMetal()
 
     dispatch_release(m_frameBoundarySemaphore);
 }
+    
+const FrameStats& RenderBackendMetal::getLastFrameStats() const
+{
+#ifdef _DEBUG
+    m_stats.gpuMemBytes = g_stats.totalMem;
+#endif
+    return m_stats;
+}
 
 void RenderBackendMetal::frameBegin()
 {
@@ -772,11 +818,11 @@ void RenderBackendMetal::frameBegin()
     {
         // Make sure to clear the buffers.
         rpd.colorAttachments[0].loadAction = MTLLoadActionClear;
-        rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
+        rpd.colorAttachments[0].clearColor = MTLClearColorMake(m_clearColor.x, m_clearColor.y, m_clearColor.z, 0.0);
         rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
 
         rpd.depthAttachment.loadAction = MTLLoadActionClear;
-        rpd.depthAttachment.clearDepth = 1.0;
+        rpd.depthAttachment.clearDepth = m_clearDepth;
         rpd.depthAttachment.storeAction = MTLStoreActionStore;
 
         // Setup render pass.
@@ -822,6 +868,10 @@ VertexBufferHandle RenderBackendMetal::createStaticVertexBuffer(const VertexForm
     VertexBufferHandle vbHandle;
     if (vertexBuffer->initialize(m_mtlDevice, data, sizeInBytes))
     {
+#ifdef _DEBUG
+        g_stats.addAllocation(vertexBuffer->getSize());
+#endif
+        
         vbHandle = VertexBufferHandle(m_vertexBuffersBag.getNew());
 
         m_vertexBuffers[vbHandle.getIndex()] = std::move(vertexBuffer);
@@ -852,6 +902,10 @@ VertexBufferHandle RenderBackendMetal::createDynamicVertexBuffer(const VertexFor
     VertexBufferHandle vbHandle;
     if (vertexBuffer->initialize(m_mtlDevice, data, sizeInBytes))
     {
+#ifdef _DEBUG
+        g_stats.addAllocation(vertexBuffer->getSize());
+#endif
+
         vbHandle = VertexBufferHandle(m_vertexBuffersBag.getNew());
 
         m_vertexBuffers[vbHandle.getIndex()] = std::move(vertexBuffer);
@@ -886,6 +940,10 @@ void RenderBackendMetal::destroyVertexBuffer(VertexBufferHandle vbHandle)
     auto foundDynamic = std::find(m_dynamicBuffers.begin(), m_dynamicBuffers.end(), vertexBuffer.get());
     if (foundDynamic != m_dynamicBuffers.end())
         m_dynamicBuffers.erase(foundDynamic);
+    
+#ifdef _DEBUG
+    g_stats.removeAllocation(vertexBuffer->getSize());
+#endif
 
     vertexBuffer.reset();
 
@@ -911,6 +969,10 @@ IndexBufferHandle RenderBackendMetal::createIndexBuffer(uint32_t numIndices, con
 
     if (ibuffer->init(m_mtlDevice, numIndices, data, indicesType == INDICES_16_BIT))
     {
+#ifdef _DEBUG
+        g_stats.addAllocation(ibuffer->m_bufferSize);
+#endif
+        
         ibHandle = IndexBufferHandle(m_indexBuffersBag.getNew());
         m_indexBuffers[ibHandle.getIndex()] = std::move(ibuffer);
     }
@@ -921,8 +983,14 @@ IndexBufferHandle RenderBackendMetal::createIndexBuffer(uint32_t numIndices, con
 void RenderBackendMetal::destroyIndexBuffer(IndexBufferHandle ibHandle)
 {
     DF3D_ASSERT(m_indexBuffersBag.isValid(ibHandle.getID()));
+    
+    auto &ibuffer = m_indexBuffers[ibHandle.getIndex()];
+    
+#ifdef _DEBUG
+    g_stats.removeAllocation(ibuffer->m_bufferSize);
+#endif
 
-    m_indexBuffers[ibHandle.getIndex()].reset();
+    ibuffer.reset();
 
     m_indexBuffersBag.release(ibHandle.getID());
 }
@@ -977,9 +1045,7 @@ void RenderBackendMetal::bindTexture(GPUProgramHandle program, TextureHandle han
 
     DF3D_ASSERT(unit >= 0 && unit < MAX_TEXTURE_UNITS);
 
-    TextureUnit textureUnit;
-    textureUnit.textureHandle = handle;
-    m_textureUnits[unit] = textureUnit;
+    m_textureUnits[unit] = TextureUnit{ handle };
 
     setUniformValue(program, textureUniform, &unit);
 }
@@ -1199,7 +1265,8 @@ void RenderBackendMetal::setScissorTest(bool enabled, const Viewport &rect)
 
 void RenderBackendMetal::setClearData(const glm::vec3 &color, float depth)
 {
-    // TODO: implement.
+    m_clearColor = color;
+    m_clearDepth = depth;
 }
 
 void RenderBackendMetal::setState(uint64_t state)
