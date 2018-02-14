@@ -924,12 +924,12 @@ void RenderBackendGL::destroyTexture(TextureHandle handle)
 #endif
 }
 
-void RenderBackendGL::bindTexture(TextureHandle handle, UniformHandle textureUniform, int unit)
+void RenderBackendGL::bindTexture(GPUProgramHandle program, TextureHandle handle, UniformHandle textureUniform, int unit)
 {
     DF3D_ASSERT(m_texturesBag.isValid(handle.getID()));
 
     m_textures[handle.getIndex()]->bind(unit);
-    setUniformValue({}, textureUniform, &unit);
+    setUniformValue(program, textureUniform, &unit);
 }
 
 GPUProgramHandle RenderBackendGL::createGPUProgram(const char *vertexShaderData, const char *fragmentShaderData)
