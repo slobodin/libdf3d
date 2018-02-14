@@ -297,9 +297,7 @@ public:
     }
 
     id <MTLRenderPipelineState> getOrCreate(id<MTLDevice> device, id<MTLFunction> vertexFn, id<MTLFunction> fragmentFn,
-                                            MTLPixelFormat colorFormat, MTLPixelFormat depthFormat,
-                                            VertexFormat vf, uint64_t renderState,
-                                            GPUProgramHandle programHandle)
+                                            MTKView *view, VertexFormat vf, uint64_t renderState, GPUProgramHandle programHandle)
     {
         auto hash = getHash(programHandle, vf, renderState);
         auto found = m_data.find(hash);
@@ -330,8 +328,9 @@ public:
             m_renderPipelineDescriptor.vertexFunction = vertexFn;
             m_renderPipelineDescriptor.fragmentFunction = fragmentFn;
             m_renderPipelineDescriptor.vertexDescriptor = m_vertexDescriptor;
-            m_renderPipelineDescriptor.colorAttachments[0].pixelFormat = colorFormat;
-            m_renderPipelineDescriptor.depthAttachmentPixelFormat = depthFormat;
+            m_renderPipelineDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat;
+            m_renderPipelineDescriptor.depthAttachmentPixelFormat = view.depthStencilPixelFormat;
+            m_renderPipelineDescriptor.sampleCount = view.sampleCount;
 
             auto colorAttachment = m_renderPipelineDescriptor.colorAttachments[0];
 
@@ -754,6 +753,12 @@ RenderBackendMetal::RenderBackendMetal(const EngineInitParams &params)
     m_gpuProgramsBag(MemoryManager::allocDefault())
 {
     m_mtkView = (MTKView *)params.hardwareData;
+    
+#ifdef DF3D_APPLETV
+    if ([m_mtkView.device supportsTextureSampleCount:4])
+        m_mtkView.sampleCount = 4;
+#endif
+    
     m_mtlDevice = m_mtkView.device;
     m_commandQueue = [m_mtlDevice newCommandQueue];
     m_defaultLibrary = [m_mtlDevice newDefaultLibrary];
@@ -819,7 +824,10 @@ void RenderBackendMetal::frameBegin()
         // Make sure to clear the buffers.
         rpd.colorAttachments[0].loadAction = MTLLoadActionClear;
         rpd.colorAttachments[0].clearColor = MTLClearColorMake(m_clearColor.x, m_clearColor.y, m_clearColor.z, 0.0);
-        rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
+        if (m_mtkView.sampleCount == 1)
+            rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
+        else
+            rpd.colorAttachments[0].storeAction = MTLStoreActionStoreAndMultisampleResolve;
 
         rpd.depthAttachment.loadAction = MTLLoadActionClear;
         rpd.depthAttachment.clearDepth = m_clearDepth;
@@ -1219,7 +1227,7 @@ void RenderBackendMetal::setViewport(const Viewport &viewport)
 {
     if (m_encoder == nil)
     {
-        DF3D_ASSERT(false);
+//        DF3D_ASSERT(false);
         return;
     }
 
@@ -1238,7 +1246,7 @@ void RenderBackendMetal::setScissorTest(bool enabled, const Viewport &rect)
 {
     if (m_encoder == nil)
     {
-        DF3D_ASSERT(false);
+//        DF3D_ASSERT(false);
         return;
     }
 
@@ -1311,8 +1319,7 @@ void RenderBackendMetal::draw(Topology type, uint32_t numberOfElements)
     id <MTLRenderPipelineState> pipeline = m_renderPipelinesCache->getOrCreate(m_mtlDevice,
                                                                                program->m_vertexShaderFunction,
                                                                                program->m_fragmentShaderFunction,
-                                                                               m_mtkView.colorPixelFormat,
-                                                                               m_mtkView.depthStencilPixelFormat,
+                                                                               m_mtkView,
                                                                                vb->getFormat(),
                                                                                m_pipelineState.state,
                                                                                programHandle);

@@ -18,7 +18,10 @@ namespace df3d {
 
 bool IOSDeviceOrientationIsLandscapeLeft()
 {
+#ifndef DF3D_APPLETV
     return [[UIDevice currentDevice] orientation] == UIDeviceOrientationLandscapeLeft;
+#endif
+    return false;
 }
 
 extern bool EngineInit(EngineInitParams params);
@@ -408,7 +411,9 @@ void StopAccelerometerListenerIOS()
 
     [m_metalView startupEngine];
 
+#ifndef DF3D_APPLETV
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+#endif
 }
 
 - (void)viewWillAppear:(BOOL)animated
