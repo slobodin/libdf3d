@@ -25,6 +25,8 @@ public:
     virtual void onRenderDestroyed() = 0;
     virtual void onRenderRecreated() = 0;
 
+    virtual void onAndroidBackButtonPressed(bool pressed) = 0;
+
     // Should be called by client code at entry point.
     static void setInstance(AppDelegate *app);
     static AppDelegate* getInstance();

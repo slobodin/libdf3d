@@ -360,10 +360,8 @@ extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_GamePadHelper_nativeCon
 extern "C" JNIEXPORT void JNICALL Java_org_flaming0_df3d_Df3dActivity_nativeHardwareBackPressed(
         JNIEnv *env, jobject obj, jboolean pressed)
 {
-    if (df3d::g_appState.initialized) {
-        if (auto l = df3d::svc().inputManager().getMfiControllerListener()) {
-            l->Mfi_buttonB_Pressed(pressed);
-        }
+    if (df3d::g_appState.initialized && df3d::g_appState.appDelegate) {
+        df3d::g_appState.appDelegate->onAndroidBackButtonPressed(pressed);
     }
 }
 
