@@ -3,6 +3,7 @@ package org.flaming0.df3d;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Keep;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -14,21 +15,17 @@ public class Df3dActivity extends Activity {
     private boolean m_appRunning = false;
     private GamePadHelper mGamePadHelper = null;
 
-    private boolean mQuittingApp = false;
+//    private boolean mQuittingApp = false;
 
     private static Df3dActivity m_sharedActivity = null;
 
     private native void nativeHardwareBackPressed(boolean pressed);
 
-    public static void quitApp() {
-        m_sharedActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                m_sharedActivity.mQuittingApp = true;
-                m_sharedActivity.finish();
-            }
-        });
-    }
+//    public void setShouldQuit() {
+//        mQuittingApp = true;
+//        finish();
+//        System.exit(0);
+//    }
 
     public static Df3dActivity getSharedActivity() {
         return m_sharedActivity;
@@ -69,6 +66,10 @@ public class Df3dActivity extends Activity {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
+    public View getMainView() {
+        return m_glSurfaceView;
+    }
+
     @Override
     protected void onPause() {
         m_appRunning = false;
@@ -94,10 +95,10 @@ public class Df3dActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
 
-        if (mQuittingApp) {
-            System.runFinalization();
-            System.exit(0);
-        }
+//        if (mQuittingApp) {
+//            System.runFinalization();
+//            System.exit(0);
+//        }
     }
 
     @Override

@@ -22,7 +22,7 @@ void Application::quit()
 {
     auto env = df3d::AndroidServices::getEnv();
 
-    auto cls = env->FindClass("org/flaming0/df3d/Df3dActivity");
+    auto cls = env->FindClass("org/flaming0/df3d/Df3dAndroidServices");
     auto methId = env->GetStaticMethodID(cls, "quitApp", "()V");
 
     env->CallStaticVoidMethod(cls, methId);

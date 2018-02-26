@@ -33,6 +33,16 @@ public class Df3dAndroidServices {
         m_activity = activity;
     }
 
+    public static void quitApp() {
+        Df3dActivity.getSharedActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Df3dActivity.getSharedActivity().finish();
+                System.exit(0);
+            }
+        });
+    }
+
     public String getSystemLanguage() {
         return Locale.getDefault().getLanguage().toLowerCase();
     }

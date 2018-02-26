@@ -142,7 +142,18 @@ class GamePadHelper implements InputManager.InputDeviceListener {
                     }
                 });
                 break;
+            // ASSUME X PRESSED when KEYCODE_DPAD_CENTER!
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+                mActivity.runOnMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        nativeControllerButtonPressedA(pressed);
+                    }
+                });
+                break;
+            case KeyEvent.KEYCODE_BUTTON_SELECT:
             case KeyEvent.KEYCODE_BUTTON_START:
+            case KeyEvent.KEYCODE_MENU:
                 mActivity.runOnMainThread(new Runnable() {
                     @Override
                     public void run() {
