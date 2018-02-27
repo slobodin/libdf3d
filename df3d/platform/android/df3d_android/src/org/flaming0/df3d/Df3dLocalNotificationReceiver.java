@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 
 public class Df3dLocalNotificationReceiver extends BroadcastReceiver {
     private static String TAG = "Df3dLocalNotifRecv";
@@ -76,6 +77,10 @@ public class Df3dLocalNotificationReceiver extends BroadcastReceiver {
         builder.setDefaults(Notification.DEFAULT_ALL);
         builder.setContentIntent(pendingIntent);
 
-        return builder.build();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            return builder.build();
+        }
+
+        return null;
     }
 }

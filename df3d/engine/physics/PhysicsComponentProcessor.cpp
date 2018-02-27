@@ -22,10 +22,9 @@
 
 namespace df3d {
 
-#define USE_DEBUG_DRAW 0
 #ifdef DF3D_DESKTOP
 #ifdef _DEBUG
-#define USE_DEBUG_DRAW 1
+#define USE_DEBUG_DRAW
 #endif
 #endif
 
@@ -294,7 +293,7 @@ void PhysicsComponentProcessor::update()
 
 void PhysicsComponentProcessor::draw(RenderQueue *ops)
 {
-#if USE_DEBUG_DRAW
+#ifdef USE_DEBUG_DRAW
     if (!EngineCVars::bulletDebugDraw)
         return;
 
@@ -330,7 +329,7 @@ PhysicsComponentProcessor::PhysicsComponentProcessor(World &w)
 
     //btGImpactCollisionAlgorithm::registerAlgorithm(m_dispatcher);
 
-#if USE_DEBUG_DRAW
+#ifdef USE_DEBUG_DRAW
     m_debugDraw = MAKE_NEW(m_allocator, BulletDebugDraw)();
     m_dynamicsWorld->setDebugDrawer(m_debugDraw);
 #endif
@@ -374,7 +373,7 @@ PhysicsComponentProcessor::~PhysicsComponentProcessor()
     MAKE_DELETE(m_allocator, m_overlappingPairCache);
     MAKE_DELETE(m_allocator, m_dispatcher);
     MAKE_DELETE(m_allocator, m_collisionConfiguration);
-#if USE_DEBUG_DRAW
+#ifdef USE_DEBUG_DRAW
     MAKE_DELETE(m_allocator, m_debugDraw);
 #endif
 }

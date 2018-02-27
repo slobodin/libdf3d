@@ -905,10 +905,12 @@ GPUProgramHandle RenderBackendGL::createGPUProgram(const char *vertexShaderData,
 
     GL_CHECK(glUseProgram(0));
 
+    requestUniforms(program);
+
+    // Must detach shaders only after uniforms were retreived.
+    // NVIDIA Tegra crash workaround!
     destroyShader(program.glID, vShaderID);
     destroyShader(program.glID, fShaderID);
-
-    requestUniforms(program);
 
     handle.set(m_gpuProgramsBag.getNew());
     m_gpuPrograms[handle.getIndex()] = program;
