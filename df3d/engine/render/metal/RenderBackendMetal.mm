@@ -4,30 +4,6 @@
 namespace df3d {
 
     namespace {
-        
-        struct GPUMemStats
-        {
-            int totalMem = 0;
-        
-            void addAllocation(uint32_t bytes)
-            {
-                totalMem += bytes;
-            }
-            
-            void removeAllocation(uint32_t bytes)
-            {
-                totalMem -= bytes;
-                if (totalMem < 0)
-                {
-                    DF3D_ASSERT(false);
-                    totalMem = 0;
-                }
-            }
-        };
-        
-#ifdef _DEBUG
-        GPUMemStats g_stats;
-#endif
 
         const int MAX_TRANSIENT_BUFFER_SIZE = 0x1000;    // 4k is allowed by Metal
         const int MAX_IN_FLIGHT_FRAMES = 3;
@@ -431,7 +407,7 @@ public:
 
         [encoder setVertexBytes:m_transientStorage.data() + offset length:lenUpdate atIndex:0];
     }
-    
+
     uint32_t getSize() const override { return m_transientStorage.size(); }
 };
 
@@ -470,7 +446,7 @@ public:
     {
         [encoder setVertexBuffer:m_buffer offset:offset atIndex:0];
     }
-    
+
     uint32_t getSize() const override
     {
         return m_buffer.length;
@@ -545,7 +521,7 @@ public:
     {
         m_bufferIdx = (m_bufferIdx + 1) % MAX_IN_FLIGHT_FRAMES;
     }
-    
+
     uint32_t getSize() const override
     {
         uint32_t result = 0;
@@ -753,12 +729,12 @@ RenderBackendMetal::RenderBackendMetal(const EngineInitParams &params)
     m_gpuProgramsBag(MemoryManager::allocDefault())
 {
     m_mtkView = (MTKView *)params.hardwareData;
-    
+
 #ifdef DF3D_APPLETV
     if ([m_mtkView.device supportsTextureSampleCount:4])
         m_mtkView.sampleCount = 4;
 #endif
-    
+
     m_mtlDevice = m_mtkView.device;
     m_commandQueue = [m_mtlDevice newCommandQueue];
     m_defaultLibrary = [m_mtlDevice newDefaultLibrary];
@@ -797,7 +773,7 @@ RenderBackendMetal::~RenderBackendMetal()
 
     dispatch_release(m_frameBoundarySemaphore);
 }
-    
+
 const FrameStats& RenderBackendMetal::getLastFrameStats() const
 {
 #ifdef _DEBUG
@@ -879,7 +855,7 @@ VertexBufferHandle RenderBackendMetal::createStaticVertexBuffer(const VertexForm
 #ifdef _DEBUG
         g_stats.addAllocation(vertexBuffer->getSize());
 #endif
-        
+
         vbHandle = VertexBufferHandle(m_vertexBuffersBag.getNew());
 
         m_vertexBuffers[vbHandle.getIndex()] = std::move(vertexBuffer);
@@ -948,7 +924,7 @@ void RenderBackendMetal::destroyVertexBuffer(VertexBufferHandle vbHandle)
     auto foundDynamic = std::find(m_dynamicBuffers.begin(), m_dynamicBuffers.end(), vertexBuffer.get());
     if (foundDynamic != m_dynamicBuffers.end())
         m_dynamicBuffers.erase(foundDynamic);
-    
+
 #ifdef _DEBUG
     g_stats.removeAllocation(vertexBuffer->getSize());
 #endif
@@ -980,7 +956,7 @@ IndexBufferHandle RenderBackendMetal::createIndexBuffer(uint32_t numIndices, con
 #ifdef _DEBUG
         g_stats.addAllocation(ibuffer->m_bufferSize);
 #endif
-        
+
         ibHandle = IndexBufferHandle(m_indexBuffersBag.getNew());
         m_indexBuffers[ibHandle.getIndex()] = std::move(ibuffer);
     }
@@ -991,9 +967,9 @@ IndexBufferHandle RenderBackendMetal::createIndexBuffer(uint32_t numIndices, con
 void RenderBackendMetal::destroyIndexBuffer(IndexBufferHandle ibHandle)
 {
     DF3D_ASSERT(m_indexBuffersBag.isValid(ibHandle.getID()));
-    
+
     auto &ibuffer = m_indexBuffers[ibHandle.getIndex()];
-    
+
 #ifdef _DEBUG
     g_stats.removeAllocation(ibuffer->m_bufferSize);
 #endif

@@ -5,9 +5,7 @@
 
 namespace df3d {
 
-class IGPUProgramSharedState;
 struct TextureResourceData;
-struct EngineInitParams;
 
 struct RenderBackendCaps
 {
@@ -15,15 +13,14 @@ struct RenderBackendCaps
     float maxAnisotropy = 0.0f;
 };
 
-// Inspired by https://github.com/bkaradzic/bgfx
 class IRenderBackend
 {
 public:
     IRenderBackend() = default;
     virtual ~IRenderBackend() = default;
 
-    virtual const RenderBackendCaps& getCaps() const = 0;
-    virtual const FrameStats& getLastFrameStats() const = 0;
+    virtual RenderBackendCaps getCaps() = 0;
+    virtual FrameStats getLastFrameStats() = 0;
 
     virtual void frameBegin() = 0;
     virtual void frameEnd() = 0;

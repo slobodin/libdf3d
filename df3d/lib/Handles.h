@@ -36,6 +36,7 @@ public: \
     name() : m_id(0) { } \
     explicit name(HandleType id) : m_id(id) { } \
     name(HandleType index, HandleType generation) : m_id(HandleBag::MakeHandle(index, generation)) { } \
+    void set(HandleType id) { m_id = id; } \
     HandleType getID() const { return m_id; } \
     HandleType getIndex() const { return HandleBag::HandleIndex(m_id); } \
     HandleType getGeneration() const { return HandleBag::HandleGeneration(m_id); } \

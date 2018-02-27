@@ -6,6 +6,7 @@
 #endif
 
 #include <df3d/engine/render/IRenderBackend.h>
+#include <df3d/engine/render/GPUMemStats.h>
 #include <df3d/lib/Handles.h>
 #include <df3d/lib/Utils.h>
 
@@ -38,31 +39,71 @@
 
 namespace df3d {
 
-class GPUMemoryStats;
-class VertexBufferGL;
-struct IndexBufferGL;
-struct TextureGL;
-
-struct UniformGL
+class GLVertexBuffer
 {
-    GLenum type = GL_INVALID_ENUM;
-    GLint location = -1;
+    VertexFormat m_format;
+    uint32_t m_sizeInBytes = 0;
+    GLuint m_glID = 0;
+    bool m_dynamic = false;
+
+public:
+    bool init(const VertexFormat &format, uint32_t verticesCount, const void *data, bool dynamic);
+    void destroy();
+
+    void bindBuffer(uint32_t vertexStart);
+    void updateData(uint32_t vertexStart, uint32_t numVertices, const void *data);
+    uint32_t getSize() const { return m_sizeInBytes; }
 };
 
-struct ProgramGL
+class GLIndexBuffer
 {
+    GLuint m_glID = 0;
+    uint32_t m_sizeInBytes = 0;
+    bool m_16Bit = false;
+
+public:
+    bool init(uint32_t numIndices, const void *data, bool indices16);
+    void destroy();
+
+    void bindBuffer();
+    uint32_t getSize() const { return m_sizeInBytes; }
+    bool is16Bit() const { return m_16Bit; }
+};
+
+class GLTexture
+{
+    uint32_t m_sizeInBytes = 0;
+    GLuint m_glID = 0;
+    GLenum m_glType = GL_INVALID_ENUM;
+    GLenum m_glPixelFormat = GL_INVALID_ENUM;
+    PixelFormat m_pixelFmt = PixelFormat::INVALID;
+
+public:
+    bool init(const TextureResourceData &data, uint32_t flags, int maxSize, float maxAniso);
+    void destroy();
+
+    void updateData(int originX, int originY, int width, int height, const void *data);
+    void bindTexture(int unit);
+    uint32_t getSize() const { return m_sizeInBytes; }
+};
+
+struct GLProgram
+{
+    struct Uniform
+    {
+        std::string name;
+        GLenum type = GL_INVALID_ENUM;
+        GLint location = -1;
+    };
+
+    std::vector<Uniform> uniforms;
     GLuint glID = 0;
-    std::unordered_map<std::string, UniformHandle> uniforms;
 };
 
 class RenderBackendGL : public IRenderBackend
 {
     RenderBackendCaps m_caps;
-    mutable FrameStats m_stats;
-
-#ifdef _DEBUG
-    unique_ptr<GPUMemoryStats> m_gpuMemStats;
-#endif
+    FrameStats m_frameStats;
 
     std::string m_extensionsString;
     bool m_anisotropicFilteringSupported = false;
@@ -71,17 +112,15 @@ class RenderBackendGL : public IRenderBackend
     HandleBag m_indexBuffersBag;
     HandleBag m_texturesBag;
     HandleBag m_gpuProgramsBag;
-    HandleBag m_uniformsBag;
 
     enum {
         MAX_SIZE = 0xFFF    // 4k is enough for now.
     };
 
-    unique_ptr<VertexBufferGL> m_vertexBuffers[MAX_SIZE];
-    unique_ptr<IndexBufferGL> m_indexBuffers[MAX_SIZE];
-    unique_ptr<TextureGL> m_textures[MAX_SIZE];
-    ProgramGL m_gpuPrograms[MAX_SIZE];
-    UniformGL m_uniforms[MAX_SIZE];
+    GLVertexBuffer m_vertexBuffers[MAX_SIZE];
+    GLIndexBuffer m_indexBuffers[MAX_SIZE];
+    GLTexture m_textures[MAX_SIZE];
+    GLProgram m_gpuPrograms[MAX_SIZE];
 
     struct PipelineState
     {
@@ -101,7 +140,7 @@ class RenderBackendGL : public IRenderBackend
     VertexBufferHandle createVBHelper(const VertexFormat &format, uint32_t numVertices, const void *data, bool dynamic);
     GLuint createShader(const char *data, GLenum type);
     void destroyShader(GLuint programID, GLuint shaderID);
-    void requestUniforms(ProgramGL &programGL);
+    void requestUniforms(GLProgram &programGL);
 
     void setupDepthTest(uint64_t depthState);
     void setupDepthWrite(uint64_t dwState);
@@ -112,8 +151,8 @@ public:
     RenderBackendGL(int width, int height);
     ~RenderBackendGL();
 
-    const RenderBackendCaps& getCaps() const override;
-    const FrameStats& getLastFrameStats() const override;
+    RenderBackendCaps getCaps() override;
+    FrameStats getLastFrameStats() override;
 
     void frameBegin() override;
     void frameEnd() override;

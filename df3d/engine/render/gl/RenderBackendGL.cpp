@@ -10,6 +10,8 @@ namespace df3d {
 
 namespace {
 
+GPUMemStats g_memStats;
+
 const char* GLErrorCodeToString(GLenum errcode)
 {
 #if defined(DF3D_DESKTOP)
@@ -31,7 +33,7 @@ const char* GLErrorCodeToString(GLenum errcode)
 #endif
 }
 
-size_t GetTextureSize(GLint glFormat, size_t w, size_t h, bool mipmaps)
+int GetTextureSize(GLint glFormat, int w, int h, bool mipmaps)
 {
     float result = 0.0f;
     switch (glFormat)
@@ -47,7 +49,7 @@ size_t GetTextureSize(GLint glFormat, size_t w, size_t h, bool mipmaps)
     if (mipmaps)
         result *= 1.33333f;
 
-    return static_cast<size_t>(result);
+    return static_cast<int>(result);
 }
 
 #ifdef _DEBUG
@@ -62,6 +64,14 @@ size_t GetTextureSize(GLint glFormat, size_t w, size_t h, bool mipmaps)
     } while(0)
 #else
 #define GL_CHECK(call) call
+#endif
+
+#ifdef _DEBUG
+#define TRACE_GPU_ALLOC(tag, size) g_memStats.traceAlloc(tag, size)
+#define TRACE_GPU_FREE(tag, size) g_memStats.traceFree(tag, size)
+#else
+#define TRACE_GPU_ALLOC(tag, size)
+#define TRACE_GPU_FREE(tag, size)
 #endif
 
 void SetupGLTextureFiltering(GLenum glType, uint32_t flags)
@@ -179,332 +189,255 @@ GLenum g_blendFuncLookup[] = {
 
 }
 
-class GPUMemoryStats
+bool GLVertexBuffer::init(const VertexFormat &format, uint32_t verticesCount, const void *data, bool dynamic)
 {
-    std::unordered_map<HandleType, size_t> m_textures;
-    std::unordered_map<HandleType, size_t> m_vertexBuffers;
-    std::unordered_map<HandleType, size_t> m_indexBuffers;
+    DF3D_ASSERT(verticesCount > 0);
 
-    int32_t m_total = 0;
-
-    template<typename T, typename V>
-    void addHelper(T &container, V value, size_t sizeInBytes)
+    GL_CHECK(glGenBuffers(1, &m_glID));
+    if (m_glID == 0)
     {
-        DF3D_ASSERT(!utils::contains_key(container, value));
-        container[value] = sizeInBytes;
-        m_total += sizeInBytes;
+        DFLOG_WARN("glGenBuffers failed for GLVertexBuffer");
+        return false;
     }
 
-    template<typename T, typename V>
-    void removeHelper(T &container, V value)
-    {
-        auto found = container.find(value);
-        DF3D_ASSERT(found != container.end());
-        m_total -= found->second;
-        container.erase(found);
-        DF3D_ASSERT(m_total >= 0);
-    }
+    m_dynamic = dynamic;
+    m_format = format;
+    m_sizeInBytes = verticesCount * format.getVertexSize();
 
-public:
-    void addTexture(TextureHandle td, size_t sizeInBytes)
-    {
-        addHelper(m_textures, td.getID(), sizeInBytes);
-    }
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_glID));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, m_sizeInBytes, data, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-    void removeTexture(TextureHandle td)
-    {
-        removeHelper(m_textures, td.getID());
-    }
+    return true;
+}
 
-    void addVertexBuffer(VertexBufferHandle vb, size_t sizeInBytes)
-    {
-        addHelper(m_vertexBuffers, vb.getID(), sizeInBytes);
-    }
-
-    void removeVertexBuffer(VertexBufferHandle vb)
-    {
-        removeHelper(m_vertexBuffers, vb.getID());
-    }
-
-    void addIndexBuffer(IndexBufferHandle ib, size_t sizeInBytes)
-    {
-        addHelper(m_indexBuffers, ib.getID(), sizeInBytes);
-    }
-
-    void removeIndexBuffer(IndexBufferHandle ib)
-    {
-        removeHelper(m_indexBuffers, ib.getID());
-    }
-
-    size_t getGPUMemBytes() const { return m_total; }
-};
-
-class VertexBufferGL
+void GLVertexBuffer::destroy()
 {
-    VertexFormat m_format;
-    size_t m_sizeInBytes = 0;
-    GLuint m_glID = 0;
-    bool m_dynamic = false;
-
-public:
-    bool init(const VertexFormat &format, size_t verticesCount, const void *data, bool dynamic)
-    {
-        DF3D_ASSERT(verticesCount > 0);
-
-        m_dynamic = dynamic;
-        m_format = format;
-        m_sizeInBytes = verticesCount * format.getVertexSize();
-
-        GL_CHECK(glGenBuffers(1, &m_glID));
-        if (m_glID == 0)
-        {
-            DFLOG_WARN("glGenBuffers failed for VertexBufferGL");
-            return false;
-        }
-
-        GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_glID));
-        GL_CHECK(glBufferData(GL_ARRAY_BUFFER, m_sizeInBytes, data, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
-        GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-
-        return true;
-    }
-
-    void destroy()
+    if (m_glID)
     {
         GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
         GL_CHECK(glDeleteBuffers(1, &m_glID));
     }
+    m_glID = 0;
+}
 
-    void bind(uint32_t vertexStart)
-    {
-        GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_glID));
-
-        const auto vertexSize = m_format.getVertexSize();
-
-        for (uint16_t i = VertexFormat::POSITION; i < VertexFormat::COUNT; i++)
-        {
-            auto attrib = (VertexFormat::VertexAttribute)i;
-
-            if (!m_format.hasAttribute(attrib))
-                continue;
-
-            GL_CHECK(glEnableVertexAttribArray(attrib));
-
-            size_t offset = m_format.getOffsetTo(attrib) + vertexStart * vertexSize;
-            size_t count = m_format.getCompCount(attrib);
-
-            GL_CHECK(glVertexAttribPointer(attrib, count, GL_FLOAT, GL_FALSE, vertexSize, (const GLvoid*)offset));
-        }
-    }
-
-    void updateData(uint32_t vertexStart, uint32_t numVertices, const void *data)
-    {
-        DF3D_ASSERT(m_dynamic);
-
-        auto bytesUpdating = numVertices * m_format.getVertexSize();
-        auto offset = vertexStart * m_format.getVertexSize();
-
-        DF3D_ASSERT(bytesUpdating + offset <= m_sizeInBytes);
-
-        GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_glID));
-        GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, offset, bytesUpdating, data));
-        GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    }
-
-    size_t getSizeInBytes() const { return m_sizeInBytes; }
-};
-
-struct IndexBufferGL
+void GLVertexBuffer::bindBuffer(uint32_t vertexStart)
 {
-    GLuint m_glID = 0;
-    size_t m_sizeInBytes = 0;
-    bool m_16Bit = false;
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_glID));
 
-    bool init(uint32_t numIndices, const void *data, bool indices16)
+    const auto vertexSize = m_format.getVertexSize();
+
+    for (uint16_t i = VertexFormat::POSITION; i < VertexFormat::COUNT; i++)
     {
-        GL_CHECK(glGenBuffers(1, &m_glID));
-        if (m_glID == 0)
-        {
-            DFLOG_WARN("glGenBuffers failed for IndexBufferGL");
-            return false;
-        }
+        auto attrib = (VertexFormat::VertexAttribute)i;
 
-        m_16Bit = indices16;
-        m_sizeInBytes = numIndices * (m_16Bit ? sizeof(uint16_t) : sizeof(uint32_t));
+        if (!m_format.hasAttribute(attrib))
+            continue;
 
-        GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glID));
-        GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_sizeInBytes, data, GL_STATIC_DRAW));
-        GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+        GL_CHECK(glEnableVertexAttribArray(attrib));
 
-        return true;
+        size_t offset = m_format.getOffsetTo(attrib) + vertexStart * vertexSize;
+        size_t count = m_format.getCompCount(attrib);
+
+        GL_CHECK(glVertexAttribPointer(attrib, count, GL_FLOAT, GL_FALSE, vertexSize, (const GLvoid*)offset));
+    }
+}
+
+void GLVertexBuffer::updateData(uint32_t vertexStart, uint32_t numVertices, const void *data)
+{
+    DF3D_ASSERT(m_dynamic);
+
+    uint32_t vertexSize = m_format.getVertexSize();
+    uint32_t bytesUpdating = numVertices * vertexSize;
+    uint32_t offset = vertexStart * vertexSize;
+
+    DF3D_ASSERT(bytesUpdating + offset <= m_sizeInBytes);
+
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_glID));
+    GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, offset, bytesUpdating, data));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+}
+
+bool GLIndexBuffer::init(uint32_t numIndices, const void *data, bool indices16)
+{
+    GL_CHECK(glGenBuffers(1, &m_glID));
+    if (m_glID == 0)
+    {
+        DFLOG_WARN("glGenBuffers failed for IndexBufferGL");
+        return false;
     }
 
-    void destroy()
+    m_16Bit = indices16;
+    m_sizeInBytes = numIndices * (m_16Bit ? sizeof(uint16_t) : sizeof(uint32_t));
+
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glID));
+    GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_sizeInBytes, data, GL_STATIC_DRAW));
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+    return true;
+}
+
+void GLIndexBuffer::destroy()
+{
+    if (m_glID)
     {
         GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
         GL_CHECK(glDeleteBuffers(1, &m_glID));
     }
+    m_glID = 0;
+}
 
-    void bind()
-    {
-        GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glID));
-    }
-};
-
-struct TextureGL
+void GLIndexBuffer::bindBuffer()
 {
-    size_t m_debugTotalSize = 0;
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glID));
+}
 
-    GLuint m_glID = 0;
-    GLenum m_glType = GL_INVALID_ENUM;
-    GLenum m_glPixelFormat = GL_INVALID_ENUM;
-    PixelFormat m_pixelFmt = PixelFormat::INVALID;
+bool GLTexture::init(const TextureResourceData &data, uint32_t flags, int maxSize, float maxAniso)
+{
+    DF3D_ASSERT(data.mipLevels.size() > 0);
 
-    bool init(const TextureResourceData &data, uint32_t flags, int maxSize, float maxAniso)
+    int width = data.mipLevels[0].width;
+    int height = data.mipLevels[0].height;
+
+    if (width > maxSize || height > maxSize)
     {
-        DF3D_ASSERT(data.mipLevels.size() > 0);
-
-        int width = data.mipLevels[0].width;
-        int height = data.mipLevels[0].height;
-
-        if (width > maxSize || height > maxSize)
-        {
-            DFLOG_WARN("Failed to create a texture: size is too big. Max size: %d", maxSize);
-            return false;
-        }
-
-        GLenum pixelDataFormat;
-        GLint glInternalFormat;
-        switch (data.format)
-        {
-        case PixelFormat::RGB:
-            pixelDataFormat = GL_RGB;
-            glInternalFormat = GL_RGB;
-            break;
-        case PixelFormat::RGBA:
-            pixelDataFormat = GL_RGBA;
-            glInternalFormat = GL_RGBA;
-            break;
-        case PixelFormat::KTX:
-            pixelDataFormat = data.glBaseInternalFormat;
-            glInternalFormat = data.glInternalFormat;
-            break;
-        default:
-            DFLOG_WARN("Invalid GL texture pixel format");
-            return false;
-        }
-
-        GL_CHECK(glGenTextures(1, &m_glID));
-        if (m_glID == 0)
-        {
-            DFLOG_WARN("glGenTextures failed");
-            return false;
-        }
-
-        GLint previousUnpackAlignment;
-        if (data.format == PixelFormat::KTX)
-        {
-            // KTX files require an unpack alignment of 4
-            glGetIntegerv(GL_UNPACK_ALIGNMENT, &previousUnpackAlignment);
-            if (previousUnpackAlignment != 4)
-                glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        }
-
-        GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_glID));
-
-        SetupGLWrapMode(GL_TEXTURE_2D, flags);
-        SetupGLTextureFiltering(GL_TEXTURE_2D, flags);
-
-        if (data.format == PixelFormat::KTX)
-        {
-            for (size_t mip = 0; mip < data.mipLevels.size(); mip++)
-            {
-                const auto &mipLevel = data.mipLevels[mip];
-
-                GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_2D, mip, glInternalFormat,
-                                                mipLevel.width, mipLevel.height, 0, mipLevel.pixels.size(),
-                                                mipLevel.pixels.data()));
-
-                m_debugTotalSize += mipLevel.pixels.size();
-            }
-        }
-        else
-        {
-            DF3D_ASSERT(data.mipLevels.size() == 1);
-            GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat,
-                                  width, height, 0, pixelDataFormat,
-                                  GL_UNSIGNED_BYTE, data.mipLevels[0].pixels.data()));
-
-            bool mipmapped = false;
-            if (((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_TRILINEAR) ||
-                ((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_ANISOTROPIC))
-            {
-                // Generate mip maps if not provided with texture.
-                if (data.mipLevels.size() == 1)
-                {
-                    GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
-                    mipmapped = true;
-                }
-            }
-
-            m_debugTotalSize = GetTextureSize(glInternalFormat, width, height, mipmapped);
-        }
-
-        if (maxAniso > 0.0f)
-        {
-            if ((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_ANISOTROPIC)
-                GL_CHECK(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, std::max(1.0f, maxAniso)));
-        }
-
-        m_glType = GL_TEXTURE_2D;
-        m_glPixelFormat = pixelDataFormat;
-        m_pixelFmt = data.format;
-
-        GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
-
-        if (data.format == PixelFormat::KTX)
-        {
-            if (previousUnpackAlignment != 4)
-                glPixelStorei(GL_UNPACK_ALIGNMENT, previousUnpackAlignment);
-        }
-
-        return true;
+        DFLOG_WARN("Failed to create a texture: size is too big. Max size: %d", maxSize);
+        return false;
     }
 
-    void destroy()
+    GLenum pixelDataFormat;
+    GLint glInternalFormat;
+    switch (data.format)
+    {
+    case PixelFormat::RGB:
+        pixelDataFormat = GL_RGB;
+        glInternalFormat = GL_RGB;
+        break;
+    case PixelFormat::RGBA:
+        pixelDataFormat = GL_RGBA;
+        glInternalFormat = GL_RGBA;
+        break;
+    case PixelFormat::KTX:
+        pixelDataFormat = data.glBaseInternalFormat;
+        glInternalFormat = data.glInternalFormat;
+        break;
+    default:
+        DFLOG_WARN("Invalid GL texture pixel format");
+        return false;
+    }
+
+    GL_CHECK(glGenTextures(1, &m_glID));
+    if (m_glID == 0)
+    {
+        DFLOG_WARN("glGenTextures failed");
+        return false;
+    }
+
+    GLint previousUnpackAlignment;
+    if (data.format == PixelFormat::KTX)
+    {
+        // KTX files require an unpack alignment of 4
+        glGetIntegerv(GL_UNPACK_ALIGNMENT, &previousUnpackAlignment);
+        if (previousUnpackAlignment != 4)
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    }
+
+    GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_glID));
+
+    SetupGLWrapMode(GL_TEXTURE_2D, flags);
+    SetupGLTextureFiltering(GL_TEXTURE_2D, flags);
+
+    if (data.format == PixelFormat::KTX)
+    {
+        for (size_t mip = 0; mip < data.mipLevels.size(); mip++)
+        {
+            const auto &mipLevel = data.mipLevels[mip];
+
+            GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_2D, mip, glInternalFormat,
+                                            mipLevel.width, mipLevel.height, 0, mipLevel.pixels.size(),
+                                            mipLevel.pixels.data()));
+
+            m_sizeInBytes += mipLevel.pixels.size();
+        }
+    }
+    else
+    {
+        DF3D_ASSERT(data.mipLevels.size() == 1);
+        GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat,
+                              width, height, 0, pixelDataFormat,
+                              GL_UNSIGNED_BYTE, data.mipLevels[0].pixels.data()));
+
+        bool mipmapped = false;
+        if (((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_TRILINEAR) ||
+            ((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_ANISOTROPIC))
+        {
+            // Generate mip maps if not provided with texture.
+            if (data.mipLevels.size() == 1)
+            {
+                GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
+                mipmapped = true;
+            }
+        }
+
+        m_sizeInBytes = GetTextureSize(glInternalFormat, width, height, mipmapped);
+    }
+
+    if (maxAniso > 0.0f)
+    {
+        if ((flags & TEXTURE_FILTERING_MASK) == TEXTURE_FILTERING_ANISOTROPIC)
+            GL_CHECK(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, std::max(1.0f, maxAniso)));
+    }
+
+    m_glType = GL_TEXTURE_2D;
+    m_glPixelFormat = pixelDataFormat;
+    m_pixelFmt = data.format;
+
+    GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
+
+    if (data.format == PixelFormat::KTX)
+    {
+        if (previousUnpackAlignment != 4)
+            glPixelStorei(GL_UNPACK_ALIGNMENT, previousUnpackAlignment);
+    }
+
+    return true;
+}
+
+void GLTexture::destroy()
+{
+    if (m_glID)
     {
         GL_CHECK(glBindTexture(m_glType, 0));
         GL_CHECK(glDeleteTextures(1, &m_glID));
     }
+    m_glID = 0;
+}
 
-    void updateData(int originX, int originY, int width, int height, const void *data)
-    {
-        // FIXME: works only for 2D textures.
-        GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_glID));
-        GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, originX, originY, width, height, m_glPixelFormat, GL_UNSIGNED_BYTE, data));
-    }
+void GLTexture::updateData(int originX, int originY, int width, int height, const void *data)
+{
+    // FIXME: works only for 2D textures.
+    GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_glID));
+    GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, originX, originY, width, height, m_glPixelFormat, GL_UNSIGNED_BYTE, data));
+}
 
-    void bind(int unit)
-    {
-        GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
-        GL_CHECK(glBindTexture(m_glType, m_glID));
-    }
-};
+void GLTexture::bindTexture(int unit)
+{
+    GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+    GL_CHECK(glBindTexture(m_glType, m_glID));
+}
 
 VertexBufferHandle RenderBackendGL::createVBHelper(const VertexFormat &format, uint32_t numVertices, const void *data, bool dynamic)
 {
     VertexBufferHandle vbHandle;
-    unique_ptr<VertexBufferGL> vbuffer = make_unique<VertexBufferGL>();
+    GLVertexBuffer vbuffer;
 
-    if (vbuffer->init(format, numVertices, data, dynamic))
+    if (vbuffer.init(format, numVertices, data, dynamic))
     {
-        vbHandle = VertexBufferHandle(m_vertexBuffersBag.getNew());
+        vbHandle.set(m_vertexBuffersBag.getNew());
 
-#ifdef _DEBUG
-        m_gpuMemStats->addVertexBuffer(vbHandle, vbuffer->getSizeInBytes());
-#endif
+        m_vertexBuffers[vbHandle.getIndex()] = vbuffer;
 
-        m_vertexBuffers[vbHandle.getIndex()] = std::move(vbuffer);
+        TRACE_GPU_ALLOC("Vertex Buffer", vbuffer.getSize());
     }
 
     return vbHandle;
@@ -556,7 +489,7 @@ void RenderBackendGL::destroyShader(GLuint programID, GLuint shaderID)
     GL_CHECK(glDeleteShader(shaderID));
 }
 
-void RenderBackendGL::requestUniforms(ProgramGL &programGL)
+void RenderBackendGL::requestUniforms(GLProgram &programGL)
 {
     DF3D_ASSERT(programGL.uniforms.empty());
 
@@ -572,14 +505,12 @@ void RenderBackendGL::requestUniforms(ProgramGL &programGL)
         GL_CHECK(glGetActiveUniform(programGL.glID, i, sizeof(name) - 1, &nameLength, &uniformVarSize, &type, name));
         name[nameLength] = 0;
 
-        UniformGL uniform;
+        GLProgram::Uniform uniform;
         uniform.type = type;
+        uniform.name = name;
         GL_CHECK(uniform.location = glGetUniformLocation(programGL.glID, name));
 
-        auto uniformHandle = UniformHandle(m_uniformsBag.getNew());
-
-        programGL.uniforms[name] = uniformHandle;
-        m_uniforms[uniformHandle.getIndex()] = uniform;
+        programGL.uniforms.push_back(uniform);
     }
 }
 
@@ -641,13 +572,8 @@ RenderBackendGL::RenderBackendGL(int width, int height)
     : m_vertexBuffersBag(MemoryManager::allocDefault()),
     m_indexBuffersBag(MemoryManager::allocDefault()),
     m_texturesBag(MemoryManager::allocDefault()),
-    m_gpuProgramsBag(MemoryManager::allocDefault()),
-    m_uniformsBag(MemoryManager::allocDefault())
+    m_gpuProgramsBag(MemoryManager::allocDefault())
 {
-#ifdef _DEBUG
-    m_gpuMemStats = make_unique<GPUMemoryStats>();
-#endif
-
 #ifdef DF3D_DESKTOP
     // Init GLEW.
     glewExperimental = GL_TRUE;
@@ -705,13 +631,7 @@ RenderBackendGL::RenderBackendGL(int width, int height)
 
     DFLOG_MESS("Max texture size %d", m_caps.maxTextureSize);
 
-    size_t totalStorage = sizeof(m_vertexBuffers) +
-        sizeof(m_indexBuffers) +
-        sizeof(m_textures) +
-        sizeof(m_gpuPrograms) +
-        sizeof(m_uniforms);
-
-    DFLOG_DEBUG("RenderBackendGL storage %d KB", utils::sizeKB(totalStorage));
+    DFLOG_DEBUG("RenderBackendGL storage %d KB", utils::sizeKB(sizeof(*this)));
 #endif
 
 #if defined(DF3D_DESKTOP)
@@ -725,20 +645,17 @@ RenderBackendGL::~RenderBackendGL()
     DF3D_ASSERT(m_indexBuffersBag.empty());
     DF3D_ASSERT(m_texturesBag.empty());
     DF3D_ASSERT(m_gpuProgramsBag.empty());
-    DF3D_ASSERT(m_uniformsBag.empty());
 }
 
-const RenderBackendCaps& RenderBackendGL::getCaps() const
+RenderBackendCaps RenderBackendGL::getCaps()
 {
     return m_caps;
 }
 
-const FrameStats& RenderBackendGL::getLastFrameStats() const
+FrameStats RenderBackendGL::getLastFrameStats()
 {
-#ifdef _DEBUG
-    m_stats.gpuMemBytes = m_gpuMemStats->getGPUMemBytes();
-#endif
-    return m_stats;
+    m_frameStats.gpuMemBytes = g_memStats.getMemTotal();
+    return m_frameStats;
 }
 
 void RenderBackendGL::frameBegin()
@@ -766,7 +683,7 @@ void RenderBackendGL::frameBegin()
     GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
     GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 
-    m_stats.drawCalls = m_stats.totalLines = m_stats.totalTriangles = 0;
+    m_frameStats.drawCalls = m_frameStats.totalLines = m_frameStats.totalTriangles = 0;
 
     m_pipeLineState = {};
 }
@@ -788,38 +705,46 @@ VertexBufferHandle RenderBackendGL::createDynamicVertexBuffer(const VertexFormat
 
 void RenderBackendGL::destroyVertexBuffer(VertexBufferHandle handle)
 {
-    DF3D_ASSERT(m_vertexBuffersBag.isValid(handle.getID()));
+    if (m_vertexBuffersBag.isValid(handle.getID()))
+    {
+        auto &vbuffer = m_vertexBuffers[handle.getIndex()];
 
-    auto &vbuffer = m_vertexBuffers[handle.getIndex()];
+        TRACE_GPU_FREE("Vertex Buffer", vbuffer.getSize());
 
-    if (!m_destroyAndroidWorkaround)
-        vbuffer->destroy();
+        if (!m_destroyAndroidWorkaround)
+            vbuffer.destroy();
 
-    vbuffer = {};
-
-    m_vertexBuffersBag.release(handle.getID());
-
-#ifdef _DEBUG
-    m_gpuMemStats->removeVertexBuffer(handle);
-#endif
+        vbuffer = {};
+        m_vertexBuffersBag.release(handle.getID());
+    }
+    else
+        DF3D_ASSERT(false);
 }
 
 void RenderBackendGL::bindVertexBuffer(VertexBufferHandle handle, uint32_t vertexStart)
 {
-    DF3D_ASSERT(m_vertexBuffersBag.isValid(handle.getID()));
+    if (m_vertexBuffersBag.isValid(handle.getID()))
+    {
+        auto &vertexBuffer = m_vertexBuffers[handle.getIndex()];
 
-    auto &vertexBuffer = m_vertexBuffers[handle.getIndex()];
+        vertexBuffer.bindBuffer(vertexStart);
 
-    vertexBuffer->bind(vertexStart);
-
-    m_pipeLineState.indexedDrawCall = false;
+        m_pipeLineState.indexedDrawCall = false;
+    }
+    else
+        DF3D_ASSERT(false);
 }
 
 void RenderBackendGL::updateVertexBuffer(VertexBufferHandle handle, uint32_t vertexStart, uint32_t numVertices, const void *data)
 {
-    DF3D_ASSERT(m_vertexBuffersBag.isValid(handle.getID()));
+    if (m_vertexBuffersBag.isValid(handle.getID()))
+    {
+        auto &vertexBuffer = m_vertexBuffers[handle.getIndex()];
 
-    m_vertexBuffers[handle.getIndex()]->updateData(vertexStart, numVertices, data);
+        vertexBuffer.updateData(vertexStart, numVertices, data);
+    }
+    else
+        DF3D_ASSERT(false);
 }
 
 IndexBufferHandle RenderBackendGL::createIndexBuffer(uint32_t numIndices, const void *data, IndicesType indicesType)
@@ -829,17 +754,15 @@ IndexBufferHandle RenderBackendGL::createIndexBuffer(uint32_t numIndices, const 
     DF3D_ASSERT(numIndices > 0);
 
     IndexBufferHandle ibHandle;
-    unique_ptr<IndexBufferGL> ibuffer = make_unique<IndexBufferGL>();
+    GLIndexBuffer ibuffer;
 
-    if (ibuffer->init(numIndices, data, indicesType == INDICES_16_BIT))
+    if (ibuffer.init(numIndices, data, indicesType == INDICES_16_BIT))
     {
-        ibHandle = IndexBufferHandle(m_indexBuffersBag.getNew());
+        ibHandle.set(m_indexBuffersBag.getNew());
 
-#ifdef _DEBUG
-        m_gpuMemStats->addIndexBuffer(ibHandle, ibuffer->m_sizeInBytes);
-#endif
+        m_indexBuffers[ibHandle.getIndex()] = ibuffer;
 
-        m_indexBuffers[ibHandle.getIndex()] = std::move(ibuffer);
+        TRACE_GPU_ALLOC("Index Buffer", ibuffer.getSize());
     }
 
     return ibHandle;
@@ -847,50 +770,51 @@ IndexBufferHandle RenderBackendGL::createIndexBuffer(uint32_t numIndices, const 
 
 void RenderBackendGL::destroyIndexBuffer(IndexBufferHandle handle)
 {
-    DF3D_ASSERT(m_indexBuffersBag.isValid(handle.getID()));
+    if (m_indexBuffersBag.isValid(handle.getID()))
+    {
+        auto &indexBuffer = m_indexBuffers[handle.getIndex()];
 
-    auto &indexBuffer = m_indexBuffers[handle.getIndex()];
+        TRACE_GPU_FREE("Index Buffer", indexBuffer.getSize());
 
-    if (!m_destroyAndroidWorkaround)
-        indexBuffer->destroy();
+        if (!m_destroyAndroidWorkaround)
+            indexBuffer.destroy();
 
-    indexBuffer = {};
+        indexBuffer = {};
 
-    m_indexBuffersBag.release(handle.getID());
-
-#ifdef _DEBUG
-    m_gpuMemStats->removeIndexBuffer(handle);
-#endif
+        m_indexBuffersBag.release(handle.getID());
+    }
+    else
+        DF3D_ASSERT(false);
 }
 
 void RenderBackendGL::bindIndexBuffer(IndexBufferHandle handle)
 {
-    DF3D_ASSERT(m_indexBuffersBag.isValid(handle.getID()));
+    if (m_indexBuffersBag.isValid(handle.getID()))
+    {
+        auto &indexBuffer = m_indexBuffers[handle.getIndex()];
 
-    auto &indexBuffer = m_indexBuffers[handle.getIndex()];
+        indexBuffer.bindBuffer();
 
-    indexBuffer->bind();
-
-    m_pipeLineState.indexedDrawCall = true;
-    m_pipeLineState.currIndicesType = indexBuffer->m_16Bit ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
+        m_pipeLineState.indexedDrawCall = true;
+        m_pipeLineState.currIndicesType = indexBuffer.is16Bit() ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
+    }
+    else
+        DF3D_ASSERT(false);
 }
 
 TextureHandle RenderBackendGL::createTexture(const TextureResourceData &data, uint32_t flags)
 {
     TextureHandle textureHandle;
-    unique_ptr<TextureGL> texture = make_unique<TextureGL>();
+    GLTexture texture;
 
-    if (texture->init(data, flags, m_caps.maxTextureSize, m_anisotropicFilteringSupported ? m_caps.maxAnisotropy : 0.0f))
+    if (texture.init(data, flags, m_caps.maxTextureSize, m_anisotropicFilteringSupported ? m_caps.maxAnisotropy : 0.0f))
     {
-        textureHandle = TextureHandle(m_texturesBag.getNew());
+        textureHandle.set(m_texturesBag.getNew());
 
-        m_stats.textures++;
+        m_textures[textureHandle.getIndex()] = texture;
 
-#ifdef _DEBUG
-        m_gpuMemStats->addTexture(textureHandle, texture->m_debugTotalSize);
-#endif
-
-        m_textures[textureHandle.getIndex()] = std::move(texture);
+        m_frameStats.textures++;
+        TRACE_GPU_ALLOC("Texture", texture.getSize());
     }
 
     return textureHandle;
@@ -898,44 +822,51 @@ TextureHandle RenderBackendGL::createTexture(const TextureResourceData &data, ui
 
 void RenderBackendGL::updateTexture(TextureHandle handle, int originX, int originY, int width, int height, const void *data)
 {
-    DF3D_ASSERT(m_texturesBag.isValid(handle.getID()));
-
-    m_textures[handle.getIndex()]->updateData(originX, originY, width, height, data);
+    if (m_texturesBag.isValid(handle.getID()))
+    {
+        m_textures[handle.getIndex()].updateData(originX, originY, width, height, data);
+    }
+    else
+        DF3D_ASSERT(false);
 }
 
 void RenderBackendGL::destroyTexture(TextureHandle handle)
 {
-    DF3D_ASSERT(m_texturesBag.isValid(handle.getID()));
+    if (m_texturesBag.isValid(handle.getID()))
+    {
+        auto &texture = m_textures[handle.getIndex()];
 
-    auto &texture = m_textures[handle.getIndex()];
+        DF3D_ASSERT(m_frameStats.textures > 0);
+        m_frameStats.textures--;
+        TRACE_GPU_FREE("Texture", texture.getSize());
 
-    if (!m_destroyAndroidWorkaround)
-        texture->destroy();
+        if (!m_destroyAndroidWorkaround)
+            texture.destroy();
 
-    texture = {};
+        texture = {};
 
-    m_texturesBag.release(handle.getID());
-
-    DF3D_ASSERT(m_stats.textures > 0);
-    m_stats.textures--;
-
-#ifdef _DEBUG
-    m_gpuMemStats->removeTexture(handle);
-#endif
+        m_texturesBag.release(handle.getID());
+    }
+    else
+        DF3D_ASSERT(false);
 }
 
 void RenderBackendGL::bindTexture(GPUProgramHandle program, TextureHandle handle, UniformHandle textureUniform, int unit)
 {
-    DF3D_ASSERT(m_texturesBag.isValid(handle.getID()));
+    if (m_texturesBag.isValid(handle.getID()))
+    {
+        m_textures[handle.getIndex()].bindTexture(unit);
 
-    m_textures[handle.getIndex()]->bind(unit);
-    setUniformValue(program, textureUniform, &unit);
+        setUniformValue(program, textureUniform, &unit);
+    }
+    else
+        DF3D_ASSERT(false);
 }
 
 GPUProgramHandle RenderBackendGL::createGPUProgram(const char *vertexShaderData, const char *fragmentShaderData)
 {
     GPUProgramHandle handle;
-    ProgramGL program;
+    GLProgram program;
 
     GL_CHECK(program.glID = glCreateProgram());
     if (program.glID == 0)
@@ -979,7 +910,7 @@ GPUProgramHandle RenderBackendGL::createGPUProgram(const char *vertexShaderData,
 
     requestUniforms(program);
 
-    handle = GPUProgramHandle(m_gpuProgramsBag.getNew());
+    handle.set(m_gpuProgramsBag.getNew());
     m_gpuPrograms[handle.getIndex()] = program;
 
     return handle;
@@ -987,60 +918,64 @@ GPUProgramHandle RenderBackendGL::createGPUProgram(const char *vertexShaderData,
 
 void RenderBackendGL::destroyGPUProgram(GPUProgramHandle handle)
 {
-    DF3D_ASSERT(m_gpuProgramsBag.isValid(handle.getID()));
-
-    auto &programGL = m_gpuPrograms[handle.getIndex()];
-
-    // Destroy associated uniforms.
-    for (const auto &kv : programGL.uniforms)
+    if (m_gpuProgramsBag.isValid(handle.getID()))
     {
-        auto uniformHandle = kv.second;
-        m_uniformsBag.release(uniformHandle.getID());
-        m_uniforms[uniformHandle.getIndex()] = {};
+        auto &programGL = m_gpuPrograms[handle.getIndex()];
+
+        if (!m_destroyAndroidWorkaround)
+        {
+            GL_CHECK(glUseProgram(0));
+            GL_CHECK(glDeleteProgram(programGL.glID));
+        }
+
+        programGL = {};
+        m_gpuProgramsBag.release(handle.getID());
     }
-
-    if (!m_destroyAndroidWorkaround)
-    {
-        GL_CHECK(glUseProgram(0));
-        GL_CHECK(glDeleteProgram(programGL.glID));
-    }
-
-    programGL = {};
-
-    m_gpuProgramsBag.release(handle.getID());
+    else
+        DF3D_ASSERT(false);
 }
 
 void RenderBackendGL::bindGPUProgram(GPUProgramHandle handle)
 {
-    DF3D_ASSERT(m_gpuProgramsBag.isValid(handle.getID()));
-
     if (handle == m_pipeLineState.program)
         return;
 
-    const auto &programGL = m_gpuPrograms[handle.getIndex()];
-    DF3D_ASSERT(programGL.glID != 0);
+    if (m_gpuProgramsBag.isValid(handle.getID()))
+    {
+        const auto &programGL = m_gpuPrograms[handle.getIndex()];
+        DF3D_ASSERT(programGL.glID != 0);
 
-    GL_CHECK(glUseProgram(programGL.glID));
+        GL_CHECK(glUseProgram(programGL.glID));
 
-    m_pipeLineState.program = handle;
+        m_pipeLineState.program = handle;
+    }
+    else
+        DF3D_ASSERT(false);
 }
 
 UniformHandle RenderBackendGL::getUniform(GPUProgramHandle program, const char *name)
 {
-    DF3D_ASSERT(m_gpuProgramsBag.isValid(program.getID()));
+    if (m_gpuProgramsBag.isValid(program.getID()))
+    {
+        const auto &pr = m_gpuPrograms[program.getIndex()];
+        std::string strName = name;
 
-    const auto &pr = m_gpuPrograms[program.getIndex()];
-    auto found = pr.uniforms.find(std::string(name));
-    if (found != pr.uniforms.end())
-        return found->second;
+        for (size_t i = 0; i < pr.uniforms.size(); i++)
+        {
+            if (pr.uniforms[i].name == strName)
+                return UniformHandle{ i + 1 };  // Zero is reserved for invalid handle.
+        }
+    }
+    else
+        DF3D_ASSERT(false);
+
     return {};
 }
 
 void RenderBackendGL::setUniformValue(GPUProgramHandle program, UniformHandle uniformHandle, const void *data)
 {
-    DF3D_ASSERT(m_uniformsBag.isValid(uniformHandle.getID()));
-
-    const auto &uniformGL = m_uniforms[uniformHandle.getIndex()];
+    const auto &programGL = m_gpuPrograms[program.getIndex()];
+    const auto &uniformGL = programGL.uniforms[uniformHandle.getID() - 1];
 
     DF3D_ASSERT(uniformGL.type != GL_INVALID_ENUM && uniformGL.location != -1);
 
@@ -1126,18 +1061,18 @@ void RenderBackendGL::draw(Topology type, uint32_t numberOfElements)
     // Update stats.
 #ifdef _DEBUG
     {
-        m_stats.drawCalls++;
+        m_frameStats.drawCalls++;
         switch (type)
         {
         case Topology::LINES:
-            m_stats.totalLines += numberOfElements / 2;
+            m_frameStats.totalLines += numberOfElements / 2;
             break;
         case Topology::TRIANGLES:
-            m_stats.totalTriangles += numberOfElements / 3;
+            m_frameStats.totalTriangles += numberOfElements / 3;
             break;
         case Topology::TRIANGLE_STRIP:
             if (numberOfElements >= 3)
-                m_stats.totalTriangles += numberOfElements - 2;
+                m_frameStats.totalTriangles += numberOfElements - 2;
             break;
         default:
             break;

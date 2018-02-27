@@ -42,6 +42,7 @@ set(libdf3d_HEADER_LIST
     df3d/engine/physics/PhysicsComponentCreationParams.h
     df3d/engine/physics/PhysicsComponentProcessor.h
     df3d/engine/physics/PhysicsHelpers.h
+    df3d/engine/render/GPUMemStats.h
     df3d/engine/render/IGpuProgramSharedState.h
     df3d/engine/render/IRenderBackend.h
     df3d/engine/render/Material.h
@@ -141,6 +142,7 @@ set(libdf3d_SRC_LIST
     df3d/engine/physics/BulletInterface.cpp
     df3d/engine/physics/PhysicsComponentCreationParams.cpp
     df3d/engine/physics/PhysicsComponentProcessor.cpp
+    df3d/engine/render/GPUMemStats.cpp
     df3d/engine/render/Material.cpp
     df3d/engine/render/MeshUtils.cpp
     df3d/engine/render/RenderManager.cpp

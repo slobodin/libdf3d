@@ -33,7 +33,7 @@ public:
     bool hasAttribute(VertexAttribute attrib) const { return m_attribs[attrib] != 0xFFFF; }
 
     //! Returns vertex size of this format in bytes.
-    size_t getVertexSize() const { return m_size; }
+    uint32_t getVertexSize() const { return m_size; }
 
     //! Returns offset in bytes to a given attribute.
     uint16_t getOffsetTo(VertexAttribute attrib) const { return m_attribs[attrib] >> 8; }
