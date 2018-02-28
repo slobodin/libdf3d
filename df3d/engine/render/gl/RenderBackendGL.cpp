@@ -965,7 +965,7 @@ UniformHandle RenderBackendGL::getUniform(GPUProgramHandle program, const char *
         for (size_t i = 0; i < pr.uniforms.size(); i++)
         {
             if (pr.uniforms[i].name == strName)
-                return UniformHandle{ i + 1 };  // Zero is reserved for invalid handle.
+                return UniformHandle(i + 1);  // Zero is reserved for invalid handle.
         }
     }
     else
