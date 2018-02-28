@@ -358,12 +358,30 @@ class GamePadHelper implements InputManager.InputDeviceListener {
                     mOldRightThumbstickY = tmp.value;
                 }
 
+                // Left, right triggers
+                final float leftTriggerVal = event.getAxisValue(MotionEvent.AXIS_LTRIGGER);
+                final float rightTriggerVal = event.getAxisValue(MotionEvent.AXIS_RTRIGGER);
+
                 if (leftChanged) {
                     notifyEngineJoystickEvent(true, mOldLeftThumbstickX, -mOldLeftThumbstickY);
                 }
                 if (rightChanged) {
                     notifyEngineJoystickEvent(false, mOldRightThumbstickX, -mOldRightThumbstickY);
                 }
+
+                mActivity.runOnMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        nativeControllerButtonPressedL2(leftTriggerVal > 0.2f);
+                    }
+                });
+
+                mActivity.runOnMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        nativeControllerButtonPressedR2(rightTriggerVal > 0.2f);
+                    }
+                });
             }
         }
     }
