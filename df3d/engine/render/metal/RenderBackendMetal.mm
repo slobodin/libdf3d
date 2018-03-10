@@ -774,11 +774,8 @@ RenderBackendMetal::~RenderBackendMetal()
     dispatch_release(m_frameBoundarySemaphore);
 }
 
-const FrameStats& RenderBackendMetal::getLastFrameStats() const
+FrameStats RenderBackendMetal::getLastFrameStats()
 {
-#ifdef _DEBUG
-    m_stats.gpuMemBytes = g_stats.totalMem;
-#endif
     return m_stats;
 }
 
@@ -852,10 +849,6 @@ VertexBufferHandle RenderBackendMetal::createStaticVertexBuffer(const VertexForm
     VertexBufferHandle vbHandle;
     if (vertexBuffer->initialize(m_mtlDevice, data, sizeInBytes))
     {
-#ifdef _DEBUG
-        g_stats.addAllocation(vertexBuffer->getSize());
-#endif
-
         vbHandle = VertexBufferHandle(m_vertexBuffersBag.getNew());
 
         m_vertexBuffers[vbHandle.getIndex()] = std::move(vertexBuffer);
@@ -886,10 +879,6 @@ VertexBufferHandle RenderBackendMetal::createDynamicVertexBuffer(const VertexFor
     VertexBufferHandle vbHandle;
     if (vertexBuffer->initialize(m_mtlDevice, data, sizeInBytes))
     {
-#ifdef _DEBUG
-        g_stats.addAllocation(vertexBuffer->getSize());
-#endif
-
         vbHandle = VertexBufferHandle(m_vertexBuffersBag.getNew());
 
         m_vertexBuffers[vbHandle.getIndex()] = std::move(vertexBuffer);
@@ -925,10 +914,6 @@ void RenderBackendMetal::destroyVertexBuffer(VertexBufferHandle vbHandle)
     if (foundDynamic != m_dynamicBuffers.end())
         m_dynamicBuffers.erase(foundDynamic);
 
-#ifdef _DEBUG
-    g_stats.removeAllocation(vertexBuffer->getSize());
-#endif
-
     vertexBuffer.reset();
 
     m_vertexBuffersBag.release(vbHandle.getID());
@@ -953,10 +938,6 @@ IndexBufferHandle RenderBackendMetal::createIndexBuffer(uint32_t numIndices, con
 
     if (ibuffer->init(m_mtlDevice, numIndices, data, indicesType == INDICES_16_BIT))
     {
-#ifdef _DEBUG
-        g_stats.addAllocation(ibuffer->m_bufferSize);
-#endif
-
         ibHandle = IndexBufferHandle(m_indexBuffersBag.getNew());
         m_indexBuffers[ibHandle.getIndex()] = std::move(ibuffer);
     }
@@ -969,10 +950,6 @@ void RenderBackendMetal::destroyIndexBuffer(IndexBufferHandle ibHandle)
     DF3D_ASSERT(m_indexBuffersBag.isValid(ibHandle.getID()));
 
     auto &ibuffer = m_indexBuffers[ibHandle.getIndex()];
-
-#ifdef _DEBUG
-    g_stats.removeAllocation(ibuffer->m_bufferSize);
-#endif
 
     ibuffer.reset();
 

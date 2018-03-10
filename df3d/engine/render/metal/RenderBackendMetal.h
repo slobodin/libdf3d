@@ -93,9 +93,9 @@ public:
     RenderBackendMetal(const EngineInitParams &params);
     ~RenderBackendMetal();
 
-    const RenderBackendCaps& getCaps() const override { return m_caps; }
-    const FrameStats& getLastFrameStats() const override;
-
+    RenderBackendCaps getCaps() override { return m_caps; }
+    FrameStats getLastFrameStats() override;
+    
     void frameBegin() override;
     void frameEnd() override;
 
