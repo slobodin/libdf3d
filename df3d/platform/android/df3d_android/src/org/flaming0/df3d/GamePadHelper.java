@@ -21,6 +21,8 @@ class GamePadHelper implements InputManager.InputDeviceListener {
     private float mOldLeftThumbstickY = 0.0f;
     private float mOldRightThumbstickX = 0.0f;
     private float mOldRightThumbstickY = 0.0f;
+    private float mOldLeftTrigger = 0.0f;
+    private float mOldRightTrigger = 0.0f;
 
     private native void nativeControllerConnected(int deviceId);
     private native void nativeControllerDisconnected(int deviceId);
@@ -358,10 +360,6 @@ class GamePadHelper implements InputManager.InputDeviceListener {
                     mOldRightThumbstickY = tmp.value;
                 }
 
-                // Left, right triggers
-                final float leftTriggerVal = event.getAxisValue(MotionEvent.AXIS_LTRIGGER);
-                final float rightTriggerVal = event.getAxisValue(MotionEvent.AXIS_RTRIGGER);
-
                 if (leftChanged) {
                     notifyEngineJoystickEvent(true, mOldLeftThumbstickX, -mOldLeftThumbstickY);
                 }
@@ -369,19 +367,37 @@ class GamePadHelper implements InputManager.InputDeviceListener {
                     notifyEngineJoystickEvent(false, mOldRightThumbstickX, -mOldRightThumbstickY);
                 }
 
-                mActivity.runOnMainThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        nativeControllerButtonPressedL2(leftTriggerVal > 0.2f);
-                    }
-                });
+                boolean leftTriggerChanged = false;
+                boolean rightTriggerChanged = false;
+                tmp = testFn(MotionEvent.AXIS_LTRIGGER, event, mOldLeftTrigger);
+                if (tmp.changed) {
+                    leftTriggerChanged = true;
+                    mOldLeftTrigger = tmp.value;
+                }
 
-                mActivity.runOnMainThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        nativeControllerButtonPressedR2(rightTriggerVal > 0.2f);
-                    }
-                });
+                tmp = testFn(MotionEvent.AXIS_RTRIGGER, event, mOldRightTrigger);
+                if (tmp.changed) {
+                    rightTriggerChanged = true;
+                    mOldRightTrigger = tmp.value;
+                }
+
+                if (leftTriggerChanged) {
+                    mActivity.runOnMainThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            nativeControllerButtonPressedL2(mOldLeftTrigger > 0.2f);
+                        }
+                    });
+                }
+
+                if (rightTriggerChanged) {
+                    mActivity.runOnMainThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            nativeControllerButtonPressedR2(mOldRightTrigger > 0.2f);
+                        }
+                    });
+                }
             }
         }
     }
