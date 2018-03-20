@@ -1,6 +1,7 @@
 #include "MeshResource.h"
 
 #include "loaders/MeshLoader_obj.h"
+#include "loaders/MeshLoader_fbx.h"
 #include "loaders/MeshLoader_dfmesh.h"
 #include "ResourceFileSystem.h"
 #include "ResourceDataSource.h"
@@ -74,6 +75,8 @@ static MeshResourceData *LoadMeshDataFromFile(const char *path, Allocator &alloc
         result = MeshLoader_obj(*meshDataSource, allocator);
     else if (FileSystemHelpers::compareExtension(path, ".dfmesh"))
         result = MeshLoader_dfmesh(*meshDataSource, allocator);
+    else if (FileSystemHelpers::compareExtension(path, ".fbx"))
+        result = MeshLoader_fbx(*meshDataSource, allocator);
     else
         DF3D_ASSERT_MESS(false, "Unsupported mesh file format!");
 

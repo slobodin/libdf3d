@@ -107,6 +107,7 @@ public:
     ~InputManager() = default;
 
     void setEnabled(bool enabled);
+    bool getEnabled() const { return m_enabled; }
 
     const glm::ivec2& getMousePosition() const;
     const glm::ivec2& getMouseDelta() const;
