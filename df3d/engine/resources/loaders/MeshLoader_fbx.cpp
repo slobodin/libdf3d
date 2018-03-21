@@ -215,6 +215,12 @@ public:
 
         return result;
     }
+
+    std::string toString() const
+    {
+        DF3D_ASSERT(m_typeCode == 'S');
+        return m_value.string;
+    }
 };
 
 class FBXNode
@@ -327,41 +333,43 @@ public:
     }
 };
 
-MeshResourceData::Part* ParseGeometry(ResourceDataSource &dataSource, const FBXNode &node, Allocator &alloc)
+std::vector<glm::vec3> GetVerticesData(ResourceDataSource &dataSource, const FBXNode &node)
 {
-    std::vector<glm::vec3> verts;
-    std::vector<glm::vec3> normals;
-
     auto vertsNode = node.getNodes("Vertices");
     DF3D_ASSERT(vertsNode.size() == 1);
+    return vertsNode[0]->firstProperty()->toVec3Array();
+}
+
+std::vector<glm::vec3> GetNormalsData(ResourceDataSource &dataSource, const FBXNode &node)
+{
+    auto normalsNode = node.getNodes("LayerElementNormal");
+    DF3D_ASSERT(normalsNode.size() == 1);
+
+#ifdef _DEBUG
+    DF3D_ASSERT(normalsNode[0]->getNodes("MappingInformationType").at(0)->firstProperty()->toString() == "ByPolygonVertex");
+    DF3D_ASSERT(normalsNode[0]->getNodes("ReferenceInformationType").at(0)->firstProperty()->toString() == "Direct");
+#endif
+
+    normalsNode = normalsNode[0]->getNodes("Normals");
+    DF3D_ASSERT(normalsNode.size() == 1);
+
+    return normalsNode[0]->firstProperty()->toVec3Array();
+}
+
+df3d::PodArray<uint16_t> GetIndexData(ResourceDataSource &dataSource, const FBXNode &node, Allocator &alloc)
+{
     auto indicesNode = node.getNodes("PolygonVertexIndex");
     DF3D_ASSERT(indicesNode.size() == 1);
 
-    //for (const auto &child : node.children)
-    //{
+    return indicesNode[0]->firstProperty()->toUint16ArrayAsIndices(alloc);
+}
 
+MeshResourceData::Part* ParseGeometry(ResourceDataSource &dataSource, const FBXNode &node, Allocator &alloc)
+{
+    auto verts = GetVerticesData(dataSource, node);
+    auto normals = GetNormalsData(dataSource, node);
 
-    //    if (child->name == "LayerElementNormal")
-    //    {
-    //        for (const auto &tmp : child->children)
-    //        {
-    //            if (tmp->name == "MappingInformationType")
-    //            {
-    //                dataSource.seek(tmp->properties[0].offset, SeekDir::BEGIN);
-    //                auto mappingType = ReadString(dataSource);
-    //                DF3D_ASSERT(mappingType == "ByPolygonVertex");
-    //            }
-    //            if (tmp->name == "Normals")
-    //            {
-    //                normals = ReadVertices(dataSource, *tmp);
-    //            }
-    //        }
-    //    }
-    //}
-
-    verts = vertsNode[0]->firstProperty()->toVec3Array();
-
-    DF3D_ASSERT(!verts.empty());
+    DF3D_ASSERT(!verts.empty() && !normals.empty());
 
     auto vf = Vertex_p_n_tx_tan_bitan::getFormat();
 
@@ -382,7 +390,9 @@ MeshResourceData::Part* ParseGeometry(ResourceDataSource &dataSource, const FBXN
         i++;
     }
 
-    meshPart->indexData = indicesNode[0]->firstProperty()->toUint16ArrayAsIndices(alloc);
+    meshPart->indexData = GetIndexData(dataSource, node, alloc);
+
+    DF3D_ASSERT(meshPart->indexData.size() > 0 && meshPart->indexData.size() == normals.size());
 
     const auto vData = (Vertex_p_n_tx_tan_bitan*)meshPart->vertexData.getRawData();
     const auto vCount = meshPart->vertexData.getVerticesCount();
