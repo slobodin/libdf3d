@@ -200,9 +200,24 @@ public:
         return result;
     }
 
-    PodArray<uint16_t> toUint16ArrayAsIndices(Allocator &alloc) const
+    std::vector<glm::vec2> toVec2Array() const
     {
-        PodArray<uint16_t> result(alloc);
+        DF3D_ASSERT(m_typeCode == 'd');
+        DF3D_ASSERT(m_value.arrDouble.size() % 2 == 0);
+
+        std::vector<glm::vec2> result;
+        for (int i = 0; i < m_value.arrDouble.size(); i += 2)
+        {
+            float x = (float)m_value.arrDouble[i + 0];
+            float y = (float)m_value.arrDouble[i + 1];
+            result.push_back({ x, y });
+        }
+        return result;
+    }
+
+    std::vector<uint16_t> toUint16ArrayAsIndices() const
+    {
+        std::vector<uint16_t> result;
         DF3D_ASSERT(m_typeCode == 'i');
 
         for (auto v : m_value.arrInt)
@@ -214,6 +229,14 @@ public:
         }
 
         return result;
+    }
+
+    std::vector<int32_t> toIntArray() const
+    {
+        std::vector<int32_t> result;
+        DF3D_ASSERT(m_typeCode == 'i');
+
+        return m_value.arrInt;
     }
 
     std::string toString() const
@@ -356,43 +379,70 @@ std::vector<glm::vec3> GetNormalsData(ResourceDataSource &dataSource, const FBXN
     return normalsNode[0]->firstProperty()->toVec3Array();
 }
 
-df3d::PodArray<uint16_t> GetIndexData(ResourceDataSource &dataSource, const FBXNode &node, Allocator &alloc)
+std::vector<uint16_t> GetIndexData(ResourceDataSource &dataSource, const FBXNode &node)
 {
     auto indicesNode = node.getNodes("PolygonVertexIndex");
     DF3D_ASSERT(indicesNode.size() == 1);
 
-    return indicesNode[0]->firstProperty()->toUint16ArrayAsIndices(alloc);
+    return indicesNode[0]->firstProperty()->toUint16ArrayAsIndices();
+}
+
+struct UVData
+{
+    std::vector<glm::vec2> uv;
+    std::vector<int32_t> index;
+};
+
+UVData GetUVData(ResourceDataSource &dataSource, const FBXNode &node)
+{
+    auto indicesNode = node.getNodes("LayerElementUV");
+
+#ifdef _DEBUG
+    DF3D_ASSERT(indicesNode[0]->getNodes("MappingInformationType").at(0)->firstProperty()->toString() == "ByPolygonVertex");
+    DF3D_ASSERT(indicesNode[0]->getNodes("ReferenceInformationType").at(0)->firstProperty()->toString() == "IndexToDirect");
+#endif
+
+    auto uvProp = indicesNode[0]->getNodes("UV").at(0)->firstProperty();
+    auto uvIndexProp = indicesNode[0]->getNodes("UVIndex").at(0)->firstProperty();
+
+    return { uvProp->toVec2Array(), uvIndexProp->toIntArray() };
 }
 
 MeshResourceData::Part* ParseGeometry(ResourceDataSource &dataSource, const FBXNode &node, Allocator &alloc)
 {
     auto verts = GetVerticesData(dataSource, node);
     auto normals = GetNormalsData(dataSource, node);
+    auto indices = GetIndexData(dataSource, node);
+    auto uvdata = GetUVData(dataSource, node);
 
     DF3D_ASSERT(!verts.empty() && !normals.empty());
+    DF3D_ASSERT(indices.size() > 0 && indices.size() == normals.size() && uvdata.index.size() == normals.size());
+    DF3D_ASSERT(indices.size() % 3 == 0);
 
     auto vf = Vertex_p_n_tx_tan_bitan::getFormat();
 
     auto meshPart = MAKE_NEW(alloc, MeshResourceData::Part)(vf, alloc);
-    meshPart->vertexData.addVertices(verts.size());
     meshPart->indicesType = INDICES_16_BIT;
 
     int i = 0;
-    for (auto pos : verts)
+    for (auto index : indices)
     {
+        meshPart->vertexData.addVertex();
         auto v = (Vertex_p_n_tx_tan_bitan*)meshPart->vertexData.getVertex(i);
+
+        auto pos = verts.at(index);
+        auto normal = normals.at(i);
+        auto uvIndex = uvdata.index.at(i);
+        auto uv = uvdata.uv.at(uvIndex);
+
         v->pos = pos;
         v->tangent = {};
         v->bitangent = {};
-        v->normal = {};
-        v->uv = {};
+        v->normal = normal;
+        v->uv = uv;
 
         i++;
     }
-
-    meshPart->indexData = GetIndexData(dataSource, node, alloc);
-
-    DF3D_ASSERT(meshPart->indexData.size() > 0 && meshPart->indexData.size() == normals.size());
 
     const auto vData = (Vertex_p_n_tx_tan_bitan*)meshPart->vertexData.getRawData();
     const auto vCount = meshPart->vertexData.getVerticesCount();
