@@ -1,8 +1,8 @@
 #include "MeshResource.h"
 
 #include "loaders/MeshLoader_obj.h"
-#include "loaders/MeshLoader_fbx.h"
 #include "loaders/MeshLoader_dfmesh.h"
+#include "loaders/MeshLoader_assxml.h"
 #include "ResourceFileSystem.h"
 #include "ResourceDataSource.h"
 #include <df3d/engine/physics/PhysicsHelpers.h>
@@ -75,8 +75,8 @@ static MeshResourceData *LoadMeshDataFromFile(const char *path, Allocator &alloc
         result = MeshLoader_obj(*meshDataSource, allocator);
     else if (FileSystemHelpers::compareExtension(path, ".dfmesh"))
         result = MeshLoader_dfmesh(*meshDataSource, allocator);
-    else if (FileSystemHelpers::compareExtension(path, ".fbx"))
-        result = MeshLoader_fbx(*meshDataSource, allocator);
+    else if (FileSystemHelpers::compareExtension(path, ".assxml"))
+        result = MeshLoader_assxml(*meshDataSource, allocator);
     else
         DF3D_ASSERT_MESS(false, "Unsupported mesh file format!");
 
