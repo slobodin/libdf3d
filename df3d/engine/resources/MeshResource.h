@@ -61,12 +61,20 @@ public:
     void* getResource() override { return m_resource; }
 };
 
+struct AnimationFrameData
+{
+    glm::vec3 position;
+    glm::quat orientation;
+};
+
 struct AnimatedMeshNode
 {
     glm::mat4 transform;
     std::string name;
     std::vector<shared_ptr<AnimatedMeshNode>> children;
     int meshIdx = -1;
+
+    std::vector<AnimationFrameData> animation;
 };
 
 struct AnimatedMeshResourceData

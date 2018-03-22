@@ -18,7 +18,9 @@ class AnimatedMeshComponentProcessor : public EntityComponentProcessor
         std::vector<MeshPart> meshParts;
         std::vector<Material> materials;
         shared_ptr<AnimatedMeshNode> root;
+        int64_t frameCounter = 0;
         df3d::Entity holder;
+        float timer = 0.0f;
     };
 
     ComponentDataHolder<Data> m_data;

@@ -196,6 +196,83 @@ shared_ptr<AnimatedMeshNode> ParseNodes(pugi::xml_node rootNode)
     return result;
 }
 
+std::vector<glm::vec3> ParseAnimationPositions(pugi::xml_node root)
+{
+    std::vector<glm::vec3> result;
+
+    for (pugi::xml_node n = root.child("PositionKey"); n; n = n.next_sibling("PositionKey"))
+    {
+        glm::vec3 value;
+
+        sscanf(n.first_child().value(), "%f %f %f", &value.x, &value.y, &value.z);
+
+        result.push_back(value);
+    }
+
+    return result;
+}
+
+std::vector<glm::quat> ParseAnimationOrientations(pugi::xml_node root)
+{
+    std::vector<glm::quat> result;
+
+    for (pugi::xml_node n = root.child("RotationKey"); n; n = n.next_sibling("RotationKey"))
+    {
+        glm::quat value;
+
+        sscanf(n.first_child().value(), "%f %f %f %f", &value.x, &value.y, &value.z, &value.w);
+
+        result.push_back(value);
+    }
+
+    return result;
+}
+
+using AnimationMap = std::unordered_map<std::string, std::vector<AnimationFrameData>>;
+
+AnimationMap ParseAnimation(pugi::xml_node animListNode)
+{
+    std::unordered_map<std::string, std::vector<AnimationFrameData>> result;
+
+    for (pugi::xml_node n = animListNode.child("NodeAnim"); n; n = n.next_sibling("NodeAnim"))
+    {
+        std::string nodeName = n.attribute("node").as_string();
+
+        auto positions = ParseAnimationPositions(n.child("PositionKeyList"));
+        auto rotations = ParseAnimationOrientations(n.child("RotationKeyList"));
+
+        std::vector<AnimationFrameData> frames;
+
+        auto size = std::max(positions.size(), rotations.size());
+        for (size_t i = 0; i < size; i++)
+        {
+            AnimationFrameData frame;
+            if (i < positions.size())
+                frame.position = positions[i];
+            if (i < rotations.size())
+                frame.orientation = rotations[i];
+
+            frames.push_back(frame);
+        }
+
+        DF3D_ASSERT(!df3d::utils::contains_key(result, nodeName));
+
+        result[nodeName] = frames;
+    }
+
+    return result;
+}
+
+void SetAnimation(const AnimationMap &animMap, AnimatedMeshNode *node)
+{
+    auto found = animMap.find(node->name);
+    if (found != animMap.end())
+        node->animation = found->second;
+
+    for (const auto &child : node->children)
+        SetAnimation(animMap, child.get());
+}
+
 }
 
 AnimatedMeshResourceData* MeshLoader_assxml(ResourceDataSource &dataSource, Allocator &alloc)
@@ -206,6 +283,10 @@ AnimatedMeshResourceData* MeshLoader_assxml(ResourceDataSource &dataSource, Allo
 
     result->parts = ParseMeshes(doc.child("ASSIMP").child("Scene").child("MeshList"), alloc);
     result->root = ParseNodes(doc.child("ASSIMP").child("Scene").child("Node"));
+
+    auto animations = ParseAnimation(doc.child("ASSIMP").child("Scene").child("AnimationList").child("Animation").child("NodeAnimList"));
+
+    SetAnimation(animations, result->root.get());
 
     return result;
 }
