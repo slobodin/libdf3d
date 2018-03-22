@@ -28,6 +28,7 @@ set(libdf3d_HEADER_LIST
     df3d/engine/3d/Light.h
     df3d/engine/3d/SceneGraphComponentProcessor.h
     df3d/engine/3d/StaticMeshComponentProcessor.h
+    df3d/engine/3d/AnimatedMeshComponentProcessor.h
     df3d/engine/gui/GuiManager.h
     df3d/engine/gui/TBInterface.h
     df3d/engine/input/InputEvents.h
@@ -69,6 +70,7 @@ set(libdf3d_HEADER_LIST
     df3d/engine/resources/ResourceManager.h
     df3d/engine/resources/TextureResource.h
     df3d/engine/resources/loaders/MeshLoader_dfmesh.h
+    df3d/engine/resources/loaders/MeshLoader_assxml.h
     df3d/engine/resources/loaders/MeshLoader_obj.h
     df3d/engine/resources/loaders/MeshLoader_fbx.h
     df3d/engine/resources/loaders/TextureLoader_stbi.h
@@ -130,6 +132,7 @@ set(libdf3d_SRC_LIST
     df3d/engine/3d/Light.cpp
     df3d/engine/3d/SceneGraphComponentProcessor.cpp
     df3d/engine/3d/StaticMeshComponentProcessor.cpp
+    df3d/engine/3d/AnimatedMeshComponentProcessor.cpp
     df3d/engine/gui/GuiManager.cpp
     df3d/engine/gui/TBInterface.cpp
     df3d/engine/input/InputEvents.cpp
@@ -161,6 +164,7 @@ set(libdf3d_SRC_LIST
     df3d/engine/resources/ResourceManager.cpp
     df3d/engine/resources/TextureResource.cpp
     df3d/engine/resources/loaders/MeshLoader_dfmesh.cpp
+    df3d/engine/resources/loaders/MeshLoader_assxml.cpp
     df3d/engine/resources/loaders/MeshLoader_obj.cpp
     df3d/engine/resources/loaders/MeshLoader_fbx.cpp
     df3d/engine/resources/loaders/TextureLoader_stbi.cpp
@@ -310,6 +314,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/squirrel)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/zlib)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/webp)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/freetype-2.6.5)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/pugixml)
 
 SET(FREETYPE_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/third-party/freetype-2.6.5/include")
 SET(FREETYPE_LIBRARY freetype)
@@ -344,6 +349,7 @@ target_link_libraries(libdf3d
     ${FREETYPE_LIBRARY}
     zlibstatic
     TurboBadgerLib
+    pugixml
     webp)
 
 if (DF3D_DESKTOP)
