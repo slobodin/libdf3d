@@ -647,7 +647,7 @@ MeshResourceData* CreateResource(const std::vector<FBXGeometry> &geometries,
 
 MeshResourceData* MeshLoader_fbx(ResourceDataSource &dataSource, Allocator &alloc)
 {
-    DF3D_ASSERT(false, "NOT IMPLEMENTED");
+    DF3D_ASSERT_MESS(false, "NOT IMPLEMENTED");
 
     auto root = FBXNode::FromFile(dataSource);
     if (!root)

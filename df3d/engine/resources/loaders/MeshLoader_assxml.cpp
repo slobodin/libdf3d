@@ -8,6 +8,14 @@
 
 namespace df3d {
 
+class AnimatedMeshNode
+{
+    std::string name;
+    glm::mat4 transform;
+    std::vector<AnimatedMeshNode*> children;
+    Mesh* mesh;
+};
+
 namespace {
 
 pugi::xml_document ParseDoc(ResourceDataSource &dataSource)
@@ -103,6 +111,34 @@ df3d::PodArray<uint16_t> ReadFaceList(pugi::xml_node n, Allocator &alloc)
     return result;
 }
 
+glm::mat4 ParseMatrix(const char *data)
+{
+    glm::vec4 row1, row2, row3, row4;
+    sscanf(data, "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f", 
+            &row1.x, &row1.y, &row1.z, &row1.w,
+            &row2.x, &row2.y, &row2.z, &row2.w,
+            &row3.x, &row3.y, &row3.z, &row3.w,
+            &row4.x, &row4.y, &row4.z, &row4.w);
+
+    auto m = glm::mat4(row1, row2, row3, row4);
+
+    return glm::transpose(m);
+}
+
+glm::mat4 ReadTransformRecursive(pugi::xml_node n)
+{
+    if (!n.child("MeshRefs").empty())
+        return glm::mat4(1.0f);
+
+    auto children = n.child("NodeList");
+    DF3D_ASSERT(children.attribute("num").as_int() == 1);
+
+    auto myMatrix = ParseMatrix(n.child("Matrix4").first_child().value());
+    auto childMatrix = ReadTransformRecursive(children.child("Node"));
+
+    return myMatrix * childMatrix;
+}
+
 MeshResourceData* ParseMeshes(pugi::xml_node meshListNode, Allocator &alloc)
 {
     auto result = MAKE_NEW(alloc, MeshResourceData)();
@@ -151,6 +187,19 @@ MeshResourceData* MeshLoader_assxml(ResourceDataSource &dataSource, Allocator &a
     auto doc = ParseDoc(dataSource);
 
     auto mesh = ParseMeshes(doc.child("ASSIMP").child("Scene").child("MeshList"), alloc);
+
+    std::vector<glm::mat4> transforms;
+    auto rootNode = doc.child("ASSIMP").child("Scene").child("Node").child("NodeList");
+    for (pugi::xml_node n = rootNode.child("Node"); n; n = n.next_sibling("Node"))
+    {
+        auto tr = ReadTransformRecursive(n);
+        transforms.push_back(tr);
+    }
+
+    DF3D_ASSERT(transforms.size() == mesh->parts.size());
+
+    for (size_t i = 0; i < mesh->parts.size(); i++)
+        mesh->parts[i]->transform = transforms[i];
 
     return mesh;
 }
