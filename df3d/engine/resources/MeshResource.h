@@ -61,4 +61,43 @@ public:
     void* getResource() override { return m_resource; }
 };
 
+struct AnimatedMeshNode
+{
+    glm::mat4 transform;
+    std::string name;
+    std::vector<shared_ptr<AnimatedMeshNode>> children;
+    int meshIdx = -1;
+};
+
+struct AnimatedMeshResourceData
+{
+    std::vector<shared_ptr<MeshResourceData::Part>> parts;
+    shared_ptr<AnimatedMeshNode> root;
+};
+
+struct AnimatedMeshResource
+{
+    std::vector<MeshPart> meshParts;
+    std::vector<Id> materialNames;
+    Id materialLibResourceId;
+
+    shared_ptr<AnimatedMeshNode> root;
+};
+
+class AnimatedMeshHolder : public IResourceHolder
+{
+    AnimatedMeshResource *m_resource = nullptr;
+    AnimatedMeshResourceData *m_resourceData = nullptr;
+    Id m_materialLib;
+
+public:
+    void listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps);
+    bool decodeStartup(ResourceDataSource &dataSource, Allocator &allocator) override;
+    void decodeCleanup(Allocator &allocator) override;
+    bool createResource(Allocator &allocator) override;
+    void destroyResource(Allocator &allocator) override;
+
+    void* getResource() override { return m_resource; }
+};
+
 }

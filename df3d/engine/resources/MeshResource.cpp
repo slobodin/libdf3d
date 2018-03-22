@@ -75,10 +75,21 @@ static MeshResourceData *LoadMeshDataFromFile(const char *path, Allocator &alloc
         result = MeshLoader_obj(*meshDataSource, allocator);
     else if (FileSystemHelpers::compareExtension(path, ".dfmesh"))
         result = MeshLoader_dfmesh(*meshDataSource, allocator);
-    else if (FileSystemHelpers::compareExtension(path, ".assxml"))
-        result = MeshLoader_assxml(*meshDataSource, allocator);
     else
         DF3D_ASSERT_MESS(false, "Unsupported mesh file format!");
+
+    svc().resourceManager().getFS().close(meshDataSource);
+
+    return result;
+}
+
+static AnimatedMeshResourceData *LoadAnimMeshDataFromFile(const char *path, Allocator &allocator)
+{
+    auto meshDataSource = svc().resourceManager().getFS().open(path);
+    if (!meshDataSource)
+        return nullptr;
+
+    auto result = MeshLoader_assxml(*meshDataSource, allocator);
 
     svc().resourceManager().getFS().close(meshDataSource);
 
@@ -190,6 +201,86 @@ void MeshHolder::destroyResource(Allocator &allocator)
     }
 
     MAKE_DELETE(allocator, m_resource->physicsMeshInterface);
+    MAKE_DELETE(allocator, m_resource);
+    m_resource = nullptr;
+}
+
+void AnimatedMeshHolder::listDependencies(ResourceDataSource &dataSource, std::vector<std::string> &outDeps)
+{
+    auto root = JsonUtils::fromFile(dataSource);
+    if (root.isNull())
+        return;
+
+    if (root.isMember("material_lib"))
+        outDeps.push_back(root["material_lib"].asString());
+}
+
+bool AnimatedMeshHolder::decodeStartup(ResourceDataSource &dataSource, Allocator &allocator)
+{
+    auto root = JsonUtils::fromFile(dataSource);
+    if (root.isNull())
+        return false;
+
+    if (root.isMember("material_lib"))
+        m_materialLib = Id(root["material_lib"].asCString());
+
+    DF3D_ASSERT(root.isMember("path"));
+
+    m_resourceData = LoadAnimMeshDataFromFile(root["path"].asCString(), allocator);
+
+    return m_resourceData != nullptr;
+}
+
+void AnimatedMeshHolder::decodeCleanup(Allocator &allocator)
+{
+    MAKE_DELETE(allocator, m_resourceData);
+    m_resourceData = nullptr;
+}
+
+bool AnimatedMeshHolder::createResource(Allocator &allocator)
+{
+    m_resource = MAKE_NEW(allocator, AnimatedMeshResource)();
+    m_resource->materialLibResourceId = m_materialLib;
+    m_resource->root = m_resourceData->root;
+
+    auto &backend = svc().renderManager().getBackend();
+
+    for (auto part : m_resourceData->parts)
+    {
+        m_resource->materialNames.push_back(Id(part->materialName.c_str()));
+        MeshPart hwPart;
+
+        auto &vData = part->vertexData;
+        hwPart.vertexBuffer = backend.createStaticVertexBuffer(vData.getFormat(), vData.getVerticesCount(), vData.getRawData());
+
+        if (part->indexData.size() > 0)
+        {
+            hwPart.indexBuffer = backend.createIndexBuffer(part->indexData.size(),
+                                                           part->indexData.data(),
+                                                           INDICES_16_BIT);
+
+            hwPart.numberOfElements = part->indexData.size();
+        }
+        else
+        {
+            hwPart.numberOfElements = vData.getVerticesCount();
+        }
+
+        m_resource->meshParts.push_back(hwPart);
+    }
+
+    return true;
+}
+
+void AnimatedMeshHolder::destroyResource(Allocator &allocator)
+{
+    for (const auto &hwPart : m_resource->meshParts)
+    {
+        svc().renderManager().getBackend().destroyVertexBuffer(hwPart.vertexBuffer);
+        if (hwPart.indexBuffer.isValid())
+            svc().renderManager().getBackend().destroyIndexBuffer(hwPart.indexBuffer);
+    }
+
     MAKE_DELETE(allocator, m_resource);
     m_resource = nullptr;
 }

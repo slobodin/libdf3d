@@ -28,6 +28,8 @@ static shared_ptr<IResourceHolder> CreateResourceHolder(const char *resourcePath
         resourceHolder = make_shared<MaterialLibHolder>();
     else if (FileSystemHelpers::compareExtension(resourcePath, ".mesh"))
         resourceHolder = make_shared<MeshHolder>();
+    else if (FileSystemHelpers::compareExtension(resourcePath, ".anim"))
+        resourceHolder = make_shared<AnimatedMeshHolder>();
     else if (FileSystemHelpers::compareExtension(resourcePath, ".vfx"))
         resourceHolder = make_shared<ParticleSystemHolder>();
     else if (FileSystemHelpers::compareExtension(resourcePath, ".entity"))

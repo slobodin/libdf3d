@@ -4,17 +4,10 @@
 #include <df3d/engine/resources/MeshResource.h>
 #include <df3d/engine/render/Vertex.h>
 #include <df3d/engine/render/MeshUtils.h>
+#include <df3d/lib/Utils.h>
 #include <pugixml/src/pugixml.hpp>
 
 namespace df3d {
-
-class AnimatedMeshNode
-{
-    std::string name;
-    glm::mat4 transform;
-    std::vector<AnimatedMeshNode*> children;
-    Mesh* mesh;
-};
 
 namespace {
 
@@ -139,9 +132,9 @@ glm::mat4 ReadTransformRecursive(pugi::xml_node n)
     return myMatrix * childMatrix;
 }
 
-MeshResourceData* ParseMeshes(pugi::xml_node meshListNode, Allocator &alloc)
+std::vector<shared_ptr<MeshResourceData::Part>> ParseMeshes(pugi::xml_node meshListNode, Allocator &alloc)
 {
-    auto result = MAKE_NEW(alloc, MeshResourceData)();
+    std::vector<shared_ptr<MeshResourceData::Part>> result;
 
     for (pugi::xml_node meshNode = meshListNode.child("Mesh"); meshNode; meshNode = meshNode.next_sibling("Mesh"))
     {
@@ -153,7 +146,7 @@ MeshResourceData* ParseMeshes(pugi::xml_node meshListNode, Allocator &alloc)
 
         auto vf = Vertex_p_n_tx_tan_bitan::getFormat();
 
-        auto meshPart = MAKE_NEW(alloc, MeshResourceData::Part)(vf, alloc);
+        auto meshPart = make_shared<MeshResourceData::Part>(vf, alloc);
         meshPart->indicesType = INDICES_16_BIT;
         meshPart->materialName = "02___Default";
         meshPart->indexData = ReadFaceList(meshNode.child("FaceList"), alloc);
@@ -174,7 +167,30 @@ MeshResourceData* ParseMeshes(pugi::xml_node meshListNode, Allocator &alloc)
         const auto vCount = meshPart->vertexData.getVerticesCount();
         MeshUtils::computeTangentBasis(vData, vCount);
 
-        result->parts.push_back(meshPart);
+        result.push_back(meshPart);
+    }
+
+    return result;
+}
+
+shared_ptr<AnimatedMeshNode> ParseNodes(pugi::xml_node rootNode)
+{
+    auto result = make_shared<AnimatedMeshNode>();
+
+    result->transform = ParseMatrix(rootNode.child("Matrix4").first_child().value());
+    result->name = rootNode.attribute("name").as_string();
+
+    if (!rootNode.child("MeshRefs").empty())
+    {
+        auto val = rootNode.child("MeshRefs").first_child().value();
+        result->meshIdx = df3d::utils::from_string<int>(val);
+    }
+
+    auto nodeList = rootNode.child("NodeList");
+    for (pugi::xml_node n = nodeList.child("Node"); n; n = n.next_sibling("Node"))
+    {
+        auto child = ParseNodes(n);
+        result->children.push_back(child);
     }
 
     return result;
@@ -182,26 +198,16 @@ MeshResourceData* ParseMeshes(pugi::xml_node meshListNode, Allocator &alloc)
 
 }
 
-MeshResourceData* MeshLoader_assxml(ResourceDataSource &dataSource, Allocator &alloc)
+AnimatedMeshResourceData* MeshLoader_assxml(ResourceDataSource &dataSource, Allocator &alloc)
 {
     auto doc = ParseDoc(dataSource);
 
-    auto mesh = ParseMeshes(doc.child("ASSIMP").child("Scene").child("MeshList"), alloc);
+    auto result = MAKE_NEW(alloc, AnimatedMeshResourceData)();
 
-    std::vector<glm::mat4> transforms;
-    auto rootNode = doc.child("ASSIMP").child("Scene").child("Node").child("NodeList");
-    for (pugi::xml_node n = rootNode.child("Node"); n; n = n.next_sibling("Node"))
-    {
-        auto tr = ReadTransformRecursive(n);
-        transforms.push_back(tr);
-    }
+    result->parts = ParseMeshes(doc.child("ASSIMP").child("Scene").child("MeshList"), alloc);
+    result->root = ParseNodes(doc.child("ASSIMP").child("Scene").child("Node"));
 
-    DF3D_ASSERT(transforms.size() == mesh->parts.size());
-
-    for (size_t i = 0; i < mesh->parts.size(); i++)
-        mesh->parts[i]->transform = transforms[i];
-
-    return mesh;
+    return result;
 }
 
 }

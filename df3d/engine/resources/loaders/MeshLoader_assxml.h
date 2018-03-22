@@ -2,9 +2,9 @@
 
 namespace df3d {
 
-struct MeshResourceData;
+struct AnimatedMeshResourceData;
 class ResourceDataSource;
 
-MeshResourceData* MeshLoader_assxml(ResourceDataSource &dataSource, Allocator &alloc);
+AnimatedMeshResourceData* MeshLoader_assxml(ResourceDataSource &dataSource, Allocator &alloc);
 
 }
