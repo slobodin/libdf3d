@@ -19,8 +19,10 @@ class AnimatedMeshComponentProcessor : public EntityComponentProcessor
         std::vector<Material> materials;
         shared_ptr<AnimatedMeshNode> root;
         int64_t frameCounter = 0;
+        int maxFrames = 0;
         df3d::Entity holder;
         float timer = 0.0f;
+        bool animating = false;
     };
 
     ComponentDataHolder<Data> m_data;
@@ -35,7 +37,9 @@ public:
     AnimatedMeshComponentProcessor(World &world);
     ~AnimatedMeshComponentProcessor();
 
-    void add(Entity e, Id meshResource);
+    void startAnimation(Entity e);
+
+    void add(Entity e, Id meshResource, int framesCount);
     void remove(Entity e) override;
     bool has(Entity e) override;
 };

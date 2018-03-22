@@ -52,7 +52,7 @@ std::vector<glm::vec3> ReadArrayVec3(pugi::xml_node n)
     return result;
 }
 
-std::vector<glm::vec2> ReadArrayVec2(pugi::xml_node n)
+std::vector<glm::vec2> ReadArrayVec2_UV(pugi::xml_node n)
 {
     auto numValues = n.attribute("num").as_int();
     auto numComponents = n.attribute("num_components").as_int();
@@ -71,6 +71,8 @@ std::vector<glm::vec2> ReadArrayVec2(pugi::xml_node n)
         auto read = sscanf(data, "%f %f%n", &v.x, &v.y, &offset);
 
         DF3D_ASSERT(read == 2);
+
+        v.y = 1.0f - v.y;
 
         result.push_back(v);
         data += offset;
@@ -140,7 +142,7 @@ std::vector<shared_ptr<MeshResourceData::Part>> ParseMeshes(pugi::xml_node meshL
     {
         auto positions = ReadArrayVec3(meshNode.child("Positions"));
         auto normals = ReadArrayVec3(meshNode.child("Normals"));
-        auto txCoords = ReadArrayVec2(meshNode.child("TextureCoords"));
+        auto txCoords = ReadArrayVec2_UV(meshNode.child("TextureCoords"));
 
         DF3D_ASSERT(positions.size() == normals.size() && normals.size() == txCoords.size());
 
