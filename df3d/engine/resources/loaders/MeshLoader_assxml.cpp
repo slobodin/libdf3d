@@ -15,8 +15,7 @@ pugi::xml_document ParseDoc(ResourceDataSource &dataSource)
 {
     pugi::xml_document doc;
 
-    std::string buffer;
-    buffer.resize(dataSource.getSize());
+    std::vector<uint8_t> buffer(dataSource.getSize());
     dataSource.read(buffer.data(), buffer.size());
 
     pugi::xml_parse_result result = doc.load_buffer(buffer.data(), buffer.size());
@@ -118,20 +117,6 @@ glm::mat4 ParseMatrix(const char *data)
     auto m = glm::mat4(row1, row2, row3, row4);
 
     return glm::transpose(m);
-}
-
-glm::mat4 ReadTransformRecursive(pugi::xml_node n)
-{
-    if (!n.child("MeshRefs").empty())
-        return glm::mat4(1.0f);
-
-    auto children = n.child("NodeList");
-    DF3D_ASSERT(children.attribute("num").as_int() == 1);
-
-    auto myMatrix = ParseMatrix(n.child("Matrix4").first_child().value());
-    auto childMatrix = ReadTransformRecursive(children.child("Node"));
-
-    return myMatrix * childMatrix;
 }
 
 std::vector<shared_ptr<MeshResourceData::Part>> ParseMeshes(pugi::xml_node meshListNode, Allocator &alloc)
