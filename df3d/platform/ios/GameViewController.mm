@@ -15,7 +15,7 @@
 static GameViewController* g_viewController;
 
 namespace df3d {
-
+    
 bool IOSDeviceOrientationIsLandscapeLeft()
 {
 #ifndef DF3D_APPLETV
@@ -57,6 +57,8 @@ void StopAccelerometerListenerIOS()
 @implementation DF3DView {
     int m_viewportX;
     int m_viewportY;
+    
+    float m_screenScale;
 }
 
 - (void)mtkView:(MTKView *)view drawableSizeWillChange:(CGSize)size
@@ -72,13 +74,16 @@ void StopAccelerometerListenerIOS()
 
 - (bool) startupEngine
 {
-    CGSize size = [self getDisplaySize];
+    CGSize screenSize = [[UIScreen mainScreen] nativeBounds].size;
+    
+    if (UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation))
+        std::swap(screenSize.width, screenSize.height);
 
     assert(df3d::AppDelegate::getInstance() != nullptr);
 
     auto engineInitParams = df3d::AppDelegate::getInstance()->getInitParams();
-    engineInitParams.windowWidth = size.width;
-    engineInitParams.windowHeight = size.height;
+    engineInitParams.windowWidth = screenSize.width;
+    engineInitParams.windowHeight = screenSize.height;
     engineInitParams.hardwareData = self;
 
     if (!df3d::EngineInit(engineInitParams)) {
@@ -119,21 +124,14 @@ void StopAccelerometerListenerIOS()
     return true;
 }
 
-- (CGSize)getDisplaySize
-{
-    CGSize size = self.bounds.size;
-    CGFloat scale = self.contentScaleFactor;
-    size.width *= scale;
-    size.height *= scale;
-    return size;
-}
-
 - (instancetype) initWithFrame:(CGRect)frame device:(id<MTLDevice>)device
 {
     if (!device) {
         NSLog(@"Failed to init View. Metal device is not available");
         return nil;
     }
+    
+    m_screenScale = [[UIScreen mainScreen] nativeScale];
 
     self = [super initWithFrame:frame device:device];
 
@@ -144,7 +142,6 @@ void StopAccelerometerListenerIOS()
 #ifndef DF3D_APPLETV
         self.multipleTouchEnabled = true;
 #endif
-        self.contentScaleFactor = [UIScreen mainScreen].scale;
         [self setPreferredFramesPerSecond:60.0];
         [self setColorPixelFormat:MTLPixelFormatBGRA8Unorm];
         [self setDepthStencilPixelFormat:MTLPixelFormatDepth32Float];
@@ -166,8 +163,8 @@ void StopAccelerometerListenerIOS()
     for (UITouch *touch in touches)
     {
         CGPoint point = [touch locationInView: self];
-        point.x *= self.contentScaleFactor;
-        point.y *= self.contentScaleFactor;
+        point.x *= m_screenScale;
+        point.y *= m_screenScale;
         auto pointerId = reinterpret_cast<uintptr_t>(touch);
 
         df3d::svc().inputManager().onTouch(pointerId, point.x, point.y, state);
@@ -400,7 +397,7 @@ void StopAccelerometerListenerIOS()
 
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
-    m_metalView = [[DF3DView alloc] initWithFrame:self.view.bounds device:MTLCreateSystemDefaultDevice()];
+    m_metalView = [[DF3DView alloc] initWithFrame:[[UIScreen mainScreen] bounds] device:MTLCreateSystemDefaultDevice()];
     [self.view addSubview:m_metalView];
 
 #ifndef DF3D_APPLETV
