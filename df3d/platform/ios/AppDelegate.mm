@@ -38,7 +38,6 @@ void Application::showCursor(bool)
     CGRect mainScreenSize = mainScreen.bounds;
 
     self.window = [[UIWindow alloc] initWithFrame:mainScreenSize];
-    self.window.backgroundColor = [UIColor blackColor];
     self.window.rootViewController = [[GameViewController new] autorelease];
     [self.window makeKeyAndVisible];
 
