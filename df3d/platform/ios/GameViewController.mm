@@ -358,6 +358,10 @@ void StopAccelerometerListenerIOS()
     return YES;
 }
 
+- (BOOL)prefersHomeIndicatorAutoHidden {
+    return YES;
+}
+
 #ifndef DF3D_APPLETV
 
 - (void) startAccelerometerListener
