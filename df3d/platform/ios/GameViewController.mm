@@ -76,8 +76,10 @@ void StopAccelerometerListenerIOS()
 {
     CGSize screenSize = [[UIScreen mainScreen] nativeBounds].size;
     
+#ifndef DF3D_APPLETV
     if (UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation))
         std::swap(screenSize.width, screenSize.height);
+#endif
 
     assert(df3d::AppDelegate::getInstance() != nullptr);
 
