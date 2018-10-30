@@ -46,7 +46,8 @@ class GamePadHelper implements InputManager.InputDeviceListener {
     private native void nativeControllerThumbStickEvent(boolean isLeft, float x, float y);
 
     private boolean deviceIsJoystick(InputDevice device) {
-        return (device.getSources() & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK;
+        return ((device.getSources() & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK)
+                ||((device.getSources() & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD);
     }
 
     private void addJoystick(final int deviceId) {
@@ -218,8 +219,11 @@ class GamePadHelper implements InputManager.InputDeviceListener {
             if (device == null) {
                 return null;
             }
-            state = new InputDeviceState(device);
-            mInputDeviceStates.put(deviceId, state);
+            if (deviceIsJoystick(device))
+            {
+                state = new InputDeviceState(device);
+                mInputDeviceStates.put(deviceId, state);
+            }
 //            MyLog.i(TAG, "Device enumerated: " + state.mDevice);
         }
         return state;
@@ -229,17 +233,8 @@ class GamePadHelper implements InputManager.InputDeviceListener {
         mActivity = activity;
         mInputManager = (InputManager)activity.getSystemService(Context.INPUT_SERVICE);
         mInputDeviceStates = new SparseArray<>();
-    }
-
-    void onPause() {
-        mInputManager.unregisterInputDeviceListener(this);
-    }
-
-    void onResume() {
         mInputManager.registerInputDeviceListener(this, null);
 
-        // Query all input devices.
-        // We do this so that we can see them in the log as they are enumerated.
         int[] ids = mInputManager.getInputDeviceIds();
         for (int id : ids) {
             InputDeviceState state = getInputDeviceState(id);

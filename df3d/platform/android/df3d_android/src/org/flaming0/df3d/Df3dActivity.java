@@ -77,15 +77,12 @@ public class Df3dActivity extends Activity {
         m_glSurfaceView.onPause();
 
         super.onPause();
-
-        mGamePadHelper.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        mGamePadHelper.onResume();
         m_glSurfaceView.onResume();
 
         m_appRunning = true;
