@@ -11,7 +11,7 @@ else()
 endif()
 
 if (DF3D_WINDOWS)
-    set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_win32" CACHE PATH "third-party")
+    set (CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/third-party/prebuilt_win64" CACHE PATH "third-party")
 endif()
 
 set(libdf3d_HEADER_LIST
@@ -336,7 +336,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/turbobadger)
 if (DF3D_DESKTOP)
     add_subdirectory(${PROJECT_SOURCE_DIR}/tools/obj_to_dfmesh)
     add_subdirectory(${PROJECT_SOURCE_DIR}/tools/atlas_packer)
-    # add_subdirectory(${PROJECT_SOURCE_DIR}/tools/glsl_preprocess)
 endif()
 
 target_link_libraries(libdf3d
