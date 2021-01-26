@@ -9,8 +9,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Debug;
-import android.support.annotation.Keep;
-import android.util.Log;
+
+import androidx.annotation.Keep;
+
 import java.util.Calendar;
 import java.util.Locale;
 

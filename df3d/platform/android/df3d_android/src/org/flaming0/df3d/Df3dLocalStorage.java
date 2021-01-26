@@ -2,7 +2,9 @@ package org.flaming0.df3d;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.Keep;
+
+import androidx.annotation.Keep;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

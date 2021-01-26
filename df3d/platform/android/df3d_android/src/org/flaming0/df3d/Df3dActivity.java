@@ -2,8 +2,7 @@ package org.flaming0.df3d;
 
 import android.app.Activity;
 import android.os.Build;
-import android.os.Bundle;
-import android.support.annotation.Keep;
+import android.os.Bundle;;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -111,15 +110,14 @@ public class Df3dActivity extends Activity {
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event)
     {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_BACK:
-                runOnMainThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        nativeHardwareBackPressed(false);
-                    }
-                });
-                return true;
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            runOnMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    nativeHardwareBackPressed(false);
+                }
+            });
+            return true;
         }
 
         return super.onKeyUp(keyCode, event);
@@ -128,15 +126,14 @@ public class Df3dActivity extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_BACK:
-                runOnMainThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        nativeHardwareBackPressed(true);
-                    }
-                });
-                return true;
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            runOnMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    nativeHardwareBackPressed(true);
+                }
+            });
+            return true;
         }
 
         return super.onKeyDown(keyCode, event);
@@ -144,32 +141,27 @@ public class Df3dActivity extends Activity {
 
     private void enableFullscreen()
     {
-        if (Build.VERSION.SDK_INT >= 16) {
-            int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
+        int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
 
-            uiOptions |= View.SYSTEM_UI_FLAG_FULLSCREEN;
+        uiOptions |= View.SYSTEM_UI_FLAG_FULLSCREEN;
 
-            if (Build.VERSION.SDK_INT >= 19) {
-                uiOptions |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-                uiOptions |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-                uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-                uiOptions |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
-                uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-            }
-
-            final int opts = uiOptions;
-            setUiVisibilityRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    getWindow().getDecorView().setSystemUiVisibility(opts);
-                }
-            };
-
-            setUiVisibilityRunnable.run();
-        } else {
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if (Build.VERSION.SDK_INT >= 19) {
+            uiOptions |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+            uiOptions |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+            uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            uiOptions |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+            uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         }
+
+        final int opts = uiOptions;
+        setUiVisibilityRunnable = new Runnable() {
+            @Override
+            public void run() {
+                getWindow().getDecorView().setSystemUiVisibility(opts);
+            }
+        };
+
+        setUiVisibilityRunnable.run();
     }
 
     protected void onGameInitializationFailed()

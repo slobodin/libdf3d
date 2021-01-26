@@ -1,11 +1,11 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 30
 
     defaultConfig {
         minSdkVersion 17
-        targetSdkVersion 27
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
     }
@@ -19,6 +19,6 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-annotations:27.0.2'
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api 'com.android.support:support-annotations:28.0.0'
 }
