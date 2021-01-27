@@ -43,7 +43,7 @@ elseif (${DF3D_PLATFORM} STREQUAL ANDROID)
     set(DF3D_ANDROID true)
 
     add_definitions(-DDF3D_ANDROID)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wno-inconsistent-missing-override -Wall")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wno-inconsistent-missing-override -Wall")
 
     message(STATUS "Platform - Android")
     message(STATUS "Android ABI is " ${ANDROID_ABI})
@@ -83,10 +83,10 @@ if (DF3D_IOS)
     set(CMAKE_C_FLAGS_INIT "-fembed-bitcode")
     set(CMAKE_CXX_FLAGS_INIT "-fvisibility=hidden -fvisibility-inlines-hidden")
 
-    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++14")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++17")
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -stdlib=libc++ -Wno-inconsistent-missing-override -Wno-conversion -Wall")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -stdlib=libc++ -Wno-inconsistent-missing-override -Wno-conversion -Wall")
 
     set(CMAKE_OSX_ARCHITECTURES "arm64")
 
@@ -101,10 +101,10 @@ endif()
 if (DF3D_OSX)
     add_definitions(-DZ_HAVE_UNISTD_H) # Hack for zlib
 
-    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++14")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++17")
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -stdlib=libc++ -Wno-inconsistent-missing-override -Wno-conversion -Wall")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -stdlib=libc++ -Wno-inconsistent-missing-override -Wno-conversion -Wall")
 endif()
 
 if (DF3D_WINDOWS)
